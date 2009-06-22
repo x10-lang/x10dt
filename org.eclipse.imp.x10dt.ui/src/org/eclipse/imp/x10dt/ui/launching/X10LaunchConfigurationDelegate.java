@@ -23,12 +23,11 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.runtime.RuntimePlugin;
-import org.eclipse.imp.x10dt.core.X10DTCorePlugin;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.X10Util;
-import org.eclipse.imp.x10dt.ui.X10DTUIPlugin;
+import org.eclipse.imp.x10dt.ui.X10UIPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstall2;
@@ -58,7 +57,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 			if (!vm2.getJavaVersion().startsWith("1.5") && !vm2.getJavaVersion().startsWith("1.6")) {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
-						Shell shell = X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+						Shell shell = X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
 						String projectName = "";
 						try {
 							projectName = configuration.getAttribute("org.eclipse.jdt.launching.PROJECT_ATTR", "");
@@ -98,7 +97,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
     }
 
     public void launch(final ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
-		boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
+		// boolean debug= mode.equals(ILaunchManager.DEBUG_MODE);
 
 		if (monitor == null) {
 			monitor = new NullProgressMonitor();
@@ -113,7 +112,6 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		monitor.subTask("Verifying launch attributes");
 
 		String mainTypeName = verifyMainTypeName(configuration);
-		if(debug)System.out.println("mainTypeName: "+mainTypeName);
 		IVMRunner runner = getVMRunner(configuration, mode);
 
 		File workingDir = verifyWorkingDirectory(configuration);
@@ -147,7 +145,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		if (x10RuntimeLoc.length() == 0) {
 			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					Shell shell = X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
+					Shell shell = X10UIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
 					MessageDialog.openError(shell, "Please specify the X10 Runtime location",
 							"The location of the X10 Runtime is unset in the launch configuration '" + configuration.getName() + "'.");
 				}
@@ -172,8 +170,8 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		String locnDir = getDir(x10RuntimeLoc);
 		// PORT1.7 -- common and constraints jars also need to be added to classpath
 
-		String commonJar=X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_COMMON_BUNDLE_ID);
-		String constraintsJar=X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_CONSTRAINTS_BUNDLE_ID);
+		String commonJar=X10Util.getJarLocationForBundle(X10Plugin.X10_COMMON_BUNDLE_ID);
+		String constraintsJar=X10Util.getJarLocationForBundle(X10Plugin.X10_CONSTRAINTS_BUNDLE_ID);
 
 		classpathList.add(commonJar);
 		classpathList.add(constraintsJar);
@@ -184,7 +182,7 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 			String path = classpathList.get(i);
 			File file = new File(path);
 			if (!file.exists()) {
-				X10DTCorePlugin.getInstance().writeErrorMsg("X10LaunchConfigurationDelegate, cannot find expected part of runtime path: " + path);
+				X10Plugin.getInstance().writeErrorMsg("X10LaunchConfigurationDelegate, cannot find expected part of runtime path: " + path);
 			}
 
 		}
@@ -210,11 +208,11 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		VMRunnerConfiguration runConfig = new VMRunnerConfiguration(x10RuntimeType, classPathExpanded);
 		String[] explicitRuntimeArgsArray = execArgs.getRuntimeArgumentsArray();
 		String[] explicitProgArgsArray = execArgs.getProgramArgumentsArray();
-		String[] realArgsArray = new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length /* PORT1.7  + 1*/];
+		String[] realArgsArray = new String[explicitProgArgsArray.length + explicitRuntimeArgsArray.length + 1];
 
 		System.arraycopy(explicitRuntimeArgsArray, 0, realArgsArray, 0, explicitRuntimeArgsArray.length);
-		//realArgsArray[explicitRuntimeArgsArray.length] = mainTypeName;// PORT1.7  1.5 required main as first arg to launch
-		System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length /* PORT1.7  + 1*/, explicitProgArgsArray.length);
+		realArgsArray[explicitRuntimeArgsArray.length] = mainTypeName;
+		System.arraycopy(explicitProgArgsArray, 0, realArgsArray, explicitRuntimeArgsArray.length + 1, explicitProgArgsArray.length);
 
 		// DLLs were for testcases??? in 1.5 needed some native code. but not
 		// any more.
@@ -256,11 +254,6 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		setDefaultSourceLocator(launch, configuration);
 		monitor.worked(1);
 
-		if(debug) {
-			System.out.println("runConfig classToLaunch: "+runConfig.getClassToLaunch());
-			System.out.println("runConfig program args: "+printArray(runConfig.getProgramArguments()));
-			System.out.println("runConfig VM args: "+printArray(runConfig.getVMArguments()));
-		}
 		// Launch the configuration - 1 unit of work
 		runner.run(runConfig, launch, monitor);
 
@@ -271,16 +264,6 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 		monitor.done();
 	}
-    private String printArray(String[] arg) {
-    	StringBuffer buf = new StringBuffer();
-    	buf.append("[");
-    	for (String a : arg) {
-			buf.append(a);
-			buf.append(", ");
-		}
-    	buf.append("]");
-    	return buf.toString();
-    }
 
 
 	private String getDir(String pathLocation) {
