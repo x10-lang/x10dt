@@ -38,18 +38,15 @@
 		<property name="temp.folder" value="${basedir}/temp.folder"/>
 
 		<!-- LPG-related properties for plugins with grammar files -->
-		<property name="lpg.runtime.location" value="../lpg.runtime.java"/>
-		<property name="lpg.generator.location" value="../lpg.generator"/>
-		<!--
+		<property name="lpg.location" value="../lpg.runtime.java"/>
 		<property name="lpg.executable" location="../lpg.generator.${baseos}_${os.arch}/lpgexe/lpg-${baseos}_${os.arch}"/>
-		-->
-		<property name="lpg.executable" location="../lpg.generator.macosx_x86/lpgexe/lpg-macosx_x86"/>
-		<property name="lpg.templates" location="${lpg.generator.location}/templates/java"/>
-		<property name="lpg.include" location="${lpg.generator.location}/include/java"/>
+		<property name="lpg.templates" location="${lpg.location}/templates"/>
+		<property name="lpg.metatooling.location" value="../org.eclipse.imp.lpg.metatooling"/>
+		<property name="lpg.metatooling.templates" location="${lpg.metatooling.location}/templates"/>
 	</target>
 
 	<target name="javaInit" description="Initializes compiler settings from bundle meta-data">
-		<loadfile property="javacSource" srcfile=".settings/org.eclipse.jdt.core.prefs" failonerror="true">
+		<loadfile property="javacSource" srcfile=".settings/org.eclipse.jdt.core.prefs">
 			<filterchain>
 				<containsregex pattern="org.eclipse.jdt.core.compiler.source"/>
 				<replaceregex pattern="org.eclipse.jdt.core.compiler.source=(.*)" replace="\1"/>
@@ -58,7 +55,7 @@
 		</loadfile>
 		<echo message="Java source compatibility = ${javacSource}"/>
 
-		<loadfile property="javacTarget" srcfile=".settings/org.eclipse.jdt.core.prefs" failonerror="true">
+		<loadfile property="javacTarget" srcfile=".settings/org.eclipse.jdt.core.prefs">
 			<filterchain>
 				<containsregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform"/>
 				<replaceregex pattern="org.eclipse.jdt.core.compiler.codegen.targetPlatform=(.*)" replace="\1"/>
@@ -73,17 +70,16 @@
 			<filterchain>
 				<tokenfilter>
 					<filetokenizer/>
-					<replaceregex pattern=";bundle-version=&quot;[.0-9]+&quot;" replace="" flags="gs"/>
 					<replaceregex pattern=",[\r\n]* *" replace="," flags="gs"/>
 				</tokenfilter>
 				<containsregex pattern="Require-Bundle: "/>
 				<replaceregex pattern="Require-Bundle: (.*)" replace="\1"/>
 				<!-- Filter out Eclipse plugins that are handled by eclipse.build.path -->
-                <replaceregex pattern="com\.ibm\.icu[^,]*,?"         replace="" flags="g"/>
+                                <replaceregex pattern="com\.ibm\.icu[^,]*,?"         replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.compare[^,]*,?" replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.core[^,]*,?"    replace="" flags="g"/>
-                <replaceregex pattern="org\.eclipse\.debug[^,]*,?"   replace="" flags="g"/>
-                <replaceregex pattern="org\.eclipse\.help[^,]*,?"    replace="" flags="g"/>
+                                <replaceregex pattern="org\.eclipse\.debug[^,]*,?"   replace="" flags="g"/>
+                                <replaceregex pattern="org\.eclipse\.help[^,]*,?"    replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.jdt[^,]*,?"     replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.jface[^,]*,?"   replace="" flags="g"/>
 				<replaceregex pattern="org\.eclipse\.ltk[^,]*,?"     replace="" flags="g"/>
@@ -95,12 +91,10 @@
 				<replaceregex pattern="org\.junit[^,]*,?"            replace="" flags="g"/>
 				<!-- Make dependencies on "local" (non-Eclipse) plugins use a relative path -->
 				<replaceregex pattern=",lpg.runtime,?" replace=",lpg.runtime.java,"/>
-				<replaceregex pattern="org.eclipse.imp.analysis.p3,?" replace="org.eclipse.imp.analysis,"/>
-				<replaceregex pattern="polyglot3,?" replace="polyglot3-dev,"/>
-				<replaceregex pattern="([-a-zA-Z0-9]+(\.[-a-zA-Z0-9]+)*),?" replace="../\1/bin;../\1/classes;" flags="g"/>
+				<replaceregex pattern="([a-zA-Z0-9]+(\.[a-zA-Z0-9]+)*),?" replace="../\1/bin;../\1/classes;" flags="g"/>
 			</filterchain>
 		</loadfile>
-		<echo message="Non-Eclipse plugin dependencies:"/>
+		<echo message="Non-Eclipse Plugin dependencies:"/>
 		<echo message="${plugin.dependencies}"/>
 	</target>
 

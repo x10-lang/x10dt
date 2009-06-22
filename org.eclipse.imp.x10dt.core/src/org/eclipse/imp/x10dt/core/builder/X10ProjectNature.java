@@ -1,3 +1,15 @@
+/*******************************************************************************
+* Copyright (c) 2008 IBM Corporation.
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+
+*******************************************************************************/
+
 /*
  * (C) Copyright IBM Corporation 2007
  * 
@@ -10,17 +22,17 @@ import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 import org.eclipse.imp.x10dt.core.X10Plugin;
 
-import com.ibm.watson.smapifier.builder.SmapiProjectNature;
+import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 
 public class X10ProjectNature extends ProjectNatureBase {
     public static final String k_natureID= X10Plugin.kPluginID + ".x10nature";
 
     public String getNatureID() {
-	return k_natureID;
+        return k_natureID;
     }
 
     public String getBuilderID() {
-	return X10Builder.BUILDER_ID;
+        return X10Builder.BUILDER_ID;
     }
 
     public void addToProject(IProject project) {
@@ -31,10 +43,10 @@ public class X10ProjectNature extends ProjectNatureBase {
     protected void refreshPrefs() {}
 
     protected String getDownstreamBuilderID() {
-	return "org.eclipse.jdt.core.javabuilder";
+        return "org.eclipse.jdt.core.javabuilder";
     }
 
     public IPluginLog getLog() {
-	return X10Plugin.getInstance();
+        return X10Plugin.getInstance();
     }
 }

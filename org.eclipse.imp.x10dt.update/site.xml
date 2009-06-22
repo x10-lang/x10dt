@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <description>
-      This update site hosts the distribution for the X10 Development Toolkit (X10DT) for X10 1.7.
+   <description url="http://eclipse-imp.sourceforge.net/updates/">
+      This update site hosts the distribution for the X10 Development Toolkit (X10DT).
    </description>
-   <feature url="features/org.eclipse.imp.x10dt_1.7.4.0.jar" id="org.eclipse.imp.x10dt" version="1.7.4.0">
-      <category name="x10dt"/>
+   <feature url="features/org.eclipse.imp.x10dt_0.1.87.jar" id="org.eclipse.imp.x10dt" version="0.1.87">
+      <category name="X10 Development Tools"/>
    </feature>
-   <feature url="features/lpg.runtime_2.0.17.jar" id="lpg.runtime" version="2.0.17">
-      <category name="other"/>
+   <feature url="features/org.eclipse.imp.x10dt_0.1.88.jar" id="org.eclipse.imp.x10dt" version="0.1.88">
+      <category name="X10 Development Tools"/>
    </feature>
-   <feature url="features/polyglot3_3.0.2.jar" id="polyglot3" version="3.0.2">
-      <category name="other"/>
+   <feature url="features/org.eclipse.imp.x10dt_0.1.89.jar" id="org.eclipse.imp.x10dt" version="0.1.89">
+      <category name="X10 Development Tools"/>
    </feature>
-   <feature url="features/org.eclipse.imp.runtime_0.1.99.jar" id="org.eclipse.imp.runtime" version="0.1.99">
-      <category name="other"/>
+   <feature url="features/org.eclipse.imp.x10dt_0.1.90.jar" id="org.eclipse.imp.x10dt" version="0.1.90">
+      <category name="X10 Development Tools"/>
    </feature>
-   <category-def name="x10dt" label="X10 Development Toolkit (X10DT)"/>
-   <category-def name="other" label="X10DT pre-requisites"/>
+   <feature url="features/org.eclipse.imp.x10dt_0.1.91.jar" id="org.eclipse.imp.x10dt" version="0.1.91">
+      <category name="X10 Development Tools"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.x10dt_0.1.92.jar" id="org.eclipse.imp.x10dt" version="0.1.92">
+      <category name="X10 Development Tools"/>
+   </feature>
+   <feature url="features/org.eclipse.imp.x10dt_0.1.93.jar" id="org.eclipse.imp.x10dt" version="0.1.93">
+      <category name="X10 Development Tools"/>
+   </feature>
+   <category-def name="X10 Development Tools" label="X10 Development Tools"/>
 </site>
