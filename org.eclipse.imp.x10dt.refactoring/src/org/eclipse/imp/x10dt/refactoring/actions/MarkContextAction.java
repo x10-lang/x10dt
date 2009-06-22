@@ -41,7 +41,7 @@ public class MarkContextAction extends TextEditorAction {
     }
 
     private static Annotation findCurrentAnnotation(IAnnotationModel annotationModel) {
-        @SuppressWarnings("unchecked") Iterator annoIter= annotationModel.getAnnotationIterator();
+        Iterator annoIter= annotationModel.getAnnotationIterator();
         for(; annoIter.hasNext(); ) {
             Annotation ann= (Annotation) annoIter.next();
 

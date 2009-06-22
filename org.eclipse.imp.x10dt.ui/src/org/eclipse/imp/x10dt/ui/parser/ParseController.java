@@ -7,8 +7,14 @@
 *
 * Contributors:
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+
 *******************************************************************************/
 
+/*
+ * (C) Copyright IBM Corporation 2007
+ * 
+ * This file is part of the Eclipse IMP.
+ */
 package org.eclipse.imp.x10dt.ui.parser;
 
 import java.io.File;
@@ -57,9 +63,12 @@ public class ParseController extends SimpleLPGParseController {
         return fCompiler;
     }
 
+    /**
+     * was getNodeLocator
+     */
     @Override
     public ISourcePositionLocator getSourcePositionLocator() {
-    	return new PolyglotNodeLocator(fProject, getLexer() != null ? getLexer().getILexStream() : null);
+    	return new PolyglotNodeLocator(fProject, null /*getLexer().getLexStream()*/);
     }
 
     public ILanguageSyntaxProperties getSyntaxProperties() {

@@ -10,7 +10,6 @@ import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IASTFindReplaceTarget;
 import org.eclipse.imp.x10dt.refactoring.utils.NodePathComputer;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.Position;
 import org.eclipse.ltk.core.refactoring.Change;
 import org.eclipse.ltk.core.refactoring.Refactoring;
@@ -38,7 +37,7 @@ public abstract class X10RefactoringBase extends Refactoring {
     /**
      * The editor from which the refactoring was initiated
      */
-    protected ITextEditor fEditor;
+    protected IASTFindReplaceTarget fEditor;
 
     protected ISourcePositionLocator fNodeLocator;
 
@@ -63,22 +62,20 @@ public abstract class X10RefactoringBase extends Refactoring {
     private String fLineTerminator;
 
     protected X10RefactoringBase(ITextEditor editor) {
-        fEditor= editor;
+        fEditor= (IASTFindReplaceTarget) editor;
 
         IEditorInput input= editor.getEditorInput();
-        IParseController parseController= ((IASTFindReplaceTarget) fEditor).getParseController();
+        IParseController parseController= fEditor.getParseController();
 
-        fNodeLocator= parseController.getSourcePositionLocator();
+        fNodeLocator= fEditor.getParseController().getSourcePositionLocator();
         fSourceAST= (SourceFile) parseController.getCurrentAst();
 
         if (input instanceof IFileEditorInput) {
             IFileEditorInput fileInput= (IFileEditorInput) input;
 
             fSourceFile= fileInput.getFile();
-            fSelNodes= determineSelectedNodes();
+            fSelNodes= findNodes();
         } else {
-            // TODO How to handle case where we can't get an IFile?
-            // Various sub-classes ultimately create a TextFileChange, which needs an IFile...
             fSelNodes= null;
             fSourceFile= null;
         }
@@ -95,7 +92,7 @@ public abstract class X10RefactoringBase extends Refactoring {
      * entirety of the innermost enclosing AST node, that node is returned;
      * otherwise, the set of nodes contained within the selection is returned.
      */
-    public List<Node> determineSelectedNodes() {
+    public List<Node> findNodes() {
         Point sel= trimSelection();
         int selOffset= sel.x;
         int selEnd= sel.x + sel.y - 1;
@@ -167,10 +164,10 @@ public abstract class X10RefactoringBase extends Refactoring {
      * is the starting offset of the selection, and the y coordinate is its length.
      */
     protected Point trimSelection() {
-        ITextSelection textSel= (ITextSelection) fEditor.getSelectionProvider().getSelection();
-        String text= textSel.getText();
-        int start= textSel.getOffset();
-        int end= textSel.getOffset() + textSel.getLength() - 1;
+        Point sel= fEditor.getSelection();
+        String text= fEditor.getSelectionText();
+        int start= sel.x;
+        int end= sel.x + sel.y - 1;
         for(int i=0; i < text.length(); i++) {
             if (Character.isWhitespace(text.charAt(i))) {
                 start++;
