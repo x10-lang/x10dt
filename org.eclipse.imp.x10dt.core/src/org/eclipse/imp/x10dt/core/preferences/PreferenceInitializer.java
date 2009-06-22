@@ -1,12 +1,9 @@
-	package com.ibm.watson.safari.x10.preferences;
-
-import java.io.File;
+package org.eclipse.imp.x10dt.core.preferences;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.SafariPreferencesUtilities;
-
-import com.ibm.watson.safari.x10.X10Plugin;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesUtilities;
+import org.eclipse.imp.x10dt.core.X10Plugin;
 
 /**
  * Initializes X10 preference default values.
@@ -33,23 +30,23 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 //        store.setDefault(PreferenceConstants.P_SAMPLING_FREQ, 50);
 //        store.setDefault(PreferenceConstants.P_STATS_DISABLE, "none");
     	
-		ISafariPreferencesService service = X10Plugin.getPreferencesService();
+		IPreferencesService service = X10Plugin.getPreferencesService();
 	
 		service.setBooleanPreference(
-			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_EMIT_MESSAGES, true);
+			IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_EMIT_MESSAGES, true);
 		service.setBooleanPreference(
-			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_AUTO_ADD_RUNTIME, false);
+			IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_AUTO_ADD_RUNTIME, false);
 		service.setStringPreference(
-			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_X10CONFIG_NAME, SafariPreferencesUtilities.comboDefaultName);	//"standard");
+			IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_X10CONFIG_NAME, PreferencesUtilities.comboDefaultName);	//"standard");
 
 		// RMF 2/26/2007 - DON'T use File.separator in the following; it's used to find a
 		// resource inside a bundle, and "etc\\standard.cfg" is incorrect.
 		service.setStringPreference(
-			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_X10CONFIG_FILE, "etc/standard.cfg");
+			IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_X10CONFIG_FILE, "etc/standard.cfg");
 		service.setIntPreference(
-			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_SAMPLING_FREQ, 50);
+			IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_SAMPLING_FREQ, 50);
 		service.setStringPreference(
-			ISafariPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_STATS_DISABLE, "none");
+			IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_STATS_DISABLE, "none");
 		
     }
 }
