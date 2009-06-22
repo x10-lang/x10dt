@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 IDE
 Bundle-SymbolicName: org.eclipse.imp.x10dt.ui;singleton:=true
-Bundle-Version: 1.7.4.0
+Bundle-Version: 1.7.3.3
 Bundle-Localization: plugin
 Eclipse-LazyStart: true
 Require-Bundle: org.eclipse.core.runtime,
@@ -28,6 +28,7 @@ Require-Bundle: org.eclipse.core.runtime,
  lpg.runtime,
  org.eclipse.imp.runtime,
  org.eclipse.imp.x10dt.core,
+ org.eclipse.imp.x10dt.formatter,
  org.eclipse.help,
  x10.compiler.p3,
  org.eclipse.imp.analysis.p3

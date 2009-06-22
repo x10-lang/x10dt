@@ -138,6 +138,7 @@ public class X10DTCorePlugin extends PluginBase {
    
     @Override
     public void refreshPrefs() {
+    	System.out.println("refreshPrefs");
     	this.getPreferencesService().getBooleanPreference("msgs?");
     }
     

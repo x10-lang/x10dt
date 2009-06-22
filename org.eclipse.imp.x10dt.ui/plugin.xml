@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
+
    <extension
          point="org.eclipse.imp.runtime.languageDescription">
       <language
             extensions="x10"
             description="X10 Concurrent Programming Language"
             natureID="org.eclipse.imp.x10dt.core.x10nature"
-            icons="icons/compilationUnitNormal.gif"
             language="X10">
       </language>
    </extension>
@@ -239,6 +239,13 @@
       </perspectiveExtension>
    </extension>
    <extension
+         point="org.eclipse.imp.runtime.refactoringContributions">
+      <refactoringContributor
+            class="org.eclipse.imp.x10dt.ui.refactoring.actions.RefactoringContributor"
+            language="X10">
+      </refactoringContributor>
+   </extension>
+   <extension
          point="org.eclipse.imp.runtime.documentationProvider">
       <docProvider
             class="org.eclipse.imp.x10dt.ui.editor.X10DocProvider"
@@ -391,11 +398,5 @@
          </action>
       </actionSet>
    </extension>
-   <extension
-         point="org.eclipse.imp.runtime.toggleBreakpointHandler">
-         <toggleBreakpointHandler
-             language="x10"
-             class="org.eclipse.imp.x10dt.ui.debug.X10ToggleBreakpointHandler"/>
-            </extension>
 
 </plugin>
