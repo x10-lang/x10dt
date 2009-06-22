@@ -1,18 +1,16 @@
-%options fp=X10Parser,states
-%options la=6
---%options parent_saved,automatic_ast=toplevel,visitor=preorder,ast_directory=./ast,ast_type=ASTNode
-%options variables=nt
-%options conflicts --BRT
-%options softkeywords
+%options fp=PatternX10Parser
 %options package=org.eclipse.imp.x10dt.formatter.parser
+%options la=6
 %options template=btParserTemplateF.gi
-%options import_terminals="Pattern-X10Lexer.gi"
+%options parent_saved,automatic_ast=toplevel,visitor=preorder,ast_directory=./ast,ast_type=ASTNode
 %options prefix=TK_
+%options import_terminals="Pattern-X10Lexer.gi"
+%options noconflicts
 
 
 %Notice
 /.
-// This is the grammar for parsing formatting patterns for  the X10 language.
+// This is an experimental product.
 ./
 %End
 
@@ -20,8 +18,6 @@
     /.
     // this is a test
      import org.eclipse.imp.parser.*;
-     import x10.parser.X10ParsedName;
-     import lpg.runtime.IMessageHandler;
     ./
    
 %End 
@@ -35,7 +31,7 @@
     -- Definition of macros used in the parser template
     --
     $ast_class /.Object./
-    $additional_interfaces /. , IParser, ParseErrorCodes ./
+    $additional_interfaces /. , IParser ./
 %End
 
 %Start
@@ -61,13 +57,11 @@
 %End
 
 %Rules 
--- Add 1 rule to this pattern non-terminal for each language construct 
---    for which you wish to write a formatting rule. 
   Pattern ::=  %Empty
             | AmbiguousName
             | Statement
             | Expression
-            | TypeDeclaration    -- BRT went to here
+            | TypeDeclaration
             | ClassBodyDeclaration
             | ClassBodyDeclarations
             | PackageDeclaration
@@ -78,10 +72,7 @@
             | FormalParameters
             | ClockList
             | CompilationUnit
--- new: closures? 
  
--- Add a rule below for each  metavariable that can be used as a placeholder in a 
--- formatting pattern
 PackageName ::= METAVARIABLE_PackageName
 X10ClassModifier ::= METAVARIABLE_X10ClassModifier
 X10ClassModifiers ::= METAVARIABLE_X10ClassModifiers
@@ -110,8 +101,8 @@ BlockStatement ::= METAVARIABLE_BlockStatement
 Primary ::= METAVARIABLE_Primary
 ClassName ::= METAVARIABLE_ClassName
 TypeName ::= METAVARIABLE_TypeName
-ActualTypeArgumentList ::= METAVARIABLE_TypeArgumentList --BRT
-ActualTypeArgument ::= METAVARIABLE_TypeArgument --BRT
+ActualTypeArgumentList ::= METAVARIABLE_ActualTypeArgumentList
+ActualTypeArgument ::= METAVARIABLE_TypeArgument
 AmbiguousName ::= METAVARIABLE_AmbiguousName
 WhenStatement ::= METAVARIABLE_WhenStatement
 FormalParameterList ::= METAVARIABLE_FormalParameterList
