@@ -27,7 +27,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -182,38 +181,41 @@ public class X10Plugin extends PluginBase {
 	 */
     public void showConsole() {
 		getConsole();
-		final String id = IConsoleConstants.ID_CONSOLE_VIEW;
+		try {
+			IWorkbench wb = PlatformUI.getWorkbench();
+			IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
+			IWorkbenchPage page = win.getActivePage();// possible NPE here, e.g. if called from a dialog (not workbench)?
 
-		final IWorkbench wb = PlatformUI.getWorkbench();
-		Display.getDefault().asyncExec(new Runnable() {
-			public void run() {
-				IWorkbenchWindow win = wb.getActiveWorkbenchWindow();
-				IWorkbenchPage page = win.getActivePage();
-				IConsoleView view = null;
+			String id = IConsoleConstants.ID_CONSOLE_VIEW;
+			IConsoleView view = null;
 
-				try {
-					view = (IConsoleView) page.showView(id);
-				} catch (PartInitException e) {
-					logException("Exception showing build console", e);
-				}
-				view.display(console);
-			}
-		});
+			view = (IConsoleView) page.showView(id);
+			view.display(console);
+		} catch (PartInitException e) {
+			logException("PartInitException showing the X10DT console.", e);
+			e.printStackTrace();
+		} catch (Exception ex) {
+			logException("Exception showing the X10DT console", ex);
+		}
 	}
 
 
-
     /**
-	 * Get the X10DT console
-	 * 
-	 * @param name
-	 * @return
-	 */
+     * Get the X10DT console
+     * @param name
+     * @return
+     */
 	public MessageConsole findConsole(String name) {
 		ConsolePlugin plugin = ConsolePlugin.getDefault();
 		IConsoleManager conMan = plugin.getConsoleManager();
 		IConsole[] existing = conMan.getConsoles();
-
+		// list consoles
+		if (false)
+			for (int i = 0; i < existing.length; i++) {
+				IConsole con = existing[i];			
+				System.out.println("found console: " + (i + 1) + " "
+						+ con.getName());
+			}
 		for (int i = 0; i < existing.length; i++) {
 			if (name.equals(existing[i].getName()))
 				return (MessageConsole) existing[i];
