@@ -243,8 +243,8 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 				return null;
 			}
 			if (result instanceof ObjectReference) {
-				fActivity = (ObjectReference)result;
 				if (fFileNameAndLineNo==null) {
+					fActivity = (ObjectReference)result;
 					List<Method> myNameMethods = (List<Method>)((ObjectReference)fActivity).referenceType().methodsByName("myName");
 					Method myNameMethod = myNameMethods.get(0);
 					Value fnlv = ((X10DebugTargetAlt)getDebugTarget()).invokeX10RTMethod(fActivity, myNameMethod, args);
@@ -268,11 +268,16 @@ public class X10Thread extends JDIThread implements IThread, IX10Activity {
 	
 	public String getName() {
 		if (fActivity!=null){
-			System.out.println("X10Thread:getName() for fActivity:"+fActivity.toString());
+			System.out.println("X10Thread:getName() ");
 			String place = this.getUnderlyingThread().name();
+			if (place!=null) {
+				place = place.substring(4, 6);
+				if (fFileNameAndLineNo!=null) {
+					return "ACTIVITY-" + uid + "@PLACE" +place +":" +fFileNameAndLineNo ;
+				}
+			}
 			if (place.contains("Main Activity"))
-				{place = place.substring(4, 6);
-				return "ACTIVITY-" + uid + "@PLACE" +place +":" +fFileNameAndLineNo ;}
+				return "ACTIVITY-" + uid + "@PLACE 0" + ": Main Activity";
 			/*
 			else if (place.contains("Finished")){
 				place=place.replace("pool", "PLACE");�

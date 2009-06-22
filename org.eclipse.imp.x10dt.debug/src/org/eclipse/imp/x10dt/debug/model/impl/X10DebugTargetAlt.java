@@ -255,19 +255,13 @@ public class X10DebugTargetAlt extends JDIDebugTarget implements IDebugTarget, I
 					return false;
 				}
 				//Following code is for watching dynamic activity name changes
-				try{
-				 ReferenceType th=thread.referenceType();
-				 if (th.name().equals("x10.runtime.PoolRunner")){
+				ReferenceType th=thread.referenceType();
+				if (th.name().equals("x10.runtime.PoolRunner")){
 					Field f = ((ClassType)th).fieldByName("name");
 					System.out.println("X10ThreadStartHandler field is "+f.toString());
 					if (f!=null)
 						new X10ModWatchpointHandler(f);
-				 }
-				} catch (VMDisconnectedException exception) {
-					return false;
-				} catch (ObjectCollectedException e) {
-					return false;
-				}  
+				}
 				//code ends here
 
 			} else {
@@ -897,7 +891,6 @@ class X10ModWatchpointHandler implements IJDIEventListener {
 		if (isDisconnected()) {
 			return null;
 		}
-		System.out.println("Number is "+x10Thread.uid);
 		synchronized (fThreads) {   
 			  fThreads.add(x10Thread);
 		}
