@@ -48,8 +48,7 @@ public class CollectBookmarksGoal extends SourceGoal_c {
         }
         catch(Exception e) {
         	//PORT1.7 -- Hack to postpone JPGPosition.getLeftIToken() problem (always null now, need general method to recompute)
-        	//X10DTCorePlugin.getInstance().log("Error while collecting bookmarks during build: JPGPosition / adjuncts", e);
-        	// filed Jira bug to note this. http://jira.codehaus.org/browse/XTENLANG-417
+        	X10DTCorePlugin.getInstance().logException("Error while collecting bookmarks during build: JPGPosition / adjuncts", e);
         	adjuncts=new ArrayList<IToken>();
         }
         IFile file= fBuilder.getProject().getFile(path.substring(fBuilder.getProject().getLocation().toOSString().length()));

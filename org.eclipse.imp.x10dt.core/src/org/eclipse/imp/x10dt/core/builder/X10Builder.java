@@ -118,7 +118,6 @@ public class X10Builder extends IncrementalProjectBuilder {
     protected PolyglotDependencyInfo fDependencyInfo;
 
     private Collection<IPath> fSrcFolderPaths; // project-relative paths
-    private static final boolean traceOn=false;
 
     public X10Builder() {}
 
@@ -350,16 +349,10 @@ public class X10Builder extends IncrementalProjectBuilder {
 		MessageConsole console = plugin.getConsole();
 		MessageConsoleStream consoleOut = console.newMessageStream();
 		consoleOut.println(plugin.getTimeAndDate());
-		consoleOut.print("Build options for compiling "+fSourcesToCompile+": ");  
-		final String dash="-";
+		consoleOut.print("Build options: ");  
 		for (String s : optsList) {
-			// try to put "-option" on same line with the option arg
-			if(s.startsWith(dash))
-				consoleOut.print("\n   "+s);
-			else
-				consoleOut.print("   "+s);
+			consoleOut.println("   "+s);
 		}
-		consoleOut.println("");
 		try {
 			consoleOut.flush();
 			consoleOut.close();
@@ -637,7 +630,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         IWorkspace ws= ResourcesPlugin.getWorkspace();
         IWorkspaceRoot wsRoot= ws.getRoot();
         final List<IFile> genFiles= new ArrayList<IFile>();
-		final boolean traceOn=false;
+		boolean traceOn=true;
         for(IFile srcFile: fSourcesToCompile) {
         	if(traceOn)System.out.println("srcFile: "+srcFile);
             IPath genJavaFile= srcFile.getFullPath().removeFileExtension().addFileExtension("java");
@@ -863,7 +856,7 @@ public class X10Builder extends IncrementalProjectBuilder {
 
     private Collection<IProject> doCompile() throws CoreException {
         if (!fSourcesToCompile.isEmpty()) {
-        	if(traceOn)System.out.println("X10Builder.doCompile() fSourcesToCompile: "+fSourcesToCompile);
+        	System.out.println("X10Builder.doCompile() fSourcesToCompile: "+fSourcesToCompile);
             // RMF 8/5/2008 - Don't clear the dependency info right away - if Polyglot fails to
             // get to some source file on the list, it'll end up with no dependency info. Better
             // to just leave the dependency info untouched. So, instead: clear a file's dependency
@@ -963,7 +956,7 @@ public class X10Builder extends IncrementalProjectBuilder {
         collectSourceFolders();
 
         IResourceDelta delta= getDelta(fProject);
-        if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
+        System.out.println("fSourcesToCompile="+fSourcesToCompile);
 
         if (delta != null) {
             X10DTCorePlugin.getInstance().maybeWriteInfoMsg("==> Scanning resource delta for project '" + fProject.getName() + "'... <==");
@@ -974,7 +967,7 @@ public class X10Builder extends IncrementalProjectBuilder {
             fProject.accept(fResourceVisitor);
             X10DTCorePlugin.getInstance().maybeWriteInfoMsg("X10 source file scan completed for project '" + fProject.getName() + "'...");
         }
-        if(traceOn)System.out.println("fSourcesToCompile="+fSourcesToCompile);
+        System.out.println("fSourcesToCompile="+fSourcesToCompile);// OK here
         collectChangeDependents();
         collectFilesWithErrors();
     }
