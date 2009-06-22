@@ -2,6 +2,21 @@
 <?eclipse version="3.0"?>
 <plugin>
 
+<!--
+   The following extension's contributorClass extends an inaccessible IMP-internal class.
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="X10 Editor"
+            icon="icons/IMP-editor.gif"
+            extensions="txt"
+            contributorClass="org.eclipse.imp.x10dt.editor.X10TextEditorActionContributor"
+            class="org.eclipse.imp.x10dt.editor.X10Editor"
+            id="org.eclipse.imp.runtime.impEditor"
+            symbolicFontName="x10Font">
+      </editor>
+   </extension>
+  -->
    <extension
          id="X10Builder"
          name="X10 Compiler"
@@ -70,7 +85,7 @@
             id="org.eclipse.imp.x10dt.core.wizards.NewX10PackageWizard">
       </wizard>
       <wizard
-            name="X10 Project (Java back-end)"
+            name="X10 Project"
             canFinishEarly="false"
             icon="icons/newproject.gif"
             category="org.eclipse.imp.x10dt.core"

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.0"?>
 <plugin>
+
    <extension
          point="org.eclipse.imp.runtime.languageDescription">
       <language
             extensions="x10"
             description="X10 Concurrent Programming Language"
             natureID="org.eclipse.imp.x10dt.core.x10nature"
-            icons="icons/compilationUnitNormal.gif"
             language="X10">
       </language>
    </extension>
@@ -21,20 +21,20 @@
    <extension
          point="org.eclipse.imp.runtime.tokenColorer">
       <tokenColorer
-            class="org.eclipse.imp.x10dt.ui.editor.X10TokenColorer"
+            class="org.eclipse.imp.x10dt.ui.editor.MyTokenColorer"
             language="X10">
       </tokenColorer>
    </extension>
    <extension
          point="org.eclipse.debug.core.launchConfigurationTypes">
       <launchConfigurationType
-            delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
-            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType"
-            modes="run,debug"
-            name="X10 Application"
-            public="true"
             sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
-            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
+            name="X10 Application"
+            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer"
+            delegate="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationDelegate"
+            modes="run,debug"
+            public="true"
+            id="org.eclipse.imp.x10dt.ui.launching.X10LaunchConfigurationType">
       </launchConfigurationType>
    </extension>
    <extension
@@ -233,10 +233,14 @@
          <showInPart
                id="org.eclipse.ui.views.ResourceNavigator">
          </showInPart>
-         <actionSet
-               id="org.eclipse.imp.x10dt.ui.X10ElementCreation">
-         </actionSet>
       </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.imp.runtime.refactoringContributions">
+      <refactoringContributor
+            class="org.eclipse.imp.x10dt.ui.refactoring.actions.RefactoringContributor"
+            language="X10">
+      </refactoringContributor>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.documentationProvider">
@@ -348,54 +352,5 @@
             language="X10">
       </occurrenceIdentifier>
    </extension>
-   <extension
-         point="org.eclipse.ui.actionSets">
-      <actionSet
-            id="org.eclipse.imp.x10dt.ui.X10ElementCreation"
-            label="%perspective.actionsets">
-         <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10InterfaceWizardToolbarAction"
-               icon="icons/newint_wiz.gif"
-               id="org.eclipse.imp.x10dt.ui.NewX10InterfaceToolbarAction"
-               label="%new.interface.label"
-               style="push"
-               toolbarPath="Normal/X10Wizards"
-               tooltip="%new.interface.tooltip">
-         </action>
-         <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ClassWizardToolbarAction"
-               icon="icons/newclass_wiz.gif"
-               id="org.eclipse.imp.x10dt.ui.NewX10ClassToolbarAction"
-               label="%new.class.label"
-               style="push"
-               toolbarPath="Normal/X10Wizards"
-               tooltip="%new.class.tooltip">
-         </action>
-         <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10PackageWizardToolbarAction"
-               icon="icons/newpack_wiz.gif"
-               id="org.eclipse.imp.x10dt.ui.NewX10PackageToolbarAction"
-               label="%new.package.label"
-               style="push"
-               toolbarPath="Normal/X10Wizards"
-               tooltip="%new.package.tooltip">
-         </action>
-         <action
-               class="org.eclipse.imp.x10dt.ui.perspective.actions.OpenX10ProjectJavaBCWizardToolbarAction"
-               icon="icons/newx10prj_java.gif"
-               id="org.eclipse.imp.x10dt.ui.NewX10ProjectJavaToolbarAction"
-               label="%new.project.java.label"
-               style="push"
-               toolbarPath="Normal/X10Wizards"
-               tooltip="%new.project.java.tooltip">
-         </action>
-      </actionSet>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.toggleBreakpointHandler">
-         <toggleBreakpointHandler
-             language="x10"
-             class="org.eclipse.imp.x10dt.ui.debug.X10ToggleBreakpointHandler"/>
-            </extension>
 
 </plugin>
