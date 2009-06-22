@@ -12,11 +12,14 @@
 
 package org.eclipse.imp.x10dt.core.preferences.fields;
 
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesTab;
+import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
+import org.osgi.service.prefs.BackingStoreException;
 
 public class IntegerFieldEditor extends StringFieldEditor {
 	
@@ -156,7 +159,30 @@ public class IntegerFieldEditor extends StringFieldEditor {
     	if (preferencesLevel.equals(IPreferencesService.PROJECT_LEVEL)) return "Project";
     	return "";
     }
-    
+ 
+    /**
+     * Load the default value associated with this field.  That is, load
+     * the value set at the default level for this field, regardless of
+     * the actual level of this field.
+     */
+    protected void doLoadDefault() {
+        if (getTextControl(parent) != null) {
+            int value = preferencesService.getIntPreference(IPreferencesService.DEFAULT_LEVEL,	getPreferenceName());
+            levelFromWhichLoaded = IPreferencesService.DEFAULT_LEVEL;
+            setInherited(false);	// We're putting the default value here directly, not inheriting it
+            setPresentsDefaultValue(true);	// Need this really?
+            setStringValue(""+value);	// calls valueChanged();
+            
+            // SMS 28 Nov 2006 added here
+            // Value is default but is not inherited
+            Text text = getTextControl(parent);
+           	text.setBackground(PreferencesUtilities.colorWhite);
+        }
+    }
+
+    /* (non-Javadoc)
+     * Method declared on FieldEditor.
+     */
     protected void doLoad()
     {
         if (getTextControl(parent) != null) {
@@ -175,10 +201,67 @@ public class IntegerFieldEditor extends StringFieldEditor {
     			setInherited(!levelFromWhichLoaded.equals(preferencesLevel));
         	}
         	
-        	if (value==null || value.equals("")) value = "0";
+//        	if (value==null || value.equals("")) value = "0";
            	setPresentsDefaultValue(IPreferencesService.DEFAULT_LEVEL.equals(levelFromWhichLoaded));
             setStringValue(value);
         }
     
+    }
+    protected void doStore() {
+    	String newStringValue = (String)getTextControl(parent).getText();
+    	boolean isEmpty = newStringValue.equals(emptyValue);	
+    	// getText() will return an empty string if the field is empty,
+    	// and empty strings can be stored in the preferences service,
+    	// but an empty string is recognized by the preferences service
+    	// as a valid value--when usually it is not.  Once it is recognized
+    	// as a valid value, it precludes the searching of subsequent
+    	// levels that might contain a non-empty (and actually valid) value.
+    	// We would like to be able to store a null value with the preferences
+    	// service so as to not short-circuit the search process, but we can't	
+    	// do that.  So, if the field value is empty, we have to eliminate the
+    	// preference entirely.  (Will that work in general???)
+    	if (isEmpty && !isEmptyValueAllowed()) {
+    		// We have an empty value where that isn't allowed, so clear the
+    		// preference.  Expect that clearing the preferences at a level will
+    		// trigger a loading with inheritance at that level
+    		preferencesService.clearPreferenceAtLevel(preferencesLevel, getPreferenceName());
+    		// If the preference value was previously empty (e.g., if previously inherited)
+    		// then clearing the preference node now doesn't cause a change event, so
+    		// doesn't trigger reloading with inheritance.  So we should just load the
+    		// field again to make sure any inheritance occurs if needed
+    		loadWithInheritance();
+        	int oldValue = preferencesService.getIntPreference(preferencesLevel, getPreferenceName());
+        	int newValue = preferencesService.getIntPreference("default", getPreferenceName());
+            getPreferenceStore().firePropertyChangeEvent(getPreferenceName(), oldValue, newValue);
+    		return;
+    	}
+
+    	int oldValue = preferencesService.getIntPreference(preferencesLevel, getPreferenceName());
+    	int newValue = isEmpty ? 0 : Integer.parseInt(newStringValue);
+    	// We have a value (possibly empty, if that is allowed) that has changed
+    	// from the previous value, so store it
+    	preferencesService.setIntPreference(preferencesLevel, getPreferenceName(), newValue);
+        getPreferenceStore().firePropertyChangeEvent(getPreferenceName(), oldValue, newValue);
+
+   		fieldModified = false;
+   		levelFromWhichLoaded = preferencesLevel;
+   		isInherited = false;
+   		setPresentsDefaultValue(
+   				newValue == preferencesService.getIntPreference(IPreferencesService.DEFAULT_LEVEL, getPreferenceName()));
+            
+   		
+   		// If we've stored the field then it's not inherited, so be sure it's
+   		// color indicates that.
+   		// For text fields, the background color is the backgroud color within
+   		// the field, so don't have to worry about matching anything else
+   		getTextControl(parent).setBackground(PreferencesUtilities.colorWhite);
+    	
+    	IEclipsePreferences node = preferencesService.getNodeForLevel(preferencesLevel);
+    	try {
+    		if (node != null) node.flush();
+    	} catch (BackingStoreException e) {
+    		System.err.println("IntegerFieldEditor.doStore():  BackingStoreException flushing node;  node may not have been flushed:" + 
+    				"\n\tnode path = " + node.absolutePath() + ", preferences level = "  + preferencesLevel);
+    	}
     }
 }

@@ -9,23 +9,13 @@
 *    Matthew Kaplan (mmk@us.ibm.com) - initial implementation
 *******************************************************************************/
 
-/*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-*    Matthew Kaplan (mmk@us.ibm.com) - specialization to minimize fields/eliminate details
-*******************************************************************************/
-
 package org.eclipse.imp.x10dt.core.preferences.specialized;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.imp.preferences.IPreferencesService;
@@ -34,8 +24,12 @@ import org.eclipse.imp.preferences.PreferenceCache;
 import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.imp.preferences.TabbedPreferencesPage;
 import org.eclipse.imp.runtime.RuntimePlugin;
+import org.eclipse.imp.x10dt.core.X10PreferenceConstants;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesTab;
 import org.eclipse.imp.x10dt.core.preferences.PreferencesUtilities;
+import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsStringFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.StringFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
 import org.eclipse.imp.x10dt.core.preferences.fields.IntegerFieldEditor;
@@ -55,7 +49,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IFileEditorMapping;
 import org.eclipse.ui.PlatformUI;
+
+import polyglot.main.UsageError;
 
 public class X10PreferencesInstanceTabNoDetails extends
 		X10PreferencesInstanceTab {
@@ -64,6 +62,14 @@ public class X10PreferencesInstanceTabNoDetails extends
 		super(prefService);
 	}
 	
+	IntegerFieldEditor TabSize;
+	FontFieldEditor  fontField;
+	BooleanFieldEditor badPlaceRuntimeCheckCompilerOption;
+	BooleanFieldEditor loopOptimizationsCompilerOption;
+	BooleanFieldEditor arrayOptimizationsCompilerOption;
+	BooleanFieldEditor assertCompilerOption;
+	CompilerOptionsStringFieldEditor additionalCompilerOptions;
+	IntegerFieldEditor NumPlaces;
 	/**
 	 * Creates specific preference fields with settings appropriate to
 	 * the instance preferences level.
@@ -79,52 +85,107 @@ public class X10PreferencesInstanceTabNoDetails extends
 	{
 		List fields = new ArrayList();
 
-		IntegerFieldEditor TabSize = fPrefUtils_x10.makeNewIntegerField(
+		// EDITOR OPTIONS
+		
+//		fPrefService.setIntPreference(IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_TAB_WIDTH, 4);
+		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, PreferenceConstants.P_TAB_WIDTH, "4");
+		TabSize = fPrefUtils_x10.makeNewIntegerField(
 			page, tab, fPrefService,
 			"instance", PreferenceConstants.P_TAB_WIDTH, "Tab size",
 			parent,
 			true, true,
 			true, String.valueOf(8),
-			false, "0",
-			true);
-//			Link TabSizeDetailsLink = fPrefUtils.createDetailsLink(parent, TabSize, TabSize.getTextControl().getParent(), "Details ...");
-
+			false, "4",
+			true, null);
 		fields.add(TabSize);
 
-		IntegerFieldEditor NumPlaces = fPrefUtils_x10.makeNewIntegerField(
-				page, tab, fPrefService,
-				"instance", "NumPlaces", "Number of Places",
-				parent,
-				true, true,
-				true, String.valueOf(8),
-				false, "0",
-				true);
-//				Link NumPlacesDetailsLink = fPrefUtils.createDetailsLink(parent, NumPlaces, NumPlaces.getTextControl().getParent(), "Details ...");
 
-		fields.add(NumPlaces);
-			
-		FontFieldEditor fontField= fPrefUtils_x10.makeNewFontField(
+		fontField= fPrefUtils_x10.makeNewFontField(
 				page, tab, fPrefService,
-				"instance", "x10Font", "Source font:",
+				"instance", PreferenceConstants.P_SOURCE_FONT, "Source font:",
 				null,
 				parent,
 				true, false,
-				null, true);
+				null, true, null);
 		fields.add(fontField);
 		
-		page.getPreferenceStore().addPropertyChangeListener(new IPropertyChangeListener() {
-		    public void propertyChange(PropertyChangeEvent event) {
-			IPreferenceStore prefStore= RuntimePlugin.getInstance().getPreferenceStore();
-			// Hack: Forward the property change to the global IMP preference store, until
-			// it supports language-specific settings for editor characteristics like font,
-			// tab size, etc.
-			if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
-			    prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, Integer.parseInt((String) event.getNewValue()));
-			} else if (event.getProperty().equals("x10Font")) {
-			    PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
-			}
-		    }
-		});
+
+		// COMPILER OPTIONS
+		
+		// -BAD_PLACE_RUNTIME_CHECK=boolean
+		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_BAD_PLACE_CHECK, true);
+		badPlaceRuntimeCheckCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_BAD_PLACE_CHECK, "Bad Place Runtime Check", parent, true, true, false, false, true, true, false, null);
+		fields.add(badPlaceRuntimeCheckCompilerOption);
+
+		// -LOOP_OPTIMIZATIONS=boolean
+		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, true);
+		loopOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, "Loop Optimizations", parent, true, true, false, false, true, true, false, null);
+		fields.add(loopOptimizationsCompilerOption);
+
+		// -ARRAY_OPTIMIZATIONS=boolean
+		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, true);
+		arrayOptimizationsCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, "Array Optimizations", parent, true, true, false, false, true, true, false, null);
+		fields.add(arrayOptimizationsCompilerOption);
+
+		// -assert
+		fPrefService.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ASSERT, true);
+		assertCompilerOption = fPrefUtils_x10.makeNewBooleanField(page, tab, fPrefService, "instance", X10PreferenceConstants.P_ASSERT, "Permit 'assert' Keyword", parent, true, true, false, false, true, true, false, null);
+		fields.add(assertCompilerOption);
+		
+		// additional compiler options (string field)
+		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "");
+		additionalCompilerOptions = fPrefUtils_x10.makeNewCompilerOptionsStringField(
+				page, tab, fPrefService,
+				"instance", X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, "Additional Compiler Options:",
+				parent,
+				true, true,
+				false, null,
+				true, null,
+				true, null);
+		fields.add(additionalCompilerOptions);
+
+		// RUNTIME OPTIONS
+		
+//		fPrefService.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, 4);
+		fPrefService.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10PreferenceConstants.P_NUM_PLACES, "4");
+		NumPlaces = fPrefUtils_x10.makeNewIntegerField(
+				page, tab, fPrefService,
+				"instance", X10PreferenceConstants.P_NUM_PLACES, "Number of Places",
+				parent,
+				true, true,
+				true, String.valueOf(8),
+				false, "4",
+				true, null);
+		fields.add(NumPlaces);
+		
+		
+		page.getPreferenceStore().addPropertyChangeListener(
+			new IPropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent event) {
+					IPreferenceStore prefStore = RuntimePlugin
+							.getInstance().getPreferenceStore();
+					// Hack: Forward property change to global IMP
+					// preference store
+					if (event.getProperty().equals(PreferenceConstants.P_TAB_WIDTH)) {
+						prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, (Integer) event.getNewValue());
+					} else if (event.getProperty().equals(PreferenceConstants.P_SOURCE_FONT)) {
+						PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_NUM_PLACES)) {
+						prefStore.setValue(X10PreferenceConstants.P_NUM_PLACES, (Integer) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_BAD_PLACE_CHECK)) {
+						prefStore.setValue(X10PreferenceConstants.P_BAD_PLACE_CHECK, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS)) {
+						prefStore.setValue(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS)) {
+						prefStore.setValue(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_ASSERT)) {
+						prefStore.setValue(X10PreferenceConstants.P_ASSERT, (Boolean) event.getNewValue());
+					} else if (event.getProperty().equals(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS)) {
+						prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, (String) event.getNewValue());
+					}
+				}
+			});
+
 
 		FieldEditor[] fieldsArray = new FieldEditor[fields.size()];
 		for (int i = 0; i < fields.size(); i++) {
@@ -173,6 +234,7 @@ public class X10PreferencesInstanceTabNoDetails extends
 		// Put notes on bottom
 		
 		final Composite bottom = new Composite(composite, SWT.BOTTOM | SWT.WRAP);
+		final String X10_MODIFIED_NOTE = "Modified fields are labeled in red.";
         GridLayout layout = new GridLayout();
         bottom.setLayout(layout);
         bottom.setLayoutData(new GridData(SWT.BOTTOM));
@@ -181,7 +243,7 @@ public class X10PreferencesInstanceTabNoDetails extends
         GridData data = new GridData();
         data.verticalAlignment = SWT.WRAP;
         bar.setLayoutData(data);
-        bar.setText(Markings.MODIFIED_NOTE + "\n\n" +
+        bar.setText(X10_MODIFIED_NOTE + "\n\n" +
         			Markings.TAB_ERROR_NOTE);
         
 		PreferencesUtilities.fillGridPlace(bottom, 1);
@@ -238,4 +300,23 @@ public class X10PreferencesInstanceTabNoDetails extends
         setValid(valid);
         return invalidFieldEditor;
 	}
+	
+	public void performDefaults() {
+		super.performDefaults();
+		// change properties to cause propagate defaults -- why doesn't this get done in performDefaults?  It seems it does load but no store?
+		IPreferenceStore prefStore = RuntimePlugin
+		.getInstance().getPreferenceStore();
+		prefStore.setValue(PreferenceConstants.P_TAB_WIDTH, new Integer(TabSize.getIntValue()));
+		
+		// font has no default
+//		PreferenceConverter.setValue(prefStore, PreferenceConstants.P_SOURCE_FONT, (FontData[]) event.getNewValue());
+		
+		prefStore.setValue(X10PreferenceConstants.P_NUM_PLACES, new Integer(NumPlaces.getIntValue()));
+		prefStore.setValue(X10PreferenceConstants.P_BAD_PLACE_CHECK, badPlaceRuntimeCheckCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_LOOP_OPTIMIZATIONS, loopOptimizationsCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_ARRAY_OPTIMIZATIONS, arrayOptimizationsCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_ASSERT, assertCompilerOption.getBooleanValue());
+		prefStore.setValue(X10PreferenceConstants.P_ADDITIONAL_COMPILER_OPTIONS, additionalCompilerOptions.getStringValue());
+	}
 }
+

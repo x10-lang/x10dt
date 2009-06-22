@@ -18,19 +18,14 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesTab;
-import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
 import org.eclipse.imp.preferences.fields.ComboFieldEditor;
-import org.eclipse.imp.preferences.fields.DirectoryListFieldEditor;
-import org.eclipse.imp.preferences.fields.FieldEditor;
-import org.eclipse.imp.preferences.fields.FileFieldEditor;
-import org.eclipse.imp.preferences.fields.FontFieldEditor;
-import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
 import org.eclipse.imp.preferences.fields.RadioGroupFieldEditor;
-import org.eclipse.imp.preferences.fields.StringFieldEditor;
-import org.eclipse.imp.preferences.fields.details.DetailsDialogForBooleanFields;
-import org.eclipse.imp.preferences.fields.details.DetailsDialogForComboFields;
-import org.eclipse.imp.preferences.fields.details.DetailsDialogForRadioGroupFields;
-import org.eclipse.imp.preferences.fields.details.DetailsDialogForStringFields;
+import org.eclipse.imp.x10dt.core.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.FieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.FontFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.StringFieldEditor;
+import org.eclipse.imp.x10dt.core.preferences.fields.CompilerOptionsStringFieldEditor;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.JFaceResources;
@@ -41,8 +36,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -51,18 +44,17 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.PlatformUI;
 
 
-public class PreferencesUtilities {
+public class PreferencesUtilities extends org.eclipse.imp.preferences.PreferencesUtilities {
 
 	
 	public static final Color colorWhite = new Color(null, 255, 255, 255);
 	public static final Color colorBluish = new Color(null, 175, 207, 239);
 	public static final Color colorGreenish = new Color(null, 0, 127, 239);
 	public static final Color colorLightGray = new Color(null, 224, 223, 226);
+	public static final Color colorRed = new Color(null, 200, 0, 0);
+	public static final Color colorBlack = new Color(null, 0, 0, 0);
 	
 	public static final String comboDefaultValue = "none selected";
 	public static final String comboDefaultName = "None selected";
@@ -71,6 +63,7 @@ public class PreferencesUtilities {
 	
 	public PreferencesUtilities(IPreferencesService service)
 	{
+		super(service);
 		this.service = service;
 	}
 	
@@ -519,10 +512,8 @@ public class PreferencesUtilities {
 		return levelFromWhichSet;
 	}
 	
-	
 
-	
-	public BooleanFieldEditor makeNewBooleanField(
+ 	public BooleanFieldEditor makeNewBooleanField(
 	   		PreferencePage page, PreferencesTab tab,
 			IPreferencesService service,
 			String level, String key, String text,
@@ -530,7 +521,7 @@ public class PreferencesUtilities {
 			boolean isEnabled, boolean isEditable,	
 			boolean hasSpecialValue, boolean specialValue,
 			boolean emptyValueAllowed, boolean emptyValue,
-			boolean isRemovable)
+			boolean isRemovable, Object x)
 	{
 		//System.err.println("SPU.makeNewBooleanField() starting for key = " + key);
 		Composite fieldHolder = new Composite(parent, SWT.NONE); 
@@ -559,11 +550,13 @@ public class PreferencesUtilities {
 		else if (level.equals(IPreferencesService.DEFAULT_LEVEL)) field.setRemovable(false);
 		else field.setRemovable(isRemovable);
 
+		initializeField(field, page);
 		//System.err.println("SPU.makeNewBooleanField() ending for key = " + key);
 		return field;
 	}	
 
-	
+ 	/*
+ 	 * Inherit from original (superclass)
 	
 	public ComboFieldEditor makeNewComboField(
 	   		PreferencePage page, PreferencesTab tab,
@@ -610,13 +603,14 @@ public class PreferencesUtilities {
 		//System.err.println("SPU.makeNewRadioField() ending for key = " + key);
 		return field;
 	}
+*/	
 
 	// mmk -- based on makeNewComboBoxField
 	public FontFieldEditor makeNewFontField(
 	   		PreferencePage page, PreferencesTab tab,
 	   		IPreferencesService service, String level,
 	   		String name, String labelText, String[][] entryNamesAndValues, Composite parent,
-	   		boolean isEnabled, boolean hasSpecialValue, String specialValue, boolean isRemovable)
+	   		boolean isEnabled, boolean hasSpecialValue, String specialValue, boolean isRemovable, Object x)
 	{	
 		Composite fieldHolder = new Composite(parent, SWT.NONE);
 		fieldHolder.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
@@ -645,21 +639,23 @@ public class PreferencesUtilities {
 		else if (level.equals(IPreferencesService.DEFAULT_LEVEL)) field.setRemovable(false);	// can never remove from Default level
 		else field.setRemovable(isRemovable);
 
+		field.setPage(page);
 		initializeField(field, page);
+		field.load();
 		return field;
 	}
 	
 	private void initializeField(FieldEditor pe, PreferencePage page) {
-        pe.setPage(page);
         if (page instanceof IPropertyChangeListener) {
         	pe.setPropertyChangeListener((IPropertyChangeListener)page);
         }
         pe.setPreferenceStore(page.getPreferenceStore());
-        pe.load();
 
 	}
 	
-	
+
+	/*
+	 * inherit from superclass
 	public DirectoryListFieldEditor makeNewDirectoryListField(
 			PreferencePage page,
 			PreferencesTab tab,
@@ -789,6 +785,7 @@ public class PreferencesUtilities {
 		
 		return field;
 	}
+	*/
 
 	
 	public IntegerFieldEditor makeNewIntegerField(
@@ -800,7 +797,7 @@ public class PreferencesUtilities {
 			boolean isEnabled, boolean isEditable,
 			boolean hasSpecialValue, String specialValue,
 			boolean emptyValueAllowed, String emptyValue,
-			boolean isRemovable)
+			boolean isRemovable, Object x)
 	{
 		//System.err.println("SPU.makeNewIntegerField() starting for key = " + key);
 		Composite fieldHolder = new Composite(parent, SWT.NONE);
@@ -848,7 +845,7 @@ public class PreferencesUtilities {
 
 	
 	public RadioGroupFieldEditor makeNewRadioGroupField(
-		PreferencePage page, PreferencesTab tab,
+		PreferencePage page, int foo, PreferencesTab tab,
 		IPreferencesService service, String level,	
 		String name, String labelText, int numColumns,
         String[][] labelAndValues, Composite parent, boolean useGroup,
@@ -912,6 +909,65 @@ public class PreferencesUtilities {
 		return field;
 	}
 	
+	public CompilerOptionsStringFieldEditor makeNewCompilerOptionsStringField(
+			PreferencePage page,
+			PreferencesTab tab,
+			IPreferencesService service,
+			String level, String key, String text,
+			Composite parent,
+			boolean isEnabled, boolean isEditable,
+			boolean hasSpecialValue, String specialValue,
+			boolean emptyValueAllowed, String emptyValue,
+			boolean isRemovable, Object x)
+	{
+		//System.err.println("SPU.makeNewStringField() starting for key = " + key);
+		Composite fieldHolder = new Composite(parent, SWT.NONE);
+		fieldHolder.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+	    boolean onProjectLevelWithNullProject =
+	    	level != null && level.equals(IPreferencesService.PROJECT_LEVEL) && service.getProject() == null;
+	    boolean notOnARealLevel = level == null;
+	    boolean onAFunctioningLevel = !onProjectLevelWithNullProject && !notOnARealLevel;
+	    
+		CompilerOptionsStringFieldEditor field = new CompilerOptionsStringFieldEditor(page, tab, service, level, key, text, fieldHolder);
+		
+		if (!onProjectLevelWithNullProject) {
+			setField(field, fieldHolder);
+			addStringPreferenceChangeListeners(service, level, field, key, fieldHolder);
+		} else {
+			//setField(field, fieldHolder);
+			//addStringPropertyChangeListeners(service, level, field, key, fieldHolder);
+		}
+		
+		//field.getTextControl().setEnabled(isEnabled);
+		if (onProjectLevelWithNullProject || notOnARealLevel) {
+			//System.out.println("SPU.makeNewStringField(..):  disabling all");
+			field.getTextControl().setEnabled(false);
+			field.getTextControl().setEditable(false);
+			field.setEnabled(false, field.getParent());
+		} else if (onAFunctioningLevel) {
+			//System.out.println("SPU.makeNewStringField(..):  setting all to " + isEnabled);
+			field.getTextControl().setEnabled(isEnabled);
+			field.getTextControl().setEditable(isEditable);
+			field.setEnabled(isEnabled, field.getParent());
+		}
+
+		if (hasSpecialValue)
+			field.setSpecialValue(specialValue);
+		else
+			field.setNoSpecialValue();
+		field.setEmptyValueAllowed(emptyValueAllowed);
+		
+		if (level == null) field.setRemovable(false);	// can never remove from a field that doesn't have a stored value
+		else if (level.equals(IPreferencesService.DEFAULT_LEVEL)) field.setRemovable(false);	// can never remove from Default level
+		else field.setRemovable(isRemovable);
+		
+		initializeField(field, page);
+		//System.err.println("SPU.makeNewStringField() ending for key = " + key);
+		return field;
+	}
+
+
 	
 	public StringFieldEditor makeNewStringField(
 			PreferencePage page,
@@ -922,7 +978,7 @@ public class PreferencesUtilities {
 			boolean isEnabled, boolean isEditable,
 			boolean hasSpecialValue, String specialValue,
 			boolean emptyValueAllowed, String emptyValue,
-			boolean isRemovable)
+			boolean isRemovable, Object x)
 	{
 		//System.err.println("SPU.makeNewStringField() starting for key = " + key);
 		Composite fieldHolder = new Composite(parent, SWT.NONE);
@@ -966,14 +1022,15 @@ public class PreferencesUtilities {
 		else if (level.equals(IPreferencesService.DEFAULT_LEVEL)) field.setRemovable(false);	// can never remove from Default level
 		else field.setRemovable(isRemovable);
 		
+		initializeField(field, page);
 		//System.err.println("SPU.makeNewStringField() ending for key = " + key);
 		return field;
 	}
 
 
 
-
-	
+/*
+ * inherit from superclass
 	private void addBooleanPropertyChangeListeners(
 		IPreferencesService service, String level, BooleanFieldEditor field, String key, Composite composite)
 	{	
@@ -988,6 +1045,8 @@ public class PreferencesUtilities {
 			}
 		}		
 	}
+ */
+	
 
 	
 	public abstract class PreferenceChangeListener implements IEclipsePreferences.IPreferenceChangeListener
@@ -1030,6 +1089,8 @@ public class PreferencesUtilities {
 	}
 	
 	
+/*
+ * Inherit from original (superclass)
 	public class BooleanPreferenceChangeListener extends PreferenceChangeListener {
 		
 		public BooleanPreferenceChangeListener(FieldEditor field, String key, Composite composite) {
@@ -1066,6 +1127,7 @@ public class PreferencesUtilities {
 			setField((RadioGroupFieldEditor) field, composite);
 		}
 	}
+ */	
 	
 	
 	public class StringPreferenceChangeListener extends PreferenceChangeListener {
@@ -1087,6 +1149,17 @@ public class PreferencesUtilities {
 		
 		protected void setFieldByListener(FieldEditor field, Composite composite) {
 			setField((FontFieldEditor) field, composite);
+		}
+	}
+	
+	public class BooleanPreferenceChangeListener extends PreferenceChangeListener {
+		
+		public BooleanPreferenceChangeListener(FieldEditor field, String key, Composite composite) {
+			super(field, key, composite);
+		}
+		
+		protected void setFieldByListener(FieldEditor field, Composite composite) {
+			setField((BooleanFieldEditor) field, composite);
 		}
 	}
 	
@@ -1153,6 +1226,21 @@ public class PreferencesUtilities {
 			}	
 		}
 		
+	private void addBooleanPropertyChangeListeners(
+			IPreferencesService service, String level, BooleanFieldEditor field, String key, Composite composite)
+		{	
+			int levelIndex = service.getIndexForLevel(level);
+			IEclipsePreferences[] nodes = service.getNodesForLevels();
+			
+			for (int i = levelIndex + 1; i < nodes.length; i++) {
+				if (nodes[i] != null) {
+					nodes[i].addPreferenceChangeListener(new BooleanPreferenceChangeListener(field, key, composite));	
+				} else {
+					//System.err.println("JsdivConfigurationPreferencesPage.addPropetyChangeListeners(..):  no listener added at level = " + i + "; node at that level is null");
+				}
+			}		
+		}
+
 
 	
 	public boolean firstLevelAboveSecond(String first, String second) {
@@ -1266,7 +1354,8 @@ public class PreferencesUtilities {
 	}
 	
 	
-	
+/*
+ * Inherit from original (superclass)
 	public Link createDetailsLink(Composite parent, final BooleanFieldEditor field, final Composite fieldHolder, String text)
 	{
 		Composite detailsHolder = new Composite(parent, SWT.NONE);
@@ -1288,7 +1377,7 @@ public class PreferencesUtilities {
 				doDetailsLinkActivated((Link) e.widget, field, fieldHolder);
 			}
 		}
-		DetailsLinkListener detailsLinkListener = new DetailsLinkListener(/*detailsHolder*/);
+		DetailsLinkListener detailsLinkListener = new DetailsLinkListener();
 		
 		link.addSelectionListener(detailsLinkListener);
 	
@@ -1433,11 +1522,11 @@ public class PreferencesUtilities {
 		dialog.open();
 	}
 	
-	
 	void doDetailsLinkActivated(Link link, StringFieldEditor field, Composite fieldHolder) {
 		DetailsDialogForStringFields dialog = new DetailsDialogForStringFields(fieldHolder.getShell(), field, fieldHolder, service);
 		dialog.open();
 	}
+	*/
 	
 
 	
