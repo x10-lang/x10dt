@@ -1,25 +1,23 @@
-package com.ibm.watson.safari.x10.preferences;
+package org.eclipse.imp.x10dt.core.preferences;
 
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.InstancePreferencesTab;
+import org.eclipse.imp.preferences.PreferencesUtilities;
+import org.eclipse.imp.preferences.fields.BooleanFieldEditor;
+import org.eclipse.imp.preferences.fields.ComboFieldEditor;
+import org.eclipse.imp.preferences.fields.FieldEditor;
+import org.eclipse.imp.preferences.fields.IntegerFieldEditor;
+import org.eclipse.imp.preferences.fields.RadioGroupFieldEditor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.uide.preferences.ISafariPreferencesService;
-import org.eclipse.uide.preferences.InstancePreferencesTab;
-import org.eclipse.uide.preferences.SafariPreferencesUtilities;
-import org.eclipse.uide.preferences.fields.SafariBooleanFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariComboFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariIntegerFieldEditor;
-import org.eclipse.uide.preferences.fields.SafariRadioGroupFieldEditor;
-//TODO:  Import additional classes for specific field types from
-//org.eclipse.uide.preferences.fields
 
 
 
 public class X10InstancePreferencesTab extends InstancePreferencesTab {
 
 	
-	public X10InstancePreferencesTab(ISafariPreferencesService prefService) {
+	public X10InstancePreferencesTab(IPreferencesService prefService) {
 		super(prefService);
 	}
 
@@ -32,19 +30,19 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 	 * 
 	 * @return	An array that contains the created preference fields
 	 */
-	protected SafariFieldEditor[] createFields(Composite composite)
+	protected FieldEditor[] createFields(Composite composite)
 	{
 		// TODO:  Declare preference fields here ...
-		SafariComboFieldEditor compilerConfiguration = null;
-		SafariIntegerFieldEditor samplingFrequency = null;
-		SafariBooleanFieldEditor emitMessages = null;
-		SafariRadioGroupFieldEditor statsDisable = null;
+		ComboFieldEditor compilerConfiguration = null;
+		IntegerFieldEditor samplingFrequency = null;
+		BooleanFieldEditor emitMessages = null;
+		RadioGroupFieldEditor statsDisable = null;
 
 		// TODO:  Construct the specific fields, including a "details" link
 		// for each field; also create "toggle" listeners between fields whose
 		// editability is linked.  Add spaces, boxes, etc. as apprpriate.
 		//
-		// SafariPreferencesUtilities has factory-like methods for creating
+		// PreferencesUtilities has factory-like methods for creating
 		// fields and links of specific types.
 		//
 		// Among the various parameters that can be set for a Safari preferences
@@ -60,17 +58,17 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 		 */
 
 		compilerConfiguration = prefUtils.makeNewComboField(
-				prefPage, this, prefService, ISafariPreferencesService.INSTANCE_LEVEL,
+				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_X10CONFIG_NAME, "Compiler configuration:",
 				new String[][] { { "Standard", "standard" } }, composite,
-				true, true, SafariPreferencesUtilities.comboDefaultName, true);
+				true, true, PreferencesUtilities.comboDefaultName, true);
 		Link compilerConfigurationDetails = prefUtils.createDetailsLink(
 				composite, compilerConfiguration, compilerConfiguration.getComboBoxControl(composite).getParent(), "Details ...");
 		
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 	
 		samplingFrequency = prefUtils.makeNewIntegerField(
-				prefPage, this, prefService, ISafariPreferencesService.INSTANCE_LEVEL,
+				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_SAMPLING_FREQ, "Sampling frequency:",
 				composite, true, true, true, "50", false, "", true);
 		// Special implementation fields for this page field:
@@ -78,7 +76,7 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 		Link samplingFrequencyDetails = prefUtils.createDetailsLink(
 				composite, samplingFrequency, samplingFrequency.getTextControl().getParent(), "Details ...");
 
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);			
+		PreferencesUtilities.fillGridPlace(composite, 2);			
 		
 		// SMS 12 Dec 2006
 		// get grid layout for composite in order to restore it after
@@ -86,7 +84,7 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 		// columns to be set to one)
 		Layout layout = composite.getLayout();
 		statsDisable = prefUtils.makeNewRadioGroupField(
-				prefPage, this, prefService, ISafariPreferencesService.INSTANCE_LEVEL,
+				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_STATS_DISABLE, "Statistics Disable:", 2,
 				new String[][] { { "&None", "none" }, { "&All", "all" } }, composite, true,
 				true, true);
@@ -95,11 +93,11 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 		// Reset layout to what it was before adding field	
 		composite.setLayout(layout);
 
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 		
 		// Boolean preference emitMessages
 		emitMessages = prefUtils.makeNewBooleanField(
-				prefPage, this, prefService, ISafariPreferencesService.INSTANCE_LEVEL,
+				prefPage, this, prefService, IPreferencesService.INSTANCE_LEVEL,
 				PreferenceConstants.P_EMIT_MESSAGES, "Emit diagnostic messages from the builder",
 				composite, true, true, true, false, false, false, true);
 		Link emitMessagesDetails = prefUtils.createDetailsLink(
@@ -107,10 +105,10 @@ public class X10InstancePreferencesTab extends InstancePreferencesTab {
 
 
 		// Example of more spacing
-		SafariPreferencesUtilities.fillGridPlace(composite, 2);	
+		PreferencesUtilities.fillGridPlace(composite, 2);	
 		
 		// TODO:  Put the created fields into an array and return it
-		SafariFieldEditor fields[] = new SafariFieldEditor[4];		// change length as appropriate
+		FieldEditor fields[] = new FieldEditor[4];		// change length as appropriate
 		// 	Add fields here ...	
 		fields[0] = compilerConfiguration;
 		fields[1] = samplingFrequency;

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>org.eclipse.imp.x10dt.core</name>
+	<name>org.eclipse.imp.x10dr.core</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -8,15 +8,6 @@
 		<buildCommand>
 			<name>org.eclipse.jdt.core.javabuilder</name>
 			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.imp.smapifier.SmapieBuilder</name>
-			<arguments>
-				<dictionary>
-					<key>exten</key>
-					<value>prefspecs</value>
-				</dictionary>
 			</arguments>
 		</buildCommand>
 		<buildCommand>
@@ -29,17 +20,9 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
-		<buildCommand>
-			<name>org.eclipse.imp.prefspecs.builder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>org.eclipse.pde.PluginNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
-		<nature>org.eclipse.imp.prefspecs.imp.nature</nature>
-		<nature>org.eclipse.imp.smapifier.smapinature</nature>
-		<nature>org.eclipse.imp.prefspecs.nature</nature>
 	</natures>
 </projectDescription>
