@@ -51,6 +51,16 @@
             type="x10dt.ui.launching.X10LaunchConfigurationType"
             class="x10dt.ui.launching.X10LaunchConfigurationTabGroup"
             id="x10dt.ui.launching.X10LaunchConfigurationTabGroup">
+         <launchMode
+               description="%run.launch.mode.descr"
+               mode="run"
+               perspective="x10dt.ui.perspective">
+         </launchMode>
+         <launchMode
+               description="%debug.launch.mode.descr"
+               mode="debug"
+               perspective="x10dt.ui.perspective">
+         </launchMode>
       </launchConfigurationTabGroup>
    </extension>
    <extension
