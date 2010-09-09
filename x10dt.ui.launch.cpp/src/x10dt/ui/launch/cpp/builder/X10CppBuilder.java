@@ -15,24 +15,15 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.osgi.util.NLS;
 
-import x10.Configuration;
 import x10.ExtensionInfo;
-import x10.config.ConfigurationError;
-import x10.config.OptionError;
 import x10cpp.X10CPPCompilerOptions;
-import x10dt.core.X10DTCorePlugin;
-import x10dt.core.preferences.generated.X10Constants;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import x10dt.ui.launch.core.utils.IFilter;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
-import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
@@ -67,7 +58,6 @@ public final class X10CppBuilder extends AbstractX10Builder {
   public String getFileExtension(){
 	  return CC_EXT;
   }
-
   
   // --- Private code
   

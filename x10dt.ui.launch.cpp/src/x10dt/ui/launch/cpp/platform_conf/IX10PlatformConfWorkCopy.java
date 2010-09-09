@@ -95,6 +95,8 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setX10DistribLocation(final String x10DistribLoc);
   
+  public void updateCompilationCommands();
+  
   // --- IConnectionConf's setter methods
   
   public void setConnectionName(final String connectionName);

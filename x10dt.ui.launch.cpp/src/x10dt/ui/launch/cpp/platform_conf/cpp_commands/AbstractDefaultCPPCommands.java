@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
+import x10.Configuration;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 
 
@@ -18,6 +19,22 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   }
   
   // --- Code for descendants
+  
+  protected final String addNoChecksOptions(final String command) {
+    if (Configuration.NO_CHECKS) {
+      return command + " -DNO_CHECKS"; //$NON-NLS-1$
+    } else {
+      return command;
+    }
+  }
+  
+  protected final String addOptimizeOptions(final String command) {
+    if (Configuration.OPTIMIZE) {
+      return command + " -O2 -DNDEBUG -DNO_PLACE_CHECKS -finline-functions"; //$NON-NLS-1$
+    } else {
+      return command;
+    }
+  }
   
   protected final EArchitecture getArchitecture() {
     return this.fArchitecture;

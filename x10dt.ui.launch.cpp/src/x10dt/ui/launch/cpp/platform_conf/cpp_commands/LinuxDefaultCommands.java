@@ -38,7 +38,7 @@ final class LinuxDefaultCommands extends AbstractDefaultCPPCommands implements I
     if (supportsStreamingSIMDExtensions()) {
       cmpOpts += STREAMING_SIMD_EXTENSIONS;
     }
-    return cmpOpts;
+    return addNoChecksOptions(addOptimizeOptions(cmpOpts));
   }
 
   public String getLinker() {
@@ -57,7 +57,7 @@ final class LinuxDefaultCommands extends AbstractDefaultCPPCommands implements I
     if (supportsStreamingSIMDExtensions()) {
       linkOpts += STREAMING_SIMD_EXTENSIONS;
     }
-    return linkOpts;
+    return addNoChecksOptions(addOptimizeOptions(linkOpts));
   }
 
 }

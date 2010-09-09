@@ -38,7 +38,7 @@ final class MacDefaultCommands extends AbstractDefaultCPPCommands implements IDe
     if (supportsStreamingSIMDExtensions()) {
       cmpOpts += STREAMING_SIMD_EXTENSIONS;
     }
-    return cmpOpts;
+    return addNoChecksOptions(addOptimizeOptions(cmpOpts));
   }
 
   public String getLinker() {
@@ -57,7 +57,7 @@ final class MacDefaultCommands extends AbstractDefaultCPPCommands implements IDe
     if (supportsStreamingSIMDExtensions()) {
       linkOpts += STREAMING_SIMD_EXTENSIONS;
     }
-    return linkOpts;
+    return addNoChecksOptions(addOptimizeOptions(linkOpts));
   }
 
 }

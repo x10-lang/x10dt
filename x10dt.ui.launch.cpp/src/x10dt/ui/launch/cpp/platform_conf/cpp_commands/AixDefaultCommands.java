@@ -38,9 +38,9 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   public String getCompilerOptions() {
     final String cmpOpts = "-g -DTRANSPORT=lapi -qsuppress=1540-0809:1500-029 -qrtti=all -DX10_USE_BDWGC"; //$NON-NLS-1$
     if (is64Arch()) {
-      return cmpOpts + " -q64"; //$NON-NLS-1$
+      return addNoChecksOptions(addOptimizeOptions(cmpOpts + " -q64")); //$NON-NLS-1$
     } else {
-      return cmpOpts;
+      return addNoChecksOptions(addOptimizeOptions(cmpOpts));
     }
   }
 
@@ -55,9 +55,9 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   public String getLinkingOptions() {
     final String linkOpts = "-g -DTRANSPORT=lapi -qrtti=all -bbigtoc -bexpfull -qsuppress=1540-0809:1500-029 -DX10_USE_BDWGC"; //$NON-NLS-1$
     if (is64Arch()) {
-      return linkOpts + " -q64"; //$NON-NLS-1$
+      return addNoChecksOptions(addOptimizeOptions(linkOpts + " -q64")); //$NON-NLS-1$
     } else {
-      return linkOpts;
+      return addNoChecksOptions(addOptimizeOptions(linkOpts));
     }
   }
 

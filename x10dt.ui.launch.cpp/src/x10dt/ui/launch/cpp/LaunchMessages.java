@@ -115,6 +115,8 @@ public class LaunchMessages extends NLS {
 
   public static String CLC_CheckConnAndCommJobMsg;
 
+  public static String CLC_RebuildWorkspaceJobName;
+
 	public static String CLCD_CmdUsedMsg;
 
   public static String CLCD_ExecCreationTaskName;

@@ -56,8 +56,6 @@ public class Messages extends NLS {
   public static String XB_NoPlatformConfError;
   public static String XBU_ArchNameNotInEnum;
   public static String XBU_NoCheckerForLanguage;
-  public static String AXB_ConfigurationError;
-  public static String AXB_OptionError;
   public static String AXB_EchoIOException;
   public static String AXB_BuildException;
   public static String CPD_PackageDeclError;

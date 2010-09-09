@@ -23,6 +23,7 @@ import org.eclipse.core.resources.ISaveParticipant;
 import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
@@ -32,13 +33,19 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import x10dt.core.X10DTCorePlugin;
+import x10dt.core.preferences.generated.X10Constants;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
 import x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformValidationListener;
@@ -49,7 +56,8 @@ import x10dt.ui.launch.cpp.platform_conf.validation.PlatformCheckerFactory;
  * 
  * @author egeay
  */
-public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeListener, ISaveParticipant {
+public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeListener, ISaveParticipant, 
+                                                               IPreferenceChangeListener {
 
   /**
    * Unique id for this plugin.
@@ -125,6 +133,35 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
   public void saving(final ISaveContext context) throws CoreException {
     // No state to be saved by the plug-in, but request a resource delta to be used on next activation.
     context.needDelta();
+  }
+  
+  // --- IPreferenceChangeListener's interface methods implementation
+  
+  public void preferenceChange(final PreferenceChangeEvent event) {
+    if (X10Constants.P_OPTIMIZE.equals(event.getKey())) {
+      for (final Map.Entry<IProject, IX10PlatformConf> entry : this.fProjectToPlatform.entrySet()) {
+        final IX10PlatformConfWorkCopy workingCopy = entry.getValue().createWorkingCopy();
+        workingCopy.updateCompilationCommands();
+        workingCopy.applyChanges();
+        try {
+          X10PlatformConfFactory.save(X10PlatformConfFactory.getFile(entry.getKey()), workingCopy);
+        } catch (CoreException except) {
+          log(except.getStatus());
+        }
+      }
+      
+      final WorkspaceJob job = new WorkspaceJob(LaunchMessages.CLC_RebuildWorkspaceJobName) {
+        
+        public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
+          ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, monitor);
+          return Status.OK_STATUS;
+        }
+        
+      };
+      job.setRule(ResourcesPlugin.getWorkspace().getRuleFactory().buildRule());
+      job.setPriority(Job.BUILD);
+      job.schedule();
+    }
   }
 
   // --- Public services
@@ -239,6 +276,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     if (lastState != null) {
       lastState.processResourceChangeEvents(this);
     }
+    X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
+                   .addPreferenceChangeListener(this);
     fPlugin = this;
   }
 
@@ -250,6 +289,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     ResourcesPlugin.getWorkspace().removeSaveParticipant(this);
     this.fProjectToPlatform.clear();
     this.fProjectToPlatform = null;
+    X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
+                   .removePreferenceChangeListener(this);
 
     super.stop(context);
   }

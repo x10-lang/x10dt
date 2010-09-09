@@ -20,6 +20,8 @@ import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
+import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
+import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 
 
@@ -172,6 +174,36 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setX10DistribLocation(final String x10DistribLoc) {
     super.fCppCompilationConf.fX10DistLoc = x10DistribLoc;
+    updateDirtyFlag();
+  }
+  
+  public void updateCompilationCommands() {
+    final boolean is64Arch = (this.fCppCompilationConf.fBitsArchitecture == EBitsArchitecture.E64Arch);
+    final IDefaultCPPCommands defaultCPPCommands;
+    switch (this.fCppCompilationConf.fTargetOS) {
+    case AIX:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
+      break;
+    case LINUX:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
+      break;
+    case MAC:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
+      break;
+    case WINDOWS:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
+      break;
+    default:
+      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
+                                                                              this.fCppCompilationConf.fArchitecture);
+    }
+    this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
+    this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
+    this.fCppCompilationConf.fArchiver = defaultCPPCommands.getArchiver();
+    this.fCppCompilationConf.fArchivingOpts = defaultCPPCommands.getArchivingOpts();
+    this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
+    this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
+    this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
     updateDirtyFlag();
   }
     

@@ -271,35 +271,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     options.compile_command_line_only = true;
 
     final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
-    // Compiler prefs
-    Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
-    Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
     options.assertions = prefService.getBooleanPreference(X10Constants.P_PERMITASSERT);
-    final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
-    if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
-      // First initialize to default values.
-      Configuration.DEBUG = false;
-      Configuration.CHECK_INVARIANTS = false;
-      Configuration.ONLY_TYPE_CHECKING = false;
-      Configuration.NO_CHECKS = false;
-      Configuration.FLATTEN_EXPRESSIONS = false;
-      for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
-        try {
-          Configuration.parseArgument(opt);
-        } catch (OptionError except) {
-          LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.AXB_OptionError, opt), except);
-        } catch (ConfigurationError except) {
-          LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.AXB_ConfigurationError, opt), except);
-        }
-      }
-    }
-    // Optimization prefs
-    Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
-    Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
-    Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
-    Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
-    Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
-
+    
     if (prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
       final MessageConsole console = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream consoleStream = console.newMessageStream();

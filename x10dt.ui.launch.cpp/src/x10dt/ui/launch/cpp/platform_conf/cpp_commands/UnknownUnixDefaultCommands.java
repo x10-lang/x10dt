@@ -33,9 +33,9 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   public String getCompilerOptions() {
     final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread"; //$NON-NLS-1$
     if (is64Arch()) {
-      return cmpOpts + M64BIT_OPTION;
+      return addNoChecksOptions(addOptimizeOptions(cmpOpts + M64BIT_OPTION));
     } else {
-      return cmpOpts;
+      return addNoChecksOptions(addOptimizeOptions(cmpOpts));
     }
   }
 
@@ -50,9 +50,9 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   public String getLinkingOptions() {
     final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter"; //$NON-NLS-1$
     if (is64Arch()) {
-      return linkOpts + M64BIT_OPTION;
+      return addNoChecksOptions(addOptimizeOptions(linkOpts + M64BIT_OPTION));
     } else {
-      return linkOpts;
+      return addNoChecksOptions(addOptimizeOptions(linkOpts));
     }
   }
 
