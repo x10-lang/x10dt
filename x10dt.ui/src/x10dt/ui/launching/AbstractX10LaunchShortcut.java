@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -132,9 +132,10 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     final String namePrefix = type.first.fullName().toString();
     final String confName = DebugPlugin.getDefault().getLaunchManager().generateUniqueLaunchConfigurationNameFrom(namePrefix);
     try {
-      final IProject project = type.second.getResource().getProject();
-      final ILaunchConfigurationWorkingCopy workingCopy = launchConfType.newInstance(project, confName);
+      final ILaunchConfigurationWorkingCopy workingCopy = launchConfType.newInstance(null, confName);
       setLaunchConfigurationAttributes(workingCopy, type);
+      workingCopy.setMappedResources(new IResource[] { type.second.getResource().getProject() });
+      workingCopy.doSave();
       return workingCopy;
     } catch (CoreException except) {
       ErrorDialog.openError(getShell(), Messages.AXLS_ConfCreationError, 
