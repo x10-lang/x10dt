@@ -135,8 +135,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       final ILaunchConfigurationWorkingCopy workingCopy = launchConfType.newInstance(null, confName);
       setLaunchConfigurationAttributes(workingCopy, type);
       workingCopy.setMappedResources(new IResource[] { type.second.getResource().getProject() });
-      workingCopy.doSave();
-      return workingCopy;
+      return workingCopy.doSave();
     } catch (CoreException except) {
       ErrorDialog.openError(getShell(), Messages.AXLS_ConfCreationError, 
                             NLS.bind(Messages.AXLS_ConfCreationSavingErrorMsg, launchConfType.getName()), except.getStatus());
