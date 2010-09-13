@@ -57,17 +57,29 @@ public class X10ProjectNature extends ProjectNatureBase {
     
     @Override
     public void configure() throws CoreException {
-    	super.configure();
-    	IProject project = getProject();
-    	IProjectDescription description = project.getDescription();
-    	ICommand[] commands = description.getBuildSpec();
-    	ICommand[] newCommands = new ICommand[commands.length - 1];
-    	for(int i = 0; i < commands.length; i++){
-    		if (!commands[i].getBuilderName().equals(JavaCore.BUILDER_ID)){
-    			newCommands[i] = commands[i];
-    		}
-    	}
-    	description.setBuildSpec(newCommands);
-    	project.setDescription(description, new NullProgressMonitor());
+      super.configure();
+      final IProject project = getProject();
+      final IProjectDescription description = project.getDescription();
+      final ICommand[] commands = description.getBuildSpec();
+      if (hasJavaBuilder(commands)) {
+        final ICommand[] newCommands = new ICommand[commands.length - 1];
+        for(int i = 0; i < commands.length; i++){
+          if (!commands[i].getBuilderName().equals(JavaCore.BUILDER_ID)){
+            newCommands[i] = commands[i];
+          }
+        }
+        description.setBuildSpec(newCommands);
+        project.setDescription(description, new NullProgressMonitor());
+      }
     }
+    
+    private boolean hasJavaBuilder(final ICommand[] commands) {
+      for (final ICommand command : commands) {
+        if (JavaCore.BUILDER_ID.equals(command.getBuilderName())) {
+          return true;
+        }
+      }
+      return false;
+    }
+    
 }

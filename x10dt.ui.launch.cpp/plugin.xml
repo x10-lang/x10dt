@@ -239,5 +239,26 @@
             name="%debug.app.command">
       </command>
    </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <objectContribution
+            adaptable="false"
+            id="x10dt.ui.launch.cpp.obj.contrib.convert-to-java"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+         <action
+               class="x10dt.ui.launch.cpp.actions.ConvertToJavaBackEndAction"
+               enablesFor="+"
+               id="x10dt.ui.launch.cpp.convert-java-back-end"
+               label="%convert.java.back-end"
+               menubarPath="org.eclipse.ui.projectConfigure/additions">
+         </action>
+         <visibility>
+            <objectState
+                  name="projectNature"
+                  value="x10dt.ui.launch.cpp.x10nature">
+            </objectState>
+         </visibility>
+      </objectContribution>
+   </extension>
 
 </plugin>
