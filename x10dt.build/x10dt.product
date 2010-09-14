@@ -3,11 +3,11 @@
 
 <product name="X10DT Product" uid="x10dt.product" id="x10dt.product" application="org.eclipse.ui.ide.workbench" version="2.0.6.qualifier" useFeatures="true" includeLaunchers="true">
 
-
    <configIni use="default">
    </configIni>
 
    <launcherArgs>
+      <vmArgs>-Xmx512m -XX:MaxPermSize=256m</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
@@ -37,7 +37,7 @@
    </plugins>
 
    <features>
-      <feature id="x10dt.feature" version="2.0.6.qualifier"/>
+      <feature id="x10dt.feature"/>
       <feature id="org.eclipse.cvs"/>
       <feature id="org.eclipse.equinox.p2.user.ui"/>
       <feature id="org.eclipse.help"/>

@@ -59,8 +59,8 @@
       </fileset>
     </delete>
     <eclipse.publish.featuresAndBundles repository="file:${orquesta.update.site.loc}" category="file:${basedir}/category.xml">
-      <features dir="${buildDirectory}/buildRepo/features" includes="*" />
-      <bundles dir="${buildDirectory}/buildRepo/plugins" includes="*" />
+      <features dir="${buildDirectory}/buildRepo/features" includes="*" excludes="org.eclipse.cdt*" />
+      <bundles dir="${buildDirectory}/buildRepo/plugins" includes="*" excludes="org.eclipse.cdt*" />
     </eclipse.publish.featuresAndBundles>
     <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
          basedir="${orquesta.update.site.loc}" includes="artifacts.xml,content.xml,plugins/**,features/**" />

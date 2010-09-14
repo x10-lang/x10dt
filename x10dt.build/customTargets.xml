@@ -97,11 +97,10 @@
       <iu id="org.eclipse.cdt.feature.group" />
 
       <iu id="org.eclipse.ptp.core.feature.group" />
-      <iu id="org.eclipse.ptp.feature.group" />
-      <iu id="org.eclipse.ptp.proxy" />
-      <iu id="org.eclipse.ptp.proxy.protocol" />
+      <iu id="org.eclipse.ptp.external.feature.group"/>
       <iu id="org.eclipse.ptp.remote.feature.group" />
       <iu id="org.eclipse.ptp.remote.remotetools.feature.group" />
+      <iu id="org.eclipse.ptp.remotetools.feature.group" />
       <iu id="org.eclipse.ptp.rm.ibm.ll.feature.group" />
       <iu id="org.eclipse.ptp.rm.ibm.pe.feature.group" />
       <iu id="org.eclipse.ptp.rm.mpich2.feature.group" />
@@ -112,7 +111,7 @@
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
 
-      <slicingOptions followStrict="true" includeOptional="false" />
+      <slicingOptions followStrict="true" includeOptional="false"/>
     </p2.mirror>
   </target>
 

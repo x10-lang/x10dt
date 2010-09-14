@@ -90,10 +90,15 @@
 	<!-- Steps to do before the repositories are being processed -->
 	<!-- ===================================================================== -->
 	<target name="preProcessRepos">
+  	<p2.mirror destination="file:${repoBaseLocation}/mirror">
+      <source file="${cdt.update.loc}"/>
+      <iu id="org.eclipse.cdt.feature.group" />
+      <slicingOptions followStrict="true" includeOptional="false"/>
+    </p2.mirror>
 	  <p2.composite.repository>
 	    <repository location="file:${repoBaseLocation}/x10dt" />
 	    <add>
-	      <repository location="file:${build.folder}/x10dt.build/buildRepo" />
+	      <repository location="file:${x10dtBuildDirectory}/buildRepo" />
 	      <repository location="file:${repositories}/swtbot" />
 	      <repository location="file:${repositories}/test-framework" />
 	    </add>
