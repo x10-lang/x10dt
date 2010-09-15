@@ -2,7 +2,7 @@
 <project name="Test" default="test" basedir=".">
 	<property name="report" location="report" />
 	<property name="report.html" location="report/html" />
-	<property name="data" location="data" />
+	<property name="data" location="code/data" />
 	<property name="tst-dir" location="bin" />
 	<property name="junit" location="lib/junit.jar" />
 	<property name="hamcrest" location="lib/hamcrest.jar" />
@@ -37,14 +37,14 @@
 			<report format="frames" todir="${report.html}"/>
 		</junitreport>
 	</target>
-	<target name="smoketest" depends="init,build" description="A very quick set of tests (~20sec)">
+	<target name="smoketest" depends="init,build,copydata" description="A very quick set of tests (~20sec)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
 			<test name="x10dt.core.tests.compiler.CompilerTests" todir="${report}"/>
 		</junit>
 	</target>
-	<target name="quicktest" depends="init,build" description="A quick set of tests (~2min)">
+	<target name="quicktest" depends="init,build,copydata" description="A quick set of tests (~2min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
@@ -52,24 +52,25 @@
 			<test name="x10dt.core.tests.compiler.DataParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
-	<target name="slowtest" depends="init,build" description="A slower set of tests (~20min)">
+	<target name="slowtest" depends="init,build,copydata" description="A slower set of tests (~20min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
 			<test name="x10dt.core.tests.compiler.X10TestsParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
-	<target name="fuzztest" depends="init,build,fuzzgen" description="A slow set of tests (~200min)">
+	<target name="fuzztest" depends="init,build,fuzzgen,copydata" description="A slow set of tests (~200min)">
 		<junit>
 			<classpath refid="classpath.test" />
 			<formatter type="xml" usefile="true" />
 			<test name="x10dt.core.tests.compiler.FuzzParamCompilerTests" todir="${report}" />
 		</junit>
 	</target>
-	<target name="fuzzgen">
+	<target name="fuzzgen" depends="build">
 		<delete dir="${data}/fuzzgen" failonerror="false" />
 		<mkdir dir="${data}/fuzzgen" />
 		<java classname="x10dt.core.tests.compiler.FuzzParamCompilerTests">
+			<arg file="${data}/fuzzgen"/>
 			<classpath refid="classpath.test" />
 		</java>
 	</target>
@@ -78,6 +79,11 @@
 			<src path="src"/>
 			<classpath refid="classpath.test" />
 		</javac>
+	</target>
+	<target name="copydata" depends="init">
+		<copy todir="${tst-dir}">
+			<fileset dir="code"/>
+		</copy>
 	</target>
 	<target name="init">
 		<mkdir dir="${report}" />
