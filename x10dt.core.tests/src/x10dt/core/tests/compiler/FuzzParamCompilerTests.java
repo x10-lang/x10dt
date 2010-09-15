@@ -133,7 +133,7 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	public static void main(String[] args) throws URISyntaxException, IOException {
 	  final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 	  final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_DIRNAME);
-	  final File fuzzgenFile = new File(toFile(fuzzURL), FUZZGEN_DIRNAME);
+	  final File fuzzgenFile = new File(toFile(fuzzURL), "../../code/" + FUZZGEN_DIRNAME);
 	  if (! fuzzgenFile.mkdir()) {
 	    throw new IOException("Could not created directory: " + fuzzgenFile.getAbsolutePath());
 	  }
