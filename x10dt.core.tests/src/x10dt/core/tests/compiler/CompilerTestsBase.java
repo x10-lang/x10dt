@@ -78,7 +78,7 @@ public class CompilerTestsBase {
 			paths.add(f.getPath());
 		}
 		try {	
-			ExtensionInfo extInfo = new x10.ExtensionInfo();
+			ExtensionInfo extInfo = new x10c.ExtensionInfo();
 			Compiler compiler = getCompiler(extInfo, options, errors, sourcepath);
 			Globals.initialize(compiler);
 			compiler.compileFiles(paths);
