@@ -131,15 +131,16 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	}
 	
 	public static void main(String[] args) throws URISyntaxException, IOException {
-	  final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
-	  final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_DIRNAME);
-	  final File fuzzgenFile = new File(toFile(fuzzURL), "../../code/" + FUZZGEN_DIRNAME);
-	  if (! fuzzgenFile.mkdir()) {
-	    throw new IOException("Could not created directory: " + fuzzgenFile.getAbsolutePath());
-	  }
-	  final String fuzzPath = fuzzgenFile.getAbsolutePath();
-		for (File f : getSources(toFile(dataURL))) {
-			fuzz(f, fuzzPath);
-		}
+	    final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+	    final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_DIRNAME);
+	    File fuzzDir = new File(toFile(fuzzURL), "../../code");
+	    final File fuzzgenFile = args.length > 0 ? new File(args[0]) : new File(fuzzDir, FUZZGEN_DIRNAME);
+	    if (!fuzzgenFile.exists() && ! fuzzgenFile.mkdir()) {
+	        throw new IOException("Could not create directory: " + fuzzgenFile.getAbsolutePath());
+	    }
+	    final String fuzzPath = fuzzgenFile.getAbsolutePath();
+	    for (File f : getSources(toFile(dataURL))) {
+	        fuzz(f, fuzzPath);
+	    }
 	}
 }

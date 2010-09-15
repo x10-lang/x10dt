@@ -49,7 +49,8 @@ public class CompilerTestsBase {
 		Collection<String> paths = new ArrayList<String>();
 		for (Source s: sources) {
 			paths.add(s.path());
-		}try {	
+		}
+		try {	
 			ExtensionInfo extInfo = new x10.ExtensionInfo();
 			Compiler compiler = getCompiler(extInfo, options, errors, sourcepath);
 			Globals.initialize(compiler);
