@@ -1,5 +1,6 @@
 package x10dt.ui.editor;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,8 +11,8 @@ import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.language.ServiceFactory;
+import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.services.base.NullMessageHandler;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Point;
@@ -37,8 +38,29 @@ public class TestEditor {
 
 		parseController = ServiceFactory.getInstance().getParseController(
 				language);
-		parseController.initialize(file.getProjectRelativePath(), EditorUtility
-				.getSourceProject(input), new NullMessageHandler());
+		parseController.initialize(file.getProjectRelativePath(), EditorUtility.getSourceProject(input), new IMessageHandler() {
+          
+          public void startMessageGroup(String groupName) {
+          }
+          
+          public void handleSimpleMessage(String msg, int startOffset, int endOffset, int startCol, int endCol, int startLine,
+                                          int endLine, Map<String, Object> attributes) {
+          }
+          
+          public void handleSimpleMessage(String msg, int startOffset, int endOffset, int startCol, int endCol, int startLine,
+                                          int endLine) {
+          }
+          
+          public void endMessages() {
+          }
+          
+          public void endMessageGroup() {
+          }
+          
+          public void clearMessages() {
+          }
+          
+        });
 	}
 
 	public Object getAst() {
