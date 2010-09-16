@@ -36,7 +36,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -49,15 +48,11 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
-import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
 import x10.ExtensionInfo;
-import x10.config.ConfigurationError;
-import x10.config.OptionError;
 import x10dt.core.X10DTCorePlugin;
-import x10dt.core.builder.StreamSource;
 import x10dt.core.preferences.generated.X10Constants;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
@@ -507,19 +502,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());
-  }
-
-  private Collection<Source> toSources(final Collection<IFile> sources) throws CoreException {
-    final Collection<Source> pSources = new ArrayList<Source>(sources.size());
-    for (final IFile file : sources) {
-      try {
-        pSources.add(new StreamSource(file.getContents(), file.getLocation().toOSString()));
-      } catch (IOException except) {
-        throw new CoreException(new Status(IStatus.ERROR, LaunchCore.getInstance().getBundle().getSymbolicName(),
-                                           NLS.bind(Messages.CPPB_FileReadingErrorMessage, file), except));
-      }
-    }
-    return pSources;
   }
 
   // --- Private classes
