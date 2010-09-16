@@ -204,35 +204,7 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
     // --- IPropertyChangeListener's interface methods implementation
     
     public void preferenceChange(final PreferenceChangeEvent event) {
-      final IPreferencesService prefService = getPreferencesService();
-      // Compiler prefs update
-      Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
-      Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
-      final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
-      if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
-        // First initialize to default values.
-        Configuration.DEBUG = false;
-        Configuration.CHECK_INVARIANTS = false;
-        Configuration.ONLY_TYPE_CHECKING = false;
-        Configuration.NO_CHECKS = false;
-        Configuration.FLATTEN_EXPRESSIONS = false;
-        for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
-          try {
-            Configuration.parseArgument(opt);
-          } catch (OptionError except) {
-            logException(NLS.bind("Could not recognize or set option ''{0}''.", opt), except);
-          } catch (ConfigurationError except) {
-            logException(NLS.bind("Could not initialize option ''{0}''.", opt), except);
-          }
-        }
-      }
-      // Optimization prefs update
-      Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
-      Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
-      Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
-      Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
-      Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
-      
+      updateX10ConfigurationFromPreferences();
       final WorkspaceJob job = new WorkspaceJob("Clean workspace...") {
         
         public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
@@ -268,15 +240,10 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
       final URL x10CompilerURL = FileLocator.toFileURL(FileLocator.find(x10CompilerBundle, new Path(""), null));
 
       // SMS 30 Oct 2006:  Note:  x10CompilerPath is *not* set as a preference
-      x10CompilerPath= x10CompilerURL.getPath();
+      x10CompilerPath = x10CompilerURL.getPath();
+      
+      updateX10ConfigurationFromPreferences();
 
-      // SMS 30 Oct 2006:  ref to replace
-      // Filling in the field here for now, but eventually want to replace references to this
-      // field with calls to the preference service
-      //fEmitInfoMessages= X10Preferences.builderEmitMessages;
-      // BRT fEmitInfoMessages = getPreferencesService().getBooleanPreference(PreferenceConstants.P_EMIT_MESSAGES);
-      // BRT consider putting this in an X10DT pref page.  Probably want several flavors.
-        
       X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
                      .addPreferenceChangeListener(this);
     }
@@ -297,6 +264,39 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
     @Override
     public void refreshPrefs() {
       this.getPreferencesService().getBooleanPreference("msgs?");
+    }
+    
+    // --- Private code
+    
+    private void updateX10ConfigurationFromPreferences() {
+      final IPreferencesService prefService = getPreferencesService();
+      // Compiler prefs update
+      Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
+      Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
+      final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
+      if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
+        // First initialize to default values.
+        Configuration.DEBUG = false;
+        Configuration.CHECK_INVARIANTS = false;
+        Configuration.ONLY_TYPE_CHECKING = false;
+        Configuration.NO_CHECKS = false;
+        Configuration.FLATTEN_EXPRESSIONS = false;
+        for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
+          try {
+            Configuration.parseArgument(opt);
+          } catch (OptionError except) {
+            logException(NLS.bind("Could not recognize or set option ''{0}''.", opt), except);
+          } catch (ConfigurationError except) {
+            logException(NLS.bind("Could not initialize option ''{0}''.", opt), except);
+          }
+        }
+      }
+      // Optimization prefs update
+      Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
+      Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
+      Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
+      Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
+      Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
     }
 
 }
