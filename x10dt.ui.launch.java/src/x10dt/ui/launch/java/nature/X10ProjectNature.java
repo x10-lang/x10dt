@@ -33,7 +33,7 @@ import x10dt.ui.launch.java.Activator;
 public class X10ProjectNature extends ProjectNatureBase {
     
     public String getNatureID() {
-        return Activator.X10_JAVA_NATURE_ID;
+        return Activator.X10_PRJ_JAVA_NATURE_ID;
     }
 
     public String getBuilderID() {
