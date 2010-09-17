@@ -37,8 +37,6 @@ public class SWTFormUtils {
    * @param parent The parent composite to consider.
    * @param labelText The text for the label.
    * @param toolkit The toolkit to use for creating the label and combo widgets.
-   * @param controlContainer A container that, if it is not <b>null</b> will contain after the call the label and combo 
-   * controls. Can be useful for enabling/disabling of groups of controls easily.
    * @return The non-null Combo widget created.
    */
   public static Combo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit) {
@@ -101,8 +99,6 @@ public class SWTFormUtils {
    * @param parent The parent composite to consider.
    * @param labelText The text for the label.
    * @param toolkit The toolkit to use for creating the label and spinner widgets.
-   * @param controlContainer A container that, if it is not <b>null</b> will contain after the call the label and spinner 
-   * controls. Can be useful for enabling/disabling of groups of controls easily.
    * @return The non-null spinner widget created.
    */
   public static Spinner createLabelAndSpinner(final Composite parent, final String labelText, final FormToolkit toolkit) {
@@ -271,8 +267,6 @@ public class SWTFormUtils {
    * @param toolkit The toolkit to use for creating the label and text widgets.
    * @param controlContainer A container that, if it is not <b>null</b> will contain after the call the label and text 
    * controls. Can be useful for enabling/disabling of groups of controls easily.
-   * @param textHeightFactor The height factor to consider for the text widget. A value of 1 will create the default height
-   * value based on the font size. A value of 2 will multiply this default value by 2, and so on.
    * @return The non-null Text and Button widgets created.
    */
   public static Pair<Text,Button> createLabelTextButton(final Composite parent, final String labelText, 
