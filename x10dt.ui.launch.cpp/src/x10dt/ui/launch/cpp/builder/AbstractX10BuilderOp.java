@@ -115,16 +115,15 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     
       if (returnCode != 0) {
         CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), 
-                                           IMarker.SEVERITY_ERROR,
-                                           getProject().getFullPath().toString(), IMarker.PRIORITY_HIGH);
+                                           IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
       }
     } catch (IOException except) {
       CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
-                                         IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+                                         IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
     } catch (InterruptedException except) {
       CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
-                                         IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+                                         IMarker.SEVERITY_WARNING, IMarker.PRIORITY_LOW);
     } finally {
       monitor.done();
     }
@@ -220,17 +219,17 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
           succeeded = false;
           mcStream.println();
           CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CompilErrorMsg, getFileName(entry.getKey())), 
-                                             IMarker.SEVERITY_ERROR, entry.getKey(), IMarker.PRIORITY_HIGH);
+                                             IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH, entry.getKey());
         }
       }
     } catch (IOException except) {
       CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), 
-                                         IMarker.SEVERITY_ERROR, getProject().getLocation().toString(), IMarker.PRIORITY_HIGH);
+                                         IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
       LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.CPPB_TargetOpError, this.fConfName), except);
       return false;
     } catch (InterruptedException except) {
       CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_CancelOpMsg, this.fConfName), 
-                                         IMarker.SEVERITY_WARNING, getProject().getLocation().toString(), IMarker.PRIORITY_LOW);
+                                         IMarker.SEVERITY_WARNING, IMarker.PRIORITY_LOW);
       return false;
     } finally {
       monitor.done();
