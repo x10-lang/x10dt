@@ -124,28 +124,42 @@
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
-            contextId="org.eclipse.ui.globalScope"
-            sequence="M1+M3+D X"
+            commandId="x10dt.ui.launching.x10LaunchShortcut.run"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M2+M3+X X"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
             commandId="x10dt.ui.launching.x10LaunchShortcut.run"
-            contextId="org.eclipse.ui.globalScope"
-            sequence="M1+M3+X X"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+X X">
+      </key>
+      <key
+            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+D X">
+      </key>
+      <key
+            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+M4+D X">
       </key>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
       <command
-            name="Run X10 Application"
+            name="Run X10 Application (Java Back-End)"
             description="Run the selected main type as an X10 application"
             categoryId="org.eclipse.debug.ui.category.run"
             id="x10dt.ui.launching.x10LaunchShortcut.run">
       </command>
       <command
-            name="Debug X10 Application"
+            name="Debug X10 Application (Java Back-End)"
             description="Run the selected main type as an X10 application"
             categoryId="org.eclipse.debug.ui.category.run"
             id="x10dt.ui.launching.x10LaunchShortcut.debug">
