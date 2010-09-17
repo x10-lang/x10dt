@@ -217,13 +217,27 @@
             commandId="x10dt.ui.launch.cpp.x10.app.run"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+X C">
+      </key>
+      <key
+            commandId="x10dt.ui.launch.cpp.x10.app.run"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+X C">
       </key>
       <key
             commandId="x10dt.ui.launch.cpp.x10.app.debug"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+D C">
+            sequence="M2+M3+D C">
+      </key>
+      <key
+            commandId="x10dt.ui.launch.cpp.x10.app.debug"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+M4+D C">
       </key>
    </extension>
    <extension
@@ -259,6 +273,13 @@
             </objectState>
          </visibility>
       </objectContribution>
+   </extension>
+   <extension
+         point="x10dt.ui.launch.core.x10ProjectConvert">
+      <converter
+            backEndType="c++"
+            class="x10dt.ui.launch.cpp.actions.CppBackEndProjectConverter">
+      </converter>
    </extension>
 
 </plugin>
