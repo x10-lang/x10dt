@@ -77,6 +77,13 @@
          </visibility>
       </objectContribution>
    </extension>
+   <extension
+         point="x10dt.ui.launch.core.x10ProjectConvert">
+      <converter
+            backEndType="java"
+            class="x10dt.ui.launch.java.actions.JavaBackEndProjectConverter">
+      </converter>
+   </extension>
  
 
 </plugin>

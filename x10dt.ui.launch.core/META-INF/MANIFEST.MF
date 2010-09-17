@@ -5,23 +5,24 @@ Bundle-SymbolicName: x10dt.ui.launch.core;singleton:=true
 Bundle-Version: 2.0.6.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: x10dt.ui.launch.core.LaunchCore
-Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.jface,
- org.eclipse.ui.workbench,
- org.eclipse.ui,
- org.eclipse.core.resources,
- org.eclipse.imp.runtime,
- org.eclipse.jdt.core,
- x10dt.core,
- x10.compiler,
+Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
+ org.eclipse.core.expressions,
  org.eclipse.core.filesystem,
+ org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.eclipse.imp.runtime,
+ org.eclipse.imp.smapifier,
+ org.eclipse.jdt.core,
+ org.eclipse.ui,
  org.eclipse.ui.console,
  org.eclipse.ui.forms,
- x10.common;bundle-version="2.0.5",
- lpg.runtime.java;bundle-version="2.0.18"
+ x10.common,
+ x10.compiler,
+ x10dt.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: x10dt.ui.launch.core,
+ x10dt.ui.launch.core.actions,
  x10dt.ui.launch.core.builder,
  x10dt.ui.launch.core.builder.target_op,
  x10dt.ui.launch.core.dialogs,

@@ -7,22 +7,27 @@
  *******************************************************************************/
 package x10dt.ui.launch.java.actions;
 
-import org.eclipse.ui.IObjectActionDelegate;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.window.IShellProvider;
 
-import x10dt.ui.launch.core.actions.AbstractConvertX10ProjectAction;
+import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
+import x10dt.ui.launch.java.Activator;
 
 /**
- * Action to convert a Java back-end nature to C++ back-end nature.
+ * Implementation of {@link IBackEndX10ProjectConverter} when converting an X10 project to use the Java back-end.
  * 
  * @author egeay
  */
-public final class ConvertToCppBackEndAction extends AbstractConvertX10ProjectAction implements IObjectActionDelegate {
-  
-// --- Abstract methods implementation
-  
-  protected String getTargetBackEndType() {
-    return "c++"; //$NON-NLS-1$
-  }
-  
-}
+public final class JavaBackEndProjectConverter implements IBackEndX10ProjectConverter {
 
+  // --- Interface methods implementation
+  
+  public String getProjectNatureId() {
+    return Activator.X10_PRJ_JAVA_NATURE_ID;
+  }
+
+  public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {
+    // Nothing to do.
+  }
+
+}

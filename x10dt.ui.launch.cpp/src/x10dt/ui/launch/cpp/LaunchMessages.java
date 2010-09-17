@@ -91,6 +91,10 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_TabName;
 
+  public static String CBEPC_PlatformConfSavingErrMsg;
+
+  public static String CBEPC_PlatformConfSavingErrTitle;
+
   public static String CISP_AutoDetect;
 
   public static String CISP_OpenMPIVersion;

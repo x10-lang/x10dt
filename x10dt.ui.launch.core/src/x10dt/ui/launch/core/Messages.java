@@ -17,6 +17,12 @@ import org.eclipse.osgi.util.NLS;
 @SuppressWarnings("all")
 public class Messages extends NLS {
   
+  public static String ACXPA_ClassCreationError;
+  public static String ACXPA_ConversionFailureMessage;
+  public static String ACXPA_ConversionFailureTitle;
+  public static String ACXPA_ExtensionPointErrorMsg;
+  public static String ACXPA_FoundMultipleExtPoints;
+  public static String ACXPA_NoExtensionFound;
   public static String AXB_IncompleteConfMsg;
   public static String CPPB_LibCreationError;
   public static String CPPB_ArchivingCmdLabel;
@@ -35,7 +41,6 @@ public class Messages extends NLS {
   public static String CPPB_CompiledMsg;
   public static String CPPB_CompilErrorMsg;
   public static String CPPB_ConsoleName;
-  public static String CPPB_FileReadingErrorMessage;
   public static String CPPB_IOErrorDuringCompilation;
 	public static String CPPB_NoPTPConnectionForName;
   public static String CPPB_NoValidConnectionError;
@@ -56,8 +61,10 @@ public class Messages extends NLS {
   public static String XB_NoPlatformConfError;
   public static String XBU_ArchNameNotInEnum;
   public static String XBU_NoCheckerForLanguage;
+  public static String XEQ_InternalCompilerErrorMsg;
   public static String AXB_EchoIOException;
   public static String AXB_BuildException;
+  public static String AXB_CompilerInternalError;
   public static String CPD_PackageDeclError;
  
   // --- Private code
