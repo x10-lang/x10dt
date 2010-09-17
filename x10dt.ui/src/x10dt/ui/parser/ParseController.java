@@ -131,7 +131,7 @@ public class ParseController extends SimpleLPGParseController {
             	StringBuilder entryPath= new StringBuilder();
             	entryPath.append(trailer);
             	for(int i=jarPathComponentIdx+1; i < fFilePath.segmentCount(); i++) {
-            		entryPath.append(File.separatorChar);
+            		entryPath.append('/');
             		entryPath.append(fFilePath.segment(i));
             	}
             	ZipFile zipFile= new ZipFile(new File(jarPath.toString()));
