@@ -24,6 +24,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
@@ -34,6 +35,7 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
@@ -78,6 +80,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   // --- Interface methods implementation
 
   public final void launch(final ISelection selection, final String mode) {
+    
     if (selection instanceof IStructuredSelection) {
       final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
       final IJavaElement[] elements = new IJavaElement[structuredSelection.size()];
@@ -95,9 +98,9 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   }
 
   public final void launch(final IEditorPart editor, final String mode) {
-    final IJavaElement javaElement = (IJavaElement) editor.getEditorInput().getAdapter(IJavaElement.class);
-    if (javaElement != null) {
-      searchAndLaunch(new IJavaElement[] { javaElement }, mode);
+    if (editor instanceof UniversalEditor) {
+      final IFile file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+      searchAndLaunch(new IJavaElement[] { new X10FileElementWrapper(file) }, mode);
     }
   }
   
