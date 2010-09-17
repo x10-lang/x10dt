@@ -1,16 +1,13 @@
 package x10dt.ui.launch.java.builder;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.Collection;
 
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.JavaCore;
 
@@ -20,59 +17,76 @@ import x10dt.ui.launch.core.utils.ICountableIterable;
 
 public class X10JavaBuilderOp implements IX10BuilderFileOp {
 
-	private IProject fProject;
-	private X10JavaBuilder fBuilder;
-	
-	
-	public X10JavaBuilderOp(IProject project, X10JavaBuilder builder){
-		this.fProject = project;
-		this.fBuilder = builder;
-	}
-	
-	
-	public void archive(IProgressMonitor monitor) throws CoreException {
-		// NoOp for Java Backend
+  private IProject fProject;
 
-	}
+  private X10JavaBuilder fBuilder;
 
-	public void cleanFiles(ICountableIterable<IFile> files, SubMonitor monitor)
-			throws CoreException {
-		for(IFile file: files){
-			File gen = fBuilder.getMainGeneratedFile(JavaCore.create(fProject), file);
-			if (gen != null) {
-				IPath javaPath = new Path(gen.getAbsolutePath());
-				IPath classPath = javaPath.removeFileExtension().addFileExtension(Constants.CLASS_EXT.substring(1));
-				IFileStore javaFileStore = EFS.getLocalFileSystem().getStore(javaPath);
-				if (javaFileStore.fetchInfo().exists()) {
-					javaFileStore.delete(EFS.NONE, monitor);
-				}
-				IFileStore classfileStore = EFS.getLocalFileSystem().getStore(classPath);
-				if (classfileStore.fetchInfo().exists()) {
-					classfileStore.delete(EFS.NONE, monitor);
-				}
-			}
-		}
+  public X10JavaBuilderOp(IProject project, X10JavaBuilder builder) {
+    this.fProject = project;
+    this.fBuilder = builder;
+  }
 
-	}
+  // --- Interface methods implementation
 
-	public boolean compile(IProgressMonitor monitor) throws CoreException {
-			return true; //NoOp for Java Backend -- This is done using the post-compilation goal. See JavaBuilderExtensionInfo
-	}
+  public void archive(final IProgressMonitor monitor) throws CoreException {
+    // NoOp for Java Backend
+  }
 
-	public void copyToOutputDir(Collection<IFile> files, SubMonitor monitor)
-			throws CoreException {
-		// NoOp for Java Backend
+  public void cleanFiles(final ICountableIterable<IFile> files, final SubMonitor monitor) throws CoreException {
+    for (final IFile file : files) {
+      final File javaFile = this.fBuilder.getMainGeneratedFile(JavaCore.create(this.fProject), file);
+      if (javaFile != null) {
+        if (javaFile.exists()) {
+          javaFile.delete();
+        }
+        final String javaFilePath = javaFile.getAbsolutePath();
+        final File classFile = new File(javaFilePath.substring(0, javaFilePath.length() - 5).concat(Constants.CLASS_EXT));
+        if (classFile.exists()) {
+          classFile.delete();
+        }
+        // We need to take care of possible anonymous classes now.
+        final String typeName = javaFile.getName().substring(0, javaFile.getName().length() - 5);
+        for (final File f : javaFile.getParentFile().listFiles(new AnonymousClassFilter(typeName))) {
+          f.delete();
+        }
+      }
+    }
+  }
 
-	}
+  public boolean compile(final IProgressMonitor monitor) throws CoreException {
+    return true; // NoOp for Java Backend -- This is done using the post-compilation goal. See JavaBuilderExtensionInfo
+  }
 
-	public boolean hasAllPrerequisites() {
-		return true;
-	}
+  public void copyToOutputDir(final Collection<IFile> files, final SubMonitor monitor) throws CoreException {
+    // NoOp for Java Backend
+  }
 
-	public void transfer(Collection<File> files, IProgressMonitor monitor)
-			throws CoreException {
-		// NoOp for Jaca Backend
+  public boolean hasAllPrerequisites() {
+    return true;
+  }
 
-	}
+  public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
+    // NoOp for Java Backend
+  }
 
+  // --- Private classes
+  
+  private static final class AnonymousClassFilter implements FilenameFilter {
+    
+    AnonymousClassFilter(final String typeName) {
+      this.fTypeNamePrefix = typeName + '$';
+    }
+
+    // --- Interface methods implementation
+    
+    public boolean accept(final File dir, final String name) {
+      return name.startsWith(this.fTypeNamePrefix) && name.endsWith(Constants.CLASS_EXT);
+    }
+    
+    // --- Private code
+    
+    private final String fTypeNamePrefix;
+    
+  }
+  
 }
