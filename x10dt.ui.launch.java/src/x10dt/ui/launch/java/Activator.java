@@ -8,7 +8,9 @@ import org.osgi.framework.BundleContext;
  */
 public class Activator extends AbstractUIPlugin {
 
-	// The plug-in ID
+	/**
+	 * The unique plugin id for <b>x10dt.ui.launch.java</b> project.
+	 */
 	public static final String PLUGIN_ID = "x10dt.ui.launch.java"; //$NON-NLS-1$
 
 	/**
@@ -17,9 +19,9 @@ public class Activator extends AbstractUIPlugin {
 	public static final String BUILDER_ID = PLUGIN_ID + ".X10JavaBuilder"; //$NON-NLS-1$
 
 	/**
-	 * Id for the X10DT C++ Project Nature.
+	 * Id for the X10DT Java Project Nature.
 	 */
-	public static final String X10_JAVA_NATURE_ID = PLUGIN_ID + ".x10nature"; //$NON-NLS-1$
+	public static final String X10_PRJ_JAVA_NATURE_ID = PLUGIN_ID + ".x10nature"; //$NON-NLS-1$
 	  
 	// The shared instance
 	private static Activator plugin;

@@ -37,7 +37,7 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   }
   
   protected String getProjectNatureId() {
-    return Activator.X10_JAVA_NATURE_ID;
+    return Activator.X10_PRJ_JAVA_NATURE_ID;
   }
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,

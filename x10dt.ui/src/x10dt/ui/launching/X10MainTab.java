@@ -26,7 +26,6 @@ import polyglot.types.ClassType;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.java.Activator;
-import x10dt.ui.launch.java.nature.X10ProjectNature;
 import x10dt.ui.utils.LaunchUtils;
 
 public class X10MainTab extends JavaMainTab {
@@ -88,14 +87,15 @@ public class X10MainTab extends JavaMainTab {
     } else {
       boolean hasValidNature = false;
       try {
-        hasValidNature = project.getProject().hasNature(Activator.X10_JAVA_NATURE_ID);
+        hasValidNature = project.getProject().hasNature(Activator.X10_PRJ_JAVA_NATURE_ID);
       } catch (CoreException except) {
         // Do nothing.
       }
       scope = hasValidNature ? new IJavaElement[] { project } : null;
     }
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, Activator.X10_JAVA_NATURE_ID, getShell());
+      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, Activator.X10_PRJ_JAVA_NATURE_ID,
+                                                                              getShell());
       if (mainType != null) {
         super.fMainText.setText(mainType.first.fullName().toString());
         if ((project == null) || ! project.exists()) {
