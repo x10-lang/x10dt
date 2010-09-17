@@ -42,7 +42,7 @@ public class CollectBookmarks {
 	     	adjuncts=new ArrayList<IToken>();
 	     }
 	     IFile file= fBuilder.getProject().getFile(path.substring(fBuilder.getProject().getLocation().toOSString().length()));
-	     CoreResourceUtils.deleteMarker(IMarker.TASK, file, true, IResource.DEPTH_ONE);
+	     CoreResourceUtils.deleteTasks(file, IResource.DEPTH_ONE);
 
 	     for(IToken adjunct: adjuncts) {
 	         String adjunctStr= adjunct.toString();
@@ -52,7 +52,8 @@ public class CollectBookmarks {
 	                 int lineNum= adjunct.getLine();
 	                 int startOffset= adjunct.getStartOffset();
 	                 int endOffset= adjunct.getEndOffset();
-	                 CoreResourceUtils.createMarker(IMarker.TASK, file, msg, IMarker.SEVERITY_INFO, "", IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
+	                 CoreResourceUtils.addTask(file, msg, IMarker.SEVERITY_INFO, file.getLocation().toString(), 
+	                                           IMarker.PRIORITY_NORMAL, lineNum, startOffset, endOffset);
 	             }
 	         }
 	     }

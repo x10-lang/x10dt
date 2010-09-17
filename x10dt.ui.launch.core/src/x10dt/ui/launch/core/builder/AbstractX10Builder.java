@@ -302,7 +302,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     for (final IFile file : sourcesToCompile) {
       CoreResourceUtils.deleteBuildMarkers(file);
     }
-    CoreResourceUtils.deleteBuildMarkers(getProject());
+    CoreResourceUtils.deleteBuildMarkers(getProject(), IResource.DEPTH_INFINITE);
   }
 
   private void collectSourceFilesToCompile(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,
@@ -447,7 +447,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       // --- when there is a file that imports another one file a bad syntactic error.
       analyze(extInfo.scheduler().commandLineJobs());
     } catch (InternalCompilerError except) {
-      LaunchCore.log(IStatus.ERROR, "Internal compiler error occurred.", except);
+      LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, except);
       // The exception is also pushed on the error queue... A marker will be created accordingly for it.
       sourcesToCompile.clear(); // To prevent post-compilation step.
     } finally {

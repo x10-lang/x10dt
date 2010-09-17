@@ -18,7 +18,6 @@ import polyglot.frontend.Source;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10dt.core.X10DTCorePlugin;
-import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 
@@ -45,7 +44,8 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
     private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
         if (!actualPkg.equals(declaredPkg)) {
         	IFile file= fBuilder.getProject().getFile(fJob.source().path().substring(fBuilder.getProject().getLocation().toOSString().length()));
-        	CoreResourceUtils.createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, file, Messages.CPD_PackageDeclError, IMarker.SEVERITY_ERROR, "", IMarker.PRIORITY_NORMAL, pos.line(), pos.offset(), pos.endOffset());
+        	CoreResourceUtils.addBuildMarkerTo(file, Messages.CPD_PackageDeclError, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL, 
+        	                                   file.getLocation().toString(), pos.line(), pos.offset(), pos.endOffset());
         }
     }
 
