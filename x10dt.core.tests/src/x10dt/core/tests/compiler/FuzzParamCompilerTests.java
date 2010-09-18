@@ -54,7 +54,7 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	}
 
 	@Parameters
-	public static Collection<?> inputs() throws URISyntaxException {
+	public static Collection<Object[]> inputs() throws URISyntaxException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
 		final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(FUZZ_PATH);
 		for (File f : getSources(toFile(fuzzURL))) {

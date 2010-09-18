@@ -48,7 +48,7 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 	
 	
 	@Parameters
-	 public static Collection inputs() {
+	public static Collection<Object[]> inputs() {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
 		for (File f: getSources(new File(DATA_PATH))){
 			inputs.add(new Object[]{new File[]{f}, STATIC_CALLS});
@@ -56,7 +56,7 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 				
 		}
 		return inputs;
-	 }
+	}
 
 	@Test(timeout=10000)
 	public void compilerTest() throws Exception {

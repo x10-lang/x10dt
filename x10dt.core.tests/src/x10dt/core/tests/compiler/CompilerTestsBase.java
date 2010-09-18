@@ -175,7 +175,7 @@ public class CompilerTestsBase {
         
 		String[] optsArray = optsList.toArray(new String[optsList.size()]);
 		try {
-			opts.parseCommandLine(optsArray, new HashSet());
+			opts.parseCommandLine(optsArray, new HashSet<String>());
 		} catch (UsageError e) {
 			
 		}

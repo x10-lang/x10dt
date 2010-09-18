@@ -49,7 +49,7 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 	}
 	
 	@Parameters
-	 public static Collection inputs() throws URISyntaxException {
+	public static Collection<Object[]> inputs() throws URISyntaxException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
 		final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 		for(FileCollectionIterator f = new FileCollectionIterator(toFile(dataURL)); f.hasNext(); ){
@@ -58,11 +58,11 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 			inputs.add(new Object[]{fs, NOT_STATIC_CALLS});
 		}
 		return inputs;
-	 }
+	}
 
 	@Test
 	public void compilerTest() throws Exception {
-	  final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
+		final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 		String sourcepath = getRuntimeJar() + File.pathSeparatorChar + toFile(dataURL).getAbsolutePath();
 		
 		//Submit everything to the compiler at once

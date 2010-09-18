@@ -41,7 +41,7 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 	
 	
 	@Parameters
-	 public static Collection inputs() throws URISyntaxException {
+	public static Collection<Object[]> inputs() throws URISyntaxException {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
 		final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 		for (File f: getSources(toFile(dataURL))){
@@ -50,7 +50,7 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 				
 		}
 		return inputs;
-	 }
+	}
 
 	@Test
 	public void compilerTest() throws Exception {
