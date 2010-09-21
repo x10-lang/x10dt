@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,7 +65,6 @@ import x10dt.ui.launch.core.utils.CollectionUtils;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.CountableIterableFactory;
 import x10dt.ui.launch.core.utils.IFilter;
-import x10dt.ui.launch.core.utils.IFunctor;
 import x10dt.ui.launch.core.utils.IdentityFunctor;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.core.utils.UIUtils;
@@ -392,8 +393,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
       public void run(final IProgressMonitor monitor) throws CoreException {
-        compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
-        compileGeneratedFiles(builderOp, sourcesToCompile, subMonitor.newChild(65));
+        compileGeneratedFiles(builderOp, compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20)), 
+                              subMonitor.newChild(65));
       }
 
     };
@@ -401,21 +402,20 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     workspace.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, subMonitor);
   }
 
-  private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<IFile> sourcesToCompile,
+  private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<File> sourcesToCompile,
                                      final SubMonitor monitor) throws CoreException {
     monitor.beginTask(null, 100);
 
-    final List<File> files = CollectionUtils.transform(sourcesToCompile, new IFileToFileFunctor());
-    if (!files.isEmpty()) {
-      builderOp.transfer(files, monitor.newChild(10));
+    if (! sourcesToCompile.isEmpty()) {
+      builderOp.transfer(sourcesToCompile, monitor.newChild(10));
       if (builderOp.compile(monitor.newChild(70))) {
         builderOp.archive(monitor.newChild(20));
       }
     }
   }
 
-  private void compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
-                               final IProgressMonitor monitor) throws CoreException {
+  private Collection<File> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
+                                           final IProgressMonitor monitor) throws CoreException {
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
                                                               new AlwaysTrueFilter<IPath>());
     final StringBuilder cpBuilder = new StringBuilder();
@@ -445,11 +445,24 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       // compiler.compile(toSources(sourcesToCompile)); // --- This way of calling the compiler causes a bad behavior
       // (duplicate class error),
       // --- when there is a file that imports another one file a bad syntactic error.
+      
       analyze(extInfo.scheduler().commandLineJobs());
+      
+      final Collection<File> generatedFiles = new LinkedList<File>();
+      final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
+      final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
+      for (final Object outputFile : compiler.outputFiles()) {
+        final String outputFileName = (String) outputFile;
+        if (outputFileName.endsWith(getFileExtension())) {
+          generatedFiles.add(new File(outputLocation, outputFileName));
+        }
+      }
+      return generatedFiles;
     } catch (InternalCompilerError except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, except);
       // The exception is also pushed on the error queue... A marker will be created accordingly for it.
       sourcesToCompile.clear(); // To prevent post-compilation step.
+      return Collections.emptyList();
     } finally {
       Globals.initialize(null);
     }
@@ -502,23 +515,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());
-  }
-
-  // --- Private classes
-
-  private final class IFileToFileFunctor implements IFunctor<IFile, File> {
-
-    // --- Interface methods implementation
-
-    public File apply(final IFile file) {
-      try {
-        return getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
-      } catch (CoreException except) {
-        LaunchCore.log(except.getStatus());
-        return null;
-      }
-    }
-
   }
 
   // --- Fields
