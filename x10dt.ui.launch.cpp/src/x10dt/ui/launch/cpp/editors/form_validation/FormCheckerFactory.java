@@ -10,9 +10,9 @@ package x10dt.ui.launch.cpp.editors.form_validation;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.editor.IFormPage;
 
-import x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 
 /**
  * Factory method(s) to create implementation(s) of {@link IFormControlChecker}.

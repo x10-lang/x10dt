@@ -28,7 +28,6 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
-import x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -37,6 +36,7 @@ import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.editors.form_validation.FormCheckerFactory;
 import x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
