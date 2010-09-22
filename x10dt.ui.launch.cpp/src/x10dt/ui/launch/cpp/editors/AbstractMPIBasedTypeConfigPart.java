@@ -258,7 +258,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setInstallLocation(ciType, installLocText.getText().trim());
-        formPart.handleEmptyTextValidation(installLocText, LaunchMessages.RMCP_LocationLabel);
+        formPart.handlePathValidation(installLocText, LaunchMessages.RMCP_LocationLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }

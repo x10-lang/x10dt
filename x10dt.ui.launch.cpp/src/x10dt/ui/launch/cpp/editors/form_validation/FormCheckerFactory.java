@@ -10,9 +10,9 @@ package x10dt.ui.launch.cpp.editors.form_validation;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.editor.IFormPage;
 
+import x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
-import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 
 /**
  * Factory method(s) to create implementation(s) of {@link IFormControlChecker}.
@@ -48,6 +48,32 @@ public final class FormCheckerFactory {
   public static IFormControlChecker createEmptyControlChecker(final IFormPage formPage, final Control control, 
                                                               final String controlInfo) {
     return new EmptyControlChecker(formPage, control, controlInfo);
+  }
+  
+  /**
+   * Creates a checker that is responsible for validating that a given text control (Text, Combo, etc...) is not empty.
+   * 
+   * @param formPage The form page to get access to the form message managers.
+   * @param control The control that contains the text in question.
+   * @param controlInfo The information that defines the control content.
+   * @return A non-null instance of {@link IFormControlChecker}.
+   */
+  public static IFormControlChecker createValidPathControlChecker(final IFormPage formPage, final Control control, 
+                                                              final String controlInfo) {
+    return new ValidPathControlChecker(formPage, control, controlInfo);
+  }
+  
+  /**
+   * Creates a checker that is responsible for validating that a given text control (Text, Combo, etc...) is not empty.
+   * 
+   * @param formPage The form page to get access to the form message managers.
+   * @param control The control that contains the text in question.
+   * @param controlInfo The information that defines the control content.
+   * @return A non-null instance of {@link IFormControlChecker}.
+   */
+  public static IFormControlChecker createValidExeControlChecker(final IFormPage formPage, final Control control, 
+                                                              final String controlInfo) {
+    return new ValidExeControlChecker(formPage, control, controlInfo);
   }
   
   // --- Private code

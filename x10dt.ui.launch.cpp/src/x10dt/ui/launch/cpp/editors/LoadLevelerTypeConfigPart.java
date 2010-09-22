@@ -212,7 +212,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setProxyServerPath(LOAD_LEVELER_SERVICE_PROVIDER_ID, proxyExecPathText.getText().trim());
-        formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
+        formPart.handlePathValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -286,7 +286,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setAlternateLibraryPath(LOAD_LEVELER_SERVICE_PROVIDER_ID, 
                                                 alternateLibPathText.getText().trim());
-        formPart.handleEmptyTextValidation(alternateLibPathText, LaunchMessages.PETCP_AltLibraryPath);
+        formPart.handlePathValidation(alternateLibPathText, LaunchMessages.PETCP_AltLibraryPath);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -365,12 +365,13 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
       
     });
     templateFilePathText.addModifyListener(new ModifyListener() {
-      
-      public void modifyText(final ModifyEvent event) {
-        x10PlatformConf.setTemplateFilePath(templateFilePathText.getText().trim());
-        formPart.updateDirtyState(managedForm);
-      }
-      
+			public void modifyText(final ModifyEvent event) {
+				formPart.handlePathValidation(templateFilePathText,
+						LaunchMessages.RMCP_LocationLabel);
+				x10PlatformConf.setTemplateFilePath(templateFilePathText
+						.getText().trim());
+				formPart.updateDirtyState(managedForm);
+			}
     });
     templateOptCombo.addSelectionListener(new SelectionListener() {
       

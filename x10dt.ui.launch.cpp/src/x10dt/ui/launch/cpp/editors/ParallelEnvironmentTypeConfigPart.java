@@ -272,14 +272,15 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
       
     });
     alternateLibPathText.addModifyListener(new ModifyListener() {
-      
-      public void modifyText(final ModifyEvent event) {
-        x10PlatformConf.setAlternateLibraryPath(PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID, 
-                                                alternateLibPathText.getText().trim());
-        formPart.updateDirtyState(managedForm);
-      }
-      
-    });
+			public void modifyText(final ModifyEvent event) {
+				formPart.handlePathValidation(alternateLibPathText,
+						LaunchMessages.PETCP_AltLibraryPath);
+				x10PlatformConf.setAlternateLibraryPath(
+						PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID,
+						alternateLibPathText.getText().trim());
+				formPart.updateDirtyState(managedForm);
+			}
+		});
     runAfterProxyBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {

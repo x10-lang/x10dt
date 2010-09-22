@@ -92,17 +92,17 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
                             final Button useSameLocBt, final Text pgasLocText, final Button pgasDistBrowseBt,
                             final Collection<Control> pgasControls) {
     x10DistLocText.addModifyListener(new ModifyListener() {
-      
-      public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(x10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-        getPlatformConf().setX10DistribLocation(x10DistLocText.getText());
-        if (useSameLocBt.getSelection()) {
-          pgasLocText.setText(x10DistLocText.getText());
-        }
-        setPartCompleteFlag(hasCompleteInfo());
-        updateDirtyState(managedForm);
-      }
-      
+			public void modifyText(final ModifyEvent event) {
+				handlePathValidation(x10DistLocText,
+						LaunchMessages.XPCP_X10DistLabel);
+				getPlatformConf().setX10DistribLocation(
+						x10DistLocText.getText());
+				if (useSameLocBt.getSelection()) {
+					pgasLocText.setText(x10DistLocText.getText());
+				}
+				setPartCompleteFlag(hasCompleteInfo());
+				updateDirtyState(managedForm);
+			}
     });
     useSameLocBt.addSelectionListener(new SelectionListener() {
       
@@ -114,7 +114,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
         if (useSameLocBt.getSelection()) {
           pgasLocText.setText(x10DistLocText.getText());
         } else {
-          handleEmptyTextValidation(pgasLocText, LaunchMessages.XPCP_PGASDistLabel);
+        	handlePathValidation(pgasLocText, LaunchMessages.XPCP_PGASDistLabel);
         }
       }
       
@@ -124,15 +124,14 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
       
     });
     pgasLocText.addModifyListener(new ModifyListener() {
-      
-      public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(pgasLocText, LaunchMessages.XPCP_PGASDistLabel);
-        getPlatformConf().setPGASLocation(pgasLocText.getText());
-        setPartCompleteFlag(hasCompleteInfo());
-        updateDirtyState(managedForm);
-      }
-      
-    });
+			public void modifyText(final ModifyEvent event) {
+				handlePathValidation(pgasLocText,
+						LaunchMessages.XPCP_PGASDistLabel);
+				getPlatformConf().setPGASLocation(pgasLocText.getText());
+				setPartCompleteFlag(hasCompleteInfo());
+				updateDirtyState(managedForm);
+			}
+		});
   }
   
   private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {

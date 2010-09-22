@@ -142,7 +142,23 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     final IFormControlChecker checker = FormCheckerFactory.createEmptyControlChecker(this.fFormPage, text, controlInfo);
     checker.validate(text.getText().trim());
   }
+
+	protected final void handlePathValidation(final Text text,
+			final String controlInfo) {
+		final IFormControlChecker checker = FormCheckerFactory
+				.createValidPathControlChecker(this.fFormPage, text,
+						controlInfo);
+		checker.validate(text.getText().trim());
+	}
+
+	protected final void handleExeValidation(final Text text,
+			final String controlInfo) {
+		final IFormControlChecker checker = FormCheckerFactory
+				.createValidExeControlChecker(this.fFormPage, text, controlInfo);
+		checker.validate(text.getText().trim());
+	}
   
+
   protected final void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {
     ((X10PlatformConfFormEditor) this.fFormPage.getEditor()).setNewPlatformConfState(name, serviceProvider);
   }

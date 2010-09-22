@@ -28,6 +28,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
+import x10dt.ui.launch.core.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -36,7 +37,6 @@ import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
-import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.editors.form_validation.FormCheckerFactory;
 import x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
@@ -100,17 +100,16 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
                             final Text archiverText, final Text archivingOptsText, final Text linkerText, 
                             final Text linkingOptsText, final Text linkingLibsText, final Button bitsArchBt,
                             final Combo osCombo, final Combo archCombo) {
-    compilerText.addModifyListener(new ModifyListener() {
-      
-      public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(compilerText, LaunchMessages.XPCP_CompilerLabel);
-        
-        getPlatformConf().setCompiler(compilerText.getText());
-        setPartCompleteFlag(hasCompleteInfo());
-        updateDirtyState(managedForm);
-      }
-      
-    });
+		compilerText.addModifyListener(new ModifyListener() {
+			public void modifyText(final ModifyEvent event) {
+				handleExeValidation(compilerText,
+						LaunchMessages.XPCP_CompilerLabel);
+
+				getPlatformConf().setCompiler(compilerText.getText());
+				setPartCompleteFlag(hasCompleteInfo());
+				updateDirtyState(managedForm);
+			}
+		});
     compilingOptsText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
@@ -124,7 +123,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     archiverText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(archiverText, LaunchMessages.XPCP_ArchiverLabel);
+    	handleExeValidation(archiverText, LaunchMessages.XPCP_ArchiverLabel);
         getPlatformConf().setArchiver(archiverText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -144,7 +143,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkerText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(linkerText, LaunchMessages.XPCP_LinkerLabel);
+    	handleExeValidation(linkerText, LaunchMessages.XPCP_LinkerLabel);
         getPlatformConf().setLinker(linkerText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);

@@ -164,6 +164,8 @@ public class LaunchMessages extends NLS {
   public static String CLCD_NoRMQueueError;
 
   public static String CLCD_PathNotFound;
+  
+  public static String CLCD_NotFound;
 
   public static String CCVC_CompilerNotSupportedWarning;
 

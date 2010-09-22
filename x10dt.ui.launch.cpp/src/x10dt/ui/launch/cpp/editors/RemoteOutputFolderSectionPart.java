@@ -77,7 +77,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     remoteOutputFolderText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(remoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
+        handlePathValidation(remoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
         getPlatformConf().setRemoteOutputFolder(remoteOutputFolderText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
