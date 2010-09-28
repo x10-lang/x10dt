@@ -41,6 +41,7 @@ import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.DocumentRewriteSession;
 import org.eclipse.jface.text.DocumentRewriteSessionType;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentExtension3;
 import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
@@ -664,13 +665,26 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * 
      * @param document the document
      */
-    private static void installDocPartitioner(IDocument document) {
+    private void installDocPartitioner(IDocument document) {
+//		System.out.println("Installing doc partitioner...");
     	String[] types= new String[] { IX10Partitions.X10_DOC, IX10Partitions.X10_MULTI_LINE_COMMENT, IX10Partitions.X10_SINGLE_LINE_COMMENT, IX10Partitions.X10_STRING,
                 IX10Partitions.X10_CHARACTER, IDocument.DEFAULT_CONTENT_TYPE };
         FastPartitioner partitioner= new FastPartitioner(new X10PartitionScanner(), types);
+
         partitioner.connect(document);
-//      document.setDocumentPartitioner(partitioner);
-        ((Document) document).setDocumentPartitioner(IX10Partitions.X10_PARTITIONING, partitioner);
+        if (document instanceof IDocumentExtension3) {
+        	IDocumentExtension3 de3 = (IDocumentExtension3) document;
+			de3.setDocumentPartitioner(IX10Partitions.X10_PARTITIONING, partitioner);
+//        	System.out.println("New doc partitioner: " + de3.getDocumentPartitioner(IX10Partitions.X10_PARTITIONING));
+        }
+    }
+
+    private void removeDocPartitioner(IDocument document) {
+//    	System.out.println("Removing doc partitioner...");
+    	if (document instanceof IDocumentExtension3) {
+    		IDocumentExtension3 de3 = (IDocumentExtension3) document;
+			de3.getDocumentPartitioner(IX10Partitions.X10_PARTITIONING).disconnect();
+    	}
     }
 
 //    /**
@@ -1220,23 +1234,28 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
      * org.eclipse.jface.text.DocumentCommand)
      */
     public void customizeDocumentCommand(IDocument d, DocumentCommand c) {
-    	IDocumentPartitioner dp = d.getDocumentPartitioner();
-    	if (dp == null) {
-    		installDocPartitioner(d);
-    	}
-        if (c.doit == false)
-            return;
-        clearCachedValues();
-        if (!isSmartMode()) {
-            super.customizeDocumentCommand(d, c);
-            return;
-        }
-        if (c.length == 0 && c.text != null && isLineDelimiter(d, c.text)) {
-            smartIndentAfterNewLine(d, c);
-        } else if (c.text.length() == 1 && c.text.charAt(0) == '\t' && inLeadingWhitespace(c.offset, d)) {
-            smartIndentOnKeypress(d, c);
-        } else if (c.text.length() > 1 && getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SMART_PASTE)) {
-            smartPaste(d, c); // no smart backspace for paste
+        if (c.doit != false) {
+        	clearCachedValues();
+        	if (!isSmartMode()) {
+        		super.customizeDocumentCommand(d, c);
+        		return;
+        	}
+        	IDocumentPartitioner dp = d.getDocumentPartitioner();
+        	if (dp == null) {
+        		installDocPartitioner(d);
+//        	} else {
+//        		System.out.println("Doc partitioner already installed.");
+        	}
+	        if (c.length == 0 && c.text != null && isLineDelimiter(d, c.text)) {
+	            smartIndentAfterNewLine(d, c);
+	        } else if (c.text.length() == 1 && c.text.charAt(0) == '\t' && inLeadingWhitespace(c.offset, d)) {
+	            smartIndentOnKeypress(d, c);
+	        } else if (c.text.length() > 1 && getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SMART_PASTE)) {
+	            smartPaste(d, c); // no smart backspace for paste
+	        }
+	        if (dp == null) {
+	        	removeDocPartitioner(d);
+	        }
         }
     }
 
