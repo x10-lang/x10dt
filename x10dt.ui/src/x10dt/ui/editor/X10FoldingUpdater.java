@@ -22,6 +22,7 @@ import org.eclipse.imp.services.base.LPGFolderBase;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 
+import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Initializer;
@@ -35,6 +36,7 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
+import x10.ast.Finish;
 import x10.ast.ForEach;
 import x10dt.ui.parser.ParseController;
 
@@ -158,7 +160,8 @@ public class X10FoldingUpdater extends LPGFolderBase {
                 n instanceof AtEach ||
                 n instanceof ForEach ||
                 n instanceof Async ||
-                n instanceof Atomic)
+                n instanceof Atomic ||
+                (n instanceof Finish && ((Finish) n).body() instanceof Block))
             {
             	if (!n.position().isCompilerGenerated()) {
             		makeAnnotation(n);
