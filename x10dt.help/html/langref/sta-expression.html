@@ -26,17 +26,15 @@
 <tr><td align="right">Statement ::= ExpressionStatement </td></tr>
 <tr><td align="right">ExpressionStatement ::= StatementExpression <b>;</b> </td></tr>
 <tr><td align="right">StatementExpression ::= Assignment </td></tr>
-<tr><td align="right">&#124; Allocation </td></tr>
+<tr><td align="right">&#124; NewExpression </td></tr>
 <tr><td align="right">&#124; Call </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The expression statement evaluates an expression, ignoring the
-result.  Side effects of the expression occur.  
-The expression must be either an assignment, an
-allocation, or a call; , a sort of expression which could possibly have
-side effects. 
+The expression statement evaluates an expression.  The value of the expression
+is not used.
+Side effects of the expression occur.  
 <pre>
 class StmtEx {
   def this() { x10.io.Console.OUT.println("New StmtEx made");  }
@@ -49,6 +47,8 @@ class StmtEx {
   }
 }
 </pre>
+Note that only selected forms of expression can appear in expression
+statements.  
 
 <div class="p"><!----></div>
 

@@ -41,7 +41,7 @@ default access rights.
   :  |        <em>  
 <table>
 <tr><td align="right">MethodDeclaration ::= MethodHeader <b>;</b> </td></tr>
-<tr><td align="right">&#124; MethodHeader <b>=</b> ClosureBody </td></tr>
+<tr><td align="right">&#124; MethodHeader <b>=</b><sup>?</sup>&nbsp;ClosureBody </td></tr>
 <tr><td align="right">MethodHeader ::=  
   MethodModifiers<sup>?</sup>&nbsp;<b>def</b> Identifier TypeParameters<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">&amp;&amp; <b>(</b> 
@@ -78,7 +78,7 @@ class Example {
 }
 </pre>
 
-(We could have used a constrained type <b>Objectself!=null</b> instead; in
+(We could have used a constrained type <b>Object{self!=null}</b> instead; in
 most cases it is a matter of personal preference or convenience of expression
 which one to use.) 
 

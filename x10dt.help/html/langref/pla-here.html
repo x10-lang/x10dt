@@ -54,7 +54,7 @@ for ones which belong in the current place <b>here</b>, and deals with the
 things which do.  Note that every object <b>thing</b> has a property
 <b>thing.home</b> giving its home location.
 <pre>
-  public static def dealWithLocal(things: Rail[Thing]) {
+  public static def dealWithLocal(things: Rail[Thing]!) {
      for(thing in things) {
     	 if (thing.home == here) 
             dealWith(thing);
@@ -75,7 +75,7 @@ ob.nonGlobalMethod();
 
 <div class="p"><!----></div>
 This idiom is so common and useful that the constraint
-<b>Tself.home==here</b> can be abbreviated as <b>T!</b>: 
+<b>T{self.home==here}</b> can be abbreviated as <b>T!</b>: 
 
 <div class="p"><!----></div>
 <pre>
@@ -84,7 +84,7 @@ ob.nonGlobalMethod();
 </pre>
 
 <div class="p"><!----></div>
-<em>Limitation</em><em>In the current implementation, sometimes ^Tself.home==here^
+<em>Limitation</em><em>In the current implementation, sometimes ^T{self.home==here}^
 does not work, though <b>T!</b> does.</em>
 
 <div class="p"><!----></div>

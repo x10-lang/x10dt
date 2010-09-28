@@ -132,7 +132,7 @@ Each of the following static semantics rules must be satisfied:
 <div class="p"><!----></div>
  S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Int-implements):
 The type invariant  of <b>C</b> must entail
-"c<sub>i</sub>[this/self]" for each i in {1, ..., k}
+"c<sub>i</sub>[this/self]" for each i in {{1, ..., k}}
 
 
 <div class="p"><!----></div>
@@ -160,10 +160,11 @@ the form of a constrained type (the "return type" of the constructor):
 <table>
 <tr><td align="right">ConstructorDeclarator ::=
   <b>def</b> <b>this</b> TypeParameterList<sup>?</sup>&nbsp;<b>(</b> FormalParameterList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">&amp;&amp; ReturnType<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ReturnType<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">ReturnType    ::= <b>:</b> Type </td></tr>
 <tr><td align="right">Guard   ::= "{" DepExpression "}" </td></tr>
 <tr><td align="right">Throws    ::= <b>throws</b> ExceptionType  ( <b>,</b> ExceptionType )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">Offers    ::= <b>offers</b> Type </td></tr>
 <tr><td align="right">ExceptionType ::= ClassBaseType Annotation<sup>*</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
@@ -224,9 +225,9 @@ The code in <b>example</b> typechecks, and <b>R3</b>'s type is inferred as
 "def this(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>k</sub>: T<sub>k</sub>){c}: D{d<sub>1</sub>}"
    then it must be the case that 
 <pre>
-x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>i</sub>: S<sub>i</sub> \vdash x<sub>i</sub>: T<sub>i</sub>  (for i  &#8712; 1, ..., k)
-x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> \vdash c  
-d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> \vdash d[a/self]      
+x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>i</sub>: S<sub>i</sub> &#124;&mdash; x<sub>i</sub>: T<sub>i</sub>  (for i  &#8712; {1, ..., k})
+x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> &#124;&mdash; c  
+d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> &#124;&mdash; d[a/self]      
 </pre>
  where <b>a</b> is a constant that does not appear in 
 "x<sub>1</sub>: S<sub>1</sub> &#8743; ... &#8743; x<sub>k</sub>: S<sub>k</sub>".
@@ -241,7 +242,7 @@ d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k
    assigned to "p<sub>i</sub>" are such that the following is
    true:
 <pre>
-p<sub>1</sub>: T<sub>1</sub>, ..., p<sub>n</sub>: T<sub>n</sub> \vdash t(C) &#8743; c'     
+p<sub>1</sub>: T<sub>1</sub>, ..., p<sub>n</sub>: T<sub>n</sub> &#124;&mdash; t(C) &#8743; c'     
 </pre>
 
 (Note that for the assignment of &#235;<sub>i</sub>" to "p<sub>i</sub>"

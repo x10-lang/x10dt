@@ -76,7 +76,7 @@ class Triangle extends Shape {
 
 the X10 compiler would reject this program for attempting to override
 <b>isTriangle()</b> by a method with the wrong type, ,
-<b>Booleanself==true</b>.  In this case, supply the type that is actually
+<b>Boolean{self==true}</b>.  In this case, supply the type that is actually
 intended for <b>isTriangle</b>, such as 
 <b>def isTriangle() :Boolean =false;</b>. 
 
@@ -92,7 +92,7 @@ properties bound to the arguments in the constructor's <b>property</b>
 statement, if any, or to the unconstrained class type.
 For example, the <b>Spot</b> class has two constructors, the first of which has
 inferred return type <b>Spot{x==0}</b> and the second of which has 
-inferred return type <b>Spotx==xx</b>. 
+inferred return type <b>Spot{x==xx}</b>. 
 <pre>
 class Spot(x:Int) {
   def this() {property(0);}

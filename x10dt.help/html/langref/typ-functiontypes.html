@@ -41,8 +41,7 @@ type of <b>i</b>:
 <pre>
 val inc = (r:Rail[Int]!, i: Int{i != r.length}) =&#62; {
   if (i &lt; 0 </td><td width="150">
-&#124;</td><td width="150">
-&#124; i &#62;= r.length) throw new DoomExn();
+&#124;&#124; i &#62;= r.length) throw new DoomExn();
   r(i)++;
 };
 </pre>
@@ -73,9 +72,9 @@ The names "x<sub>i</sub>" of the formal parameters are not relevant.  Types
 which differ only in the names of formals (following the usual rules for
 renaming of variables, as in &#945;-renaming in the &#955; calculus
 ) are considered equal.  , 
-<b>(a:Int, b:Rail[String]b.length==a) =&#62; Boolean</b>
+<b>(a:Int, b:Rail[String]{b.length==a}) =&#62; Boolean</b>
 and 
-<b>(b:Int, a:Rail[String]a.length==b) =&#62; Boolean</b>
+<b>(b:Int, a:Rail[String]{a.length==b}) =&#62; Boolean</b>
 are equivalent types.
 
 <div class="p"><!----></div>

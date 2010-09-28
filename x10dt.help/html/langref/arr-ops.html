@@ -17,14 +17,14 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Operations on arrays</h2>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Operations on arrays</h2>
 In the following let <b>a</b> be an array with distribution <b>D</b> and
 base type <b>T</b>. 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.1">
-5.1</a>&nbsp;&nbsp;Element operations</h3>
+     <h3><a name="tth_sEc6.1">
+6.1</a>&nbsp;&nbsp;Element operations</h3>
 The value of <b>a</b> at a point <b>p</b> in its region of definition is
 obtained by using the indexing operation <b>a(p)</b>. This operation
 may be used on the left hand side of an assignment operation to update
@@ -41,8 +41,8 @@ assignment terminates when assignment has terminated at all
 sites hosting <b>D</b>.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.2">
-5.2</a>&nbsp;&nbsp;Constant promotion</h3><a name="ConstantArray">
+     <h3><a name="tth_sEc6.2">
+6.2</a>&nbsp;&nbsp;Constant promotion</h3><a name="ConstantArray">
 </a>
 
 <div class="p"><!----></div>
@@ -53,8 +53,8 @@ distribution <b>D</b> and base type <b>T</b> initialized with <b>v</b>
 at every point.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.3">
-5.3</a>&nbsp;&nbsp;Restriction of an array</h3>
+     <h3><a name="tth_sEc6.3">
+6.3</a>&nbsp;&nbsp;Restriction of an array</h3>
 
 <div class="p"><!----></div>
 Let <b>D1</b> be a sub-distribution of <b>D</b>. Then <b>a </td><td width="150">
@@ -63,12 +63,12 @@ represents the sub-array of <b>a</b> with the distribution <b>D1</b>.
 
 <div class="p"><!----></div>
 Recall that a rich set of operators are available on distributions
-(&#167;<a href="#XtenDistributions">3</a>) to obtain sub-distributions
+(&#167;<a href="#XtenDistributions">4</a>) to obtain sub-distributions
 (e.g. restricting to a sub-region, to a specific place etc).
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.4">
-5.4</a>&nbsp;&nbsp;Assembling an array</h3>
+     <h3><a name="tth_sEc6.4">
+6.4</a>&nbsp;&nbsp;Assembling an array</h3>
 Let <b>a1,a2</b> be arrays of the same base type <b>T</b> defined over
 distributions <b>D1</b> and <b>D2</b> respectively. Assume that both
 arrays are value or reference arrays. 
@@ -104,8 +104,8 @@ The expression <b>a1.update(a2)</b> updates the array <b>a1</b> in place
 with the result of <b>a1.overlay(a2)</b>.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.5">
-5.5</a>&nbsp;&nbsp;Global operations </h3>
+     <h3><a name="tth_sEc6.5">
+6.5</a>&nbsp;&nbsp;Global operations </h3>
 
 <div class="p"><!----></div>
 
@@ -176,6 +176,7 @@ minimize the communication between places to implement this operation.
 <div class="p"><!----></div>
 Other operations on arrays may be found in <b>x10.lang.Array</b> and
 other related classes.
+</b>
 
 
 </body>

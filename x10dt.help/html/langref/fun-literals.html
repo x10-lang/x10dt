@@ -40,6 +40,7 @@ X10 provides first-class, typed functions, including
         Guard<sup>?</sup>&nbsp;
 ReturnType<sup>?</sup>&nbsp;
 Throws<sup>?</sup>&nbsp;
+Offers<sup>?</sup>&nbsp;
 <b>=&#62;</b> ClosureBody </td></tr>
 <tr><td align="right">ClosureBody ::=
         Expression </td></tr>
@@ -49,8 +50,9 @@ Throws<sup>?</sup>&nbsp;
 </em>
 
 <div class="p"><!----></div>
-Functions have zero or more formal parameters, an optional return type
-and optional set of exceptions throws by the body.  The body has the
+Functions have zero or more formal parameters, an optional return type, an
+optional set of exceptions throws by the body, and an optional type offered by
+the body.  The body has the
 same syntax as a method body; it may be either an expression, a block
 of statements, or a block terminated by an expression to return. In
 particular, a value may be returned from the body of the function
@@ -96,7 +98,7 @@ element.  It returns <b>otherwise</b> if no element matches.
 <pre>
 
 <div class="p"><!----></div>
-def find[T](f: (T) =&#62; Boolean, xs: List[T], absent:T): T = {
+def find[T](f: (T) =&#62; Boolean, xs: List[T]!, absent:T): T = {
   for (x: T in xs)
     if (f(x)) return x;
   absent
@@ -106,7 +108,7 @@ def find[T](f: (T) =&#62; Boolean, xs: List[T], absent:T): T = {
 <div class="p"><!----></div>
 The method may be invoked thus:
 <pre>
-xs: List[Int] = new ArrayList[Int]();
+xs: List[Int]! = new ArrayList[Int]();
 x: Int = find((x: Int) =&#62; x&#62;0, xs, 0);
 </pre>
 
@@ -115,6 +117,10 @@ As with a normal method, the function may have a <b>throws</b>
 clause. It is a static error if the body of the function throws a
 checked exception that is not declared in the function's <b>throws</b>
 clause.
+
+<div class="p"><!----></div>
+Similarly, it may have an <b>offers T</b> clause; it is a static error if the
+body offers any value not of type <b>T</b>.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.1">

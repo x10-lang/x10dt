@@ -29,7 +29,7 @@ parameters.  Type parameters can be used as types, and will be bound to types
 on instantiation.  For example, a generic stack class may be defined as 
 <b>Stack[T]{...}</b>.  Stacks can hold values of any type; , 
 <b>Stack[Int]</b> is a stack of integers, and 
-<b>Stack[Pointself!=null]</b>is a stack of non-null <b>Point</b>s.
+<b>Stack[Point{self!=null}]</b>is a stack of non-null <b>Point</b>s.
 Generics <em>must</em> be instantiated when they are used: <b>Stack</b>, by
 itself, is not a valid type.
 Type parameters may be constrained by a guard on the declaration
@@ -48,7 +48,7 @@ used like any other type. For example,
 <div class="p"><!----></div>
 A <b>Cell[T]</b> is a generic object, capable of holding a value of type
 <b>T</b>.  For example, a <b>Cell[Int]</b> can hold an <b>Int</b>, and a
-<b>Cell[Cell[Int]{self!=0}]</b> can hold a <b>Cell[Int]</b> which in turn can
+<b>Cell[Cell[Int{self!=0}]]</b> can hold a <b>Cell</b> which in turn can
 only hold non-zero numbers.  <b>Cell</b>s are actually useful in situations
 where values must be bound immutably for one reason, but need to be mutable.
 <pre>

@@ -22,53 +22,10 @@
 <a name="TypeDefs">
 </a>
 
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-  
-
-<div class="p"><!----></div>
-    
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-`\`=13
-
-
-<div class="p"><!----></div>
-`^^M=13 
-
-<div class="p"><!----></div>
-`^^I=13 
-
-<div class="p"><!----></div>
-}}
-
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-  
-
-
-
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-  
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
 With value arguments, type arguments, and constraints, the syntax for X10
 types can often be verbose. 
 For example, a non-null list of non-null strings is <br />
-<b>List[Stringself!=null]self!=null</b>.
+<b>List[String{self!=null}]{self!=null}</b>.
 X10 provides <em>type definitions</em>
 to allow users to give short names to long types, and to commonly-used
 combinations of types. 
@@ -87,7 +44,7 @@ var example : LnSn;
 <div class="p"><!----></div>
 Type definitions can also refer to values, in particular, inside of
 constraints.  The type of <b>n</b>-element <b>Rails[Int]s</b> is 
-<b>Rail[Int]self.length == n</b>
+<b>Rail[Int]{self.length == n}</b>
 but it is often convenient to give a shorter name: 
 <pre>
 type Rail(n:Int) = Rail[Int]{self.length == n};

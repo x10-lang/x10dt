@@ -34,18 +34,22 @@ val origin_5 : Point{self.rank==5} = Point.make([0,0,0,0,0]);
 </pre>
 
 <div class="p"><!----></div>
-There is an implicit conversion from <b>ValRail[Int]</b> to <b>Point</b>, giving
+There is an implicit conversion from <b>ValRail[Int]</b> to 
+<b>Point</b>, giving
 a convenient syntax for constructing points: 
 
 <div class="p"><!----></div>
 <pre>
 val p : Point = [1,2,3];
 val q : Point{rank==5} = [1,2,3,4,5];
+val r : Point(3) = [11,22,33];
 </pre>
 
 <div class="p"><!----></div>
 The coordinates of a point are available by subscripting; <b>p(i)</b> is the
-<b>i</b>th coordinate of the point <b>p</b>.
+<b>i</b>th coordinate of the point <b>p</b>. 
+`Point(n)` is a <b>type</b>-defined shorthand  for 
+`Point{rank==n}`.
 
 <div class="p"><!----></div>
 

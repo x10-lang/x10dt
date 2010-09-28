@@ -131,7 +131,7 @@ For example:
 
 <ul>
 <li> <b>Int{self == 3} &lt;: Int{self != 14}</b>.  The only value of
-      <b>Intself ==3</b> is 3.  All integers but 14 are members of
+      <b>Int{self ==3}</b> is 3.  All integers but 14 are members of
       <b>Int{self != 14}</b>, and in particular 3 is.
 <div class="p"><!----></div>
 </li>
@@ -255,9 +255,9 @@ All variables appearing in a constraint expression must be visible wherever
 that expression can used.  , properties and public fields of an object are
 always permitted, but private fields of an object can only constrain private
 members.  (Consider a class <b>PriVio</b> with a private field <b>p</b> and a
-public method <b>m(x: Intself != p)</b>, and a call <b>ob.m(10)</b> made
+public method <b>m(x: Int{self != p})</b>, and a call <b>ob.m(10)</b> made
 outside of the class. Since <b>p</b> is only visible inside the class, there is
-no way to tell if <b>10</b> is of type <b>Intself != p</b> at the call site.)
+no way to tell if <b>10</b> is of type <b>Int{self != p}</b> at the call site.)
 
 <div class="p"><!----></div>
 
