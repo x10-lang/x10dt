@@ -236,9 +236,6 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 					MethodDecl method = (MethodDecl) procedureDecl;
 					recordTypeDependency(method.returnType().type());
 				}
-				for (TypeNode thrown : procedureDecl.throwTypes()) {
-					recordTypeDependency(thrown.type());
-				}
 
 			} else if (n instanceof AnnotationNode) {
 				
@@ -280,9 +277,6 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
          		extractAllClassTypes(formal, types);
          	}
          	extractAllClassTypes(closure.returnType(), types);
-         	for(Type thrown:closure.throwTypes()){
-         		extractAllClassTypes(thrown, types);
-         	}	
          	return;
 		}
 		X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(type);
