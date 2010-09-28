@@ -313,7 +313,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     	    return filter(buff.toString());
         } else if (node instanceof Async) {
             Async a= (Async) node;
-            return "async (" + filter(a.place().toString()) + ")";
+            return "async";
         } else if (node instanceof AtEach) {
             AtEach ae= (AtEach) node;
             return "ateach (" + sourceText(ae.domain()) + ")";
