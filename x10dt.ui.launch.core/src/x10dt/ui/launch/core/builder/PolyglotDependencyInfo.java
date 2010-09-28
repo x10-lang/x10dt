@@ -72,7 +72,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
         String uponPath= typeToPath(uponType);
         if (fromPath == null || uponPath == null) return;
         // PORT1.7  ...
-        if(!(uponPath.contains(".zip") || uponPath.contains(".jar"))) {
+        if(!(uponPath.contains(".zip") || uponPath.contains(".jar")) && !(uponPath.equals(fromPath))) {
         	addDependency(fromPath, uponPath);
         }
     }
