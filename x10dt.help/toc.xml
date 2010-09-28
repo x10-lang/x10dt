@@ -75,7 +75,7 @@
 		<topic label="Function types" href="html/langref/typ-functiontypes.html"/>
 		<topic label="Annotated types" href="html/langref/typ-annotated.html"/>
 		<topic label="Subtyping and type equivalence" href="html/langref/typ-subtyping.html"/> 
-		<topic label="Common ancestors of types" href="html/langref/typ-leastcommon.html"/>
+		<topic label="Common ancestors of types" href="html/langref/typ-commonancestors.html"/>
 		<topic label="Fundamental types" href="html/langref/typ-fundamental.html"/> 
 		<topic label="Type inference" href="html/langref/typ-inference.html"/>
 	</topic>
@@ -193,6 +193,7 @@
 	<topic label="Local and Distributed Arrays" href="html/langref/arrays.html"> 
 		<topic label="Points" href="html/langref/arr-points.html"/> 
 		<topic label="Regions" href="html/langref/arr-regions.html"/> 
+		<topic label="Arrays" href="html/langref/arr-arrays.html"/> 
 		<topic label="Distributions" href="html/langref/arr-dists.html"/> 
 		<topic label="Array Initializer" href="html/langref/arr-initializer.html"/> 
 		<topic label="Operations on arrays" href="html/langref/arr-ops.html"/> 
