@@ -21,7 +21,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.visit.PostCompiled;
 import x10dt.ui.launch.core.utils.UIUtils;
 
-public class JavaBuilderExtensionInfo extends x10.ExtensionInfo {
+public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
     private final X10JavaBuilder fBuilder;
    
     public JavaBuilderExtensionInfo(X10JavaBuilder builder) {
