@@ -323,20 +323,20 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 // indents only until the initial "/" but should do one more position
                 int commentStartLine= firstLineOfBlockComment(d, c.offset);
                 if (commentStartLine >= 0 && commentStartLine < d.getNumberOfLines()) {
-                    boolean foundNonWhite= false;
-                    try {
-                        int nextLineStart= d.getLineOffset(commentStartLine + 1);
-                        for(int pos= nextLineStart; pos < c.offset; pos++) {
-                            char ch= d.getChar(pos);
-                            if (ch != ' ' && ch != '\t' && ch != '\n') {
-                                foundNonWhite= true;
-                                break;
-                            }
-                        }
-                    } catch (BadLocationException e) {
-                    } // If comment started on last line of file, want to put a space as well.
-                    if (!foundNonWhite)
-                        buf.append(" ");
+//                    boolean foundNonWhite= false;
+//                    try {
+//                        int nextLineStart= d.getLineOffset(commentStartLine + 1);
+//                        for(int pos= nextLineStart; pos < c.offset; pos++) {
+//                            char ch= d.getChar(pos);
+//                            if (ch != ' ' && ch != '\t' && ch != '\n') {
+//                                foundNonWhite= true;
+//                                break;
+//                            }
+//                        }
+//                    } catch (BadLocationException e) {
+//                    } // If comment started on last line of file, want to put a space as well.
+//                    if (!foundNonWhite)
+                	buf.append(" ");
                 }
 
                 buf.append("*");
