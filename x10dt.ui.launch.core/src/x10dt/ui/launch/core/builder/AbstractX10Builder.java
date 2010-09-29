@@ -178,9 +178,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       }
 
       clearMarkers(sourcesToCompile);
+      
+      final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+      final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
-      x10BuilderFileOp.cleanFiles(CountableIterableFactory.create(sourcesToCompile, nativeFiles, deletedSources),
-                                  subMonitor.newChild(5));
+        public void run(final IProgressMonitor monitor) throws CoreException {
+        	x10BuilderFileOp.cleanFiles(CountableIterableFactory.create(sourcesToCompile, nativeFiles, deletedSources),
+                    subMonitor.newChild(5));
+        }
+
+      };
+
+      workspace.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, subMonitor);
+      
       return dependentProjects;
     } finally {
       subMonitor.done();
