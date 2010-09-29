@@ -489,6 +489,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final CheckPackageDeclVisitor visitor = new CheckPackageDeclVisitor(job, this.fProjectWrapper.getProject(), this);
       if (job.ast() != null) {
         job.ast().visit(visitor.begin());
+        visitor.finish();
       }
     }
   }
