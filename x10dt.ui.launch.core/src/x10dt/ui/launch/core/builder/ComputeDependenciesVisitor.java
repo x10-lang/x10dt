@@ -96,7 +96,10 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
      * @param path Must be a workspace-relative path
      */
     private void recordPathDependency(String path){
-    	fDependencyInfo.addDependency(fDependencyInfo.getPath(fFromFile.position()), path);
+    	String from = fDependencyInfo.getPath(fFromFile.position());
+    	if (!from.equals(path)){
+    		fDependencyInfo.addDependency(from, path);
+    	}
     }
     
     /**
