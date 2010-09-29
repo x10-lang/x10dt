@@ -272,7 +272,6 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             int lineEnd= reg.getOffset() + reg.getLength();
             int contentStart= findEndOfWhiteSpace(d, c.offset, lineEnd);
 
-            // begin mmk stuff?
             boolean endOfComment= false;
 
             if (afterStartOfBlockComment(d, c.offset)) {
@@ -285,7 +284,6 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                     }
                 }
             }
-            // end mmk stuff?
 
             c.length= Math.max(contentStart - c.offset, 0);
             int start= reg.getOffset();
@@ -293,7 +291,6 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             if (IX10Partitions.X10_DOC.equals(region.getType()))
                 start= d.getLineInformationOfOffset(region.getOffset()).getOffset();
 
-            // begin mmk stuff?
             // process prefix for block comment lines
             if (c.offset > start
                     && contentStart - 2 >= 0
@@ -342,8 +339,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 buf.append("*");
                 if (!endOfComment)
                     buf.append(" ");
-            } else // end mmk stuff?
-            	if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
+            } else if (getBracketCount(d, start, c.offset, true) > 0 && closeBrace() && !isClosed(d, c.offset, c.length)) {
                 // insert closing brace on new line after an unclosed opening brace
                 c.caretOffset= c.offset + buf.length();
                 c.shiftsCaret= false;
@@ -365,9 +361,8 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 if (reference != null)
                     buf.append(reference);
                 buf.append('}');
-            }
-            // insert extra line upon new line between two braces
-            else if (c.offset > start && contentStart < lineEnd && d.getChar(contentStart) == '}') {
+            } else if (c.offset > start && contentStart < lineEnd && d.getChar(contentStart) == '}') {
+                // insert extra line upon new line between two braces
                 int firstCharPos= scanner.findNonWhitespaceBackward(c.offset - 1, start);
                 if (firstCharPos != X10HeuristicScanner.NOT_FOUND && d.getChar(firstCharPos) == '{') {
                     c.caretOffset= c.offset + buf.length();

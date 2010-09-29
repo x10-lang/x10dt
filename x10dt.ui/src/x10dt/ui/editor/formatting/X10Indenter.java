@@ -419,6 +419,7 @@ public class X10Indenter {
 	 */
 	private StringBuffer getReferenceIndentation(int offset, boolean assumeOpeningBrace) {
 		int unit;
+
 		if (assumeOpeningBrace)
 			unit= findReferencePosition(offset, Symbols.TokenLBRACE);
 		else
@@ -456,7 +457,6 @@ public class X10Indenter {
 	 *         determined
 	 */
 	public StringBuffer computeIndentation(int offset, boolean assumeOpeningBrace) {
-
 		StringBuffer reference= getReferenceIndentation(offset, assumeOpeningBrace);
 
 		// handle special alignment
@@ -1004,8 +1004,9 @@ public class X10Indenter {
 
 				case Symbols.TokenCOLON:
 					int pos= fPreviousPos;
-					if (!isConditional())
+					if (!isConditionalOrVarDecl()) {
 						return pos;
+					}
 					break;
 
 				case Symbols.TokenRBRACE:
@@ -1089,21 +1090,23 @@ public class X10Indenter {
 
 	/**
 	 * Returns true if the colon at the current position is part of a conditional
-	 * (ternary) expression, false otherwise.
+	 * (ternary) expression or a variable declaration, false otherwise.
 	 *
-	 * @return true if the colon at the current position is part of a conditional
+	 * @return true if the colon at the current position is part of a conditional or
+	 * variable declaration
 	 */
-	private boolean isConditional() {
+	private boolean isConditionalOrVarDecl() {
 		while (true) {
 			nextToken();
 			switch (fToken) {
-
 				// search for case labels, which consist of (possibly qualified) identifiers or numbers
 				case Symbols.TokenIDENT:
 				case Symbols.TokenOTHER: // dots for qualified constants
 					continue;
 				case Symbols.TokenCASE:
 				case Symbols.TokenDEFAULT:
+				case Symbols.TokenVAR:
+				case Symbols.TokenVAL:
 					return false;
 				default:
 					return true;

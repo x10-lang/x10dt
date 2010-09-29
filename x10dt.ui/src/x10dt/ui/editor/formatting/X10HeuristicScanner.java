@@ -428,6 +428,10 @@ public class X10HeuristicScanner implements Symbols {
 					return TokenTRY;
 				if ("new".equals(s)) //$NON-NLS-1$
 					return TokenNEW;
+				if ("val".equals(s)) //$NON-NLS-1$
+					return TokenVAL;
+				if ("var".equals(s)) //$NON-NLS-1$
+					return TokenVAR;
 				break;
 			case 4:
 				if ("case".equals(s)) //$NON-NLS-1$
