@@ -91,7 +91,7 @@ public final class WizardUtils {
       sb.append("package " + packageName + ";\n\n"); //$NON-NLS-1$ //$NON-NLS-2$
     }
     sb.append("public class " + typeName + "{\n\n"); //$NON-NLS-1$
-    sb.append("    public static def main(args:Rail[String]) {\n"); //$NON-NLS-1$
+    sb.append("    public static def main(Array[String]) {\n"); //$NON-NLS-1$
     sb.append("        Console.OUT.println(\"Hello World!\" );\n"); //$NON-NLS-1$
     sb.append("    }\n\n"); //$NON-NLS-1$
     sb.append("}"); //$NON-NLS-1$

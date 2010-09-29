@@ -270,7 +270,7 @@ public final class X10Utils {
             methodDecl.flags().flags().isStatic() && methodDecl.returnType().type().isVoid() &&
             (methodDecl.formals().size() == 1) && 
             typeSystem.isSubtype(methodDecl.formals().get(0).type().type(), 
-                                 typeSystem.Rail(typeSystem.String()), typeSystem.emptyContext())) {
+                                 typeSystem.Array(typeSystem.String()), typeSystem.emptyContext())) {
           this.fX10Types.add(classType);
         }
         // We don't search for a "main method" within methods.
