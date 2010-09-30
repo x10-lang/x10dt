@@ -39,6 +39,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -181,17 +183,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       clearMarkers(sourcesToCompile);
       
+      final ISchedulingRule rule = MultiRule.combine(getSchedulingRule(sourcesToCompile), 
+    		  										 MultiRule.combine(getSchedulingRule(nativeFiles), getSchedulingRule(deletedSources)));
       final IWorkspace workspace = ResourcesPlugin.getWorkspace();
       final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
         public void run(final IProgressMonitor monitor) throws CoreException {
-        	x10BuilderFileOp.cleanFiles(CountableIterableFactory.create(sourcesToCompile, nativeFiles, deletedSources),
-                    subMonitor.newChild(5));
+        	x10BuilderFileOp.cleanFiles(CountableIterableFactory.create(sourcesToCompile, nativeFiles, deletedSources), 
+        			subMonitor.newChild(5));
         }
 
       };
       
-      workspace.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, subMonitor);
+      workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
       
       return dependentProjects;
     } finally {
@@ -311,6 +315,14 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   // --- Private code
 
+  private ISchedulingRule getSchedulingRule(Collection<IFile> files){
+	  Collection<ISchedulingRule> rules = new ArrayList<ISchedulingRule>();
+	  for(IFile file: files){
+		  rules.add(file);
+	  }
+	  return MultiRule.combine(rules.toArray(new ISchedulingRule[0]));
+  }
+  
   private void clearMarkers(final Collection<IFile> sourcesToCompile) {
     for (final IFile file : sourcesToCompile) {
       CoreResourceUtils.deleteBuildMarkers(file);
@@ -402,6 +414,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private void compile(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                        final IX10BuilderFileOp builderOp, final SubMonitor subMonitor) throws CoreException {
     final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+    final ISchedulingRule rule = getSchedulingRule(sourcesToCompile);
     final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
       public void run(final IProgressMonitor monitor) throws CoreException {
@@ -411,7 +424,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     };
 
-    workspace.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, subMonitor);
+    workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
   }
 
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<File> sourcesToCompile,
