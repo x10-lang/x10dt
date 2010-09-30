@@ -118,6 +118,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
+	final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
+    messageConsole.clearConsole();
     if (!getProject().isAccessible()) {
       return null;
     }
@@ -188,7 +190,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         }
 
       };
-
+      
       workspace.run(runnable, ResourcesPlugin.getWorkspace().getRoot(), IWorkspace.AVOID_UPDATE, subMonitor);
       
       return dependentProjects;

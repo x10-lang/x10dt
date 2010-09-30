@@ -170,7 +170,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     boolean succeeded = true;
     try {
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
-      messageConsole.clearConsole();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
 
       for (final Map.Entry<String, String> entry : this.fCppFiles.entrySet()) {
