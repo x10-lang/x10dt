@@ -8,7 +8,6 @@
 package x10dt.search.core.pdb;
 
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
-
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
 import polyglot.types.ParsedClassType;
@@ -16,10 +15,6 @@ import polyglot.visit.NodeVisitor;
 
 
 final class AllTypesFactWriterVisitor extends FactWriterVisitor {
-  
-  AllTypesFactWriterVisitor(final SearchDBTypes sdbTypes) {
-    super(sdbTypes);
-  }
 
   // --- Overridden methods
   

@@ -17,13 +17,15 @@ import org.eclipse.osgi.util.NLS;
 @SuppressWarnings("all")
 public class Messages extends NLS {
 
+  public static String ATM_NoDataBaseValue;
+
   public static String FWV_URICreationError;
+
+  public static String SCA_ProjectNonExistent;
 
   public static String THFWV_UnknownSuperType;
 
   public static String XFG_ClassPathResolutionError;
-
-  public static String XFG_ExternalResourceTypeNotHandled;
 
   public static String XFG_JarReadingError;
 

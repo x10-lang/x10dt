@@ -9,16 +9,10 @@ package x10dt.search.core.pdb;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.IWriter;
-import org.eclipse.imp.pdb.facts.db.FactBase;
-import org.eclipse.imp.pdb.facts.db.FactKey;
-import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.osgi.util.NLS;
@@ -36,25 +30,12 @@ import x10dt.search.core.Messages;
  */
 public class FactWriterVisitor extends NodeVisitor {
   
-  protected FactWriterVisitor(final SearchDBTypes sdbTypes) {
+  protected FactWriterVisitor() {
     this.fValueFactory = ValueFactory.getInstance();
-    this.fSearchDBTypes = sdbTypes;
-    this.fTypeName = sdbTypes.getType(X10FactTypeNames.X10_TypeName);
+    this.fTypeName = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeName);
   }
   
-  // --- Abstract methods definition
-  
-  /**
-   * Defines a fact resulting value for the current type and context given with the current writer state.
-   * 
-   * @param factBase The fact base to consider.
-   * @param context The fact context to consider.
-   */
-  public final void defineFact(final FactBase factBase, final IFactContext context) {
-    for (final Map.Entry<Type, IWriter> entry : this.fTypeToWriter.entrySet()) {
-      factBase.defineFact(new FactKey(entry.getKey(), context), entry.getValue().done());
-    }
-  }
+  // --- Public services
   
   /**
    * Defines the current scope type.
@@ -62,7 +43,7 @@ public class FactWriterVisitor extends NodeVisitor {
    * @param scopeTypeName The name defining the scope type.
    */
   public final void setScopeType(final String scopeTypeName) {
-    this.fScopeType = this.fSearchDBTypes.getType(scopeTypeName);
+    this.fScopeTypeName = scopeTypeName;
   }
   
   // --- Code for implementers
@@ -99,6 +80,10 @@ public class FactWriterVisitor extends NodeVisitor {
     }
   }
   
+  protected final ITypeManager getTypeManager(final String typeName) {
+    return SearchDBTypes.getInstance().getTypeManager(typeName, this.fScopeTypeName);
+  }
+  
   /**
    * Returns the current value factory.
    * 
@@ -109,26 +94,16 @@ public class FactWriterVisitor extends NodeVisitor {
   }
   
   protected final void insertValue(final String typeName, final IValue ... values) {
-    final Type type = this.fSearchDBTypes.instantiate(this.fSearchDBTypes.getType(typeName), this.fScopeType);
-    IWriter writer = this.fTypeToWriter.get(type);
-    if (writer == null) {
-      writer = type.writer(this.fValueFactory);
-      this.fTypeToWriter.put(type, writer);
-    }
-    writer.insert(values);
+    getTypeManager(typeName).getWriter().insert(values);
   }
   
   // --- Fields
   
   private final IValueFactory fValueFactory;
-
-  private final SearchDBTypes fSearchDBTypes;
   
   private final Type fTypeName;
   
-  private final Map<Type, IWriter> fTypeToWriter = new HashMap<Type, IWriter>();
   
-  
-  private Type fScopeType;
+  private String fScopeTypeName;
 
 }

@@ -34,7 +34,7 @@ public final class X10FactGeneratorTests extends AbstractSearchTestBase {
     
   // --- Test cases
     
-  @Test public void testCase1() throws Exception {
+  @Test public void testHelloWorldWithProjectContext() throws Exception {
     final long time = generateFactForProject(X10_TypeHierarchy, "test", "factGenerator/case1", true);
     assertTrue("Time in seconds to perform the indexing: " + (time / 1000), time < 60000);
     
@@ -56,7 +56,7 @@ public final class X10FactGeneratorTests extends AbstractSearchTestBase {
     assertEquals("x10.lang.Object", getString(appTypeHierarchy[0][1]));
   }
   
-  @Test public void testCase2() throws Exception {
+  @Test public void testHelloWorldWithResourceContext() throws Exception {
     final long time = generateFact(X10_TypeHierarchy, "factGenerator/case1", 
                                    ContextUtils.createFileContext("/test/src/HelloWorld.x10"));
     assertTrue("Time in seconds to perform the indexing: " + (time / 1000), time < 60000);

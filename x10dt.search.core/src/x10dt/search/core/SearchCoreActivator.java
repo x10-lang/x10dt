@@ -1,22 +1,95 @@
 package x10dt.search.core;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
-import org.osgi.framework.BundleActivator;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.pdb.facts.db.FactKey;
+import org.eclipse.imp.pdb.facts.db.IFactKey;
+import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.indexing.IndexManager;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
+
+import x10dt.search.core.pdb.SearchDBTypes;
+import x10dt.search.core.pdb.X10FactTypeNames;
+import x10dt.ui.launch.cpp.CppLaunchCore;
+import x10dt.ui.launch.java.Activator;
 
 /**
  * Main class being notified of the plugin life cycle.
  * 
  * @author egeay
  */
-public class SearchCoreActivator extends Plugin implements BundleActivator {
+public class SearchCoreActivator extends Plugin implements IStartup, IResourceChangeListener {
 
   /**
    * The unique plugin id for <b>x10dt.search.core</b>.
    */
   public static final String PLUGIN_ID = "x10dt.search.core"; //$NON-NLS-1$
+  
+  // --- IStartup's interface methods implementation
+  
+  public void earlyStartup() {
+    final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
+    for (final IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+      try {
+        if (project.hasNature(CppLaunchCore.X10_CPP_PRJ_NATURE_ID) || project.hasNature(Activator.X10_PRJ_JAVA_NATURE_ID)) {
+          final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
+          IndexManager.keepFactUpdated(key);
+        }
+      } catch (CoreException except) {
+        log(except.getStatus());
+      } catch (ModelException except) {
+        log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
+      }
+    }
+  }
+  
+  // --- IResourceChangeListener's interface methods implementation
+  
+  public void resourceChanged(final IResourceChangeEvent event) {
+    final IResourceDelta rootResourceDelta = event.getDelta();
+    for (final IResourceDelta resourceDelta : rootResourceDelta.getAffectedChildren()) {
+      if (resourceDelta.getResource().getType() == IResource.PROJECT) {
+        final IProject project = resourceDelta.getResource().getProject();
+        switch (resourceDelta.getKind()) {
+          case IResourceDelta.ADDED:
+            try {
+              final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
+              final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
+              IndexManager.keepFactUpdated(key);
+            } catch (ModelException except) {
+              log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
+            }
+            break;
+            
+          case IResourceDelta.REMOVED:
+            try {
+              final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
+              final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
+              IndexManager.cancelFactUpdating(key);
+            } catch (ModelException except) {
+              log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
+            }
+            break;
+            
+          default:
+            // Nothing to do.
+        }
+      }
+    }
+  }
   
   // --- Public services
 
@@ -91,11 +164,14 @@ public class SearchCoreActivator extends Plugin implements BundleActivator {
 
   public void start(final BundleContext bundleContext) throws Exception {
     super.start(bundleContext);
+    IndexManager.initializeAndSchedule(2000);
+    ResourcesPlugin.getWorkspace().addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
     fPlugin = this;
   }
 
   public void stop(final BundleContext bundleContext) throws Exception {
     fPlugin = null;
+    ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
     super.stop(bundleContext);
   }
 

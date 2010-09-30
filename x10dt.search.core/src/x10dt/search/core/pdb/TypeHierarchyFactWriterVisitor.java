@@ -26,10 +26,6 @@ import x10dt.search.core.SearchCoreActivator;
 
 final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
   
-  TypeHierarchyFactWriterVisitor(final SearchDBTypes sdbTypes) {
-    super(sdbTypes);
-  }
-  
   // --- Overridden methods
   
   public NodeVisitor enter(final Node node) {

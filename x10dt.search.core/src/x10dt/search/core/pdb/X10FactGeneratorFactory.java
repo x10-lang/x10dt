@@ -7,9 +7,6 @@
  *******************************************************************************/
 package x10dt.search.core.pdb;
 
-import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
-import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeHierarchy;
-
 import org.eclipse.imp.pdb.analysis.IFactGenerator;
 import org.eclipse.imp.pdb.analysis.IFactGeneratorFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -29,22 +26,11 @@ public final class X10FactGeneratorFactory implements IFactGeneratorFactory {
   }
 
   public IFactGenerator create(final Type type) {
-    if (X10_AllTypes.equals(type.getName())) {
-      return new X10FactGenerator(new AllTypesFactWriterVisitor(this.fSearchDBTypes));
-    } else if (X10_TypeHierarchy.equals(type.getName())) {
-      return new X10FactGenerator(new TypeHierarchyFactWriterVisitor(this.fSearchDBTypes));
-    } else {
-      return null;
-    }
+    return new X10FactGenerator(SearchDBTypes.getInstance());
   }
 
   public TypeStore declareTypes() {
-    this.fSearchDBTypes = new SearchDBTypes();
-    return this.fSearchDBTypes.getTypeStore();
+    return SearchDBTypes.getInstance().getTypeStore();
   }
-  
-  // --- Fields
-  
-  private SearchDBTypes fSearchDBTypes;
 
 }

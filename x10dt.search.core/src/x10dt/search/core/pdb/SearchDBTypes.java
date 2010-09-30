@@ -21,6 +21,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.utils.Pair;
 
 /**
  * Manages and provides services for the X10 Search PDB types.
@@ -34,25 +35,15 @@ public final class SearchDBTypes {
    * 
    * @see X10FactTypeNames
    */
-  public SearchDBTypes() {
-    final TypeFactory typeFactory = TypeFactory.getInstance();
-    this.fTypeStore = new TypeStore();
-    
-    final Type typeName = typeFactory.aliasType(this.fTypeStore, X10_TypeName, typeFactory.stringType());
-    final Type x10Type = typeFactory.aliasType(this.fTypeStore, X10_Type, 
-                                               typeFactory.tupleType(typeName, typeFactory.sourceLocationType()));
-    
-    typeFactory.aliasType(this.fTypeStore, APPLICATION, typeFactory.stringType());
-    typeFactory.aliasType(this.fTypeStore, LIBRARY, typeFactory.stringType());
-    typeFactory.aliasType(this.fTypeStore, RUNTIME, typeFactory.stringType());
-    
-    this.fScopeType = typeFactory.parameterType("scope"); //$NON-NLS-1$
-    
-    typeFactory.aliasType(this.fTypeStore, X10_AllTypes, typeFactory.setType(x10Type), this.fScopeType);
-    typeFactory.aliasType(this.fTypeStore, X10_TypeHierarchy, typeFactory.relType(typeName, typeName), this.fScopeType);
-  }
 
   // --- Public services
+  
+  public static SearchDBTypes getInstance() {
+    if (fInstance == null) {
+      fInstance = new SearchDBTypes();
+    }
+    return fInstance;
+  }
   
   /**
    * Returns the fact type for the name provided, if any is present.
@@ -65,16 +56,25 @@ public final class SearchDBTypes {
   }
   
   /**
-   * Instantiates a parametric type with the bound type value provided.
+   * Returns the fact database type identified from the names provided.
    * 
-   * @param parametricType The parametric type to consider.
-   * @param boundType The bound type value to consider.
-   * @return The new type instance after instantiation.
+   * @param parametricTypeName The parametric type name.
+   * @param scopeTypeName The scope type name to bound to the parametric type.
+   * @return A non-null {@link Type} instance if the type is managed by the database, otherwise <b>null</b>.
    */
-  public Type instantiate(final Type parametricType, final Type boundType) {
-    final Map<Type, Type> bindings = new HashMap<Type, Type>(1);
-    bindings.put(this.fScopeType, boundType);
-    return parametricType.instantiate(bindings);
+  public Type getType(final String parametricTypeName, final String scopeTypeName) {
+    return getTypeManager(parametricTypeName, scopeTypeName).getType();
+  }
+  
+  /**
+   * Returns the type manager instance that manages the type identified from the names provided.
+   * 
+   * @param parametricTypeName The parametric type name.
+   * @param scopeTypeName The scope type name to bound to the parametric type.
+   * @return A non-null {@link ITypeManager} instance if the type is managed by the database, otherwise <b>null</b>.
+   */
+  public ITypeManager getTypeManager(final String parametricTypeName, final String scopeTypeName) {
+    return this.fScopedTypeToManager.get(new Pair<String, String>(parametricTypeName, scopeTypeName));
   }
   
   // --- Internal services
@@ -83,10 +83,58 @@ public final class SearchDBTypes {
     return this.fTypeStore;
   }
   
+  // --- Private code
+  
+  private SearchDBTypes() {
+    final TypeFactory typeFactory = TypeFactory.getInstance();
+    this.fTypeStore = new TypeStore();
+    
+    final Type typeName = typeFactory.aliasType(this.fTypeStore, X10_TypeName, typeFactory.stringType());
+    final Type x10Type = typeFactory.aliasType(this.fTypeStore, X10_Type, 
+                                               typeFactory.tupleType(typeName, typeFactory.sourceLocationType()));
+    
+    final Type application = typeFactory.aliasType(this.fTypeStore, APPLICATION, typeFactory.stringType());
+    final Type library = typeFactory.aliasType(this.fTypeStore, LIBRARY, typeFactory.stringType());
+    final Type runtime = typeFactory.aliasType(this.fTypeStore, RUNTIME, typeFactory.stringType());
+    
+    final Type scopeType = typeFactory.parameterType("scope"); //$NON-NLS-1$
+    
+    final Type allTypes = typeFactory.aliasType(this.fTypeStore, X10_AllTypes, typeFactory.setType(x10Type), scopeType);
+    final Type typeHierarchy = typeFactory.aliasType(this.fTypeStore, X10_TypeHierarchy, 
+                                                     typeFactory.relType(typeName, typeName), scopeType);
+    
+    this.fScopedTypeToManager = new HashMap<Pair<String,String>, ITypeManager>(6);
+    
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllTypes, APPLICATION), 
+                                  new AllTypesManager(instantiate(allTypes, scopeType, application)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllTypes, LIBRARY), 
+                                  new AllTypesManager(instantiate(allTypes, scopeType, library)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllTypes, RUNTIME), 
+                                  new AllTypesManager(instantiate(allTypes, scopeType, runtime)));
+    
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_TypeHierarchy, APPLICATION), 
+                                  new TypeHierarchyManager(instantiate(typeHierarchy, scopeType, application),
+                                                           getTypeManager(X10_AllTypes, APPLICATION)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_TypeHierarchy, LIBRARY), 
+                                  new TypeHierarchyManager(instantiate(typeHierarchy, scopeType, library),
+                                                           getTypeManager(X10_AllTypes, LIBRARY)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_TypeHierarchy, RUNTIME), 
+                                  new TypeHierarchyManager(instantiate(typeHierarchy, scopeType, runtime),
+                                                           getTypeManager(X10_AllTypes, RUNTIME)));
+  }
+  
+  private Type instantiate(final Type parametricType, final Type scopeType, final Type boundType) {
+    final Map<Type, Type> bindings = new HashMap<Type, Type>(1);
+    bindings.put(scopeType, boundType);
+    return parametricType.instantiate(bindings);
+  }
+  
   // --- Fields
+  
+  private static SearchDBTypes fInstance;
   
   private final TypeStore fTypeStore;
   
-  private final Type fScopeType;
+  private final Map<Pair<String, String>, ITypeManager> fScopedTypeToManager;
 
 }

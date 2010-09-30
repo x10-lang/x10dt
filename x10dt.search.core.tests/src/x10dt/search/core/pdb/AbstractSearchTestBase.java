@@ -45,7 +45,7 @@ public abstract class AbstractSearchTestBase {
   protected final long generateFact(final String factTypeName, final String data,
                                     final IFactContext context) throws Exception {
     final long start = System.currentTimeMillis();
-    final SearchDBTypes sdbTypes = new SearchDBTypes();
+    final SearchDBTypes sdbTypes = SearchDBTypes.getInstance();
     final Type factType = sdbTypes.getType(factTypeName);
     assertNotNull(factType);
     
@@ -71,7 +71,7 @@ public abstract class AbstractSearchTestBase {
     ResourcesPlugin.getWorkspace().getDescription().setAutoBuilding(false);
     final IProject project;
     if (shouldCreateProject) {
-      project = ProjectUtils.createX10ProjectJavaBackEnd(projectName, getClass().getClassLoader(), data);
+      project = ProjectUtils.createX10ProjectCppBackEnd(projectName, getClass().getClassLoader(), data);
     } else {
       project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     }
@@ -88,9 +88,8 @@ public abstract class AbstractSearchTestBase {
    * @return The value for the type identified or <b>null</b> if there is no value in the database.
    */
   protected final IValue getValue(final String parametricTypeName, final String scopeType) {
-    final SearchDBTypes sdbTypes = new SearchDBTypes();
-    final IFactKey key = new FactKey(sdbTypes.instantiate(sdbTypes.getType(parametricTypeName), sdbTypes.getType(scopeType)), 
-                                     this.fContext);
+    final SearchDBTypes sdbTypes = SearchDBTypes.getInstance();
+    final IFactKey key = new FactKey(sdbTypes.getType(parametricTypeName, scopeType), this.fContext);
     return FactBase.getInstance().getFact(key);
   }
   
