@@ -2,6 +2,8 @@
 <?NLS TYPE="org.eclipse.help.toc"?>
       
 <toc label="X10DT Help">
+<topic label="X10DT Overview" href="html/x10dt/Overview.html">X10DT Overview</topic>
+
 <topic label="Installation and pre-reqs">
 	<topic label="Install" href="html/installp/install.html"/>
 	<topic label="Mac" href="html/installp/mac-cl-install.html"/> 
@@ -9,33 +11,24 @@
 	<topic label="Windows" href="html/installp/windows-cl-install.html"/> 
 </topic>
 
-<topic label="Getting Started" href="html/x10dt/contents.html"> 
 <!--
-	<topic label="Main Topic"  href="html/gettingstarted/maintopic.html"> 
-		<topic label="Sub Topic" href="html/gettingstarted/subtopic.html" /> 
-	</topic>
-	<topic label="Main Topic 2">
-		<topic label="Sub Topic 2" href="html/gettingstarted/subtopic2.html" />
-	</topic> 
--->
-	<topic label="X10DT Overview" href="html/x10dt/Overview.html">X10DT Overview</topic>
+<topic label="Getting Started" href="html/x10dt/contents.html"> 
 	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
-	<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html"> </topic>
-
-	<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02NewProjJavaBackend.html"> </topic>
-	<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02NewProjCppBackend.html"> </topic> 
-
+	<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html">
+		<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02NewProjJavaBackend.html"> </topic>
+		<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02NewProjCppBackend.html"> </topic> 
+	</topic>
 	<topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
 		<topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
 		<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
 	</topic>
-
-	<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
-	<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
-	<topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
-
-<!--	<topic label="What&apos;s New 2.0.5" href="html/x10dt/whatsNew/whatsNew-2_0_5.html"/> -->
+	<topic label="Running your X10 programs" href="html/x10dt/04runProgram.html">
+		<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
+		<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
+	</topic>
+	
 </topic>
+-->>
 <!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
       which is needed for our online versions of the docs.-->
 
@@ -63,28 +56,30 @@
 <!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
       which is needed for our online versions of the docs.-->
 
-<topic label="X10DT FAQs"  href="html/x10dtfaqs.html"/>
-<!--
-<topic label="FAQs"> 
-	<topic label="Main Topic"  href="html/faqs/maintopic.html"> 
-		<topic label="Sub Topic" href="html/faqs/subtopic.html" /> 
-	</topic>
-	<topic label="Main Topic 2">
-		<topic label="Sub Topic 2" href="html/faqs/subtopic2.html" /> 
-	</topic> 
-</topic>
---> 
-
-<!-- 
 <topic label="Concepts"> 
+
+	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
+	<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html">
+		<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02NewProjJavaBackend.html"> </topic>
+		<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02NewProjCppBackend.html"> </topic> 
+	</topic>
+	<topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
+		<topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
+		<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
+	</topic>
+	<topic label="Running your X10 programs" href="html/x10dt/01whichRunProgram.html">
+		<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
+		<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
+	</topic>
+<!--
 	<topic label="Main Topic"  href="html/concepts/maintopic.html"> 
 		<topic label="Sub Topic" href="html/concepts/subtopic.html" /> 
 	</topic>
 	<topic label="Main Topic 2">
 		<topic label="Sub Topic 2" href="html/concepts/subtopic2.html" /> 
 	</topic> 
-</topic>
 -->
+</topic>
 
 <!--
 <topic label="Tasks"> 
@@ -97,16 +92,9 @@
 </topic>
 -->
 
-<!--
 <topic label="Reference"> 
-	<topic label="Main Topic"  href="html/reference/maintopic.html"> 
-		<topic label="Sub Topic" href="html/reference/subtopic.html" /> 
-	</topic>
-	<topic label="Main Topic 2">
-		<topic label="Sub Topic 2" href="html/reference/subtopic2.html" /> 
-	</topic> 
+	<topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
 </topic>
--->
 
 <!--
 <topic label="Samples">
@@ -123,10 +111,13 @@
 </topic>
 -->
 
-<topic label="New and Noteworty" href="html/whatsNew/toc.html"> 
-	<topic label="Current"  href="html/whatsNew/toc.html" /> 
-	<topic label="New and Noteworthy 2.0.5" href="html/whatsNew/whatsNew-2_0_5.html" /> 
-	<topic label="New and Noteworthjy 2.0.x" href="html/whatsNew/newAndNoteworthy_old.html" /> 
+<topic label="X10DT FAQs"  href="html/x10dtfaqs.html"/>
+
+<topic label="What's new" href="html/whatsnew/whatsnew-2.1.html"> 
+	<topic label="What's new 2.1"  href="html/whatsnew/whatsnew-2.1.html" /> 
+	<topic label="What's new 2.0.6" href="html/whatsnew/whatsnew-2.0.6.html" /> 
+	<topic label="What's new 2.0.5" href="html/whatsnew/whatsnew-2.0.5.html" /> 
+	<topic label="What's new 2.0.x" href="html/whatsnew/whatsnew-2.0.x.html" /> 
 </topic>
 
 </toc>
