@@ -52,6 +52,14 @@
 	<topic label="Histogram" href="html/samples/Histogram.html">Histogram</topic>
 </topic> 
 
+<topic label="Programmer's Guide">
+	<topic label="Summary" href="html/pguide/summary.html">Summary</topic>
+	<topic label="Preface" href="html/pguide/preface.html">Preface</topic>
+	<topic label="Intro" href="html/pguide/intro.html">Introduction</topic>
+	<topic label="monteCarloPi" href="html/pguide/monteCarloPi.html">monteCarloPi</topic>
+	
+</topic> 
+
 <topic label="X10 Language Reference" href="html/langref/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
 	<topic label="Introduction"  href="html/langref/introduction.html"/> 
