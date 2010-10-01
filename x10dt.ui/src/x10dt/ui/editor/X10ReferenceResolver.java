@@ -22,6 +22,7 @@ import polyglot.ast.Call;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
@@ -124,6 +125,9 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             LocalInstance li= local.localInstance();
             if (li != null)
                 return li.def();  //PORT1.7 li.declaration() -> li.def();
+        } else if (node instanceof Formal) {
+			Formal formal = (Formal) node;
+			return formal.localDef();
         }
         return null;
     }
