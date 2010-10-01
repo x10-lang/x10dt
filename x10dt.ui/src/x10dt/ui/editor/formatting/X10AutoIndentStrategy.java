@@ -70,21 +70,21 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         }
     }
 
-    private boolean fCloseBrace;
-    private boolean fIsSmartMode;
-    private String fPartitioning;
-    private final IProject fProject;
-    private final IPreferencesService fPrefsSvc;
-
-    public X10AutoIndentStrategy() {
-        this("", null);
-    }
-
     private static void doAssert(boolean cond) {
         // org.eclipse.jdt.internal.corext.Assert(cond);
         if (cond) {
             // bark like a dog
         }
+    }
+
+    private final IProject fProject;
+    private final IPreferencesService fPrefsSvc;
+    private boolean fCloseBrace;
+    private boolean fIsSmartMode;
+    private String fPartitioning;
+
+    public X10AutoIndentStrategy() {
+        this("", null);
     }
 
     /**
@@ -301,14 +301,10 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                     // comment (i.e., scan forward finds "*/" prior to "/*", or
                     // maybe just next line starts with ^\w*\*
                     && inUnendedBlockComment(d, contentStart)) {
-//              StringBuffer reference= indenter.getReferenceIndentation(c.offset); // this doesn't seem to compute the right indent for comments...
-//              buf.append(reference.toString());
                 buf.append(" * ");
                 buf.append(TextUtilities.getDefaultLineDelimiter(d));
-//              buf.append(reference.toString());
                 buf.append(indent);
                 buf.append(" */");
-//                buf.append(TextUtilities.getDefaultLineDelimiter(d));
                 // How to set c.caretOffset?
                 // If we set it to c.offset - where, the cursor ends up '2*where'
                 // characters before where we want it. If we set it to c.offset,
@@ -1109,12 +1105,16 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         // if user typed tab after start of line, push offset back to start of
         // line (we assume we're in white space at start)
         int originalCaretOffset= command.offset;
+
         try {
             int line= document.getLineOfOffset(command.offset);
+
             command.offset= document.getLineOffset(line);
         } catch (BadLocationException e) {
         }
+
         int originalStartOfLine= command.offset;
+
         // First delete whitespace since previous newline, and then call smartIndentAfterNewline()
         // Since smartIndentAfterNewline inserts "* " inside block comments,
         // need to include leading "* ?", if present, this in "whitespace" for block comments
@@ -1125,6 +1125,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         // indent region: then put it in the text region. Is this the desired behavior?
         int originalIndentWidth= command.length; // width of white space (+ possibly comment header) we're replacing
         int indentWidthDiff= command.text.length() - command.length;
+
         if (originalCaretOffset >= originalStartOfLine + originalIndentWidth) { // if the caret at outset was after the margin
             command.caretOffset= originalCaretOffset/* + indentWidthDiff */;
         }
@@ -1238,15 +1239,43 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         	IDocumentPartitioner dp = d.getDocumentPartitioner();
         	if (dp == null) {
         		installDocPartitioner(d);
-//        	} else {
-//        		System.out.println("Doc partitioner already installed.");
         	}
+        	// Apparently, if "use spaces for tabs" is set, the editor will have already substituted
+        	// spaces for tabs by the time we get here, so we won't see a 1-char insertion of "\t".
+        	// This makes it much harder to figure out whether the user typed "\t" or pasted in
+        	// N spaces. So either we have to handle spaces for tabs entirely on our own, or try to
+        	// figure out whether the user *might* have typed a "\t" when we see an insertion with
+        	// some number of spaces. Grrr...
+        	// TODO Figure out whether it's easier to just handle spaces-for-tabs by ourselves.
 	        if (c.length == 0 && c.text != null && isLineDelimiter(d, c.text)) {
 	            smartIndentAfterNewLine(d, c);
 	        } else if (c.text.length() == 1 && c.text.charAt(0) == '\t' && inLeadingWhitespace(c.offset, d)) {
 	            smartIndentOnKeypress(d, c);
-	        } else if (c.text.length() > 1 && getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SMART_PASTE)) {
-	            smartPaste(d, c); // no smart backspace for paste
+	        } else {
+	        	try {
+	        		// Try to figure out whether the command represents a set of spaces that
+	        		// would take us to the next "tab stop" (a multiple of the tab width).
+		        	int insertCol= c.offset - d.getLineOffset(d.getLineOfOffset(c.offset));
+		        	int tabWidth= fPrefsSvc.getIntPreference(X10Constants.P_TABWIDTH);
+
+					if (c.text.length() == (tabWidth - insertCol % tabWidth) && c.text.matches(" +")) {
+						// Ok, an expanded "tab character" is being inserted; fake a tab keypress
+						if (inLeadingWhitespace(c.offset, d)) { // do a smart indent
+							c.text= "\t";
+							smartIndentOnKeypress(d, c);
+						} else { // just push whatever's there right one indent level
+							int indentWidth= fPrefsSvc.getIntPreference(X10Constants.P_INDENTWIDTH);
+							StringBuilder sb= new StringBuilder();
+							for(int i=0; i < indentWidth; i++)
+								sb.append(' ');
+							c.text= sb.toString();
+							super.customizeDocumentCommand(d, c);
+						}
+			        } else if (c.text.length() > 1 && getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SMART_PASTE)) {
+			            smartPaste(d, c); // no smart backspace for paste
+			        }
+	        	} catch (BadLocationException e) {
+	        	}
 	        }
 	        if (dp == null) {
 	        	removeDocPartitioner(d);
@@ -1256,11 +1285,17 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 
     private boolean inLeadingWhitespace(int offset, IDocument d) {
     	try {
+        	IRegion lineReg= d.getLineInformationOfOffset(offset);
+        	int lineStart= lineReg.getOffset();
+
+        	if (offset == lineStart) { // Even if the first char in the line is non-whitespace, consider the first location in the line within the leading whitespace
+        		return true;
+        	}
+
         	if (!Character.isWhitespace(d.getChar(offset))) {
         		return false;
         	}
-        	IRegion lineReg= d.getLineInformationOfOffset(offset);
-        	int lineStart= lineReg.getOffset();
+
         	for(int idx= lineStart; idx < offset; idx++) {
         		if (!Character.isWhitespace(d.getChar(idx))) {
         			return false;
@@ -1377,10 +1412,4 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             return null;
         }
     }
-
-    // public void customizeDocumentCommand(IDocument d, DocumentCommand c) {
-    // if (c.length == 0 && c.text != null &&
-    // TextUtilities.endsWith(d.getLegalLineDelimiters(), c.text) != -1)
-    // autoIndentAfterNewLine(d, c);
-    // }
 }
