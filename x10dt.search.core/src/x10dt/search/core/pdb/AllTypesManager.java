@@ -33,25 +33,33 @@ import x10dt.ui.launch.core.utils.IFilter;
 
 final class AllTypesManager extends AbstractTypeManager implements ITypeManager {
   
-  AllTypesManager(final Type type) {
+  AllTypesManager(final Type type, final ITypeManager allMethodsManager, final ITypeManager allFieldsManager) {
     super(type);
+    this.fAllMethodsManager = allMethodsManager;
+    this.fAllFieldsManager = allFieldsManager;
   }
   
   // --- Interface methods implementation
   
   public void clearWriter() {
+    this.fAllMethodsManager.clearWriter();
+    this.fAllFieldsManager.clearWriter();
     super.fWriter = null;
   }
   
   public FactWriterVisitor createNodeVisitor() {
-    return new AllTypesFactWriterVisitor();
+    return new AllMembersFactWriterVisitor();
   }
   
   public void writeDataInFactBase(final FactBase factBase, final IFactContext factContext) {
+    this.fAllMethodsManager.writeDataInFactBase(factBase, factContext);
+    this.fAllFieldsManager.writeDataInFactBase(factBase, factContext);
     factBase.defineFact(new FactKey(getType(), factContext), getWriter().done());
   }
   
   public final void initWriter() {
+    this.fAllMethodsManager.initWriter();
+    this.fAllFieldsManager.initWriter();
     super.fWriter = getType().writer(ValueFactory.getInstance());
   }
 
@@ -89,6 +97,9 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
         }
       }
     }
+    
+    ((AllMethodsManager) this.fAllMethodsManager).initWriter(factBase, factContext, resource, typesToRemove);
+    ((AllFieldsManager) this.fAllFieldsManager).initWriter(factBase, factContext, resource, typesToRemove);
   }
   
   // --- Private classes
@@ -130,5 +141,11 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
     private final URI fLocationURI;
     
   }
+  
+  // --- Fields
+  
+  private final ITypeManager fAllMethodsManager;
+  
+  private final ITypeManager fAllFieldsManager;
 
 }

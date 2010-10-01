@@ -10,34 +10,27 @@ package x10dt.search.core.pdb;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllFields;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllMethods;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
-import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeHierarchy;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.osgi.util.NLS;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
-import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.visit.NodeVisitor;
-import x10dt.search.core.Messages;
-import x10dt.search.core.SearchCoreActivator;
 
 
-final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
+final class AllMembersFactWriterVisitor extends FactWriterVisitor {
   
   // --- Overridden methods
   
   public NodeVisitor enter(final Node node) {
     if (node instanceof ClassDecl) {
-      final ClassDecl classDecl = (ClassDecl) node;
-      final ClassDef classDef = classDecl.classDef();
+      final ClassDef classDef = ((ClassDecl) node).classDef();
       final ClassType classType = classDef.asType();
       final IValue typeNameValue = createTypeName(classType.fullName().toString());
       insertValue(X10_AllTypes, getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position())));
@@ -57,36 +50,8 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
         fields[++i] = createFieldValue(fieldDef);
       }
       insertValue(X10_AllFields, getValueFactory().tuple(typeNameValue, getValueFactory().list(fields)));
-      
-      final TypeNode superTypeNode = classDecl.superClass();
-      
-      final ClassType superClass;
-      if (superTypeNode == null) {
-        // If none is declared, by default x10.lang.Object is the parent.
-        superClass = (ClassType) classType.typeSystem().Object();
-      } else {
-        final polyglot.types.Type superType = superTypeNode.type();
-        if (superType.isClass()) {
-          superClass = superType.toClass();
-        } else {
-          SearchCoreActivator.log(IStatus.WARNING, NLS.bind(Messages.THFWV_UnknownSuperType, superType, classDecl.name()));
-          superClass = null;
-        }
-      }
-      if (superClass != null) {
-        insertValue(X10_TypeHierarchy, getValueFactory().tuple(typeNameValue, 
-                                                               createTypeName(superClass.fullName().toString())));
-        for (final TypeNode interfaceTypeNode : classDecl.interfaces()) {
-          final polyglot.types.Type interfaceType = interfaceTypeNode.type();
-          if ((interfaceType != null) && (interfaceType instanceof ClassType)) {
-            insertValue(X10_TypeHierarchy, 
-                        getValueFactory().tuple(typeNameValue, 
-                                                createTypeName(((ClassType) interfaceType).fullName().toString())));
-          }
-        }
-      }
     }
     return this;
   }
-
+  
 }

@@ -25,9 +25,31 @@ public final class X10FactTypeNames {
   public static final String X10_TypeName = "x10.typeName"; //$NON-NLS-1$
   
   /**
-   * Fact type name identifying X10 type as a pair of (String, {@link ISourceLocation}).
+   * Fact type name identifying X10 method name as a string.
+   */
+  public static final String X10_MethodName = "x10.methodName"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying X10 field name as a string.
+   */
+  public static final String X10_FieldName = "x10.fieldName"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying X10 type as a pair of ({@value #X10_TypeName}, {@link ISourceLocation}).
    */
   public static final String X10_Type = "x10.type"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying X10 method as a tuple of 
+   * ({@link #X10_MethodName}, {@link #X10_TypeName}, list({@link #X10_TypeName}), {@link ISourceLocation}).
+   */
+  public static final String X10_Method = "x10.method"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying X10 field as a tuple of 
+   * ({@link #X10_FieldName}, {@link #X10_TypeName}, {@link ISourceLocation}).
+   */
+  public static final String X10_Field = "x10.field"; //$NON-NLS-1$
   
   // --- Outputs
   
@@ -35,6 +57,18 @@ public final class X10FactTypeNames {
    * Fact type name identifying all X10 types as a set of X10 type name (see {@link #X10_TypeName}).
    */
   public static final String X10_AllTypes = "x10.all.types"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying all X10 methods defined for an X10 type as a binary relation of a subset of
+   * ({@link #X10_TypeName} X list({@link #X10_Method}).
+   */
+  public static final String X10_AllMethods = "x10.type.methods"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying all X10 fields defined for an X10 type as a binary relation of a subset of
+   * ({@link #X10_TypeName} X list({@link #X10_Field}).
+   */
+  public static final String X10_AllFields = "x10.type.fields"; //$NON-NLS-1$
   
   /**
    * Fact type name identifying an X10 type hierarchy as a binary relation of a subset of 

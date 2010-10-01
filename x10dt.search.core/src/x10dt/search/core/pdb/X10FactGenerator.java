@@ -7,7 +7,7 @@
  *******************************************************************************/
 package x10dt.search.core.pdb;
 
-import static x10dt.search.core.pdb.X10FactTypeNames.RUNTIME;
+import static x10dt.search.core.pdb.X10FactTypeNames.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +45,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
+import org.eclipse.imp.pdb.facts.db.IFactKey;
 import org.eclipse.imp.pdb.facts.db.context.ISourceEntityContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -141,6 +142,16 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
           Globals.initialize(null);
           typeManager.clearWriter();
         }
+        
+        final ITypeManager allMethods = this.fSearchDBTypes.getTypeManager(X10_AllMethods, entry.getKey());
+        final IFactContext factContext;
+        if (RUNTIME.equals(entry.getKey())) {
+          factContext = WorkspaceContext.getInstance();
+        } else {
+          factContext = context;
+        }
+        final IFactKey key = new FactKey(allMethods.getType(), factContext);
+        System.out.println(factBase.getFact(key));
       }
     }
   }

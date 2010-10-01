@@ -7,8 +7,12 @@
  *******************************************************************************/
 package x10dt.search.core.pdb;
 
+import static x10dt.search.core.pdb.X10FactTypeNames.X10_FieldName;
+import static x10dt.search.core.pdb.X10FactTypeNames.X10_MethodName;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -17,7 +21,9 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.osgi.util.NLS;
 
-import polyglot.types.ClassType;
+import polyglot.types.FieldDef;
+import polyglot.types.MethodDef;
+import polyglot.types.Ref;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10dt.search.core.Messages;
@@ -33,6 +39,8 @@ public class FactWriterVisitor extends NodeVisitor {
   protected FactWriterVisitor() {
     this.fValueFactory = ValueFactory.getInstance();
     this.fTypeName = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeName);
+    this.fMethodName = SearchDBTypes.getInstance().getType(X10_MethodName);
+    this.fFieldName = SearchDBTypes.getInstance().getType(X10_FieldName);
   }
   
   // --- Public services
@@ -48,22 +56,28 @@ public class FactWriterVisitor extends NodeVisitor {
   
   // --- Code for implementers
   
-  /**
-   * Creates a string value encapsulating the class type qualified name.
-   * 
-   * @param classType The class type to consider.
-   * @return A non-null string value.
-   */
-  protected IValue createTypeName(final ClassType classType) {
-    return this.fTypeName.make(this.fValueFactory, classType.fullName().toString());
+  protected final IValue createFieldValue(final FieldDef fieldDef) {
+    return getValueFactory().tuple(getSourceLocation(fieldDef.position()), 
+                                   this.fFieldName.make(getValueFactory(), fieldDef.name().toString()),
+                                   createTypeName(fieldDef.asInstance().type().toString()));
+  }
+  
+  protected final IValue createMethodValue(final MethodDef methodDef) {
+    final List<Ref<? extends polyglot.types.Type>> formalTypes = methodDef.formalTypes();
+    final IValue[] args = new IValue[formalTypes.size()];
+    int i = -1;
+    for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
+      args[++i] = createTypeName(formalType.get().toString());
+    }
+    return getValueFactory().tuple(getSourceLocation(methodDef.position()),
+                                   this.fMethodName.make(getValueFactory(), methodDef.name().toString()),
+                                   createTypeName(methodDef.returnType().get().toString()), getValueFactory().list(args));
+  }
+  
+  protected final IValue createTypeName(final String typeName) {
+    return this.fTypeName.make(this.fValueFactory, typeName);
   }
 
-  /**
-   * Transforms a polyglot position into an IMP PDB source location.
-   * 
-   * @param position The position to consider.
-   * @return The source location equivalent to the position given.
-   */
   protected final ISourceLocation getSourceLocation(final Position position) {
     final StringBuilder scheme = new StringBuilder();
     if (position.file().contains(".jar:")) { //$NON-NLS-1$
@@ -84,11 +98,6 @@ public class FactWriterVisitor extends NodeVisitor {
     return SearchDBTypes.getInstance().getTypeManager(typeName, this.fScopeTypeName);
   }
   
-  /**
-   * Returns the current value factory.
-   * 
-   * @return A non-null implementation of {@link IValueFactory}.
-   */
   protected final IValueFactory getValueFactory() {
     return this.fValueFactory;
   }
@@ -102,6 +111,10 @@ public class FactWriterVisitor extends NodeVisitor {
   private final IValueFactory fValueFactory;
   
   private final Type fTypeName;
+  
+  private final Type fMethodName;
+  
+  private final Type fFieldName;
   
   
   private String fScopeTypeName;
