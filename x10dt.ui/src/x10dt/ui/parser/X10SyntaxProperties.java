@@ -16,10 +16,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.imp.services.ILanguageSyntaxProperties;
+import org.eclipse.imp.services.base.LanguageSyntaxPropertiesBase;
 
-public class X10SyntaxProperties implements ILanguageSyntaxProperties {
-
+public class X10SyntaxProperties extends LanguageSyntaxPropertiesBase {
     public String getBlockCommentEnd() {
         return "*/";
     }
