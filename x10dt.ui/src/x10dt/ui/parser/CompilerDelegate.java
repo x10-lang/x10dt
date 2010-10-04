@@ -48,6 +48,7 @@ import x10.errors.X10ErrorInfo;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.core.builder.BuildPathUtils;
 import x10dt.ui.X10DTUIPlugin;
 
 public class CompilerDelegate {
@@ -60,7 +61,7 @@ public class CompilerDelegate {
     CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) {
         this.fX10Project= (project != null) ? JavaCore.create(project) : null;
         fViolationHandler= violationHandler;
-        fExtInfo= new x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath));
+        fExtInfo= new x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
         buildOptions(fExtInfo);
 
         ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
@@ -70,6 +71,8 @@ public class CompilerDelegate {
             			fViolationHandler.handleViolation(error);
             		}
             	} else {
+            		if (BuildPathUtils.isExcluded(filePath, fX10Project))
+            			return;
             	 	Position pos = error.getPosition();
                 	if (pos != null) {
                 		IPath errorPath = new Path(pos.file());
