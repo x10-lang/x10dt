@@ -525,4 +525,14 @@
             language="X10">
       </editorInputResolver>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.quickFixAssistant">
+      <quickFixAssistant
+            class="x10dt.ui.quickfix.QuickFixAssistant"
+            language="X10">
+            <supportedMarkerType 
+            	markerType="org.eclipse.imp.x10dt.core.problemMarker"
+            />
+      </quickFixAssistant>
+   </extension>
 </plugin>
