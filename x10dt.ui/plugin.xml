@@ -535,4 +535,16 @@
             />
       </quickFixAssistant>
    </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            default="true"
+            id="x10dt.ui.editor"
+            name="X10 Editor"
+            class="x10dt.ui.editor.X10Editor"
+            contributorClass="x10dt.ui.editor.X10EditorActionContributer"
+            extensions="x10"
+            icon="icons/compilationUnitNormal.gif">
+      </editor>
+   </extension>
 </plugin>
