@@ -23,15 +23,15 @@ Chapter 4 </a><br />Types</h1>
 </a>
 
 <div class="p"><!----></div>
-X10 is a <em>strongly typed</em> object-oriented language: every
+ is a <em>strongly typed</em> object-oriented language: every
 variable and expression has a type that is known at compile-time.
 Types limit the values that variables can hold and specify the places
 at which these values can lie.
 
 <div class="p"><!----></div>
-X10 supports three kinds of runtime entities, <em>objects</em>,
+ supports three kinds of runtime entities, <em>objects</em>,
 <em>structs</em>, and <em>functions</em>. Objects are instances of <em>
-  classes</em> (&#167;). They may contain mutable fields
+  classes</em> (). They may contain mutable fields
 and stay resident in the place in which they were
 created. 
 Objects are said to be <em>boxed</em> in that variables of a
@@ -47,7 +47,7 @@ simply containing references to the memory used to represent the
 objects.
 
 <div class="p"><!----></div>
-Structs are instances of <em>struct types</em> (&#167;). They are a
+Structs are instances of <em>struct types</em> (). They are a
 restricted variant of classes, lacking meta-information; this makes them less
 flexible, but in many cases more efficient. When it is semantically
 meaningful, converting a class into a struct or vice-versa is quite easy.
@@ -58,7 +58,7 @@ and align the fields of the struct.
 <div class="p"><!----></div>
 Functions, called closures or lambda-expressions in other languages, are
 instances of <em>function types</td><td width="150">
-&#124;</em> (&#167;). Functions can refer to
+&#124;</em> (). Functions can refer to
 variables from the surrounding environment; , <b>(x:Int)=&#62;x*y</b> is a unary
 integer function which multiplies its argument by the variable <b>y</b> from
 the surrounding block.  
@@ -88,7 +88,7 @@ Strengthening is an equally familiar notion from logic.   The instances of
 <b>Int{self != 0}</b> are all elements of <b>Int{true}</b> as well, because
 <b>self != 0</b> logically implies <b>true</b>; so 
 <b>Int{self != 0} &lt;: Int{true} == Int</b> by strengthening.  X10 uses both
-notions of subtyping.  See &#167; for the full definition
+notions of subtyping.  See  for the full definition
 of subtyping in X10.
 
 <div class="p"><!----></div>
@@ -99,42 +99,42 @@ of subtyping in X10.
 Types are described by the following grammar: <br />
 
 
-  :
-  |
-  
-  
-  
-  <em>
-  
-<table>
+Type ::= FunctionType <br />
+    &#124; ConstrainedType  <br />
 
-<tr><td align="right">Type ::= FunctionType </td></tr>
-<tr><td align="right">&#124; ConstrainedType  </td></tr>
-<tr><td align="right">FunctionType ::= TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b>
-Constraint<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> TypeOrVoid </td></tr>
-<tr><td align="right">TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter )<sup>*</sup>&nbsp;<b>]</b> </td></tr>
-<tr><td align="right">TypeParameter ::= Identifier </td></tr>
-<tr><td align="right">Throws ::= <b>throws</b> TypeName ( <b>,</b> TypeName )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">ConstrainedType ::= Annotation<sup>*</sup>&nbsp;BaseType Constraint<sup>?</sup>&nbsp;
-PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">BaseType ::= ClassBaseType </td></tr>
-<tr><td align="right">&#124; InterfaceBaseType </td></tr>
-<tr><td align="right">&#124; PathType </td></tr>
-<tr><td align="right">&#124; <b>(</b> Type <b>)</b> </td></tr>
-<tr><td align="right">TypeOrVoid ::= Type </td></tr>
-<tr><td align="right">&#124; <b>Void</b></td></tr>
-<tr><td align="right">ClassType ::= Annotation<sup>*</sup>&nbsp;ClassBaseType Constraint<sup>?</sup>&nbsp;
-PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">InterfaceType ::= Annotation<sup>*</sup>&nbsp;InterfaceBaseType Constraint<sup>?</sup>&nbsp;
-PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">PathType ::= Expression <b>.</b> Identifier </td></tr>
-<tr><td align="right">Annotation ::= <b>@</b> InterfaceBaseType Constraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">ClassOrInterfaceType ::= ClassType </td></tr>
-<tr><td align="right">&#124; InterfaceType </td></tr>
-<tr><td align="right">ClassBaseType ::= TypeName </td></tr>
-<tr><td align="right">InterfaceBaseType ::= TypeName </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
+<div class="p"><!----></div>
+FunctionType ::= TypeParameters <b>(</b> Formals <b>)</b>
+Constraint  <b>=&#62;</b> TypeOrVoid <br />
+TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter ) <b>]</b> <br />
+TypeParameter ::= Identifier <br />
+
+<div class="p"><!----></div>
+ConstrainedType ::= Annotation BaseType Constraint
+PlaceConstraint <br />
+
+<div class="p"><!----></div>
+BaseType ::= ClassBaseType <br />
+     &#124; InterfaceBaseType <br />
+     &#124; PathType <br />
+     &#124; <b>(</b> Type <b>)</b> <br />
+TypeOrVoid ::= Type <br />
+     &#124; <b>Void</b><br />
+ClassType ::= Annotation ClassBaseType Constraint
+PlaceConstraint <br />
+InterfaceType ::= Annotation InterfaceBaseType Constraint
+PlaceConstraint <br />
+
+<div class="p"><!----></div>
+PathType ::= Expression <b>.</b> Identifier <br />
+
+<div class="p"><!----></div>
+Annotation ::= <b>@</b> InterfaceBaseType Constraint <br />
+
+<div class="p"><!----></div>
+ClassOrInterfaceType ::= ClassType <br />&#124; InterfaceType <br />
+ClassBaseType ::= TypeName <br />
+InterfaceBaseType ::= TypeName <br />
+
 
 <div class="p"><!----></div>
 

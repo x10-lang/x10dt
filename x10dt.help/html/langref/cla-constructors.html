@@ -23,9 +23,9 @@
 <div class="p"><!----></div>
 Constructors allow the initialization of objects by the execution of
 almost-arbitrary code.  Like methods, constructors can have formal parameters,
-a constraint, a return type, a <b>throws</b> clause, an <b>offers</b> clause, 
-and a body. The formals,
-constraint, and <b>throws</b> and <b>offers</b> clauses are identical to those for a method.
+a constraint, a return type, 
+and a body. The formals and constraint
+ are identical to those for a method.
 A constructor is declared by <b>def this()...</b>; that is, as if it were a
 method whose name were the reserved word <b>this</b>.  
 
@@ -71,142 +71,239 @@ call above could be abbreviated:
 
 <div class="p"><!----></div>
 Constructors have many restrictions, designed to ensure that objects behave
-sanely while being constructed.  
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc6.3">
-6.3</a>&nbsp;&nbsp;<b> proto</b> qualifier on types</h3>
-<a name="Prototypes">
-</a>
-
-X10 ensures that every variable must have a value consistent with its type
-before it is read.  This is to prevent the unfortunate situations possible in
-other languages, such as: 
+sanely while being constructed. Constructors initialize fields of objects and
+establish object invariants.  It should never be possible to observe an
+uninitialized object outside of a constructor call.  However, without some
+restrictions, it would be possible to do so quite easily.  A constructor could
+put <b>this</b> into a data structure before initializing it, and a concurrent
+activity could read it before the initialization is finished.  If the 
+line marked <b>ILLEGAL</b> were uncommented, the following program would
+exhibit the problem: 
 <pre>
-class Evil {
-   val f : Int; // uninitialized
-   def getf() = this.f;
-   def this() { 
-       val f0 = this.getf();
-       println(&#239;nitially, f0=" + f0);
-       this.f = f0 + 1;
-       println("now, this.f =" + this.f);
+class Escaper {
+   static val all = new ArrayList[Escaper]();
+   val fld : String;
+   def this() {
+      //ILLEGAL: all.add(this);
+      this.fld = &#239;nitialized";
+   }
+   def Main(Array[String](1)):Void {
+      finish{
+        async {new Escaper();}
+        async {
+          for (e in Escaper.all) 
+            assert(e.fld == &#239;nitialized");
+        }
+      }
    }
 }
 </pre>
 
-<b>f</b> is a <b>val</b> field and should never change.  However, in this
-example, it starts out uninitialized.  Its uninitialized value is read by the
-call <b>this.getf()</b>, giving a meaningless value-no value could be
-meaningful, since the field is not initialized.  The constructor prints
-<b>f</b>'s initial value, increments it, initializes <b>f</b> to the incremented
-value, and prints the new value.  This program prints two different numbers.
-That is, a <b>val</b> field-supposedly immutable-has been observed to
-change.  
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc6.2.1">
+6.2.1</a>&nbsp;&nbsp;Initialization of Fields</h4>
 
 <div class="p"><!----></div>
-This approach can be extended to give almost arbitrarily bad behavior 
-for partially-initialized objects.  The issue is particularly pernicious with
-concurrency, where one activity initializes an object while another one uses
-it.  
+All fields of an object must be given a value before they are used.  There are
+several ways that this can be accomplished: 
 
-<div class="p"><!----></div>
-Many languages with constructors simply admit (or avoid admitting) that method
-calls on partially-initialized objects are dangerous and should be avoided.
-X10 takes a more careful approach: some method calls in constructors are
-allowed, but ones which could cause this problem are not.  
-
-<div class="p"><!----></div>
-The approach is based on <b>proto</b> types. If <b>C</b> is a class, 
-<b>proto C</b> is a type that describes partially-initialized values of
-<b>C</b>.  The rules in this section are designed to allow methods to <em>
-write</em> into fields of a <b>proto C</b> object, thus initializing it, but not
-<em>read</em> them and thus not stumble into the error above.
-
-<div class="p"><!----></div>
-
-
-<div class="p"><!----></div>
-For local variables, this is ensured by using a pre-specified static
-analysis to ensure that every local variable is written into before it
-is read. Type-checking of assignment ensures the value written is
-consistent with the static type of the variable.
-
-<div class="p"><!----></div>
-For fields, this is ensured by introducing a form of ownership types
-called <em>incomplete types</em> to address the <em>escaping-this</em>
-problem.  To permit flexibility in writing constructors, X10 v1.7
-permits <b>this</b> to be used in a constructor as a reference to the
-object currently being constructed. Unfortunately there are no
-restrictions on the usage of <b>this</b>. In particular, this reference
-can be permitted to escape: it may be stored in variables on the heap
-(thereby permitting concurrently executing activities to read the
-value of fields that may not yet have been initialized), passed as an
-argument to method invocations, or used as the target for a method
-invocation. Indeed, the method may be invoked in a super constructor,
-and may have been overridden at a subclass, guaranteeing that accesses
-to fields defined in the subclass are accesses to uninitialized
-variables. For instance an immutable field may be observed containing
-a value (the value the field was initialized with) which may be
-different from the value it will contain once the constructor has
-returned.
-
-<div class="p"><!----></div>
-Incomplete types are designed with the following goals:
- 
 <ul>
-<li> Guarantee that fields are not read before they are initialized.
+<li> A <b>var</b> field of a type with a default value, if not otherwise
+      initialized, 
+      will have its type's default value. (<b>val</b> fields may not use this
+      option; they must be given values explicitly, either by an initializer
+      or by a constructor.)  For example, <b>(new C()).zero</b>
+      in the example below will be zero, the default value of an <b>Int</b>.
+<pre>
+class C {
+  var zero : Int;
+}
+</pre>
 <div class="p"><!----></div>
 </li>
 
-<li>  Allow the creation of immutable cyclic object graphs.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  This requires that it be possible to pass an
-  object under construction into a constructor invocation.
+<li> A field may have an explicit initializer, in which case its value is the
+      value of the initializer.  <b>(new D()).one</b> is one.
+<pre>
+class D {
+  val one = 1;
+}
+</pre>
 <div class="p"><!----></div>
 </li>
 
-<li> Allow appropriate user-defined methods can be called during object
-  creation (so that the transformation between the values supplied as
-  parameters to a constructor and the values actually placed in fields
-  is determined by arbitrary user-defined code).
-<div class="p"><!----></div>
-</li>
+<li> A field may be given a value in a constructor, or in a method called
+      from a constructor.  <b>(new E()).x</b> is two; <b>(new E(3)).x</b> is
+      three. 
+<pre>
+class E {
+   var x : Int;
+   def this() { x = 2; }
+   def this(n: Int) { 
+      this.setX(n);
+   }
+   private final def setX(n:Int) {
+     this.x = n;
+   }
+}
+</pre>
 
-<li> Keep the design minimally invasive. Most programmers should
-  not have to be concerned about this problem.
 <div class="p"><!----></div>
-</li>
 
-<li> Ensure that there is no runtime overhead.
 <div class="p"><!----></div>
 </li>
 </ul>
 
 <div class="p"><!----></div>
-These goals are met by introducing incomplete types through the type
-qualifier <b>proto</b>. Types of the form <b>proto T</b> are said to be
-<em>incomplete types</em>; types that do not have the qualifier are said to be
-<em>complete</em>.
- Say that an object <b>o</b> is <em>confined</em>
-to a given activity <b>A</b> if it can be reached only from stack
-frames of <b>A</b> or from objects which are, recursively, confined to
-<b>A</b>. Thus confined objects cannot be accessed by activities other
-than <b>A</b>.
+      <h4><a name="tth_sEc6.2.2">
+6.2.2</a>&nbsp;&nbsp;Calling Another Constructor</h4>
 
 <div class="p"><!----></div>
-Incomplete types ensure that objects whose construtors have not exited
-are confined. Further, all references to such objects on the stack
-are contained in variables of incomplete types. The compiler does not
-permit the fields of variables of incomplete types to be read. 
-Thus incomplete types permit the construction of graphs of objects
-while ensuring that these objects are confined and their fields are not
-read during construction. 
+A constructor for class <b>C</b> can call another constructor, either of
+<b>C</b> itself or of <b>C</b>'s supertype.  The call to the other constructor
+must be the first statement of the constructor body.
 
 <div class="p"><!----></div>
-The return value of a constructor for class <b>C</b> that takes no
-incomplete arguments is (a subtype of) <b>C</b>, that is, a complete
-type. It will point only to completed objects. It can now be
-assigned to any (type-consistent) field of any object, that is, it is
-now allowed to escape.
+<pre>
+class C {
+  val a : Int;
+  def this(a:Int) { this.a = a; }
+  def this() { 
+     this(0); // call another constructor of C
+  }
+}
+class D extends C {
+  val b : Int; 
+  def this(a:Int, b:Int) {
+     super(a); // call superclass constructor
+     this.b = b;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+No fields of <b>this</b> may be read before the optional <b>this</b>- or
+<b>super</b>-call. For example, having <b>super(this.x);</b> as the
+constructor-call is illegal, since it reads <b>this.x</b> before the
+constructor-call.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc6.2.3">
+6.2.3</a>&nbsp;&nbsp;<b>property</b> Statement</h4>
+
+<div class="p"><!----></div>
+The <b>property</b> statement sets the properties of <b>this</b>; note that
+properties may not be assigned to directly.  For example, 
+<b>(new C(10)).x == 10</b>.
+<pre>
+class C(x:Int, y:Boolean) {
+   def this(x:Int) {
+      property(x, true);
+   }
+}
+
+<div class="p"><!----></div>
+</pre>
+
+<div class="p"><!----></div>
+The properties of <b>this</b> may be read after the <b>property</b> statement,
+but not before it: 
+<pre>
+class C(x:Int, y:Boolean) {
+   val z : Int;
+   def this(x:Int) {
+      // x cannot be read here.
+      property(x, true);
+      this.z = x+3;
+   }
+}
+</pre>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc6.2.4">
+6.2.4</a>&nbsp;&nbsp;Use of <b>this</b> in a Constructor Body</h4>
+
+<div class="p"><!----></div>
+After the optional constructor-call and optional <b>property</b> statement,
+<b>this</b> <em>can</em> be used, subject to certain restrictions. 
+We say that a method is <em>constructor-like</em> if it is <b>private</b>,
+<b>final</b>, and obeys the following restrictions.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>this</b> may not be assigned to anything. This prevents problematic
+      cases such as: 
+<pre>
+class Outer {
+   var leak : Inner;
+   class Inner {
+      def this() {
+        //ILLEGAL: Outer.this.leak = this;
+      }
+   }
+}
+</pre>
+(It also prevents harmless cases, such as <b>val nonleak = this;</b>
+<div class="p"><!----></div>
+</li>
+
+<li> <b>this</b> may only be used as an argument or receiver of a
+      constructor-like method call.  The following class definition is legal.
+<pre>
+class C {
+  private final def ctorLike() {
+    x10.io.Console.OUT.println("constructed");
+  }
+  def this() {
+    this.ctorLike();
+  }
+}
+</pre>
+      It would not be legal if <b>private</b> or <b>final</b> were omitted, or
+      if <b>ctorLike</b> called <b>x10.io.Console.OUT.println(this +
+      "constructed");</b>.  (The implicit <b>this.toString()</b> call is a call to
+      a non-constructor-like method.)
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Constructor code may refer to fields of <b>this</b> only after they have been
+definitely assigned.  For example: 
+<pre>
+class C {
+  val d : Int, e:Int; var f: Int;
+  def this() {
+    // ILLEGAL: f = d - 1; 
+    d = 1;
+    e = d + 2;
+
+<div class="p"><!----></div>
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+The bodies of constructor-like methods called from constructors may only read
+fields of <b>this</b> which have been initialized at the point that the method
+was called.  They differ from true constructor bodies in that only 
+constructor bodies, not constructor-like methods, may assign to <b>val</b>
+fields. 
+<pre>
+class C {
+  val m: Int;
+  var n:Int; 
+  private final def ctorLike() {
+     n = m + 3;
+     }
+  def this() { 
+     //ILLEGAL: ctorLike();
+     m = 7;
+     ctorLike();
+     }
+}
+</pre>
 
 <div class="p"><!----></div>
 

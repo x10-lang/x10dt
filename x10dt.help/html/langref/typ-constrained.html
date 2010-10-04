@@ -71,36 +71,15 @@ available.)  The values of type <b>T{e}</b> are the values of <b>T</b> for which
   val a : Matrix = someMatrix() ;
   var b : Matrix{b.rows == a.cols} ;
 </pre>
-<div class="p"><!----></div>
-</li>
-
-<li> Every object has a <b>home</b> property telling where it is located.
-      One way to say that objects <b>c</b> and <b>d</b> are located at the same
-      place is: 
-<pre>
-  val a : Object = someObject();
-  var b : Object{a.home == b.home};
-</pre>
-<div class="p"><!----></div>
-</li>
-
-<li>  As explained in &#167;, certain operations
-can only be performed at an object's home, so having this expressible as a
-type is crucial. One way to say that <b>e</b> is located <b>here</b>, , the same place
-      as the current computation, is: 
-<pre>
-  val e : Object{self.home == here} = someObject();
-</pre>
-
-<div class="p"><!----></div>
-</li>
-</ul>
 
 <div class="p"><!----></div>
 When constraining a value of type <b>T</b>, <b>self</b> refers to the object of
 type <b>T</b> which is being constrained.  For example, <b>Int{self == 4}</b> is
 the type of <b>Int</b>s which are equal to 4 - the best possible description
-of <b>4</b>, and a very difficult type to express without using <b>self</b>.  
+of <b>4</b>, and a very difficult type to express without using <b>self</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
 <b>T{e}</b> is a <em>dependent type</em>, that is, a type dependent on values. The
@@ -191,6 +170,10 @@ Only the following forms of expression are allowed in constraints.
 <div class="p"><!----></div>
 </li>
 
+<li> Expressions computable at compile time, like <b>3*4+5</b>;
+<div class="p"><!----></div>
+</li>
+
 <li> Accessible and immutable variables and parameters;
 <div class="p"><!----></div>
 </li>
@@ -207,45 +190,51 @@ Only the following forms of expression are allowed in constraints.
 <div class="p"><!----></div>
 </li>
 
-<li> <b>this</b>, if the constraint is in a place where <b>this</b> is defined.
+<li> <b>this</b>, if the constraint is in a place where <b>this</b> is defined;
 <div class="p"><!----></div>
 </li>
 
-<li> <b>here</b>
+<li> <b>here</b>;
 <div class="p"><!----></div>
 </li>
 
-<li> <b>self</b>
+<li> <b>self</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Calls to property methods, where the receiver and arguments must be
+      value expressions acceptable in constraints.
 <div class="p"><!----></div>
 </li>
 </ol>
 
 <div class="p"><!----></div>
-<b>Boolean expressions in constraints</b> may be any of the following, where
+<b>Constraints</b>, and <b>Boolean expressions in constraints</b>  may be any of
+the following, where 
 all value expressions are of the forms which may appear in constraints: 
 
 <ol type="1">
-<li> Equalities <b>e == f</b>,
+<li> Equalities <b>e == f</b>;
 <div class="p"><!----></div>
 </li>
 
-<li> Inequalities of the form <b>e != f</b>.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
+<li> Inequalities of the form <b>e != f</b>;<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
 <div class="p"><!----></div>
 </li>
 
-<li> Conjunctions of Boolean expressions
+<li> Conjunctions of Boolean expressions that may appear in constraints;
 <div class="p"><!----></div>
 </li>
 
-<li> Subtyping and supertyping expressions: <b>T &lt;: U</b> and <b>T :&#62; U</b>.
+<li> Subtyping and supertyping expressions: <b>T &lt;: U</b> and <b>T :&#62; U</b>;
 <div class="p"><!----></div>
 </li>
 
-<li> Type equalities and inequalities: <b>T == U</b> and <b>T != U</b>.
+<li> Type equalities and inequalities: <b>T == U</b> and <b>T != U</b>;
 <div class="p"><!----></div>
 </li>
 
-<li> Boolean value expressions.
+<li> Testing a type for a default: <b>hasZero T</b>.
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -288,7 +277,7 @@ x to y if x is an object with a property whose value is y.
 <div class="p"><!----></div>
 Currently this restriction is not checked by the compiler. Future
 versions of the compiler will check this restriction by introducing
-rules on escaping of <b>this</b> (&#167;) before the invocation of
+rules on escaping of <b>this</b> () before the invocation of
 <b>property</b> calls.
 
 <div class="p"><!----></div>
@@ -303,22 +292,19 @@ rules on escaping of <b>this</b> (&#167;) before the invocation of
 </a>
 
 <div class="p"><!----></div>
-An X10 computation spans multiple places (&#167;). Much data
+An  computation spans multiple places (). Much data
 can only be accessed from the proper place, and often it is preferable to
 determine this statically. So, X10 has special syntax for working with places.
 <b>T!</b> is a value of type <b>T</b> located at the right place for the current
 computation, and <b>T!p</b> is one located at place <b>p</b>.
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">PlaceConstraint     ::= <b>!</b> Place<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">Place              ::=   Expression </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
+PlaceConstraint     ::= <b>!</b> Place <br />
+Place              ::=   Expression <br />
+
 
 <div class="p"><!----></div>
-More specifically, All X10 classes extend the class <b>x10.lang.Object</b>,
+More specifically, All  classes extend the class <b>x10.lang.Object</b>,
 which defines a property <b>home</b> of type <b>Place</b>.  <b>T!p</b>, when
 <b>T</b> is a class, is <b>Tself.home==p</b>.  If <b>p</b> is omitted, it
 defaults to <b>here</b>.   <b>T!</b> is far and away the most common usage of
@@ -379,15 +365,8 @@ However, it is a static error if <b>e</b> cannot possibly be an instance of
 String</b> is a static error, rather than an expression always returning false. 
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> 
-X10 does not currently handle <b>instanceof</b> of generics in the way you
-might expect.  For example, <b>r instanceof ValRail[Int{self != 0}]</b> does
-not test that every element of <b>r</b> is non-zero.
-</em>
-
-<div class="p"><!----></div>
 The <b>as</b> operation attempts to convert a value to a given constrained
-type, as described in &#167;.   As with <b>instanceof</b>, it may
+type, as described in .   As with <b>instanceof</b>, it may
 succeed, fail with a dynamic error, or, in the case where the cast is
 impossible, fail to compile.
 

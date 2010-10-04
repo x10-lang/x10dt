@@ -23,10 +23,9 @@
 </a>
 
 <div class="p"><!----></div>
-The properties of an object (or struct) are global, public <b>val</b> fields
-usable at compile time in constraints.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> Every
-object has a <b>home</b> property, 
-telling what place the object lives in. Every array has a <b>rank</b> telling
+The properties of an object (or struct) are  public <b>val</b> fields
+usable at compile time in constraints.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> 
+For example,  every array has a <b>rank</b> telling
 how many subscripts it takes.  User-defined classes can have whatever
 properties are desired. 
 
@@ -40,7 +39,6 @@ class Proper(t:Int) {
 </pre>
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 It is a compile-time error for a class
 defining a property <b>x: T</b> to have an ancestor class that defines
 a property with the name <b>x</b>.  
@@ -50,20 +48,19 @@ a property with the name <b>x</b>.
 A property <b>x:T</b> induces a field with the same name and type, 
 as if defined with: 
 <pre>
-public global val x : T;
+public val x : T;
 </pre>
  It also defines a nullary getter method, 
 <pre>
-public global final def x()=x;
+public final def x()=x;
 </pre>
 
 <div class="p"><!----></div>
- (As noted in &#167;, interfaces can define
+ (As noted in , interfaces can define
 properties too. They define the same nullary getter methods, though they do
 not require fields.)
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 It is a compile-time error for a class or
 interface defining a property <b>x :T</b> to have an existing method with
 the signature <b>x(): T</b>.
@@ -88,20 +85,12 @@ must be given values at the same time.
 By construction, the graph whose nodes are values and whose edges are
 properties is acyclic.  , there cannot be values <b>a</b> and <b>b</b> with
 properties <b>c</b> and <b>d</b> such that <b>a.c == b</b> and <b>b.d == a</b>.
-(The similar graph whose edges are <b>global public val</b> fields <em>can</em> have
-cycles..) 
+(The similar graph whose edges are <b>public val</b> fields <em>can</em> have
+cycles.) 
 
 <div class="p"><!----></div>
 <a name="PropertyCall">
-</a><a name="ReferenceClasses">
-</a>Class declarations may
-be used to construct class types (&#167;). Classes may
-have mutable fields. Instances of a class are always created in a
-fixed place and in X10 v2.0 stay there for the lifetime of the
-object.  Variables declared at a class type always store a reference
-to the object, regardless of whether the object is local or remote.
-
-<div class="p"><!----></div>
+</a> 
 
 </body>
 </html>

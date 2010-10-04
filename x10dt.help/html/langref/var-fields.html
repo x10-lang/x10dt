@@ -24,52 +24,38 @@
 Like most other kinds of variables in X10, 
 the fields of an object can be either <b>val</b> or <b>var</b>. 
 Fields can be <b>static</b>,<b>global</b>, or <b>property</b>; see
-&#167; and &#167;.
+ and .
 Field declarations may have optional
-initializer expressions, as for local variables, &#167;<a href="#local-variables">5</a>.
+initializer expressions, as for local variables, .
 <b>var</b> fields without an initializer are initialized with the default value
 of their type. <b>val</b> fields without an initializer must be initialized by
 each constructor.
 
 <div class="p"><!----></div>
 For <b>val</b> fields, as for <b>val</b> local variables, the type may be
-omitted and inferred from the initializer type (&#167;).
+omitted and inferred from the initializer type ().
 <b>var</b> files, like <b>var</b> local variables, must be declared with a type.
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">FieldDeclaration
-        ::= FieldModifier<sup>*</sup>&nbsp;<b>var</b> FieldDeclaratorsWithType </td></tr>
-<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">&#124; FieldModifier<sup>*</sup>&nbsp;<b>val</b> FieldDeclarators </td></tr>
-<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclarators )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">&#124; FieldModifier<sup>*</sup>&nbsp;FieldDeclaratorsWithType </td></tr>
-<tr><td align="right">&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">FieldDeclarators
-        ::= FieldDeclaratorsWithType </td></tr>
-<tr><td align="right">::= FieldDeclaratorWithInit </td></tr>
-<tr><td align="right">FieldDeclaratorId
-        ::= Identifier  </td></tr>
-<tr><td align="right">FieldDeclaratorWithInit
-        ::= FieldDeclaratorId Init </td></tr>
-<tr><td align="right">&#124; FieldDeclaratorId ResultType Init </td></tr>
-<tr><td align="right">FieldDeclaratorsWithType
-        ::= FieldDeclaratorId ( <b>,</b> FieldDeclaratorId )<sup>*</sup>&nbsp;ResultType </td></tr>
-<tr><td align="right">FieldModifier ::= Annotation </td></tr>
-<tr><td align="right">&#124; <b>static</b> </td></tr>
-<tr><td align="right">&#124; <b>property</b> </td></tr>
-<tr><td align="right">&#124; <b>global</b> </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
+FieldDeclaration
+        ::= FieldModifier <b>var</b> FieldDeclaratorsWithType <br />&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType ) <br />
+        &#124; FieldModifier <b>val</b> FieldDeclarators <br />&amp;&amp; ( <b>,</b> FieldDeclarators ) <br />
+        &#124; FieldModifier FieldDeclaratorsWithType <br />&amp;&amp; ( <b>,</b> FieldDeclaratorsWithType ) <br />
+FieldDeclarators
+        ::= FieldDeclaratorsWithType <br />
+        ::= FieldDeclaratorWithInit <br />
+FieldDeclaratorId
+        ::= Identifier  <br />
+FieldDeclaratorWithInit
+        ::= FieldDeclaratorId Init <br />
+        &#124; FieldDeclaratorId ResultType Init <br />
+FieldDeclaratorsWithType
+        ::= FieldDeclaratorId ( <b>,</b> FieldDeclaratorId ) ResultType <br />
+FieldModifier ::= Annotation <br />
+                &#124; <b>static</b> <br />&#124; <b>property</b> <br />&#124; <b>global</b> <br />
+
 
 <div class="p"><!----></div>
-<hr /><h3>Footnotes:</h3>
-
-<div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This code is
-unnecessarily turgid for the sake of the example.  One would generally write
-<b>public def bump() = ++n;</b>.
 
 </body>
 </html>

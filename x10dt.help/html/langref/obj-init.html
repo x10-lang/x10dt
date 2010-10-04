@@ -1,0 +1,232 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Basic design</title>
+</head>
+
+<body>
+     <h3><a name="tth_sEc0.1">
+0.1</a>&nbsp;&nbsp;Object Initialization</h3>
+
+<div class="p"><!----></div>
+X10 does object initialization safely.  It avoids a few classes of bad things: 
+
+<ol type="1">
+<li> Use of a field before the field has been initialized.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>this</b> escaping from a constructor;
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+It should be unsurprising that fields must not be used before they are
+initialized. At best, it is uncertain what value will be in them, as in
+<b>x</b> below. Worse, the value might not even be an allowable value; <b>y</b>,
+declared to be nonzero in the following example, might be zero before it is
+initialized. 
+<pre>
+// Not correct X10
+class ThisIsWrong {
+  val x : Int;
+  val y : Int{y != 0};
+  def this() {
+    x10.io.Console.OUT.println("x=" + x + "; y=" + y);
+    x = 1; y = 2;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+One particularly insidious way to read uninitialized fields is to allow
+<b>this</b> to escape from a constructor. For example, the constructor could
+put <b>this</b> into a data structure before initializing it, and another
+activity could read it from the data structure and look at its fields: 
+<pre>
+class Wrong {
+  val shouldBe8 : Int;
+  static Cell[Wrong] wrongCell = new Cell[Wrong]();
+  static def doItWrong() {
+     finish { 
+       async { new Wrong(); } // (A)
+       assert( wrongCell().shouldBe8 == 8); // (B)
+     }
+  }
+  def this() {
+     wrongCell.set(this); // (C) - ILLEGAL 
+     this.shouldBe8 = 8; // (D)
+  }
+}
+</pre>
+
+In this example, the underconstructed <b>Wrong</b> object is leaked into a
+storage cell at line <b>(C)</b>, and then initialized.  The <b>doItWrong</b>
+method constructs a new <b>Wrong</b> object, and looks at the <b>Wrong</b>
+object in the storage cell to check on its <b>shouldBe8</b> field.  One
+possible order of events is the following: 
+
+<ol type="1">
+<li> <b>doItWrong()</b> is called.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>(A)</b> is started.  Space for a new <b>Wrong</b> object is allocated.
+      Its <b>shouldBe8</b> field, not yet initialized, contains some garbage
+      value.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>(C)</b> is executed, as part of the process of constructing a new
+      <b>Wrong</b> object.  The new, uninitialized object is stored in
+      <b>wrongCell</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Now, the initialization activity is paused, and execution of the main activity 
+      proceeds from <b>(B)</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> The value in <b>wrongCell</b> is retrieved, and is <b>shouldBe8</b> field
+      is read.  This field contains garbage, and the assertion fails.
+<div class="p"><!----></div>
+</li>
+
+<li> Now let the initialization activity proceed with <b>(D)</b>,
+      initializing <b>shouldBe8</b> - too late.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+X10 must protect against such possibilities.  The rules explaining how
+constructors can be written are somewhat intricate; they are designed to allow
+as much programming as possible without leading to potential problems.
+Ultimately, they simply are elaborations of the fundamental principles that
+uninitialized fields must never be read, and <b>this</b> must never be leaked.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.2">
+0.2</a>&nbsp;&nbsp;Constructors and NonEscaping Methods</h3>
+
+<div class="p"><!----></div>
+In general, constructors must not be allowed to call methods with<b>this</b> as
+an argument or receiver. Such calls could leak references to <b>this</b>,
+either directly from a call to <b>cell.set(this)</b>, or indirectly because
+<b>toString</b> leaks <b>this</b>, and the concatenation 
+<b>&#203;scaper = "+this</b> calls <b>toString</b>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+<pre>
+class Escaper {
+  static val Cell[Escaper] cell = new Cell[Escaper]();
+  def toString() {
+    cell.set(this);
+    return &#203;vil!";
+  }
+  def this() {
+    cell.set(this);
+    x10.io.Console.OUT.println(&#203;scaper = " + this);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+However, it is convenient to be able to call methods from constructors; <em>
+e.g.</em>, a class might have eleven constructors whose common behavior is best
+described by three methods.  Under certain stringent conditions, it <em>is</em>
+safe to call a method: the method called must not leak references to
+<b>this</b>, and must not read <b>val</b>s or <b>var</b>s which might not have
+been assigned.   
+
+<div class="p"><!----></div>
+So, X10 performs a static dataflow analysis, sufficient to guarantee that
+method calls in constructors are safe.  This analysis requires having access
+to or guarantees about all the code that could possibly be called.  This can
+be accomplished in two ways: 
+
+<ol type="1">
+<li> Ensuring that only code from the class itself can be called, by 
+      forbidding overriding of
+      methods called from the constructor: they can be marked <b>final</b> or
+      <b>private</b>, or the whole class can be <b>final</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Marking the methods called from the constructor by
+      <b>@NonEscaping(...)</b>. 
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.3">
+0.3</a>&nbsp;&nbsp;Fine Structure of Constructors</h3>
+
+<div class="p"><!----></div>
+The code of a constructor consists of three segments, all of them optional.  
+
+<ol type="1">
+<li> The first segment is an optional call to <b>this(...)</b> or
+      <b>super(...)</b>.  If this is supplied, it must be the first statement
+      of the constructor.  If it is not supplied, the compiler treats it as a
+      nullary super-call <b>super()</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> If the class or struct has properties, there must be a single
+      <b>property(...)</b> command in the constructor.  Every execution path
+      through the constructor must go through this <b>property(...)</b> command
+      precisely once.   The second segment of the constructor is the code
+      following the first segment, up to and including the <b>property()</b>
+      statement.  
+
+<div class="p"><!----></div>
+      If the class or struct has no properties, the <b>property()</b> call is
+      optional. If it is present, the second segment is defined as before.  If
+      it is absent, the second segment is empty.
+<div class="p"><!----></div>
+</li>
+
+<li> The third segment is the remainder of the constructor body.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+The segments in the following code are shown in the comments.
+<pre>
+class Overlord(x:Int) {
+  def this(x:Int) { property(x); }
+}//Overlord
+class Overdone(y:Int) extends Overlord  {
+  val a : Int;
+  def this(r:Int) {
+    super(r);                      // (1)
+    x10.io.Console.OUT.println(r); // (2)
+    property(r+1);                 // (2)
+    a = r + 2;                     // (3)
+  }
+}//Overdone
+</pre>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This is abominable behavior for 
+<b>toString</b>, but nonetheless it is allowed.
+<br /><br />
+
+</body>
+</html>

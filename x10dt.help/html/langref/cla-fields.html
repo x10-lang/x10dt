@@ -25,18 +25,17 @@
 <div class="p"><!----></div>
 Objects may have <em>instance fields</em>, or simply <em>fields</em>: places to
 store data that is pertinent to the object. Fields, like variables, may be
-either mutable (<b>val</b>) or immutable (<b>var</b>).
+mutable (<b>val</b>), immutable (<b>var</b>), or accumulator (<b>acc</b>).
 
 <div class="p"><!----></div>
 Class may have <em>static fields</em>, which store data pertinent to the
-entire class of objects.   Static fields are global,  they may be
-accessed from any place.  Like all globals, static fields must be immutable
-(<b>val</b>).  See &#167; for more information.
+entire class of objects.  
+See  for more information.
 
 <div class="p"><!----></div>
 No two fields of the same class may have the same name.
 To avoid an ambiguity, it is a static error for a class to
-declare a field with a function type (&#167;) with
+declare a field with a function type () with
 the same name and signature  as a method of the same class.  
 (Consider the class 
 <pre>
@@ -54,31 +53,19 @@ argument <b>3</b>", or &#239;nvoke the method <b>f</b> on argument <b>3</b>".)
 2.1</a>&nbsp;&nbsp;Field Initialization</h3>
 
 <div class="p"><!----></div>
-Fields may be given values via <em>field initialization expressions</em>: 
-<b>val f1 = E;</b> and <b>var f2 : Int = F;</b>.  There are a few restrictions
-on the initializer expressions <b>E</b>: 
+Fields may be given values via <em>field initialization expressions</em>:
+<b>val f1 = E;</b> and <b>var f2 : Int = F;</b>. Other fields of <b>this</b> may
+be referenced, but only those that <em>precede</em> the field being initialized.
+For example, the following is correct, but would not be if the fields were
+reversed:
 
-<ul>
-<li> No checked exceptions may be thrown.  (There is no place to put a
-      <b>try-catch</b> block to deal with them.)
 <div class="p"><!----></div>
-</li>
-
-<li> Other fields of <b>this</b> may be referenced, but only those that <em>
-      precede</em> the field being initialized.  For example, this is correct, but
-      would not be if the fields were reversed: 
 <pre>
 class Fld{
   val a = 1;
   val b = 2+a;
 }
 </pre>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-</li>
-</ul>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.2">
@@ -107,11 +94,12 @@ write <b>Cls.super.f</b> to get at a hidden field <b>f</b> of an outer class
 <b>Cls</b>, as in 
 <pre>
 class A {
-   global val f = 3;
+   val f = 3;
 }
 class B extends A {
-   global val f = 4;
+   val f = 4;
    class C extends B {
+      // C is both a subclass and inner class of B
       val f = 5;
       def foo()
          = f          // 5
@@ -131,40 +119,52 @@ class B extends A {
 
 <div class="p"><!----></div>
 The behavior of a field may be changed by a field qualifier, such as
-<b>static</b> or <b>global</b>.  
+<b>static</b> or <b>transient</b>.  
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc2.3.1">
-2.3.1</a>&nbsp;&nbsp;<b>global</b> qualifier</h4>
-
-<a name="GlobalField">
-</a>
-
-<div class="p"><!----></div>
-A <b>val</b> field may be declared <b>global</b>. Global fields are available at
-all places, and should be thought of as being part of remote object references
-to the object. Global fields are good for distributing data, but increase
-space and communication costs; they should be used sparingly as required.
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">FieldModifier ::= <b>global</b>  
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-Properties and static fields are implicitly <b>global</b>.
-Fields not marked <b>global</b> cannot be overridden by fields marked
-<b>global</b>.
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc2.3.2">
-2.3.2</a>&nbsp;&nbsp;<b>static</b> qualifier</h4>
+2.3.1</a>&nbsp;&nbsp;<b>static</b> qualifier</h4>
 
 <div class="p"><!----></div>
 A <b>val</b> field may be declared to be <em>static</em>, as described in
-&#167;<a href="#FieldDefinitions">2</a>. 
+. 
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.4">
+2.4</a>&nbsp;&nbsp;<b>transient</b> Qualifier</h3>
+
+
+
+<div class="p"><!----></div>
+A field may be declared to be <em>transient</em>.  Transient fields are excluded
+from the deep copying that happens when information is sent from place to
+place in an <b>at</b> statement.    The value of a transient field of a copied
+object is the default value of its type, regardless of the value of the field
+in the original.  If the type of a field has no
+default value, it cannot be marked <b>transient</b>.
+<pre>
+class Trans { 
+   val copied = "copied";
+   transient val transy : String = &#228; very long string";
+   def example() {
+      at (here) { // causes copying
+         assert(this.copied == "copied");
+         assert(this.transy == null);
+      }
+   }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.5">
+2.5</a>&nbsp;&nbsp;<b>clocked</b> Qualifier</h3>
+
+<div class="p"><!----></div>
+Clocked fields are discussed in .
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.6">
+2.6</a>&nbsp;&nbsp;<b>property</b> Qualifier</h3>
 
 <div class="p"><!----></div>
 

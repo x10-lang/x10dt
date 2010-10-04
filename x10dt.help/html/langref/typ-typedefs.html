@@ -22,11 +22,12 @@
 <a name="TypeDefs">
 </a>
 
-With value arguments, type arguments, and constraints, the syntax for X10
+<div class="p"><!----></div>
+With value arguments, type arguments, and constraints, the syntax for 
 types can often be verbose. 
 For example, a non-null list of non-null strings is <br />
 <b>List[String{self!=null}]{self!=null}</b>.
-X10 provides <em>type definitions</em>
+ provides <em>type definitions</em>
 to allow users to give short names to long types, and to commonly-used
 combinations of types. 
 We could name that type: 
@@ -64,15 +65,12 @@ their use.
 Type definitions have the following syntax:
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">TypeDefinition ::= 
+TypeDefinition ::= 
                 <b>type</b>&#126;Identifier
-                           ( <b>[</b> TypeParameters <b>]</b> )<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">&amp;&amp; ( <b>(</b> Formals <b>)</b> )<sup>?</sup>&nbsp;
-Constraint<sup>?</sup>&nbsp;<b>=</b> Type </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
+                           ( <b>[</b> TypeParameters <b>]</b> ) <br />
+                        &amp;&amp; ( <b>(</b> Formals <b>)</b> )
+                            Constraint <b>=</b> Type <br />
+
 
 <div class="p"><!----></div>
 A type definition can be thought of as a type-valued function,
@@ -92,7 +90,7 @@ As the two definitions of <b>Dist</b> demonstrate, type definitions may
 be overloaded: two type definitions with different numbers of type
 parameters or with different types of value
 parameters, according to the method overloading rules
-(&#167;), define distinct type constructors.
+(), define distinct type constructors.
 
 <div class="p"><!----></div>
 Type definitions may appear as (static) class or interface member or

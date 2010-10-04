@@ -21,8 +21,8 @@
 3</a>&nbsp;&nbsp;Destructuring syntax</h2>
 
 
-X10 permits a <em>destructuring</em> syntax for local variable
-declarations and formal parameters of type <b>Point</b>, &#167;.
+ permits a <em>destructuring</em> syntax for local variable
+declarations and formal parameters of type <b>Point</b>, .
 (Future versions of X10 may allow destructuring of other types as well.) 
 A point is a sequence of r  &#8805; 0 <b>Int</b>-valued coordinates.  
 It is often useful to get at the coordinates directly, in variables. 
@@ -33,24 +33,24 @@ binds <b>i</b> to <b>11</b>.  Then it makes a point with coordinates <b>22</b>
 and <b>33</b>, binds <b>p</b> to that point, and <b>j</b> and <b>k</b> to <b>22</b>
 and <b>33</b> respectively.
 <pre>
-val (i) : Point = Point.make(11);
-val p(j,k) = Point.make(22,33);
+val [i] : Point = Point.make(11);
+val p[j,k] = Point.make(22,33);
 </pre>
 
 <div class="p"><!----></div>
 A useful idiom for iterating over a range of numbers is: 
 <pre>
 var sum : Int = 0;
-for ((i) in 1..100) sum += i;
+for ([i] in 1..100) sum += i;
 </pre>
 
-The parentheses in <b>(i)</b> introduce destructuring, making X10 treat <b>i</b>
+The brackets in <b>[i]</b> introduce destructuring, making X10 treat <b>i</b>
 as an <b>Int</b>; without them, it would be a <b>Point</b>.  
 
 <div class="p"><!----></div>
-In general, a pattern of the form "(i<sub>1</sub>,&#8230;,i<sub>n</sub>)" matches a
+In general, a pattern of the form "[i<sub>1</sub>,&#8230;,i<sub>n</sub>]" matches a
 point with n coordinates, binding &#239;<sub>j</sub>" to coordinate j.  
-A pattern of the form "p(i<sub>1</sub>,&#8230;,i<sub>n</sub>)" does the same, , but
+A pattern of the form "p[i<sub>1</sub>,&#8230;,i<sub>n</sub>]" does the same, , but
 also binds <b>p</b> to the point.
 
 <div class="p"><!----></div>

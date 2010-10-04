@@ -53,11 +53,12 @@
 </topic> 
 
 <topic label="Programmer's Guide">
-	<topic label="Summary" href="html/pguide/summary.html">Summary</topic>
+	<topic label="Title" href="html/pguide/first.html">Title</topic>
 	<topic label="Preface" href="html/pguide/preface.html">Preface</topic>
 	<topic label="Intro" href="html/pguide/intro.html">Introduction</topic>
 	<topic label="monteCarloPi" href="html/pguide/monteCarloPi.html">monteCarloPi</topic>
-	
+	<topic label="Objects" href="html/pguide/objects.html">Objects</topic>
+	<topic label="Library" href="html/pguide/library.html">Library</topic>	
 </topic> 
 
 <topic label="X10 Language Reference" href="html/langref/toc.html">
@@ -216,6 +217,9 @@
 		<topic label="Native Blocks" href="html/langref/ext-blocks.html"/> 
 		<topic label="External Java Code" href="html/langref/ext-javacode.html"/> 
 		<topic label="External C++ Code" href="html/langref/ext-cppcode.html"/>
+	</topic>
+	<topic label="Objects" href="html/langref/objects.html"> 
+		<topic label="Object initialization" href="html/langref/obj-init.html"/> 
 	</topic>
 	<topic label="Lost Bits" href="html/langref/lostbits.html"/>
 	<topic label="References" href="html/langref/refs.html"/>

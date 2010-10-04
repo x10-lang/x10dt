@@ -22,12 +22,12 @@
 <a name="StaticInitialization">
 </a>
 
-The X10 runtime implements the following procedure to ensure
+The  runtime implements the following procedure to ensure
 reliable initialization of the static state of classes.
 
 <div class="p"><!----></div>
 Execution commences with a single thread executing the
-<em>initialization</em> phase of an X10 computation at place <b>0</b>. This
+<em>initialization</em> phase of an  computation at place <b>0</b>. This
 phase must complete successfully before the body of the <b>main</b> method is
 executed.
 
@@ -66,11 +66,12 @@ def read_f():T {
 </pre>
 
 <div class="p"><!----></div>
-If all these activities terminate normally, all static field have a
-legal value (per their type), and the finish terminates normally. If
-any activity throws an exception, the finish throws an
+If all these activities terminate normally, all static fields have values of
+their declared types, 
+and the <b>finish</b> terminates normally. If
+any activity throws an exception, the <b>finish</b> throws an
 exception. Since no user code is executing which can catch exceptions
-thrown by the finish, the exceptions are printed on the console, and
+thrown by the finish, such exceptions are printed on the console, and
 computation aborts.
 
 <div class="p"><!----></div>

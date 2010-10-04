@@ -34,7 +34,7 @@ argument <b>x</b>.  We would like to write code thus:
      val t &lt;: Poly = 7 * X + 6 * X * X * X; 
      val u &lt;: Poly = 3 + 5*X - 7*X*X;
      val v &lt;: Poly = t * u - 1;
-     for ( (i) in -3 .. 3) {
+     for( [i] in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X(i) + "	t:" + t(i) 
          + "	u:" + u(i) + "	v:" + v(i)
@@ -53,7 +53,7 @@ Writing the same code with method calls, while possible, is far less elegant:
      val t &lt;: UglyPoly = X.mult(7).plus(X.mult(X).mult(X).mult(6));  
      val u &lt;: UglyPoly = const(3).plus(X.mult(5)).minus(X.mult(X).mult(7));
      val v &lt;: UglyPoly = t.mult(u).minus(1);
-     for ( (i) in -3 .. 3) {
+     for( [i] in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X.apply(i) + "	t:" + t.apply(i) 
           + "	u:" + u.apply(i) + "	v:" + v.apply(i)
@@ -75,19 +75,19 @@ Defining the sum <b>P+Q</b> of two polynomials looks much like a method
 definition.  It uses the <b>operator</b> keyword instead of <b>def</b>, and
 <b>this</b> appears in the definition in the place that a <b>Poly</b> would
 appear in a use of the operator.  So, 
-<b>operator this + (p:Poly!)</b> explains how to add <b>this</b> to a
-<b>Poly!</b> value.
+<b>operator this + (p:Poly)</b> explains how to add <b>this</b> to a
+<b>Poly</b> value.
 <pre>
 class Poly {
-  public global val coeff : ValRail[Int];
+  public val coeff : ValRail[Int];
   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
-  public global def degree() = coeff.length()-1;
-  public global def  a(i:Int) = (i&lt;0 </td><td width="150">
+  public def degree() = coeff.length()-1;
+  public def  a(i:Int) = (i&lt;0 </td><td width="150">
 &#124;</td><td width="150">
 &#124; i&#62;this.degree()) ? 0 : coeff(i);
 
 <div class="p"><!----></div>
-  public operator this + (p:Poly!) =  new Poly(
+  public operator this + (p:Poly) =  new Poly(
      ValRail.make[Int](
         Math.max(this.coeff.length(), p.coeff.length()),
         (i:Int) =&#62; this.a(i) + p.a(i)
@@ -121,7 +121,7 @@ static method on a class.
 The definition for the sum of two
 <b>Poly</b>s could have been written:
 <pre>
-  public static operator (p:Poly!) + (q:Poly!) =  new Poly(
+  public static operator (p:Poly) + (q:Poly) =  new Poly(
      ValRail.make[Int](
         Math.max(q.coeff.length(), p.coeff.length()),
         (i:Int) =&#62; q.a(i) + p.a(i)
@@ -131,26 +131,16 @@ The definition for the sum of two
 <div class="p"><!----></div>
 This requires the following syntax:<br />
 
-  :
-  |
-  
-  
-  
-  <em>
-  
-<table>
+MethodHeader ::=
+  <b>operator</b> TypeParameterList <b>this</b> BinOp <b>(</b>  FormalParameter <b>)</b> <br />
+  &amp;&amp; Guard ReturnType  Throws <br />
+MethodHeader ::=
+  <b>operator</b> TypeParameterList <b>(</b>  FormalParameter <b>)</b> BinOp <b>this</b>  <br />
+  &amp;&amp; Guard ReturnType  Throws <br />
+MethodHeader ::=
+  <b>operator</b> TypeParameterList <b>(</b>  FormalParameter <b>)</b> BinOp  <b>(</b>  FormalParameter <b>)</b>  <br />
+  &amp;&amp; Guard ReturnType  Throws <br />
 
-<tr><td align="right">MethodHeader ::=
-  <b>operator</b> TypeParameterList<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b>  FormalParameter <b>)</b> </td></tr>
-<tr><td align="right">&amp;&amp; Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">MethodHeader ::=
-  <b>operator</b> TypeParameterList<sup>?</sup>&nbsp;<b>(</b>  FormalParameter <b>)</b> BinOp <b>this</b>  </td></tr>
-<tr><td align="right">&amp;&amp; Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">MethodHeader ::=
-  <b>operator</b> TypeParameterList<sup>?</sup>&nbsp;<b>(</b>  FormalParameter <b>)</b> BinOp  <b>(</b>  FormalParameter <b>)</b>  </td></tr>
-<tr><td align="right">&amp;&amp; Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
 
 <div class="p"><!----></div>
 When X10 attempts to typecheck a binary operator expression like <b>P+Q</b>, it
@@ -192,12 +182,9 @@ expression.  The operator to negate a polynomial is:
 The syntax for unary operators is:
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodHeader ::=
-  <b>operator</b> PrefixOp <b>this</b>    Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;
-</td></tr></table>
-</em>
+MethodHeader ::=
+  <b>operator</b> PrefixOp <b>this</b>    Guard ReturnType  Throws 
+
 
 <div class="p"><!----></div>
 The rules for typechecking a unary operation are the same as for methods; the
@@ -214,27 +201,33 @@ class <b>T</b>.
 <div class="p"><!----></div>
 <pre>
 class Poly {
-  public global val coeff : ValRail[Int];
+  public val coeff : ValRail[Int];
   public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
-  public static operator (a:Int) as Poly! = new Poly([a]);
+  public static operator (a:Int) as Poly = new Poly([a]);
   public static def main(Rail[String]):Void {
-     val three : Poly! = 3 as Poly!;
+     val three : Poly = 3 as Poly;
   }
 }
 </pre>
 
 <div class="p"><!----></div>
-You may define a type conversion to a constrained type, like <b>Poly!</b> in
+You may define a type conversion to a constrained type, like <b>Poly</b> in
 the previous example.   If you convert to a more specific constraint, X10 will use
 the conversion, but insert a dynamic check to make sure that you have
-satisfied the more specific constraint.  For example: 
+satisfied the more specific constraint.  
+For example: 
 <pre>
 class Uni(n:Int) {
+/*
+  LIMITATION: This example should compile, but doesn't.
+
+<div class="p"><!----></div>
   public def this(n:Int) : Uni{self.n==n} = {property(n);}
   static operator (String) as Uni{self.n != 9} = new Uni(3);
   public static def main(Rail[String]):Void {
     val u = "" as Uni{self.n != 9 &amp;&amp; self.n != 3};
   }
+*/
 }
 </pre>
 The string <b>""</b> is converted to <b>Uni{self.n != 9}</b> via the defined
@@ -257,7 +250,7 @@ Implicit coercions are used automatically by the compiler.
 
 
 <div class="p"><!----></div>
-For example, we can define an implicit coercion from <b>Int</b> to <b>Poly!</b>,
+For example, we can define an implicit coercion from <b>Int</b> to <b>Poly</b>,
 and avoid having to define the sum of an integer and a polynomial
 as many special cases.  In the following example, we only define <b>+</b> on
 two polynomials (using a <b>static</b> operator, so that implicit coercions
@@ -269,10 +262,10 @@ addition to add it to <b>x</b>.
 
 <div class="p"><!----></div>
 <pre>
-  public static safe operator (c : Int) : Poly! = new Poly([c]);
+  public static operator (c : Int) : Poly = new Poly([c]);
 
 <div class="p"><!----></div>
-  public static operator (p:Poly!) + (q:Poly!) = new Poly(
+  public static operator (p:Poly) + (q:Poly) = new Poly(
       ValRail.make[Int](
         Math.max(p.coeff.length(), q.coeff.length()),
         (i:Int) =&#62; p.a(i) + q.a(i)
@@ -328,7 +321,7 @@ coordinates.  <b>a(i,j)=b</b> assigns different values to <b>a(i)</b> and
 <div class="p"><!----></div>
 <pre>
 class Oddvec {
-  var v : Rail[Int]! = Rail.make[Int](3, (Int)=&#62;0);
+  var v : Rail[Int] = Rail.make[Int](3, (Int)=&#62;0);
   public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
   public def apply(i:Int) = v(i);
   public def apply(i:Int, j:Int) = [v(i),v(j)];
@@ -337,122 +330,6 @@ class Oddvec {
        v(i) = newval; v(j) = newval+1;} 
   // ... 
 </pre>
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc8.5.1">
-8.5.1</a>&nbsp;&nbsp;<b>proto</b> Rules</h4>
-<a name="protorules">
-</a>
-<a name="ProtoRules">
-</a>
-
-
-<div class="p"><!----></div>
-For every type <b>T</b> (where <b>T</b> is not a type variable), we
-introduce the type <b>proto T</b>. 
-
-<div class="p"><!----></div>
-There is no relationship between types <b>T</b> and <b>proto T</b> -
-neither is a subtype of the other.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
-
-<div class="p"><!----></div>
-Incomplete types are permitted to occur only as types of method
-parameters or local variables or as return types for methods and
-constructors. They may not occur in (the source or target of) cast
-statements, <b>extends</b> or <b>implements</b> clauses, <b>catch</b>
-clauses, or as types of class fields.
-
-<div class="p"><!----></div>
-Within the body of a class <b>C</b> the type of <b>this</b> in
-constructors, instance initializers and instance variable initializers
-is <b>proto C</b>.
-
-<div class="p"><!----></div>
-Let {v} be a value of type <b>proto C</b>, for some class <b>C</b>. 
-
-<div class="p"><!----></div>
-No fields of {v} can be read.  (This is the defining property of
-<b>proto</b> types.)  However, {v}'s (accessible) instance fields
-can be assigned.
-
-<div class="p"><!----></div>
-{v} can be assigned to an instance field <b>o.f</b> only if <b>f</b>
-is of some type <b>S</b> such that <b>T &lt;: S</b> and <b>o</b> has an
-incomplete type.
-
-<div class="p"><!----></div>
-{v} can be assigned to local variables  only if they are of some type
-<b>proto S</b> (such that <b>T &lt;: S</b>).
-
-<div class="p"><!----></div>
-Instance methods of class <b>C</b> may be qualified with <b>proto</b>
-(these methods are called <em>incomplete methods</em>). The type of <b>this</b>
-in incomplete methods is <b>proto C</b>. Incomplete methods can be
-overridden only by incomplete methods.  Only incomplete methods can be
-invoked on {v}. Incomplete methods which do not take an argument of incomplete
-type can be invoked on completed values. 
-
-<div class="p"><!----></div>
-{v} can be passed as argument into a constructor or method call,
-or returned from a method.  The return type of a method taking an
-argument at an incomplete type must be <b>void</b> or incomplete.  The
-return type of a constructor taking an argument at a <b>proto</b> type
-must be incomplete.
-
-<div class="p"><!----></div>
-A generic type parameter <b>T</b> can be instantiated with the type <b>proto
-  S</b> (where <b>S</b> is not a type parameter itself), provided that the body of
-the entity being instantiated satisfies the conditions above for <b>proto
-  S</b>.
-
-<div class="p"><!----></div>
-During code generation, the type <b>proto T</b> is treated as if it were
-<b>T</b>. That is, there is no run-time cost to <b>proto</b> types.
-
-<div class="p"><!----></div>
-The invariants maintained by the design are as follows.  Say that an
-object field or stack variable (local variable) contains an incomplete
-value if a value of type <b>proto T</b> (for some <b>T</b>) was written
-into it.
-
-<div class="p"><!----></div>
-
-<ul>
-<li> If an object <b>o</b> has a field containing an incomplete value {v},
-then either {v}'s constructor has exited or <b>o</b> is confined.
-Further, every reference to <b>o</b> on the stack is held at an incomplete type.
-<div class="p"><!----></div>
-</li>
-
-<li> If a stack variable contains an incomplete value, then
-  the variable's type is incomplete.
-<div class="p"><!----></div>
-</li>
-</ul>
-
-<div class="p"><!----></div>
-Say that a constructor invocation for a class <b>C</b> on the call
-stack is a <em>root</em> if it takes no incomplete arguments. Such a
-constructor invocation will return an object of type <b>C</b> whose
-fields may point to an arbitrary graph of newly created objects
-(objects created by the activity after the constructor
-invocation). Since the object returned is at type <b>C</b> - and not
-<b>proto C</b> - It may be assigned to any field of any object on the
-heap of type <b>D</b> such that <b>C &lt;: D</b>.  It is no longer
-confined. Thus the "magic moment" when an incomplete value becomes
-complete is when the last constructor for any incomplete value it
-references (including itself) returns.
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc8.5.2">
-8.5.2</a>&nbsp;&nbsp;Proto Example: Circular Buffer</h4>
-
-<div class="p"><!----></div>
-This example shows how to create a fixed-size circular buffer.
-(Its pointer structure is immutable, though the contents of each
-field are mutable.)
-
-
 
 <div class="p"><!----></div>
 

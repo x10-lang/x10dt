@@ -22,24 +22,21 @@
 
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Statement ::= ForStatement </td></tr>
-<tr><td align="right">&#124; EnhancedForStatement </td></tr>
-<tr><td align="right">ForStatement ::= <b>for</b> <b>(</b>
-        ForInit<sup>?</sup>&nbsp;<b>;</b> Expression<sup>?</sup>&nbsp;<b>;</b> ForUpdate<sup>?</sup>&nbsp;
-<b>)</b> Statement </td></tr>
-<tr><td align="right">ForInit ::=
-        StatementExpression ( <b>,</b> StatementExpression )<sup>*</sup>&nbsp;
-</td></tr>
-<tr><td align="right">&#124; LocalVariableDeclaration </td></tr>
-<tr><td align="right">ForUpdate ::=
-        StatementExpression ( <b>,</b> StatementExpression )<sup>*</sup>&nbsp;</td></tr>
-<tr><td align="right">EnhancedForStatement ::= <b>for</b> <b>(</b>
+Statement ::= ForStatement <br />
+          &#124; EnhancedForStatement <br />
+ForStatement ::= <b>for</b> <b>(</b>
+        ForInit <b>;</b> Expression <b>;</b> ForUpdate
+        <b>)</b> Statement <br />
+ForInit ::=
+        StatementExpression ( <b>,</b> StatementExpression )
+        <br />
+      &#124; LocalVariableDeclaration <br />
+ForUpdate ::=
+        StatementExpression ( <b>,</b> StatementExpression )<br />
+EnhancedForStatement ::= <b>for</b> <b>(</b>
         Formal <b>in</b> Expression 
-        <b>)</b> Statement </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
+        <b>)</b> Statement <br />
+
 
 <div class="p"><!----></div>
 <b>for</b> statements provide bounded iteration, such as looping over a list.
@@ -92,8 +89,8 @@ next: , <b>i++</b> and <b>i++,j-</b>.  If omitted, <b>step</b> does nothing.
 structure designed to support iteration by implementing the interface
 <b>Iterable[T]</b>.    The loop variable must be of type <b>T</b>, 
 or destructurable from a value of type <b>T</b>
-(&#167;; in practice, this means that 
-<b>for ((i) in 1..10)</b> iterates over numbers from 1 to 10, while 
+(; in practice, this means that 
+<b>for ([i] in 1..10)</b> iterates over numbers from 1 to 10, while 
 <b>for (i in 1..10</b> iterates over <b>Point</b>s from 1 to 10).
 Each iteration of the loop
 binds the iteration variable to another element of the collection.
@@ -101,7 +98,7 @@ binds the iteration variable to another element of the collection.
 <div class="p"><!----></div>
 <pre>
   var sum : Int = 0;
-  for ((i) in 1..n) sum += i;
+  for ([i] in 1..n) sum += i;
 </pre>
 
 <div class="p"><!----></div>
