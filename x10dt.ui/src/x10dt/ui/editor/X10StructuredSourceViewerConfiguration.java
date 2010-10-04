@@ -1,23 +1,8 @@
 package x10dt.ui.editor;
 
-import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.StructuredSourceViewerConfiguration;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.text.AbstractInformationControlManager;
-import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IInformationControl;
-import org.eclipse.jface.text.IInformationControlCreator;
-import org.eclipse.jface.text.information.IInformationPresenter;
-import org.eclipse.jface.text.information.IInformationProvider;
-import org.eclipse.jface.text.information.InformationPresenter;
-import org.eclipse.jface.text.source.ISourceViewer;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
-
-import x10dt.ui.editor.formatting.IX10Partitions;
-import x10dt.ui.typeHierarchy.HierarchyInformationControl;
-import x10dt.ui.typeHierarchy.TypeElementProvider;
 
 public class X10StructuredSourceViewerConfiguration extends StructuredSourceViewerConfiguration{
 	private final UniversalEditor fEditor;
@@ -28,15 +13,15 @@ public class X10StructuredSourceViewerConfiguration extends StructuredSourceView
 		this.fEditor = editor;
 	}
 	
-	private IInformationControlCreator getHierarchyPresenterControlCreator() {
-		return new IInformationControlCreator() {
-			public IInformationControl createInformationControl(Shell parent) {
-				int shellStyle= SWT.RESIZE;
-				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
-				return new HierarchyInformationControl(parent, shellStyle, treeStyle);
-			}
-		};
-	}
+//	private IInformationControlCreator getHierarchyPresenterControlCreator() {
+//		return new IInformationControlCreator() {
+//			public IInformationControl createInformationControl(Shell parent) {
+//				int shellStyle= SWT.RESIZE;
+//				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
+//				return new HierarchyInformationControl(parent, shellStyle, treeStyle);
+//			}
+//		};
+//	}
 	
 //	/**
 //	 * Returns the hierarchy presenter which will determine and shown type hierarchy

@@ -122,6 +122,15 @@
       </autoEditStrategy>
    </extension>
    <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            name="%context.editingX10Source.name"
+            description="%context.editingX10Source.description"
+            parentId="org.eclipse.ui.textEditorScope"
+            id="x10dt.ui.x10EditorScope">
+      </context>
+   </extension>
+   <extension
          point="org.eclipse.ui.bindings">
       <key
             commandId="x10dt.ui.launching.x10LaunchShortcut.run"
