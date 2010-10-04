@@ -52,13 +52,20 @@
 	<topic label="Histogram" href="html/samples/Histogram.html">Histogram</topic>
 </topic> 
 
-<topic label="Programmer's Guide">
-	<topic label="Title" href="html/pguide/first.html">Title</topic>
-	<topic label="Preface" href="html/pguide/preface.html">Preface</topic>
-	<topic label="Intro" href="html/pguide/intro.html">Introduction</topic>
-	<topic label="monteCarloPi" href="html/pguide/monteCarloPi.html">monteCarloPi</topic>
-	<topic label="Objects" href="html/pguide/objects.html">Objects</topic>
-	<topic label="Library" href="html/pguide/library.html">Library</topic>	
+<topic label="Programmers Guide">
+	<topic label="Preface" href="html/pguide/preface.html"/>
+	<topic label="A Whirlwind Tour of X10" href="html/pguide/tour.html">
+		<topic label="Hello" href="html/pguide/hello.html"/> 
+		<topic label="Two CPUs Are Better Than One" href="html/pguide/2cpus.html"/> 
+		<topic label="A Thousand CPUs Are Better Than Tw0" href="html/pguide/1kcpus.html"/> 
+	</topic>
+	<topic label="A First Look At X10's Types" href="html/pguide/types.html">
+		<topic label="What's In An .x10 File" href="html/pguide/file.html"/> 
+		<topic label="What's In A Class" href="html/pguide/class.html"/> 
+		<topic label="Interfaces: More Abstract Than Abstract" href="html/pguide/interfaces.html"/> 
+		<topic label="Giving Up Inheritance To Get Efficiency" href="html/pguide/inheritance.html"/> 
+	</topic>
+	<topic label="The Standard Library" href="html/pguide/library.html"/>
 </topic> 
 
 <topic label="X10 Language Reference" href="html/langref/toc.html">

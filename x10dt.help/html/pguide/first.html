@@ -24,7 +24,85 @@
    Please send comments to the authors.
  </h3>
 
+<h1>Preface</h1>
 
+<h2>Who This Book Is For</h2>
+The X10 programming language was introduced to try to bring to programming in the high-performance world
+the latest in programming language technology.  This text is an attempt to start programmers who have 
+some experience with an object-oriented language on the road to writing X10.  We'll talk about Java and
+C++  from time to time, since they seem to be the most broadly taught for the likely audience for this book,
+but, with rare exceptions, only to help translate them into X10, not to explain X10itself.
+So, even "scripting" languages like
+JavaScript, Ruby, or Python should give one enough intuition.  
+
+<div class="p"><!----></div>
+Those familiar with C, but not C++, may find this book useful,
+but some minimal knowledge of object-oriented programming really is a must-
+classes, objects, class methods versus instance methods, and so on, but nothing deep. 
+
+<div class="p"><!----></div>
+Another large HPC community is the 
+FORTRAN community.  FORTRAN is sufficiently different from Java and C/C++, and our own
+personal experience with
+FORTRAN is so limited, that we do not feel confident we are speaking well to that audience.
+So, if FORTRAN
+is your thing, then by all means take a look here, but if you find it tough slogging,
+the problem is likely what our
+exposition assumes, not anything deeply mysterious about X10, or some failing on your part.
+We hope to find someone ASAP who can provide a better treatment for this audience.
+
+<div class="p"><!----></div>
+
+<h2>The Scope Of The Book</h2>
+Just as programmers using the MPI library can go a very long way with only a half-dozen or so of the
+more than one hundred entries in that library, 
+the new X10 programmer can get a lot of mileage out of a carefully
+chosen subset of the constructs X10  provides.  Our aim here is to get you started, not finish you off, so we
+stick to what we need to do that 80 or 90<br />The final chapter surveys what we don't cover here in detail.
+
+<div class="p"><!----></div>
+Here is a quick outline of what we are going to do.  The first chapter is a sampling of a few simple X10
+programs so you can get a feeling for the language.  Already it introduces concurrency, both local and
+distributed.  The emphasis here is on the basic constructs, not on performance, except to the extent
+that it comes up as a reason for choosing one construct over another.  The next several chapters flesh out the critical parts of the language: classes, expressions,
+control flow, .  That rounds out the first part of the text.  In the second part, "Advanced Topics," 
+we have drawn on some examples elaborated by
+Michael J. Quinn in his text "<em>Parallel Programming in C with MPI
+and OpenMP</em>", published by McGraw-Hill in 2004.  Here we try to give more substantial examples
+so that you can get a feeling for how X10 plays in industrial-strength applications, and
+performance is a critical part of the discussion.
+
+<div class="p"><!----></div>
+Quinn's book
+provides a  very readable basic introduction to parallel computing.
+Although we try to be reasonably self-contained, we rely on Quinn's text for the discussion
+of the language-independent analysis of the problems. We have also tried to make each program
+self-contained, with a <tt>main()</tt>  that
+does something useful.  We tend to go a little beyond what is 
+in Quinn's examples, mostly in order to show how the serial side of X10 might be
+used to organize the melange of trivia that seems necessary to implement any real
+application.  Quinn, writing in C, had the luxury of 30 or so years of examples
+out there and hence no need to embroider the parallel code that was his real focus.
+
+<div class="p"><!----></div>
+We highly recommend having Quinn's book close at hand when working through these
+advanced examples.  Quinn's treatment of the MPI and OpenMP
+approaches to these problems will be very helpful, particularly if you have not
+had a lot of experience with this sort of programming.  
+X10, with the advantage of many years of hindsight into the good and bad
+of parallel language design, sometimes has more
+graceful ways of saying what needs to be said, but a lot of insight went into the
+design of MPI and OpenMP.  Becoming fluent in them is not only its own reward, but
+it will help in understanding where X10 is coming from.
+
+<div class="p"><!----></div>
+
+<h2>Getting X10 Onto Your Machine</h2>
+
+<div class="p"><!----></div>
+!!!! Cal will supply this section !!!!
+
+<div class="p"><!----></div>
 <br /><br />
 
 </html>
