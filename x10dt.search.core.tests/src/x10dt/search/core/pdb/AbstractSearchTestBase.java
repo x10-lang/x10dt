@@ -51,7 +51,7 @@ public abstract class AbstractSearchTestBase {
     
     this.fContext = context;
     
-    AnalysisManager.getInstance().generateFact(new FactKey(factType, context));
+    AnalysisManager.getInstance().produceFact(new FactKey(factType, context));
     final long end = System.currentTimeMillis();
     return end - start;
   }
@@ -90,7 +90,7 @@ public abstract class AbstractSearchTestBase {
   protected final IValue getValue(final String parametricTypeName, final String scopeType) {
     final SearchDBTypes sdbTypes = SearchDBTypes.getInstance();
     final IFactKey key = new FactKey(sdbTypes.getType(parametricTypeName, scopeType), this.fContext);
-    return FactBase.getInstance().getFact(key);
+    return FactBase.getInstance().queryFact(key);
   }
   
   // --- Fields
