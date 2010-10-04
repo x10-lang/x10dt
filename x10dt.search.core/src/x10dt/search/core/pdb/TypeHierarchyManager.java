@@ -65,7 +65,7 @@ final class TypeHierarchyManager extends AbstractTypeManager implements ITypeMan
     
     final IFactKey key = new FactKey(getType(), factContext);
     if (factBase.getAllKeys().contains(key)) {
-      final IRelation currentRelation = (IRelation) factBase.getFact(key);
+      final IRelation currentRelation = (IRelation) factBase.queryFact(key);
       if (currentRelation == null) {
         throw new AnalysisException(NLS.bind(Messages.ATM_NoDataBaseValue, key));
       }

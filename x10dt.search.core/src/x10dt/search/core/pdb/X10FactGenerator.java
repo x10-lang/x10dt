@@ -84,7 +84,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       for (final Map.Entry<String, Collection<Source>> entry : sourceContext.getSourceEntrySet()) {
         final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
         if (RUNTIME.equals(entry.getKey())) {
-          final ISet value = (ISet) factBase.getFact(new FactKey(typeManager.getType(), WorkspaceContext.getInstance()));
+          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), WorkspaceContext.getInstance()));
           if ((value != null) && ! value.isEmpty()) {
             continue; // We build the type info for the runtime context only one time.
           }
@@ -120,7 +120,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       for (final Map.Entry<String, Collection<Source>> entry : sourceContext.getSourceEntrySet()) {
         final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
         if (RUNTIME.equals(entry.getKey())) {
-          final ISet value = (ISet) factBase.getFact(new FactKey(typeManager.getType(), WorkspaceContext.getInstance()));
+          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), WorkspaceContext.getInstance()));
           if ((value != null) && ! value.isEmpty()) {
             continue; // We build the type info for the runtime context only one time.
           }
@@ -151,7 +151,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
           factContext = context;
         }
         final IFactKey key = new FactKey(allMethods.getType(), factContext);
-        System.out.println(factBase.getFact(key));
+        System.out.println(factBase.queryFact(key));
       }
     }
   }

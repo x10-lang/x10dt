@@ -84,7 +84,7 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
         tupleFilter = new ContainerTupleFilter(resourceURI.toString());
       }
       
-      final ISet currentSet = (ISet) factBase.getFact(key);
+      final ISet currentSet = (ISet) factBase.queryFact(key);
       if (currentSet == null) {
         throw new AnalysisException(NLS.bind(Messages.ATM_NoDataBaseValue, key));
       }
