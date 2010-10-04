@@ -518,4 +518,11 @@
             project="true">
       </wizard>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.editorInputResolver">
+      <editorInputResolver
+            class="x10dt.ui.editor.X10EditorInputResolver"
+            language="X10">
+      </editorInputResolver>
+   </extension>
 </plugin>
