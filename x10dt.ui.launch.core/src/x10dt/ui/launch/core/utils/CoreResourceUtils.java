@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.core.utils;
 
+import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -40,7 +42,7 @@ public final class CoreResourceUtils {
    */
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final int priority) {
     createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, resource.getLocation().toString(), priority, 
-                 -1, 0, 0);
+                 -1, 0, 0, null);
   }
   
   /**
@@ -56,7 +58,7 @@ public final class CoreResourceUtils {
    */
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final int priority, 
                                       final String loc) {
-    createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, -1, 0, 0);
+    createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, -1, 0, 0, null);
   }
   
   /**
@@ -73,7 +75,7 @@ public final class CoreResourceUtils {
    */
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final int priority, 
                                       final String loc, final int lineNum) {
-    createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, 0, 0);
+    createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, 0, 0, null);
   }
   
   /**
@@ -91,7 +93,25 @@ public final class CoreResourceUtils {
   public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final int priority, 
                                       final String loc, final int lineNum, final int startOffset, 
                                       final int endOffset) {
-  	createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+  	createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, startOffset, endOffset, null);
+  }
+  
+  /**
+   * Adds an X10 Problem marker to the resource with the different parameters provided.
+   * 
+   * @param resource The resource with which the marker will be associated to.
+   * @param msg The marker message.
+   * @param severity The marker severity.
+   * @param priority The marker priority.
+   * @param loc The marker location.
+   * @param lineNum The marker line number.
+   * @param startOffset The marker start offset.
+   * @param endOffset The marker end offset.
+   */
+  public static void addBuildMarkerTo(final IResource resource, final String msg, final int severity, final int priority, 
+                                      final String loc, final int lineNum, final int startOffset, 
+                                      final int endOffset, Map<String, Object> attributes) {
+  	createMarker(X10DTCoreConstants.PROBLEMMARKER_ID, resource, msg, severity, loc, priority, lineNum, startOffset, endOffset, attributes);
   }
   
   /**
@@ -106,7 +126,7 @@ public final class CoreResourceUtils {
    */
   public static void addPlatformConfMarker(final IFile file, final String msg, final int severity, 
                                            final int priority) {
-  	createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, file.getLocation().toString(), priority, -1, 0, 0);
+  	createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, file.getLocation().toString(), priority, -1, 0, 0, null);
   }
   
   /**
@@ -122,7 +142,7 @@ public final class CoreResourceUtils {
    */
   public static void addPlatformConfMarker(final IFile file, final String msg, final int severity, final int priority, 
                                            final String loc) {
-    createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, loc, priority, -1, 0, 0);
+    createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, loc, priority, -1, 0, 0, null);
   }
   
   /**
@@ -139,7 +159,7 @@ public final class CoreResourceUtils {
    */
   public static void addPlatformConfMarker(final IFile file, final String msg, final int severity, final int priority, 
                                            final String loc, final int lineNum) {
-  	createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, loc, priority, lineNum, 0, 0);
+  	createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, loc, priority, lineNum, 0, 0, null);
   }
   
   /**
@@ -157,7 +177,7 @@ public final class CoreResourceUtils {
   public static void addPlatformConfMarker(final IFile file, final String msg, final int severity, final int priority,
                                            final String loc, final int lineNum, final int startOffset,
                                            final int endOffset) {
-  	createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+  	createMarker(PLATFORM_CONF_MARKER_ID, file, msg, severity, loc, priority, lineNum, startOffset, endOffset, null);
   }
   
   /**
@@ -171,7 +191,7 @@ public final class CoreResourceUtils {
    * @param priority The marker priority.
    */
   public static void addTask(final IResource resource, final String msg, final int severity, final int priority) {
-    createMarker(IMarker.TASK, resource, msg, severity, resource.getLocation().toString(), priority, -1, 0, 0);
+    createMarker(IMarker.TASK, resource, msg, severity, resource.getLocation().toString(), priority, -1, 0, 0, null);
   }
   
   /**
@@ -187,7 +207,7 @@ public final class CoreResourceUtils {
    */
   public static void addTask(final IResource resource, final String msg, final int severity, final int priority,
                              final String loc) {
-    createMarker(IMarker.TASK, resource, msg, severity, loc, priority, -1, 0, 0);
+    createMarker(IMarker.TASK, resource, msg, severity, loc, priority, -1, 0, 0, null);
   }
   
   /**
@@ -204,7 +224,7 @@ public final class CoreResourceUtils {
    */
   public static void addTask(final IResource resource, final String msg, final int severity, final int priority, 
                              final String loc, final int lineNum) {
-    createMarker(IMarker.TASK, resource, msg, severity, loc, priority, lineNum, 0, 0);
+    createMarker(IMarker.TASK, resource, msg, severity, loc, priority, lineNum, 0, 0, null);
   }
   
   /**
@@ -222,7 +242,7 @@ public final class CoreResourceUtils {
   public static void addTask(final IResource resource, final String msg, final int severity, final String loc, 
                              final int priority, final int lineNum, final int startOffset, 
                              final int endOffset) {
-    createMarker(IMarker.TASK, resource, msg, severity, loc, priority, lineNum, startOffset, endOffset);
+    createMarker(IMarker.TASK, resource, msg, severity, loc, priority, lineNum, startOffset, endOffset, null);
   }
   
   /**
@@ -358,41 +378,52 @@ public final class CoreResourceUtils {
     }
   }
 
-  private static void createMarker(final String markerId, final IResource resource, final String msg, final int severity,
-                                   final String loc, final int priority, final int lineNum, final int startOffset,
-                                   final int endOffset) {
-    try {
-      final IWorkspace workspace = ResourcesPlugin.getWorkspace();
-      final ISchedulingRule rule = workspace.getRuleFactory().markerRule(resource);
+	public static void createMarker(final String markerId,
+			final IResource resource, final String msg, final int severity,
+			final String loc, final int priority, final int lineNum,
+			final int startOffset, final int endOffset,
+			final Map<String, Object> attributes) {
+		try {
+			final IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			final ISchedulingRule rule = workspace.getRuleFactory().markerRule(
+					resource);
 
-      final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+			final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
-        public void run(final IProgressMonitor monitor) throws CoreException {
-          final IMarker marker = resource.createMarker(markerId);
+				public void run(final IProgressMonitor monitor)
+						throws CoreException {
+					final IMarker marker = resource.createMarker(markerId);
 
-          marker.setAttribute(IMarker.MESSAGE, msg);
-          marker.setAttribute(IMarker.SEVERITY, severity);
-          marker.setAttribute(IMarker.LOCATION, loc);
-          marker.setAttribute(IMarker.PRIORITY, priority);
-          if (lineNum != -1) {
-            marker.setAttribute(IMarker.LINE_NUMBER, lineNum);
-          }
-          if (startOffset >= 0) {
-            marker.setAttribute(IMarker.CHAR_START, startOffset);
-            marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
-          }
-        }
+					marker.setAttribute(IMarker.MESSAGE, msg);
+					marker.setAttribute(IMarker.SEVERITY, severity);
+					marker.setAttribute(IMarker.LOCATION, loc);
+					marker.setAttribute(IMarker.PRIORITY, priority);
+					if (lineNum != -1) {
+						marker.setAttribute(IMarker.LINE_NUMBER, lineNum);
+					}
+					if (startOffset >= 0) {
+						marker.setAttribute(IMarker.CHAR_START, startOffset);
+						marker.setAttribute(IMarker.CHAR_END, endOffset + 1);
+					}
 
-      };
+					if (attributes != null) {
+						marker.setAttributes(attributes.keySet().toArray(
+								new String[attributes.keySet().size()]),
+								attributes.values().toArray());
+					}
+				}
 
-      workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, null);
-    } catch (CoreException except) {
-      LaunchCore.log(except.getStatus());
-    }
-  }
-  
+			};
+
+			workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, null);
+		} catch (CoreException except) {
+			LaunchCore.log(except.getStatus());
+		}
+	}
+
   // --- Fields
   
   private static final String PLATFORM_CONF_MARKER_ID = "x10dt.ui.launch.cpp.platformConfMarker"; //$NON-NLS-1$
 
 }
+

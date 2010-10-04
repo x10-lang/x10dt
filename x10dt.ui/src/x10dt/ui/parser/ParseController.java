@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
@@ -40,7 +39,6 @@ import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 
 import polyglot.ast.Node;
-import polyglot.ast.SourceFile;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
@@ -101,9 +99,9 @@ public class ParseController extends SimpleLPGParseController {
     public void setViolationHandler(InvariantViolationHandler handler) {
     	fViolationHandler= handler;
     }
-
+    
     public Object parse(String contents, IProgressMonitor monitor) {
-        Source fileSource= null;
+        List<Source> streams= new ArrayList<Source>();
         try {
             fMonitor.setMonitor(monitor);
             
@@ -137,19 +135,15 @@ public class ParseController extends SimpleLPGParseController {
             	ZipFile zipFile= new ZipFile(new File(jarPath.toString()));
             	File jarFile= new File(jarPath.toString());
             	ZipResource zipRsrc= new ZipResource(jarFile, zipFile, entryPath.toString());
-
-            	fileSource= new FileSource(zipRsrc);
+            	streams.add(new FileSource(zipRsrc));
+            	streams.add(new FileSource(new StringResource(contents, jarFile, jarFile.toString())));
             } else {
             	String path= fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toOSString() : fFilePath.toOSString();
             	File file= new File(path);
-            	fileSource= new FileSource(new StringResource(contents, file, path));
+            	streams.add(new FileSource(new StringResource(contents, file, path)));
             }
 
-            List<Source> streams= new ArrayList<Source>();
-            // Bug 526: NPE when opening a file outside the workspace due to null fProject.
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
-
-            streams.add(fileSource);
             IPath sourcePath = (fProject != null) ? Platform.getLocation().append(fProject.getName()).append(fFilePath) : fFilePath;
 
             fCompiler= new CompilerDelegate(fMonitor, handler, proj, sourcePath, fViolationHandler); // Create the compiler
@@ -160,25 +154,34 @@ public class ParseController extends SimpleLPGParseController {
             // RMF 8/2/2006 - retrieve the AST, token stream and lex stream, if they exist; front-end semantic
             // checks may fail, even though the AST/token-stream are well-formed enough to support various IDE
         	// services, like syntax highlighting and the outline view's contents.
-            if (fileSource != null && fCompiler != null) {
-            	final X10Parser parser= fCompiler.getParserFor(fileSource);
-            	final X10Lexer lexer= fCompiler.getLexerFor(fileSource);
-            	fPrsStream = parser.getIPrsStream();
-            	fLexStream = lexer.getILexStream();
-            	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
-            	fLexer = new LexerDelegate(lexer);
-            	fCurrentAst= fCompiler.getASTFor(fileSource); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
-            }
-            if (fViolationHandler != null && fCurrentAst != null) {
-            	Job job= fCompiler.getJobFor(fileSource);
-            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "");
-            	InstanceInvariantChecker iic= new InstanceInvariantChecker(job);
-
-            	((Node) fCurrentAst).visit(pic);
-            	((Node) fCurrentAst).visit(iic);
-
-            	fViolationHandler.consumeAST((Node) fCurrentAst);
-            }
+        	
+        	for(Source source : streams)
+        	{
+        		if(fCompiler.getParserFor(source) != null)
+        		{
+		            if (source != null && fCompiler != null) {
+		            	final X10Parser parser= fCompiler.getParserFor(source);
+		            	final X10Lexer lexer= fCompiler.getLexerFor(source);
+		            	fPrsStream = parser.getIPrsStream();
+		            	fLexStream = lexer.getILexStream();
+		            	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
+		            	fLexer = new LexerDelegate(lexer);
+		            	fCurrentAst= fCompiler.getASTFor(source); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
+		            }
+		            if (fViolationHandler != null && fCurrentAst != null) {
+		            	Job job= fCompiler.getJobFor(source);
+		            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "");
+		            	InstanceInvariantChecker iic= new InstanceInvariantChecker(job);
+		
+		            	((Node) fCurrentAst).visit(pic);
+		            	((Node) fCurrentAst).visit(iic);
+		
+		            	fViolationHandler.consumeAST((Node) fCurrentAst);
+		            }
+		            
+		            break;
+        		}
+        	}
             // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
             // Must do this after attempting parsing (even though that might fail), since it depends
             // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of

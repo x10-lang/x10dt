@@ -14,9 +14,11 @@ package x10dt.ui.parser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import lpg.runtime.Monitor;
 
@@ -26,6 +28,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.editor.quickfix.IAnnotation;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -41,6 +44,7 @@ import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
+import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
@@ -48,8 +52,11 @@ import x10.errors.X10ErrorInfo;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10dt.core.X10DTCorePlugin;
-import x10dt.core.builder.BuildPathUtils;
 import x10dt.ui.X10DTUIPlugin;
+import x10dt.ui.launch.core.builder.IPathToFileFunc;
+import x10dt.ui.launch.core.utils.CollectionUtils;
+import x10dt.ui.launch.core.utils.ProjectUtils;
+import x10dt.ui.launch.core.utils.X10BuilderUtils;
 
 public class CompilerDelegate {
 	private x10dt.ui.parser.ExtensionInfo fExtInfo;
@@ -64,31 +71,57 @@ public class CompilerDelegate {
         fExtInfo= new x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
         buildOptions(fExtInfo);
 
-        ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
-            protected void displayError(ErrorInfo error) {
-            	if (isValidationMsg(error)) {
-            		if (fViolationHandler != null) {
-            			fViolationHandler.handleViolation(error);
-            		}
-            	} else {
-            		if (BuildPathUtils.isExcluded(filePath, fX10Project))
-            			return;
-            	 	Position pos = error.getPosition();
-                	if (pos != null) {
-                		IPath errorPath = new Path(pos.file());
-                		if (filePath.equals(errorPath)) {
-                			handler.handleSimpleMessage(error.getMessage(), pos.offset(), pos.endOffset(), pos.column(), pos.endColumn(), pos.line(), pos.endLine());
-                		}
-                	} else {
-                		if (error.getErrorKind()!=ErrorInfo.WARNING)
-                			handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1);
-                	}
-            	}
-            }
-        };
+		ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
+			protected void displayError(ErrorInfo error) {
+				if (isValidationMsg(error)) {
+					if (fViolationHandler != null) {
+						fViolationHandler.handleViolation(error);
+					}
+				} else {
+					
+					Map<String, Object> attributes = getAttributes(error);
+					Position pos = error.getPosition();
+					if (pos != null) {
+						IPath errorPath = new Path(pos.file());
+						if (filePath.equals(errorPath)) {
+							handler.handleSimpleMessage(error.getMessage(), pos
+									.offset(), pos.endOffset(), pos.column(),
+									pos.endColumn(), pos.line(), pos.endLine(),
+									attributes);
+						}
+					} else {
+						handler.handleSimpleMessage(error.getMessage(), 0, 0,
+								1, 1, 1, 1, attributes);
+					}
+				}
+			}
+		};
         final Compiler compiler = new Compiler(fExtInfo, eq);
     	Globals.initialize(compiler);
     }
+    
+	protected Map<String, Object> getAttributes(ErrorInfo errorInfo) {
+		Map<String, Object> map = null;
+		if (errorInfo instanceof CodedErrorInfo) {
+			map = ((CodedErrorInfo) errorInfo).getAttributes();
+		}
+
+		if (map == null) {
+			map = new HashMap<String, Object>();
+		}
+
+		if (!map.containsKey(IMessageHandler.SEVERITY_KEY)) {
+			if (errorInfo.getErrorKind() == ErrorInfo.WARNING) {
+				map.put(IMessageHandler.SEVERITY_KEY, IAnnotation.WARNING);
+			}
+
+			else {
+				map.put(IMessageHandler.SEVERITY_KEY, IAnnotation.ERROR);
+			}
+		}
+
+		return map;
+	}
 
     protected boolean isValidationMsg(ErrorInfo error) {
     	return (error.getErrorKind() == X10ErrorInfo.INVARIANT_VIOLATION_KIND);
