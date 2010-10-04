@@ -8,10 +8,12 @@ import org.eclipse.jdt.core.JavaModelException;
 public class BuildPathUtils {
 	
 	public static boolean isExcluded(IPath filePath, IJavaProject project){
-		boolean isExcluded = false;
 		try {
 		  // --- Determine the classpath source entry that corresponds to file. 
 		  IClasspathEntry srcEntry = null;
+		  if (project == null){
+			  return true; // --- If there is no java project associated with this file, then the file must be excluded.
+		  }
 		  // --- If filePath is not relative to the workspace, make it so.
 		  IPath workspace = project.getProject().getLocation().removeLastSegments(1);
 		  if (workspace.isPrefixOf(filePath)){
@@ -22,7 +24,10 @@ public class BuildPathUtils {
 				  srcEntry = cpEntry;
 				  break;
 			  }
-		  }  
+		  } 
+		  if (srcEntry == null){ // --- If there is no source entry on the build path corresponding to filePath, then the file must be excluded.
+			  return true;
+		  }
 		  filePath = filePath.makeRelativeTo(srcEntry.getPath());
 		  IPath[] inclusionPatterns = srcEntry.getInclusionPatterns();
 		  if (inclusionPatterns != null && inclusionPatterns.length != 0){
@@ -34,21 +39,21 @@ public class BuildPathUtils {
 				  }
 			  }
 			  if (!foundMatch){
-				  isExcluded = true;
+				  return true;
 			  }
 		  }
 		  IPath[] exclusionPatterns = srcEntry.getExclusionPatterns();
 		  if (exclusionPatterns != null && exclusionPatterns.length != 0){
 			  for(IPath pattern: exclusionPatterns){
 				  if (matches(filePath, pattern)){
-					  isExcluded = true;
+					 return true;
 				  }
 			  }
 		  }
 		} catch(JavaModelException e){
-			System.err.println(e);
+			return true;
 		}
-		return isExcluded;
+		return false;
 	}
 	
 	  
