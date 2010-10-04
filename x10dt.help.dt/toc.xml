@@ -93,7 +93,16 @@
 -->
 
 <topic label="Reference"> 
-	<topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
+	<topic label="Preferences"> 
+		<topic label="General" href="html/reference/preferences/general.html" />  
+		<topic label="Compiler" href="html/reference/preferences/compiler.html" >
+			<topic label="Optimizations" href="html/reference/preferences/optimize.html" />  
+		</topic>
+		<topic label="Formatting" href="html/reference/preferences/formatting.html" />  
+		<topic label="Runtime" href="html/reference/preferences/runtime.html" /> 
+	</topic> 
+	
+	<topic label="Preferences" href="html/reference/preferences/prefs-old.html"/>
 </topic>
 
 <!--
