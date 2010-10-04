@@ -7,12 +7,17 @@
  *******************************************************************************/
 package x10dt.ui.launch.core.utils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.util.QuotedStringTokenizer;
+import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 
@@ -53,6 +58,67 @@ public final class X10BuilderUtils {
     }
     throw new AssertionError(NLS.bind(Messages.XBU_ArchNameNotInEnum, architecture));
   }
+  
+	public static String getTargetSystemPath(final String resourcePath) {
+		return resourcePath.replace('\\', '/');
+	}
+	
+	public static int run(List<String> cmdline, final IProcessOuputListener listener) throws InterruptedException {
+		
+		Process process;
+		try {
+			process = Runtime.getRuntime().exec(cmdline.toArray(new String[cmdline.size()]));
+		} catch (IOException e) {
+			return -1;
+		}
+		
+		
+	    final BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+	    final Thread outThread = new Thread(new Runnable() {
+	      
+	      public void run() {
+	        try {
+	          String line;
+	          while ((line = outReader.readLine()) != null) {
+	            listener.read(line);
+	          }
+	        } catch (IOException except) {
+	          LaunchCore.log(IStatus.ERROR, Messages.CPPB_OutputStreamReadingError, except);
+	        }
+	      }
+	      
+	    });
+	  
+	    final BufferedReader errReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+	    final Thread errThread = new Thread(new Runnable() {
+	      
+	      public void run() {
+	        try {
+	          String line;
+	          while ((line = errReader.readLine()) != null) {
+	            listener.readError(line);
+	          }
+	        } catch (IOException except) {
+	          LaunchCore.log(IStatus.ERROR, Messages.CPPB_ErrorStreamReadingError, except);
+	        }
+	      }
+	      
+	    });
+	    
+	    try {
+	      outThread.start();
+	      errThread.start();
+	    
+	      process.waitFor();
+	    
+	      outThread.join();
+	      errThread.join();
+	    
+	      return process.exitValue();
+	    } finally {
+	      process.destroy();
+	    }
+	  }
   
   // --- Private code
   

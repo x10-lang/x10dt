@@ -45,7 +45,6 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -72,6 +71,7 @@ import x10dt.ui.launch.core.utils.IFilter;
 import x10dt.ui.launch.core.utils.IdentityFunctor;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.core.utils.UIUtils;
+import x10dt.ui.launch.core.utils.X10BuilderUtils;
 
 /**
  * X10 builder base class for all the different back-ends.
@@ -120,7 +120,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   // --- Abstract methods implementation
 
-  @SuppressWarnings("rawtypes")
+  @SuppressWarnings("unchecked")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
 	final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
     messageConsole.clearConsole();
@@ -287,33 +287,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
     options.assertions = prefService.getBooleanPreference(X10Constants.P_PERMITASSERT);
-    
-    if (prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
-      final MessageConsole console = UIUtils.findOrCreateX10Console();
-      final MessageConsoleStream consoleStream = console.newMessageStream();
-      try {
-        consoleStream.write(options.toString());
-        String[][] opts = Configuration.options(); // --- The shape of this data structure is an array of:
-        // --- (option,type,description,value) for each field in Configuration.
-        String result = "";
-        for (int i = 0; i < opts.length; i++) {
-          if (opts[i][1].equals("boolean")) {
-            if (opts[i][3].equals("true")) {
-              result += " -" + opts[i][0] + " ";
-            }
-          }
-          if (opts[i][1].equals("String")) {
-            if (!opts[i][3].equals("null") && !opts[i][3].equals("")) {
-              result += " -" + opts[i][0] + "=" + opts[i][3] + " ";
-            }
-          }
-        }
-        consoleStream.write(result);
-        console.activate();
-      } catch (IOException except) {
-        LaunchCore.log(IStatus.ERROR, Messages.AXB_EchoIOException, except);
-      }
-    }
   }
 
   // --- Private code
@@ -473,7 +446,53 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,
                                                       false /* withMainMethod */, monitor);
-
+    
+        // print cmd line to console
+		final IPreferencesService prefService = X10DTCorePlugin.getInstance()
+				.getPreferencesService();
+		if (prefService
+				.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
+			final MessageConsole console = UIUtils.findOrCreateX10Console();
+			final MessageConsoleStream consoleStream = console
+					.newMessageStream();
+			try {
+				consoleStream.write(getOptions(extInfo.getOptions()));
+				String[][] opts = Configuration.options(); // --- The shape of
+															// this data
+															// structure is an
+															// array of:
+				// --- (option,type,description,value) for each field in
+				// Configuration.
+				String result = "";
+				for (int j = 0; j < opts.length; j++) {
+					if (opts[j][1].equals("boolean")) {
+						if (opts[j][3].equals("true")) {
+							result += " -" + opts[j][0] + " ";
+						}
+					}
+					if (opts[j][1].equals("String")) {
+						if (!opts[j][3].equals("null")
+								&& !opts[j][3].equals("")) {
+							result += " -" + opts[j][0] + "=" + opts[j][3]
+									+ " ";
+						}
+					}
+				}
+				consoleStream.write(result);
+				for (IFile f : sourcesToCompile) {
+					consoleStream.write("\"");
+					consoleStream.write(X10BuilderUtils.getTargetSystemPath(f
+							.getLocation().toPortableString()));
+					consoleStream.write("\" ");
+				}
+				consoleStream.write("\n");
+				console.activate();
+			} catch (IOException except) {
+				LaunchCore.log(IStatus.ERROR, Messages.AXB_EchoIOException,
+						except);
+			}
+		}
+    
     final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(this.fProjectWrapper, 1000000, extInfo.compilerName()));
     Globals.initialize(compiler);
     try {
@@ -557,6 +576,82 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());
   }
+  
+	private String getOptions(Options options) {
+		String result = "";
+		if (options.classpath != null && !options.classpath.equals("")) {
+			result += "-classpath \"";
+			for (String token : options.classpath.split(File.pathSeparator)) {
+				result += X10BuilderUtils.getTargetSystemPath(token);
+				result += File.pathSeparator;
+			}
+			result += "\"";
+		}
+		if (options.output_directory != null) {
+			result += " -d \""
+					+ X10BuilderUtils
+							.getTargetSystemPath(options.output_directory
+									.getAbsolutePath());
+			result += "\"";
+		}
+		if (options.assertions) {
+			result += " -assert";
+		}
+		if (options.source_path != null && !options.source_path.isEmpty()) {
+			result += " -sourcepath \"";
+			for (int i = 0; i < options.source_path.size(); i++) {
+				result += ((i > 0) ? ":" : "")
+						+ X10BuilderUtils
+								.getTargetSystemPath(options.source_path.get(i)
+										.getAbsolutePath());
+			}
+			result += "\"";
+		}
+		if (options.bootclasspath != null && !options.bootclasspath.equals("")) {
+			result += " -bootclasspath " + options.bootclasspath;
+		}
+		if (options.compile_command_line_only) {
+			result += " -commandlineonly";
+		}
+		if (options.fully_qualified_names) {
+			result += " -fqcn";
+		}
+		if (options.source_ext != null) {
+			for (int i = 0; i < options.source_ext.length; i++) {
+				result += " -sx " + options.source_ext[i];
+			}
+		}
+		if (options.output_ext != null && !options.output_ext.equals("")) {
+			result += " -ox " + options.output_ext;
+		}
+		result += " -errors " + options.error_count;
+		result += " -w " + options.output_width;
+		for (String s : options.dump_ast) {
+			result += " -dump " + s;
+		}
+		for (String s : options.print_ast) {
+			result += " -print " + s;
+		}
+		for (String s : options.disable_passes) {
+			result += " -disable " + s;
+		}
+		if (!options.serialize_type_info) {
+			result += " -noserial";
+		}
+		if (!options.keep_output_files) {
+			result += " -nooutput";
+		}
+		if (options.post_compiler != null && !options.post_compiler.equals("")) {
+			result += " -post " + options.post_compiler;
+		}
+		if (options.precise_compiler_generated_positions) {
+			result += " -debugpositions";
+		}
+		if (options.use_simple_code_writer) {
+			result += " -simpleoutput";
+		}
+		return result;
+	}
 
   // --- Fields
 
