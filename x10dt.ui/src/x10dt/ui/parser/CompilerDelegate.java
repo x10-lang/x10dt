@@ -52,6 +52,7 @@ import x10.errors.X10ErrorInfo;
 import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.core.builder.BuildPathUtils;
 import x10dt.ui.X10DTUIPlugin;
 
 public class CompilerDelegate {
@@ -74,6 +75,8 @@ public class CompilerDelegate {
 						fViolationHandler.handleViolation(error);
 					}
 				} else {
+					if (BuildPathUtils.isExcluded(filePath, fX10Project))
+            			return;
 					
 					Map<String, Object> attributes = getAttributes(error);
 					Position pos = error.getPosition();
