@@ -53,10 +53,6 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.launch.core.builder.IPathToFileFunc;
-import x10dt.ui.launch.core.utils.CollectionUtils;
-import x10dt.ui.launch.core.utils.ProjectUtils;
-import x10dt.ui.launch.core.utils.X10BuilderUtils;
 
 public class CompilerDelegate {
 	private x10dt.ui.parser.ExtensionInfo fExtInfo;
