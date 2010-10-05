@@ -99,12 +99,15 @@ public final class SearchDBTypes {
     final Type methodName = typeFactory.aliasType(this.fTypeStore, X10_MethodName, typeFactory.stringType());
     final Type fieldName = typeFactory.aliasType(this.fTypeStore, X10_FieldName, typeFactory.stringType());
     final Type x10Type = typeFactory.aliasType(this.fTypeStore, X10_Type, 
-                                               typeFactory.tupleType(typeName, typeFactory.sourceLocationType()));
+                                               typeFactory.tupleType(typeName, typeFactory.sourceLocationType(),
+                                                                     typeFactory.integerType()));
     final Type x10Method = typeFactory.aliasType(this.fTypeStore, X10_Method, 
                                                  typeFactory.tupleType(typeFactory.sourceLocationType(), methodName, typeName,
-                                                                       typeFactory.listType(typeName)));
+                                                                       typeFactory.listType(typeName), 
+                                                                       typeFactory.integerType()));
     final Type x10Field = typeFactory.aliasType(this.fTypeStore, X10_Field,
-                                                typeFactory.tupleType(typeFactory.sourceLocationType(), fieldName, typeName));
+                                                typeFactory.tupleType(typeFactory.sourceLocationType(), fieldName, typeName,
+                                                                      typeFactory.integerType()));
     
     final Type application = typeFactory.aliasType(this.fTypeStore, APPLICATION, typeFactory.stringType());
     final Type library = typeFactory.aliasType(this.fTypeStore, LIBRARY, typeFactory.stringType());

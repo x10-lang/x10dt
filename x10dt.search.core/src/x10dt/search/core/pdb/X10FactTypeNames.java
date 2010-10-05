@@ -35,19 +35,19 @@ public final class X10FactTypeNames {
   public static final String X10_FieldName = "x10.fieldName"; //$NON-NLS-1$
   
   /**
-   * Fact type name identifying X10 type as a pair of ({@value #X10_TypeName}, {@link ISourceLocation}).
+   * Fact type name identifying X10 type as a pair of ({@value #X10_TypeName}, {@link ISourceLocation}, int).
    */
   public static final String X10_Type = "x10.type"; //$NON-NLS-1$
   
   /**
    * Fact type name identifying X10 method as a tuple of 
-   * ({@link #X10_MethodName}, {@link #X10_TypeName}, list({@link #X10_TypeName}), {@link ISourceLocation}).
+   * ({@link #X10_MethodName}, {@link #X10_TypeName}, list({@link #X10_TypeName}), {@link ISourceLocation}, int).
    */
   public static final String X10_Method = "x10.method"; //$NON-NLS-1$
   
   /**
    * Fact type name identifying X10 field as a tuple of 
-   * ({@link #X10_FieldName}, {@link #X10_TypeName}, {@link ISourceLocation}).
+   * ({@link #X10_FieldName}, {@link #X10_TypeName}, {@link ISourceLocation}, int).
    */
   public static final String X10_Field = "x10.field"; //$NON-NLS-1$
   

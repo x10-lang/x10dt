@@ -40,7 +40,8 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
       final ClassDef classDef = classDecl.classDef();
       final ClassType classType = classDef.asType();
       final IValue typeNameValue = createTypeName(classType.fullName().toString());
-      insertValue(X10_AllTypes, getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position())));
+      insertValue(X10_AllTypes, getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
+                                                        createModifiersCodeValue(classType.flags())));
       
       final List<MethodDef> methodDefs = classDef.methods();
       final IValue[] methods = new IValue[methodDefs.size()];
@@ -62,8 +63,7 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
       
       final ClassType superClass;
       if (superTypeNode == null) {
-        // If none is declared, by default x10.lang.Object is the parent.
-        superClass = (ClassType) classType.typeSystem().Object();
+        superClass = null;
       } else {
         final polyglot.types.Type superType = superTypeNode.type();
         if (superType.isClass()) {
@@ -76,13 +76,14 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
       if (superClass != null) {
         insertValue(X10_TypeHierarchy, getValueFactory().tuple(typeNameValue, 
                                                                createTypeName(superClass.fullName().toString())));
-        for (final TypeNode interfaceTypeNode : classDecl.interfaces()) {
-          final polyglot.types.Type interfaceType = interfaceTypeNode.type();
-          if ((interfaceType != null) && (interfaceType instanceof ClassType)) {
-            insertValue(X10_TypeHierarchy, 
-                        getValueFactory().tuple(typeNameValue, 
-                                                createTypeName(((ClassType) interfaceType).fullName().toString())));
-          }
+      }
+      
+      for (final TypeNode interfaceTypeNode : classDecl.interfaces()) {
+        final polyglot.types.Type interfaceType = interfaceTypeNode.type();
+        if ((interfaceType != null) && (interfaceType instanceof ClassType)) {
+          insertValue(X10_TypeHierarchy, 
+                      getValueFactory().tuple(typeNameValue, 
+                                              createTypeName(((ClassType) interfaceType).fullName().toString())));
         }
       }
     }

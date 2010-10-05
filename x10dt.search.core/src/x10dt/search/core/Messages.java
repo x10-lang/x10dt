@@ -23,6 +23,18 @@ public class Messages extends NLS {
 
   public static String SCA_ProjectNonExistent;
 
+  public static String TH_BuildTHJobName;
+
+  public static String TH_BuildTHTaskName;
+
+  public static String TH_CollectingData;
+
+  public static String TH_FactAccessError;
+
+  public static String TH_NoTypeFoundError;
+
+  public static String TH_SearchCanceled;
+
   public static String THFWV_UnknownSuperType;
 
   public static String XFG_ClassPathResolutionError;
@@ -32,7 +44,7 @@ public class Messages extends NLS {
   public static String XFG_ResourceAccessError;
   
   // --- Private code
-  
+
   private static final String BUNDLE_NAME = "x10dt.search.core.messages"; //$NON-NLS-1$
   
   static {

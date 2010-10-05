@@ -19,9 +19,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.types.FieldDef;
+import polyglot.types.Flags;
 import polyglot.types.MethodDef;
 import polyglot.types.Ref;
 import polyglot.util.Position;
@@ -41,6 +43,7 @@ public class FactWriterVisitor extends NodeVisitor {
     this.fTypeName = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeName);
     this.fMethodName = SearchDBTypes.getInstance().getType(X10_MethodName);
     this.fFieldName = SearchDBTypes.getInstance().getType(X10_FieldName);
+    this.fIntType = TypeFactory.getInstance().integerType();
   }
   
   // --- Public services
@@ -59,7 +62,8 @@ public class FactWriterVisitor extends NodeVisitor {
   protected final IValue createFieldValue(final FieldDef fieldDef) {
     return getValueFactory().tuple(getSourceLocation(fieldDef.position()), 
                                    this.fFieldName.make(getValueFactory(), fieldDef.name().toString()),
-                                   createTypeName(fieldDef.asInstance().type().toString()));
+                                   createTypeName(fieldDef.asInstance().type().toString()),
+                                   createModifiersCodeValue(fieldDef.flags()));
   }
   
   protected final IValue createMethodValue(final MethodDef methodDef) {
@@ -71,7 +75,12 @@ public class FactWriterVisitor extends NodeVisitor {
     }
     return getValueFactory().tuple(getSourceLocation(methodDef.position()),
                                    this.fMethodName.make(getValueFactory(), methodDef.name().toString()),
-                                   createTypeName(methodDef.returnType().get().toString()), getValueFactory().list(args));
+                                   createTypeName(methodDef.returnType().get().toString()), getValueFactory().list(args),
+                                   createModifiersCodeValue(methodDef.flags()));
+  }
+  
+  protected final IValue createModifiersCodeValue(final Flags flags) {
+    return this.fIntType.make(this.fValueFactory, new X10FlagsEncoder(flags).getCode());
   }
   
   protected final IValue createTypeName(final String typeName) {
@@ -115,6 +124,8 @@ public class FactWriterVisitor extends NodeVisitor {
   private final Type fMethodName;
   
   private final Type fFieldName;
+  
+  private final Type fIntType;
   
   
   private String fScopeTypeName;
