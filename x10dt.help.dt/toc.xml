@@ -96,7 +96,7 @@
 	<topic label="Preferences"> 
 		<topic label="General" href="html/reference/preferences/general.html" />  
 		<topic label="Compiler" href="html/reference/preferences/compiler.html" >
-			<topic label="Optimizations" href="html/reference/preferences/optimize.html" />  
+			<topic label="Optimizations" href="html/reference/preferences/compiler/optimizations.html" />  
 		</topic>
 		<topic label="Formatting" href="html/reference/preferences/formatting.html" />  
 		<topic label="Runtime" href="html/reference/preferences/runtime.html" /> 
