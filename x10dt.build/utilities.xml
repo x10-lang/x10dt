@@ -10,7 +10,7 @@
   </taskdef>
 
   <target name="jazz-setup" if="requestUUID">
-    <property name="build.toolkit.location" value="/homes/orquesta/x10dt/IBM/TeamConcertBuild/buildsystem/buildtoolkit" />
+    <property name="build.toolkit.location" value="/home/x10dt/IBM/TeamConcertBuild/buildsystem/buildtoolkit" />
     <path id="build.toolkit.classpath">
       <fileset dir="${build.toolkit.location}" includes="*.jar" />
     </path>

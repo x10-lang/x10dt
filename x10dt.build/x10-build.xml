@@ -3,6 +3,28 @@
   <property file="common.properties" />
   <property file="build.properties" />
 
+  <condition property="release-based-build">
+    <and>
+      <isset property="release" />
+      <not>
+        <isset property="no.x10.release.tag" />
+      </not>
+    </and>
+  </condition>
+  <fail message="You need to define the property 'x10.release.tag' in release mode, unless you use 'no.x10.release.tag'">
+    <condition>
+      <and>
+        <isset property="release" />
+        <not>
+          <isset property="x10.release.tag" />
+        </not>
+        <not>
+          <isset property="no.x10.release.tag" />
+       </not>
+      </and>
+    </condition>
+  </fail>
+
   <tstamp>
     <format property="build.time" pattern="yyyyMMddHHmm" />
   </tstamp>
@@ -105,13 +127,15 @@
   </target>
 
   <target name="build" depends="check-build-required" unless="x10.dist.available">
-<!--    <ant antfile="${x10.build.loc}/x10.constraints/exportPlugin.xml" dir="${x10.build.loc}/x10.constraints" target="build.jars"/>
+    <echo message="Build with tag ${x10.dev.tag}"/>
+
+    <ant antfile="${x10.build.loc}/x10.constraints/exportPlugin.xml" dir="${x10.build.loc}/x10.constraints" target="build.jars"/>
     <ant antfile="${x10.build.loc}/x10.common/exportPlugin.xml" dir="${x10.build.loc}/x10.common" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.compiler/exportPlugin.xml" dir="${x10.build.loc}/x10.compiler" target="build.jars">
       <property name="extra.build.path" value="${x10.compiler.extra.build.path}" />
     </ant>
     <antcall target="prepare.x10.dist" />
-    <ant antfile="${x10.build.loc}/x10.runtime/exportPlugin.xml" dir="${x10.build.loc}/x10.runtime" target="build.jars" /> -->
+    <ant antfile="${x10.build.loc}/x10.runtime/exportPlugin.xml" dir="${x10.build.loc}/x10.runtime" target="build.jars" />
 
     <ant antfile="${x10.build.loc}/x10.dist.host/exportPlugin.xml" dir="${x10.build.loc}/x10.dist.host" target="build.jars" />
   </target>
@@ -140,9 +164,9 @@
     </condition>
   </target>
 
-  <target name="transfer-release" if="release">
+  <target name="transfer-release" if="release.based.build">
     <property name="dist.file" value="${x10.release.build.base}/${zip.release.tag}/x10-${zip.release.tag}_${os}.tgz" />
-<!--    <fail message="Could not find ${dist.file}">
+    <!--    <fail message="Could not find ${dist.file}">
       <condition>
         <resourcecount when="greater" count="0">
           <restrict>
@@ -184,7 +208,7 @@
     <echo message="${file.replaced}" file="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
   </target>
 
-  <target name="transfer" unless="release">
+  <target name="transfer" unless="release.based.build">
     <property name="dist.file" value="${x10.build.base}/${svn.info.lastRev}/x10-tib_${svn.info.lastRev}_${os}.tgz" />
     <fail message="Could not find ${dist.file}">
       <condition>
@@ -199,7 +223,7 @@
       </condition>
     </fail>
     <untar src="${dist.file}" dest="/tmp/x10-tlib_${svn.info.lastRev}_${os}" compression="gzip" />
-    <property name="fragment-dir-name" value="${fragment-name}_2.0.6.${build.qualifier}" />
+    <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
     <svn username="anonymous">
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
                   revision="${x10dt.revision}" destPath="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
@@ -220,7 +244,7 @@
       </fileset>
     </delete>
     <loadfile srcfile="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF" 
-                property="file.replaced">
+              property="file.replaced">
       <filterchain>
         <replaceregex pattern="Bundle-Version: (.*)\.qualifier" replace="Bundle-Version: \1.${build.qualifier}"/>
       </filterchain>
@@ -279,11 +303,11 @@
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="compiler-jar" />
   </target>
 
-  <target name="x10-tags-release-definition" if="release">
-    <property name="x10.dev.tag" value="tags/SF_RELEASE_2_0_6"/>
+  <target name="x10-tags-release-definition" if="release.based.build">
+    <property name="x10.dev.tag" value="${x10.release.tag}"/>
   </target>
 
-  <target name="x10-tags-dev-definition" unless="release">
+  <target name="x10-tags-dev-definition" unless="release.based.build">
     <property name="x10.dev.tag" value="${x10.tag}"/>
   </target>
 

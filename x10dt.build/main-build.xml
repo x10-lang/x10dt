@@ -429,12 +429,36 @@
     <antcall target="run-junit-tests"/>
   </target>
 
+  <target name="publish-test-compilation-results" if="requestUUID">
+      <antcall target="publish-compilation-log">
+        <param name="log.file" value="${build.folder}/x10dt.core.tests/temp.folder/core.jar.bin.log" />
+        <param name="component.name" value="x10dt.core.tests" />
+      </antcall>
+      <antcall target="publish-compilation-log">
+        <param name="log.file" value="${build.folder}/x10dt.ui.tests/temp.folder/ui.jar.bin.log" />
+        <param name="component.name" value="x10dt.ui.tests" />
+      </antcall>
+      <antcall target="publish-compilation-log">
+        <param name="log.file" value="${build.folder}/x10dt.tests.services/@dot.log" />
+        <param name="component.name" value="x10dt.tests.services" />
+      </antcall>
+      <antcall target="publish-compilation-log">
+        <param name="log.file" value="${build.folder}/x10dt.ui.launch.cpp.tests/@dot.log" />
+        <param name="component.name" value="x10dt.ui.launch.cpp.tests" />
+      </antcall>
+      <antcall target="publish-compilation-log">
+        <param name="log.file" value="${build.folder}/x10.effects.tests/@dot.log" />
+        <param name="component.name" value="x10.effects.tests" />
+      </antcall>
+    </target>
+	
   <target name="run-all-tests" if="testing">
- <!--   <antcall target="antRunner">
+    <antcall target="antRunner">
       <param name="action.message" value="Build Test Plugins..." />
       <param name="activityId" value="build-x10dt-tests" />
       <param name="xml.file" value="x10dt-tests-build.xml" />
-    </antcall> -->
+    </antcall>
+    <antcall target="publish-test-compilation-results"/>
 
     <!-- We need to create a x10.jar for the compiler test cases of X10DT Core. -->
     <jar destfile="${testBuildDirectory}/eclipse/plugins/x10.jar">
@@ -451,7 +475,7 @@
         <include name="x10/**" />
       </fileset>
     </jar>
-<!--    <antcall target="run-tests">
+    <antcall target="run-tests">
       <param name="plugin-name" value="x10dt.core.tests" />
       <param name="activityId" value="test-x10dt-core" />
       <param name="action.message" value="Run X10DT Core Tests..." />
@@ -460,17 +484,17 @@
       <param name="plugin-name" value="x10dt.ui.tests" />
       <param name="activityId" value="test-x10dt-ui" />
       <param name="action.message" value="Run X10DT UI Tests..." />
-    </antcall> -->
+    </antcall>
     <antcall target="run-tests">
       <param name="plugin-name" value="x10dt.ui.launch.cpp.tests" />
       <param name="activityId" value="test-x10dt-launch-cpp" />
       <param name="action.message" value="Run X10DT UI Launch C++ Tests..." />
     </antcall>
-<!--    <antcall target="run-tests">
+    <antcall target="run-tests">
       <param name="plugin-name" value="x10.effects.tests" />
       <param name="activityId" value="test-x10-effects" />
       <param name="action.message" value="Run X10 Effect Tests..." />
-    </antcall> -->
+    </antcall>
   </target>
 
   <!-- Main target -->
@@ -489,7 +513,7 @@
       <param name="xml.file" value="dependencies-repo.xml" />
     </antcall>
 
-<!--    <antcall target="reportBuildActivity">
+    <antcall target="reportBuildActivity">
       <param name="activityId" value="build-x10-dist" />
       <param name="action.message" value="Build X10 distribution and X10DT fragments..." />
     </antcall>
@@ -503,7 +527,7 @@
     </antcall>
 
     <antcall target="publish-compilation-results"/>
-    <antcall target="publish-update-site-link"/> -->
+    <antcall target="publish-update-site-link"/>
 
     <antcall target="run-all-tests" />
 
