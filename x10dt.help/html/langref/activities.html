@@ -18,7 +18,7 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 14 </a><br />Activities</h1><a name="XtenActivities">
+Chapter 1 </a><br />Activities</h1><a name="XtenActivities">
 </a>
 
 <div class="p"><!----></div>
@@ -32,9 +32,9 @@ activity</em>.
 <div class="p"><!----></div>
 Activities coordinate their execution by various control and data structures.
 For example, `
-<b>await (x==0);</b> blocks the current activity until some other activity
+<b>when(x==0);</b> blocks the current activity until some other activity
 sets <b>x</b> to zero.  However, activities determine the places at which they
-may be blocked and resumed, by <b>await</b> and similar constructs.  There are
+may be blocked and resumed, by <b>when</b> and similar constructs.  There are
 no means by which one activity can arbitrarily interrupt, block, or resume
 another, no method  <b>activity.interrupt()</b>.
 

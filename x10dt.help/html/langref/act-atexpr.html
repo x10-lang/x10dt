@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc9">
-9</a>&nbsp;&nbsp;At expressions</h2>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;At expressions</h2>
 
 <div class="p"><!----></div>
   :  |        <em>  
@@ -29,10 +29,11 @@
 
 <div class="p"><!----></div>
 An <b>at</b> expression evaluates an expression synchronously at the
-given place and returns its value.  If <b>fld</b> is a non-global field of 
-<b>ob</b>, then <b>ob.fld</b> can be read (from anywhere) by: 
+given place and returns its value.  For instance a copy of the
+value pointed to by a <b>GlobalRef</b> may be obtained using
+the <b>fetch</b> method:
 <pre>
-val f = at(ob) ob.fld;
+  def fetch(g:GlobalRef[T]):T = at (g) g();
 </pre>
 
 <div class="p"><!----></div>
