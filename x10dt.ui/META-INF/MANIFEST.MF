@@ -31,7 +31,9 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  org.eclipse.ui.editors,
  org.eclipse.ui.workbench.texteditor,
  x10.compiler,
- x10dt.ui.launch.java
+ x10dt.search.core,
+ x10dt.ui.launch.java,
+ x10dt.ui.launch.core
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-Activator: x10dt.ui.X10DTUIPlugin
 Export-Package: x10dt.ui,

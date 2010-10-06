@@ -10,8 +10,8 @@ package x10dt.ui.launch.java.actions;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.window.IShellProvider;
 
+import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
-import x10dt.ui.launch.java.Activator;
 
 /**
  * Implementation of {@link IBackEndX10ProjectConverter} when converting an X10 project to use the Java back-end.
@@ -23,7 +23,7 @@ public final class JavaBackEndProjectConverter implements IBackEndX10ProjectConv
   // --- Interface methods implementation
   
   public String getProjectNatureId() {
-    return Activator.X10_PRJ_JAVA_NATURE_ID;
+    return LaunchCore.X10_PRJ_JAVA_NATURE_ID;
   }
 
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {

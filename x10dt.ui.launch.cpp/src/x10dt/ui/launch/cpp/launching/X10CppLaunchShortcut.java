@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.IJavaElement;
 
 import polyglot.types.ClassType;
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.cpp.CppLaunchCore;
+import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
 /**
@@ -36,7 +36,7 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
   }
   
   protected String getProjectNatureId() {
-    return CppLaunchCore.X10_CPP_PRJ_NATURE_ID;
+    return LaunchCore.X10_CPP_PRJ_NATURE_ID;
   }
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,

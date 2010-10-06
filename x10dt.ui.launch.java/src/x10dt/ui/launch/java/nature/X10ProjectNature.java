@@ -28,12 +28,13 @@ import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.jdt.core.JavaCore;
 
 import x10dt.core.X10DTCorePlugin;
+import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.java.Activator;
 
 public class X10ProjectNature extends ProjectNatureBase {
     
     public String getNatureID() {
-        return Activator.X10_PRJ_JAVA_NATURE_ID;
+        return LaunchCore.X10_PRJ_JAVA_NATURE_ID;
     }
 
     public String getBuilderID() {
@@ -63,9 +64,10 @@ public class X10ProjectNature extends ProjectNatureBase {
       final ICommand[] commands = description.getBuildSpec();
       if (hasJavaBuilder(commands)) {
         final ICommand[] newCommands = new ICommand[commands.length - 1];
+        int k = -1;
         for(int i = 0; i < commands.length; i++){
           if (!commands[i].getBuilderName().equals(JavaCore.BUILDER_ID)){
-            newCommands[i] = commands[i];
+            newCommands[++k] = commands[i];
           }
         }
         description.setBuildSpec(newCommands);

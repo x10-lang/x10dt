@@ -13,9 +13,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.window.IShellProvider;
 
+import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
 import x10dt.ui.launch.core.dialogs.DialogsFactory;
-import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
@@ -31,7 +31,7 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   // --- Interface methods implementation
   
   public String getProjectNatureId() {
-    return CppLaunchCore.X10_CPP_PRJ_NATURE_ID;
+    return LaunchCore.X10_CPP_PRJ_NATURE_ID;
   }
 
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {

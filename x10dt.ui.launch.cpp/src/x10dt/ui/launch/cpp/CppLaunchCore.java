@@ -43,6 +43,7 @@ import org.osgi.framework.BundleContext;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
+import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
@@ -68,13 +69,6 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * Unique id for the C++ Builder.
    */
   public static final String BUILDER_ID = PLUGIN_ID + ".X10CppBuilder"; //$NON-NLS-1$
-
-  /**
-   * Id for the X10DT C++ Project Nature.
-   */
-  public static final String X10_CPP_PRJ_NATURE_ID = PLUGIN_ID + ".x10nature"; //$NON-NLS-1$
-
-  // --- IResourceChangeListener's interface methods implementation
 
   public void resourceChanged(final IResourceChangeEvent event) {
     if ((event.getType() != IResourceChangeEvent.POST_CHANGE) && (event.getType() != IResourceChangeEvent.POST_BUILD)) {
@@ -302,7 +296,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     this.fProjectToPlatform = new HashMap<IProject, IX10PlatformConf>(projects.length);
     for (final IProject curProject : projects) {
       try {
-        if (curProject.isOpen() && curProject.hasNature(X10_CPP_PRJ_NATURE_ID)) {
+        if (curProject.isOpen() && curProject.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
           this.fProjectToPlatform.put(curProject, X10PlatformConfFactory.load(curProject));
         }
       } catch (CoreException except) {

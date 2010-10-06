@@ -23,8 +23,7 @@ import org.osgi.framework.BundleContext;
 
 import x10dt.search.core.pdb.SearchDBTypes;
 import x10dt.search.core.pdb.X10FactTypeNames;
-import x10dt.ui.launch.cpp.CppLaunchCore;
-import x10dt.ui.launch.java.Activator;
+import x10dt.ui.launch.core.LaunchCore;
 
 /**
  * Main class being notified of the plugin life cycle.
@@ -44,7 +43,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
     final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
     for (final IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
       try {
-        if (project.hasNature(CppLaunchCore.X10_CPP_PRJ_NATURE_ID) || project.hasNature(Activator.X10_PRJ_JAVA_NATURE_ID)) {
+        if (project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) || project.hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID)) {
           final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
           IndexManager.keepFactUpdated(key);
         }

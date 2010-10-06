@@ -18,11 +18,6 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static final String BUILDER_ID = PLUGIN_ID + ".X10JavaBuilder"; //$NON-NLS-1$
 
-	/**
-	 * Id for the X10DT Java Project Nature.
-	 */
-	public static final String X10_PRJ_JAVA_NATURE_ID = PLUGIN_ID + ".x10nature"; //$NON-NLS-1$
-	  
 	// The shared instance
 	private static Activator plugin;
 	

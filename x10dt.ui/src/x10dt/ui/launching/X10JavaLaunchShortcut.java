@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.IJavaElement;
 
 import polyglot.types.ClassType;
 import x10dt.core.X10DTCorePlugin;
-import x10dt.ui.launch.java.Activator;
+import x10dt.ui.launch.core.LaunchCore;
 
 /**
  * Implements the launch shortcut for Java back-end.
@@ -37,7 +37,7 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   }
   
   protected String getProjectNatureId() {
-    return Activator.X10_PRJ_JAVA_NATURE_ID;
+    return LaunchCore.X10_PRJ_JAVA_NATURE_ID;
   }
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
