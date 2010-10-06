@@ -105,7 +105,7 @@ region <b>R</b>, with <b>A(p)</b> initialized to <b>f(p)</b> for each point
 hundred zero values, call
 <b>new Array[Int](1..100, (Point(1))=&#62;0)</b>. 
 To construct a multiplication table, call
-<b>new Array[Int]([0..9,0..9] as Region(2), (p:Point(2)) =&#62; p(0)*p(1))</b>.
+<b>new Array[Int]((0..9)*(0..9), (p:Point(2)) =&#62; p(0)*p(1))</b>.
 
 <div class="p"><!----></div>
 Other constructors are available; see the API documentation.
@@ -121,7 +121,7 @@ appearing at position <b>p</b> in <b>A</b>.    The syntax is identical to
 function application, and, indeed, arrays may be used as functions.
 <b>A(p)</b> may be assigned to, as well, by the usual assignment syntax
 <b>A(p)=t</b>.
-(This uses the application and setting syntactic sugar, as given in .)
+(This uses the application and setting syntactic sugar, as given in &#167;.)
 
 <div class="p"><!----></div>
 Sometimes it is more convenient to subscript by integers.  Arrays of rank 1-4
@@ -129,7 +129,7 @@ can, in fact, be accessed by integers:
 <pre>
 val A1 = new Array[Int](1..10, 0);
 A1(4) = A1(4) + 1;
-val A4 = new Array[Int]([1..2,1..3,1..4,1..5], 0);
+val A4 = new Array[Int]((1..2)*(1..3)*(1..4)*(1..5), 0);
 A4(2,3,4,5) = A4(1,1,1,1)+1;
 </pre>
 

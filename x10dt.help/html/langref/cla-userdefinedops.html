@@ -28,6 +28,10 @@ polynomials - for the sake of illustration, single-variable polynomials with
 polynomials by the usual operations: <b>+</b> to add, <b>*</b> to multiply,
 <b>-</b> to subtract, and <b>p(x)</b> to compute the value of the polynomial at
 argument <b>x</b>.  We would like to write code thus: 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
 <pre>
   public static def main(Rail[String]):Void {
      val X = new Poly([0,1]);
@@ -47,6 +51,10 @@ argument <b>x</b>.  We would like to write code thus:
 
 <div class="p"><!----></div>
 Writing the same code with method calls, while possible, is far less elegant: 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
 <pre>
   public static def uglymain() {
      val X = new UglyPoly([0,1]);
@@ -79,17 +87,17 @@ appear in a use of the operator.  So,
 <b>Poly</b> value.
 <pre>
 class Poly {
-  public val coeff : ValRail[Int];
-  public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
-  public def degree() = coeff.length()-1;
+  public val coeff : Array[Int](1);
+  public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
+  public def degree() = coeff.size()-1;
   public def  a(i:Int) = (i&lt;0 </td><td width="150">
 &#124;</td><td width="150">
 &#124; i&#62;this.degree()) ? 0 : coeff(i);
 
 <div class="p"><!----></div>
   public operator this + (p:Poly) =  new Poly(
-     ValRail.make[Int](
-        Math.max(this.coeff.length(), p.coeff.length()),
+     new Array[Int](
+        Math.max(this.coeff.size(), p.coeff.size()),
         (i:Int) =&#62; this.a(i) + p.a(i)
      )); 
   // ... 
@@ -122,8 +130,8 @@ The definition for the sum of two
 <b>Poly</b>s could have been written:
 <pre>
   public static operator (p:Poly) + (q:Poly) =  new Poly(
-     ValRail.make[Int](
-        Math.max(q.coeff.length(), p.coeff.length()),
+     new Array[Int](
+        Math.max(q.coeff.size(), p.coeff.size()),
         (i:Int) =&#62; q.a(i) + p.a(i)
      ));
 </pre>
@@ -131,16 +139,26 @@ The definition for the sum of two
 <div class="p"><!----></div>
 This requires the following syntax:<br />
 
-MethodHeader ::=
-  <b>operator</b> TypeParameterList <b>this</b> BinOp <b>(</b>  FormalParameter <b>)</b> <br />
-  &amp;&amp; Guard ReturnType  Throws <br />
-MethodHeader ::=
-  <b>operator</b> TypeParameterList <b>(</b>  FormalParameter <b>)</b> BinOp <b>this</b>  <br />
-  &amp;&amp; Guard ReturnType  Throws <br />
-MethodHeader ::=
-  <b>operator</b> TypeParameterList <b>(</b>  FormalParameter <b>)</b> BinOp  <b>(</b>  FormalParameter <b>)</b>  <br />
-  &amp;&amp; Guard ReturnType  Throws <br />
+  :
+  |
+  
+  
+  
+  <em>
+  
+<table>
 
+<tr><td align="right">MethodHeader ::=
+  <b>operator</b> TypeParameterList<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b>  FormalParameter <b>)</b> </td></tr>
+<tr><td align="right">&amp;&amp; Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">MethodHeader ::=
+  <b>operator</b> TypeParameterList<sup>?</sup>&nbsp;<b>(</b>  FormalParameter <b>)</b> BinOp <b>this</b>  </td></tr>
+<tr><td align="right">&amp;&amp; Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">MethodHeader ::=
+  <b>operator</b> TypeParameterList<sup>?</sup>&nbsp;<b>(</b>  FormalParameter <b>)</b> BinOp  <b>(</b>  FormalParameter <b>)</b>  </td></tr>
+<tr><td align="right">&amp;&amp; Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 When X10 attempts to typecheck a binary operator expression like <b>P+Q</b>, it
@@ -174,7 +192,7 @@ expression.  The operator to negate a polynomial is:
 <div class="p"><!----></div>
 <pre>
   public operator - this = new Poly(
-    ValRail.make[Int](coeff.length(), (i:Int) =&#62; -coeff(i))
+    new Array[Int](coeff.size(), (i:Int) =&#62; -coeff(i))
     );
 </pre>
 
@@ -182,9 +200,12 @@ expression.  The operator to negate a polynomial is:
 The syntax for unary operators is:
 
 <div class="p"><!----></div>
-MethodHeader ::=
-  <b>operator</b> PrefixOp <b>this</b>    Guard ReturnType  Throws 
-
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodHeader ::=
+  <b>operator</b> PrefixOp <b>this</b>    Guard<sup>?</sup>&nbsp;ReturnType<sup>?</sup>&nbsp;Throws<sup>?</sup>&nbsp;
+</td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 The rules for typechecking a unary operation are the same as for methods; the
@@ -201,8 +222,8 @@ class <b>T</b>.
 <div class="p"><!----></div>
 <pre>
 class Poly {
-  public val coeff : ValRail[Int];
-  public def this(coeff: ValRail[Int]) { this.coeff = coeff;}
+  public val coeff : Array[Int](1);
+  public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
   public static operator (a:Int) as Poly = new Poly([a]);
   public static def main(Rail[String]):Void {
      val three : Poly = 3 as Poly;
@@ -266,13 +287,13 @@ addition to add it to <b>x</b>.
 
 <div class="p"><!----></div>
   public static operator (p:Poly) + (q:Poly) = new Poly(
-      ValRail.make[Int](
-        Math.max(p.coeff.length(), q.coeff.length()),
+      new Array[Int](
+        Math.max(p.coeff.size(), q.coeff.size()),
         (i:Int) =&#62; p.a(i) + q.a(i)
      ));
 
 <div class="p"><!----></div>
-  public static def main(Rail[String]):Void {
+  public static def main(Array[String](1)):Void {
      val x = new Poly([0,1]);
      x10.io.Console.OUT.println("1+x=" + (1+x));
   }

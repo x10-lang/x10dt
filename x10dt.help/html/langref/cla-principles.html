@@ -37,13 +37,13 @@ Classes are structured in a single-inheritance code
 hierarchy, may implement multiple interfaces, may have static and
 instance fields, may have static and instance methods, may have
 constructors, may have static and instance initializers, may have
-static and instance inner classes and interfaces.  does not
+static and instance inner classes and interfaces. X10 does not
 permit mutable static state.
 
 <div class="p"><!----></div>
- objects do not have locks associated with them.
-Programmers should use atomic blocks () for mutual
-exclusion and clocks () for sequencing multiple parallel
+X10 objects do not have locks associated with them.
+Programmers should use atomic blocks (&#167;) for mutual
+exclusion and clocks (&#167;) for sequencing multiple parallel
 operations.
 
 <div class="p"><!----></div>
@@ -55,7 +55,7 @@ special type, <b>GlobalRef[T]</b>, allows explicit cross-place references.
 The basic operations on objects are:
 
 <ul>
-<li> Field access (). 
+<li> Field access (&#167;). 
 The static and instance fields of an object can be retrieved; <b>var</b> fields
 can be set.  Accumulator fields can be updated, but only in limited contexts. 
 
@@ -64,7 +64,7 @@ can be set.  Accumulator fields can be updated, but only in limited contexts.
 <div class="p"><!----></div>
 </li>
 
-<li> Method invocation ().  
+<li> Method invocation (&#167;).  
 Static and instance methods of an object can be invoked.
 
 <div class="p"><!----></div>
@@ -72,8 +72,8 @@ Static and instance methods of an object can be invoked.
 <div class="p"><!----></div>
 </li>
 
-<li> Casting () and instance testing with <b>instanceof</b>
-() Objects can be cast or type-tested.
+<li> Casting (&#167;) and instance testing with <b>instanceof</b>
+(&#167;) Objects can be cast or type-tested.
 <div class="p"><!----></div>
 </li>
 
@@ -89,11 +89,11 @@ object <em>identity</em>: two objects are <b>==</b> iff they are the same object
 1.2</a>&nbsp;&nbsp;Class Declaration Syntax</h3>
 
 <div class="p"><!----></div>
-The <em>class declaration</em> has a list of type , properties, a
+The <em>class declaration</em> has a list of type parameters, properties, a
 constraint (the <em>class invariant</em>), a single superclass, zero or more
 interfaces, and a class body containing the the definition of fields,
 properties, methods, and member types. Each such declaration introduces a
-class type ().
+class type (&#167;).
 
 <div class="p"><!----></div>
 

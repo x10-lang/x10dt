@@ -17,7 +17,7 @@
 </head>
 
 <body>
-<h2><a name="tth_sEc4">
+ <h2><a name="tth_sEc4">
 4</a>&nbsp;&nbsp;Methods</h2>
 
 <div class="p"><!----></div>
@@ -38,14 +38,17 @@ Methods may be declared <b>public</b>, <b>private</b>, <b>protected</b>, or give
 default access rights.
 
 <div class="p"><!----></div>
-MethodDeclaration ::= MethodHeader <b>;</b> <br />
-                  &#124; MethodHeader <b>=</b> ClosureBody <br />
-MethodHeader ::=  
-  MethodModifiers <b>def</b> Identifier TypeParameters <br />
-&amp;&amp; <b>(</b> 
-  FormalParameterList <b>)</b> Guard <br />
-  &amp;&amp; ReturnType <br />
-
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodDeclaration ::= MethodHeader <b>;</b> </td></tr>
+<tr><td align="right">&#124; MethodHeader <b>=</b><sup>?</sup>&nbsp;ClosureBody </td></tr>
+<tr><td align="right">MethodHeader ::=  
+  MethodModifiers<sup>?</sup>&nbsp;<b>def</b> Identifier TypeParameters<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; <b>(</b> 
+  FormalParameterList<sup>?</sup>&nbsp;<b>)</b> Guard<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&amp;&amp; ReturnType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 A formal parameter may have a <b>val</b>, <b>var</b>, or <b>ref</b>
@@ -56,7 +59,7 @@ formal parameter is <b>var</b>)
 and is initialized with the value of the actual parameter.
 
 Call-by-reference, <b>ref</b> parameters, allows passing in variables for a
-method to update, as described in . 
+method to update, as described in &#167;. 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.1">
@@ -132,7 +135,8 @@ illegal for code to invoke the method on objects whose static type is
 not a subtype of <b>C{c}</b>.
 
 <div class="p"><!----></div>
-    The compiler checks that every method invocation
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+The compiler checks that every method invocation
     &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
     for a method is type correct. Each argument
     &#235;<sub>i</sub>" must have a
@@ -212,7 +216,7 @@ is equivalent to
 
 <div class="p"><!----></div>
 The definitions of method overloading, overriding, hiding, shadowing
-and obscuring in  are the same as in , modulo the following
+and obscuring in X10 are the same as in Java, modulo the following
 considerations motivated by type parameters and dependent types.
 
 <div class="p"><!----></div>
@@ -231,7 +235,7 @@ class Mful{
 </pre>
 
 <div class="p"><!----></div>
- does not permit overloading based on constraints. That is, the
+X10 v2.0 does not permit overloading based on constraints. That is, the
 following is <em>not</em> legal, although either method definition individually
 is legal:
 <pre>
@@ -259,7 +263,8 @@ same signature in a class (either defined in that class or in a
 superclass).
 
 <div class="p"><!----></div>
-  A class <b>C</b> may not have two declarations for a method named <b>m</b>-either
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+A class <b>C</b> may not have two declarations for a method named <b>m</b>-either
   defined at <b>C</b> or inherited:
 <pre>
 def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: T<sub>1</sub>, ..., v<sub>n</sub>: T<sub>n</sub>){tc}: T {...}
@@ -279,7 +284,8 @@ ensures that any virtual call to the method
 satisfies the guard of the callee.
 
 <div class="p"><!----></div>
-  If a class <b>C</b> overrides a method of a class or interface
+ S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
+If a class <b>C</b> overrides a method of a class or interface
   <b>B</b>, the guard of the method in <b>B</b> must entail
   the guard of the method in <b>C</b>.
 
@@ -303,10 +309,10 @@ is said to have the <em>static signature</em>
 "T<sub>n</sub>"
 are the static types of &#235;<sub>1</sub>", ..., &#235;<sub>n</sub>",
 respectively.  As in
-, it must be the case that the compiler can determine a single
+Java, it must be the case that the compiler can determine a single
 method defined on <b>T</b> with argument type
 "T<sub>1</sub>", ... "T<sub>n</sub>"; otherwise, a
-compile-time error is declared. However, unlike , the  type <b>T</b>
+compile-time error is declared. However, unlike Java, the X10 type <b>T</b>
 may be a dependent type <b>C{c}</b>. Therefore, given a class definition for
 <b>C</b> we must determine which methods of <b>C</b> are available at a type
 <b>C{c}</b>. But the answer to this question is clear: exactly those methods
@@ -324,11 +330,14 @@ whose guard <b>d</b> is implied by <b>c</b>.
 There are a number of qualifiers which may be applied to X10 methods.
 
 <div class="p"><!----></div>
-  MethodModifier ::= <b>atomic</b>  <br />
-  MethodModifier ::= <b>pinned</b>  <br />
-  MethodModifier ::= <b>nonblocking</b>  <br />
-  MethodModifier ::= <b>sequential</b>  <br />
-
+  :  |        <em>  
+<table>
+<tr><td align="right">MethodModifier ::= <b>atomic</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>pinned</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>nonblocking</b>  </td></tr>
+<tr><td align="right">MethodModifier ::= <b>sequential</b>  </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc4.5.1">

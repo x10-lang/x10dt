@@ -22,7 +22,7 @@
 </a>
 
 <div class="p"><!----></div>
-A region is a set of points of the same rank.  
+A region is a set of points of the same rank.  X10
 provides a built-in class, <b>x10.lang.Region</b>, to allow the
 creation of new regions and to perform operations on regions. 
 Each region <b>R</b> has a property <b>R.rank</b>, giving the dimensionality of
@@ -31,13 +31,12 @@ all the points in it.
 <div class="p"><!----></div>
 <pre>
 val MAX_HEIGHT=20;
-val Null = Region.makeUnit();  // Empty 0-dimensional region          
+val Null = Region.makeUnit();  // Empty 0-dimensional region
 val R1 = 1..100; // 1-dim region with extent 1..100
-val R2 = [1..100] as Region(1); // same as R1
-val R3 = (0..99) * (-1..MAX_HEIGHT);   
-val R4  = [0..99, -1..MAX_HEIGHT] as Region(2); // same as R3  
-val R5 = Region.makeUpperTriangular(10);
-val R6 = R4 &amp;&amp; R5; // intersection of two regions
+val R2 = (1..100) as Region(1); // same as R1
+val R3 = (0..99) * (-1..MAX_HEIGHT);
+val R4 = Region.makeUpperTriangular(10);
+val R6 = R4 &amp;&amp; R3; // intersection of two regions
 </pre>
 
 <div class="p"><!----></div>
@@ -47,13 +46,7 @@ evaluates to the rectangular, rank-1 region consisting of the points
 `n`, the region <b>m..n</b> is empty.
 
 <div class="p"><!----></div>
-A region may be constructed by converting from a rail of
-regions (, <b>R4</b> above).
-The region constructed from a rail of regions represents the Cartesian product
-of the arguments. , <b>R8</b> is a region of 100 &times;16 &times;78
-points, in
 <pre>
-  val R8 = [1..100, 3..18, 1..78] as Region(3);
 </pre>
 
 <div class="p"><!----></div>
@@ -123,7 +116,7 @@ are ordered as
 <pre>
 (1,1), (1,2), (2,1), (2,2)
 </pre>
-Sequential iteration statements such as <b>for</b> ()
+Sequential iteration statements such as <b>for</b> (&#167;)
 iterate over the points in a region in the canonical order.
 
 <div class="p"><!----></div>
@@ -162,7 +155,7 @@ For example, <b>1..10 &amp;&amp; 2..20</b> is <b>2..10</b>.
 `R1 * S` is the Cartesian product of `R1` and
 `S`,  formed by pairing each point in `R1` with every  point in `S`.
 
-Thus, <b>([1..2,3..4] as Region(2)) * (5..6)</b>
+Thus, <b>(1..2)*(3..4)*(5..6)</b>
 is the region of rank <b>3</b> containing the eight points with coordinates
 <b>[1,3,5]</b>, <b>[1,3,6]</b>, <b>[1,4,5]</b>, <b>[1,4,6]</b>,
 <b>[2,3,5]</b>, <b>[2,3,6]</b>, <b>[2,4,5]</b>, <b>[2,4,6]</b>.

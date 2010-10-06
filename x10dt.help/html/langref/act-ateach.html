@@ -35,7 +35,9 @@
 </em>
 
 <div class="p"><!----></div>
-The <b>ateach</b> statement is similar to the <b>foreach</b>
+The <b>ateach</b> statement 
+
+is similar to the <b>foreach</b>
 statement, but it spawns activites at each place of a distribution. 
 In <b>ateach(p in D) S</b>, 
 <b>D</b> must be either of type <b>Dist</b> or of type
@@ -60,10 +62,10 @@ be implemented as the following code, which coordinates with each place of
 
 <div class="p"><!----></div>
 <pre>
-foreach (p in D.places()) at (p) {
-    foreach (pt in D</td><td width="150">
-&#124;here) {
-        S(p);
+for (p in D.places()) async at (p) {
+    for (pt in D</td><td width="150">
+&#124;here) async {
+        S(pt);
     }
 }
 </pre>
