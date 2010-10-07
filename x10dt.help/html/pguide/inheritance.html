@@ -15,54 +15,100 @@
       
 <title>Giving Up Inheritance To Get Efficiency</title>
 
- <h2><a name="tth_sEc4">
-4</a>&nbsp;&nbsp;Giving Up Inheritance To Get Efficiency</h2>
+ <h2><a name="tth_sEc1">
+4</a>&nbsp;&nbsp;Giving Up Inheritance To Get Efficiency</h2><a name="sec:guitge">
+</a>
+
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;What's The Problem</h3>
 
 <div class="p"><!----></div>
-Supporting inheritance does not come with costs when the program runs.  You can see
-why most easily by looking at a huge arrays.  
-Suppose that an array <tt>arr</tt> is declared as an <tt>Array[T]</tt>.
+This section is only here for motivation and may be skipped on first reading.
+The real work begins in Section .
+
+<div class="p"><!----></div>
+Supporting inheritance does not come without costs when a program runs.  Looking
+carefully at the class <tt>Point2D</tt> will show what happens:
+
+<div class="p"><!----></div>
+
+<blockquote>Let <tt>public def doIt(p:Point2D) {...}</tt> be a method declared in some
+class or other (we don't care where).  We're going to look at the cost of
+an invocation <tt>p.magnitude()</tt> within the body of <tt>doIt</tt>.
+
+<ul>
+<li> The value passed to <tt>doIt</tt> for <tt>p</tt>
+might really be an instance of some subclass <tt>Point2DX</tt> of <tt>Point2D</tt>.  
+One only knows when the program is run what actually gets passed.
+<div class="p"><!----></div>
+</li>
+
+<li> The class <tt>Point2DX</tt> can
+have its own implementation of <tt>magnitude</tt>, so we have to make sure
+that if <tt>p</tt> really is a <tt>Point2DX</tt>, the right call is made.
+<div class="p"><!----></div>
+</li>
+
+<li> Therefore, the running program has to be able to compute what <tt>p</tt>'s class is
+in order to find the right code to call.
+<div class="p"><!----></div>
+</li>
+</ul>
+If there were no
+inheritance hierarchy, the compiler could already determine the
+correct code to call, completely eliminating this runtime lookup cost.
+
+<div class="p"><!----></div>
+The upshot is that whenever you have a <tt>Point2D</tt> you have to know
+both where the object's data is and where information about the
+object's class is. A <tt>Point2D</tt>, with its two <tt>Double</tt>s,
+requires exactly 16 = 2*8 bytes to store the data an instance.
+If we also store a pointer to its "class", we have to add at least 4 bytes,
+and maybe up to 12 bytes or even more, depending on 
 
 <blockquote>
-Any given entry in the array can actually
-have been declared to be a <tt>U</tt>, where <tt>U</tt> is <em>any</em> subclass of <tt>T</tt>.
-We don't know how the entry might be used-later on, it might be important that
-this is a <tt>U</tt> and not just a <tt>T</tt>-so for every entry,
-we have to keep both both a reference
-to the object itself <em>and</em> a reference to the object's class information.  If there are
-<tt>N</tt> entries in the array, and if the reference to the class uses <tt>k</tt> bytes,
-we just used <tt>k*N</tt> bytes to store this data.  And <tt>N</tt> is <em>big</em>!
+1) what we had to store in
+addition to the raw address of the class's info<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>, and
 
 <div class="p"><!----></div>
-Furthermore, whenever
-we execute a method call <tt>arr(k).fcn(...)</tt>, we have to use the class information
-for <tt>array(k)</tt> to find the code for the method: remember that subclasses can override
-the methods of their parents, so we will only know at runtime what to look for.
-This slows down every method call.
+2) on how many bytes are needed for the address itself: with today's
+large memories, 6 (or even 8) bytes might be used for addresses.
 </blockquote>
 
 <div class="p"><!----></div>
-The additional overhead explains why a performance-oriented language avoids using
+Think about it.
+If you have an array of 1 Meg <tt>Point2D</tt>s, you use 16 megabytes
+for storing the data you're really interest in, and then 6 megabytes or
+more for type information (whether it is really needed or not!).
+ </blockquote>
+
+<div class="p"><!----></div>
+These considerations explain why a performance-oriented language avoids using
 the normal class hierarchy for primitive types like 32-bit integers.
 
 <div class="p"><!----></div>
 <b>Major design issue</b> How much of what classes give us can we keep without
-giving up any substantial amount of efficiency?
+incurring any substantial overhead?
 
 <div class="p"><!----></div>
-There are several issues here: the serial issues-don't wast space, and don't waste time-
-and the distribution issue-don't create potential inconsistencies between what one
-processor thinks the value of the "thing" is and another thinks, so that communication
-between them is required to maintain integrity.
+There are two sets of  issues here: serial issues like "don't waste space",
+and "don't waste time looking stuff up",
+and distribution issues like "don't create the possibility of inconsistencies between what one
+processor thinks the value of the "thing" is and what another thinks, so that communication
+between the processors is required to maintain integrity".
 
 <div class="p"><!----></div>
-In short: what we need are values whose type is exactly what they are declared to be,
-and not some "improvement."  X10 calls these things (rather unfortunately) "<tt>struct</tt>s".
-They bear about the same relation to the familiar <em>C</em> <tt>struct</tt> as class declarations
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;The Solution</h3><a name="sec:ecs">
+</a>
+What we need are <em>values</em> whose type must be exactly what they are declared to be.
+ X10 calls these things (rather unfortunately) "<tt>struct</tt>s".
+They bear about the same relation to the familiar <em>C</em> <tt>struct</tt> as X10 classes
 do, but that's the way it is.
 
 <div class="p"><!----></div>
-As an example of a <tt>struct</tt>, X10 style, let us do a variation on our class <tt>Point2D</tt>.
+As an example of an X10 <tt>struct</tt>, let us change our class <tt>Point2D</tt> to be 
+a struct.
 
 <pre>&nbsp;1&nbsp;&nbsp;public&nbsp;struct&nbsp;Point2D&nbsp;{
 &nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;x:&nbsp;Double;
@@ -71,7 +117,6 @@ As an example of a <tt>struct</tt>, X10 style, let us do a variation on our clas
 &nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.x&nbsp;=&nbsp;x;&nbsp;&nbsp;this.y&nbsp;=&nbsp;y;
 &nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;}
 &nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;magnitude()&nbsp;=&nbsp;x*x&nbsp;+&nbsp;y*y;
-&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;abs&nbsp;=&nbsp;Math.sqrt(magnitude());
 &nbsp;9&nbsp;}
 </pre>
 As usual, the line-by-line:
@@ -89,25 +134,33 @@ Structs may
 be generic-that is, may have type parameters-although this one does not.</dd>
 
 	<dd><b>lines 2 and 3:</b>  The instance members of a struct are always <tt>val</tt>s.
-In fact, the best way to think of a whole instance of a struct is as a value, just as you would
-think of an <tt>Int</tt> as a value: one can have variable <tt>n</tt> whose value is an <tt>Int</tt>, and <tt>n</tt>'s
-value may be different <tt>Int</tt>s at different times, but there is nothing within a particular <tt>Int</tt> itself
-that you modify.
+Once the constructor for a struct returns, the instance cannot be modified.
+This eliminates the consistency problem: you can freely copy the instance
+to remote <tt>Place</tt>s as need be. or share it among activities at a fixed
+<tt>Place</tt>.
 
 <div class="p"><!----></div>
-One consequence of this is that once the constructor for a struct returns, none
-of its instance members can be modified.   Another is that if <tt>s1</tt> and <tt>s2</tt> are
-two instances a the same struct, then "<tt>s1 == s2</tt>" means what you think it 
-means: their instance members have identical values.  (Remember that for 
-instances of a class, ""  is used to determine whether exactly the same object
-( the same piece of storage) appears on both sides, not just two objects with instance members
-having identical values: the method call <tt>o1.equals(o2)</tt> does that weaker check for
-objects.</dd>
+Another benefit is that if <tt>s1</tt> and <tt>s2</tt> are
+two instances of the same struct, then "<tt>s1 == s2</tt>" is true exactly when
+you think it should be: when their instance members have identical values.  For example, now that
+<tt>Point2D</tt> is a struct,  the expression <tt>p1 == p2</tt> is equivalent,
+when both  <tt>p1</tt> and <tt>p2</tt> are <tt>Point2D</tt>s,
+to <tt>(p1.x == p2.x) <br /></td><td width="150">
+ (p1.y == p2.y)</tt>.
 
-	<dd><b>lines 6 and 7</b> Unlike their C namesakes, X10 structs can declare methods.
-We've shown both as public here, but both private and default (package private) can be used.
-"Protected" makes no sense, since it just weakens the default by also allowing subclasses access,
-and  structs <em>never</em> have subclasses.</dd>
+<div class="p"><!----></div>
+If <tt>Point2D</tt> were still a class, then <tt>p1 == p2</tt> being true would mean that
+both were references to exactly the same instance of <tt>Point2D</tt>. 
+You would use the method call <tt>p1.equals(p2)</tt> to do the weaker check 
+of whether <tt>(p1.x == p2.x) <br /></td><td width="150">
+ (p1.y == p2.y)</tt> is true.</dd>
+
+	<dd><b>line 7:</b> Unlike their C namesakes, X10 structs can declare methods.
+We've shown a public method here, but both private and default access (only in the
+same package) can be used.
+Structs <em>never</em> have subclasses,  so "protected", which just broadens the
+default access by allowing access to subclasses, adds nothing
+in this context.</dd>
 </dl>
 
 <div class="p"><!----></div>
@@ -116,28 +169,43 @@ also define static classes in the body of a struct, just as one can in a class. 
 needed is a good question, though: probably not often.   
 
 <div class="p"><!----></div>
+<b>Important: </b>The keyword <tt>new</tt> is <em>not</em> used when creating
+ a new instance of a struct-in contrast to the story for classes.
+Here is an example that assigns a <tt>Point2D</tt> value:
+
+<pre>&nbsp;var&nbsp;p:&nbsp;Point2D&nbsp;=&nbsp;Point2D(1.2,&nbsp;3.4);
+</pre>
+Now that <tt>Point2D</tt> is a struct, there's no "<tt>new</tt>" on the right-hand side.
+If you put the "<tt>new</tt>" in
+by mistake, the compiler will happily generate an error message telling you
+to remove it.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
 The rules for declaring structs are such that the compiler can determine the size of
 an instance from the declaration.  The reason is storage efficiency:  once the size is
 known, no more space need be allocated than is need to store the value in memory,
 and at runtime, we don't have to carry around size information for every instance.
 
 <div class="p"><!----></div>
-For example, our <tt>Point2D</tt> with its two <tt>Double</tt>s requires exactly 16 = 2*8
-bytes to store an instance.  If we also had to store a pointer to its "class" with
-every instance, that would
-add at least 4 and maybe up to 12 bytes or even more, depending on what we had to store in
-addition to the raw address, and on how many bytes you need for even the raw address: once
-memory is measured in gigabytes, at least 6 bytes are needed just for an address.
-Yes: 25<br />
-<div class="p"><!----></div>
 There is one more restriction to what can go into a struct that is critical:
-<em>an instance <tt>s</tt> of a struct <tt>S</tt> cannot
-have an instance member <tt>s.nextS</tt> that is itself also an <tt>S</tt></em>.  To C programmers
-in particular, this may seem a bit weird-how you form lists of these things?  But
-remember: <em>instances of structs, unlike instances of classes, are values, <em>not</em> references</em>. 
-It may help to understand this if we try to declare a struct <tt>Point2DListItem</tt>.  It has two members,
-a <tt>Point2D</tt>, <tt>p</tt>, and a
-<tt>Point2DListItem</tt>, <tt>next</tt> which is <tt>p</tt>'s successor in the list.
+
+<blockquote>
+An instance <tt>s</tt> of a struct <tt>S</tt> cannot
+have an instance member <tt>s.nextS</tt> that is itself also an <tt>S</tt>.</blockquote>
+To C programmers
+in particular, this may seem a bit weird-how do you form lists of these things?   
+To understand what's at stake, it may help  if we try to declare a 
+struct <tt>Point2DListItem</tt>.  It has two members,
+
+<blockquote>
+<tt>
+var p: ;Point2D;             // the point<br />
+var next Point2DListItem; // and its successor in the list.
+</tt></blockquote>
+
+<div class="p"><!----></div>
 How big is a <tt>Point2DListItem</tt>?   Well, a <tt>Point2D</tt> itself is
 is 16 bytes, so if <tt>sizeOfPLI</tt> is the
 size of a <tt>Point2DListItem</tt>,  then adding the sizes of the two instance members, we get a total
@@ -147,6 +215,7 @@ size of a <tt>Point2DListItem</tt>,  then adding the sizes of the two instance m
 Oops! Subtracting <tt>sizeOfPLI</tt> from both sides yields <tt>0 == 16</tt>!  
 
 <div class="p"><!----></div>
+<hr />
 <b>Aside for C/C++ programmers: </b> The way a C programmer uses structs to create lists is through
 a declaration like "<tt>struct S {int a; int; b;</tt>  <tt>struct S *next}</tt>".
 In other words,, you put a reference to a <tt>struct S</tt> in the body of the struct, and not a <tt>struct S</tt> itself.
@@ -156,6 +225,7 @@ the <tt>var</tt> appears on its own as local variable or as a member of a class 
 has no explicit notion of "pointer."
 
 <div class="p"><!----></div>
+<hr />
 So how <em>does</em> one design a struct that is a list of structs?  The short answer is: one should not.
 Lists are introduced because a collection of uncertain eventual size is being grown, and one
 therefore has to forego the efficiency of a pre-allocated array.  One pays the overhead of following a 
@@ -186,9 +256,10 @@ took different approaches.  Java tried to be close to the physical reality of th
 X10 tried to keep the value and reference types as close to one another as possible.
 
 <div class="p"><!----></div>
-X10's approach allowed it to expose the mechanism, <tt>struct</tt>s, that it uses to implement its primitive types,
+X10's approach allowed it to expose the mechanism,
+<tt>struct</tt>s, that it uses to implement its primitive types,
 so that X10 programmers can eke out efficiencies, too.  We want to warn you,
-though, not overuse structs.   The inheritance hierarchy that classes provide is a powerful
+though, not to overuse structs.   The inheritance hierarchy that classes provide is a powerful
 mechanism for organizing information, the advantages of which in many situations, if not most,
 far outweigh any performance loss.   
 
@@ -196,10 +267,8 @@ far outweigh any performance loss.
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Why dots and not
-slashes in the package spec, since it's just a file system path?
-Probably because different OS's use different separators
-in those paths, so Java picked something OS neutral.
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>
+For example, information required to do automatic garbage collection
 <br /><br />
 
 </html>

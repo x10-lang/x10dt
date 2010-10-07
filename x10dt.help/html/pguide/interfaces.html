@@ -15,7 +15,7 @@
       
 <title>Interfaces: More Abstract Than Abstract</title>
 
- <h2><a name="tth_sEc3">
+ <h2><a name="tth_sEc1">
 3</a>&nbsp;&nbsp;Interfaces: More Abstract Than Abstract</h2><a name="sec:mata">
 </a>
 
@@ -57,15 +57,17 @@ surrounding context), but it  can have any access limit: public, protected, defa
 <div class="p"><!----></div>
 The "<tt>[T]</tt>" following <tt>Arithmetic</tt> says that the interface is parameterized by a type
 <tt>T</tt>.  We've seen this before, in the argument <tt>args</tt> for <tt>main()</tt>, whose type is
-<tt>Array[String]</tt>.  The lingo of the trades is the <tt>Arithmetic</tt> is a <em>generic interface</em>,
-and <em>Array</em> is a <em>generic class</em>.</dd>
+<tt>Array[String]</tt>.  The lingo of the trade is that <tt>Arithmetic</tt> is a <em>generic interface</em>,
+and <em>Array</em> is a <em>generic class</em>.  There is nothing sacred about a generic class
+or interface being parameterized by one type:  one can
+use as many as needed: "<tt>class X[T1, T2, T3,...] {...}</tt>".</dd>
 
 	<dd><b>lines 2-7:</b> An interface may only declare abstract methods, so (unlike the story
 with abstract classes), you don't need the keyword <tt>abstract</tt>.  What line 2 says is that
 if a class <tt>U</tt> implements the interface <tt>Arithmetic[T]</tt>, if <tt>u</tt> is a <tt>U</tt>, and if
 <tt>t</tt> is a <tt>T</tt>, then the expression <tt>u.add(t)</tt> produces a result that is a <tt>T</tt>.
 In real life, we might have <tt>U</tt> some sort of integer, and <tt>T</tt> some sort of floating
-point number, and the value of sum <tt>u.add)t</tt> would be again a floating point.</dd>
+point number, and the value of <tt>u.add(t)</tt> would again be a floating point.</dd>
  <dt><b></b></dt>
 	<dd><b>line 8:</b> Interfaces may also declare static constants.  One could imagine
 an interface that did nothing else:
@@ -78,8 +80,6 @@ an interface that did nothing else:
 </pre>
 A class with the same information would probably be more convenient, but who knows?</dd>
 </dl>
-There is nothing sacred about a generic class or interface being parameterized by one type:  one can
-use as many as needed: "<tt>class X[T1, T2, T3,...] {...}</tt>".  
 
 <div class="p"><!----></div>
 Here is how interfaces get used: consider the declaration

@@ -40,10 +40,10 @@ in Figure  is it.
 10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;&nbsp;&nbsp;
 11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passengers&nbsp;=&nbsp;new&nbsp;Array[String][1..initialCapacity);
 12&nbsp;&nbsp;&nbsp;&nbsp;}
-13&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;static&nbsp;def&nbsp;resize(newSize:&nbsp;Int):&nbsp;NoahsArk&nbsp;{&nbsp;...&nbsp;}
+13&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;def&nbsp;resize(size:Int,&nbsp;na:NoahsArk):&nbsp;NoahsArk&nbsp;\{...\}
 14&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;addPassenger(name:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
 15&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;throwOverboard(name:&nbsp;String,&nbsp;why:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
-16&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;def&nbsp;showPassengers()&nbsp;{&nbsp;...&nbsp;}
+16&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;def&nbsp;showPassengers()&nbsp;{&nbsp;...&nbsp;}
 17&nbsp;&nbsp;&nbsp;&nbsp;
 18&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](0)]&nbsp;{&nbsp;...&nbsp;}
 19&nbsp;&nbsp;&nbsp;&nbsp;
@@ -113,8 +113,8 @@ the first executable line in the constructor's body.</dd>
 	<dd><b>line 13:</b> This is a "static" method (or, if you prefer, a "class" method).  Static
 methods have access to all of the static members and methods of the class, but 
 only an instance of the class may refer to instance members methods.  This method
-is protected, so if <tt>DieselArk</tt> is an extension of tt NoahsArk (or simply in the
-same package), it can invoke <tt>resize</tt>: the syntax is <tt>NoahsArk.resize(...)</tt>.
+is in the default package, so if <tt>DieselArk</tt> is also in
+that package, it can invoke <tt>resize</tt>: the syntax is <tt>NoahsArk.resize(...)</tt>.
 The moral: static methods <em>really belong to the class in which they are defined.</em></dd>
 
 	<dd><b>lines 14-16:</b> Here we have three instance methods with varying degrees of
@@ -131,7 +131,7 @@ here is that you don't need one except in a class that will begin a program's ex
 a class.  Within the body of <tt>NoahsArk</tt>, you write "<tt>new FareClasses()</tt>"
 in order to construct an instance.  From a class <em>not</em> declared within <tt>NoahsArk</tt>,
 you would need  to write "<tt>new NoahsArk.FareClasses()</tt>". In this example, we opted
-not to give the class the default accessibility: same package can use, others not.
+to give the class the default accessibility: same package can use, others not.
 We could have chosen any of the other three.</dd>
 
 	<dd><b>line 21:</b> This is an instance class, which, to be honest, is something you
@@ -143,7 +143,7 @@ to pass as an argument to another function without even giving it a name.
 In any event, only an object
 that is an instance of <tt>NoahsArk</tt> can refer directly to the class.  Importantly though,
 the class itself may refer to instance members and methods from <tt>NoahsArk</tt>.
-In our discussion of inheritance hierarchies ( See "extra credit:" ,
+In our discussion of inheritance hierarchies (See "extra credit:" ),
  we'll say some more
 about how classes that <tt>NoahsArk</tt> uses other than <tt>NoahsArk</tt> itself, might 
 have a method call that gets passed an instance of <tt>Galley</tt>.
@@ -291,7 +291,7 @@ which is the ultimate parent of a set of classes that one does.
 To convert <tt>NoahsArk</tt> to being an abstract class, one just adds the keyword
 "<tt>abstract</tt>" to its declaration:
 
-<pre>&nbsp;public&nbsp;abstract&nbsp;class&nbsp;NoahsArk&nbsp;\{&nbsp;...&nbsp;\}
+<pre>&nbsp;public&nbsp;abstract&nbsp;class&nbsp;NoahsArk&nbsp;{&nbsp;...&nbsp;}
 </pre>
 An abstract class is permitted to declare method signatures that it itself does not
 implement, but that any of its subclasses that
@@ -303,10 +303,16 @@ Notice that there is no function body: there is just a trailing semicolon.
 If we want to be allowed to execute "<tt>new DieselArk( ... );</tt>", that class will have to implement this
 method.  In <tt>DieselArk</tt>, the declaration will look like:
 
-<pre>public&nbsp;def&nbsp;costPerPassengerMile():&nbsp;Double&nbsp;\{&nbsp;...&nbsp;\}
+<pre>public&nbsp;def&nbsp;costPerPassengerMile():&nbsp;Double&nbsp;{&nbsp;...&nbsp;}
 </pre>
 The keyword <tt>abstract</tt> does <em>not</em> appear, and the function body does.
+<hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This should explain
+why, even though a package spec is a proxy for a file system path, dots and not
+slashes are used to punctuate it: first, the dot is file-system independent, and
+second, it is consistent with the notation for selecting a field within an object.
+<br /><br />
 
 </html>

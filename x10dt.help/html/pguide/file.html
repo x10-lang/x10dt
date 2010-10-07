@@ -17,18 +17,33 @@
 
  <h2><a name="tth_sEc1">
 1</a>&nbsp;&nbsp;What's In An <tt>.x10</tt> File?</h2>
-An <tt>.x10</tt> source file has the following structure:
+An <tt>.x10</tt> source file comes in three parts:
+
+<ul>
+<li> first, an optional "package" statement
+<div class="p"><!----></div>
+</li>
+
+<li> then zero or more "import"  statements
+<div class="p"><!----></div>
+</li>
+
+<li> and finally, one or more type declarations, at most one of which is declared to be public.
+<div class="p"><!----></div>
+</li>
+</ul>
+Let's look at each of these parts in detail.
 
 <blockquote>
 <b>Optional package name:</b>  The first line in the file, other than blank lines and
-comments, can be a "<tt>package</tt>" declaration.  The syntax is
+comments, can be a "<tt>package</tt>" statement.  The syntax is
 
 <blockquote><tt>package <em>packageName</em>;</tt></blockquote>
 The package name, by convention, is a lower-case identifier ( letters and numbers,
 starts with a letter).  You don't need a package spec, and our examples will generally
 not bother with them, although we give some examples later for those unfamiliar with
 what is at stake.  When no <tt>package</tt> declaration appears, the class is said to be
-"in the <em>default package</em>".
+"in the  default package".
 
 <div class="p"><!----></div>
 Packages were introduced so that large projects could organize
@@ -46,14 +61,14 @@ or<br />
 We've already seen the example of importing <tt>x10.util.Random</tt>.  Notice that
 the full package name is a sequence of "<tt>.</tt>" separated lower-case names,
 but the class name is whatever you declared it to be: it should <em>always</em>
-be capitalized.  What this statement means is that if you went back to the
+be capitalized.  What "<tt>x10.util.Random</tt>" means is that if you went back to the
 file system where <tt>Random.x10</tt> was created, you would find a directory
 named <tt>x10</tt> with a subdirectory <tt>util</tt> that contains the source file
 <tt>Random.x10</tt>.  The same rules apply to <em>you</em>: if you have
 
 <blockquote><tt>package a.b.c;</tt></blockquote>
 at the start of your file, you must have the corresponding directory structure,
-and the file must lie in the subdirectory <tt>c</tt>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+and the file must lie in the subdirectory <tt>c</tt>.
 
 <div class="p"><!----></div>
 The second form, with an asterisk as the final part, says: "import every class
@@ -61,14 +76,20 @@ in the package <tt>x10.util</tt>."   When to use the catch-all and when it is be
 to do individual imports is a matter of taste.
 
 <div class="p"><!----></div>
+You don't <em>have</em> to import <tt>x10.uti.Random</tt> to use it in your code,
+but if you don't, you need to refer to everywhere you use it as
+<tt>x10.util.Random</tt>-you can't just use <tt>Random</tt>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+
+<div class="p"><!----></div>
 As we've said, there are two good things about packages: protection and name-clash avoidance.
 Let's look at the name-clash story: we'll worry about protection later, when
 we have something to protect.
 
 <div class="p"><!----></div>
-Suppose we wanted to compare <em>X10's</em> class <tt>Random</tt> against <em>our</em>
+Suppose we needed to use both X10's class <tt>Random</tt> and our own class
 class <tt>Random</tt> in the same piece of code.  How do we tell the compiler, "here
-be ours, there be theirs"?  Answer: use package name:
+be ours, there be theirs"?  Answer: do not import <tt>x10.util.Random</tt> explicitly,
+and use package names in the code at every reference:
 
 <blockquote>
 <pre>val&nbsp;ours&nbsp;=&nbsp;new&nbsp;Random();
@@ -77,11 +98,13 @@ val&nbsp;theirs&nbsp;=&nbsp;new&nbsp;x10.lang.Random();
 </blockquote>
 Assuming that <tt>Random.x10</tt> is in the same directory as this code, the 
 compiler will find it there, and of course, for <tt>theirs</tt> you left no doubt
-about what you meant.  By the way, if you spell out the packaging, as 
-we did in the assignment to <tt>theirs</tt>, you don't also need the import
-statement.  The only good reason to do so, however, is exactly in this
+about what you meant.   This about the only good reason not
+to import <tt>x10.util.Random</tt> explicitly: this
 sort of <em>very rare</em> situation, where you need two or more variations on
-a single public name, and even there it can often be avoided.
+a single public name.  It also shows why you might want to use packages
+yourself: if your <tt>Random</tt> is in the package <tt>com.hedger.models</tt>,
+then this package name will appear either at the top of the file in an import,
+or at every use: good for both the human reader and the compiler.
 
 <div class="p"><!----></div>
 Which brings up one final point: how does the compiler know where to look
@@ -94,21 +117,24 @@ discussion of that in <a href="http://en.wikipedia.org/wiki/Classpath_%28Java%29
 article on class paths</a> or any introduction to Java.
 
 <div class="p"><!----></div>
-<b>One or more class declarations:</b>  After the option package and import 
-statements come one or more class declarations.  The overwhelming majority of the
+<b>One or more type declarations:</b>  After the option package and import 
+statements come one or more of three possible types of "type" declarations:
+either classes, interfaces or structs.  We assume you're familiar with classes,
+and we'll get to the other two in sections  and .
+The overwhelming majority of the
 time, exactly one appears, but there is no hard and fast rule.  One rule does
-apply: there can be at most one class in the file that is declared <tt>public</tt>.
-A class that is declared without that keyword,  just "<tt>class X {...}</tt>",
+apply: there can be at most one type in the file that is declared <tt>public</tt>.
+A type that is declared without that keyword,  just "<tt>class X {...}</tt>",
 is accessible only for use by classes <em>in exactly the same package.</em>
 This is part of the protection feature packages provide.  Public classes are usable
 by anyone, anywhere. 
 
 <div class="p"><!----></div>
-If you must put several classes in one file, make sure that the first has the
-same name as the source file.  On the other hand,
-someone who is writing <tt>A.x10</tt>, is using the class <tt>B</tt> there, and needs to
-look at the source for some reason really expects
-to find <tt>B</tt> in <tt>B.x10</tt>, whether it is private to a package or not.  Be kind.
+If you must put several type declarations in one file, make sure that the first has the
+same name as the source file.  Be kind, though: remember that someone who
+is reading some X10 and sees a reference to a class <tt>C</tt> and wants to
+look at the source really expects
+to find <tt>C</tt> in <tt>C.x10</tt> in the appropriate directory, whether it is private to a package or not. 
 
 <div class="p"><!----></div>
 <b>That's it:</b>  Yes, nothing more other than comments appears in a X10source file.
