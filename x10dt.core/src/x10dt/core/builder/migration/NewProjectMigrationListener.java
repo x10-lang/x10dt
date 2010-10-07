@@ -59,7 +59,7 @@ final class NewProjectMigrationListener implements IResourceChangeListener {
 				}
 			});
 		} catch (CoreException e) {
-			X10DTCorePlugin.getInstance().logException("Exception encountered while examining resource delta for new projects", e);
+			X10DTCorePlugin.getInstance().logException("Exception encountered while examining resource delta for new projects", e); //$NON-NLS-1$
 		}
 		if (brokenProjects.size() > 0) {
 			fMigrationAssistant.confirmAndMigrateProjects(brokenProjects);

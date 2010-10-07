@@ -55,7 +55,7 @@ public class ProjectMigrationAssistant {
 	/**
 	 * Preference key used to store the set of projects that the user told us not to migrate
 	 */
-	public static final String DONT_MIGRATE_PROJECTS_PREF_KEY = "dontMigrateProjects";
+	public static final String DONT_MIGRATE_PROJECTS_PREF_KEY = "dontMigrateProjects"; //$NON-NLS-1$
 
 	//
 	// The following constants are defined here to avoid cyclic bundle dependencies between x10dt.core,
@@ -65,37 +65,37 @@ public class ProjectMigrationAssistant {
 	/**
 	 * The old value of the nature ID for the Java back-end X10 nature
 	 */
-	private static final String OLD_JAVA_BACK_END_NATURE_ID= "org.eclipse.imp.x10dt.ui.launch.java.x10nature";
+	private static final String OLD_JAVA_BACK_END_NATURE_ID= "org.eclipse.imp.x10dt.ui.launch.java.x10nature"; //$NON-NLS-1$
 
 	/**
 	 * The old value of the builder ID for the Java back-end X10 builder
 	 */
-	private static final String OLD_JAVA_BACK_END_BUILDER_ID= "org.eclipse.imp.x10dt.ui.launch.java.X10JavaBuilder";
+	private static final String OLD_JAVA_BACK_END_BUILDER_ID= "org.eclipse.imp.x10dt.ui.launch.java.X10JavaBuilder"; //$NON-NLS-1$
 
 	/**
 	 * The new nature ID for the X10 Java back-end project nature
 	 */
-	private static final String NEW_JAVA_BACK_END_NATURE_ID= "x10dt.ui.launch.java.x10nature";
+	private static final String NEW_JAVA_BACK_END_NATURE_ID= "x10dt.ui.launch.java.x10nature"; //$NON-NLS-1$
 
 	/**
 	 * The old value of the nature ID for the C++ back-end X10 nature
 	 */
-	private static final String OLD_CPP_BACK_END_NATURE_ID= "org.eclipse.imp.x10dt.ui.launch.cpp.x10nature";
+	private static final String OLD_CPP_BACK_END_NATURE_ID= "org.eclipse.imp.x10dt.ui.launch.cpp.x10nature"; //$NON-NLS-1$
 
 	/**
 	 * The old value of the builder ID for the C++ back-end X10 builder
 	 */
-	private static final String OLD_CPP_BACK_END_BUILDER_ID= "org.eclipse.imp.x10dt.ui.launch.cpp.X10CppBuilder";
+	private static final String OLD_CPP_BACK_END_BUILDER_ID= "org.eclipse.imp.x10dt.ui.launch.cpp.X10CppBuilder"; //$NON-NLS-1$
 
 	/**
 	 * The new nature ID for the X10 C++ back-end project nature
 	 */
-	private static final String NEW_CPP_BACK_END_NATURE_ID= "x10dt.ui.launch.cpp.x10nature";
+	private static final String NEW_CPP_BACK_END_NATURE_ID= "x10dt.ui.launch.cpp.x10nature"; //$NON-NLS-1$
 
 	/**
 	 * The old value for the ID of the X10 runtime container (as used in a project's .classpath file) 
 	 */
-	private static final String OLD_CONTAINER_ID= "org.eclipse.imp.x10dt.X10_CONTAINER";
+	private static final String OLD_CONTAINER_ID= "org.eclipse.imp.x10dt.X10_CONTAINER"; //$NON-NLS-1$
 
 	public void installProjectMigrationHook() {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new NewProjectMigrationListener(this), IResourceChangeEvent.POST_CHANGE);
@@ -116,8 +116,8 @@ public class ProjectMigrationAssistant {
 	private Set<IProject> retrieveMigrationSuppressedProjects() {
 		Set<IProject> result= new HashSet<IProject>();
 		IEclipsePreferences prefs= new InstanceScope().getNode(X10DTCorePlugin.kPluginID);
-		String dontAskPref= prefs.get(ProjectMigrationAssistant.DONT_MIGRATE_PROJECTS_PREF_KEY, "");
-		String[] dontAskList= dontAskPref.split(":");
+		String dontAskPref= prefs.get(ProjectMigrationAssistant.DONT_MIGRATE_PROJECTS_PREF_KEY, ""); //$NON-NLS-1$
+		String[] dontAskList= dontAskPref.split(":"); //$NON-NLS-1$
 		IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
 
 		for(String dontAskProjName: dontAskList) {
@@ -163,13 +163,13 @@ public class ProjectMigrationAssistant {
 				try {
 					prefs.flush();
 				} catch (BackingStoreException e) {
-					X10DTCorePlugin.getInstance().logException("Exception encountered while saving preference", e);
+					X10DTCorePlugin.getInstance().logException("Exception encountered while saving preference", e); //$NON-NLS-1$
 				}
 			}
 			private String addProjectsToPrefValue(Set<IProject> projects) {
 				IEclipsePreferences prefs= new InstanceScope().getNode(X10DTCorePlugin.kPluginID);
-				String curValue= prefs.get(ProjectMigrationAssistant.DONT_MIGRATE_PROJECTS_PREF_KEY, "");
-				String[] curProjectNames= curValue.split(":");
+				String curValue= prefs.get(ProjectMigrationAssistant.DONT_MIGRATE_PROJECTS_PREF_KEY, ""); //$NON-NLS-1$
+				String[] curProjectNames= curValue.split(":"); //$NON-NLS-1$
 				List<String> curProjectList= Arrays.asList(curProjectNames);
 				StringBuilder sb= new StringBuilder(curValue);
 
@@ -209,7 +209,7 @@ public class ProjectMigrationAssistant {
 				return true;
 			}
 		} catch (CoreException e) {
-			X10DTCorePlugin.getInstance().logException("Exception encountered while examining project description for X10DT migration", e);
+			X10DTCorePlugin.getInstance().logException("Exception encountered while examining project description for X10DT migration", e); //$NON-NLS-1$
 		}
 		return false;
 	}
@@ -276,7 +276,7 @@ public class ProjectMigrationAssistant {
 
 			javaProj.setRawClasspath(cpEntries, null);
 		} catch (JavaModelException e) {
-			X10DTCorePlugin.getInstance().logException("Exception encountered while updating project classpath", e);
+			X10DTCorePlugin.getInstance().logException("Exception encountered while updating project classpath", e); //$NON-NLS-1$
 		}
 	}
 
@@ -311,7 +311,7 @@ public class ProjectMigrationAssistant {
 
 			project.setDescription(pd, null);
 		} catch (CoreException e) {
-			X10DTCorePlugin.getInstance().logException("Exception encountered while updating X10 project configuration", e);
+			X10DTCorePlugin.getInstance().logException("Exception encountered while updating X10 project configuration", e); //$NON-NLS-1$
 		}
 	}
 }

@@ -20,15 +20,16 @@ import org.eclipse.ui.IObjectActionDelegate;
 import org.eclipse.ui.IWorkbenchPart;
 
 /**
+ * This class provides a means for users to explicitly migrate X10 projects to the
+ * new meta-data (nature, builder, classpath container IDs). Useful if the user has
+ * earlier specified not to be asked about migrating a given project, and later
+ * changes his mind. 
  * @author rfuhrer
  */
 public class MigrateProjectsAction implements IObjectActionDelegate {
-	private final Set<IProject> fProjects= new HashSet<IProject>();;
+	private final Set<IProject> fProjects= new HashSet<IProject>();
 
-	public void setActivePart(IAction action, IWorkbenchPart targetPart) {
-		// TODO Auto-generated method stub
-		
-	}
+	public void setActivePart(IAction action, IWorkbenchPart targetPart) { }
 
 	public void run(IAction action) {
 		ProjectMigrationAssistant pma= new ProjectMigrationAssistant();
