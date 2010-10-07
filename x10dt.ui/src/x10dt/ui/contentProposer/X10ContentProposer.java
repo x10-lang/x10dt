@@ -196,7 +196,8 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     // Declarations
     private final Template fVariableDeclaration = new Template("var", "mutable variable/field declaration", CONTEXT_ID, "var ${name}:${typename};", false );
     private final Template fValueDeclaration = new Template("val", "immutable variable/field declaration", CONTEXT_ID, "val ${name} = ${expression};", false );
-    private final Template fMethodTemplate = new Template("def", "method declaration", CONTEXT_ID, "def ${name}(${x}:${typename1}):${typename2} {  }", false );
+    /* CHANGED */ private final Template fMethodTemplate = new Template("def", "method declaration", CONTEXT_ID, "def ${name}(${x}:${typename1}){${constraint}}:${typename2} {  }", false );
+    private final Template fMainMethod = new Template("main method", "main method", CONTEXT_ID, "public static def main(argv:Array[String](1)) {  }", false);   
     private final Template fConstructorTemplate = new Template("this", "constructor declaration", CONTEXT_ID, "def this(${name}:${typename}) {  }", false);
     private final Template fStructTemplate = new Template("struct", "struct declaration", CONTEXT_ID, "struct ${name} {  }", false );
     private final Template fCovariantGeneric = new Template("[+X]", "generic type, covariant parameter", CONTEXT_ID, "[+${X}]", false);
@@ -204,86 +205,50 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private final Template fDependentTypeDeclaration = new Template("dependent type", "class declaration with property", CONTEXT_ID, "class ${name}(${x}:${typename}) { def this(${x}:${typename}){ property(${x}); } }", false);
     private final Template fTypeDefinition = new Template("type", "type definition", CONTEXT_ID, "type ${name1} = ${name2};", false);
     private final Template fFunctionType = new Template("function", "function definition", CONTEXT_ID, "var ${fname}:(${T1},${T2}) => ${T} = (${x1}:${T1}, ${x2}:${T2}) => ${expression};", false);
-    private final Template fConstDeclaration = new Template("const", "immutable static field declaration", CONTEXT_ID, "const ${name} = ${expression};", false );
-    private final Template fPropertyDeclaration = new Template("property", "property declaration", CONTEXT_ID, "property ${name} = ${expression};", false);
+   
+    //say static val instead.
+    private final Template fConstDeclaration = new Template("static val", "immutable static field declaration", CONTEXT_ID, "static val ${name} = ${expression};", false );
+    /*CHANGED*/ private final Template fPropertyDeclaration = new Template("property", "property declaration", CONTEXT_ID, "property ${name}() = ${expression};", false);
     private final Template fClassTemplate = new Template("class", "class declaration", CONTEXT_ID, "class ${name} {  }", false);
     
     // Constructs
-    private final Template fAsyncTemplate= new Template("async", "async statement", CONTEXT_ID, "async (${place}) { ${stmt} }", false);
+    /*CHANGED*/ private final Template fAsyncTemplate= new Template("async", "async statement", CONTEXT_ID, "async { ${stmt} }", false);
     private final Template fAtStatementTemplate = new Template("at","at statement", CONTEXT_ID, "at (${place}) { ${stmt} }", false );
     private final Template fAtExpressionTemplate = new Template("at", "at expression", CONTEXT_ID, "at (${place}) ${expression}", false);
     private final Template fFinishTemplate = new Template("finish", "finish statement", CONTEXT_ID, "finish { ${stmt} }", false);
     private final Template fAtEachTemplate= new Template("ateach", "ateach statement", CONTEXT_ID, "ateach (${x}:Point in ${distribution}) { ${stmt} }", false);
     private final Template fAtomicTemplate= new Template("atomic", "atomic statement", CONTEXT_ID, "atomic { ${stmt} }", false);
     private final Template fWhenTemplate= new Template("when", "when statement", CONTEXT_ID, "when (${condition}) { ${stmt} }", false);
-    private final Template fForEachTemplate= new Template("foreach", "foreach statement", CONTEXT_ID, "foreach (${x}:Point in ${region}) { ${stmt} }", false);
-    private final Template fFutureTemplate= new Template("future", "future expression", CONTEXT_ID, "(future (${place}) { ${expr} }).force()", false);
     private final Template fCoercionTemplate = new Template("as", "coercion", CONTEXT_ID, "${expression} as ${typename}" , false);
     
     // Places, Regions, Distributions, Arrays
-    private final Template fFirstPlaceTemplate = new Template("Place.FIRST_PLACE", "first place", CONTEXT_ID, "Place.FIRST_PLACE", false);
-    private final Template fAllPlacesTemplate = new Template("Place.places", "set of all places", CONTEXT_ID, "Place.places", false);
-    private final Template fRegion1DTemplate= new Template("region 1-D", "1-dimensional region creation", CONTEXT_ID, "[${lower}..${upper}]", false);
-    private final Template fRegion2DTemplate= new Template("region 2-D", "2-dimensional region creation", CONTEXT_ID, "[${lower1}..${upper1},${lower2}..${upper2}]", false);
-    private final Template fArrayNewTemplate= new Template("array new", "array instantiation", CONTEXT_ID, "var ${name}: Array[${typename}] = Array.make[${typename}](${distribution} , (p: Point) => ${initialization_expression} );", false);
-    private final Template fArrayAccessTemplate = new Template("array access", "remote array access", CONTEXT_ID, "at(${array_name}.dist(${point})) ${array_name}(${point}) = ${expression};", false);
-    // private final Template fArrayElement = new Template("")
-    private final Template fRailContructor = new Template("rail constructor", "rail constructor", CONTEXT_ID, "var ${name}: Rail = [${expression1}, ,${expressionk}];", false);
-    private final Template fArrayDistribution = new Template("dist", "array distribution", CONTEXT_ID, "${array}.dist", false);
-    private final Template fMakeUpperTriangular = new Template("makeUpperTriangular", "upper triangular region", CONTEXT_ID, "Region.makeUpperTriangular(${N})",false );
-    private final Template fMakeLowerTriangular = new Template("makeLowerTriangular", "lower triangular region", CONTEXT_ID, "Region.makeLowerTriangular(${N})",false );
-    private final Template fRegionIntersection = new Template("region intersection", "region intersection", CONTEXT_ID, "${R1} && ${R2}",false );
-    private final Template fRegionUnion = new Template("region union", "region union", CONTEXT_ID, "${R1} || ${R2}",false );
-    private final Template fRegionDifference = new Template("region difference", "region difference", CONTEXT_ID, "${R1} - ${R2}",false );
-    private final Template fRegionProduct = new Template("region cartesian product", "region cartesian product", CONTEXT_ID, "${R1} * ${R2}",false );
-    private final Template fBlockDistribution = new Template("block distribution", "block distribution", CONTEXT_ID, "Dist.makeBlock(${R})", false);    
-    private final Template fCyclicDistribution = new Template("cyclic distribution", "cyclic distribution", CONTEXT_ID, "Dist.makeCyclic(${R})", false);    
-    private final Template fDistributionMapping = new Template("->", "distribution mapping", CONTEXT_ID, "${region} -> ${place} ", false);
-    private final Template fDistributionIntersection = new Template("distribution intersection", "distribution intersection", CONTEXT_ID, "${D1} && ${D2}", false);
-    private final Template fDistributionOverlay = new Template("distribution overlay", "distribution overlay", CONTEXT_ID, "${D1}.overlay(${D2})", false);
-    private final Template fDistributionUnion = new Template("disjoint union of distributions", "disjoint union of distributions", CONTEXT_ID, "${D1} || ${D2}", false);
-    private final Template fDistributionDifference = new Template("distribution difference", "distribution difference", CONTEXT_ID, "${D1} - ${D2}", false);
+    /*CHANGED*/private final Template fRegion1DTemplate= new Template("region 1-D", "1-dimensional region creation", CONTEXT_ID, "${lower}..${upper}", false);
+    /*CHNGED*/private final Template fRegion2DTemplate= new Template("region 2-D", "2-dimensional region creation", CONTEXT_ID, "(${lower1}..${upper1})*(${lower2}..${upper2})", false);
+    /*CHANGED*/ private final Template fArrayNewTemplate= new Template("array new", "array instantiation", CONTEXT_ID, "var ${name}: Array[${typename}] = new Array[${typename}](${distribution} , (p: Point) => ${initialization_expression} );", false);
+    /*CHANGED*/ private final Template fDistArrayNewTemplate= new Template("dist array new", "dist array instantiation", CONTEXT_ID, "var ${name}: DistArray[${typename}] = new DistArray[${typename}](${distribution} , (p: Point) => ${initialization_expression} );", false);
+    private final Template fArrayAccessTemplate = new Template("dist array access", "remote array access", CONTEXT_ID, "at(${array_name}.dist(${point})) ${array_name}(${point}) = ${expression};", false);
     
     // Modifiers
     private final Template fConstrainedType = new Template("constraint", "constrained type definition", CONTEXT_ID, "type ${typename1} = ${typename2}{${constraint}};", false);
-    private final Template fNonblockingMethod = new Template("nonblocking", "nonblocking qualifier", CONTEXT_ID, "nonblocking ", false);
-    private final Template fSequentialMethod = new Template("sequential", "sequential qualifier", CONTEXT_ID, "sequential ", false);
-    private final Template fSafeTemplate= new Template("safe", "safe qualifier", CONTEXT_ID, "safe ", false);
-    private final Template fPropertyMethod = new Template("property", "property qualifier", CONTEXT_ID, "property ", false);
-    private final Template fGlobalTemplate = new Template("global", "global qualifier", CONTEXT_ID, "global ", false);
-    private final Template fProtoTemplate = new Template("proto", "proto qualifier", CONTEXT_ID, "proto ", false);
-    private final Template fPublicTemplate = new Template("public", "public qualifier", CONTEXT_ID, "public ", false);
     private final Template fPrivateTemplate = new Template("private", "private qualifier", CONTEXT_ID, "private ", false);
-    private final Template fProtectedTemplate = new Template("protected", "protected qualifier", CONTEXT_ID, "protected ", false);
     private final Template fPropertyTemplate = new Template("property", "property qualifier", CONTEXT_ID, "property ", false);   
     private final Template fFinalTemplate = new Template("final", "final modifier", CONTEXT_ID, "final ", false);
     private final Template fAbstractTemplate = new Template("abstract", "abstract modifier", CONTEXT_ID, "abstract", false);
     
     // Clocks
-    private final Template fClockUnregister = new Template("drop", "clock unregister", CONTEXT_ID, "${clock}.drop()", false);
-    private final Template fClockResume = new Template("resume", "clock resume", CONTEXT_ID, "${clock}.resume()", false);
-    private final Template fClockNext = new Template("next", "clock next", CONTEXT_ID, "${clock}.next()", false);
     private final Template fClockedStatement = new Template("clocked", "clocked statement", CONTEXT_ID, "async clocked (${clock}) { ${stmt} }", false);
-    private final Template fClockRegistered = new Template("registered", "clock registration check", CONTEXT_ID, "${clock}.registered()", false);
     
     // Misc
-    private final Template fInstanceofTemplate = new Template("instanceof", "instanceof in a conditional", CONTEXT_ID, "if (${name1} instanceof ${typename}) { val ${name2} = (${typename}) ${name1}; }", false);
+    /*CHANGED*/ private final Template fInstanceofTemplate = new Template("instanceof", "instanceof in a conditional", CONTEXT_ID, "if (${name1} instanceof ${typename}) { val ${name2} = ${name1} as ${typename}; }", false);
     private final Template fPrintTemplate = new Template("printing", "printing to console", CONTEXT_ID, "Console.OUT.println(\"${string}\");", false);
     
-    private final Template[] fTemplates= new Template[] {
-             
-            fArrayNewTemplate, fArrayAccessTemplate, /*fCoercionTemplate,*/ fAsyncTemplate, fAtStatementTemplate,
+     
+    private final Template[] fTemplates= new Template[] {  
+            fArrayNewTemplate, fDistArrayNewTemplate, fArrayAccessTemplate, fAsyncTemplate, fAtStatementTemplate,
             fAtEachTemplate, fAtomicTemplate,  
             fClockedStatement, fConstrainedType, fFinishTemplate,  
-            fForEachTemplate, fFunctionType, /*fFutureTemplate,*/ fInstanceofTemplate, fPrintTemplate,
-            /*fRegion1DTemplate, fRegion2DTemplate,*/
-            fTypeDefinition, fValueDeclaration, fVariableDeclaration,   fWhenTemplate,
-            /*fDependentTypeDeclaration, 
-            fCovariantGeneric, fContravariantGeneric, fAtExpressionTemplate, fStructTemplate, 
-            fRailContructor, fFirstPlaceTemplate, fAllPlacesTemplate,  fClockNext, fClockResume, 
-            fClockUnregister, fClockRegistered, fArrayDistribution, fMakeLowerTriangular, fMakeUpperTriangular, fRegionDifference, fRegionProduct, fRegionUnion, 
-            fRegionIntersection, fBlockDistribution, fCyclicDistribution, fDistributionMapping, fDistributionDifference, fDistributionIntersection, fDistributionOverlay, fDistributionUnion
-            */
+            fFunctionType, fInstanceofTemplate, fPrintTemplate,
+            fTypeDefinition, fValueDeclaration, fVariableDeclaration,   fWhenTemplate
     };
     
     
@@ -297,9 +262,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private final String fClockedInfo = "\n\nClocked statement";
     private final String fConstrainedInfo = "\n\nConstrained type";
     private final String fFinishInfo = "\n\nFinish statement";
-    private final String fForEachInfo = "\n\nForeach statement";
     private final String fFunctionTypeInfo = "\n\nFunction Type";
-    private final String fFutureInfo = "\n\nFuture";
     private final String fRegion1DInfo = "\n\n1-D region";
     private final String fRegion2DInfo = "\n\n2-D Region";
     private final String fTypeDefinitionInfo = "\n\nType definition";
@@ -308,7 +271,6 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private final String fWhenInfo = "\n\nWhen statement";
     private final String fPropertyInfo = "\n\n Property declaration";
     private final String fClassInfo = "\n\n Class declaration";
-    private final String fSafeInfo = "\n\n Safe qualifier";
     private final String fPrintInfo = "\n\n Print statement";
     
     private static final Map<Template,String> infos = new HashMap<Template,String>();
@@ -324,9 +286,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     	infos.put(fClockedStatement, fClockedInfo);
     	infos.put(fConstrainedType, fConstrainedInfo);
     	infos.put(fFinishTemplate, fFinishInfo);
-    	infos.put(fForEachTemplate, fForEachInfo);
     	infos.put(fFunctionType, fFunctionTypeInfo);
-    	infos.put(fFutureTemplate, fFutureInfo);
     	infos.put(fRegion1DTemplate, fRegion1DInfo);
     	infos.put(fRegion2DTemplate, fRegion2DInfo);
     	infos.put(fTypeDefinition, fTypeDefinitionInfo);
@@ -335,7 +295,6 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     	infos.put(fWhenTemplate, fWhenInfo);
     	infos.put(fPropertyDeclaration, fPropertyInfo);
     	infos.put(fClassTemplate, fClassInfo);
-    	infos.put(fSafeTemplate, fSafeInfo);
     	infos.put(fPrintTemplate, fPrintInfo);
     }
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer) {
@@ -405,11 +364,11 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         		//addNamesInScope(currentAst, node, prefix, list, offset, EMPTY_PREFIX_MATCHES);
         	}
             else if (justAfter(TK_EQUAL, previousToken) && (location instanceof Assign || location instanceof LocalDecl)){
-            	Template[] templates = new Template[]{fAtExpressionTemplate, fCoercionTemplate, fFutureTemplate, fRegion1DTemplate, fRegion2DTemplate};
+            	Template[] templates = new Template[]{fAtExpressionTemplate, fCoercionTemplate,  fRegion1DTemplate, fRegion2DTemplate};
             	addTemplateProposals(offset, viewer, list, prefix, templates );
             }
         	else if (location instanceof ClassBody){ //Class context
-        		Template[] templates = new Template[]{fVariableDeclaration, fValueDeclaration, fPropertyDeclaration, fConstDeclaration, fMethodTemplate, fConstructorTemplate, 
+        		Template[] templates = new Template[]{fVariableDeclaration, fValueDeclaration, fConstDeclaration, fPropertyDeclaration, fMainMethod, fMethodTemplate, fConstructorTemplate, 
         			fClassTemplate, fStructTemplate, fDependentTypeDeclaration, };
         		addTemplateProposals(offset, viewer, list, prefix, templates);
             
@@ -417,33 +376,21 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
             
             //add method modifiers before a "def"
             if (justBefore(TK_def, tokenToComplete, previousToken, offset)){
-            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate, fGlobalTemplate, fNonblockingMethod, fPrivateTemplate, fPropertyTemplate, /*fProtectedTemplate,*/ fProtoTemplate,  /*fPublicTemplate,*/  fSequentialMethod, fSafeTemplate };
+            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate, fPrivateTemplate, fPropertyTemplate };
         		addTemplateProposals(offset, viewer, list, prefix, templates);
             }
             
             //add class modifiers before a "class"
             if (justBefore(TK_class, tokenToComplete, previousToken, offset)) {
-            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate, fGlobalTemplate, /*fPrivateTemplate, fProtectedTemplate, fPublicTemplate,*/ fSafeTemplate};
+            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate};
         		addTemplateProposals(offset, viewer, list, prefix, templates);
             }
         	
             //add field modifiers before a "val" field declaration
             if (location instanceof ClassBody && (justBefore(TK_val, tokenToComplete, previousToken, offset))){
-        		Template[] templates = new Template[]{fGlobalTemplate, /*fPrivateTemplate, fProtectedTemplate,*/ fPropertyTemplate, /*fPublicTemplate*/};
+        		Template[] templates = new Template[]{fPropertyTemplate};
         		addTemplateProposals(offset, viewer, list, prefix, templates);
         	}
-        	
-            //add field modifiers before a "var" field declaration
-//            if (location instanceof ClassBody && (justBefore(TK_var, tokenToComplete, previousToken, offset))){
-//        		Template[] templates = new Template[]{fPrivateTemplate, fProtectedTemplate, fPublicTemplate};
-//        		addTemplateProposals(offset, viewer, list, prefix, templates);
-//        	}
-            
-            //add field modifiers before a "const" field declaration
-//            if (location instanceof ClassBody && (justBefore(TK_const, tokenToComplete, previousToken, offset))){
-//        		Template[] templates = new Template[]{fPrivateTemplate, fProtectedTemplate, fPublicTemplate};
-//        		addTemplateProposals(offset, viewer, list, prefix, templates);
-//        	}
             
             //add type parameter in a class declaration
             if (location instanceof ClassDecl && previousNode instanceof CanonicalTypeNode &&  
