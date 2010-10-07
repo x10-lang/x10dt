@@ -13,10 +13,12 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
+import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -54,14 +56,14 @@ final class ProjectMigrationDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setSize(350, 300);
-		newShell.setText("Migrate X10 Projects");
+		newShell.setSize(350, 450);
+		newShell.setText(Messages.ProjectMigrationDialog_title);
 	}
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
 		// create OK and Cancel buttons by default
-		createButton(parent, IDialogConstants.OK_ID, "Proceed", true);
+		createButton(parent, IDialogConstants.OK_ID, Messages.ProjectMigrationDialog_proceedButtonLabel, true);
 		createButton(parent, IDialogConstants.CANCEL_ID, IDialogConstants.CANCEL_LABEL, false);
 	}
 
@@ -71,34 +73,26 @@ final class ProjectMigrationDialog extends Dialog {
 		GridLayout topLayout = new GridLayout(1, false);
 		area.setLayout(topLayout);
 
-		Text descriptionText = new Text(area, SWT.WRAP);
-		descriptionText.setText("Some of the X10 projects in your workspace contain old meta-data that must be migrated in order to work with the current version of the X10DT.");
-		descriptionText.setEditable(false);
+		Text descriptionText = new Text(area, SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
+		descriptionText.setText(Messages.ProjectMigrationDialog_explanationText);
 		descriptionText.setBackground(parent.getBackground());
-		descriptionText.setLayoutData(new GridData(350, 45));
+		descriptionText.setLayoutData(new GridData(340, 45));
 
 		Label topLabel = new Label(area, SWT.NONE);
-		topLabel.setText("Projects needing migration:");
+		topLabel.setText(Messages.ProjectMigrationDialog_projectListLabel);
 
 		Composite tableButtons = new Composite(area, SWT.NONE);
-		tableButtons.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+		tableButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		tableButtons.setSize(350, 200);
 
-		final CheckboxTableViewer cbTableViewer = CheckboxTableViewer.newCheckList(tableButtons, SWT.CHECK | SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION
-				| SWT.V_SCROLL);
+		final CheckboxTableViewer cbTableViewer = CheckboxTableViewer.newCheckList(tableButtons, SWT.BORDER | SWT.V_SCROLL);
 
 		cbTableViewer.setContentProvider(new IStructuredContentProvider() {
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {}
-
 			public void dispose() {}
-
 			public Object[] getElements(Object inputElement) {
 				return fBrokenProjects.toArray();
-				// return new Object[] { "a", "b", "c", "d", "e", "f", "g", "h",
-				// "i", "j", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"
-				// ,"a", "b", "c", "d", "e", "f", "g", "h", "i", "j" ,"a", "b",
-				// "c", "d", "e", "f", "g", "h", "i", "j" ,"a", "b", "c", "d",
-				// "e", "f", "g", "h", "i", "j" ,"a", "b", "c", "d", "e", "f",
-				// "g", "h", "i", "j" };
+//				return new Object[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
 			}
 		});
 		cbTableViewer.setLabelProvider(new ITableLabelProvider() {
@@ -114,7 +108,7 @@ final class ProjectMigrationDialog extends Dialog {
 
 			public String getColumnText(Object element, int columnIndex) {
 				return ((IProject) element).getName();
-				// return (String) element;
+//				return (String) element;
 			}
 
 			public Image getColumnImage(Object element, int columnIndex) {
@@ -131,64 +125,70 @@ final class ProjectMigrationDialog extends Dialog {
 				}
 			}
 		});
-		cbTableViewer.setInput(new Object()); // just to trigger the initial
-		// update
+		cbTableViewer.setCheckStateProvider(new ICheckStateProvider() {
+			public boolean isGrayed(Object element) { return false; }
+			public boolean isChecked(Object element) {
+				return fMigrateProjects.contains(element);
+//				return ((String) element).matches("[a-cg-im-os-uyz]");
+			}
+		});
+		cbTableViewer.setInput(new Object()); // a dummy input just to trigger the initial update
 
 		Composite selectButtons = new Composite(tableButtons, SWT.NONE);
-		RowLayout selectButtonsLayout = new RowLayout(SWT.VERTICAL);
+		GridLayout selectButtonsLayout = new GridLayout(1, true);
 		selectButtons.setLayout(selectButtonsLayout);
 
 		Button selectAllButton = new Button(selectButtons, SWT.PUSH);
-		selectAllButton.setText("Select All");
+		selectAllButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		selectAllButton.setText(Messages.ProjectMigrationDialog_selectAllButtonTitle);
 		selectAllButton.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
-				cbTableViewer.setAllChecked(true);
-				// For some reason, setAllChecked() doesn't cause the
-				// check-state listener
-				// to be called, so do what it would do (argh).
 				fMigrateProjects.addAll(fBrokenProjects);
+				cbTableViewer.refresh();
 			}
-
 			public void widgetDefaultSelected(SelectionEvent e) {
 				widgetSelected(e);
 			}
 		});
 
 		Button deselectAllButton = new Button(selectButtons, SWT.PUSH);
-		deselectAllButton.setText("Deselect All");
+		deselectAllButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		deselectAllButton.setText(Messages.ProjectMigrationDialog_deselectAllButtonTitle);
 		deselectAllButton.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
-				cbTableViewer.setAllChecked(false);
-				// For some reason, setAllChecked() doesn't cause the check-state listener
-				// to be called, so do what it would do (argh).
 				fMigrateProjects.clear();
+				cbTableViewer.refresh();
 			}
-
 			public void widgetDefaultSelected(SelectionEvent e) {
 				widgetSelected(e);
 			}
 		});
 
-		TableLayout cbTableLayout = new TableLayout();
-		cbTableLayout.addColumnData(new ColumnWeightData(100, false));
-		cbTableViewer.getTable().setLayout(cbTableLayout);
-
 		GridLayout tableButtonsLayout = new GridLayout(2, false);
-		cbTableViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-		selectButtons.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
+//		TableColumnLayout cbTableLayout = new TableColumnLayout();
+//		cbTableLayout.setColumnData(cbTableViewer.getTable().getColumn(0), new ColumnWeightData(100, false));
+//		cbTableViewer.getTable().setLayout(cbTableLayout);
+		cbTableViewer.getTable().setSize(150, 200);
+		cbTableViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+
+		selectButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 		tableButtons.setLayout(tableButtonsLayout);
 
 		final Button dontAskAgainCB = new Button(area, SWT.CHECK);
 
-		dontAskAgainCB.setText("Don't ask again about deselected projects");
-		dontAskAgainCB.setToolTipText("If checked, you won't be asked again whether to migrate any of the projects you specified not to migrate this time. "
-				+ "If you check this, you can still migrate the projects manually: select the project in the Package Explorer, right-click "
-				+ "and select \"Configure\" and then \"Migrate Projects\".");
+		dontAskAgainCB.setText(Messages.ProjectMigrationDialog_dontAskCheckboxTitle);
+
+		Text dontAskExplanationText= new Text(area, SWT.MULTI | SWT.WRAP | SWT.READ_ONLY);
+		dontAskExplanationText.setBackground(parent.getBackground());
+		dontAskExplanationText.setLayoutData(new GridData(340, 65));
+		dontAskExplanationText.setText(Messages.ProjectMigrationDialog_dontAskExplanationText1
+				+ Messages.ProjectMigrationDialog_dontAskExplanationText2
+				+ Messages.ProjectMigrationDialog_dontAskExplanationText3);
+
 		dontAskAgainCB.addSelectionListener(new SelectionListener() {
 			public void widgetSelected(SelectionEvent e) {
 				fDontAskAgain = dontAskAgainCB.getSelection();
 			}
-
 			public void widgetDefaultSelected(SelectionEvent e) {
 				widgetSelected(e);
 			}
