@@ -21,6 +21,8 @@
       <import feature="lpg.runtime" version="2.0.18" match="greaterOrEqual"/>
       <import feature="org.eclipse.imp.java.hosted"/>
       <import feature="org.eclipse.imp.runtime"/>
+      <import plugin="org.eclipse.imp.pdb"/>
+      <import plugin="org.eclipse.imp.pdb.values"/>
       <import feature="org.eclipse.ptp.core" version="4.0.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.ptp.external" version="4.0.0" match="greaterOrEqual"/>
       <import feature="org.eclipse.ptp.remote" version="4.0.0" match="greaterOrEqual"/>
