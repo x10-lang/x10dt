@@ -216,6 +216,11 @@ public class ProjectMigrationAssistant {
 
 	private int findOldRuntimeContainerRef(IProject project) throws JavaModelException {
 		IJavaProject javaProj= JavaCore.create(project);
+
+		if (!javaProj.exists()) { // this isn't a Java/JDT project, so there's no JDT classpath to examine
+			return -1;
+		}
+
 		IClasspathEntry[] cpEntries= javaProj.getRawClasspath();
 
 		int idx= 0;
