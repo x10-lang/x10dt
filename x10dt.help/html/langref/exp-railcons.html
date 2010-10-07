@@ -19,6 +19,7 @@
 <body>
  <h2><a name="tth_sEc26">
 26</a>&nbsp;&nbsp;Rail constructors</h2>
+
 <a name="RailConstructors">
 </a>
 
@@ -37,8 +38,8 @@ whose ith element is
 &#228;<sub>i</sub>".  The element type of the rail is a common ancestor of the
 types of the &#228;<sub>i</sub>''s, as per &#167;.
 <pre>
-val a : ValRail[Int] = [1,3,5];
-val b : ValRail[Any] = [1, a, "please"];
+val a &lt;: Array[Int] = [1,3,5];
+val b &lt;: Array[Any] = [1, a, "please"];
 </pre>
 
 <div class="p"><!----></div>

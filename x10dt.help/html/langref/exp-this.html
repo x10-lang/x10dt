@@ -44,12 +44,15 @@ For example, <b>Outer</b> is a class containing <b>Inner</b>.  Each instance of
 creation, which is acquired by use of <b>Outer.this</b>.
 <pre>
 class Outer {
-  val inner : Inner! = new Inner();
+/* REDO THIS EXAMPLE 
+  val inner : Inner = new Inner();
   class Inner {
     val outer : Outer = Outer.this;
   }
   def alwaysTrue() = (this == inner.outer);
-}
+*/}
+
+<div class="p"><!----></div>
 </pre>
 
 <div class="p"><!----></div>

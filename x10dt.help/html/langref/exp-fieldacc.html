@@ -59,15 +59,15 @@ illustrates all four cases:
 <div class="p"><!----></div>
 <pre>
 class Uncle {
-  public static global val f = 1;
+  public static val f = 1;
 }
 class Parent {
-  public global val f = 2;
+  public val f = 2;
 }
 class Ego extends Parent {
-  public global val f = 3;
+  public val f = 3;
   class Child extends Ego {
-     public global val f = 4;
+     public val f = 4;
      def expDotId() = this.f; // 4
      def superDotId() = super.f; // 3
      def classNameDotId() = Uncle.f; // 1;

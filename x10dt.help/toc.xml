@@ -147,7 +147,7 @@
 		<topic label="Calls" href="html/langref/exp-calls.html"/> 
 		<topic label="Assignment" href="html/langref/exp-assign.html"/> 
 		<topic label="Increment and decrement" href="html/langref/exp-incrdecr.html"/> 
-		<topic label="Numeric Operations" href="html/langref/exp-numericpro.html"/>   
+		<topic label="Numeric Operations" href="html/langref/exp-numericops.html"/>   
 		<topic label="Bitwise complement" href="html/langref/exp-bitwisecompl.html"/> 
 		<topic label="Binary arithmetic operations" href="html/langref/exp-binarithops.html"/> 
 		<topic label="Binary shift" href="html/langref/exp-binshiftops.html"/>

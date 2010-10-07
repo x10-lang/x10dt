@@ -411,7 +411,7 @@ default value of type <b>T</b>.  For example, a <b>Score</b> object will have
 its <b>currently</b> field initialized to zero, below:
 <pre>
 class Score {
-  public val currently : Int;
+  public var currently : Int;
 }
 </pre>
 
@@ -625,18 +625,18 @@ class Example (
       = new Cell[Int{self != 0}](1);            // (G)
    var instanceField                            
       : Int {self != prop}                      // (H)
-      = prop + 1 as Int{self != prop};          // (I)
+      = (prop + 1) as Int{self != prop};        // (I)
    def this(
       a : Int{a != 0},
       b : Int{b != a}                           // (J)
       )
       {a != b}                                  // (K)
-      : Example{prop == a &amp;&amp; proq == b}         // (L)
+      : Example{self.prop == a &amp;&amp; self.proq==b} // (L)
    {
       super();                                  // (M)
       property(a,b,a);                          // (N)
       // fields initialized here
-      instanceField = b;                        // (O)
+      instanceField = b as Int{self != prop};   // (O)
    }
 
 <div class="p"><!----></div>
