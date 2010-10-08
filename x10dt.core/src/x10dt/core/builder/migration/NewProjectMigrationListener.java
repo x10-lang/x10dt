@@ -46,7 +46,8 @@ final class NewProjectMigrationListener implements IResourceChangeListener {
 					IResource rsrc = delta.getResource();
 
 					if (rsrc instanceof IProject) {
-						if (delta.getKind() == IResourceDelta.ADDED) {
+						if (delta.getKind() == IResourceDelta.ADDED ||
+							delta.getKind() == IResourceDelta.CHANGED && (delta.getFlags() & IResourceDelta.DESCRIPTION) != 0) {
 							IProject proj= (IProject) rsrc;
 
 							if (fMigrationAssistant.projectIsBroken(proj)) {
