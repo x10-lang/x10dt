@@ -57,7 +57,6 @@ The body of the method is executed in an environment in which
 each formal parameter corresponds to a local variable (<b>var</b> iff the
 formal parameter is <b>var</b>)
 and is initialized with the value of the actual parameter.
-
 Call-by-reference, <b>ref</b> parameters, allows passing in variables for a
 method to update, as described in &#167;. 
 
@@ -169,6 +168,21 @@ The compiler checks that every method invocation
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.3">
 4.3</a>&nbsp;&nbsp;Property methods</h3>
+
+<div class="p"><!----></div>
+Property methods are methods that can be evaluated in constraints.  
+For example, the <b>eq()</b> method below tells if the <b>x</b> and <b>y</b>
+properties are equal; the <b>is(z)</b> method tells if they are both equal to
+<b>z</b>.  These can be used in constraints, as illustrated in the
+<b>example()</b> method.
+<pre>
+class Example(x:Int, y:Int) {
+   def this(x:Int, y:Int) { property(x,y); }
+   property eq() = (x==y);
+   property is(z:Int) = x==z &amp;&amp; y==z;
+   def example( a : Example{eq()}, b : Example{is(3)} ) {}
+}
+</pre>
 
 <div class="p"><!----></div>
 A method declared with the modifier <b>property</b> may be used

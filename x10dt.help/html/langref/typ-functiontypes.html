@@ -29,8 +29,8 @@
 <div class="p"><!----></div>
 X10 functions, like mathematical functions, take some arguments and produce a
 result.  X10 functions, like other X10 code, can change mutable state and
-throw exceptions.  Closures () and method
-selectors () are of function type.
+throw exceptions.  Closures (&#167;) and method
+selectors (&#167;) are of function type.
 Typical functions are the reciprocal function: 
 <pre>
 val recip = (x : Double) =&#62; 1/x;
@@ -40,7 +40,9 @@ if there is no such element, where, for the sake of example, we constrain the
 type of <b>i</b>:  
 <pre>
 val inc = (r:Rail[Int], i: Int{i != r.length}) =&#62; {
-  if (i &lt; 0 &#124;&#124; i &#62;= r.length) throw new DoomExn();
+  if (i &lt; 0 </td><td width="150">
+&#124;</td><td width="150">
+&#124; i &#62;= r.length) throw new DoomExn();
   r(i)++;
 };
 </pre>
@@ -54,6 +56,11 @@ constraint
 <b>c</b> on the
 function as a whole; a return type <b>T</b>; and the exceptions 
 that the function might throw when applied: 
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> The <b>throws</b> clause is not currently implemented.  Also,
+some method modifiers (<b>safe</b>, <b>atomic</b>, etc.) will apply to function
+types as well.</em>
 
 <div class="p"><!----></div>
 <pre>
@@ -81,13 +88,16 @@ written as
 <b>(Double)=&#62;Double</b>. 
 
 <div class="p"><!----></div>
-FunctionType ::= TypeParameters <b>(</b> Formals <b>)</b> Constraint
-<b>=&#62;</b> Type Throws <br />
-TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter
-) <b>]</b> <br />
-TypeParameter ::= Identifier <br />
-Formals ::= Formal ( <b>,</b> Formal ) <br />
-
+  :  |        <em>  
+<table>
+<tr><td align="right">FunctionType ::= TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> Constraint<sup>?</sup>&nbsp;
+<b>=&#62;</b> Type Throws<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter
+)<sup>*</sup>&nbsp;<b>]</b> </td></tr>
+<tr><td align="right">TypeParameter ::= Identifier </td></tr>
+<tr><td align="right">Formals ::= Formal ( <b>,</b> Formal )<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 A function type is covariant in its result type and contravariant in

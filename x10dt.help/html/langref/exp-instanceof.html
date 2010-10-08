@@ -48,6 +48,19 @@ For example, <b>3 instanceof Int{self==x}</b> is an overly-complicated way of
 saying <b>3==x</b>.
 
 <div class="p"><!----></div>
+However, it is a static error if <b>e</b> cannot possibly be an instance of
+<b>C{c}</b>; the compiler will reject <b>1 instanceof Int{self == 2}</b> because
+<b>1</b> can never satisfy <b>Int{self == 2}</b>. Similarly, <b>1 instanceof
+String</b> is a static error, rather than an expression always returning false. 
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> 
+X10 does not currently handle <b>instanceof</b> of generics in the way you
+might expect.  For example, <b>r instanceof ValRail[Int{self != 0}]</b> does
+not test that every element of <b>r</b> is non-zero.
+</em>
+
+<div class="p"><!----></div>
 
 </body>
 </html>

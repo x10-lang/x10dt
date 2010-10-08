@@ -18,20 +18,20 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 4 </a><br />Types</h1>
+Chapter 1 </a><br />Types</h1>
 <a name="XtenTypes">
 </a>
 
 <div class="p"><!----></div>
- is a <em>strongly typed</em> object-oriented language: every
+X10 is a <em>strongly typed</em> object-oriented language: every
 variable and expression has a type that is known at compile-time.
 Types limit the values that variables can hold and specify the places
 at which these values can lie.
 
 <div class="p"><!----></div>
- supports three kinds of runtime entities, <em>objects</em>,
+X10 supports three kinds of runtime entities, <em>objects</em>,
 <em>structs</em>, and <em>functions</em>. Objects are instances of <em>
-  classes</em> (). They may contain mutable fields
+  classes</em> (&#167;). They may contain mutable fields
 and stay resident in the place in which they were
 created. 
 Objects are said to be <em>boxed</em> in that variables of a
@@ -47,7 +47,7 @@ simply containing references to the memory used to represent the
 objects.
 
 <div class="p"><!----></div>
-Structs are instances of <em>struct types</em> (). They are a
+Structs are instances of <em>struct types</em> (&#167;). They are a
 restricted variant of classes, lacking meta-information; this makes them less
 flexible, but in many cases more efficient. When it is semantically
 meaningful, converting a class into a struct or vice-versa is quite easy.
@@ -58,7 +58,7 @@ and align the fields of the struct.
 <div class="p"><!----></div>
 Functions, called closures or lambda-expressions in other languages, are
 instances of <em>function types</td><td width="150">
-&#124;</em> (). Functions can refer to
+&#124;</em> (&#167;). Functions can refer to
 variables from the surrounding environment; , <b>(x:Int)=&#62;x*y</b> is a unary
 integer function which multiplies its argument by the variable <b>y</b> from
 the surrounding block.  
@@ -88,8 +88,116 @@ Strengthening is an equally familiar notion from logic.   The instances of
 <b>Int{self != 0}</b> are all elements of <b>Int{true}</b> as well, because
 <b>self != 0</b> logically implies <b>true</b>; so 
 <b>Int{self != 0} &lt;: Int{true} == Int</b> by strengthening.  X10 uses both
-notions of subtyping.  See  for the full definition
+notions of subtyping.  See &#167; for the full definition
 of subtyping in X10.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.1">
+0.1</a>&nbsp;&nbsp;Type System</h3>
+
+The types in X10 are as follows.  These are the <em>semantic</em> types. Other
+syntactic forms for types exist, but they are simply abbreviations for types
+in the following system.  For example, <b>Array[Int](1)</b> is the type of
+one-dimensional integer-valued arrays; it is an abbreviation for
+<b>Array[Int]rank==1</b>.<br />
+
+  :
+  |
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">
+<div class="p"><!----></div>
+Type ::= TypeName </td></tr>
+<tr><td align="right">&#124; TypeName <b>[</b> Types<sup>?</sup>&nbsp;<b>]</b> </td></tr>
+<tr><td align="right">&#124; Type <b> Constraint <b></b></b> </td></tr>
+<tr><td align="right">&#124; Type <b>.</b> Type </td></tr>
+<tr><td align="right">&#124; TypeVar </td></tr>
+<tr><td align="right">&#124; FunctionType</td></tr>
+<tr><td align="right">&#124; VoidFunctionType </td></tr>
+<tr><td align="right">TypeName ::= Id </td></tr>
+<tr><td align="right">TypeVar ::= Id </td></tr>
+<tr><td align="right">Types ::= Type </td></tr>
+<tr><td align="right">&#124; Type <b>,</b> Types </td></tr>
+<tr><td align="right">FunctionType ::= <b>(</b> Formals<sup>?</sup>&nbsp;<b>) =&#62;</b>  Type </td></tr>
+<tr><td align="right">VoidFunctionType ::= <b>(</b> Formals<sup>?</sup>&nbsp;<b>) =&#62; void</b> </td></tr>
+<tr><td align="right">Formal ::= Id <b>:</b> Type </td></tr>
+<tr><td align="right">Formals ::= Formal </td></tr>
+<tr><td align="right">&#124; Formal <b>,</b> Formals      
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The type <em>TypeName</em> refers to a defined type.  For example, 
+<b>Int</b>
+is the type of 32-bit integers.
+Given a class declaration 
+<pre>
+class Tripe { /* ... */ }
+</pre>
+the identifier <b>Tripe</b> may be used as a type.
+
+<div class="p"><!----></div>
+The type <em>TypeName <b>[</b> Types<sup>?</sup> <b>]</b></em> refers to an instance of a
+generic (or parameterized) type.  For example, <b>Array[X]</b> is the built-in
+type of arrays whose elements are some unspecified type <b>X</b>.
+<b>Array[Int]</b> is the type of arrays of integers. 
+
+<div class="p"><!----></div>
+The type <em>Type <b> Constraint <b></b></b></em> refers to a constrained type.
+<em>Constraint</em> is a Boolean expression - written in a <em>very</em> limited
+subset of X10 - describing the acceptable values of the constrained type.
+For example, <b>var n : Int{self != 0};</b> guarantees that <b>n</b> is always a
+non-zero integer. 
+Similarly, <b>var x : Tripex != null;</b> defines a <b>Tripe</b>-valued
+variable <b>x</b> whose value is never null.
+
+<div class="p"><!----></div>
+The qualified type <em>Type <b>.</b> Type</em> refers to an instance of an <em>
+inner</em> type; that is, a class or struct defined inside of another class or
+struct, and holding an implicit reference to the outer.  For example, given
+the type declaration 
+<pre>
+class Outer {
+  class Inner { /* ... */ }
+}
+</pre>
+then 
+<b>(new Outer()).new Inner()</b> creates a value of type 
+<b>Outer.Inner</b>.
+
+<div class="p"><!----></div>
+Type variables, <em>TypeVar</em>, refer to types that are parameters.  For
+example, the following class defines a cell in a linked list.  
+<pre>
+class LinkedList[X] {
+  val head : X;
+  val tail : LinkedList[X];
+  def this(head:X, tail:LinkedList[X]) {
+     this.head = head; this.tail = tail;
+  }
+}
+</pre>
+It doesn't
+matter what type the cell is, but it has to have <em>some</em> type.
+<b>LinkedList[Int]</b> is a linked list of integers;
+<b>LinkedList[LinkedList[String]]</b> a list of lists of strings.
+
+<div class="p"><!----></div>
+The function type 
+<em><b>(</b> Formals<sup>?</sup> <b>) =&#62;</b>  Type</em> 
+refers to functions taking the
+listed formal parameters and returning a result of <em>Type</em>.  
+The closely-related void function type 
+<em><b>(</b> Formals<sup>?</sup> <b>) =&#62;</b>  <b>Void</b></em>  takes the listed
+parameters and returns no value.
+For example, 
+<b>(x:Int) =&#62; Intself != x</b> 
+is the type of integer-valued functions which have no fixed points.  
 
 <div class="p"><!----></div>
 
@@ -99,42 +207,41 @@ of subtyping in X10.
 Types are described by the following grammar: <br />
 
 
-Type ::= FunctionType <br />
-    &#124; ConstrainedType  <br />
+  :
+  |
+  
+  
+  
+  <em>
+  
+<table>
 
-<div class="p"><!----></div>
-FunctionType ::= TypeParameters <b>(</b> Formals <b>)</b>
-Constraint  <b>=&#62;</b> TypeOrVoid <br />
-TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter ) <b>]</b> <br />
-TypeParameter ::= Identifier <br />
-
-<div class="p"><!----></div>
-ConstrainedType ::= Annotation BaseType Constraint
-PlaceConstraint <br />
-
-<div class="p"><!----></div>
-BaseType ::= ClassBaseType <br />
-     &#124; InterfaceBaseType <br />
-     &#124; PathType <br />
-     &#124; <b>(</b> Type <b>)</b> <br />
-TypeOrVoid ::= Type <br />
-     &#124; <b>Void</b><br />
-ClassType ::= Annotation ClassBaseType Constraint
-PlaceConstraint <br />
-InterfaceType ::= Annotation InterfaceBaseType Constraint
-PlaceConstraint <br />
-
-<div class="p"><!----></div>
-PathType ::= Expression <b>.</b> Identifier <br />
-
-<div class="p"><!----></div>
-Annotation ::= <b>@</b> InterfaceBaseType Constraint <br />
-
-<div class="p"><!----></div>
-ClassOrInterfaceType ::= ClassType <br />&#124; InterfaceType <br />
-ClassBaseType ::= TypeName <br />
-InterfaceBaseType ::= TypeName <br />
-
+<tr><td align="right">Type ::= FunctionType </td></tr>
+<tr><td align="right">&#124; ConstrainedType  </td></tr>
+<tr><td align="right">FunctionType ::= TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b>
+Constraint<sup>?</sup>&nbsp;<b>=&#62;</b> TypeOrVoid </td></tr>
+<tr><td align="right">TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter )<sup>*</sup>&nbsp;<b>]</b> </td></tr>
+<tr><td align="right">TypeParameter ::= Identifier </td></tr>
+<tr><td align="right">ConstrainedType ::= Annotation<sup>*</sup>&nbsp;BaseType Constraint<sup>?</sup>&nbsp;
+PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">BaseType ::= ClassBaseType </td></tr>
+<tr><td align="right">&#124; InterfaceBaseType </td></tr>
+<tr><td align="right">&#124; PathType </td></tr>
+<tr><td align="right">&#124; <b>(</b> Type <b>)</b> </td></tr>
+<tr><td align="right">TypeOrVoid ::= Type </td></tr>
+<tr><td align="right">&#124; <b>Void</b></td></tr>
+<tr><td align="right">ClassType ::= Annotation<sup>*</sup>&nbsp;ClassBaseType Constraint<sup>?</sup>&nbsp;
+PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">InterfaceType ::= Annotation<sup>*</sup>&nbsp;InterfaceBaseType Constraint<sup>?</sup>&nbsp;
+PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">PathType ::= Expression <b>.</b> Identifier </td></tr>
+<tr><td align="right">Annotation ::= <b>@</b> InterfaceBaseType Constraint<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">ClassOrInterfaceType ::= ClassType </td></tr>
+<tr><td align="right">&#124; InterfaceType </td></tr>
+<tr><td align="right">ClassBaseType ::= TypeName </td></tr>
+<tr><td align="right">InterfaceBaseType ::= TypeName </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 

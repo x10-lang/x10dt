@@ -249,6 +249,13 @@ outside of the class. Since <b>p</b> is only visible inside the class, there is
 no way to tell if <b>10</b> is of type <b>Int{self != p}</b> at the call site.)
 
 <div class="p"><!----></div>
+<em><em>Limitation</em> 
+Currently <b>hasZero T</b> is not supported.  
+Certain spurious syntactic forms are accepted by the compiler but treated
+incorrectly. 
+</em>
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
@@ -277,59 +284,14 @@ x to y if x is an object with a property whose value is y.
 <div class="p"><!----></div>
 Currently this restriction is not checked by the compiler. Future
 versions of the compiler will check this restriction by introducing
-rules on escaping of <b>this</b> () before the invocation of
+rules on escaping of <b>this</b> (&#167;) before the invocation of
 <b>property</b> calls.
 
 <div class="p"><!----></div>
+
+<div class="p"><!----></div>
      <h3><a name="tth_sEc5.2">
-5.2</a>&nbsp;&nbsp;Place constraints</h3>
-<a name="PlaceTypes">
-</a>
-<a name="PlaceType">
-</a>
-
-<a name="DepType:PlaceType">
-</a>
-
-<div class="p"><!----></div>
-An  computation spans multiple places (). Much data
-can only be accessed from the proper place, and often it is preferable to
-determine this statically. So, X10 has special syntax for working with places.
-<b>T!</b> is a value of type <b>T</b> located at the right place for the current
-computation, and <b>T!p</b> is one located at place <b>p</b>.
-
-<div class="p"><!----></div>
-PlaceConstraint     ::= <b>!</b> Place <br />
-Place              ::=   Expression <br />
-
-
-<div class="p"><!----></div>
-More specifically, All  classes extend the class <b>x10.lang.Object</b>,
-which defines a property <b>home</b> of type <b>Place</b>.  <b>T!p</b>, when
-<b>T</b> is a class, is <b>Tself.home==p</b>.  If <b>p</b> is omitted, it
-defaults to <b>here</b>.   <b>T!</b> is far and away the most common usage of
-<b>!</b>. 
-
-<div class="p"><!----></div>
-Structs don't have <b>home</b>; they are available everywhere.  For structs, 
-<b>T!</b> and <b>T!p</b> are synonyms for <b>T</b>. Since <b>T</b> is available
-everywhere, it is available <b>here</b> and at <b>p</b>. 
-
-<div class="p"><!----></div>
-<b>!</b> may be combined with other constraints.  <b>T{c}!</b> is the type of
-values of <b>T!</b> which satisfy <b>c</b>; it is <b>T{c &amp;&amp; self.home==here}</b>
-for an object type and <b>T{c}</b> for a struct type.  
-<b>T{c}!p</b> is the type of
-values of <b>T!p</b> which satisfy <b>c</b>; it is <b>T{c &amp;&amp; self.home==p}</b>
-for an object type and <b>T{c}</b> for a struct type.  
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc5.3">
-5.3</a>&nbsp;&nbsp;Variables in Constraints</h3>
+5.2</a>&nbsp;&nbsp;Variables in Constraints</h3>
 
 <div class="p"><!----></div>
 X10 permits a <b>val</b> variable to appear in constraints on its own type as
@@ -340,8 +302,8 @@ non-zero variable <b>nz</b>.
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.4">
-5.4</a>&nbsp;&nbsp;Operations on Constrained Types</h3>
+     <h3><a name="tth_sEc5.3">
+5.3</a>&nbsp;&nbsp;Membership in Constrained Types</h3>
 
 <div class="p"><!----></div>
 An instance <b>o</b> of <b>C</b> is said to be of type <b>C{c}</b> (or: <em>
@@ -350,29 +312,8 @@ the current lexical environment, augmented with the binding <b>self</b>
 &#8594; <b>o</b>.
 
 <div class="p"><!----></div>
-The <b>instanceof</b> operation lets programs test type membership.  
-<b>e instanceof C{c}</b> returns true if <b>e</b> belongs to <b>C{c}</b>, and
-false otherwise.  
-<b>1 instanceof Int{self != 2}</b> returns true, 
-and 
-<b>x instanceof Int{self == 1}</b> returns false if 
-<b>x==2</b>.
-
-<div class="p"><!----></div>
-However, it is a static error if <b>e</b> cannot possibly be an instance of
-<b>C{c}</b>; the compiler will reject <b>1 instanceof Int{self == 2}</b> because
-<b>1</b> can never satisfy <b>Int{self == 2}</b>. Similarly, <b>1 instanceof
-String</b> is a static error, rather than an expression always returning false. 
-
-<div class="p"><!----></div>
-The <b>as</b> operation attempts to convert a value to a given constrained
-type, as described in .   As with <b>instanceof</b>, it may
-succeed, fail with a dynamic error, or, in the case where the cast is
-impossible, fail to compile.
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc5.5">
-5.5</a>&nbsp;&nbsp;Example of Constraints</h3>
+     <h3><a name="tth_sEc5.4">
+5.4</a>&nbsp;&nbsp;Example of Constraints</h3>
 
 <div class="p"><!----></div>
 Constraints can be used to express simple relationships between objects,
@@ -411,6 +352,49 @@ class Triangle
    {property(a,b,c);}
  }
 </pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.5">
+5.5</a>&nbsp;&nbsp;Entailment of Constraints</h3>
+
+
+
+<div class="p"><!----></div>
+As we will see, <b>T{c}</b> is a subtype of <b>T{d}</b> if every value of type
+<b>T{c}</b> is also a value of type <b>T{d}</b>.  This is true if, whenever
+<b>c</b> is true, <b>d</b> is also true.  Logicians call this concept <em>
+entailment</em>: in this case, <b>c</b> entails <b>d</b>.  
+
+<div class="p"><!----></div>
+So, computing subtyping in X10 requires computing entailment of constraints.
+One crucial reason why the constraint language is so limited is that computing
+entailment in richer sets of expressions quickly becomes computationally
+prohibitive, and, with a small number of innocuous-looking operations, becomes
+actually undecidable.  
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> X10's Entailment Algorithm is Incomplete</em>
+
+<div class="p"><!----></div>
+Even with the restricted constraints available in X10, certain
+constraint entailments are prohibitively expensive to calculate.  The issues
+concern constraints that connect different levels of recursively-defined
+types.  
+<pre>
+class Listlike(x:Int) {
+  val kid : Listlike{self.x == this.x};
+  def this(x:Int, kid:Listlike) { 
+     property(x); 
+     this.kid = kid as Listlike{self.x == this.x};}
+}
+</pre>
+
+<div class="p"><!----></div>
+The entailment algorithm of X10 2.0 imposes a certain limit on the number of
+times such types will be unwound.   If this limit is exceeded, the compiler
+will print a warning, and type-checking will fail in a situation where it is
+semantically allowed.  In this case, insert a dynamic cast at the point where
+type-checking failed.  
 
 <div class="p"><!----></div>
 

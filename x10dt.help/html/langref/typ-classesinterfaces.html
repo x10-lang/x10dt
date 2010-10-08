@@ -27,7 +27,7 @@
 1.1</a>&nbsp;&nbsp;Class types</h3>
 
 <div class="p"><!----></div>
-A <em>class declaration</em> () introduces a <em>class type</em>
+A <em>class declaration</em> (&#167;) introduces a <em>class type</em>
 containing all instances of the class.  The <b>Position</b> class below
 could describe the position of a slider control, for example.
 
@@ -73,12 +73,12 @@ class Cell[T] {
 </pre>
 
 <div class="p"><!----></div>
- does not permit mutable static state. A fundamental principle of the
+X10 does not permit mutable static state. A fundamental principle of the
 X10 model of computation is that all mutable state be local to some place
-(), and, as static variables are globally available, they
+(&#167;), and, as static variables are globally available, they
 cannot be mutable. When mutable global state is necessary, programmers should
 use singleton classes, putting the state in an object and using place-shifting
-commands () and atomicity () as necessary
+commands (&#167;) and atomicity (&#167;) as necessary
 to mutate it safely.
 
 <div class="p"><!----></div>
@@ -97,7 +97,7 @@ Variables of class type may contain the value <b>null</b>.
 </a>
 
 <div class="p"><!----></div>
-An <em>interface declaration</em> () defines an <em>
+An <em>interface declaration</em> (&#167;) defines an <em>
 interface type</em>, specifying a set of methods, type members, and
 properties which must be provided by any class declared to implement the
 interface. 
@@ -167,7 +167,7 @@ at compile time in <em>constraints</em>. This allows us
 to specify subtypes based on properties, by appending a boolean expression to
 the type. For example, the type <b>Coords{x==0}</b> is the set of all points
 whose <b>x</b> property is <b>0</b>.  Details of this substantial topic are
-found in .
+found in &#167;.
 
 <div class="p"><!----></div>
 

@@ -73,8 +73,12 @@ and getting better and better approximations. (If the constraint
 sublanguage had <b></td><td width="150">
 &#124;</td><td width="150">
 &#124;</b>, we could give it the type 
-<b>Int{self == 0 &#124;&#124; self == 1}</b>, which would be nearly perfect.  But 
-<b>&#124;&#124;</b> makes typechecking far more expensive, so it is excluded.)
+<b>Int{self == 0 </td><td width="150">
+&#124;</td><td width="150">
+&#124; self == 1}</b>, which would be nearly perfect.  But 
+<b></td><td width="150">
+&#124;</td><td width="150">
+&#124;</b> makes typechecking far more expensive, so it is excluded.)
 No X10 type is the best description of E; there is always a better one.
 
 <div class="p"><!----></div>
@@ -93,10 +97,6 @@ but neither one is better than the other, and there is no single X10 type
 which is better than both. (Some languages have <em>conjunctive
     types</em>, and could say that the return type of <b>example</b> was 
 <b>I1 &amp;&amp; I2</b>.  This, too, complicates typechecking.)
-
-<div class="p"><!----></div>
-</li>
-
 
 <div class="p"><!----></div>
 So, when confronted with expressions like this, X10 computes <em>some</em>
