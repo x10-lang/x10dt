@@ -94,7 +94,12 @@ public class FactWriterVisitor extends NodeVisitor {
     }
     scheme.append("file"); //$NON-NLS-1$
     try {
-      final URI uri = new URI(scheme.toString(), null /* host */, position.file(), null /* fragment */);
+      String path = position.path().isEmpty() ? position.file() : position.path();
+      final String osName = System.getProperty("os.name"); //$NON-NLS-1$
+      if (osName.startsWith("Windows")) { //$NON-NLS-1$
+        path = '/' + path;
+      }
+      final URI uri = new URI(scheme.toString(), null /* host */, path, null /* fragment */);
       return this.fValueFactory.sourceLocation(uri, position.offset(), 
                                                position.endOffset() - position.offset(), position.line(), position.endLine(),
                                                position.column(), position.endColumn());
