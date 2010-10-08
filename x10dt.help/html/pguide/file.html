@@ -40,7 +40,8 @@ comments, can be a "<tt>package</tt>" statement.  The syntax is
 
 <blockquote><tt>package <em>packageName</em>;</tt></blockquote>
 The package name, by convention, is a lower-case identifier ( letters and numbers,
-starts with a letter).  You don't need a package spec, and our examples will generally
+starts with a letter) punctuated by <tt>.</tt>'s,  <tt>com.ibm.math</tt>. 
+You don't need to have a package spec, and our examples will generally
 not bother with them, although we give some examples later for those unfamiliar with
 what is at stake.  When no <tt>package</tt> declaration appears, the class is said to be
 "in the  default package".
@@ -54,21 +55,21 @@ we explain all this, we need the next ingredient in the file, <tt>import</tt> st
 <b>Optional Import Statements</b>  After the package statement, if there is one,
 come the <tt>import</tt> statements:
 
-<blockquote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>import <em>fullPackageName.className</em>;</tt><br />
+<blockquote>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>import <em>fullPackageName.properName</em>;</tt><br />
 or<br />
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<tt>import <em>fullPackageName.</em>*;</tt>
 </blockquote>
-We've already seen the example of importing <tt>x10.util.Random</tt>.  Notice that
-the full package name is a sequence of "<tt>.</tt>" separated lower-case names,
-but the class name is whatever you declared it to be: it should <em>always</em>
-be capitalized.  What "<tt>x10.util.Random</tt>" means is that if you went back to the
+The full package name is, as we've said, a sequence of "<tt>.</tt>" separated lower-case names.
+The proper name is  should <em>always</em> be a capitalized name. 
+We've already seen the example of importing <tt>x10.util.Random</tt>.  
+What "<tt>x10.util.Random</tt>" means is that if you went back to the
 file system where <tt>Random.x10</tt> was created, you would find a directory
 named <tt>x10</tt> with a subdirectory <tt>util</tt> that contains the source file
-<tt>Random.x10</tt>.  The same rules apply to <em>you</em>: if you have
+<tt>Random.x10</tt>.  The same rules apply to <em>you</em>: if you put
 
 <blockquote><tt>package a.b.c;</tt></blockquote>
 at the start of your file, you must have the corresponding directory structure,
-and the file must lie in the subdirectory <tt>c</tt>.
+<tt>a</tt> containing <tt>b</tt> containing <tt>c</tt>, and the file must lie in the subdirectory <tt>c</tt>.
 
 <div class="p"><!----></div>
 The second form, with an asterisk as the final part, says: "import every class
@@ -132,12 +133,12 @@ by anyone, anywhere.
 <div class="p"><!----></div>
 If you must put several type declarations in one file, make sure that the first has the
 same name as the source file.  Be kind, though: remember that someone who
-is reading some X10 and sees a reference to a class <tt>C</tt> and wants to
-look at the source really expects
+is reading some X10, sees a reference to a class <tt>C</tt> and wants to
+look at the source for that class really expects
 to find <tt>C</tt> in <tt>C.x10</tt> in the appropriate directory, whether it is private to a package or not. 
 
 <div class="p"><!----></div>
-<b>That's it:</b>  Yes, nothing more other than comments appears in a X10source file.
+<b>That's it:</b>  Yes, nothing more, other than comments, appears in an X10 source file.
 </blockquote>
 
 </html>

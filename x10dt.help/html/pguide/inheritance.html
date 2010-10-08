@@ -16,7 +16,7 @@
 <title>Giving Up Inheritance To Get Efficiency</title>
 
  <h2><a name="tth_sEc1">
-4</a>&nbsp;&nbsp;Giving Up Inheritance To Get Efficiency</h2><a name="sec:guitge">
+1</a>&nbsp;&nbsp;Giving Up Inheritance To Get Efficiency</h2><a name="sec:guitge">
 </a>
 
      <h3><a name="tth_sEc1.1">
@@ -32,7 +32,7 @@ carefully at the class <tt>Point2D</tt> will show what happens:
 
 <div class="p"><!----></div>
 
-<blockquote>Let <tt>public def doIt(p:Point2D) {...}</tt> be a method declared in some
+<blockquote>Let "<tt>public def doIt(p:Point2D) {...}</tt>" be a method declared in some
 class or other (we don't care where).  We're going to look at the cost of
 an invocation <tt>p.magnitude()</tt> within the body of <tt>doIt</tt>.
 
@@ -55,7 +55,7 @@ in order to find the right code to call.
 </li>
 </ul>
 If there were no
-inheritance hierarchy, the compiler could already determine the
+inheritance hierarchy, the compiler itself could already determine the
 correct code to call, completely eliminating this runtime lookup cost.
 
 <div class="p"><!----></div>
@@ -78,7 +78,7 @@ large memories, 6 (or even 8) bytes might be used for addresses.
 <div class="p"><!----></div>
 Think about it.
 If you have an array of 1 Meg <tt>Point2D</tt>s, you use 16 megabytes
-for storing the data you're really interest in, and then 6 megabytes or
+for storing the data you're really interest in, and then another 6 megabytes or
 more for type information (whether it is really needed or not!).
  </blockquote>
 
@@ -87,7 +87,7 @@ These considerations explain why a performance-oriented language avoids using
 the normal class hierarchy for primitive types like 32-bit integers.
 
 <div class="p"><!----></div>
-<b>Major design issue</b> How much of what classes give us can we keep without
+<b>Major design issue:</b> How much of what classes give us can we keep without
 incurring any substantial overhead?
 
 <div class="p"><!----></div>
@@ -107,8 +107,9 @@ They bear about the same relation to the familiar <em>C</em> <tt>struct</tt> as 
 do, but that's the way it is.
 
 <div class="p"><!----></div>
-As an example of an X10 <tt>struct</tt>, let us change our class <tt>Point2D</tt> to be 
-a struct.
+As an example of an X10 struct, let us change our class <tt>Point2D</tt> to be 
+a struct.  The only real difference is that the keyword <tt>struct</tt> replaces <tt>class</tt> in
+the declaration:
 
 <pre>&nbsp;1&nbsp;&nbsp;public&nbsp;struct&nbsp;Point2D&nbsp;{
 &nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;x:&nbsp;Double;
@@ -150,8 +151,9 @@ to <tt>(p1.x == p2.x) <br /></td><td width="150">
 
 <div class="p"><!----></div>
 If <tt>Point2D</tt> were still a class, then <tt>p1 == p2</tt> being true would mean that
-both were references to exactly the same instance of <tt>Point2D</tt>. 
-You would use the method call <tt>p1.equals(p2)</tt> to do the weaker check 
+<tt>p1</tt> and <tt>p2</tt> were both references to exactly the same instance of <tt>Point2D</tt>.
+This is a much stricter notion than that their instance members have the same values. 
+You would have to use the method call <tt>p1.equals(p2)</tt> to do the weaker check 
 of whether <tt>(p1.x == p2.x) <br /></td><td width="150">
  (p1.y == p2.y)</tt> is true.</dd>
 
@@ -173,19 +175,22 @@ needed is a good question, though: probably not often.
  a new instance of a struct-in contrast to the story for classes.
 Here is an example that assigns a <tt>Point2D</tt> value:
 
-<pre>&nbsp;var&nbsp;p:&nbsp;Point2D&nbsp;=&nbsp;Point2D(1.2,&nbsp;3.4);
+<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;p:&nbsp;Point2D&nbsp;=&nbsp;Point2D(1.2,&nbsp;3.4);
 </pre>
 Now that <tt>Point2D</tt> is a struct, there's no "<tt>new</tt>" on the right-hand side.
 If you put the "<tt>new</tt>" in
 by mistake, the compiler will happily generate an error message telling you
-to remove it.
+to remove it.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a> Furthermore,
+you should understand that <tt>p</tt> <em>is <em>not</em> a reference to the</em> <tt>Point2D</tt>:
+what is stored is the whole 16-bit value.  To repeat: <em>there are <em>no</em>
+references to instances of a struct.</em>  
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-The rules for declaring structs are such that the compiler can determine the size of
+The rules for what can be part of a struct are such that the compiler can determine the size of
 an instance from the declaration.  The reason is storage efficiency:  once the size is
-known, no more space need be allocated than is need to store the value in memory,
+known, no more space need be allocated than is needed to store the value in memory,
 and at runtime, we don't have to carry around size information for every instance.
 
 <div class="p"><!----></div>
@@ -269,6 +274,9 @@ far outweigh any performance loss.
 <div class="p"><!----></div>
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>
 For example, information required to do automatic garbage collection
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>The rationale is probably that you are just describing a value,
+not requesting storage that the run-time is obligated to manage.
 <br /><br />
 
 </html>

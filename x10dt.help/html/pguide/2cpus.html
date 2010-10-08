@@ -26,7 +26,7 @@ more of X10's declarative syntax and write our first loops.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.1">
-1.1</a>&nbsp;&nbsp;&#960; via Monte Carlo</h3>
+2.1</a>&nbsp;&nbsp;&#960; via Monte Carlo</h3>
 
 <div class="p"><!----></div>
 The unit circle is the set of points (x,y) in the plane that satisfy x<sup>2</sup> + y<sup>2</sup>  &#8804; 1,
@@ -56,22 +56,18 @@ they don't just duplicate each other's efforts.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.2">
-1.2</a>&nbsp;&nbsp;Getting Started: A Serial Version</h3>
+2.2</a>&nbsp;&nbsp;Getting Started: A Serial Version</h3>
 Let's look first, though, at a serial version, which is shown in Figure , 
-because it introduces a couple 
-of basic X10 idioms that we'll need in the parallel code: the use of <tt>val</tt> and
-<tt>var</tt> to introduce declarations, and one of the most commonly needed forms of
-X10's <tt>for</tt> loop.
+because it introduces a number of basic X10 idioms that we'll need in the parallel code
 
 <div class="p"><!----></div>
 <a name="tth_fIg1">
-</a> <a name="fig:mcpi">
-</a><hr />
+</a> <hr />
 
 <pre>
 &nbsp;1&nbsp;import&nbsp;x10.io.Console;
 &nbsp;2&nbsp;import&nbsp;x10.util.Random;
-&nbsp;3&nbsp;public&nbsp;class&nbsp;MonteCarloPi&nbsp;{
+&nbsp;3&nbsp;public&nbsp;class&nbsp;MontePi&nbsp;{
 &nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;val&nbsp;N&nbsp;=&nbsp;10000;
 &nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](1))&nbsp;{
 &nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;r&nbsp;=&nbsp;new&nbsp;Random();&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -90,19 +86,43 @@ X10's <tt>for</tt> loop.
 <hr />
 
 
-<center>Figure 1: Serial Monte Carlo Approximation of Pi</center>
+<center>Figure 1: Serial Monte Carlo Approximation of Pi</center><a name="fig:mcpi">
+</a>
 
 <div class="p"><!----></div>
-Let's look at the declarations first.  There are two keywords, <tt>val</tt>
-for naming values, and <tt>var</tt> for naming variables:
 
 <dl compact="compact">
 
-	<dd>val:
- A declaration like "<tt>val N = 10000;</tt>"  in line 4 says that <tt>N</tt> names a
-<em>value</em>, in this case,  <tt>10000</tt>.  
+	<dd><b>lines 1 and 2:</b> 
+<tt>Console</tt> and <tt>Random</tt> are two classes that are provided by the X10standard library.
+Whenever you need a class that is not implemented in the file you creating, you need to 
+tell the compiler.  There are two ways.  One is to give the complete name of the class in
+an import statement, as in these two lines. 
+The other is to spell out the name at each use:  we could have omitted the import in line 2
+by writing line 6 as "<tt>val r = new x10.util.Random()</tt>".
 
 <div class="p"><!----></div>
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
+ <tt>Console</tt>, and other types like <tt>Int</tt>, are so commonly used that the compiler
+is kind and does not force you to import them.</dd>
+
+	<dd><b>lines 4, 6, 9, 10, 13</b>
+In line 4 we have <tt>N</tt> being declared to be a <tt>static val</tt>.  The keyword "<tt>val</tt>" means that
+ <tt>N</tt> names a value,
+<tt>10000</tt> in this case.  One cannot assign a new value to 
+<tt>N</tt> later on in the code: it is a constant, in the same way the <tt>const</tt> is used in C
+and <tt>final</tt> in Java.
+
+<div class="p"><!----></div>
+The keyword "<tt>static</tt>" means that the value is associated with the class <tt>MontePi</tt> itself.
+The remaining <tt>val</tt>s, <tt>r</tt>, <tt>x</tt>, <tt>y</tt> and <tt>pi</tt> are not part of the class: they
+are just local variables of the method  <tt>main()</tt>.
+
+<div class="p"><!----></div>
+As with return values, the compiler will happily figure out the type of a <tt>val</tt> when its
+value appears in the declaration, as we've done here.
+You can, though, if you wish, provide the type yourself.  For example, we could have written
+=======
 One cannot assign a new value to 
 <tt>N</tt> later on in the code: it is a constant, in the same way that <tt>const</tt>  is used in C++,
 or <tt>final</tt> in Java.
@@ -110,26 +130,48 @@ or <tt>final</tt> in Java.
 <div class="p"><!----></div>
 As with return values, the compiler will happily figure out the type of a <tt>val</tt>,
 but if you wish, you can provide it.  For example, we could have written
+&#62;&#62;&#62;&#62;&#62;&#62;&#62; .r502
 line 6 as
 
 <blockquote><tt>val r:Random = new Random(); </tt></blockquote>
-In this case, there's not much point, though, because
-adding "<tt>:Random</tt>" helps neither human nor compiler. 
+In this case, there's not much point, though, to spelling things out, because
+adding "<tt>:Random</tt>" helps neither human nor compiler read the code. 
+
+<div class="p"><!----></div>
+One case where you do need to provide the type is when you don't want to  initialize
+the <tt>val</tt> in the declaration itself.  Typically this happens when the <tt>val</tt> depends on some choices
+that you can't neatly write in one line:
+
+<pre>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;howMany:&nbsp;Boolean;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;(someBoolean)&nbsp;{&nbsp;/*&nbsp;howMany&nbsp;gets&nbsp;set&nbsp;one&nbsp;way&nbsp;here&nbsp;*/&nbsp;}
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else&nbsp;{&nbsp;/*&nbsp;howMany&nbsp;get&nbsp;set&nbsp;differently&nbsp;here&nbsp;*/&nbsp;}&nbsp;&nbsp;&nbsp;&nbsp;
+
+</pre>
+The code in the <tt>if</tt> and <tt>else</tt> blocks is free to do any calculation they
+need to, so long as they don't try to use <tt>howMany</tt> before it has been set.  
+The rule is
+
+<blockquote><em>Control cannot reach a use of a <tt>val</tt> without first
+reaching an assignment that sets the <tt>val</tt>'s value.</em> </blockquote>
+In other words, there is no such thing as "default value" for a <tt>val</tt>.
+It must be set explicitly by you-and once set, cannot be changed.
 
 <div class="p"><!----></div>
 The initializer for a <tt>val</tt> may be any legal  X10 expression that can be
 evaluated at run-time-they need not be compile-time constants.  Lines 9,
 10, and 13 are all examples of run-time values as initializers.</dd>
 
-	<dd>var: 
+	<dd><b>lines 7 and 8:</b>  
+The keyword <tt>var</tt> introduces the declaration of a variable.
 A declaration like "<tt>var result:Double == 0.0;</tt>"  says that
 <tt>result</tt> names some storage that holds a value of type <tt>Double</tt>
-that is initially <tt>0.0</tt>, but that 
+whose initial value is <tt>0.0</tt>, and this value
 may be updated as the code runs.  In the lingo of the trade, one
-says that <tt>result</tt> "refers" to a "<tt>Double</tt>".  
+says that "<tt>result</tt> <em>references</em> a <tt>Double</tt>".  
 
 <div class="p"><!----></div>
-<tt>Double</tt> values are double-precision floating points, exactly like Java/C++'s
+<tt>Double</tt> values are double-precision IEEE floating points, exactly like Java's and C++'s
 <tt>double</tt>.  In fact,  X10 also allows you to use <tt>int</tt>, <tt>double</tt>, and so on.  So if
 you have a lingering fondness for these names, or just don't like typing upper-case
 characters, feel free to use the good old names.  Truth be told, though, X10's
@@ -137,54 +179,43 @@ convention has the virtue that it is consistent with proper names for types alwa
 capitalized.
 
 <div class="p"><!----></div>
-Sadly, you need to supply
-the type for a <tt>var</tt> even when an initial value is provided, as it is here.
+Sadly, you do need to supply
+the type for a <tt>var</tt> even, as it is here, when an initial value is provided.
 The rationale is a bit involved, so we ask you just to take our word for it that 
 the compiler does need to be told the type of every <tt>var</tt>.</dd>
-</dl>
+
+	<dd><b>lines 8-12:</b>
+Another new ingredient in the code is the "<tt>for</tt>"  loop, lines 8 through 12.
 
 <div class="p"><!----></div>
-The other new ingredient in the code is the "<tt>for</tt>"  loop, lines 8 through 12.
-
-<ul>
-<li>The syntax in line 8 should be familiar.  It begins with the declaration and initialization
+The syntax in line 8 should be familiar.  It begins with the declaration and initialization
 of the loop
 variable <tt>j</tt>, "<tt>var j:Int = 1</tt>".  Important: you need the "<tt>var</tt>", because that
-tells the compiler you want to declare a new variable. " <tt>j:Int = 1</tt>" by itself
+tells the compiler you want to declare a new variable. "<tt>j:Int = 1</tt>" by itself
 won't do: the compiler will complain that <tt>j</tt> is a value, not a variable.
-<div class="p"><!----></div>
-</li>
 
-<li>
+<div class="p"><!----></div>
 As you might guess, "<tt>Int</tt>" is X10's
-32-bit integer type.
-<div class="p"><!----></div>
-</li>
+32-bit integer type. 
 
-<li>
+<div class="p"><!----></div>
 The declaration for <tt>j</tt> is followed by the test "<tt>j &lt;= N</tt>" .  This expression is
 evaluated at each iteration (including the first!) and the loop body will be executed
-only so long as it evaluates to "true."
-<div class="p"><!----></div>
-</li>
+only so long as it evaluates to "true."  
 
-<li>
+<div class="p"><!----></div>
 The third expression in line 8, "<tt>j++</tt>", is the re-initialization of the loop variable.  
 X10's binary and unary operators are the same as Java and C++, so things like
 "<tt>-=</tt>" and "<tt>++</tt>" mean exactly what you expect.
-<div class="p"><!----></div>
-</li>
 
-<li>
+<div class="p"><!----></div>
 Each time through the loop, we are calling the random number generator
 <tt>r</tt> twice to get the coordinates of a point (lines 9 and 10).  Happily, <tt>r.nextDouble</tt>
 returns a value between 0 and 1, so we can use it "as is."   In line 11,
 we check whether the point is in the unit circle, and if so, we bump
-<tt>inCircle</tt> by 1.
-<div class="p"><!----></div>
-</li>
+<tt>inCircle</tt> by 1. 
 
-<li>
+<div class="p"><!----></div>
  As it happens here, we don't need <tt>j</tt> in the loop, but we do want to emphasize
  that <em>the scope of <tt>j</tt>'s declaration is the loop and nothing but the loop</em>, so when
  when leave the loop, <tt>j</tt> will be unavailable.  There is no rule, however, that says
@@ -197,10 +228,8 @@ we check whether the point is in the unit circle, and if so, we bump
 &nbsp;for(&nbsp;;&nbsp;j&nbsp;&lt;=&nbsp;N;&nbsp;j++)&nbsp;{&nbsp;...&nbsp;}
 &nbsp;Console.OUT.println("Is&nbsp;"+j+"&nbsp;==&nbsp;"+(N+1)+"?");
 &nbsp;
-</pre>
-<div class="p"><!----></div>
-</li>
-</ul>
+</pre></dd>
+</dl>
 
 <div class="p"><!----></div>
 On exit from the loop at line 13, <tt>inCircle/N</tt> is the fraction of points
@@ -244,7 +273,7 @@ The first two digits, 3.1, though, should be stable.  Good luck!
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.3">
-1.3</a>&nbsp;&nbsp;Putting Lipstick On A Pig</h3>
+2.3</a>&nbsp;&nbsp;We Can Do Better</h3>
 
 <div class="p"><!----></div>
 There are some pretty primitive aspects to our first cut at &#960;.  In this section
@@ -259,49 +288,51 @@ points right away to see how much better we could do than 10,000.
 The code we need is simple enough:
 
 <pre>
-&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](1))&nbsp;{
-&nbsp;&nbsp;val&nbsp;N&nbsp;=&nbsp;args.size()&nbsp;&#62;&nbsp;0&nbsp;?&nbsp;Int.parse(args(0))&nbsp;:&nbsp;10000;
+&nbsp;1&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](1))&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;val&nbsp;N&nbsp;=&nbsp;args.size()&nbsp;&#62;&nbsp;0&nbsp;?&nbsp;Int.parse(args(0))&nbsp;:&nbsp;10000;
 
 </pre>
 Some comments:
- 
-<ul>
-<li> The command line arguments come in in the array <tt>args</tt>.  The declaration
- "<tt>args:Array[String](1)</tt>" should be read: "<tt>args</tt> is a value whose type
- is an array of strings indexed by a single integer."   X10 arrays, unlike Java
- or C++ arrays, may be indexed by arbitrarily many integers, so you have to 
- tell the compiler what sort of indexing you want.  So don't be confused here: the
- "<tt>(1)</tt>" is not the size of the array: it is how you index it.
-<div class="p"><!----></div>
-</li>
 
-<li>
- X10 actually uses a call to the method
- <tt>size</tt> to get the number of elements in an array, and uses
- ordinary parentheses to access array elements.  
- Thus, <tt>args(0)</tt> is the first element in the <tt>args</tt> array.  Arrays
- are a whole subject unto themselves in X10, which we will get to in ????.
- %
-<div class="p"><!----></div>
-</li>
+<dl compact="compact">
 
-<li>
- We use <tt>Int</tt>'s static method <tt>parse</tt> to convert the command line input
- from a <tt>String</tt> to an <tt>Int</tt>.  Then the conditional operator, 
- "<tt>?:</tt>" allows us to choose a value:
+	<dd><b>line 1:</b>
+The command line arguments come in as the array <tt>args</tt>.  The declaration
+
+<blockquote> <tt>args:Array[String](1)</tt>  </blockquote>
+should, as we have already mentioned, be read: "<tt>args</tt> <em>is a value whose type
+is an array of strings indexed by a single integer.</em>"   X10 arrays, unlike Java
+or C++ arrays, may be indexed by arbitrarily many integers, so you have to 
+tell the compiler what sort of indexing you want.  So don't be confused here: the
+"<tt>(1)</tt>" is not the size of the array: it is how you index it.</dd>
+
+	<dd><b>line 2:</b>
+ X10 uses a call to the method
+<tt>size</tt> to get the number of elements in an array.  Using "<tt>length</tt>", as Java does, would
+be misleading, because arrays can be n-dimensional, not just 1-dimensional.
+
+<div class="p"><!----></div>
+Ordinary parentheses, not square brackets, are used to access array elements.  
+Thus, since <tt>args</tt> is indexed by a single integer, its first element
+is <tt>args(0)</tt>.  Arrays
+are a whole subject unto themselves in X10, which we will get to in Chapter 
+.
+
+<div class="p"><!----></div>
+We use <tt>Int</tt>'s static method <tt>parse</tt> to convert the command line input
+from a <tt>String</tt> to an <tt>Int</tt>.  Then the conditional operator, 
+"<tt>?:</tt>" allows us to choose a value:
 it begins by testing its first operand, which must must evaluate to "true" or
 "false",  a <tt>Boolean</tt>: if it evaluates to "true", the value of the
- expression is the second operand; otherwise the value is the third.
- Once again, X10 tries to be consistent with Java and C++.
-<div class="p"><!----></div>
-</li>
-</ul> 
- The next step is a little more involved.  We used a random number generator
- that the X10 library provided for us.  Suppose we were disappointed in
- it for some reason and wanted to try another.  It would be nice if the generator
- were a parameter to the computation.  To get there, we have to pull the main loop
- out of <tt>main</tt> and put it in its own method, one parameter of which is the generator:
- 
+expression is the second operand; otherwise the value is the third.
+Once again, X10 tries to be consistent with Java and C++.</dd>
+</dl> 
+The next step is a little more involved.  We used a random number generator
+that the X10 library provided for us.  Suppose we were disappointed in
+it for some reason and wanted to try another.  It would be nice if the generator
+were a parameter to the computation.  To get there, we have to pull the main loop
+out of <tt>main</tt> and put it in its own method, one parameter of which is the generator:
+
 <pre>
 &nbsp;1&nbsp;public&nbsp;static&nbsp;def&nbsp;countPoints(n:&nbsp;Int,&nbsp;rand:&nbsp;()=&#62;Double)&nbsp;{
 &nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;var&nbsp;inCircle:&nbsp;Double&nbsp;=&nbsp;0.0;
@@ -312,28 +343,72 @@ it begins by testing its first operand, which must must evaluate to "true" or
 &nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;}
 &nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;4&nbsp;*&nbsp;(inCircle&nbsp;/&nbsp;n);
 &nbsp;9&nbsp;}&nbsp;
-&nbsp;
 </pre>
 
 <div class="p"><!----></div>
- The new ingredient here is the declaration of <tt>rand</tt>.  As usual, its type follows
- a colon (":"), but what's there is not just a name: the syntax <tt>() =&#62; Double</tt>
- for the type is read: "a function that takes no arguments and returns a <tt>Double</tt>."
- There is no strictly analogous construct in Java<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>, and the closest thing is C/C++
- is a "function pointer".   In the trade, we say that X10 supports "first-class functions" or
- "closures",
- which is an extremely powerful notion in programming languages.
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
+The new ingredient here is the declaration of <tt>rand</tt>.  As usual, its type follows
+a colon (":"), but what's there is not just a name: the syntax for the type
+"<tt>()=&#62;Double</tt>"
+ is read: "<em>a function that takes no arguments and returns a <tt>Double</tt>.</em>"
+There is no strictly analogous construct yet in Java, although one is planned, 
+and the closest thing in C++ is a "function pointer".    
 
 <div class="p"><!----></div>
- How do we create the function to pass in as <tt>rand</tt>?  Here's one approach: in
- <tt>main()</tt>, put
- 
+How do we create the function to pass in as <tt>rand</tt>?  Here's one approach: in
+<tt>main()</tt>, put
+
 <pre>
+=======
+&nbsp;The&nbsp;new&nbsp;ingredient&nbsp;here&nbsp;is&nbsp;the&nbsp;declaration&nbsp;of&nbsp;{\tt&nbsp;rand}.&nbsp;&nbsp;As&nbsp;usual,&nbsp;its&nbsp;type&nbsp;follows
+&nbsp;a&nbsp;colon&nbsp;(``:''),&nbsp;but&nbsp;what's&nbsp;there&nbsp;is&nbsp;not&nbsp;just&nbsp;a&nbsp;name:&nbsp;the&nbsp;syntax&nbsp;{\tt&nbsp;()&nbsp;=&#62;&nbsp;Double}
+&nbsp;for&nbsp;the&nbsp;type&nbsp;is&nbsp;read:&nbsp;``a&nbsp;function&nbsp;that&nbsp;takes&nbsp;no&nbsp;arguments&nbsp;and&nbsp;returns&nbsp;a&nbsp;{\tt&nbsp;Double}.''
+&nbsp;There&nbsp;is&nbsp;no&nbsp;strictly&nbsp;analogous&nbsp;construct&nbsp;in&nbsp;Java\footnote{Closures&nbsp;are&nbsp;planned&nbsp;for
+&nbsp;inclusion&nbsp;in&nbsp;Java&nbsp;7.},&nbsp;and&nbsp;the&nbsp;closest&nbsp;thing&nbsp;is&nbsp;C/C++
+&nbsp;is&nbsp;a&nbsp;``function&nbsp;pointer''.&nbsp;&nbsp;&nbsp;In&nbsp;the&nbsp;trade,&nbsp;we&nbsp;say&nbsp;that&nbsp;\Xten{}&nbsp;supports&nbsp;``first-class&nbsp;functions''&nbsp;or
+&nbsp;``closures'',
+&nbsp;which&nbsp;is&nbsp;an&nbsp;extremely&nbsp;powerful&nbsp;notion&nbsp;in&nbsp;programming&nbsp;languages.
+&nbsp;
+&nbsp;How&nbsp;do&nbsp;we&nbsp;create&nbsp;the&nbsp;function&nbsp;to&nbsp;pass&nbsp;in&nbsp;as&nbsp;{\tt&nbsp;rand}?&nbsp;&nbsp;Here's&nbsp;one&nbsp;approach:&nbsp;in
+&nbsp;{\tt&nbsp;main()},&nbsp;put
+&nbsp;\begin{verbatim}
+&#62;&#62;&#62;&#62;&#62;&#62;&#62;&nbsp;.r502
 &nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;r&nbsp;=&nbsp;new&nbsp;Random();
 &nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;rand&nbsp;=&nbsp;()&nbsp;=&#62;&nbsp;r.nextDouble();
+&lt;&lt;&lt;&lt;&lt;&lt;&lt;&nbsp;.mine
 &nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;inCircle&nbsp;=&nbsp;countPoints(N,&nbsp;&nbsp;rand);&nbsp;&nbsp;
-&nbsp;
 </pre>
+The new lines are 2 and 3: 
+<dl compact="compact">
+
+	<dd><b>line 2</b> says that <tt>rand</tt> is a function with no arguments whose body is the 
+expression <tt>r.nextDouble()</tt>, which is its return value.  This is, as you would guess,
+just a very simple example of a much more general facility, and we'll see a lot of 
+examples later that will flesh out how to use it. 
+
+<div class="p"><!----></div>
+One important thing to understand is that the declaration of <tt>rand</tt> captures the
+runtime value of <tt>r</tt>.  If we put this code in the body of a loop, then each time through
+the loop, <tt>rand</tt> would use the new value of <tt>r</tt> that is yielded by the constructor
+<tt>new Random()</tt>.  The right-hand side of the declaration is often called a
+"closure" in the literature (because of the way variables from the surrounding
+context (like <tt>r</tt> here) are captured and kept until needed).  You'll also
+see languages like X10describing themselves as supporting "first-class closures",
+which is simply a cryptic way of saying that they allow you to work with closures
+in exactly the same way you would with any other sort of value, like an Int: you
+can assign one, pass it as an argument, </dd>
+
+	<dd><b>line 3</b> replaces the whole loop in lines 8 through 12 of
+our original with the call to our new method <tt>countPoints</tt>.</dd>
+</dl>  
+
+<div class="p"><!----></div>
+If you want to see the cleaned-up version of this code, it is in the file
+
+<center> %???? we need to figure out how to ref the real code
+=======
+ 3     val inCircle = countPoints(N,  rand);  
+ </center>
  The new lines are 2 and 3: 
 <dl compact="compact">
 
@@ -357,13 +432,14 @@ it begins by testing its first operand, which must must evaluate to "true" or
  If you want to see the cleaned-up version of this code, it is in the file
  
 <center> %???? we need to figure out how to ref the real code
+&#62;&#62;&#62;&#62;&#62;&#62;&#62; .r502
 <a href="src/montePi/montePi2.x10"><b>montePi/montePi2.x10</b></a>.
 </center>
 There are one or two things we could do the pretty it up even more, but enough for now.
 It is time to look at how to parallelize it.
 
      <h3><a name="tth_sEc1.4">
-1.4</a>&nbsp;&nbsp;Enter The Second Processor</h3><a name="sec:esp">
+2.4</a>&nbsp;&nbsp;Enter The Second Processor</h3><a name="sec:esp">
 </a>
 We are going to present several parallel version of our code.  We'll begin with a version that
 assumes shared memory: multiple threads running on a single machine.  Even this version
@@ -374,7 +450,7 @@ ever going to get is available, right out of the box.
 There is not a lot of change we need: we just have to be able to say "start n threads
 going, each with its own independent random number generator, and when each has done
 it's share of the work, sum the hits from all n and divide by the total number
-of processors."  
+of points tried."  
 
 <div class="p"><!----></div>
 X10 avoids the term "thread", because it (together with "process" ) has a variety
@@ -383,6 +459,14 @@ more loose here and use whichever term seems more natural (to us!) at the moment
 but you should be aware of X10's convention for reading other literature.  
 
 <div class="p"><!----></div>
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
+Figure&#126; shows the relevant part of our new <tt>main</tt>.
+We'll go through the code line by line.
+
+<div class="p"><!----></div>
+<a name="tth_fIg2">
+</a> <hr />
+=======
 Figure&#126; shows the relevant part of our new <tt>main</tt>.   Let's go through the code line by line:
 
 <div class="p"><!----></div>
@@ -390,7 +474,8 @@ Figure&#126; shows the relevant part of our new <tt>main</tt>.   Let's go throug
 <div class="p"><!----></div>
 <a name="tth_fIg2">
 </a> <a name="fig:mcpm">
-</a>
+</a>&#62;&#62;&#62;&#62;&#62;&#62;&#62; .r502
+
 <pre>
 &nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;inCircle&nbsp;=&nbsp;new&nbsp;Array[Long](1..threads);
 &nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;finish&nbsp;for(var&nbsp;k:&nbsp;Int&nbsp;=1;&nbsp;k&lt;=threads;&nbsp;k++)&nbsp;{
@@ -406,22 +491,34 @@ Figure&#126; shows the relevant part of our new <tt>main</tt>.   Let's go throug
 12&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;pi&nbsp;=&nbsp;(4.0*totalInCircle)/N;
 
 </pre>
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; .mine
+<hr />
 
-<center>Figure 2: Single-place, parallel &#960; calculation.</center>
+
+<center>Figure 2: Shared memory parallel code for computing &#960;</center><a name="fig:mcpm">
+</a>
 
 <div class="p"><!----></div>
+=======
+#1Single-place, parallel &#960; calculation.
+
+<div class="p"><!----></div>
+&#62;&#62;&#62;&#62;&#62;&#62;&#62; .r502
 
 <dl compact="compact">
 
-	<dd>line 1:
+	<dd><b>line 1:</b>
 The right-hand side is the X10 idiom for constructing an array that is indexed
 by a single integer running from <tt>1</tt> to <tt>threads</tt>.  
 Here "<tt>threads</tt>" is the number of independent threads we want to use.  The
 entries in the array are initialized to <tt>0</tt>.   You might wonder what "<tt>val</tt>"  implies here.
 The answer is that <tt>inCircle</tt> is always going to name the same array, but the contents of that
-array may vary as the program runs.</dd>
+array may vary as the program runs.
 
-	<dd>line 2: There is nothing unusual about the "<tt>for</tt>" loop part of this line.
+<div class="p"><!----></div>
+The array elements are going to be <tt>Long</tt>s, which are 64-bit integers.</dd>
+
+	<dd><b>line 2:</b> There is nothing unusual about the "<tt>for</tt>" loop part of this line.
 The interesting part is the "<tt>finish</tt>".  The whole
 point of this loop is to spawn some number "<tt>threads</tt>" of
 independent activities, each computing how many hits
@@ -431,7 +528,7 @@ reach the statement after that guarded by a <tt>finish</tt> until all of the act
 the <tt>finish</tt>'s statement have completed.  So when we get to line 8, we can be sure that every entry in
 <tt>inCircle</tt> has been correctly set.</dd>
 
-	<dd>line 3:  The constructor <tt>Random()</tt> called with no arguments
+	<dd><b>line 3:</b>  The constructor <tt>Random()</tt>, if called with no arguments,
 uses the number of milliseconds from some fixed time as the "seed" to begin generating 
 its random numbers. Alas, less than a millisecond may elapse between the creation of
 two or more of our threads, and when that happens, we get the same sequences in several
@@ -440,15 +537,15 @@ threads.  So we've spiced things up be calling
 We are confident that our processor's clock and the operating system will cooperate to
 guarantee that with this fine-grained a timer, each thread gets a different seed.</dd>
 
-	<dd>lines 5 and 6:
+	<dd><b>lines 5 and 6:</b>
 The idiom for spawning an activity (or thread, if you prefer)
-at the current processor is <tt>async <em>statement</em></tt>.
-The statement is queued for execution, and control may be returned to the originating activity whenever
+at the current processor is "<tt>async <em>statement</em></tt>".
+The statement is queued for execution, and control may then be returned to the originating activity whenever
 the X10 runtime's activity manager wishes: it could be immediately, or it could be after the
 new activity has been allowed some time.
 The important point is that we do not have to wait for the new activity to complete
 before returning control to the original activity.  The effect of the <tt>for</tt> loop is, therefore,
-to get some number <tt>threads</tt> of  activities up and running <em>concurrently</em>.
+to get some number, "<tt>threads</tt>", of  activities up and running <em>concurrently</em>.
 
 <div class="p"><!----></div>
 Why the declaration for <tt>kk</tt> in line 5, though?  It says that what you
@@ -456,9 +553,10 @@ are passing into the new activity is a <em>value</em>, not a variable that might
 new activity.
 
 <div class="p"><!----></div>
-The code for the method <tt>countPoints</tt> is essentially unchanged from before,
+Line 6 ends by calling <tt>countPoints</tt>, as in our serial code.
+The method <tt>countPoints</tt> is essentially unchanged from before,
 except that we are going to allow the first argument, the number of points to
-try, to be a <tt>Long</tt>, which is a 64-bit integer:
+try, to be a <tt>Long</tt>, which, as noted above, is a 64-bit integer:
 
 <pre>
 public&nbsp;static&nbsp;def&nbsp;countPoints(n:Long,&nbsp;rand:()=&#62;Double){

@@ -16,7 +16,7 @@
 <title>Interfaces: More Abstract Than Abstract</title>
 
  <h2><a name="tth_sEc1">
-3</a>&nbsp;&nbsp;Interfaces: More Abstract Than Abstract</h2><a name="sec:mata">
+1</a>&nbsp;&nbsp;Interfaces: More Abstract Than Abstract</h2><a name="sec:mata">
 </a>
 
 <div class="p"><!----></div>
@@ -82,22 +82,6 @@ A class with the same information would probably be more convenient, but who kno
 </dl>
 
 <div class="p"><!----></div>
-Here is how interfaces get used: consider the declaration
-
-<pre>class&nbsp;Int32&nbsp;implements&nbsp;Arithmetic&nbsp;{&nbsp;...&nbsp;}
-</pre>
-It says that in the body of <tt>Int32</tt>, we are guaranteed to find implementations of
-all of the methods specified in the interface <tt>Arithmetic</tt>, with exactly the 
-argument types and return types shown there.
-
-<div class="p"><!----></div>
-We said that interfaces provide a sort of "multiple inheritance."  What we meant is that
-a class may declare that implements any number of interfaces.  That is certainly reasonable:
-all you are saying is that the class provides several named sets of methods.  It is, of course,
-a weaker notion than multiple inheritance, since no instance members or methods are actually
-inherited when a class implements an interface: all of the code is in the class or in one of its ancestors up the inheritance chain.
-
-<div class="p"><!----></div>
 Finally, just as one class can extend another, one interface can extend another-in fact, it may
 extend several:
 
@@ -108,14 +92,84 @@ say "<tt>IA</tt> is a sub-interface of <tt>IB</tt> and <tt>IC</tt>', but it just
 "<tt>IA</tt> <em>refines</em> <tt>IB</tt> and <tt>IC</tt>" is somehow a lot better.  
 
 <div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;How interfaces get used</h3>
+The syntax for asserting that the class <tt>Int32</tt> implements all of the methods 
+declared in the <tt>Arithmetic[Int32]</tt> interface-with exactly the 
+argument types and return types shown there-is to add "<tt>implements Arithmetic</tt>"
+to the class's declaration:
+
+<pre>class&nbsp;Int32&nbsp;implements&nbsp;Arithmetic[Int32]&nbsp;{&nbsp;...&nbsp;}
+</pre>
+In plain English, this is saying that you can add, subtract, multiple and divide one
+<tt>Int32</tt> by another and get an <tt>Int32</tt> result.
+While <tt>Int32</tt> is one candidate for the class that
+appears in the <tt>Arithemetic[T]</tt>, we'd probably also like to add to <tt>Int32</tt>s to
+<tt>Float64</tt>s and <tt>Complex</tt>es.  No problem:
+
+<pre>class&nbsp;Int32&nbsp;implements&nbsp;Arithmetic[Int32],&nbsp;Arithmetic[Float64],&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Arithmetic[Complex]&nbsp;{
+&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;
+}
+</pre>
+
+<div class="p"><!----></div>
+At first blush, this is a daunting declaration: think how many methods must be implemented!
+But the truth is that none of these methods is all that involved, so it is just a matter of
+some (necessary!) drudgery.  Here the end more than justifies the means.
+
+<div class="p"><!----></div>
+Now suppose that somewhere there is a class that has a method "<tt>doIt(x: Arithmetic[Int32])</tt>".
+Since <tt>Int32</tt> implements <tt>Arithmetic[Int32]</tt>, we can use an <tt>Int32</tt> as the argument
+to <tt>doIt</tt>, :
+
+<blockquote>
+<pre>
+	val&nbsp;sqFt:&nbsp;Int32&nbsp;=&nbsp;livingRoom.area();
+	doIt(sqFt);
+</pre>
+</blockquote>
+In the same way, if <tt>dontDoIt(): Arithmetic[Int32]</tt>, can return an instance of any class
+that implements <tt>Arithmetic[Int32]</tt>.
+
+<div class="p"><!----></div>
+We end this section with some "side bars" that somehow didn't quite fit in 
+the flow of the rest of this section, but are worth a moment's thought.
+
+<div class="p"><!----></div>
+<b>BEWARE!</b>  Suppose a class <tt>A</tt> implements an interface <tt>I</tt>, and suppose that
+<tt>B</tt> is a subclass of <tt>A</tt>.  Because an instance of <tt>B</tt> might appear anywhere an
+instance of <tt>A</tt> is expected, we see that <tt>B</tt> <em>must also implement</em> <tt>I</tt>.
+This is one reason why <em>the methods in an interface must be declared </em> <tt>public</tt>.
+The other reason is more pragmatic than principled: the point of an interface is to tell the outside
+world what some object is capable of doing, but a <tt>private</tt> method is just a <em>hidden</em> means to
+accomplish object's goals.  Why should anyone, outside the class itself, care that a class implements a method
+none of its instances can call, except in the implementation of the class itself?
+
+<div class="p"><!----></div>
+The interface itself may declared with any access limit that makes sense in the context:
+if the interface is being declared inside a class (and it definitely can be), then 
+protected or default access make sense (private does not!).  
+
+<div class="p"><!----></div>
+<b>A matter of convention: </b>
 There is a sort of convention that interface names should begin with "<tt>I</tt>",  Suppose
 for example, that we had used
 <tt>INumber</tt>, instead of <tt>Arithmetic</tt>, for our interface name.  We could then have
 declared  a class
 named <tt>Number</tt> that implements it.  A matter of taste of course, but not an unreasonable
-convention.  A variation on this theme is to append "<tt>Impl</tt>" to the name of an interface
+convention, particularly in situations where there is a "standard" or "canonical" implementation
+of the interface.  A variation on this theme is to append "<tt>Impl</tt>" to the name of an interface
 to create the name of a concrete class that implements it:  interface <tt>XmlParser</tt>
 is implemented by <tt>XmlParserImpl</tt>.  You will see both conventions widely used.
+
+<div class="p"><!----></div>
+<b>For C++ programmers: </b> We said that interfaces provide a sort of "multiple inheritance."  What we meant is that
+a class may declare that it implements any number of interfaces.  That is certainly reasonable:
+all you are saying is that the class provides several named sets of methods.  It is, of course,
+a weaker notion than multiple inheritance, because,  when a class implements an interface,
+no instance members or methods are actually inherited: all of the code is in the class,
+or is in one of its ancestors up the inheritance chain.
 
 <div class="p"><!----></div>
 

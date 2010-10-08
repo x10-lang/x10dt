@@ -44,7 +44,11 @@ ends the comment, "<tt>/*...*/</tt>" <em>comments do not nest</em>.
 
 <div class="p"><!----></div>
 X10 also uses the same 
-comment conventions as JavaDoc for publishing APIs.</dd>
+comment conventions as JavaDoc for publishing APIs.  For those not familiar with JavaDoc,
+it is a formalized comment style used to generate an HTML file describing the API 
+presented by source code files-<tt>.java</tt> files originally,  and for us, <tt>.x10</tt> files. 
+All of our sample code uses JavaDoc conventions.  The home
+page for learning more about it is at  <a href="http://www.oracle.com/technetwork/java/javase/documentation/index-jsp-135444.html">Oracle.com</a>, but for a quick executive summary, see <a href="http://en.wikipedia.org/wiki/Javadoc">the Wikipedia entry</a>.  The version of JavaDoc processor needed for our files is called X10Doc.</dd>
  <dt><b>line 2:</b></dt>
 	<dd> <tt>class HelloWorld {... }</tt><br />
 Like Java (and unlike C++) <em>all</em> X10 executable code lives in classes.
@@ -72,7 +76,7 @@ a value.  The compiler can easily tell that without your help.  Note
 the `<tt>:</tt>' that separates the argument list from the return type: it is required.
 
 <div class="p"><!----></div>
-So why did we put the "<tt>: Void</tt>" there if we didn't have to?
+So why did we put the "<tt>:Void</tt>" there if we didn't have to?
 Basically, just to save someone  other than us who is reading the code the trouble of
 figuring out what's returned.  Keep in mind, too, that things are not always so
 simple as our <tt>main</tt>: the compiler will patiently read the method body, but
@@ -111,7 +115,10 @@ The <tt>x10.io</tt> package contains many input-output classes.
 are the standard input, output, and error streams. 
 The method  <tt>println</tt> prints a string, followed by an operating-system dependent line-ender: either a
 single newline character for Unix based systems, or a carriage return-newline pair.
-If you don't want the newline, use <tt>print</tt> instead.</dd>
+If you don't want the newline, use <tt>print</tt> instead.
+
+<div class="p"><!----></div>
+We'll give some more details about packaging in chapter .</dd>
 </dl>
 
 <div class="p"><!----></div>

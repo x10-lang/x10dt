@@ -20,16 +20,15 @@
 
 <div class="p"><!----></div>
 The best way to see what's in a class is an example that says it all.  <tt>NoahsArk</tt>
-in Figure  is it.
+in Figure , on page , is it.
 
 <div class="p"><!----></div>
 <a name="tth_fIg1">
-</a> <a name="fig:nark">
-</a><hr />
+</a> <hr />
 
 <pre>&nbsp;&nbsp;&nbsp;public&nbsp;class&nbsp;NoahsArk&nbsp;{
 &nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;DEFAULT_SIZE&nbsp;=&nbsp;500;
-&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;name:&nbsp;String;
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;&nbsp;val&nbsp;name:&nbsp;String;
 &nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;var&nbsp;passengers:&nbsp;Array[String](1);
 &nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;private&nbsp;var&nbsp;onBoard:&nbsp;Int&nbsp;=&nbsp;0;
 &nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;
@@ -38,29 +37,39 @@ in Figure  is it.
 &nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;}&nbsp;
 &nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(name:String,&nbsp;initialCapacity:Int)&nbsp;{
 10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.name&nbsp;=&nbsp;name;&nbsp;&nbsp;
-11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passengers&nbsp;=&nbsp;new&nbsp;Array[String][1..initialCapacity);
+11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;passengers&nbsp;=&nbsp;new&nbsp;Array[String](1..initialCapacity);
 12&nbsp;&nbsp;&nbsp;&nbsp;}
-13&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;def&nbsp;resize(size:Int,&nbsp;na:NoahsArk):&nbsp;NoahsArk&nbsp;\{...\}
-14&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;addPassenger(name:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
-15&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;throwOverboard(name:&nbsp;String,&nbsp;why:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
-16&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;def&nbsp;showPassengers()&nbsp;{&nbsp;...&nbsp;}
-17&nbsp;&nbsp;&nbsp;&nbsp;
-18&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](0)]&nbsp;{&nbsp;...&nbsp;}
+13
+14&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;def&nbsp;resize(size:Int,&nbsp;na:NoahsArk):&nbsp;NoahsArk&nbsp;\{...\}
+15
+16&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;addPassenger(name:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
+17&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;throwOverboard(name:&nbsp;String,&nbsp;why:&nbsp;String):&nbsp;Int&nbsp;{&nbsp;...&nbsp;}
+18&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;def&nbsp;showPassengers()&nbsp;{&nbsp;...&nbsp;}
 19&nbsp;&nbsp;&nbsp;&nbsp;
-20&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;class&nbsp;FareClasses&nbsp;{}&nbsp;&nbsp;&nbsp;
-21&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;class&nbsp;Galley&nbsp;{}
+20&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;static&nbsp;def&nbsp;main(args:&nbsp;Array[String](1)&nbsp;{&nbsp;...&nbsp;}
+21&nbsp;&nbsp;&nbsp;&nbsp;
+22&nbsp;&nbsp;&nbsp;&nbsp;static&nbsp;class&nbsp;FareClasses&nbsp;{}&nbsp;&nbsp;&nbsp;
+23&nbsp;&nbsp;&nbsp;&nbsp;protected&nbsp;class&nbsp;Galley&nbsp;{}
 &nbsp;&nbsp;&nbsp;}
 </pre>
 <hr />
 
 
-<center>Figure 1: A class with just about everything</center>
+<center>Figure 1: A class with just about everything</center><a name="fig:nark">
+</a>
 
 <div class="p"><!----></div>
 While the original Ark may have had two of each kind, we've settled here for one of most kinds,
-and as is our custom, we work our way through the code line-by-line.  First, let's agree on some
-terminology:  a <em>member</em> of a class is a piece of data, as opposed to a <em>method</em>, which
-is a piece of code (a function).
+and as is our custom, we work our way through the code line-by-line.  
+
+<div class="p"><!----></div>
+First, let's agree on some
+terminology: 
+
+<blockquote>
+a <em>member</em> of a class is a piece of data, as opposed to<br />
+a <em>method</em>, which is a piece of code (a function).
+</blockquote>
 
 <dl compact="compact">
  <dt><b></b></dt>
@@ -86,11 +95,12 @@ normally use its arguments to create the instance's value.
 <div class="p"><!----></div>
 We've shown this instance member as <tt>public</tt>.  As with classes, we could use nothing
 here, just "<tt>val name:String</tt>", and the member could then only be used by
-classes in exactly the same package (directory).
+classes in exactly the same package (which normally would mean <em>from the same directory</em>).
 There are two other keywords available: <tt>protected</tt> and <tt>private</tt>.  A protected member
 is usable by any class in the same package, and by any class that <em>extends</em> the
-class in which the member is declared. See section .  A private member is
-just that: usable only in the class it is declared.  Thus from most widely available to least, we have
+class in which the member is declared. See section , page .
+A private member is
+just that: usable only in the class it is declared.  Thus, from most widely available to least:
 
 <blockquote><tt>public</tt>, <tt>protected</tt>, <em>no spec at all</em>, <tt>private</tt></blockquote></dd>
 
@@ -107,45 +117,49 @@ a constructor.  We could have made one private and one protected if that is real
 we needed, unusual though that would be.
 
 <div class="p"><!----></div>
-Notice the way that the first constructor invokes the second.  It is important that this call be
-the first executable line in the constructor's body.</dd>
+Notice the way that the first constructor invokes the second via <tt>this</tt>.
+It is important that this call be the first executable line in the constructor's body.</dd>
 
-	<dd><b>line 13:</b> This is a "static" method (or, if you prefer, a "class" method).  Static
+	<dd><b>line 14:</b> This is a "static" method (or, if you prefer, a "class" method).  Static
 methods have access to all of the static members and methods of the class, but 
-only an instance of the class may refer to instance members methods.  This method
-is in the default package, so if <tt>DieselArk</tt> is also in
-that package, it can invoke <tt>resize</tt>: the syntax is <tt>NoahsArk.resize(...)</tt>.
+only an instance of the class may refer to instance members and methods.  This method
+has the default access, so if <tt>DieselArk</tt> is also in
+the default package, it can invoke <tt>resize</tt>: the syntax is <tt>NoahsArk.resize(...)</tt>.
 The moral: static methods <em>really belong to the class in which they are defined.</em></dd>
 
-	<dd><b>lines 14-16:</b> Here we have three instance methods with varying degrees of
+	<dd><b>lines 16-18:</b> Here we have three instance methods with varying degrees of
 protection.  We'll allow anyone to add a passenger, because if the boat threatens
 to sink under the weight, we can always say no.  We're a little more careful about
 who throw a passenger overboard: this is pretty drastic, and different kinds of
 arks may have different policies.  Finally, respecting
 its customers' privacy, <tt>NoahsArk</tt> reserves to itself the right to show who is on board.</dd>
 
-	<dd><b>line 18:</b>  You've seen <tt>main</tt> enough times that all we feel we have to say
+	<dd><b>line 20:</b>  You've seen <tt>main</tt> enough times that all we feel we have to say
 here is that you don't need one except in a class that will begin a program's execution.</dd>
 
-	<dd><b>line 20:</b> A static class is a static <tt>val</tt> like any other, except that it names
+	<dd><b>line 22:</b> A static class is a static <tt>val</tt> like any other, except that it names
 a class.  Within the body of <tt>NoahsArk</tt>, you write "<tt>new FareClasses()</tt>"
 in order to construct an instance.  From a class <em>not</em> declared within <tt>NoahsArk</tt>,
 you would need  to write "<tt>new NoahsArk.FareClasses()</tt>". In this example, we opted
 to give the class the default accessibility: same package can use, others not.
 We could have chosen any of the other three.</dd>
 
-	<dd><b>line 21:</b> This is an instance class, which, to be honest, is something you
-are much less likely to need in X10than in  Java, because in X10you can
+	<dd><b>line 23:</b> This is an instance class, which, to be honest, is something you
+are much less likely to need in X10 than in  Java, because in X10, you can
 have instance variables whose values are functions, and you can create a function
-to pass as an argument to another function without even giving it a name.  
+to pass as an argument to another function without even giving the newly created
+function a name. <a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
 
 <div class="p"><!----></div>
-In any event, only an object
-that is an instance of <tt>NoahsArk</tt> can refer directly to the class.  Importantly though,
-the class itself may refer to instance members and methods from <tt>NoahsArk</tt>.
+Only an object
+that is an instance of <tt>NoahsArk</tt> can refer directly to this class.  Importantly though,
+the reverse is also true:
+<tt>Galley</tt> may refer to instance members and methods from <tt>NoahsArk</tt>.
+
+<div class="p"><!----></div>
 In our discussion of inheritance hierarchies (See "extra credit:" ),
- we'll say some more
-about how classes that <tt>NoahsArk</tt> uses other than <tt>NoahsArk</tt> itself, might 
+we'll say some more
+about how classes that <tt>NoahsArk</tt> uses, other than <tt>NoahsArk</tt> itself, might 
 have a method call that gets passed an instance of <tt>Galley</tt>.
 
 <div class="p"><!----></div>
@@ -162,27 +176,27 @@ is more than enough to get you going.
 </a>
 
 <div class="p"><!----></div>
-X10supports simple (single) inheritance: all X10classes constitute a tree, in
+X10 supports simple (single) inheritance: all X10 classes constitute a tree, in
 which the root is the class <tt>x10.lang.Object</tt>, and a class <tt>Parent</tt> is the
 parent of a class <tt>Child</tt> when <tt>Child</tt>'s declaration says that it extends <tt>Parent</tt>:
 
 <blockquote><tt>class Child extends Parent { ... }</tt></blockquote>
 For example:
 
-<pre>&nbsp;public&nbsp;class&nbsp;DieselArk&nbsp;extends&nbsp;NoahsArk&nbsp;{
-&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;fuelTankCapacity:&nbsp;Double;&nbsp;//&nbsp;in&nbsp;gallons
-&nbsp;&nbsp;&nbsp;public&nbsp;var&nbsp;gallonsRemaining:&nbsp;Double;
-&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(name:String;&nbsp;maxPsgrs:Int,&nbsp;tankSIze:Double)&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;maxPsgrs);
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fuelTankCapacity&nbsp;=&nbsp;gallonsRemaining&nbsp;=&nbsp;tankSIze;
-&nbsp;&nbsp;&nbsp;}
-&nbsp;&nbsp;&nbsp;def&nbsp;throwOverboard(name:&nbsp;String,&nbsp;why:&nbsp;String):&nbsp;Int&nbsp;{
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;why);
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;more&nbsp;stuff&nbsp;here&nbsp;*/
-&nbsp;&nbsp;&nbsp;}
-&nbsp;&nbsp;&nbsp;/*&nbsp;...&nbsp;more&nbsp;methods&nbsp;here&nbsp;*/
-&nbsp;}
+<pre>&nbsp;1&nbsp;&nbsp;public&nbsp;class&nbsp;DieselArk&nbsp;extends&nbsp;NoahsArk&nbsp;{
+&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;fuelTankCapacity:&nbsp;Double;&nbsp;//&nbsp;in&nbsp;gallons
+&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;var&nbsp;gallonsRemaining:&nbsp;Double;
+&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;public&nbsp;def&nbsp;this(name:String;&nbsp;maxPsgrs:Int,&nbsp;tankSIze:Double)&nbsp;{
+&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;maxPsgrs);
+&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fuelTankCapacity&nbsp;=&nbsp;gallonsRemaining&nbsp;=&nbsp;tankSIze;
+&nbsp;8&nbsp;&nbsp;&nbsp;&nbsp;}
+&nbsp;9&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;throwOverboard(name:&nbsp;String,&nbsp;why:&nbsp;String):&nbsp;Int&nbsp;{
+10&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(name,&nbsp;why);
+11&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;more&nbsp;stuff&nbsp;here&nbsp;*/
+12&nbsp;&nbsp;&nbsp;}
+13&nbsp;&nbsp;&nbsp;&nbsp;/*&nbsp;...&nbsp;more&nbsp;methods&nbsp;here&nbsp;*/
+14&nbsp;&nbsp;}
 </pre>
  A <tt>DieselArk</tt> is a <tt>NoahsArk</tt> whose method of propulsion we know.  It is that sense
  that <tt>DieselArk</tt> is an extension <tt>NoahsArk</tt>: it is a <tt>NoahsArk</tt> and more.  The use
@@ -192,15 +206,15 @@ For example:
  
 <blockquote>
  More generally, a class <tt>S</tt> is a <em>subclass</em> of another class <tt>C</tt> if there is a chain of classes
- <tt>S</tt>, <tt>S1</tt>, ..., <tt>Sn</tt>, <tt>C</tt> in which each is a <em>direct</em> subclass of the next.
+ <tt>S</tt>, <tt>S<sub>1</sub></tt>, ..., <tt>S<sub>n</sub></tt>, <tt>C</tt> in which each is a <em>direct</em> subclass of the next.
 </blockquote>
 In declarations in which no <tt>extends</tt>
 clause appears, like those for the classes <tt>MontePi</tt> or <tt>HelloWorld</tt>, 
 the class extends <tt>x10.lang.Object</tt> by default.
 
 <div class="p"><!----></div>
-An instance of <tt>DieselArk</tt> will have instance members <tt>name</tt>, <tt>passengers</tt>,
-and <tt>onBoard</tt>, and methods <tt>resize</tt>, <tt>addPassenger</tt>, and so on, which are said to
+Because it extends <tt>NoahsArk</tt>, an instance of <tt>DieselArk</tt> will have instance members <tt>name</tt>, <tt>passengers</tt>,
+and <tt>onBoard</tt>, and methods <tt>resize</tt>, <tt>addPassenger</tt>, and so on.  They are said to
 be <em>inherited from <tt>NoahsArk</tt></em>.
 Notice that <tt>DieselArk</tt> provides its own version of the method <tt>throwOverboard</tt>, 
 so rather than inheriting that method, it <em>overrides it</em>.  The expression <tt>super(name,why)</tt>
@@ -215,9 +229,9 @@ like <tt>addPassenger</tt> that it inherits from <tt>NoahsArk</tt>.
 Subclasses are free to override any of the methods they inherit.
 
 <div class="p"><!----></div>
-If a method <tt>m</tt> expects an argument that is an instance of a class <tt>C</tt>,
-and if <tt>D</tt> is a subclass of <tt>C</tt>, then it is okay to call <tt>m</tt> with an
-instance of <tt>D</tt>.
+If a method <tt>m</tt> expects an argument that is an instance of a class <tt>NoahsArk</tt>,
+then it is okay to call <tt>m</tt> with an
+instance of <tt>DieselArk</tt>.
 Suppose, for example, we have a class <tt>CruiseLine</tt> whose instances have fleets of ships
 that sail the world with lots of passengers.  A <tt>CruiseLine</tt> instance
 might want to add a <tt>NoahsArk</tt> to its fleet, so it has a method
@@ -313,6 +327,9 @@ The keyword <tt>abstract</tt> does <em>not</em> appear, and the function body do
 why, even though a package spec is a proxy for a file system path, dots and not
 slashes are used to punctuate it: first, the dot is file-system independent, and
 second, it is consistent with the notation for selecting a field within an object.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Java's analogous construct would be an anonymous
+class, which is a widely used construct in UI programming.
 <br /><br />
 
 </html>
