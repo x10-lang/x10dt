@@ -13,16 +13,13 @@ import java.util.Set;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
-import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTableViewer;
-import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.ICheckStateProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.TableLayout;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -30,7 +27,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -56,7 +52,7 @@ final class ProjectMigrationDialog extends Dialog {
 	@Override
 	protected void configureShell(Shell newShell) {
 		super.configureShell(newShell);
-		newShell.setSize(350, 450);
+		newShell.setSize(350, 380);
 		newShell.setText(Messages.ProjectMigrationDialog_title);
 	}
 
@@ -83,7 +79,6 @@ final class ProjectMigrationDialog extends Dialog {
 
 		Composite tableButtons = new Composite(area, SWT.NONE);
 		tableButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
-		tableButtons.setSize(350, 200);
 
 		final CheckboxTableViewer cbTableViewer = CheckboxTableViewer.newCheckList(tableButtons, SWT.BORDER | SWT.V_SCROLL);
 
@@ -92,7 +87,6 @@ final class ProjectMigrationDialog extends Dialog {
 			public void dispose() {}
 			public Object[] getElements(Object inputElement) {
 				return fBrokenProjects.toArray();
-//				return new Object[] { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
 			}
 		});
 		cbTableViewer.setLabelProvider(new ITableLabelProvider() {
@@ -108,7 +102,6 @@ final class ProjectMigrationDialog extends Dialog {
 
 			public String getColumnText(Object element, int columnIndex) {
 				return ((IProject) element).getName();
-//				return (String) element;
 			}
 
 			public Image getColumnImage(Object element, int columnIndex) {
@@ -129,7 +122,6 @@ final class ProjectMigrationDialog extends Dialog {
 			public boolean isGrayed(Object element) { return false; }
 			public boolean isChecked(Object element) {
 				return fMigrateProjects.contains(element);
-//				return ((String) element).matches("[a-cg-im-os-uyz]");
 			}
 		});
 		cbTableViewer.setInput(new Object()); // a dummy input just to trigger the initial update
@@ -165,11 +157,9 @@ final class ProjectMigrationDialog extends Dialog {
 		});
 
 		GridLayout tableButtonsLayout = new GridLayout(2, false);
-//		TableColumnLayout cbTableLayout = new TableColumnLayout();
-//		cbTableLayout.setColumnData(cbTableViewer.getTable().getColumn(0), new ColumnWeightData(100, false));
-//		cbTableViewer.getTable().setLayout(cbTableLayout);
-		cbTableViewer.getTable().setSize(150, 200);
-		cbTableViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+		GridData gridData = new GridData(SWT.FILL, SWT.TOP, true, false);
+		gridData.heightHint= 100; // if you don't set this, the vertical scrollbar will never appear!
+		cbTableViewer.getTable().setLayoutData(gridData);
 
 		selectButtons.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
 		tableButtons.setLayout(tableButtonsLayout);
