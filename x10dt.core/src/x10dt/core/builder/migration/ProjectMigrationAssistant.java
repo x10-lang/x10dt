@@ -196,6 +196,11 @@ public class ProjectMigrationAssistant {
 	}
 
 	public boolean projectIsBroken(IProject project) {
+		if (!project.isOpen()) {
+			// If the project is closed, it's not possible to retrieve the project description, so
+			// just bypass it for now, and process it if/when it gets reopened.
+			return false;
+		}
 		try {
 			IProjectDescription projDesc= project.getDescription();
 			String[] natures= projDesc.getNatureIds();
