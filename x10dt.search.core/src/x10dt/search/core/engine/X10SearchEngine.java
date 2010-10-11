@@ -128,15 +128,14 @@ public final class X10SearchEngine {
     final IFactContext context = new ProjectContext(ModelFactory.open(project));
     final FactBase factBase = FactBase.getInstance();
     
-    final Pattern typeNamePattern = Pattern.compile(typeNameRegEx);
-    
     final SubMonitor subMonitor = SubMonitor.convert(monitor);
     final Collection<ITypeInfo> typeInfos = new ArrayList<ITypeInfo>();
     try {
       subMonitor.beginTask(null, 3);
-      collectTypeInfo(typeInfos, factBase, context, typeNamePattern, APPLICATION, subMonitor.newChild(1));
-      collectTypeInfo(typeInfos, factBase, context, typeNamePattern, LIBRARY, subMonitor.newChild(1));
-      collectTypeInfo(typeInfos, factBase, WorkspaceContext.getInstance(), typeNamePattern, RUNTIME, subMonitor.newChild(1));
+      final IFilter<String> filter = new TypePatternFilter(typeNameRegEx);
+      collectTypeInfo(typeInfos, factBase, context, filter, APPLICATION, subMonitor.newChild(1));
+      collectTypeInfo(typeInfos, factBase, context, filter, LIBRARY, subMonitor.newChild(1));
+      collectTypeInfo(typeInfos, factBase, WorkspaceContext.getInstance(), filter, RUNTIME, subMonitor.newChild(1));
     } finally {
       subMonitor.done();
     }
@@ -297,14 +296,14 @@ public final class X10SearchEngine {
   }
   
   private static void collectTypeInfo(final Collection<ITypeInfo> typeInfos, final FactBase factBase, 
-                                      final IFactContext context, final Pattern typeNamePattern, final String scopeTypeName, 
+                                      final IFactContext context, final IFilter<String> filter, final String scopeTypeName, 
                                       final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
     final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllTypes, scopeTypeName,
                                                                  monitor);
     if (allTypesValue != null) {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
-        if (typeNamePattern.matcher(((IString) tuple.get(0)).getValue()).matches()) {
+        if (filter.accepts(((IString) tuple.get(0)).getValue())) {
           typeInfos.add(createTypeInfo(tuple));
         }
       }
@@ -430,6 +429,24 @@ public final class X10SearchEngine {
   private static final class PatternFilter implements IFilter<String> {
     
     PatternFilter(final String regex) {
+      this.fPattern = Pattern.compile(regex);
+    }
+
+    // --- Interface methods implementation
+    
+    public boolean accepts(final String element) {
+      return this.fPattern.matcher(element).matches();
+    }
+    
+    // --- Fields
+    
+    private final Pattern fPattern;
+    
+  }
+  
+  private static final class TypePatternFilter implements IFilter<String> {
+    
+    TypePatternFilter(final String regex) {
       this.fPattern = Pattern.compile(regex);
     }
 
