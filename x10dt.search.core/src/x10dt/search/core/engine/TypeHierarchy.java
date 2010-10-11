@@ -62,6 +62,7 @@ final class TypeHierarchy implements ITypeHierarchy {
       throw new InterruptedException();
     }
     
+    this.fTypeName = typeName;
     this.fSuperTypes = new HashSet<ITuple>();
     this.fSubTypes = new HashSet<ITuple>();
     this.fDirectSuperTypes = new HashSet<ITuple>();
@@ -213,6 +214,10 @@ final class TypeHierarchy implements ITypeHierarchy {
     return superClass;
   }
   
+  public String getType() {
+    return this.fTypeName;
+  }
+  
   // --- Overridden methods
   
   public String toString() {
@@ -302,6 +307,8 @@ final class TypeHierarchy implements ITypeHierarchy {
   }
   
   // --- Fields
+  
+  private final String fTypeName;
   
   private final Set<ITuple> fSubTypes;
   

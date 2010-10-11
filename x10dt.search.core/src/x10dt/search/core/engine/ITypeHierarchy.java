@@ -79,5 +79,12 @@ public interface ITypeHierarchy {
    * @return A non-null, but possibly empty, array of type names.
    */
   public String getSuperClass();
+  
+  /**
+   * Returns the type for which the type hierarchy was built.
+   * 
+   * @return A non-null non-empty string.
+   */
+  public String getType();
 
 }
