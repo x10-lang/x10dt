@@ -43,8 +43,8 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
     final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
     for (final IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
       try {
-        if (project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) || project.hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID)) {
-          if (project.isAccessible()) {
+        if (project.isAccessible()) {
+          if (project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) || project.hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID)) {
             final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
             IndexManager.keepFactUpdated(key);
           }
