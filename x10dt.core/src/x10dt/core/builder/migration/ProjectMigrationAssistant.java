@@ -18,8 +18,10 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -269,9 +271,18 @@ public class ProjectMigrationAssistant {
 	}
 
 	public void migrate(Set<IProject> migrateProjects) {
-		for(IProject project: migrateProjects) {
-			fixNature(project);
-			fixContainer(project);
+		for(final IProject project: migrateProjects) {
+			IWorkspaceRunnable r= new IWorkspaceRunnable() {
+				public void run(IProgressMonitor monitor) throws CoreException {
+					fixNature(project);
+					fixContainer(project);
+				}
+			};
+			try {
+				ResourcesPlugin.getWorkspace().run(r, null);
+			} catch (CoreException e) {
+				X10DTCorePlugin.getInstance().logException("Exception encountered while attempting to migrate X10 project " + project.getName(), e);
+			}
 		}
 	}
 
