@@ -176,23 +176,25 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       case IClasspathEntry.CPE_LIBRARY:
         try {
           final IPackageFragmentRoot pkgRoot = javaProject.findPackageFragmentRoot(pathEntry.getPath());
-          final File localFile;
-          if (pkgRoot.isExternal()) {
-            localFile = pathEntry.getPath().toFile();
-          } else {
-            localFile = pkgRoot.getResource().getLocation().toFile();
+          if (pkgRoot != null) {
+            final File localFile;
+            if (pkgRoot.isExternal()) {
+              localFile = pathEntry.getPath().toFile();
+            } else {
+              localFile = pkgRoot.getResource().getLocation().toFile();
+            }
+            context.addToClassPath(localFile.getAbsolutePath());
+            if (isInRuntime) {
+              context.addToSourcePath(localFile);
+            }
+            final ZipFile zipFile;
+            if (JAR_EXT.equals(pathEntry.getPath().getFileExtension())) {
+              zipFile = new JarFile(localFile);
+            } else {
+              zipFile = new ZipFile(localFile);
+            }
+            processLibrary(context, zipFile, localFile, contextResource, isInRuntime);
           }
-          context.addToClassPath(localFile.getAbsolutePath());
-          if (isInRuntime) {
-            context.addToSourcePath(localFile);
-          }
-          final ZipFile zipFile;
-          if (JAR_EXT.equals(pathEntry.getPath().getFileExtension())) {
-            zipFile = new JarFile(localFile);
-          } else {
-            zipFile = new ZipFile(localFile);
-          }
-          processLibrary(context, zipFile, localFile, contextResource, isInRuntime);
         } catch (IOException except) {
           throw new AnalysisException(NLS.bind(Messages.XFG_JarReadingError, pathEntry.getPath()), except);
         }
