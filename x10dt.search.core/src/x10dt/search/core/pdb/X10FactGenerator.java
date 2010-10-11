@@ -205,8 +205,10 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
 
       case IClasspathEntry.CPE_PROJECT:
         final IResource projectResource = ResourcesPlugin.getWorkspace().getRoot().findMember(pathEntry.getPath());
-        final IJavaProject newJavaProject = JavaCore.create((IProject) projectResource);
-        processEntries(context, wsRoot, newJavaProject.getRawClasspath(), newJavaProject, contextResource, false);
+        if ((projectResource != null) && projectResource.isAccessible()) {
+          final IJavaProject newJavaProject = JavaCore.create((IProject) projectResource);
+          processEntries(context, wsRoot, newJavaProject.getRawClasspath(), newJavaProject, contextResource, false);
+        }
         break;
 
       case IClasspathEntry.CPE_VARIABLE:
