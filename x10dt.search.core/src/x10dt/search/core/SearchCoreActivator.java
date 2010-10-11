@@ -44,8 +44,10 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
     for (final IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
       try {
         if (project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) || project.hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID)) {
-          final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
-          IndexManager.keepFactUpdated(key);
+          if (project.isAccessible()) {
+            final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
+            IndexManager.keepFactUpdated(key);
+          }
         }
       } catch (CoreException except) {
         log(except.getStatus());
