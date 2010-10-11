@@ -75,6 +75,7 @@ public final class X10SearchEngine {
    * @param project The project in which to start the search for field names.
    * @param typeName The type name that is needed to be located first.
    * @param fieldNameRegEx The regular expression identifying the field names to search for.
+   * @param isCaseSensitive Indicates if the pattern matching is case sensitive or not.
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of field information.
    * @throws ModelException Occurs if the project does not exist.
@@ -82,11 +83,11 @@ public final class X10SearchEngine {
    * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IFieldInfo[] getAllMatchingFieldInfo(final IProject project, final String typeName, 
-                                                     final String fieldNameRegEx,
+                                                     final String fieldNameRegEx, final boolean isCaseSensitive,
                                                      final IProgressMonitor monitor) throws ModelException, 
                                                                                             InterruptedException, 
                                                                                             ExecutionException {
-    return getFieldInfo(project, typeName, new PatternFilter(fieldNameRegEx), true, monitor);
+    return getFieldInfo(project, typeName, new PatternFilter(fieldNameRegEx, isCaseSensitive), true, monitor);
   }
   
   /**
@@ -96,6 +97,7 @@ public final class X10SearchEngine {
    * @param project The project in which to start the search for method names.
    * @param typeName The type name that is needed to be located first.
    * @param methodNameRegEx The regular expression identifying the method names to search for.
+   * @param isCaseSensitive Indicates if the pattern matching is case sensitive or not.
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of method information.
    * @throws ModelException Occurs if the project does not exist.
@@ -103,11 +105,11 @@ public final class X10SearchEngine {
    * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IMethodInfo[] getAllMatchingMethodInfo(final IProject project, final String typeName, 
-                                                       final String methodNameRegEx,
+                                                       final String methodNameRegEx, final boolean isCaseSensitive,
                                                        final IProgressMonitor monitor) throws ModelException, 
                                                                                               InterruptedException, 
                                                                                               ExecutionException {
-    return getMethodInfos(project, typeName, new PatternFilter(methodNameRegEx), monitor);
+    return getMethodInfos(project, typeName, new PatternFilter(methodNameRegEx, isCaseSensitive), monitor);
   }
   
   /**
@@ -115,6 +117,7 @@ public final class X10SearchEngine {
    * 
    * @param project The project in which to start the search for type names.
    * @param typeNameRegEx The regular expression identifying the type names to search for.
+   * @param isCaseSensitive Indicates if the pattern matching is case sensitive or not.
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of type information.
    * @throws ModelException Occurs if the project does not exist.
@@ -122,6 +125,7 @@ public final class X10SearchEngine {
    * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static ITypeInfo[] getAllMatchingTypeInfo(final IProject project, final String typeNameRegEx,
+                                                   final boolean isCaseSensitive,
                                                    final IProgressMonitor monitor) throws ModelException, 
                                                                                           InterruptedException, 
                                                                                           ExecutionException {
@@ -132,7 +136,7 @@ public final class X10SearchEngine {
     final Collection<ITypeInfo> typeInfos = new ArrayList<ITypeInfo>();
     try {
       subMonitor.beginTask(null, 3);
-      final IFilter<String> filter = new TypePatternFilter(typeNameRegEx);
+      final IFilter<String> filter = new TypePatternFilter(typeNameRegEx, isCaseSensitive);
       collectTypeInfo(typeInfos, factBase, context, filter, APPLICATION, subMonitor.newChild(1));
       collectTypeInfo(typeInfos, factBase, context, filter, LIBRARY, subMonitor.newChild(1));
       collectTypeInfo(typeInfos, factBase, WorkspaceContext.getInstance(), filter, RUNTIME, subMonitor.newChild(1));
@@ -428,8 +432,8 @@ public final class X10SearchEngine {
   
   private static final class PatternFilter implements IFilter<String> {
     
-    PatternFilter(final String regex) {
-      this.fPattern = Pattern.compile(regex);
+    PatternFilter(final String regex, final boolean isCaseSensitive) {
+      this.fPattern = isCaseSensitive ? Pattern.compile(regex) : Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
 
     // --- Interface methods implementation
@@ -446,8 +450,8 @@ public final class X10SearchEngine {
   
   private static final class TypePatternFilter implements IFilter<String> {
     
-    TypePatternFilter(final String regex) {
-      this.fPattern = Pattern.compile(regex);
+    TypePatternFilter(final String regex, final boolean isCaseSensitive) {
+      this.fPattern = isCaseSensitive ? Pattern.compile(regex) : Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
     }
 
     // --- Interface methods implementation
