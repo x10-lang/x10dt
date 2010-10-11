@@ -204,6 +204,17 @@ The type of <b>p</b> is inferred to be <b>Point(5)</b> (i.e. the type
 <b>Point{self.rank==5}</b>.
 Similarly for <b>q</b>. Hence the application of the operator "<b>-</b>" is legal (it requires both arguments to have the same rank). The type of <b>a</b> is computed as <b>Point(5)</b>.
 
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>
+Suppose that the function took <b>a:Array[Int](1)</b> and did 
+the operation <b>a(i)=100</b>.   This operation is perfectly fine for
+an <b>Array[Int](1)</b>, which is all the compiler knows about <b>a</b>.  
+However, it is invalid for an <b>Array[Int{self==0}](1)</b>, because it assigns
+a non-zero value to an element of the array, violating the type constraint
+which says that all the elements are zero.  So, <b>Array[Int{self==0}](1)</b>
+is not a subtype of <b>Array[Int](1)</b> - the two types are simply unrelated.
 
 <br /><br />
 

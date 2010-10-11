@@ -21,11 +21,14 @@
 9</a>&nbsp;&nbsp;Switch statement</h2>
 
 <div class="p"><!----></div>
-Statement ::= SwitchStatement <br />
-SwitchStatement ::= <b>switch</b> <b>(</b> Expression <b>)</b> <b> Case <b></b></b> <br />
-Case ::= <b>case</b> Expression <b>:</b> Statement <br />
-     &#124; <b>default</b> <b>:</b> Statement <br />
-
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement ::= SwitchStatement </td></tr>
+<tr><td align="right">SwitchStatement ::= <b>switch</b> <b>(</b> Expression <b>)</b> <b> Case<sup>+</sup>&nbsp;<b></b></b> </td></tr>
+<tr><td align="right">Case ::= <b>case</b> Expression <b>:</b> Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>default</b> <b>:</b> Statement<sup>*</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 A switch statement evaluates an index expression and then branches to

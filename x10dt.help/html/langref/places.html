@@ -18,8 +18,10 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 13 </a><br />Places</h1><a name="XtenPlaces">
+Chapter 1 </a><br />Places</h1>
+<a name="XtenPlaces">
 </a>
+
 
 <div class="p"><!----></div>
 An X10 place is a repository for data and activities, corresponding
@@ -35,7 +37,7 @@ not hard to use non-local data; it's simply hard to to do so accidentally.
 The set of places available to a computation is determined at the time that
 the program is started, and remains fixed through the run of the program. See
 the <tt>README</tt> documentation on how to set command line and configuration
-options to set the number of places.)
+options to set the number of places.
 
 <div class="p"><!----></div>
 Places are first-class values in X10, as instances of the built-in struct,
@@ -44,16 +46,10 @@ query places, such as <b>Place.places</b>, a <b>ValRail</b> of all the places
 available to the current run of the program.
 
 <div class="p"><!----></div>
-Every object <b>ob</b> created by the program has a <em>home place</em>
-<b>ob.home</b>. Accesses to <b>ob</b> from activities located at <b>ob.home</b>
-are privileged.  Mutable fields can only be changed from <b>ob.home</b>, and
-normal fields and methods can only be accessed from there. 
-
-<div class="p"><!----></div>
-However, objects can be referred to from anywhere.  Places other than
-<b>ob.home</b> may have <em>remote references</em> to <b>ob</b>.  Remote references
-convey fewer privileges than local ones, but they are far from useless.
-Fields and methods can be defined to be <b>global</b>, usable from anywhere. 
+Objects and structs (with one exception) are created in a single place - the
+place that the constructor call was running in. They cannot change places.
+They can be <em>copied</em> to other places, and the special library struct
+<b>GlobalRef</b> allows values at one place to point to values at another.  
 
 <div class="p"><!----></div>
 

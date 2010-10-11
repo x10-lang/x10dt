@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;<b>here</b></h2><a name="Here">
+2</a>&nbsp;&nbsp;<tt>here</tt></h2><a name="Here">
 </a>
 
 <div class="p"><!----></div>
@@ -42,50 +42,20 @@ at (here.next()) {
 constraints, and <b>this</b> by inner classes.)
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Expression ::= <b>here</b> </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-For example, the following method looks through a collection of <b>Thing</b>s
-for ones which belong in the current place <b>here</b>, and deals with the
-things which do.  Note that every object <b>thing</b> has a property
-<b>thing.home</b> giving its home location.
+The following example looks through a list of references to <b>Thing</b>s.  
+It finds those references to things that are <b>here</b>, and deals with them.  
 <pre>
-  public static def dealWithLocal(things: Rail[Thing]!) {
-     for(thing in things) {
-    	 if (thing.home == here) 
-            dealWith(thing);
-     }	  
+  public static def deal(things: List[GlobalRef[Thing]]) {
+     for(gr in things) {
+        if (gr.home == here) {
+           val grHere = 
+               gr as GlobalRef[Thing]{gr.home == here};
+           val thing &lt;: Thing = grHere();
+           dealWith(thing);
+        }
+     }
   }
 </pre>
-
-<div class="p"><!----></div>
-<b>here</b> is frequently used in constraints, quite often of the form
-<b>ob.home == here</b>. Such constraints are necessary to check that a
-non-global method can be called on <b>ob</b>: 
-
-<div class="p"><!----></div>
-<pre>
-val ob : Thing{self.home == here} = new Thing();
-ob.nonGlobalMethod();
-</pre>
-
-<div class="p"><!----></div>
-This idiom is so common and useful that the constraint
-<b>T{self.home==here}</b> can be abbreviated as <b>T!</b>: 
-
-<div class="p"><!----></div>
-<pre>
-val ob : Thing! = new Thing();
-ob.nonGlobalMethod();
-</pre>
-
-<div class="p"><!----></div>
-<em>Limitation</em><em>In the current implementation, sometimes ^T{self.home==here}^
-does not work, though <b>T!</b> does.</em>
 
 <div class="p"><!----></div>
 

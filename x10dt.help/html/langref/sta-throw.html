@@ -22,9 +22,12 @@
 
 
 <div class="p"><!----></div>
-Statement ::= ThrowStatement <br />
-ThrowStatement ::= <b>throw</b> Expression <b>;</b>
-
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement ::= ThrowStatement </td></tr>
+<tr><td align="right">ThrowStatement ::= <b>throw</b> Expression <b>;</b>
+</td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 The <b>throw</b> statement throws an exception, which 
@@ -36,7 +39,9 @@ throws an exception if not.
 
 <div class="p"><!----></div>
 <pre>
-if (i &lt; 0 &#124;&#124; i &#62;= x.length)
+if (i &lt; 0 </td><td width="150">
+&#124;</td><td width="150">
+&#124; i &#62;= x.length)
     throw new MyIndexOutOfBoundsException();
 </pre>
 

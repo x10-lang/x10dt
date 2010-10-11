@@ -467,8 +467,11 @@ subclass of <b>C</b> must be annotated with precisely the same annotation,
 The following example uses most of the possible variations (leaving out
 <b>final</b> class).  <b>aplomb()</b> explicitly forbids reading any field but
 <b>a</b>. <b>boric()</b> is called after <b>a</b> and <b>b</b> are set, but
-{c} is not. <b>cajoled()</b> is only called after all fields are set, so it
-can read anything.   <b>SeeAlso</b> is able to override <b>aplomb()</b>, because
+{c} is not. 
+The <b>@NonEscaping</b> annotation on <b>boric()</b> is optional, but the
+compiler will print a warning if it is left out.
+<b>cajoled()</b> is only called after all fields are set, so it
+can read anything; its annotation, too, is not required.   <b>SeeAlso</b> is able to override <b>aplomb()</b>, because
 <b>aplomb()</b> is <b>@NonEscaping(&#228;")</b>; it cannot override the final method
 <b>boric()</b> or the private one <b>cajoled()</b>.  Even for overriding
 <b>aplomb()</b>, it is crucial that <b>SeeAlso.aplomb()</b> be 
@@ -493,12 +496,12 @@ class C2 {
     // this.boric(); // not allowed; boric reads b.
     // z = b; // not allowed - only 'a' can be read here
   }
-  final def boric() {
+  @NonEscaping("b") final def boric() {
     y = b;
     this.aplomb(); // allowed; a is definitely set before boric is called
     // z = c; // not allowed; c is not definitely written 
   }
-  private def cajoled() {
+  @NonEscaping("c") private def cajoled() {
     z = c;
   }  
 }
@@ -602,7 +605,7 @@ preventing this; a constructor call of an inner class is no
 different from a method as far as leaking is concerned.
 <pre>
 class Outer {
-  static val leak : Cell[Outer] = new Cell[Outer]();
+  static val leak : Cell[Outer] = new Cell[Outer](null);
   class Inner {
      def this() {Outer.leak.set(Outer.this);}
   }

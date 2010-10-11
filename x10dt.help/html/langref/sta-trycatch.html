@@ -21,12 +21,15 @@
 14</a>&nbsp;&nbsp;Try-catch statement</h2>
 
 <div class="p"><!----></div>
-Statement ::= TryStatement <br />
-TryStatement ::= <b>try</b> BlockStatement Catch  <br />
-             &#124; <b>try</b> BlockStatement Catch Finally <br />
-Catch ::= <b>catch</b> <b>(</b> Formal <b>)</b> BlockStatement <br />
-Finally ::= <b>finally</b> BlockStatement <br />
-
+  :  |        <em>  
+<table>
+<tr><td align="right">Statement ::= TryStatement </td></tr>
+<tr><td align="right">TryStatement ::= <b>try</b> BlockStatement Catch<sup>+</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>try</b> BlockStatement Catch<sup>*</sup>&nbsp;Finally </td></tr>
+<tr><td align="right">Catch ::= <b>catch</b> <b>(</b> Formal <b>)</b> BlockStatement </td></tr>
+<tr><td align="right">Finally ::= <b>finally</b> BlockStatement </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 Exceptions are handled with a <b>try</b> statement.
