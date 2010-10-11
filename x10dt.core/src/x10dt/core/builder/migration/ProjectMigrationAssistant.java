@@ -68,6 +68,11 @@ public class ProjectMigrationAssistant {
 	private static final String OLD_JAVA_BACK_END_NATURE_ID= "org.eclipse.imp.x10dt.ui.launch.java.x10nature"; //$NON-NLS-1$
 
 	/**
+	 * An even older value of the nature ID for the Java back-end X10 nature
+	 */
+	private static final String OLDER_JAVA_BACK_END_NATURE_ID = "org.eclipse.imp.x10dt.core.x10nature";
+
+	/**
 	 * The old value of the builder ID for the Java back-end X10 builder
 	 */
 	private static final String OLD_JAVA_BACK_END_BUILDER_ID= "org.eclipse.imp.x10dt.ui.launch.java.X10JavaBuilder"; //$NON-NLS-1$
@@ -207,6 +212,7 @@ public class ProjectMigrationAssistant {
 			ICommand[] buildCmds= projDesc.getBuildSpec();
 
 			if (findNature(natures, OLD_JAVA_BACK_END_NATURE_ID) >= 0 ||
+				findNature(natures, OLDER_JAVA_BACK_END_NATURE_ID) >= 0 ||
 				findNature(natures, OLD_CPP_BACK_END_NATURE_ID) >= 0 ||
 				findBuilder(buildCmds, OLD_JAVA_BACK_END_BUILDER_ID) >= 0 ||
 				findBuilder(buildCmds, OLD_CPP_BACK_END_BUILDER_ID) >= 0 ||
@@ -293,7 +299,16 @@ public class ProjectMigrationAssistant {
 
 			if (natureIdx < 0) {
 				natureIdx= findNature(natures, OLD_CPP_BACK_END_NATURE_ID);
-				natures[natureIdx]= NEW_CPP_BACK_END_NATURE_ID;
+				if (natureIdx < 0) {
+					natureIdx= findNature(natures, OLDER_JAVA_BACK_END_NATURE_ID);
+					if (natureIdx >= 0) {
+						natures[natureIdx]= NEW_JAVA_BACK_END_NATURE_ID;
+					}
+				} else {
+					if (natureIdx >= 0) {
+						natures[natureIdx]= NEW_CPP_BACK_END_NATURE_ID;
+					}
+				}
 			} else {
 				natures[natureIdx]= NEW_JAVA_BACK_END_NATURE_ID;
 			}
@@ -307,6 +322,9 @@ public class ProjectMigrationAssistant {
 
 			if (builderIdx < 0) {
 				builderIdx= findBuilder(oldCmds, OLD_CPP_BACK_END_BUILDER_ID);
+			}
+			if (builderIdx < 0) {
+				builderIdx= findBuilder(oldCmds, OLDER_JAVA_BACK_END_NATURE_ID);
 			}
 			if (builderIdx >= 0) {
 				System.arraycopy(oldCmds, 0, newCmds, 0, builderIdx);
