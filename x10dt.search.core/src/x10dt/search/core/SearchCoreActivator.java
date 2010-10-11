@@ -50,7 +50,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
           }
         }
       } catch (CoreException except) {
-        log(except.getStatus());
+        log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNatureAccessFailed, project.getName()), except);
       } catch (ModelException except) {
         log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
       }

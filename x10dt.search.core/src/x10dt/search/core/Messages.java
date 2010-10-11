@@ -21,6 +21,8 @@ public class Messages extends NLS {
 
   public static String FWV_URICreationError;
 
+  public static String SCA_ProjectNatureAccessFailed;
+
   public static String SCA_ProjectNonExistent;
 
   public static String TH_BuildTHJobName;
