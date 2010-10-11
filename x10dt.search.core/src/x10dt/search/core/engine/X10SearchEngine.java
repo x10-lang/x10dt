@@ -436,7 +436,8 @@ public final class X10SearchEngine {
     // --- Interface methods implementation
     
     public boolean accepts(final String element) {
-      return this.fPattern.matcher(element).matches();
+      final String typeName = element.substring(element.lastIndexOf('.') + 1);
+      return this.fPattern.matcher(typeName).matches();
     }
     
     // --- Fields
