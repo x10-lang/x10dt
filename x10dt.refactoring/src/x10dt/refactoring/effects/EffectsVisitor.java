@@ -38,7 +38,6 @@ import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.AtStmt;
 import x10.ast.DepParameterExpr;
-import x10.ast.ForEach;
 import x10.ast.ForLoop;
 import x10.ast.SettableAssign;
 import x10.ast.X10Formal;
@@ -214,8 +213,6 @@ public class EffectsVisitor extends NodeVisitor {
                 result= computeEffect((Field) old);
             } else if (old instanceof FieldAssign) {
                 result= computeEffect((FieldAssign) old);
-            } else if (old instanceof ForEach) {
-                result= computeEffect((ForEach) old);
             } else if (old instanceof ForLoop) {
                 result= computeEffect((ForLoop) old);
             } else if (old instanceof If) {
@@ -451,12 +448,6 @@ public class EffectsVisitor extends NodeVisitor {
 
     private Effect computeEffect(Async async) {
         Effect bodyEff= fEffects.get(async.body());
-
-        return bodyEff.makeParFun();
-    }
-
-    private Effect computeEffect(ForEach n) {
-        Effect bodyEff= fEffects.get(n.body());
 
         return bodyEff.makeParFun();
     }

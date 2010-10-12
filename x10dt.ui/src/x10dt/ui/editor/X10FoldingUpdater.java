@@ -38,7 +38,6 @@ import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10dt.ui.parser.ParseController;
 
 public class X10FoldingUpdater extends LPGFolderBase {
@@ -159,7 +158,6 @@ public class X10FoldingUpdater extends LPGFolderBase {
                 n instanceof SwitchBlock ||
                 n instanceof Loop || // includes For, ForLoop, While, do
                 n instanceof AtEach ||
-                n instanceof ForEach ||
                 n instanceof Async ||
                 n instanceof Atomic ||
                 (n instanceof Finish && ((Finish) n).body() instanceof Block))

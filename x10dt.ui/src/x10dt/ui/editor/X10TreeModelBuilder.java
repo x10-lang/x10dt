@@ -32,7 +32,6 @@ import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10.ast.Future;
 import x10.ast.Next;
 import x10.ast.X10Loop;
@@ -67,7 +66,7 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
                     }
                 } else if (n instanceof FieldDecl) {
                     createSubItem(n, FIELD_CATEGORY);
-                } else if (n instanceof Async || n instanceof AtEach || n instanceof ForEach ||
+                } else if (n instanceof Async || n instanceof AtEach ||
                            n instanceof Future || n instanceof Finish || n instanceof Atomic ||
                            n instanceof Next) {
                     pushSubItem(n, STATEMENT_CATEGORY);
@@ -97,7 +96,7 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
                 if (n instanceof TopLevelDecl ||
                     n instanceof ClassDecl ||
                     (n instanceof ProcedureDecl && !isSynthetic((ProcedureDecl) n)) ||
-                    n instanceof Async || n instanceof AtEach || n instanceof ForEach ||
+                    n instanceof Async || n instanceof AtEach ||
                     n instanceof Future || n instanceof Finish || n instanceof Atomic ||
                     n instanceof Next || n instanceof X10Loop  
                     //||(n instanceof ArrayConstructor && ((ArrayConstructor) old).initializer() != null)//PORT1.7 --- what to do for ArrayConstructor?

@@ -55,7 +55,6 @@ import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
 import x10.ast.Finish;
-import x10.ast.ForEach;
 import x10.ast.Future;
 import x10.ast.Next;
 import x10.ast.TypeDecl_c;
@@ -219,7 +218,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
             ProcedureDecl pd= (ProcedureDecl) node;
             return getImageFromQualifiers(pd.flags().flags(), MISC_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
         
-        } else if (node instanceof Async || node instanceof AtEach || node instanceof ForEach ||
+        } else if (node instanceof Async || node instanceof AtEach ||
                 node instanceof Future || node instanceof Finish || node instanceof Atomic ||
                 node instanceof Next) {
             return _DESC_MISC_DEFAULT;
@@ -333,9 +332,6 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
             return "atomic {" + sourceText(at.body()) + "}";
         } else if (node instanceof Finish) {
             return "finish";
-        } else if (node instanceof ForEach) {
-            ForEach fe= (ForEach) node;
-            return "foreach(" + sourceText(fe.domain()) + ")";
         } else if (node instanceof Future) {
             Future f= (Future) node;
             return "future " + f.body();
