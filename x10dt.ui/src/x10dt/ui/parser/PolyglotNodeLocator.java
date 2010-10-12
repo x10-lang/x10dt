@@ -433,6 +433,9 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         } else {
             return -1;
         }
+        if (pos == null) {
+        	return -1;
+        }
         return pos.offset();
     }
 
@@ -451,6 +454,9 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             return ((IToken) entity).getEndOffset();
         } else {
             return -1;
+        }
+        if (pos == null) {
+        	return -1;
         }
         return pos.endOffset();
     }
@@ -485,7 +491,11 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         } else if (node instanceof Position) {
             return new Path(((Position) node).file());
         } else if (node instanceof TypeObject) {
-            return new Path(((TypeObject) node).position().file()); // should be .path(), but that's currently empty for TypeObjects
+            Position pos = ((TypeObject) node).position();
+            if (pos == null) {
+            	return null;
+            }
+			return new Path(pos.file()); // should be .path(), but that's currently empty for TypeObjects
         } else {
             return null;
         }
