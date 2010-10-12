@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui;
+package x10dt.search.ui;
 
 import java.util.ResourceBundle;
 
@@ -19,7 +19,7 @@ import org.eclipse.osgi.util.NLS;
 @SuppressWarnings("all")
 public class Messages extends NLS {
 
-	private static final String BUNDLE_FOR_CONSTRUCTED_KEYS= "x10dt.ui.ConstructedMessages";//$NON-NLS-1$
+	private static final String BUNDLE_FOR_CONSTRUCTED_KEYS= "x10dt.search.ui.ConstructedMessages";//$NON-NLS-1$
 	private static ResourceBundle fgBundleForConstructedKeys= ResourceBundle.getBundle(BUNDLE_FOR_CONSTRUCTED_KEYS);
 
 	/**
@@ -114,7 +114,7 @@ public class Messages extends NLS {
 	private Messages() {
 	}
 
-	private static final String BUNDLE_NAME = "x10dt.ui.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "x10dt.search.ui.Messages"; //$NON-NLS-1$
 
 	static {
 		// initialize resource bundle

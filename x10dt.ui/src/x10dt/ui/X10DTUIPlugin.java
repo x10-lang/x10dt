@@ -29,10 +29,12 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 public class X10DTUIPlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID= "x10dt.ui";
-
+    
     private static X10DTUIPlugin sInstance;
 
     private static ILog sLog;
+    
+    
 
     public X10DTUIPlugin() {
 	super();
@@ -69,6 +71,8 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
 	fgIconBaseURL= getBundle().getEntry("/icons/"); //$NON-NLS-1$
 	RUNTIME_IMG_DESC= create(RUNTIME_IMG_NAME);
 	getInstance().getImageRegistry().put(RUNTIME_IMG_NAME, RUNTIME_IMG_DESC);
+	
+	
     }
 
     public static void log(Exception e) {
@@ -77,6 +81,8 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
 
     public static final String RUNTIME_IMG_NAME= "runtime_obj.gif";
     public static ImageDescriptor RUNTIME_IMG_DESC;
+    
+   
 
     private static URL fgIconBaseURL= null;
 

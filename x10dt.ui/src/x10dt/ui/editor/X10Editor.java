@@ -2,12 +2,18 @@ package x10dt.ui.editor;
 
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.ui.DefaultPartListener;
+import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
+import org.eclipse.jdt.internal.ui.javaeditor.JavaSourceViewer;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.texteditor.TextOperationAction;
 
+import x10dt.search.ui.Messages;
+import x10dt.search.ui.typeHierarchy.X10Constants;
 import x10dt.ui.X10DTUIPlugin;
 
 public class X10Editor extends UniversalEditor {
@@ -64,13 +70,13 @@ public class X10Editor extends UniversalEditor {
 	protected void createActions() {
 		super.createActions();
 
-//		IAction action = new TextOperationAction(Messages
-//				.getBundleForConstructedKeys(),
-//				"OpenHierarchy.", this, JavaSourceViewer.SHOW_HIERARCHY, true); //$NON-NLS-1$
-//		action.setActionDefinitionId(X10EditorActionContributer.OPEN_HIERARCHY);
-//		setAction(X10EditorActionContributer.OPEN_HIERARCHY, action);
-		// PlatformUI.getWorkbench().getHelpSystem().setHelp(action,
-		// IJavaHelpContextIds.OPEN_HIERARCHY_ACTION);
+		IAction action = new TextOperationAction(Messages
+				.getBundleForConstructedKeys(),
+				"OpenHierarchy.", this, JavaSourceViewer.SHOW_HIERARCHY, true); //$NON-NLS-1$
+		action.setActionDefinitionId(X10Constants.OPEN_HIERARCHY);
+		setAction(X10Constants.OPEN_HIERARCHY, action);
+		 PlatformUI.getWorkbench().getHelpSystem().setHelp(action,
+		 IJavaHelpContextIds.OPEN_HIERARCHY_ACTION);
 	}
 
 	@Override
@@ -78,7 +84,7 @@ public class X10Editor extends UniversalEditor {
 		super.editorContextMenuAboutToShow(menu);
 
 		// Quick views
-		IAction action = getAction(X10EditorActionContributer.OPEN_HIERARCHY);
+		IAction action = getAction(X10Constants.OPEN_HIERARCHY);
 		menu.appendToGroup(IContextMenuConstants.GROUP_OPEN, action);
 	}
 

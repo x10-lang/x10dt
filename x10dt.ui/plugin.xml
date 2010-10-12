@@ -158,6 +158,24 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+M4+D X">
       </key>
+      <key
+            sequence="M1+M2+T"
+            contextId="x10dt.ui.x10EditorScope"
+            commandId="x10dt.ui.navigate.OpenType"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+T"
+            contextId="x10dt.ui.x10EditorScope"
+            commandId="x10dt.ui.navigate.OpenHierarchy"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="F4"
+            contextId="x10dt.ui.x10EditorScope"
+            commandId="x10dt.ui.navigate.OpenTypeHierarchy"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -172,6 +190,25 @@
             description="Run the selected main type as an X10 application"
             categoryId="org.eclipse.debug.ui.category.run"
             id="x10dt.ui.launching.x10LaunchShortcut.debug">
+      </command>
+<!-- navigate -->
+      <command
+            name="%ActionDefinition.openType.name"
+            description="%ActionDefinition.openType.description"
+            categoryId="org.eclipse.ui.category.navigate"
+            id="x10dt.ui.navigate.OpenType">
+      </command>
+      <command
+            name="%ActionDefinition.open.hierarchy.name"
+            description="%ActionDefinition.open.hierarchy.description"
+            categoryId="org.eclipse.ui.category.navigate"
+            id="x10dt.ui.navigate.OpenHierarchy">
+      </command>
+      <command
+            name="%ActionDefinition.openTypeHierarchy.name"
+            description="%ActionDefinition.openTypeHierarchy.description"
+            categoryId="org.eclipse.ui.category.navigate"
+            id="x10dt.ui.navigate.OpenTypeHierarchy">
       </command>
    </extension>
    <extension
@@ -444,6 +481,44 @@
                style="push"
                toolbarPath="Normal/X10Wizards"
                tooltip="%new.project.java.tooltip">
+         </action>
+      </actionSet>
+      <!-- =========================================================================== -->
+<!-- Java and Coding Action Set (Adding the source, refactor and navigate menu)  -->
+<!-- =========================================================================== -->
+      <actionSet
+            label="%X10ActionSet.label"
+            description="%X10ActionSet.description"
+            visible="false"
+            id="x10dt.ui.typeActionSet">
+<!--
+         <action
+               definitionId="x10dt.ui.navigate.OpenTypeInHierarchy"
+               label="%OpenTypeInHierarchyAction.label"
+               helpContextId="x10dt.ui.open_type_in_hierarchy_action"
+               tooltip="%OpenTypeInHierarchyAction.tooltip"
+               class="x10dt.ui.actions.OpenTypeInHierarchyAction"
+               menubarPath="navigate/open.ext2"
+               id="openTypeInHierarchy">
+         </action>
+-->
+         <action
+               id="openType"
+               toolbarPath="org.eclipse.search.searchActionSet/Search"
+               class="x10dt.search.ui.actions.OpenTypeAction"
+               definitionId="x10dt.ui.navigate.OpenType"
+               icon="icons/opentype.gif"
+               helpContextId="x10dt.ui.open_type_action"
+               label="%OpenTypeAction.label"
+               menubarPath="navigate/open.ext2"
+               tooltip="%OpenTypeAction.tooltip">
+         </action>
+         <action
+               definitionId="x10dt.ui.navigate.OpenTypeHierarchy"
+               label="%OpenTypeHierarchyAction.label"
+               retarget="true"
+               menubarPath="navigate/open.ext"
+               id="openTypeHierarchy">
          </action>
       </actionSet>
    </extension>

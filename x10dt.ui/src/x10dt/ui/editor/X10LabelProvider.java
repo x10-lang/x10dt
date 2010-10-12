@@ -32,10 +32,13 @@ import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 import polyglot.ast.Call;
@@ -69,7 +72,7 @@ import x10dt.ui.X10DTUIPlugin;
  * bookkeeping.
  * @author Beth Tibbitts
  */
-public class X10LabelProvider implements ILabelProvider, ILanguageService {
+public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyledLabelProvider {
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
 
     private static ImageRegistry sImageRegistry= X10DTUIPlugin.getInstance().getImageRegistry();
@@ -146,6 +149,10 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     public static Image[] INNER_INTF_DESCS= {
     	X10LabelProvider._DESC_OBJS_INNER_INTERFACE_DEFAULT, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PRIVATE, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PROTECTED, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PUBLIC
         };
+    
+    public static final ImageDescriptor DESC_OVR_FOCUS= JavaPluginImages.DESC_OVR_FOCUS;
+	
+    
     //===================
 
     static {
@@ -275,6 +282,10 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     }
 
     public String getText(Object element) {
+		if (element instanceof IType) {
+			return ((IType) element).getElementName();
+		}
+    	
         Node node= (element instanceof ModelTreeNode) ?
 	        (Node) ((ModelTreeNode) element).getASTNode():
                 (Node) element;
@@ -381,4 +392,8 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService {
     public void removeListener(ILabelProviderListener listener) {
         fListeners.remove(listener);
     }
+
+	public StyledString getStyledText(Object element) {
+		return new StyledString(getText(element));
+	}
 }

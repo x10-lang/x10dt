@@ -18,7 +18,7 @@ public class X10StructuredSourceViewerConfiguration extends StructuredSourceView
 //			public IInformationControl createInformationControl(Shell parent) {
 //				int shellStyle= SWT.RESIZE;
 //				int treeStyle= SWT.V_SCROLL | SWT.H_SCROLL;
-//				return new HierarchyInformationControl(parent, shellStyle, treeStyle);
+//				return new HierarchyInformationControl(fEditor, parent, shellStyle, treeStyle);
 //			}
 //		};
 //	}
@@ -35,8 +35,8 @@ public class X10StructuredSourceViewerConfiguration extends StructuredSourceView
 //	public IInformationPresenter getHierarchyPresenter(ISourceViewer sourceViewer, boolean doCodeResolve) {
 //
 //		// Do not create hierarchy presenter if there's no CU.
-//		if (fEditor != null && fEditor.getEditorInput() != null && EditorUtility.getEditorInputModelElement(fEditor.getEditorInput()) == null)
-//			return null;
+//		//if (fEditor != null && fEditor.getEditorInput() != null)// && EditorUtility.getEditorInputModelElement(fEditor.getEditorInput()) == null)
+//		//	return null;
 //
 //		InformationPresenter presenter= new InformationPresenter(getHierarchyPresenterControlCreator());
 //		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
