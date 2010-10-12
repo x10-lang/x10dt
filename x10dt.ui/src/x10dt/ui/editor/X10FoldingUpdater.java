@@ -14,8 +14,8 @@ package x10dt.ui.editor;
 import java.util.HashMap;
 import java.util.List;
 
-import lpg.runtime.Adjunct;
 import lpg.runtime.ILexStream;
+import lpg.runtime.IToken;
 
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.services.base.LPGFolderBase;
@@ -25,6 +25,7 @@ import org.eclipse.jface.text.source.Annotation;
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
+import polyglot.ast.Import;
 import polyglot.ast.Initializer;
 import polyglot.ast.Loop;
 import polyglot.ast.MethodDecl;
@@ -68,9 +69,9 @@ public class X10FoldingUpdater extends LPGFolderBase {
      * Folds multi-line comments
      */
     private void foldComments(ILexStream lexStream) {
-		List<Adjunct> adjuncts = prsStream.getAdjuncts();
+		List<? extends IToken> adjuncts = prsStream.getAdjuncts();
 
-		for(Adjunct adjunct: adjuncts) {
+		for(IToken adjunct: adjuncts) {
             int adjStart= adjunct.getStartOffset();
             int adjEnd= adjunct.getEndOffset();
 
@@ -89,7 +90,7 @@ public class X10FoldingUpdater extends LPGFolderBase {
      * @param parseController
      */
 	private void foldImports(Node ast, IParseController parseController) {
-		List imports = ((SourceFile) ast).imports();
+		List<Import> imports = ((SourceFile) ast).imports();
         if (imports.size() > 0) {
             Node first_import = (Node) imports.get(0),
                  last_import  = (Node) imports.get(imports.size() - 1);
