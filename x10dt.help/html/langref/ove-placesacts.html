@@ -60,25 +60,6 @@ communication) are readily visible in the code.
 
 <div class="p"><!----></div>
 
-<b>Object and Places.&nbsp;&nbsp;</b>
-
-<div class="p"><!----></div>
-Every object has a <em>home place</em>, <b>x.home</b>.  <b>home</b> is a property,
-and the constrained type mechanisms mentioned previously can be used with it.
-For example, an object <b>x</b> with a mutable field <b>f</b> only allows
-mutations when <b>x.home==here</b>, which formalizes the concept above.  If we
-know that <b>x</b> is located here but the typechecker doesn't, we can use a
-cast to tell it:
-<pre>
-val xhere = x as FHolder!;
-xhere.f = 12;
-</pre>
-(<b>FHolder!</b> is an abbreviation for <b>FHolder{self.home==here}</b>, a
-<b>FHolder</b> object located here.)
-This will throw an exception if <b>x</b> is not located here.
-
-<div class="p"><!----></div>
-
 <b>Atomic blocks.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
@@ -104,14 +85,6 @@ An asynchronous activity is created by a statement <b>async (P) S</b>
 where <b>P</b> is a place expression and <b>S</b> is a statement.  Such
 a statement is executed by spawning an activity at the place
 <b>P</b>  executing statement <b>S</b>.
-
-<div class="p"><!----></div>
-If the activity needs to return a value, the form <b>future (p) E</b> is often
-convenient. This spawns an activity at <b>p</b> evaluating <b>E</b>, and also
-returns a value called a <em>future</em> which is capable of accepting the value
-of <b>E</b> when it is ready.  The caller can try to get the value from the
-future, which provides it immediately if it is ready and blocks to wait for it
-if it is not.
 
 <div class="p"><!----></div>
 

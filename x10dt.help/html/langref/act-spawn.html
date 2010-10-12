@@ -36,7 +36,7 @@ An activity is created by executing the <b>async</b> statement:
   :  |        <em>  
 <table>
 <tr><td align="right">Statement ::= AsyncStatement </td></tr>
-<tr><td align="right">AsyncStatement ::= <b>async</b> PlaceExpressionSingleList<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">AsyncStatement ::= <b>async</b>  Statement </td></tr>
 <tr><td align="right">PlaceExpressionSingleList ::= <b>(</b> PlaceExpression <b>)</b> </td></tr>
 <tr><td align="right">PlaceExpression ::= Expression 
 </td></tr></table>
@@ -44,21 +44,7 @@ An activity is created by executing the <b>async</b> statement:
 
 <div class="p"><!----></div>
 The basic form of <b>async</b> is <b>async S</b>, which starts a new activity
-located <b>here</b> executing <b>S</b>.    The form 
-<b>async (p) S</b> is simply shorthand for <b>async at(p) S</b>, covering the
-common case where the activity is to be executed at some other place. 
-
-<div class="p"><!----></div>
-Note that the array subscript expression <b>a(i)</b>, when used as a place
-expression evaluates to <b>a(i).home</b>, . the home of the contents of
-<b>a(i)</b> In general, this is not the same place that the array cell itself
-is, . <b>a.dist(i)</b>. Accesses to <b>a(i)</b> should typically be guarded
-by the place expression <b>a.dist(i)</b>: 
-<pre>
-async at (a.dist(i)) {
-  a(i) += 1;
-}
-</pre>
+located <b>here</b> executing <b>S</b>.   
 
 <div class="p"><!----></div>
 In many cases the compiler may infer the unique place at which the
@@ -67,7 +53,7 @@ variables occurring in the statement. (The place must be such that the
 statement can be executed safely, without generating a
 <b>BadPlaceException</b>.) In such cases the programmer may omit the
 place designator; the compiler will throw an error if it cannot
-determine the unique designated place.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
+determine the unique designated place.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
 
 <div class="p"><!----></div>
 An activity A executes the statement <b>async (P) S</b> by launching

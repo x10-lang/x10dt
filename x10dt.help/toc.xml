@@ -211,6 +211,7 @@
 		<topic label="Clock operations" href="html/langref/clockops.html"/> 
 		<topic label="Deadlock Freedom" href="html/langref/clockdeadlock.html"/>
 		<topic label="Program equivalences" href="html/langref/clockeq.html"/> 
+		<topic label="Clocked finish" href="html/langref/clockfinish.html"/>
 	</topic>
 	<topic label="Local and Distributed Arrays" href="html/langref/arrays.html"> 
 		<topic label="Points" href="html/langref/arr-points.html"/> 
@@ -234,6 +235,7 @@
 	<topic label="Objects" href="html/langref/objects.html"> 
 		<topic label="Object initialization" href="html/langref/obj-init.html"/> 
 	</topic>
+	<topic label="Method Resolution" href="html/langref/methodres.html"/>
 	<topic label="Lost Bits" href="html/langref/lostbits.html"/>
 	<topic label="References" href="html/langref/refs.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>

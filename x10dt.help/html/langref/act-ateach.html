@@ -35,24 +35,21 @@
 </em>
 
 <div class="p"><!----></div>
-The <b>ateach</b> statement 
-
-is similar to the <b>foreach</b>
-statement, but it spawns activites at each place of a distribution. 
+The <b>ateach</b> statement <b>ateach (p in D) S</b>
+spawns an activity <b>S</b> at each place <b>p</b> of a distribution <b>D</b>. 
 In <b>ateach(p in D) S</b>, 
-<b>D</b> must be either of type <b>Dist</b> or of type
-<b>DistArray[T]</b>, 
-and <b>p</b> will be of type <b>Point</b>.
+<b>D</b> must be either of type <b>Dist</b> 
+(see &#167;)
+or of type
+<b>DistArray[T]</b> (see &#167;), 
+and <b>p</b> will be of type <b>Point</b> (see &#167;).
 
 <div class="p"><!----></div>
-This statement differs from <b>foreach</b> only in
-that each activity is spawned at the place specified by the
-distribution for the point. That is, if <b>D</b> is a <b>Dist</b>, 
-<b>ateach(p in D) S</b> could be implemented as:
-<pre>
-foreach (p in D.region) 
-  async (D(p)) S(p)
-</pre>
+<b>ateach(p in D)S</b> is equivalent to 
+<b>for(p in D) at(D(p)) async S</b>.  That is, the elements of <b>D</b> are all
+points <b>p</b>.  <b>D(p)</b> is a <b>Place</b>.  <b>ateach(p in D)S</b> executes
+the body <b>S</b> at the place <b>D(p)</b> (and may use the point <b>p</b>
+there). 
 
 <div class="p"><!----></div>
 However, the compiler may implement it more efficiently to avoid extraneous

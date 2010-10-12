@@ -94,7 +94,7 @@ atomic block</em>:
 For the sake of efficient implementation X10 v2.0 requires
 that the atomic block be <em>analyzable</em>, that is, the set of
 locations that are read and written by the <em>BlockStatement</em> are
-bounded and determined statically.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
+bounded and determined statically.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>
 The exact algorithm to be used by
 the compiler to perform this analysis will be specified in future
 versions of the language.
@@ -335,11 +335,15 @@ statement is the only statement that marks its activity as a root
 activity. Future versions of the language may introduce more such
 statements.
 <div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>X10 v2.0 does
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Strictly: the reference from the <tt>GlobalRef</tt> does not
+inspire copying.  Copying may be required due to some other, non-Global
+reference.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>X10 v2.0 does
 not specify a particular algorithm; this will be fixed in future
 versions.
 <div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>A static bound is a constant
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>A static bound is a constant
 that depends only on the program text, and is independent 
 of any runtime parameters. 
 <br /><br />
