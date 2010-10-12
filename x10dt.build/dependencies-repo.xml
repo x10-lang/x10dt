@@ -1,17 +1,20 @@
 <project name="Dependencies Repository" basedir="." default="main">
 
   <property file="common.properties" />
-	<property file="build.properties" />
+  <property file="build.properties" />
 
-	<target name="main">
-		<p2.mirror destination="file:${repoBaseLocation}/mirror">
-			<source>
-				<repository location="${lpg.update.url}" />
-			</source>
-			<iu id="lpg.runtime.feature.group" version="${lpg.version}" />
+  <target name="main">
+    <p2.mirror destination="file:${repoBaseLocation}/mirror">
+      <source>
+        <repository location="${lpg.update.url}" />
+<!--        <repository location="${eclipse.update.url}" /> -->
+      </source>
+      <iu id="lpg.runtime.feature.group" version="${lpg.version}" />
+<!--      <iu id="org.eclipse.jdt.feature.group" />
+      <iu id="org.eclipse.platform.feature.group" /> -->
 
-			<slicingOptions followStrict="true" includeOptional="false" />
-		</p2.mirror>
-	</target>
+      <slicingOptions followStrict="true" includeOptional="false" />
+    </p2.mirror>
+  </target>
 
 </project>

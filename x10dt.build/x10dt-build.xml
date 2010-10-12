@@ -4,6 +4,10 @@
   <property file="common.properties" />
   <property file="build.properties" />
 
+  <path id="launcher.path.ref">
+    <fileset dir="../eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+  </path>
+
   <target name="x10dt-checkouts-existence">
     <condition property="are-plugins-present">
       <and>
@@ -13,6 +17,7 @@
         <available file="${build.folder}/x10dt.help" type="dir" />
         <available file="${build.folder}/x10dt.help.dt" type="dir" />
         <available file="${build.folder}/x10dt.refactoring" type="dir" />
+        <available file="${build.folder}/x10dt.search.core" type="dir" />
         <available file="${build.folder}/x10dt.ui" type="dir" />
         <available file="${build.folder}/x10dt.ui.launch.core" type="dir" />
         <available file="${build.folder}/x10dt.ui.launch.cpp" type="dir" />
@@ -36,6 +41,8 @@
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.help.dt" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.refactoring" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.refactoring" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.search.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.search.core" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.core" 
@@ -49,21 +56,30 @@
     </svn>
   </target>
 
-  <target name="publish-update-site" if="publish.update.site">
+  <target name="pre-build" unless="skipMirroring">
     <delete includeEmptyDirs="true">
-      <fileset dir="${orquesta.update.site.loc}">
+      <fileset dir="${orquesta.update.site.loc}" defaultexcludes="false">
         <include name="binary/**" />
-        <include name="feature/**" />
+        <include name="features/**" />
         <include name="plugins/**" />
         <include name="*.xml" />
+        <include name="content.jar" />
+        <include name="artifacts.jar" />
       </fileset>
     </delete>
-    <eclipse.publish.featuresAndBundles repository="file:${orquesta.update.site.loc}" category="file:${basedir}/category.xml">
-      <features dir="${buildDirectory}/buildRepo/features" includes="*" excludes="org.eclipse.cdt*" />
-      <bundles dir="${buildDirectory}/buildRepo/plugins" includes="*" excludes="org.eclipse.cdt*" />
-    </eclipse.publish.featuresAndBundles>
+  </target>
+
+  <target name="sign-jars" unless="no.jars.signing">
+    <p2.process.artifacts repositoryPath="file:${orquesta.update.site.loc}">
+      <sign alias="x10dt" keystore="${build.loc}/x10dt.keystore" keypass="x10-lang" 
+            storepass="x10 Development Toolkit" />
+    </p2.process.artifacts>
+  </target>
+
+  <target name="post-build" unless="skipMirroring">
+    <antcall target="sign-jars" />
     <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
-         basedir="${orquesta.update.site.loc}" includes="artifacts.xml,content.xml,plugins/**,features/**" />
+         basedir="${orquesta.update.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
   </target>
 
   <target name="main" depends="x10dt-checkouts">
@@ -74,9 +90,20 @@
       </filterchain>
     </loadfile>
     <echo message="${properties.replaced}" file="${build.folder}/x10dt/plugin.properties" />
-    
+      
+    <p2.publish.featuresAndBundles
+          metadataRepository="file:${repoBaseLocation}/compiler"
+          artifactRepository="file:${repoBaseLocation}/compiler"
+          source="${repoBaseLocation}/compiler"/>
+
+    <p2.publish.featuresAndBundles
+          metadataRepository="file:${repoBaseLocation}/delta-pack"
+          artifactRepository="file:${repoBaseLocation}/delta-pack"
+          source="${base}/delta-pack/eclipse"/>
+
+    <antcall target="pre-build" />
     <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
-    <antcall target="publish-update-site" />
+    <antcall target="post-build" />
   </target>
 
 </project>

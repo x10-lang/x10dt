@@ -110,6 +110,7 @@
 
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
+      <iu id="org.eclipse.imp.analysis.feature.group" />
 
       <slicingOptions followStrict="true" includeOptional="false"/>
     </p2.mirror>
