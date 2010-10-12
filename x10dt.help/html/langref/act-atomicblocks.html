@@ -216,10 +216,10 @@ proceeds, its <b>removeAt</b> will fail.
 
 <div class="p"><!----></div>
 Note that <b>if</b> would not work here.  
-<b>if(size&#62;0) atomic{size-; return list.removeAt(0);}</b> allows another
+<b>if(size&#62;0) atomic{size--; return list.removeAt(0);}</b> allows another
 activity to act between the test and the atomic block.  
 And 
-<b>atomic{ if(size&#62;0) {size-; ret = list.removeAt(0);}}</b> 
+<b>atomic{ if(size&#62;0) {size--; ret = list.removeAt(0);}}</b> 
 does not wait for <b>size&#62;0</b> to become true.
 
 <div class="p"><!----></div>

@@ -232,9 +232,11 @@
 		<topic label="External Java Code" href="html/langref/ext-javacode.html"/> 
 		<topic label="External C++ Code" href="html/langref/ext-cppcode.html"/>
 	</topic>
+<!--	
 	<topic label="Objects" href="html/langref/objects.html"> 
 		<topic label="Object initialization" href="html/langref/obj-init.html"/> 
 	</topic>
+-->
 	<topic label="Method Resolution" href="html/langref/methodres.html"/>
 	<topic label="Lost Bits" href="html/langref/lostbits.html"/>
 	<topic label="References" href="html/langref/refs.html"/>

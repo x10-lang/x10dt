@@ -656,7 +656,7 @@ be used.  <b>val</b> fields must be initialized, even if their type has a
 default value.  It would be silly to have a field <b>val z : Int</b> that was
 always given default value of <b>0</b> and, since it is <b>val</b>, can never be
 changed.  <b>var</b> fields whose type has no default value must be initialized
-as well, such as <b>var y : Inty != 0</b>, since it cannot be assigned a
+as well, such as <b>var y : Int{y != 0}</b>, since it cannot be assigned a
 sensible initial value. 
 
 <div class="p"><!----></div>

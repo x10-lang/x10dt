@@ -295,7 +295,7 @@ rules on escaping of <b>this</b> (&#167;) before the invocation of
 
 <div class="p"><!----></div>
 X10 permits a <b>val</b> variable to appear in constraints on its own type as
-it is being declared.  For example, <b>val nz: Intnz != 0 = 1;</b> declares a
+it is being declared.  For example, <b>val nz: Int{nz != 0} = 1;</b> declares a
 non-zero variable <b>nz</b>.
 
 

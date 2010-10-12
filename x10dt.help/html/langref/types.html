@@ -99,7 +99,7 @@ The types in X10 are as follows.  These are the <em>semantic</em> types. Other
 syntactic forms for types exist, but they are simply abbreviations for types
 in the following system.  For example, <b>Array[Int](1)</b> is the type of
 one-dimensional integer-valued arrays; it is an abbreviation for
-<b>Array[Int]rank==1</b>.<br />
+<b>Array[Int]{rank==1}</b>.<br />
 
   :
   |
@@ -153,7 +153,7 @@ The type <em>Type <b> Constraint <b></b></b></em> refers to a constrained type.
 subset of X10 - describing the acceptable values of the constrained type.
 For example, <b>var n : Int{self != 0};</b> guarantees that <b>n</b> is always a
 non-zero integer. 
-Similarly, <b>var x : Tripex != null;</b> defines a <b>Tripe</b>-valued
+Similarly, <b>var x : Tripe{x != null};</b> defines a <b>Tripe</b>-valued
 variable <b>x</b> whose value is never null.
 
 <div class="p"><!----></div>
@@ -196,7 +196,7 @@ The closely-related void function type
 <em><b>(</b> Formals<sup>?</sup> <b>) =&#62;</b>  <b>Void</b></em>  takes the listed
 parameters and returns no value.
 For example, 
-<b>(x:Int) =&#62; Intself != x</b> 
+<b>(x:Int) =&#62; Int{self != x}</b> 
 is the type of integer-valued functions which have no fixed points.  
 
 <div class="p"><!----></div>

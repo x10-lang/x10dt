@@ -78,7 +78,7 @@ type <b>T</b> (which may fail), and then the constraint <b>{c}</b> is checked.
 If the first half of the cast succeeds, the second half - the constraint
 <b>{c}</b> - must be checked.  In general this will be done at runtime, though
 in special cases it can be checked at compile time.   For example, 
-<b>n as Intself != w</b> succeeds if <b>n != w</b> - even if <b>w</b> is a value
+<b>n as Int{self != w}</b> succeeds if <b>n != w</b> - even if <b>w</b> is a value
 read from input, and thus not determined at compile time.
 
 <div class="p"><!----></div>
