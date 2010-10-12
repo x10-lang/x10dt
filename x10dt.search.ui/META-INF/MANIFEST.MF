@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Ui
+Bundle-Name: X10DT Search UI
 Bundle-SymbolicName: x10dt.search.ui
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 2.1.0.qualifier
 Bundle-Activator: x10dt.search.ui.UISearchPlugin
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.filesystem,
@@ -22,3 +22,4 @@ Export-Package: x10dt.search.ui,
  x10dt.search.ui.actions,
  x10dt.search.ui.dialogs,
  x10dt.search.ui.typeHierarchy
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
