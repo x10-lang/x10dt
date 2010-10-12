@@ -77,10 +77,11 @@ large memories, 6 (or even 8) bytes might be used for addresses.
 
 <div class="p"><!----></div>
 Think about it.
-If you have an array of 1 Meg <tt>Point2D</tt>s, you use 16 megabytes
-for storing the data you're really interest in, and then another 6 megabytes or
-more for type information (whether it is really needed or not!).
- </blockquote>
+If you have an array of one Meg of <tt>Point2D</tt>s at 16 bytes per <tt>Point2D</tt>, 
+you use 16 megabytes for storing the data you're really interested in, 
+and then another 6 megabytes or
+more for type information (whether it is really needed or not!).  Sound like a good deal to you?
+</blockquote>
 
 <div class="p"><!----></div>
 These considerations explain why a performance-oriented language avoids using
@@ -151,7 +152,7 @@ to <tt>(p1.x == p2.x) <br /></td><td width="150">
 
 <div class="p"><!----></div>
 If <tt>Point2D</tt> were still a class, then <tt>p1 == p2</tt> being true would mean that
-<tt>p1</tt> and <tt>p2</tt> were both references to exactly the same instance of <tt>Point2D</tt>.
+<em><tt>p1</tt> and <tt>p2</tt> were both references to exactly the same instance of <tt><em>Point2D</em></tt>.</em>
 This is a much stricter notion than that their instance members have the same values. 
 You would have to use the method call <tt>p1.equals(p2)</tt> to do the weaker check 
 of whether <tt>(p1.x == p2.x) <br /></td><td width="150">
@@ -160,7 +161,7 @@ of whether <tt>(p1.x == p2.x) <br /></td><td width="150">
 	<dd><b>line 7:</b> Unlike their C namesakes, X10 structs can declare methods.
 We've shown a public method here, but both private and default access (only in the
 same package) can be used.
-Structs <em>never</em> have subclasses,  so "protected", which just broadens the
+Structs <em>never</em> have subclasses,  so "protected," which just broadens the
 default access by allowing access to subclasses, adds nothing
 in this context.</dd>
 </dl>
@@ -181,14 +182,14 @@ Now that <tt>Point2D</tt> is a struct, there's no "<tt>new</tt>" on the right-ha
 If you put the "<tt>new</tt>" in
 by mistake, the compiler will happily generate an error message telling you
 to remove it.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a> Furthermore,
-you should understand that <tt>p</tt> <em>is <em>not</em> a reference to the</em> <tt>Point2D</tt>:
-what is stored is the whole 16-bit value.  To repeat: <em>there are <em>no</em>
-references to instances of a struct.</em>  
+you should understand that <tt><em>p</em></tt> <em>is <em>not</em> a reference to the</em> <tt>Point2D</tt>:
+what is stored for <tt>p</tt> is the whole 16-bit value, not where to find that value.  
+To repeat: <em>there are <em>no</em> references to instances of a struct.</em>   
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-The rules for what can be part of a struct are such that the compiler can determine the size of
+The rules for what can be part of a struct are designed so that the compiler can determine the size of
 an instance from the declaration.  The reason is storage efficiency:  once the size is
 known, no more space need be allocated than is needed to store the value in memory,
 and at runtime, we don't have to carry around size information for every instance.
@@ -199,42 +200,37 @@ There is one more restriction to what can go into a struct that is critical:
 <blockquote>
 An instance <tt>s</tt> of a struct <tt>S</tt> cannot
 have an instance member <tt>s.nextS</tt> that is itself also an <tt>S</tt>.</blockquote>
-To C programmers
-in particular, this may seem a bit weird-how do you form lists of these things?   
 To understand what's at stake, it may help  if we try to declare a 
-struct <tt>Point2DListItem</tt>.  It has two members,
+struct <tt>Point2DListItem</tt> so that we can form lists of <tt>Point2D</tt>s. 
 
-<blockquote>
-<tt>
-var p: ;Point2D;             // the point<br />
-var next Point2DListItem; // and its successor in the list.
-</tt></blockquote>
-
-<div class="p"><!----></div>
-How big is a <tt>Point2DListItem</tt>?   Well, a <tt>Point2D</tt> itself is
+<pre>public&nbsp;struct&nbsp;Point2DListItem&nbsp;{
+&nbsp;&nbsp;&nbsp;public&nbsp;p:&nbsp;Point2D;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;//&nbsp;the&nbsp;point
+&nbsp;&nbsp;&nbsp;public&nbsp;next&nbsp;Point2DListItem;&nbsp;//&nbsp;and&nbsp;its&nbsp;successor&nbsp;in&nbsp;the&nbsp;list.
+}
+</pre>
+It may seem a bit weird that this is not legal-how <em>do</em> you form lists of these things?   
+First, let's understand why this is not legal.
+Ask yourself, "How big is a <tt>Point2DListItem</tt>?"   Well, a <tt>Point2D</tt> itself is
 is 16 bytes, so if <tt>sizeOfPLI</tt> is the
 size of a <tt>Point2DListItem</tt>,  then adding the sizes of the two instance members, we get a total
-
-<pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sizeOfPLI&nbsp;==&nbsp;16&nbsp;+&nbsp;sizeofPLI
-</pre>
-Oops! Subtracting <tt>sizeOfPLI</tt> from both sides yields <tt>0 == 16</tt>!  
+<tt>16 + sizeofPLI</tt>.
+But that has to be the size of the whole <tt>Point2DListItem</tt> in which these are the 
+instance members, and that size is only <tt>sizeOfPLI</tt>.
+Oops!  Something is wrong.
 
 <div class="p"><!----></div>
-<hr />
-<b>Aside for C/C++ programmers: </b> The way a C programmer uses structs to create lists is through
+The way a C programmer uses structs to create lists is through
 a declaration like "<tt>struct S {int a; int; b;</tt>  <tt>struct S *next}</tt>".
 In other words,, you put a reference to a <tt>struct S</tt> in the body of the struct, and not a <tt>struct S</tt> itself.
+Java works the same way: <tt>next</tt> will be a reference to an object.
 The equivalent X10 would be to put a <tt>var</tt> (and not a <tt>val</tt>) of type <tt>S</tt> in the body, but that won't
-work, because in X10, a <tt>var</tt> whose type is a struct is never a reference, no matter whether
-the <tt>var</tt> appears on its own as local variable or as a member of a class or struct.  And X10
-has no explicit notion of "pointer."
+do, because X10 structs simply cannot have members that are variables.
 
 <div class="p"><!----></div>
-<hr />
-So how <em>does</em> one design a struct that is a list of structs?  The short answer is: one should not.
+So how <em>does</em> one design an X10 struct that is a list?  The short answer is: one does not.
 Lists are introduced because a collection of uncertain eventual size is being grown, and one
 therefore has to forego the efficiency of a pre-allocated array.  One pays the overhead of following a 
-reference to the next item (rather than just bumping an array index) so as to have the freedom
+reference to the next item (rather than just bumping an array index to get there) so as to have the freedom
 to grow and shrink the list efficiently as needed.  In other words: lists are by their very nature dynamic.
 The whole point of a struct is that it is static: once constructed it cannot be modified.  Let's return
 to our <tt>Point2DListItem</tt>.  If we declare it as follows, there is no problem:
@@ -245,8 +241,9 @@ to our <tt>Point2DListItem</tt>.  If we declare it as follows, there is no probl
 &nbsp;&nbsp;...
 }
 </pre>
-The member <tt>next</tt> is now a reference.  Now the size required for a reference has nothing
-to do with what is being referenced: an address is an address whether it refers to a hut or
+Because <tt>Point2DListItem</tt> is now a class (not a struct),  the member <tt>next</tt> references an object,
+namely some instance of that class.  The size required for a reference has nothing
+to do with what is being referenced: an address is an address whether it refers to a small house or
 a huge factory.   So in this formulation, the size of <tt>Poin2DListItem</tt> is 16 bytes for the struct <tt>p</tt>
 plus however many bytes a reference requires.  
 If you changed <tt>p</tt> from a <tt>val</tt> to a <tt>var</tt>,  the storage and access
@@ -263,8 +260,8 @@ X10 tried to keep the value and reference types as close to one another as possi
 <div class="p"><!----></div>
 X10's approach allowed it to expose the mechanism,
 <tt>struct</tt>s, that it uses to implement its primitive types,
-so that X10 programmers can eke out efficiencies, too.  We want to warn you,
-though, not to overuse structs.   The inheritance hierarchy that classes provide is a powerful
+so that X10 programmers can eke out efficiencies, too.  <em>We want to warn you,
+though, not to overuse structs.</em>   The inheritance hierarchy that classes provide is a powerful
 mechanism for organizing information, the advantages of which in many situations, if not most,
 far outweigh any performance loss.   
 

@@ -45,10 +45,9 @@ ends the comment, "<tt>/*...*/</tt>" <em>comments do not nest</em>.
 <div class="p"><!----></div>
 X10 also uses the same 
 comment conventions as JavaDoc for publishing APIs.  For those not familiar with JavaDoc,
-it is a formalized comment style used to generate an HTML file describing the API 
-presented by source code files-<tt>.java</tt> files originally,  and for us, <tt>.x10</tt> files. 
-All of our sample code uses JavaDoc conventions.  The home
-page for learning more about it is at  <a href="http://www.oracle.com/technetwork/java/javase/documentation/index-jsp-135444.html">Oracle.com</a>, but for a quick executive summary, see <a href="http://en.wikipedia.org/wiki/Javadoc">the Wikipedia entry</a>.  The version of JavaDoc processor needed for our files is called X10Doc.</dd>
+it is a formalized comment style used to generate an HTML site that describes the API 
+presented by a set of source code files-originally <tt>.java</tt> files,  and for us, <tt>.x10</tt> files. 
+All of our sample code uses JavaDoc conventions.  <a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> The version of the JavaDoc processor needed for our files is called X10Doc.</dd>
  <dt><b>line 2:</b></dt>
 	<dd> <tt>class HelloWorld {... }</tt><br />
 Like Java (and unlike C++) <em>all</em> X10 executable code lives in classes.
@@ -143,6 +142,14 @@ You'll need the <tt>runx10</tt>: you cannot invoke <tt>hello</tt> directly, beca
 setup is required to accommodate the concurrency and the possible distribution of the
 execution across multiple machines.  We don't actually need anything special here, but the
 code for booting an X10 program is generic.
+
+<div class="p"><!----></div>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>The home
+page for JavaDoc is hosted at  <a href="http://www.oracle.com/technetwork/java/javase/documentation/index-jsp-135444.html">oracle.com</a>, but for a quick executive summary, see <a href="http://en.wikipedia.org/wiki/Javadoc">the Wikipedia entry</a>. 
+<br /><br />
 
 <div class="p"><!----></div>
 

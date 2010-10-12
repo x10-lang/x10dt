@@ -16,10 +16,10 @@
 <title>A Thousand CPUs Are Better Than Two</title>
 
  <h2><a name="tth_sEc2">
-3</a>&nbsp;&nbsp;A Thousand CPUs Are Better Than Two</h2>
+2</a>&nbsp;&nbsp;A Thousand CPUs Are Better Than Two</h2>
 
      <h3><a name="tth_sEc2.1">
-3.1</a>&nbsp;&nbsp;Distributing Work</h3>
+2.1</a>&nbsp;&nbsp;Distributing Work</h3>
 To get real concurrency, we have to distribute the work across multiple processors.  X10
 provides a type, <tt>Place</tt>, that is best thought of as an address space in which activities
 may run.
@@ -83,43 +83,40 @@ As the comments in this code suggest, the <tt>async</tt> has to be inside a
  <tt>finish</tt> block, and  <tt>anInt</tt> cannot be used until control leaves the block.
 
 <div class="p"><!----></div>
-Passing a "<tt>var</tt>" into an <tt>async</tt>'s block is not supported as yet. 
-As we have said before (and probably will again), there are real problems
-with passing variables into an asynchronous activity.
-One thing you <em>can</em> do is to use an array with one entry to capture the value.  
-Just replace line 1 with
-<tt>val anInt = new Array[Int](0..0);</tt>.  You have to rewrite line 4 so that
-the left-hand side of the assignment is <tt>anInt(0)</tt>, but otherwise everything
-is as before.
+Passing a "<tt>var</tt>" into an <tt>async</tt>'s block is not supported as yet, 
+and perhaps may never be.   There are real problems
+with passing variables into an asynchronous activity.  As we have
+before (and may again), we ask you to just take our word for this, because
+to give a good explanation would take us too far afield.
 
 <div class="p"><!----></div>
-X10 provides another way of solving this problem that is even cleaner.
-It uses the generic class <tt>x10.lang.Cell[T]</tt>.  All
-you have to do is to replace line
-1 with "<tt>'val anInt = new Cell[Int](0);</tt>"  The code works as before: including
-the original line 4.  Here's what's
-going on:
+The key to working around this problem is to create a <tt>val</tt> that is
+the address of the value you want, and pass that constant into the
+<tt>async</tt>.  One way to do this is to use an array with a single entry:
+Just replace line 1 above with
+"<tt>1    val anInt = new Array[Int](0..0);</tt>."  As we've said before,
+that array that <tt>anInt</tt> names cannot change, but the array's contents may.
+We have to rewrite line 4 so that
+the left-hand side of the assignment is <tt>anInt(0)</tt>, but otherwise the
+code works as before.
 
-<blockquote> 
-<tt>Cell[T]</tt> just implements an object with a single member, "<tt>value</tt>", of type <tt>T</tt>.
-So with our new line 1, the <tt>async</tt> is passed is passed a reference to a <tt>Cell</tt> 
-holding one <tt>Int</tt> value, rather than to an array holding one: basically the same thing.
+<div class="p"><!----></div>
+X10 provides another way of solving this problem that some people feel is a little cleaner.
+It uses the generic class <tt>x10.lang.Cell[T]</tt>.
+A <tt>Cell[T]</tt> is an object with a single member, "<tt>value</tt>", of type <tt>T</tt>. 
+If you replace line 1 with "<tt>' 1    val anInt = new Cell[Int](0);</tt>"  and 
+line 4 with "<tt>anInt.set(at(p) computeAnInt())</tt>", you are back in business.
+With our new line 1, the <tt>async</tt> is passed is passed a reference to a <tt>Cell</tt> 
+holding one <tt>Int</tt> value, rather than to an array holding one <tt>Int</tt> value: basically the same thing.
 The code in the <tt>async</tt> is free to change the contents of that <tt>Cell</tt>, just as
 it was to free to change the array's single element.  
-
-<div class="p"><!----></div>
-The  reason that line 4 continues to work will be easy for a C++ programmer to
-understand: the class <tt>Cell</tt> just overrides the implementation of the assignment operator "".
-We'll explain what all this means and how it's done when we look at the 
-X10 libraries in Chapter .
-</blockquote>
 
 <div class="p"><!----></div>
 Now that we know how to move data around, we are ready to rework our code.
 
 <div class="p"><!----></div>
       <h3><a name="tth_sEc2.2">
-3.2</a>&nbsp;&nbsp; Don't Try This On <em>Your</em> Computer</h3>
+2.2</a>&nbsp;&nbsp; Don't Try This On <em>Your</em> Computer</h3>
 Let's get started with our multi-processor code with some high-level pseudo-code.
 We are going to go all out and not only use several <tt>Places</tt>, but at each
 <tt>Place</tt>, we'll use several activities.  Here we go:
@@ -175,34 +172,35 @@ If you compare this with Figure <a href="#fig:mcpm">2</a>, the only difference i
 one array element here instead of one per thread.  Sadly, this approach is just plain wrong.
 
 <div class="p"><!----></div>
-The trouble is in line 8, where <tt>count</tt>'s value is updated.  If you are a veteran of the
+The trouble is in line 7, where <tt>count</tt>'s value is updated.  If you are a veteran of the
 parallel programming wars, you will recognize this as a classic <em>race</em> condition.
 For the newcomers, here is a scenario that shows what's wrong:
 
 <blockquote>
-<tt>count</tt>'s value is initially set to 0, and there are two threads, <tt>T1</tt> and <tt>T2</tt>.
+We begin with <tt>count</tt>'s value is initially set to 0, and use two threads, <tt>T1</tt> and <tt>T2</tt>.
 
 <div class="p"><!----></div>
 <tt>T1</tt> begins
-executing first.  When it gets to line 8, it loads the value of <tt>count</tt>,
+executing first.  When it gets to line 7, it loads the value of <tt>count</tt>,
 which is 0, into the CPU. Just after the load completes,
 the operating system's thread manager suspends <tt>T1</tt> for some reason. 
 
 <div class="p"><!----></div>
 A few nanoseconds later, the system lets <tt>T2</tt> start, and it gets
-to line 8, where it also loads the value 0 from <tt>count</tt>, because <tt>T1</tt>
-never completed its update, so 0 is still what is stored there. 
-<tt>T2</tt> adds its value to 0, and stores it back into <tt>count</tt>.  So <tt>count</tt>
+to line 7, where it also loads  <tt>count</tt>.   Because <tt>T1</tt>
+never completed its update, <tt>T2</tt> also finds 0 stored there. 
+So <tt>T2</tt> adds its value to 0, and stores the result back into <tt>count</tt>: <tt>count</tt>
 now is whatever <tt>T2</tt> computed.
 
 <div class="p"><!----></div>
-Once  <tt>T1</tt> is restarted, it uses the value of <tt>count</tt> that
-it has already loaded-it doesn't
+Once  <tt>T1</tt> is restarted, it adds its contribution to the count to the value of <tt>count</tt> that
+it has already loaded, namely, 0-it doesn't
 do the load again.  But that means that it does not see the effect of
-<tt>T2</tt>'s update: its loaded value is still 0. 
-When <tt>T1</tt> adds its contribution and stores the result back into <tt>count</tt>,
-the value stored is that computed by <tt>T1</tt>, not its sum with <tt>T2</tt>'s
-value:  <tt>T2</tt>'s contribution has been lost.
+<tt>T2</tt>'s update. 
+<tt>T1</tt>  therefore
+stores  into <tt>count</tt>.
+So the final value of <tt>count</tt> is that computed by <tt>T1</tt>, not its sum with <tt>T2</tt>'s
+value.  <tt>T2</tt>'s contribution has been lost.
 
 <div class="p"><!----></div>
 Disaster!
@@ -212,22 +210,21 @@ because sometimes you get the right answers, and sometimes you don't.
 After all, the operating system did not <em>have</em> to suspend <tt>T1</tt> at just
 the wrong moment.  It just happened to: the interrupt that
 affected <tt>T1</tt> may have come from an external event having nothing to
-do with <tt>MontePi</tt>.  It simply had to take precedence over <tt>T1</tt>,
+do with <tt>MontePi</tt>.  Servicing the interrupt simply had to take precedence over <tt>T1</tt>,
 so too bad, <tt>T1</tt> loses:
 that's life.
 
 <div class="p"><!----></div>
-The cure is simple enough: X10 provides an <em>atomic</em> statement, whose
-syntax is <tt>atomic S</tt>, where <tt>S</tt> is any X10 statement. 
-What <tt>atomic S</tt> guarantees is that once a thread enters <tt>S</tt>,
-no other thread may enter it until the original thread completes <tt>S</tt>
-leaves it.  Let's add <tt>atomic</tt> to  line 7:
+The cure is simple enough: we just need to replace line 7 with
 
-<pre>&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count&nbsp;+=&nbsp;countPoints(n,&nbsp;rand);
+<pre>&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count&nbsp;+=&nbsp;countPoints(n,&nbsp;rand);
 </pre>
+When an X10 statement is guarded this way by the keyword <tt>atomic</tt>,
+it is guaranteed that once a thread enters the statement,
+no other thread may enter it until the original thread completes it.  
 
 <div class="p"><!----></div>
-Now once the first thread, <tt>T1</tt>, starts executing
+In our original scenario, this means that once the first thread, <tt>T1</tt>, starts executing
 line 7,  <tt>T2</tt> will be blocked from entering
 line 7, while <tt>T1</tt> is still active there, even if for some reason the
 operating system suspends <tt>T1</tt> for a while.  <tt>T2</tt> will be
@@ -235,9 +232,24 @@ suspended until <tt>T1</tt> finishes the assignment.  It slows things down,
 but you get the right answer.
 
 <div class="p"><!----></div>
-The problem here is that multiple activities share a resource.  Here they
-share a 
-piece of storage.  But it could also be an output stream,  For instance,
+Our new line 7 really is not a good solution, though, because
+virtually all the time spent executing the statement is
+in the very expensive call to <tt>countPoints</tt>.  <tt>countPoints</tt>
+does not depend on any resources shared by the two threads,
+so there is no problem about the
+two executing the call to <tt>countPoints</tt> concurrently.
+The only shared resource is <tt>count</tt>, which
+doesn't appear in <tt>countPoints</tt> at all.  So what we really want is:
+
+<pre>&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;ourCount&nbsp;=&nbsp;&nbsp;countPoints(n,&nbsp;rand);
+&nbsp;7*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count&nbsp;+=&nbsp;ourCount;
+</pre>
+Because only one activity at a time can execute an atomic statement,
+clearly the smart thing is to keep it as small as possible.
+
+<div class="p"><!----></div>
+Races occur when multiple activities share a resource.  In this example, they share 
+piece of storage, but they could equally well share an output stream.  For instance,
 suppose two activities
 call <tt>Console.OUT.println</tt> at the same time.  What happens?  Answer:
 it depends!  Sometimes each line will print as desired, sometimes the 
@@ -252,7 +264,7 @@ the following code, for example:
 &nbsp;&nbsp;&nbsp;}
 }
 </pre>
-Here's our console log, compiling and running it:
+Here's our console log for one shot at compiling and running it:
 
 <pre>\%x10c&nbsp;HelloAsync.x10
 %&nbsp;x10&nbsp;HelloAsync
@@ -267,21 +279,7 @@ one that wasn't interrupted?  The first, maybe-the last, not too surprising-but,
 the <em>second</em>?
 
 <div class="p"><!----></div>
-Time for a confession: our line 7 really is not a good solution.
-What is bad is that virtually all the time spent executing the statement is
-in the very expensive call to <tt>countPoints</tt>.  There is no problem about the
-two activities executing <tt>countPoints</tt> concurrently: it does not depend
-on any shared resources.  The only shared resource is <tt>count</tt>, which
-doesn't appear in <tt>countPoints</tt> at all.  So what we really want is:
-
-<pre>&nbsp;7&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;ourCount&nbsp;=&nbsp;&nbsp;countPoints(n,&nbsp;rand);
-&nbsp;7*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count&nbsp;+=&nbsp;ourCount;
-</pre>
-Because only one activity at a time can execute an atomic statement,
-clearly the smart thing is to keep it as small as possible.
-
-<div class="p"><!----></div>
-Putting all this to use, we get  <tt>MontePiCluster</tt>
+Putting all this discussion to use, we get a first cut at <tt>MontePiCluster</tt>:
 
 <div class="p"><!----></div>
 <hr />
@@ -296,7 +294,7 @@ public&nbsp;class&nbsp;MontePiCluster&nbsp;{
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;r&nbsp;=&nbsp;new&nbsp;Random(Timer.nanoTime()));
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;rand&nbsp;=&nbsp;()&nbsp;=&#62;&nbsp;r.nextDouble();
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;val&nbsp;jCount&nbsp;=&nbsp;countPoints(n,&nbsp;rand);
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count&nbsp;+=&nbsp;jCount;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;atomic&nbsp;count.set(count.value&nbsp;+&nbsp;jCount);
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;count.value;
@@ -332,7 +330,7 @@ public&nbsp;class&nbsp;MontePiCluster&nbsp;{
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.3">
-3.3</a>&nbsp;&nbsp;Once Again, We Can Do Better</h3><a name="sce:oawcdb">
+2.3</a>&nbsp;&nbsp;Once Again, We Can Do Better</h3><a name="sce:oawcdb">
 </a> 
 
 <div class="p"><!----></div>
@@ -351,18 +349,18 @@ Inside the loop, the assignment "<tt>atomic count += jCount;</tt>" gets replaced
 <pre>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;count.addAndGet(jCount);
 </pre>
 The atomicity of the operation is guaranteed by the method call here: you don't need
-to explicitly assert it as we did in our original.  Which is better? A matter of
-taste, really.
+to explicitly assert it as we did in our original.  Which is better, the <tt>Cell</tt>
+or the <tt>AtomicLong</tt>?  A matter of taste, really.
 
 <div class="p"><!----></div>
 Time now for something more substantial.  From the beginning we have been
 talking about points in a circle.  But not a single point, as such, has occurred among
-our data types.  It is time to remedy that, and to make a start into X10 as an
+our data types.  It is time to remedy that and to make a start into exploiting X10 as an
 object-oriented language.
 
 <div class="p"><!----></div>
 X10 actually provides more than one way to describe structured data.  Right now,
-we'll work with the one closest to what one would see in Java and C++:
+we'll work with the one closest to what you would see in Java and C++:
 
 <pre>&nbsp;1&nbsp;public&nbsp;class&nbsp;Point2D&nbsp;{
 &nbsp;2&nbsp;&nbsp;&nbsp;public&nbsp;val&nbsp;x:&nbsp;Double;
@@ -383,20 +381,25 @@ would use "<tt>public <em>static</em> class Point2D <br />...}" and include it a
 body of <tt>MontePiCluster</tt>.
 
 <div class="p"><!----></div>
-By the way, X10 has a class called "<tt>Point</tt>" that is fundamental and that we
-shall eventually have a lot to say a lot about.  That is why we called this class
-<tt>Point2D</tt>: to avoid confusion with X10's class.
+By the way, X10 has a class called "<tt>Point</tt>" that is fundamental for working
+with general arrays.  We
+shall eventually have a lot to say a lot about it, but for now, we just wanted you to
+know that we're using 
+"<tt>Point2D</tt>" here, rather than the more natural "<tt>Point</tt>"
+to avoid confusion with X10's (much more important and very
+different) class.
 	<dd><b>lines 2 and 3:</b> We are declaring two instance members here, both double-precision
 numbers, <tt>x</tt> and <tt>y</tt>.  What "<tt>val</tt>" means in this context is that a value will be
-assigned to the identifier in the constructor, and once assigned cannot be changed.</dd>
+assigned to the identifier in the constructor, and once assigned cannot be changed.
+Because both are declared "<tt>public</tt>",  any class that constructs an instance <tt>pt</tt>
+of <tt>Point2D</tt> can use <tt>pt.x</tt> and <tt>pt.y</tt> to access their values.</dd>
 
 	<dd><b>line 4:</b>  This is the X10 idiom for a constructor.  The keyword <tt>def</tt>, as
 noted before, signals a method declaration.  When one writes
 
 <pre>&nbsp;&nbsp;&nbsp;val&nbsp;pt&nbsp;=&nbsp;new&nbsp;Point2D(3.0,&nbsp;5.1);
 </pre>
-it is this method that will get called.  Because <tt>x</tt> was declared to
-be <tt>public</tt>, one can use <tt>pt.x</tt> to get is value, 3.0, once the constructor returns.</dd>
+it is this method that will get called.</dd>
 
 	<dd><b>line 5:</b> An argument like <tt>x</tt> that has the same name as member will
 hide the member, so you need to say <tt>this.x</tt> in this context when what you
@@ -408,7 +411,7 @@ function is just returning the value of an expression, you don't need to write o
 
 <pre>&nbsp;&nbsp;&nbsp;{&nbsp;return&nbsp;x*x&nbsp;+&nbsp;y*y;&nbsp;}
 </pre>
-As in this example, the expression after an "" sign will do.</dd>
+As in this example, the expression to be returned after an "" sign will do.</dd>
 </dl>
 Let's rewrite <tt>countPoints</tt> using our new class:
 
@@ -421,11 +424,13 @@ Let's rewrite <tt>countPoints</tt> using our new class:
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;inCircle;
 &nbsp;&nbsp;&nbsp;}
 </pre>
-We could even go further and instead of using <tt>rand</tt>, we could have
+We could even go further and instead of using <tt>rand</tt>, we could replace <tt>rand</tt>
+with a function <tt>rpt</tt> that returns exactly the random point we need: 
 
 <pre>public&nbsp;static&nbsp;def&nbsp;countPoints(n:Long,&nbsp;rpt:()=&#62;Point2D)&nbsp;{
 </pre>
-if in <tt>countAtP</tt>, we replace the definition of <tt>rand</tt> with our new function, <tt>rpt</tt>:
+To do this, we have to replace the definition of <tt>rand</tt> in <tt>countAtP</tt> with 
+the definition for our new function, <tt>rpt</tt>:
 
 <pre>val&nbsp;rpt&nbsp;=&nbsp;()=&#62;new&nbsp;Point2D(r.nextDouble(),&nbsp;r.nextDouble);
 </pre>
@@ -433,14 +438,14 @@ if in <tt>countAtP</tt>, we replace the definition of <tt>rand</tt> with our new
 <div class="p"><!----></div>
 You can find the final version in
 
-<center> %???? we need to figure out how to ref the real code
-<a href="montePi/montePiAsync.x10"><b>montePi/montePiCluster2.x10</b></a>.
-</center>
+<blockquote> %???? we need to figure out how to ref the real code
+<a href="src/montePi/montePiAsync.x10"><b>montePi/montePiCluster2.x10</b></a>.
+</blockquote>
 
 <div class="p"><!----></div>
 <b>Exercise:</b> You might want to try a slight variation on this theme:  write a method that
 uses one or more <tt>Place</tt>s to sum the values of a function  <tt>f:(d:Double)=&#62;Double</tt> over a 
-sequence of <tt>n Doubles</tt> of the form <tt>d0, d0+delta, ... d0+n*delta</tt>:
+sequence of <tt>n Doubles</tt>  <tt>d, d+delta, ... d+n*delta</tt>:
 
 <div class="p"><!----></div>
 
@@ -451,7 +456,7 @@ sequence of <tt>n Doubles</tt> of the form <tt>d0, d0+delta, ... d0+n*delta</tt>
 <small>n&#8722;1</small><!--sup
 --><br /><font size="+3">&#8721;<br />
 </font><small>k=0</small>&nbsp;<br /></td><td nowrap="nowrap" align="center">
-f(d<sub>0</sub> + k&#948;)</td></tr></table>
+f(d + k&#948;)</td></tr></table>
 </td><td width="1%">(1)</td></tr></table>
 
 </blockquote>
@@ -474,7 +479,7 @@ in parallel at each <tt>Place</tt>, there will be a<sub>all</sub> = ap<sub>all</
 n values to be summed, each activity should handle roughly n/a<sub>all</sub> additions-"roughly"
 because a<sub>all</sub> might not divide n evenly.  One solution is to let the j-th
 activity ( j=0,1,...,a&#8722;1) at the <tt>Place</tt> whose id is <tt>p</tt>  take care of the values 
-d<sub>0</sub>+k&#948;, where k runs over (p a+j)+h a<sub>all</sub> for h = 0,1,...
+d+k&#948;, where k runs over (p a+j)+h a<sub>all</sub> for h = 0,1,...
 
 <div class="p"><!----></div>
 We'll come back to this sort of loop in gory detail in the advanced examples.
