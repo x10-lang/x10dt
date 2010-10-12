@@ -24,6 +24,12 @@ import polyglot.visit.NodeVisitor;
 
 public class CompilerTests extends CompilerTestsBase {
 	private static String DATA_PATH = "data" + File.separator + "base" + File.separator;
+
+	@Test
+	public void contentAssistBug() throws Exception {
+		String[] sources = {"Hello8.x10"};
+		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
 	
 	@Test
 	public void jira1783() throws Exception {

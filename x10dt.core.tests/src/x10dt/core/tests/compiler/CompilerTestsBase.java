@@ -11,6 +11,18 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.Assert;
+import polyglot.ast.Call;
+import polyglot.ast.ClassDecl;
+import polyglot.ast.Field;
+import polyglot.ast.FieldDecl;
+import polyglot.ast.Formal;
+import polyglot.ast.Import;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
+import polyglot.ast.Node;
+import polyglot.ast.ProcedureDecl;
+import polyglot.ast.Receiver;
+import polyglot.ast.TypeNode;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.frontend.Globals;
@@ -18,9 +30,24 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
 import polyglot.main.UsageError;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorInstance;
+import polyglot.types.FieldInstance;
+import polyglot.types.MethodInstance;
+import polyglot.types.ObjectType;
+import polyglot.types.ReferenceType;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
+import polyglot.visit.ContextVisitor;
+import polyglot.visit.NodeVisitor;
+import x10.ast.AnnotationNode;
 import x10.errors.X10ErrorInfo;
+import x10.types.ClosureType_c;
+import x10.types.X10ClassType;
+import x10.types.X10TypeMixin;
 
 /**
  * This class provides some base functionality for compilation
@@ -41,26 +68,6 @@ public class CompilerTestsBase {
 	}
 	
 	
-	/*
-	 * Currently the following method if unused
-	 */
-	public boolean compile(Collection<Source> sources, String[] options,
-			final Collection<ErrorInfo> errors, String sourcepath, Collection<Job> jobs) throws Exception {
-		Collection<String> paths = new ArrayList<String>();
-		for (Source s: sources) {
-			paths.add(s.path());
-		}
-		try {	
-			ExtensionInfo extInfo = new x10.ExtensionInfo();
-			Compiler compiler = getCompiler(extInfo, options, errors, sourcepath);
-			Globals.initialize(compiler);
-			compiler.compile(sources);
-			return outcome(paths, options, sourcepath, errors, jobs, extInfo);
-			
-		} catch (Throwable e) {
-			throw new Exception(getTestId(paths, options), e);
-		}
-	}
 	
 	/**
 	 * 
@@ -151,6 +158,12 @@ public class CompilerTestsBase {
 			Assert.assertFalse("WELL-FORMEDNESS: "+getTestId(sources, options) + error.getMessage(), notWellFormed(error));
 		}
 		Assert.assertFalse("DUPLICATE: "+getTestId(sources, options), duplicateErrors(errors));
+		
+		// --- Now we null out Globals and query the ASTs.
+		Globals.initialize(null);
+		for(Job job: jobs){
+			checkAST(sources, options, job);
+		}
 		return errors.isEmpty();
 	}
 	
@@ -267,6 +280,275 @@ public class CompilerTestsBase {
 		return false;
 	}
 	
+	private void checkAST(Collection<String> sources, String[] options,  Job job){
+		try {
+			job.ast().visit(new ContextVisitor(job,job.extensionInfo().typeSystem(),job.extensionInfo().typeSystem().extensionInfo().nodeFactory()){
+					
+			 		@Override
+					public NodeVisitor enterCall(Node n) throws SemanticException {
+						
+				 		if (n instanceof TypeNode) {
+
+							TypeNode typeNode = (TypeNode) n;
+							Type type = typeNode.type();
+							if (type == null)
+								Assert.assertFalse("AST: typeNode.type() == null for node: " + n, true);
+							Assert.assertFalse("AST: ill type: " + type, illType(type));
+							List<Type> types = new ArrayList<Type>();
+							extractAllClassTypes(type, types);
+							for(Type t: types){
+								Assert.assertFalse("AST: ill type: " + t, illType(t));
+							}
+
+						} else if (n instanceof Field) {
+
+							Field field = (Field) n;
+							Receiver rcvr = field.target();
+							if (rcvr == null)
+								Assert.assertFalse("AST: field.target() == null for node: " + n, true);
+							if (rcvr.type() == null)
+								Assert.assertFalse("AST: field.target().type() == null for node: " + n, true);
+							Assert.assertFalse("AST: ill type: " +rcvr.type(), illType(rcvr.type()));
+							if (field.type() == null)
+								Assert.assertFalse("AST: field.type() == null for node: " + n, true);
+							Assert.assertFalse("AST: ill type: " +field.type(), illType(field.type()));
+							
+
+						} else if (n instanceof Call) {
+
+							Call call = (Call) n;
+							MethodInstance mi = call.methodInstance();
+							if (mi.container() == null)
+								Assert.assertFalse("AST: call.methodInstance.container() == null for node: " + n, true);
+							if (mi.returnType() == null)
+								Assert.assertFalse("AST: call.methodInstance.returnType() == null for node: " + n, true);
+							Assert.assertFalse("AST: ill type: " +mi.returnType(), illType(mi.returnType()));
+							if (mi.signature() == null)
+								Assert.assertFalse("AST: call.methodInstance.signature() == null for node: " + n, true);
+
+						} else if (n instanceof New) {
+
+							New nw = (New) n;
+							ConstructorInstance ci = nw.constructorInstance();
+							if (ci == null)
+								Assert.assertFalse("AST: nw.constructorInstance() == null for node: " + n, true);
+							if (ci.container() == null)
+								Assert.assertFalse("AST: nw.constructorInstance().container() == null for node: " + n, true);
+							Assert.assertFalse("AST: ill type: " +ci.container(), illType(ci.container()));
+
+						} else if (n instanceof ClassDecl) {
+
+							ClassDecl classDecl = (ClassDecl) n;
+							ClassDef classDef = classDecl.classDef();
+							if (classDef == null)
+								Assert.assertFalse("AST:  classDecl.classDef() == null for node: " + n, true);
+							if (classDef != null) {
+								List<ClassType> supers = new ArrayList<ClassType>();
+								superTypes(classDef.asType(), supers);
+								for(Type s: supers){
+									Assert.assertFalse("AST: ill type: " +s, illType(s));
+								}
+							}
+
+						} else if (n instanceof FieldDecl) {
+
+							FieldDecl fieldDecl = (FieldDecl) n;
+							if (fieldDecl.type() == null)
+								Assert.assertFalse("AST: fieldDecl.type() == null for node: " + n, true);
+							if (fieldDecl.type().type() == null)
+								Assert.assertFalse("AST: fieldDecl.type().type() == null for node: " + n, true);
+							Assert.assertFalse("AST: ill type: " +fieldDecl.type().type(), illType(fieldDecl.type().type()));
+
+						} else if (n instanceof ProcedureDecl) {
+
+							ProcedureDecl procedureDecl = (ProcedureDecl) n;
+							for (Formal formal : procedureDecl.formals()) {
+								if (formal.type() == null)
+									Assert.assertFalse("AST: formal.type() == null for node: " + n, true);
+								if (formal.type().type() == null)
+									Assert.assertFalse("AST: formal.type().type() == null for node: " + n, true);
+								Assert.assertFalse("AST: ill type: " +formal.type().type(), illType(formal.type().type()));
+							}
+							if (procedureDecl instanceof MethodDecl) {
+								MethodDecl method = (MethodDecl) procedureDecl;
+								if (method.returnType() == null)
+									Assert.assertFalse("AST: method.returnType() == null for node: " + n, true);
+								if (method.returnType().type() == null)
+									Assert.assertFalse("AST: method.returnType().type() == null for node: " + n, true);
+								Assert.assertFalse("AST: ill type: " +method.returnType().type(), illType(method.returnType().type()));
+							}
+
+						} else if (n instanceof AnnotationNode) {
+							AnnotationNode annot = (AnnotationNode) n;
+							if (annot.annotationType() == null)
+								Assert.assertFalse("AST: annot.annotationType() == null for node: " + n, true);
+							if (annot.annotationType().type() == null)
+								Assert.assertFalse("AST: annot.annotationType().type() == null for node: " + n, true);
+							Assert.assertFalse("AST: ill type: " +annot.annotationType().type(), illType(annot.annotationType().type()));
+
+						} else if (n instanceof Import) {
+
+							Import node = (Import) n;
+							if (node.name() == null)
+								Assert.assertFalse("AST: node.name() == null for node: " + n, true);
+							if (node.kind() == null)
+								Assert.assertFalse("AST: node.kind() == null for node: " + n, true);
+							
+						}
+						return super.enterCall(n);
+					}
+			}.begin());
+		} catch(Exception e){
+			Assert.assertFalse("AST: " + e, true);
+		}
+	}
 	
+	private void extractAllClassTypes(Type type, List<Type> types) {
+		if (!type.isClass())
+			return;
+		if (type instanceof ClosureType_c){
+         	ClosureType_c closure = (ClosureType_c) type;
+         	for(Type formal: closure.argumentTypes()){
+         		extractAllClassTypes(formal, types);
+         	}
+         	extractAllClassTypes(closure.returnType(), types);
+         	return;
+		}
+		X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(type);
+		if (!types.contains(classType))
+			types.add(classType);
+
+		for (Type param : classType.typeArguments())
+			extractAllClassTypes(param, types);
+	}
 	
+	private void superTypes(ClassType type, List<ClassType> types){
+		Type parentClass = type.superClass();
+		if (parentClass != null){
+			X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(parentClass);
+			if (!types.contains(classType)){
+				types.add(classType);
+				superTypes(classType, types);
+			}
+		}
+		for(Type inter: type.interfaces()){
+			X10ClassType interc = (X10ClassType) X10TypeMixin.baseType(inter);
+			if (!types.contains(interc)){
+				types.add(interc);
+				superTypes(interc, types);
+			}
+		}
+	}
+	
+	private boolean illType(Type type){
+		if (type != null && type.isReference()){
+    		return getCandidates((ObjectType) type);
+    	}
+		return false;
+	}
+	
+	private boolean getCandidates(ObjectType container_type){
+        List<FieldInstance> fields= new ArrayList<FieldInstance>();
+        List<MethodInstance> methods= new ArrayList<MethodInstance>();
+        List<ClassType> classes= new ArrayList<ClassType>();
+
+        getFieldCandidates(container_type, fields, "", true);
+        getMethodCandidates(container_type, methods, "", true);
+        getClassCandidates((Type) container_type, classes,"", true);
+
+        for(FieldInstance field : fields) {
+        	if (field.name() == null)
+        		return true;
+        }
+
+        for(MethodInstance method : methods) {
+            if (method.signature() == null)
+            	return true;
+        }
+
+        for(ClassType type : classes) {
+            if (!type.isAnonymous()){
+            	if (type.name() == null)
+            		return true;
+            }
+        }
+        return false;
+    }
+	
+	private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix, boolean emptyPrefixMatches) {// PORT1.7 ReferenceType replaced with Type
+		if (container_type == null)
+			return;
+
+		if (container_type instanceof ObjectType) {
+			ObjectType oType = (ObjectType) container_type;
+
+			filterFields(fields, oType.fields(), prefix, emptyPrefixMatches); // PORT1.7 ReferenceType.fields()->ObjectType.fields()
+
+			for (int i = 0; i < oType.interfaces().size(); i++) {
+				ObjectType interf = (ObjectType) oType.interfaces().get(i);
+				filterFields(fields, interf.fields(), prefix, emptyPrefixMatches);
+			}
+
+			getFieldCandidates(oType.superClass(), fields, prefix, emptyPrefixMatches);
+		}
+	}
+
+    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix, boolean emptyPrefixMatches) {//PORT1.7 ReferenceType->ObjectType
+        if (container_type == null)
+            return;
+
+        filterMethods(methods, container_type.methods(), prefix, emptyPrefixMatches);
+
+        getMethodCandidates((ObjectType)container_type.superClass(), methods, prefix, emptyPrefixMatches);//PORT1.7 superType()->superClass()
+    }
+
+    private void getClassCandidates(Type type, List<ClassType> classes, String prefix, boolean emptyPrefixMatches) {
+        if (type == null)
+            return;
+        ClassType container_type= type.toClass();
+        if (container_type == null)
+            return;
+
+        filterClasses(classes, container_type.memberClasses(), prefix, emptyPrefixMatches);
+       
+        for(int i= 0; i < container_type.interfaces().size(); i++) {
+            ClassType interf= ((ReferenceType) container_type.interfaces().get(i)).toClass();
+            filterClasses(classes, interf.memberClasses(), prefix, emptyPrefixMatches);
+        }
+        getClassCandidates(container_type.superClass(), classes, prefix, emptyPrefixMatches);//PORT1.7 superType)_->superClass()
+    }
+    
+    private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix, boolean emptyPrefixMatches) {
+        for(FieldInstance f: in_fields) {
+            String name= f.name().toString(); // PORT1.7 was f.name()
+            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix))
+                fields.add(f);
+            
+        }
+        
+    }
+
+    private void filterMethods(List<MethodInstance> methods, List<MethodInstance> in_methods, String prefix, boolean emptyPrefixMatches) {
+        for(MethodInstance m: in_methods) {
+            String name= m.name().toString();   // PORT 1.7
+            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix))
+                methods.add(m);
+        }
+    }
+
+    private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
+        for(ReferenceType r: in_classes) {
+            ClassType c= r.toClass();
+            String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
+            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix)) {
+                classes.add(c);
+            }
+        }
+    }
+    
+    private boolean emptyPrefixTest(boolean emptyPrefixMatches, String prefix){
+		if (!emptyPrefixMatches)
+			return !prefix.equals("");
+		return true;
+	}
 }
