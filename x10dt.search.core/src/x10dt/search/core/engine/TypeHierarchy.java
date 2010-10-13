@@ -44,7 +44,6 @@ import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.osgi.util.NLS;
 
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
@@ -298,22 +297,26 @@ final class TypeHierarchy implements ITypeHierarchy {
     final String parentTypeName = ((IString) tuple.get(1)).getValue();
 
     final ITuple type = getTypeInfo(allTypes, typeName);
-    this.fAllTypes.add(type);
-    final int typeFlags = ((IInteger) type.get(2)).intValue();
-    final ITuple parentType = getTypeInfo(allTypes, parentTypeName);
-    this.fAllTypes.add(parentType);
-    final int parentTypeFlags = ((IInteger) parentType.get(2)).intValue();
+    if (type != null) {
+      this.fAllTypes.add(type);
+      final int typeFlags = ((IInteger) type.get(2)).intValue();
+      final ITuple parentType = getTypeInfo(allTypes, parentTypeName);
+      if (parentType != null) {
+        this.fAllTypes.add(parentType);
+        final int parentTypeFlags = ((IInteger) parentType.get(2)).intValue();
 
-    if ((X10.INTERFACE.getCode() & typeFlags) != 0) {
-      addToMap(this.fTypeToSuperInterfaces, typeName, parentTypeName);
-      addToMap(this.fTypeToSubInterfaces, parentTypeName, typeName);
-    } else {
-      if ((X10.INTERFACE.getCode() & parentTypeFlags) != 0) {
-        addToMap(this.fTypeToSuperInterfaces, typeName, parentTypeName);
-        addToMap(this.fTypeToSubClasses, parentTypeName, typeName);
-      } else {
-        this.fClassToSuperClass.put(typeName, parentTypeName);
-        addToMap(this.fTypeToSubClasses, parentTypeName, typeName);
+        if ((X10.INTERFACE.getCode() & typeFlags) != 0) {
+          addToMap(this.fTypeToSuperInterfaces, typeName, parentTypeName);
+          addToMap(this.fTypeToSubInterfaces, parentTypeName, typeName);
+        } else {
+          if ((X10.INTERFACE.getCode() & parentTypeFlags) != 0) {
+            addToMap(this.fTypeToSuperInterfaces, typeName, parentTypeName);
+            addToMap(this.fTypeToSubClasses, parentTypeName, typeName);
+          } else {
+            this.fClassToSuperClass.put(typeName, parentTypeName);
+            addToMap(this.fTypeToSubClasses, parentTypeName, typeName);
+          }
+        }
       }
     }
   }
@@ -345,7 +348,7 @@ final class TypeHierarchy implements ITypeHierarchy {
         return tuple;
       }
     }
-    throw new AssertionError(NLS.bind(Messages.TH_NoTypeFoundError, typeName));
+    return null;
   }
   
   private <T extends ISet> T union(final T ... sets) {
