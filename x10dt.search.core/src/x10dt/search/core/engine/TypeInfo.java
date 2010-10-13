@@ -36,6 +36,19 @@ final class TypeInfo implements ITypeInfo {
   
   // --- Overridden methods
   
+  public boolean equals(final Object rhs) {
+    if ((rhs == null) || ! (rhs instanceof ITypeInfo)) {
+      return false;
+    }
+    final ITypeInfo rhsObj = (ITypeInfo) rhs;
+    return this.fTypeName.equals(rhsObj.getName()) && this.fLocation.equals(rhsObj.getLocation()) &&
+           (this.fX10FlagsCode == rhsObj.getX10FlagsCode()); 
+  }
+  
+  public int hashCode() {
+    return this.fTypeName.hashCode() + this.fLocation.hashCode() + this.fX10FlagsCode;
+  }
+  
   public String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("Name: ").append(this.fTypeName).append("\nLocation: ").append(this.fLocation) //$NON-NLS-1$ //$NON-NLS-2$
