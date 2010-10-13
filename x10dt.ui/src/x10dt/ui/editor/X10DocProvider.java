@@ -408,7 +408,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * <p>Does not return signature(qualifiedName) info if the javadoc is empty.
 	 * <p>That is, if the javadoc is empty, don't return anything
 	 */
-	@SuppressWarnings("restriction")
 	private String getX10DocFor(String qualifiedName, TypeObject decl) {
 		String doc = getX10DocFor(decl);
 		if (doc != null) doc = addNameToDoc(qualifiedName, doc);
