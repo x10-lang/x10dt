@@ -161,7 +161,7 @@ mpirun (Open MPI) 1.2.3
 
 <h2>Getting started</h2>
 
-You need to download the X10 2.0.6 distribution for your platform,
+You need to download the X10 2.1 distribution for your platform,
 <pre>
 AIX/PowerPC 
 Cygwin/x86 
@@ -171,7 +171,7 @@ MacOS/x86
 MacOS/x86_64 
 </pre>
 in this case MacOS/x86. The Common PGAS runtime is included with the X10 platform.
-Go to the <a href="http://x10.codehaus.org/X10+2.0.6+Release">X10 release 2.0.6 (http://x10.codehaus.org/X10+2.0.6+Release)</a> 
+Go to the <a href="http://x10.codehaus.org/X10+2.1+Release">X10 release 2.1 (http://x10.codehaus.org/X10+2.1+Release)</a> 
 and download the X10 distribution.  This will be usually stored in your "Downloads" directory depending on how
 your browser is configured. You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
 <p>
@@ -187,7 +187,7 @@ cd local
 mkdir x10
 cd x10
 mkdir 
-cd 2.0.6
+cd 2.1
 </pre>
 
 Make the directory accessible by everyone
@@ -202,9 +202,9 @@ and unpack it.
 cd /usr
 cd local
 cd x10
-cd 2.0.6
-cp /Users/cals/Downloads/x10-2.0.6_macos_x86.tar .
-tar -xvf x10-2.0.6_macos_x86.tgz
+cd 2.1
+cp /Users/cals/Downloads/x10-2.1_macos_x86.tar .
+tar -xvf x10-2.1_macos_x86.tgz
 </pre>
 
 <p>
@@ -215,7 +215,7 @@ to your path.  You can also define aliases here, etc.
 Here is a sample .bash_profile that adds the X10 bin directory to your path.
 <pre>
 .bash_profile
-PATH=${PATH}:/usr/local/x10/2.0.6/bin
+PATH=${PATH}:/usr/local/x10/2.1/bin
 export PATH
 </pre>
 
@@ -224,45 +224,45 @@ You should make an x10 or an x10work directory in your
 home path, and create a subdirectory for each project.
 
 <p>
-To get started you should copy the Hello program from the x10 samples directory into your
+To get started you should copy the HelloWorld program from the x10 samples directory into your
 working directory. For example,
 <pre>
 cd ~
 mkdir x10
 cd x10
-mkdir Hello
-cd Hello
-cp /usr/local/x10/2.0.6/samples/Hello.x10 .
+mkdir HelloWorld
+cd HelloWorld
+cp /usr/local/x10/2.1/samples/HelloWorld.x10 .
 </pre>
 
 <h4>Using the java backend</h4>
 To compile the this program with the java backend you would enter
 <pre>
-x10c Hello.x10	
+x10c HelloWorld.x10	
 </pre>
 
 You should now see some java classes in your directory.  
 <pre>
-Hello$Main$1.class	Hello$RTT.class		Hello.x10
-Hello$Main$2.class	Hello.class		x10
-Hello$Main.class	Hello.java			
+HelloWorld$1.class		HelloWorld$Main.class	HelloWorld.x10
+HelloWorld$Main$1.class	HelloWorld.class
+HelloWorld$Main$2.class HelloWorld.java
+		
 </pre>
 
 You can now run this program by entering
 <pre>
-x10 Hello
+x10 HelloWorld
 </pre>
 
 You should see the program output
 <pre>
-Hello, x10 World!
-The answer is: true
+Hello World!
 </pre>
 
 <h4>Using the C++ backend</h4>
 To compile this program with the c++ backend you would enter
 <pre>
-x10c++ -MAIN_CLASS=Hello Hello.x10	
+x10c++ -MAIN_CLASS=Hello HelloWorld.x10	
 </pre>
 The reason for using the -MAIN_CLASS is so that the compiler generates a
 runtime called "Hello". If you leave off the -MAIN_CLASS directive, 
@@ -270,13 +270,12 @@ your output will be under a.out.
 <p>
 You should now see the following files in your directory.  
 <pre>
-Hello			Hello.dSYM		Hello.inc	x10
-Hello.cc		Hello.h			Hello.x10		
+HelloWorld.cc	HelloWorld.exe HelloWorld.h	HelloWorld.inc	HelloWorld.x10
 </pre>
 
 You can now run this program by entering
 <pre>
-runx10 Hello
+runx10 HelloWorld
 </pre>
 
 You should see the program output
@@ -288,7 +287,7 @@ The answer is: true
 Note that the C++ backend makes use of the OpenMPI runtime that is installed on your
 system, so you can also enter the following command to run an x10 program
 <pre>
-mpirun -np 1 Hello
+mpirun -np 1 HelloWorld
 </pre>
 
 <p>

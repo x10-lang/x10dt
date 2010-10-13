@@ -136,7 +136,7 @@ export PATH
 </pre>
 
 <h2>Getting started</h2>
-You need to download the X10 2.0.6 distributions for your platform,
+You need to download the X10 2.1 distributions for your platform,
 <pre>
 AIX/PowerPC 
 Cygwin/x86 
@@ -146,7 +146,7 @@ MacOS/x86
 MacOS/x86_64 
 </pre>
 in this case Windows Cygwin/x86. The Common PGAS runtime is inlcuded in the download.
-Go to the <a href="http://x10.codehaus.org/X10+2.0.6+Release">X10 release 2.0.6 (http://x10.codehaus.org/X10+2.0.6+Release)</a> and download
+Go to the <a href="http://x10.codehaus.org/X10+2.1+Release">X10 release 2.1 (http://x10.codehaus.org/X10+2.1+Release)</a> and download
 the X10 distribution.  You should save this file in the same location as the cygwin installation directories.
 You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
 <p>
@@ -161,7 +161,7 @@ mkdir local
 cd local
 mkdir x10
 cd x10
-mkdir 2.0.6
+mkdir 2.1
 </pre>
 
 Make all of these directories accessible by everyone
@@ -172,16 +172,16 @@ chmod -R 755 local
 
 Now copy the x10 download to x10dist directory and unpack it.
 <pre>
-cp /cygdrive/c/cygwinInstall/x10-2.0.6_cygwin_x86.gz /usr/local/x10/2.0.6
+cp /cygdrive/c/cygwinInstall/x10-2.1_cygwin_x86.gz /usr/local/x10/2.1
 </pre>
 and then unpack the x10 distribution.
 <pre>
 cd /usr
 cd local
 cd x10
-cd 2.0.6
-gunzip x10-2.0.6_cygwin_x86.gz
-tar -xvf x10-2.0.6_cygwin_x86
+cd 2.1
+gunzip x10-2.1_cygwin_x86.gz
+tar -xvf x10-2.1_cygwin_x86
 </pre>
 
 <p>
@@ -193,7 +193,7 @@ system knows how to find the cyggc-1.dll file.
 Here is a sample .bash_profile
 <pre>
 .bash_profile
-PATH=/usr/local/x10.2.0.6/bin:/usr/local/x10/2.0.6/lib:$PATH
+PATH=/usr/local/x10.2.1/bin:/usr/local/x10/2.1/lib:$PATH
 export PATH
 </pre>
 
@@ -201,66 +201,64 @@ Now you will be able to use the x10 commands to compile and run your programs.
 My recommendation is to make an x10 directory or an x10work directory in your
 home path, and create a directory for each project.
 <p>
-To get started we will copy the Hello program from the x10 samples directory into your
+To get started we will copy the HelloWorld program from the x10 samples directory into your
 working directory
 <pre>
 cd ~
 mkdir x10
 cd x10
-mkdir Hello
-cd Hello
-cp /usr/local/x10/2.0.6/samples/Hello.x10 .
+mkdir HelloWorld
+cd HelloWorld
+cp /usr/local/x10/2.1/samples/HelloWorld.x10 .
 </pre>
 <h4>java backend</h4>
 To compile the this program with the java backend you would enter
 <pre>
-x10c Hello.x10	
+x10c HelloWorld.x10	
 </pre>
 You should now see some java classes in your directory.
 <pre>
-ls
-Hello.class	Hello$Main$1.class	Hello$Main.class Hello.x10
-Hello.java	Hello$Main$2.class	Hello$RTT.class
+HelloWorld$1.class		HelloWorld$Main.class	HelloWorld.x10
+HelloWorld$Main$1.class	HelloWorld.class
+HelloWorld$Main$2.class HelloWorld.java
 </pre>
 You can now run this program by entering
 <pre>
-x10 Hello
+x10 HelloWorld
 </pre>
 You should see
 <pre>
-Hello, X10 world!
-The answer is: true
+Hello World!
 </pre>
 
 <h4>C++ backend</h4>
 To compile the this program with the c++ backend you would enter
 <pre>
-x10c++ -MAIN_CLASS=Hello Hello.x10	
+x10c++ -MAIN_CLASS=HelloWorld HelloWorld.x10	
 </pre>
 The reason for using the -MAIN_CLASS is so that the compiler generates a
-runtime called "Hello". If you leave off the -MAIN_CLASS directive, 
+runtime called "HelloWorld". If you leave off the -MAIN_CLASS directive, 
 your output will be under a.exe .
 <p>
 You should now see a .cc and .inc file in your directory.  
 <pre>
-Hello.exe	Hello.cc Hello.h	Hello.inc	Hello.x10
+HelloWorld.cc	HelloWorld.exe HelloWorld.h	HelloWorld.inc	HelloWorld.x10
 </pre>
 <p>
 You can now run this program by entering
 <pre>
-runx10 Hello.exe
+runx10 HelloWorld.exe
 </pre>
 You should see
 <pre>
-Hello, X10 world!
-The answer is: true
+Hello World!
 </pre>
 <p>
 Note that the C++ backend makes use of the MPICH2 runtime that is installed on your
 system, so you can also enter the following command to run an x10 program
 <p>
 <pre>
-mpirun -np 1 ./Hello.exe
+mpirun -np 1 ./HelloWorld.exe
 </pre>
 <p>
 However, on Windows, a daemon (mpd) has to be running to use mpirun. This daemon requires a
