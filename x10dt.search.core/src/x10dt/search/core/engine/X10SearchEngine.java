@@ -220,6 +220,22 @@ public final class X10SearchEngine {
     return getTypeInfo(factBase, context, typeName, monitor);
   }
   
+  /**
+   * Returns the type info wrapper for a given type name in the X10 Runtime.
+   * 
+   * @param typeName The type name to look for.
+   * @param monitor The progress monitor to use to report progress or cancel the operation. Can be <b>null</b>.
+   * @return A non-null {@link ITypeInfo} if it is found, otherwise <b>null</b>.
+   * @throws ModelException Occurs if the project does not exist.
+   * @throws InterruptedException Occurs if the operation get canceled.
+   * @throws ExecutionException Occurs if the search threw an exception.
+   */
+  public static ITypeInfo getX10RuntimeTypeInfo(final String typeName,
+                                                final IProgressMonitor monitor) throws ModelException, InterruptedException, 
+                                                                                       ExecutionException {
+    return getTypeInfo(FactBase.getInstance(), WorkspaceContext.getInstance(), typeName, monitor);
+  }
+  
   // --- Private code
   
   private static IFieldInfo createFieldInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
