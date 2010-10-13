@@ -19,12 +19,8 @@ import x10dt.search.ui.typeHierarchy.TypeElementProvider;
 import x10dt.ui.editor.formatting.IX10Partitions;
 
 public class X10StructuredSourceViewerConfiguration extends StructuredSourceViewerConfiguration{
-	private final UniversalEditor fEditor;
-	 
-	public X10StructuredSourceViewerConfiguration(IPreferenceStore prefStore,
-			UniversalEditor editor) {
+	public X10StructuredSourceViewerConfiguration(IPreferenceStore prefStore, UniversalEditor editor) {
 		super(prefStore, editor);
-		this.fEditor = editor;
 	}
 	
 	private IInformationControlCreator getHierarchyPresenterControlCreator() {
