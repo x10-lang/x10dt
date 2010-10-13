@@ -42,6 +42,11 @@ final class TypeHierarchyManager extends AbstractTypeManager implements ITypeMan
     super.fWriter = null;
   }
   
+  public void createIndexingFile(final FactBase factBase, final IFactContext factContext) {
+    this.fAllTypesManager.createIndexingFile(factBase, factContext);
+    createIndexingFile(factBase.queryFact(new FactKey(getType(), factContext)));
+  }
+  
   public FactWriterVisitor createNodeVisitor() {
     return new TypeHierarchyFactWriterVisitor();
   }
@@ -76,6 +81,11 @@ final class TypeHierarchyManager extends AbstractTypeManager implements ITypeMan
         }
       }
     }
+  }
+  
+  public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
+    this.fAllTypesManager.loadIndexingFile(factBase, factContext);
+    loadIndexingFileForManagedType(factBase, factContext);
   }
   
   // --- Fields

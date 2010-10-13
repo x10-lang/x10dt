@@ -47,6 +47,12 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
     super.fWriter = null;
   }
   
+  public void createIndexingFile(final FactBase factBase, final IFactContext factContext) {
+    this.fAllMethodsManager.createIndexingFile(factBase, factContext);
+    this.fAllFieldsManager.createIndexingFile(factBase, factContext);
+    createIndexingFile(factBase.queryFact(new FactKey(getType(), factContext)));
+  }
+  
   public FactWriterVisitor createNodeVisitor() {
     return new AllMembersFactWriterVisitor();
   }
@@ -66,6 +72,12 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
     initWriter(factBase, factContext, resource, new HashSet<IString>());
+  }
+  
+  public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
+    this.fAllMethodsManager.loadIndexingFile(factBase, factContext);
+    this.fAllFieldsManager.loadIndexingFile(factBase, factContext);
+    loadIndexingFileForManagedType(factBase, factContext);
   }
   
   // --- Internal services
@@ -114,7 +126,7 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
     
     public boolean accepts(final ITuple tuple) {
       final ISourceLocation sourceLoc = (ISourceLocation) tuple.get(1);
-      return sourceLoc.getURI().getPath().startsWith(this.fLocationURI);
+      return sourceLoc.getURI().toString().startsWith(this.fLocationURI);
     }
     
     // --- Fields

@@ -17,6 +17,10 @@ import org.eclipse.osgi.util.NLS;
 @SuppressWarnings("all")
 public class Messages extends NLS {
 
+  public static String ATM_IndexingLoadingError;
+
+  public static String ATM_IndexingSavingError;
+
   public static String ATM_NoDataBaseValue;
 
   public static String FWV_URICreationError;
@@ -32,8 +36,6 @@ public class Messages extends NLS {
   public static String TH_CollectingData;
 
   public static String TH_FactAccessError;
-
-  public static String TH_NoTypeFoundError;
 
   public static String TH_SearchCanceled;
 

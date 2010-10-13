@@ -32,6 +32,14 @@ public interface ITypeManager {
   public void clearWriter();
   
   /**
+   * Creates an indexing file for the given fact value associated with the type managed.
+   * 
+   * @param factBase The fact database instance to consider.
+   * @param factContext The context to use in order to identify uniquely the fact key for the current type.
+   */
+  public void createIndexingFile(final FactBase factBase, final IFactContext factContext);
+  
+  /**
    * Creates an X10 {@link NodeVisitor} that will be responsible for writing the data of interest for the current type.
    * 
    * @return A non-null visitor instance.
@@ -42,7 +50,7 @@ public interface ITypeManager {
    * Transfers the data in the "writer" within the fact database.
    * 
    * @param factBase The fact database instance to consider.
-   * @param factContext The context to use in order to identify uniquely the fact for the current type.
+   * @param factContext The context to use in order to identify uniquely the fact key for the current type.
    */
   public void writeDataInFactBase(final FactBase factBase, final IFactContext factContext);
   
@@ -78,5 +86,13 @@ public interface ITypeManager {
    */
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException;
+  
+  /**
+   * Loads the content of an indexing file (if it exists) for the given type managed.
+   * 
+   * @param factBase The fact database instance to consider.
+   * @param factContext The context to use in order to identify uniquely the fact key for the current type.
+   */
+  public void loadIndexingFile(final FactBase factBase, final IFactContext factContext);
 
 }

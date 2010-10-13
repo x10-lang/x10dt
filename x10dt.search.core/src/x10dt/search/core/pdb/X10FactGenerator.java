@@ -7,7 +7,7 @@
  *******************************************************************************/
 package x10dt.search.core.pdb;
 
-import static x10dt.search.core.pdb.X10FactTypeNames.*;
+import static x10dt.search.core.pdb.X10FactTypeNames.RUNTIME;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +33,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.model.ISourceFolder;
@@ -45,7 +46,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
-import org.eclipse.imp.pdb.facts.db.IFactKey;
 import org.eclipse.imp.pdb.facts.db.context.ISourceEntityContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -82,9 +82,14 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       final ContextWrapper sourceContext = processEntity(((ISourceEntityContext) context).getEntity());
             
       for (final Map.Entry<String, Collection<Source>> entry : sourceContext.getSourceEntrySet()) {
+        final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
+        
         final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
+        
         if (RUNTIME.equals(entry.getKey())) {
-          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), WorkspaceContext.getInstance()));
+          typeManager.loadIndexingFile(factBase, factContext);
+        
+          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
           if ((value != null) && ! value.isEmpty()) {
             continue; // We build the type info for the runtime context only one time.
           }
@@ -100,8 +105,11 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
               job.ast().visit(visitor);
             }
           }
-          final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
           typeManager.writeDataInFactBase(factBase, factContext);
+          
+          if (RUNTIME.equals(entry.getKey()) && ! hasIndexingFile(typeManager.getType().getName())) {
+            typeManager.createIndexingFile(factBase, factContext);
+          }
         } finally {
           Globals.initialize(null);
           typeManager.clearWriter();
@@ -118,14 +126,19 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       final ContextWrapper sourceContext = processResource(resource);
             
       for (final Map.Entry<String, Collection<Source>> entry : sourceContext.getSourceEntrySet()) {
+        final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
+        
         final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
+        
         if (RUNTIME.equals(entry.getKey())) {
-          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), WorkspaceContext.getInstance()));
+          typeManager.loadIndexingFile(factBase, factContext);
+        
+          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
           if ((value != null) && ! value.isEmpty()) {
             continue; // We build the type info for the runtime context only one time.
           }
         }
-        typeManager.initWriter(factBase, context, resource);
+        typeManager.initWriter(factBase, factContext, resource);
         
         final FactWriterVisitor visitor = typeManager.createNodeVisitor();
         visitor.setScopeType(entry.getKey());
@@ -136,27 +149,27 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
               job.ast().visit(visitor);
             }
           }
-          final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
+          
           typeManager.writeDataInFactBase(factBase, factContext);
+          
+          if (RUNTIME.equals(entry.getKey()) && ! hasIndexingFile(typeManager.getType().getName())) {
+            typeManager.createIndexingFile(factBase, factContext);
+          }
         } finally {
           Globals.initialize(null);
           typeManager.clearWriter();
         }
-        
-        final ITypeManager allMethods = this.fSearchDBTypes.getTypeManager(X10_AllMethods, entry.getKey());
-        final IFactContext factContext;
-        if (RUNTIME.equals(entry.getKey())) {
-          factContext = WorkspaceContext.getInstance();
-        } else {
-          factContext = context;
-        }
-        final IFactKey key = new FactKey(allMethods.getType(), factContext);
-        System.out.println(factBase.queryFact(key));
       }
     }
   }
   
   // --- Private code
+  
+  private boolean hasIndexingFile(final String indexingFileName) {
+    final File pluginStateLocation = Platform.getStateLocation(SearchCoreActivator.getInstance().getBundle()).toFile();
+    final File indexingFile = new File(pluginStateLocation, indexingFileName);
+    return indexingFile.exists();
+  }
   
   private void processEntries(final ContextWrapper context, final IWorkspaceRoot wsRoot, final IClasspathEntry[] entries, 
                               final IJavaProject javaProject, final IResource contextResource,

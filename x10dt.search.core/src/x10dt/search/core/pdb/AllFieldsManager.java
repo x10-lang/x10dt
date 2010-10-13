@@ -40,6 +40,10 @@ final class AllFieldsManager extends AbstractTypeManager implements ITypeManager
     super.fWriter = null;
   }
   
+  public void createIndexingFile(final FactBase factBase, final IFactContext factContext) {
+    createIndexingFile(factBase.queryFact(new FactKey(getType(), factContext)));
+  }
+  
   public FactWriterVisitor createNodeVisitor() {
     return new AllMembersFactWriterVisitor();
   }
@@ -55,6 +59,10 @@ final class AllFieldsManager extends AbstractTypeManager implements ITypeManager
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
     initWriter(factBase, factContext, resource, new HashSet<IString>());
+  }
+  
+  public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
+    loadIndexingFileForManagedType(factBase, factContext);
   }
   
   // --- Internal services
