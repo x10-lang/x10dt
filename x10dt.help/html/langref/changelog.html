@@ -20,9 +20,23 @@
  <h1><a name="tth_chAp1">
 A </a><br />Change Log</h1>
 
-<div class="p"><!----></div>
  <h2><a name="tth_sEc1">
-1</a>&nbsp;&nbsp;Changes from X10 v2.0</h2>
+1</a>&nbsp;&nbsp;Changes from X10 v2.0.6</h2>
+
+<div class="p"><!----></div>
+The global object model has been simplified. Classes are now local by
+default and are copied on reference across an <b>at</b> boundary.
+ <b>Any</b> defines only <b>toString</b>, <b>typeName</b>,
+<b>equals</b> and <b>hashCode</b>. It no longer defines <b>home</b>,
+<b>at</b>.  The new struct <b>x10.lang.GlobalRef[T]</b> is the only
+mechanism for creating a globally usable reference to an
+object. <b>GlobalRef</b> has a <b>home</b> property.
+
+<div class="p"><!----></div>
+The type modifier <b>!</b> is no longer used. (It is not needed for
+user-defined classes. The typedef <b>GlobalRef[T](p:Place)</b> can
+be used for specifying a constraint  on the <b>home</b> property of a
+<b>GlobalRef</b>.)
 
 <div class="p"><!----></div>
 
@@ -44,8 +58,32 @@ A </a><br />Change Log</h1>
 </li>
 </ul>
 
+<div class="p"><!----></div>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;Changes from X10 v1.7</h2>
+2</a>&nbsp;&nbsp;Changes from X10 v2.0</h2>
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>Any</b> is now the top of the type hierarchy (every object,
+  struct and function has a type that is a subtype of
+  <b>Any</b>). <b>Any</b> defines <b>home</b>, <b>at</b>, <b>toString</b>,
+  <b>typeName</b>, <b>equals</b> and <b>hashCode</b>. <b>Any</b> also defines the methods
+  of <b>Equals</b>, so <b>Equals</b> is not needed any more.
+<div class="p"><!----></div>
+</li>
+
+<li> Revised discussion of incomplete types (&#167;).
+<div class="p"><!----></div>
+</li>
+
+<li> The manual has been revised and brought into line with the current implementation.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Changes from X10 v1.7</h2>
 
 <div class="p"><!----></div>
 The language has changed in the following way:
@@ -131,7 +169,7 @@ Projects Agency (DARPA) under contract No. NBCH30390004.</em>
 <em>Java and all Java-based trademarks are trademarks of Sun Microsystems,
 Inc. in the United States, other countries, or both.</em>
 
-<div class="p"><!----></div>
+<br /><br />
 
 </body>
 </html>

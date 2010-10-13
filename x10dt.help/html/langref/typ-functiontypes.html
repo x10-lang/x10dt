@@ -40,9 +40,7 @@ if there is no such element, where, for the sake of example, we constrain the
 type of <b>i</b>:  
 <pre>
 val inc = (r:Rail[Int], i: Int{i != r.length}) =&#62; {
-  if (i &lt; 0 </td><td width="150">
-&#124;</td><td width="150">
-&#124; i &#62;= r.length) throw new DoomExn();
+  if (i &lt; 0 &#124;&#124; i &#62;= r.length) throw new DoomExn();
   r(i)++;
 };
 </pre>
@@ -54,25 +52,18 @@ of all the formal parameters,
 and their distinct names "x<sub>i</sub>" in case other types refer to them; a
 constraint 
 <b>c</b> on the
-function as a whole; a return type <b>T</b>; and the exceptions 
-that the function might throw when applied: 
-
-<div class="p"><!----></div>
-<em><em>Limitation</em> The <b>throws</b> clause is not currently implemented.  Also,
-some method modifiers (<b>safe</b>, <b>atomic</b>, etc.) will apply to function
-types as well.</em>
+function as a whole; a return type <b>T</b>.
 
 <div class="p"><!----></div>
 <pre>
 (x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; T
-        throws EX<sub>1</sub>, ..., EX<sub>k</sub>
 </pre>
 
 <div class="p"><!----></div>
 The names "x<sub>i</sub>" of the formal parameters are not relevant.  Types
 which differ only in the names of formals (following the usual rules for
 renaming of variables, as in &#945;-renaming in the &#955; calculus
-) are considered equal.  , 
+) are considered equal.  &lt;em&#62;E.g.&lt;/em&#62;, 
 <b>(a:Int, b:Rail[String]{b.length==a}) =&#62; Boolean</b>
 and 
 <b>(b:Int, a:Rail[String]{a.length==b}) =&#62; Boolean</b>

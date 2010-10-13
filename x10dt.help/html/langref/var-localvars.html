@@ -30,21 +30,24 @@ If the variable is immutable
 (<b>val</b>)
 the type may be omitted and
 inferred from the initializer type (&#167;).
-Variables marked <b>shared</b> can be used by many activities at once; see
-&#167;.
 
 <div class="p"><!----></div>
 The variable declaration <b>val x:T=e;</b> confirms that <b>e</b>'s value is of
 type <b>T</b>, and then introduces the variable <b>x</b> with type <b>T</b>.  For
-example, 
+example, consider a class Tub with a property <b>p</b>.
 <pre>
-   val t : Tub = new Tub();
+class Tub(p:Int){
+  def this(pp:Int):Tub{self.p==pp} {property(pp);}
+  def example() {
+    val t : Tub = new Tub(3);
+  }
+}
 </pre>
 
 produces a variable <b>t</b> of type <b>Tub</b>, even though the expression
-<b>new Tub()</b> produces a value of type <b>Tub!</b> - that is, a <b>Tub</b>
-located <b>here</b>.    This can be inconvenient if, , it is desired to make
-method calls upon <b>t</b>.  
+<b>new Tub(3)</b> produces a value of type <b>Tubself.p==3</b> - that is, a
+<b>Tub</b>  whose <b>p</b> field is 3.  This can be inconvenient when the
+constraint information is required.
 
 <div class="p"><!----></div>
 Including type information in variable declarations is generally good
@@ -54,10 +57,10 @@ something of the intent of the variable.  However, including types in
 documentation type declaration</em>, written <b>val t &lt;: T = e</b>.  This 
 has the same effect as <b>val t = e</b>, giving <b>t</b> the full type inferred
 from <b>e</b>; but it also confirms statically that that type is at least
-<b>T</b>.  For example, the following gives <b>t</b> the type <b>Tub!</b> as
+<b>T</b>.  For example, the following gives <b>t</b> the type <b>Tubself.p==3</b> as
 desired: 
 <pre>
-   val t &lt;: Tub = new Tub();
+   val t &lt;: Tub = new Tub(3);
 </pre>
 
 However, replacing <b>Tub</b> by <b>Int</b> would result in a compilation error. 
@@ -68,9 +71,9 @@ Variables do not need to be initialized at the time of definition - not even
 only be assigned to once. The X10 compiler performs static checks guaranteeing
 this restriction. The following is correct, albeit obtuse: 
 <pre>
-static def main(r: Rail[String]):Void {
+static def main(r: Array[String](1)):Void {
   val a : Int;
-  a = r.length;
+  a = r.size;
   val b : String;
   if (a == 5) b = "five?"; else b = "" + a + " args"; 
   // ... 

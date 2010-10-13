@@ -34,7 +34,7 @@ is a subtype of <b>Int</b> - every non-zero integer is an integer.
 
 <div class="p"><!----></div>
 This section formalizes the concept of subtyping. Subtyping of types depends
-on a <em>type context</em>, . a set of constraints which may say something
+on a <em>type context</em>, &lt;em&#62;viz&lt;/em&#62;. a set of constraints which may say something
 about types.   For example: 
 
 <div class="p"><!----></div>
@@ -105,9 +105,9 @@ Then:
 
 <li>
 <b>Function types:</b>
-"(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; T throws EX<sub>1</sub>, ...,EX<sub>k</sub>"
+"(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; T"
 is a  subtype of 
-"(x&#8242;<sub>1</sub>: T&#8242;<sub>1</sub>, ..., x&#8242;<sub>n</sub>: T&#8242;<sub>n</sub>){c&#8242;} =&#62; T&#8242; throws EX&#8242;<sub>1</sub>, ..., EX&#8242;<sub>k&#8242;</sub>"
+"(x&#8242;<sub>1</sub>: T&#8242;<sub>1</sub>, ..., x&#8242;<sub>n</sub>: T&#8242;<sub>n</sub>){c&#8242;} =&#62; T&#8242; "
 if: 
 
 <ol type="1">
@@ -120,10 +120,6 @@ if:
 </li>
 
 <li> "T&#8242; &lt;: T";
-<div class="p"><!----></div>
-</li>
-
-<li> Each  &#203;X<sub>j</sub> &lt;: EX&#8242;<sub>j&#8242;</sub>".
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -144,7 +140,7 @@ Every type <b>T</b> is a subtype of <b>x10.lang.Any</b>.
 <li> 
 <b>Type Variables:</b>
 Inside the scope of a constraint <b>c</b> which entails <b>A &lt;: B</b>, we have
-<b>A &lt;: B</b>.  , <b>upcast</b> above.
+<b>A &lt;: B</b>.  &lt;em&#62;e.g.&lt;/em&#62;, <b>upcast</b> above.
 <div class="p"><!----></div>
 </li>
 
@@ -154,7 +150,7 @@ If <b>C</b> is a generic type whose ith type parameter is covariant,
 and "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>"
 and  "T&#8242;<sub>j</sub> == T<sub>j</sub>" for all j  &#8800; i, 
 then "C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>] &lt;: C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>]".
-, <b>class C[T1, +T2, T3]</b> with i=2, and <b>U2 &lt;: T2</b>, then
+&lt;em&#62;E.g.&lt;/em&#62;, <b>class C[T1, +T2, T3]</b> with i=2, and <b>U2 &lt;: T2</b>, then
 <b>C[T1,U2,T3] &lt;: C[T1,T2,T3]</b>.
 <div class="p"><!----></div>
 </li>
@@ -165,7 +161,7 @@ If <b>C</b> is a generic type whose ith type parameter is contravariant,
 and "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>"
 and  "T&#8242;<sub>j</sub> == T<sub>j</sub>" for all j  &#8800; i, 
 then "C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>] :&#62; C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>]".
-, <b>class C[T1, -T2, T3]</b> with i=2, and &#220;2 &lt;: T2", then
+&lt;em&#62;E.g.&lt;/em&#62;, <b>class C[T1, -T2, T3]</b> with i=2, and &#220;2 &lt;: T2", then
 <b>C[T1,U2,T3] :&#62; C[T1,T2,T3]</b>.
 <div class="p"><!----></div>
 </li>

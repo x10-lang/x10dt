@@ -241,7 +241,7 @@ all value expressions are of the forms which may appear in constraints:
 
 <div class="p"><!----></div>
 All variables appearing in a constraint expression must be visible wherever
-that expression can used.  , properties and public fields of an object are
+that expression can used.  &lt;em&#62;E.g.&lt;/em&#62;, properties and public fields of an object are
 always permitted, but private fields of an object can only constrain private
 members.  (Consider a class <b>PriVio</b> with a private field <b>p</b> and a
 public method <b>m(x: Int{self != p})</b>, and a call <b>ob.m(10)</b> made
@@ -280,12 +280,6 @@ To ensure that type-checking is decidable, we require that property graphs be
 acyclic.  The property graph, at an instant in an X10 execution, is the graph
 whose nodes are all objects in existence at that instance, with an edge from
 x to y if x is an object with a property whose value is y. 
-
-<div class="p"><!----></div>
-Currently this restriction is not checked by the compiler. Future
-versions of the compiler will check this restriction by introducing
-rules on escaping of <b>this</b> (&#167;) before the invocation of
-<b>property</b> calls.
 
 <div class="p"><!----></div>
 
@@ -360,7 +354,7 @@ class Triangle
 
 
 <div class="p"><!----></div>
-As we will see, <b>T{c}</b> is a subtype of <b>T{d}</b> if every value of type
+Recall that <b>T{c}</b> is a subtype of <b>T{d}</b> if every value of type
 <b>T{c}</b> is also a value of type <b>T{d}</b>.  This is true if, whenever
 <b>c</b> is true, <b>d</b> is also true.  Logicians call this concept <em>
 entailment</em>: in this case, <b>c</b> entails <b>d</b>.  

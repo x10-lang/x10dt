@@ -23,7 +23,7 @@ Chapter 7 </a><br />Interfaces</h1>
 </a>
 
 <div class="p"><!----></div>
-X10 v2.0 interfaces are generally modelled on Java interfaces [,&#167;
+X10 v2.1 interfaces are generally modelled on Java interfaces [,&#167;
   9]. An interface specifies signatures for public methods, properties,
 <b>static val</b>s, and an invariant. It may extend several interfaces, giving
 X10 a large fraction of the power of multiple inheritance at a tiny fraction
@@ -46,7 +46,7 @@ class MessageButton(text:String, prio:Int)
 
 <b>Pushable</b> defines two properties, a method, and a static value.  
 <b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
-&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
+&lt;em&#62;viz&lt;/em&#62;&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
 defines the <b>push()</b> method given in the interface, as a <b>public</b>
 method-interface methods are implicitly <b>public</b>.
 
@@ -106,7 +106,7 @@ A class <b>C</b> is said to implement an interface <b>I</b> if
 </li>
 
 <li> Each method <b>m</b> defined by <b>I</b> is also a method of <b>C</b> -
-      <em>with the <b>public</b></em> modifier added.   These methods may be
+      with the <em><b>public</b></em> modifier added.   These methods may be
       <b>abstract</b> if <b>C</b> is <b>abstract</b>.
 <div class="p"><!----></div>
 </li>

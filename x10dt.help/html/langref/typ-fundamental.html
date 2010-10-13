@@ -36,13 +36,10 @@ is, a supertype of all types.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup
 <pre>
 package x10.lang;
 public interface Any {
-  property def home():Place;
-  property def at(p:Object):Boolean;
-  property def at(p:Place):Boolean;
-  global safe def toString():String;
-  global safe def typeName():String;
-  global safe def equals(Any):Boolean;
-  global safe def hashCode():Int;
+  def toString():String;
+  def typeName():String;
+  def equals(Any):Boolean;
+  def hashCode():Int;
 }
 </pre>
 
@@ -52,8 +49,7 @@ useful for everything.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a> <
 string representation of <b>a</b>, and <b>a.typeName()</b> the string
 representation of its type; both are useful for debugging.  <b>aequals(b)</b>
 is the programmer-overridable equality test, and <b>a.hashCode()</b> an integer
-useful for hashing.  <b>at()</b> and <b>home()</b> are used in multi-place
-computing. 
+useful for hashing.  
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc10.2">
@@ -66,8 +62,7 @@ computing.
 <div class="p"><!----></div>
 The class <b>x10.lang.Object</b> is the supertype of all classes.
 A variable of this type can hold a reference to any object.
-<b>Object</b> implements <b>Any</b>. It also has a property <b>home:Place</b>,
-described more in &#167;.
+<b>Object</b> implements <b>Any</b>.
 
 <div class="p"><!----></div>
 

@@ -31,20 +31,9 @@ scope of the declaration, as in the type of the method
 does not use its command-line arguments.
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Formal
-        ::= FormalModifier<sup>*</sup>&nbsp;<b>var</b> VarDeclaratorWithType </td></tr>
-<tr><td align="right">&#124; FormalModifier<sup>*</sup>&nbsp;<b>val</b> VarDeclaratorWithType </td></tr>
-<tr><td align="right">&#124; FormalModifier<sup>*</sup>&nbsp;VarDeclaratorWithType </td></tr>
-<tr><td align="right">&#124; Type </td></tr>
-<tr><td align="right">FormalModifier ::= Annotation </td></tr>
-<tr><td align="right">&#124; <b>shared</b> </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
 
 <div class="p"><!----></div>
-<b>var</b>, <b>val</b>, and <b>shared</b> behave just as they do for local
+<b>var</b> and <b>val</b> behave just as they do for local
 variables, &#167;.  In particular, the following <b>inc</b>
 method is allowed, but, unlike some languages, does <em>not</em> increment its
 actual parameter.  <b>inc(j)</b> creates a new local 

@@ -91,14 +91,6 @@ atomic block</em>:
 </em>
 
 <div class="p"><!----></div>
-For the sake of efficient implementation X10 v2.0 requires
-that the atomic block be <em>analyzable</em>, that is, the set of
-locations that are read and written by the <em>BlockStatement</em> are
-bounded and determined statically.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>
-The exact algorithm to be used by
-the compiler to perform this analysis will be specified in future
-versions of the language.
-
 
 <div class="p"><!----></div>
 Such a statement is executed by an activity as if in a single step
@@ -120,7 +112,6 @@ constructs [], and can be used to implement
 non-blocking concurrent algorithms.
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
 In <b>atomic S</b>, <b>S</b> may include calls to <b>safe</b> methods, and use of
 sequential control structures.
 
@@ -130,15 +121,13 @@ of a <b>future</b>).
 
 <div class="p"><!----></div>
 It may <em>not</em> include any statement that may potentially block at
-runtime (, <b>when</b>, <b>force</b> operations, <b>next</b>
+runtime (&lt;em&#62;e.g.&lt;/em&#62;, <b>when</b>, <b>force</b> operations, <b>next</b>
 operations on clocks, <b>finish</b>). 
 
 <div class="p"><!----></div>
 It may <em>not</em> include any <b>at</b> expressions or
 statements. (Hence all locations accessed in the atomic block must
 belong to the current place.)
-<a name="LocalityCondition">
-</a> 
 
 <div class="p"><!----></div>
 The compiler checks for this condition by checking whether the statement
@@ -330,7 +319,7 @@ class OneBuffer[T] {
   that depending on the state of the computation the activation path may
   traverse activities that are running, blocked or terminated.
 <div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>In X10 v2.0 the <b>finish</b>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>In X10 v2.1 the <b>finish</b>
 statement is the only statement that marks its activity as a root
 activity. Future versions of the language may introduce more such
 statements.
@@ -339,13 +328,9 @@ statements.
 inspire copying.  Copying may be required due to some other, non-Global
 reference.
 <div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>X10 v2.0 does
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>X10 v2.1 does
 not specify a particular algorithm; this will be fixed in future
 versions.
-<div class="p"><!----></div>
-<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>A static bound is a constant
-that depends only on the program text, and is independent 
-of any runtime parameters. 
 <br /><br />
 
 </body>

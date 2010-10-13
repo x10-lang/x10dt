@@ -29,18 +29,7 @@ structs are equal (<b>==</b>) if and only if their corresponding fields
 are equal (<b>==</b>). 
 
 <div class="p"><!----></div>
-All structs implement <b>x10.lang.Any</b>. All 
-structs have the following methods implicitly defined on them:
-<pre>
-  property def home()=here;
-  property def at(Place)=true;
-  property def at(Object)=true;
-</pre>
- It is an error for a programmer to attempt to define them.
-Note that the <b>home</b> of a struct evaluated in place <b>P</b> is equal to
-<b>P</b>-a struct, unlike an object, can have different values of <b>home</b>. 
-
-<div class="p"><!----></div>
+All structs implement <b>x10.lang.Any</b>. 
 Structs are required to implement the following methods from <b>Any</b>.  
 Programmers need not provide them; X10 will produce them automatically if 
 the program does not include them. 

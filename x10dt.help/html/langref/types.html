@@ -18,7 +18,7 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Types</h1>
+Chapter 4 </a><br />Types</h1>
 <a name="XtenTypes">
 </a>
 
@@ -59,7 +59,7 @@ and align the fields of the struct.
 Functions, called closures or lambda-expressions in other languages, are
 instances of <em>function types</td><td width="150">
 &#124;</em> (&#167;). Functions can refer to
-variables from the surrounding environment; , <b>(x:Int)=&#62;x*y</b> is a unary
+variables from the surrounding environment; &lt;em&#62;e.g.&lt;/em&#62;, <b>(x:Int)=&#62;x*y</b> is a unary
 integer function which multiplies its argument by the variable <b>y</b> from
 the surrounding block.  
 Functions may be freely copied from place to place and may be repeatedly
@@ -198,54 +198,6 @@ parameters and returns no value.
 For example, 
 <b>(x:Int) =&#62; Int{self != x}</b> 
 is the type of integer-valued functions which have no fixed points.  
-
-<div class="p"><!----></div>
-
-<h3>The Grammar of Types</h3>
-
-<div class="p"><!----></div>
-Types are described by the following grammar: <br />
-
-
-  :
-  |
-  
-  
-  
-  <em>
-  
-<table>
-
-<tr><td align="right">Type ::= FunctionType </td></tr>
-<tr><td align="right">&#124; ConstrainedType  </td></tr>
-<tr><td align="right">FunctionType ::= TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b>
-Constraint<sup>?</sup>&nbsp;<b>=&#62;</b> TypeOrVoid </td></tr>
-<tr><td align="right">TypeParameters ::= <b>[</b> TypeParameter ( <b>,</b> TypeParameter )<sup>*</sup>&nbsp;<b>]</b> </td></tr>
-<tr><td align="right">TypeParameter ::= Identifier </td></tr>
-<tr><td align="right">ConstrainedType ::= Annotation<sup>*</sup>&nbsp;BaseType Constraint<sup>?</sup>&nbsp;
-PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">BaseType ::= ClassBaseType </td></tr>
-<tr><td align="right">&#124; InterfaceBaseType </td></tr>
-<tr><td align="right">&#124; PathType </td></tr>
-<tr><td align="right">&#124; <b>(</b> Type <b>)</b> </td></tr>
-<tr><td align="right">TypeOrVoid ::= Type </td></tr>
-<tr><td align="right">&#124; <b>Void</b></td></tr>
-<tr><td align="right">ClassType ::= Annotation<sup>*</sup>&nbsp;ClassBaseType Constraint<sup>?</sup>&nbsp;
-PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">InterfaceType ::= Annotation<sup>*</sup>&nbsp;InterfaceBaseType Constraint<sup>?</sup>&nbsp;
-PlaceConstraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">PathType ::= Expression <b>.</b> Identifier </td></tr>
-<tr><td align="right">Annotation ::= <b>@</b> InterfaceBaseType Constraint<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">ClassOrInterfaceType ::= ClassType </td></tr>
-<tr><td align="right">&#124; InterfaceType </td></tr>
-<tr><td align="right">ClassBaseType ::= TypeName </td></tr>
-<tr><td align="right">InterfaceBaseType ::= TypeName </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 

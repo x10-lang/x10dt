@@ -44,12 +44,12 @@ var example : LnSn;
 
 <div class="p"><!----></div>
 Type definitions can also refer to values, in particular, inside of
-constraints.  The type of <b>n</b>-element <b>Rails[Int]s</b> is 
-<b>Rail[Int]{self.length == n}</b>
+constraints.  The type of <b>n</b>-element <b>Array[Int](1)</b>s  is 
+<b>Array[Int]self.rank==1 &amp;&amp; self.size == n</b>
 but it is often convenient to give a shorter name: 
 <pre>
-type Rail(n:Int) = Rail[Int]{self.length == n};
-var example : Rail(78); 
+type Vec(n:Int) = Array[Int]{self.rank==1 &amp;&amp; self.size == n}; 
+var example : Vec(78); 
 </pre>
 
 <div class="p"><!----></div>

@@ -34,13 +34,13 @@ accessible by all threads.
 <div class="p"><!----></div>
 An X10 computation acts on <em>values</em>(&#167;) through
 the execution of lightweight threads called
-<em>activities</em>(&#167;). Values are of three kinds.  
+<em>activities</em>(&#167;). 
 An <em>object</em>
  has a small, statically fixed set of fields, each of
 which has a distinct name. A scalar object is located at a single place and
 stays at that place throughout its lifetime. An <em>aggregate</em> object has
 many fields (the number may be known only when the object is created),
-uniformly accessed through an index (, an integer) and may be distributed
+uniformly accessed through an index (&lt;em&#62;e.g.&lt;/em&#62;, an integer) and may be distributed
 across many places. The distribution of an aggregate object remains unchanged
 throughout the computation, thought different aggregates may be distributed
 differently. Objects are garbage-collected when no longer useable; there are
@@ -55,7 +55,7 @@ it is running. It may atomically update one or more data items, but only in
 the current place.   If it becomes necessary to read or modify an object at
 some other place <b>q</b>, the <em>place-shifting</em> operation <b>at(q)</b> can
 be used, to move part of the activity to <b>q</b>.   It is easy to compute
-across multiple places, but the expensive operations (, those which require
+across multiple places, but the expensive operations (&lt;em&#62;e.g.&lt;/em&#62;, those which require
 communication) are readily visible in the code. 
 
 <div class="p"><!----></div>
@@ -81,10 +81,9 @@ available.
 <b>Asynchronous activities.&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-An asynchronous activity is created by a statement <b>async (P) S</b>
-where <b>P</b> is a place expression and <b>S</b> is a statement.  Such
-a statement is executed by spawning an activity at the place
-<b>P</b>  executing statement <b>S</b>.
+An asynchronous activity is created by a statement <b>async S</b>, which starts
+up a new activity running <b>S</b>.  It does not wait for the new activity to
+finish; there is a separate statement (<b>finish</b>) to do that.
 
 <div class="p"><!----></div>
 

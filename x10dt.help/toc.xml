@@ -110,18 +110,23 @@
 	</topic>
 	<topic label="Interfaces" href="html/langref/interfaces.html">
 		<topic label="Field Definitions" href="html/langref/int-fielddefs.html"/>
+<!--
 		<topic label="Interfaces Specifying Properties" href="html/langref/int-props.html"/>
+-->
 	</topic>
 	<topic label="Classes" href="html/langref/classes.html"> 
 		<topic label="Principle of X10 Objects" href="html/langref/cla-principles.html"/>
 		<topic label="Fields" href="html/langref/cla-fields.html"/> 
 		<topic label="Properties" href="html/langref/cla-properties.html"/>
 		<topic label="Methods" href="html/langref/cla-methods.html"/>
+<!--
 		<topic label="Instance Initialization" href="html/langref/cla-instanceinit.html"/>
 		<topic label="Constructors" href="html/langref/cla-constructors.html"/>
+-->
 		<topic label="Static initialization" href="html/langref/cla-staticinit.html"/>
 		<topic label="User-Defined Operators" href="html/langref/cla-userdefinedops.html"/> 
-		<topic label="Class Guards and Invariants" href="html/langref/cla-guards.html"/>		
+		<topic label="Class Guards and Invariants" href="html/langref/cla-guards.html"/>
+		<topic label="Method Resolution" href="html/langref/cla-methodres.html"/>		
 	</topic>
 	<topic label="Structs" href="html/langref/structs.html"> 
 		<topic label="Struct declaration" href="html/langref/str-decl.html"/> 
@@ -236,9 +241,10 @@
 	<topic label="Objects" href="html/langref/objects.html"> 
 		<topic label="Object initialization" href="html/langref/obj-init.html"/> 
 	</topic>
--->
 	<topic label="Method Resolution" href="html/langref/methodres.html"/>
+-->
 	<topic label="Lost Bits" href="html/langref/lostbits.html"/>
+	<topic label="Grammar" href="html/langref/grammar.html"/>
 	<topic label="References" href="html/langref/refs.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>
 </topic>

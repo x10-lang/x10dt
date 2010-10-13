@@ -25,7 +25,7 @@
 
 
 <div class="p"><!----></div>
-X10 v2.0 supports limited local type inference, permitting
+X10 v2.1 supports limited local type inference, permitting
 certain variable types and return types to be elided.
 It is a static error if an omitted type cannot be inferred or
 uniquely determined.
@@ -75,7 +75,7 @@ class Triangle extends Shape {
 </pre>
 
 the X10 compiler would reject this program for attempting to override
-<b>isTriangle()</b> by a method with the wrong type, ,
+<b>isTriangle()</b> by a method with the wrong type, &lt;em&#62;viz&lt;/em&#62;,
 <b>Boolean{self==true}</b>.  In this case, supply the type that is actually
 intended for <b>isTriangle</b>, such as 
 <b>def isTriangle() :Boolean =false;</b>. 
@@ -115,7 +115,7 @@ val f : () =&#62; Void = () =&#62; {return;};
 
 <div class="p"><!----></div>
 By a convenient abuse of language, <b>Void</b> is sometimes
-lumped in with types; , we may say "return type of a method" rather than
+lumped in with types; &lt;em&#62;e.g.&lt;/em&#62;, we may say "return type of a method" rather than
 the formally correct but rather more awkward "return type of a method, or
 <b>Void</b>".   Despite this informal usage, <b>Void</b> is not a type.  For
 example, given 
@@ -135,7 +135,6 @@ return value can be provided with a dummy return value.
 
 <div class="p"><!----></div>
 <em><em>Limitation</em> This does not seem to work at all currently.</em>
-
 
 <div class="p"><!----></div>
 A call to a polymorphic method %, closure, or constructor 
@@ -200,8 +199,7 @@ had wanted structs too, we could have used a <b>Cell[Any]</b>.
   aren't subtypes of anything else.
 <div class="p"><!----></div>
 <a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>The behavioral annotation <b>property</b> is
-  explained in &#167;<a href="#properties">1.3</a>; <b>safe</b> in &#167; , and
-  <b>global</b> in &#167; .
+  explained in &#167;<a href="#properties">1.3</a>.
 <br /><br />
 
 </body>

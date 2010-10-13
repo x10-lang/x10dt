@@ -96,11 +96,11 @@ subclasses. Classes may have mutable fields, as <b>Slider</b> does.
 <div class="p"><!----></div>
 In contrast, structs are headerless values, lacking the internal organs
 which give objects their intricate behavior.  This makes them less powerful
-than objects (, structs cannot inherit methods, though objects can), but also
-cheaper (, they can be inlined, and they require less space than objects).  
+than objects (&lt;em&#62;e.g.&lt;/em&#62;, structs cannot inherit methods, though objects can), but also
+cheaper (&lt;em&#62;e.g.&lt;/em&#62;, they can be inlined, and they require less space than objects).  
 Structs are immutable, though their fields may be immutably set to objects
 which are themselves mutable.  They behave like objects in all ways consistent
-with these limitations; , while they cannot <em>inherit</em> methods, they can
+with these limitations; &lt;em&#62;e.g.&lt;/em&#62;, while they cannot <em>inherit</em> methods, they can
 have them - as <b>PlanePoint</b> does.
 
 <div class="p"><!----></div>
@@ -130,14 +130,14 @@ complicated way.
 
 <div class="p"><!----></div>
 They are used extensively in X10
-programs.  For example, the normal way to construct a <b>Rail[Int]</b> -
+programs.  For example, the normal way to construct an <b>Array[Int](1)</b> -
 that is, a fixed-length array of numbers, like an <b>int[]</b> in Java - is to
 pass two arguments to a factory method: the first argument being the length of
 the rail, and the second being a function which computes the initial value of
 the <b>i</b><sup>th</sup> element.  The following code constructs a rail
 initialized to the squares of 0,1,...,9: <b>r(0) == 0</b>, <b>r(5)==25</b>, etc. 
 <pre>
-  val r : Rail[Int] = Rail.make[Int](10, square);
+  val r : Array[Int](1) = new Array[Int](10, square);
 </pre>
 
 <div class="p"><!----></div>

@@ -33,7 +33,7 @@ a good type to describe:
 <div class="p"><!----></div>
 </li>
 
-<li> ValRail construction, like <b>[0, "non-zero"]</b> and 
+<li> Array construction, like <b>[0, "non-zero"]</b> and 
       <b>[0,1]</b>;
 <div class="p"><!----></div>
 </li>
@@ -70,15 +70,9 @@ the result of E can never be <b>2</b>.   <b>Int{self != 2, self != 3}</b> is
 an even better description; E can't be <b>3</b> either.  We can continue
 this process forever, adding integers which E will definitely not return
 and getting better and better approximations. (If the constraint
-sublanguage had <b></td><td width="150">
-&#124;</td><td width="150">
-&#124;</b>, we could give it the type 
-<b>Int{self == 0 </td><td width="150">
-&#124;</td><td width="150">
-&#124; self == 1}</b>, which would be nearly perfect.  But 
-<b></td><td width="150">
-&#124;</td><td width="150">
-&#124;</b> makes typechecking far more expensive, so it is excluded.)
+sublanguage had <b>&#124;&#124;</b>, we could give it the type 
+<b>Int{self == 0 &#124;&#124; self == 1}</b>, which would be nearly perfect.  But 
+<b>&#124;&#124;</b> makes typechecking far more expensive, so it is excluded.)
 No X10 type is the best description of E; there is always a better one.
 
 <div class="p"><!----></div>
@@ -116,14 +110,13 @@ X10 provides certain guarantees about the common type <b>V{v}</b> computed for
 <li> If <b>T == U</b>, then <b>V == T == U</b>.  For example, 
       X10 will compute the type of <b>b ? 0 : 1</b> as 
       <b>Int{c}</b> for some constraint <b>c</b>-perhaps simply 
-      picking <b>Int{true}</b>, , <b>Int</b>.
+      picking <b>Int{true}</b>, &lt;em&#62;viz&lt;/em&#62;, <b>Int</b>.
 <div class="p"><!----></div>
 </li>
 
 <li> X10 preserves place information, because it is so important. If both
       <b>t</b> and <b>u</b> entail <b>self.home==p</b>, then  
-      <b>v</b> will also entail <b>self.home==p</b>.  In particular, the common
-      type for <b>T!</b> and <b>U!</b> has the form <b>V!</b>.
+      <b>v</b> will also entail <b>self.home==p</b>.
 <div class="p"><!----></div>
 </li>
 

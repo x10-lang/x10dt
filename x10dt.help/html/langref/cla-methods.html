@@ -29,26 +29,14 @@ priveleged access to that instance's fields.
 
 <div class="p"><!----></div>
 Each method has a <em>signature</em>, telling what arguments it accepts, what
-type it returns, what precondition it requires, and what exceptions it may
-throw. Method definitions may be overridden by subclasses; the overriding
-definition may have a declared return type that is a subclass of the return
-type of the definition being overridden. Multiple methods with the same name
-but different signatures may be provided on a class (ad hoc polymorphism).
-Methods may be declared <b>public</b>, <b>private</b>, <b>protected</b>, or given
-default access rights.
+type it returns, what precondition it requires. Method definitions may be
+overridden by subclasses; the overriding definition may have a declared return
+type that is a subclass of the return type of the definition being overridden.
+Multiple methods with the same name but different signatures may be provided
+on a class (ad hoc polymorphism). Methods may be declared <b>public</b>,
+<b>private</b>, <b>protected</b>, or given default access rights.
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodDeclaration ::= MethodHeader <b>;</b> </td></tr>
-<tr><td align="right">&#124; MethodHeader <b>=</b><sup>?</sup>&nbsp;ClosureBody </td></tr>
-<tr><td align="right">MethodHeader ::=  
-  MethodModifiers<sup>?</sup>&nbsp;<b>def</b> Identifier TypeParameters<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">&amp;&amp; <b>(</b> 
-  FormalParameterList<sup>?</sup>&nbsp;<b>)</b> Guard<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">&amp;&amp; ReturnType<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
 
 <div class="p"><!----></div>
 A formal parameter may have a <b>val</b>, <b>var</b>, or <b>ref</b>
@@ -61,32 +49,12 @@ Call-by-reference, <b>ref</b> parameters, allows passing in variables for a
 method to update, as described in &#167;. 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.1">
-4.1</a>&nbsp;&nbsp;<b>ref</b> Parameters</h3>
-<a name="RefParameters">
-</a>
-
-
-
-<div class="p"><!----></div>
-A <b>ref</b> parameter allows a method to modify a <b>var</b> variable that is
-available to the caller.  
-
-<div class="p"><!----></div>
 <pre>
-  def incr(ref n:Int):Void {
-     n += 1;
-  }
-  def caller() {
-     var a : Int = 0;
-     incr(a);
-     assert(a == 1);
-  }
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.2">
-4.2</a>&nbsp;&nbsp;Method Guards</h3>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Method Guards</h3>
 <a name="MethodGuard">
 </a>
 
@@ -166,8 +134,8 @@ The compiler checks that every method invocation
 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.3">
-4.3</a>&nbsp;&nbsp;Property methods</h3>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Property methods</h3>
 
 <div class="p"><!----></div>
 Property methods are methods that can be evaluated in constraints.  
@@ -223,8 +191,8 @@ is equivalent to
 <b>w.rail()</b>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.4">
-4.4</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
 <a name="MethodOverload">
 </a>
 
@@ -236,7 +204,7 @@ considerations motivated by type parameters and dependent types.
 <div class="p"><!----></div>
 Two or more methods of a class or interface may have the same
 name if they have a different number of type parameters, or
-they have formal parameters of different types.  , the following is legal: 
+they have formal parameters of different types.  &lt;em&#62;E.g.&lt;/em&#62;, the following is legal: 
 
 <div class="p"><!----></div>
 <pre>
@@ -249,7 +217,7 @@ class Mful{
 </pre>
 
 <div class="p"><!----></div>
-X10 v2.0 does not permit overloading based on constraints. That is, the
+X10 v2.1 does not permit overloading based on constraints. That is, the
 following is <em>not</em> legal, although either method definition individually
 is legal:
 <pre>
@@ -265,8 +233,8 @@ as" a method declaration "m<sub>2</sub>" involves identity of types.
 The <em>constraint erasure</em> of a type "T" is defined as follows.
 The constraint erasure of  (a)&#227; class, interface or struct type "T" is 
 "T"; (b)&#227; type "T{c}" is the constraint erasure of 
-"T"; (b)&#227; type "T[S<sub>1</sub>,...,S<sub>n</sub>]" 
-is "T'[S<sub>1</sub>',...,S<sub>n</sub>']" where each primed type is the erasure of 
+"T"; (b)&#227; type "T[S<sub>1</sub>,&#8230;,S<sub>n</sub>]" 
+is "T'[S<sub>1</sub>',&#8230;,S<sub>n</sub>']" where each primed type is the erasure of 
 the corresponding unprimed type.
  Two methods are said to have <em>the
   same signature</em> if (a) they have the same number of type parameters,
@@ -334,96 +302,32 @@ defined on <b>C</b> are available at the type <b>C{c}</b>
 whose guard <b>d</b> is implied by <b>c</b>.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.5">
-4.5</a>&nbsp;&nbsp;Method qualifiers</h3>
-<a name="MethodQualifier">
-</a>
-
-
-<div class="p"><!----></div>
-There are a number of qualifiers which may be applied to X10 methods.
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">MethodModifier ::= <b>atomic</b>  </td></tr>
-<tr><td align="right">MethodModifier ::= <b>pinned</b>  </td></tr>
-<tr><td align="right">MethodModifier ::= <b>nonblocking</b>  </td></tr>
-<tr><td align="right">MethodModifier ::= <b>sequential</b>  </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc4.5.1">
-4.5.1</a>&nbsp;&nbsp;<b>atomic</b> qualifier</h4>
-<a name="AtomicAnnotation">
-</a>
-
-
-<div class="p"><!----></div>
-A method may be declared <b>atomic</b>, indicating that it will be executed
-atomically-as if its body were wrapped in an <b>atomic</b> statement.
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc4.5.2">
-4.5.2</a>&nbsp;&nbsp;<b>pinned</b> qualifier</h4>
-<a name="PinnedAnnotation">
-</a>
-<a name="PinnedMethod">
-</a>
-
-
-<div class="p"><!----></div>
-A method may be declared <b>pinned</b>, indicating that the evaluation of the
-method takes place entirely <b>here</b>, without any communication necessary.
-A <b>pinned</b> method may not
-contain any <b>at</b> statement or expression whose place argument
-is not statically equivalent to <b>here</b>. It must call only
-<b>pinned</b> methods. 
-
-<div class="p"><!----></div>
-<b>pinned</b> methods can be overridden only by methods marked <b>pinned</b>.
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc4.5.3">
-4.5.3</a>&nbsp;&nbsp;<b>nonblocking</b> qualifier</h4>
-<a name="NonblockingAnnotation">
-</a>
-<a name="NonblockingMethod">
-</a>
-
-
-<div class="p"><!----></div>
-A method may be declared <b>nonblocking</b>, indicating that it does not block.  
-A <b>nonblocking</b> method may not
-contain any <b>when</b> statement whose condition
-is not statically equivalent to {true}. It must call only
-<b>nonblocking</b> methods. 
-
-<div class="p"><!----></div>
-<b>nonblocking</b> methods can be overridden only by methods marked <b>nonblocking</b>.
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc4.5.4">
-4.5.4</a>&nbsp;&nbsp;<b>sequential</b> qualifier</h4>
-<a name="SequentialAnnotation">
-</a>
-<a name="SequentialMethod">
-</a>
-
-
-<div class="p"><!----></div>
-A method may be declared <b>sequential</b>, indicating that it does not spawn
-any other activities.
-A <b>sequential</b> method may not contain any <b>async</b>
-statement. It must call only <b>sequential</b> methods. 
-
-<div class="p"><!----></div>
-<b>sequential</b> methods can be overridden only by methods marked <b>sequential</b>.
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
 
 </body>
 </html>
