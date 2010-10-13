@@ -245,36 +245,72 @@ where [options] includes:
         loader, verbose, qq
   -version                 print version info
   -h                       print this message
-  -COMPILER_FRAGMENT_DATA_DIRECTORY=String
-                           Advanced functionality: Directory for compiler
-                           templates (default = "data/")
+  -noassert                turn off assertion generation
+  -CHECK_INVARIANTS=boolean
+                           Check AST invariants such as position
+                           containment, existence of xxxInstance(), etc
+                           (default = false)
+  -ONLY_TYPE_CHECKING=boolean
+                           Do only type-checking, without optimizations or
+                           code generation (default = false)
   -OPTIMIZE=boolean        Generate optimized code (default = false)
   -DEBUG=boolean           Generate debug information (default = false)
   -NO_CHECKS=boolean       Disable generation of all null, bounds, and place
                            checks (default = false)
-  -BAD_PLACE_RUNTIME_CHECK=boolean
-                           Generate runtime place checks (default = false)
   -LOOP_OPTIMIZATIONS=boolean
-                           Generate specialized Java version of for-loop X10
-                           code (default = true)
-  -ARRAY_OPTIMIZATIONS=boolean
-                           Generate allocation of specialized Java array
-                           classes (default = true)
+                           Optimize rectangular region iteration (default =
+                           true)
   -INLINE_OPTIMIZATIONS=boolean
                            Perform inlining optimizations (default = false)
   -CLOSURE_INLINING=boolean
                            Perform closure literal inlining (default = true)
+  -FLATTEN_EXPRESSIONS=boolean
+                           Flatten all expressions (default = false)
+  -INLINE_SMALL_METHODS=boolean
+                           Inline methods that don't make many calls
+                           (default = false)
   -PLUGINS=String          Comma-separated list of compiler plugins to run.
                            (default = "")
   -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
                            (default = "")
-  -XML_PROCESSOR=String    External program to transform ASTs externalized
-                           as XML (default = "")
-  -EXTERNALIZE_ASTS=boolean
-                           Externalize ASTs to XML (default = false)
   -MANIFEST=String         The path to the pre-built library manifest file
                            (default = null)
-</pre>                           
+  -WORK_STEALING=boolean   Code generation for work-stealing scheduling
+                           (default = false)
+  -WALA=boolean            Produce WALA IR from X10 sources (default =
+                           false)
+  -VERBOSE_CALLS=boolean   Print details of casts introduced for
+                           dynamically-checked calls. (default = false)
+  -STATIC_CALLS=boolean    Treat dynamically-checked calls as errors.
+                           (default = false)
+  -FINISH_ASYNCS=boolean   finish-async analysis. (default = false)
+</pre>  
+
+<h4>Running x10 programs in more thatn 1 place</h4>
+<p>
+To run the compiled X10 executable in one place, invoke
+<pre>
+bin/runx10 ./&lt;class_name&gt;
+</pre>
+<ul>
+<li> To run in multiple places on Linux, run "bin/manager", and then invoke 
+<pre>
+  bin/launcher -t &lt;nplaces&gt; ./&lt;class_name&gt;
+</pre>
+</li> To run in multiple places on AIX, run
+<pre>
+  "LAPI_USE_SHMEM=yes poe ./&lt;class_name&gt; -procs &lt;nplaces&gt; -hostfile HOSTFILE".
+</pre>
+  See "man poe" for additional options and the format of HOSTFILE.
+<li> If you have mpi available, you can use mpirun to run in multiple places.
+  Details will vary depending on the exact syntax of the mpirun command,
+  but something like: 
+<pre>  
+  mpirun -hostfile &lt;hosts&gt; -n &lt;nplaces&gt; ./&lt;class_name&gt;
+</pre>
+  should work
+</ul>
+               
 
 <h4>Possible errors</h4>
 
@@ -312,6 +348,12 @@ then you should add this to your PATH in your .bash_profile. You might also want
 	runx10 -MAIN_CLASS=$1 $1.x10
 </pre>
 or use the mpirun systax mentioned above
+
+<h2>Building the X10 distribution</h2>
+<p>For those people who might want to build the x10 distribution, there is
+a good explanation at 
+<a href="http://x10.codehaus.org/Building+from+SVN+head">
+http://x10.codehaus.org/Building+from+SVN+head</a>
 
 <h2>Comments</h2>
 Comments and suggestions are welcome. 

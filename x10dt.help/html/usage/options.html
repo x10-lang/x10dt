@@ -9,7 +9,7 @@
 <body>
 <h1>Compiler options</h1>
 <pre>
-$ bin/x10c -- --help
+$ x10c -- --help
 usage: x10c [options] <source-file>.x10 ...
 where [options] includes:
   @<file>                  read options from <file>
@@ -49,7 +49,7 @@ where [options] includes:
   -noassert                turn off assertion generation
   -CHECK_INVARIANTS=boolean
                            Check AST invariants such as position
-                           containment, existance of xxxInstance(), etc
+                           containment, existence of xxxInstance(), etc
                            (default = false)
   -ONLY_TYPE_CHECKING=boolean
                            Do only type-checking, without optimizations or
@@ -67,6 +67,9 @@ where [options] includes:
                            Perform closure literal inlining (default = true)
   -FLATTEN_EXPRESSIONS=boolean
                            Flatten all expressions (default = false)
+  -INLINE_SMALL_METHODS=boolean
+                           Inline methods that don't make many calls
+                           (default = false)
   -PLUGINS=String          Comma-separated list of compiler plugins to run.
                            (default = "")
   -PLUGIN_COMPILER=String  Javac-like compiler to use to compile plugins
@@ -75,11 +78,13 @@ where [options] includes:
                            (default = null)
   -WORK_STEALING=boolean   Code generation for work-stealing scheduling
                            (default = false)
+  -WALA=boolean            Produce WALA IR from X10 sources (default =
+                           false)
   -VERBOSE_CALLS=boolean   Print details of casts introduced for
                            dynamically-checked calls. (default = false)
   -STATIC_CALLS=boolean    Treat dynamically-checked calls as errors.
                            (default = false)
-
+  -FINISH_ASYNCS=boolean   finish-async analysis. (default = false)
 </pre>
 </body>
 </html>
