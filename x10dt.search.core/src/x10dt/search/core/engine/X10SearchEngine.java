@@ -233,7 +233,7 @@ public final class X10SearchEngine {
   public static ITypeInfo getX10RuntimeTypeInfo(final String typeName,
                                                 final IProgressMonitor monitor) throws ModelException, InterruptedException, 
                                                                                        ExecutionException {
-    return getTypeInfo(FactBase.getInstance(), WorkspaceContext.getInstance(), typeName, monitor);
+    return getTypeInfo(FactBase.getInstance(), WorkspaceContext.getInstance(), typeName, RUNTIME, monitor);
   }
   
   // --- Private code
