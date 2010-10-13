@@ -110,8 +110,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			LocalDef ld = localDecl.localDef();
 			if (ld == null)
 				return null;
-			LocalInstance li = ld.asInstance(); // PORT1.7 was
-												// localDecl.localInstance();
+			LocalInstance li = ld.asInstance();
+
 			target = li;
 		} else if (target instanceof LocalDef) { // field reference
 			target = ((LocalDef) target).asInstance();
@@ -163,27 +163,27 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return "";
 	}
 	
-	private String getSignature(FieldInstance fi)
-	{
-		ReferenceType ownerType = fi.container().toReference(); // PORT1.7 cast must succeed?  was fi.container();
+	private String getSignature(FieldInstance fi) {
+		ReferenceType ownerType = fi.container().toReference();
 		if (ownerType.isClass()) {
 			ClassType ownerClass = (ClassType) ownerType;
-			String ownerName = ownerClass.fullName().toString(); // PORT1.7 was fullname();
+			String ownerName = ownerClass.fullName().toString();
+			String type = fi.type().toString(); // int or pkg.TypeName; want TypeName only
+
+			type= unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
 			
-			String type = fi.type().toString(); // int   or pkg.TypeName; want TypeName only
-			type=unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
-			
-			String varName=fi.name().toString();  // PORT 1.7 was just name();
-			return type+" "+ownerName+"."+varName;
+			String varName= fi.name().toString();
+
+			return type + " " + ownerName + "." + varName;
 		}
 		return null;
 	}
 	
 	private String getHelpForEntity(FieldDecl target, IParseController parseController, Node root) {
     	FieldInstance fi = target.fieldDef().asInstance();
-		
     	String sig = getSignature(fi);
-		if (sig != null) {
+
+    	if (sig != null) {
 			return getX10DocFor(sig,target);
 		}
 		return "Field '" + fi.name() + "' of type " + fi.type().toString();
@@ -200,7 +200,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	private String getHelpForEntity(NamedVariable target, IParseController parseController, Node root) {
     	NamedVariable var = (NamedVariable) target;
 		Type type = var.type();
-		return "Variable '" + var + "' of type " + type.toString(); //PORT1.7 var.name() changed to var (implicit toString())
+		return "Variable '" + var + "' of type " + type.toString();
     }
 	
 	private String getHelpForEntity(LocalInstance li,
@@ -223,58 +223,50 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return doc;
 	}
 	
-	private String getHelpForEntity(ConstructorInstance ci,
-			IParseController parseController, Node root) {
+	private String getHelpForEntity(ConstructorInstance ci, IParseController parseController, Node root) {
 		String name="(name)";
-		String t=ci.toString();
-		StructType rt = ci.container();//PORT1.7  ReferenceType -> StructType
-		if(rt instanceof Named) {
+		StructType rt = ci.container();
+
+		if (rt instanceof Named) {
 			Named named = (Named) rt;
-			//name=named.name().toString();//PORT1.7 name() no longer returns a String
-			name=named.fullName().toString();//PORT1.7 fullName() no longer returns a String
+
+			name=named.fullName().toString();
 		}
-		String args=formatArgs(ci.formalTypes());
-		String sig=name+args;
-		String doc = getX10DocFor(sig, ci);
+		String args= formatArgs(ci.formalTypes());
+		String sig= name+args;
+		String doc= getX10DocFor(sig, ci);
 		return doc;
 	}
 
-	private String getHelpForEntity(ClassType ct,
-			IParseController parseController, Node root) {
-		String qualifiedName = ct.fullName().toString();//PORT1.7 fullName()->fullName().toString()
+	private String getHelpForEntity(ClassType ct, IParseController parseController, Node root) {
+		String qualifiedName = ct.fullName().toString();
 		qualifiedName = stripArraySuffixes(qualifiedName);			
 		return getJavaOrX10DocFor(qualifiedName, ct, parseController);//BRT
 	}
 	
 	private String getHelpForEntity(ClassDecl cd, IParseController parseController, Node root) {
-		String name=cd.name().id().toString();//PORT1.7 want fullname, how to get from ClassDecl?
 		ClassDef cdef= cd.classDef();
 		if (cdef == null)
 		    return null;
-		String fullName = cdef.fullName().toString(); ////PORT1.7 is this right?? ask Nate
+		String fullName = cdef.fullName().toString();
 		String doc = getX10DocFor(fullName,cd);
 		return doc;
 	}
 	
 	private String getHelpForEntity(MethodDecl md, IParseController parseController, Node root) {
-		String tempNameMd=md.toString();// does not include pkg info: public int foo(...);
 		MethodDef mdef= md.methodDef();
 		if (mdef == null)
 		    return null;
-		MethodInstance mi=mdef.asInstance();//PORT1.7 was md.methodInstance();
-		String tempName=mi.toString(); // lots of info: method public int my.pkg.foo(type,type);
+		MethodInstance mi= mdef.asInstance();
 		String name="";
-		MethodInstance test;
-		String sig = md.methodDef().signature();//PORT1.7 see what this returns.  arg names too???
-		//String sig = mi.signature();// doesn't include arg names, just types
 			 
-		StructType rt = mi.container();//PORT1.7  ReferenceType -> StructType
+		StructType rt = mi.container();
 		if(rt instanceof ClassType) {
 			ClassType ct = (ClassType) rt;
-			name =ct.fullName().toString();// includes package info		//PORT1.7 fullName() no longer returns a String
+			name= ct.fullName().toString();// includes package info
 		}
 		name = getSignature(mi,md);	
-		String doc = getX10DocFor(name, md);//PORT1.7 md is a Node; was md.methodInstance()
+		String doc = getX10DocFor(name, md);
 		return doc;
     }
 	
@@ -287,12 +279,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			ConstructorDecl cd = (ConstructorDecl) parent;
 			//String id = cd.id().toString();//shortname
 			//String name = typeNode.name();//shortname
-			String fullName = tn.toString();// FIXME better way of getting fully qualified name, incl. pkg info??
+			String fullName = tn.toString();// FIXME better way of getting fully qualified name??
 			
 			// get Constructor args, if any
-			String sig=fullName+formatArgs(cd.formals()); 
-			ConstructorInstance ci = cd.constructorDef().asInstance(); //PORT1.7 was cd.constructorInstance();
-			return getX10DocFor(sig, ci);  //PORT1.7 use local variable
+			String sig= fullName + formatArgs(cd.formals()); 
+			ConstructorInstance ci= cd.constructorDef().asInstance();
+
+			return getX10DocFor(sig, ci);
 		} else if (parent instanceof New) {
 			New n = (New) parent;		
 			return getX10DocFor(n.constructorInstance());
@@ -300,7 +293,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			Type type = tn.type();
 			if (type == null)
 			    return null;
-			String qualifiedName = tn.qualifierRef().get().toString();//PORT1.7 was qualifier()->qualifierRef().get()
+			String qualifiedName = tn.qualifierRef().get().toString();
 			qualifiedName = stripArraySuffixes(qualifiedName);
 			return getJavaOrX10DocFor(qualifiedName, type, parseController); 
 		}
@@ -345,16 +338,19 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * @return
 	 */
 	private String getSignature(MethodDecl md) {
-		MethodInstance mi=md.methodDef().asInstance();//PORT1.7 md.methodInstance()->md.methodDef().asInstance()
+		MethodInstance mi=md.methodDef().asInstance();
 		String sig = getSignature(mi,md);
+
 		return sig;
 	}
 
 
 	private String getSignature(MethodInstance mi) {
 		String sig = getSignature(mi,null);
+
 		return sig;
 	}
+
 	/**
 	 * Get the method signature, including argument types and argument names
 	 * @param mi the method instance
@@ -362,7 +358,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * @return
 	 */
 	private String getSignature(MethodInstance mi, MethodDecl md) {	
-		StructType type1 = mi.container(); //PORT1.7 ReferenceType changed to StructType
+		StructType type1 = mi.container();
 
 		// We assume this is an ObjectType since we are dealing with Methods
 		assert(type1 instanceof ObjectType);
@@ -371,7 +367,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		String containerName="(unspecified)";
 		if(type instanceof Named) {
 			Named ct = (Named) type;
-			containerName =ct.fullName().toString();	//PORT1.7 ct.fullName()->ct.fullName().toString()
+			containerName =ct.fullName().toString();
 		}
 
 		// find return value type
@@ -382,14 +378,14 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		String sig=rType+" "+containerName+"."+mi.name();
 		
 		// get the args. use MethodDecl if we have it (more complete info)
-		List argList=null;
+		List argList= null;
 		if(md==null) {
-			argList=mi.formalTypes();
+			argList= mi.formalTypes();
 		}else {
-			argList=md.formals(); // this includes arg names, mi.formalTypes() does not
+			argList= md.formals(); // this includes arg names, mi.formalTypes() does not
 		}
-		String argString=formatArgs(argList);
-		sig = sig+argString;
+		String argString= formatArgs(argList);
+		sig = sig + argString;
 		return sig;
 	}
 
@@ -413,19 +409,21 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * <p>That is, if the javadoc is empty, don't return anything
 	 */
 	@SuppressWarnings("restriction")
-	private String getX10DocFor(String qualifiedName, TypeObject decl) {//PORT1.7 Declaration -> TypeObject?  try this.
+	private String getX10DocFor(String qualifiedName, TypeObject decl) {
 		String doc = getX10DocFor(decl);
-		if(doc!=null) doc = addNameToDoc(qualifiedName, doc);
+		if (doc != null) doc = addNameToDoc(qualifiedName, doc);
 		// if we return Null, HoverHelper will display something unless it's the decl. Uncomment this if you don't want it to.
 		//  that is, if you're hovering right over the declaration for the thing, you probably don't need a hover with only type info.
 		//if(doc==null) doc="";
 		return doc;
 	}
-	private String getX10DocFor(TypeObject decl) {//PORT1.7 Declaration -> TypeObject?  try this.
+
+	private String getX10DocFor(TypeObject decl) {
 		if (decl == null) return "";
 		String doc = getNewRawX10DocFor(decl.position());
 		return doc;
 	}
+
 	/**
 	 * Get the javadoc-like comment string for an X10 entity represented by a Node
 	 * (Note that this includes ClassDecl, formerly handled separately)
@@ -439,11 +437,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		String doc = getNewRawX10DocFor(pos);
 		return doc;
 	}
+
 	private String getX10DocFor(String name, Node node) {
 		String doc = getX10DocFor(node);
 		doc = addNameToDoc(name, doc);
 		return doc;
 	}
+
 	/**
 	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position.
 	 * Does not add name, this is *just* the javadoc comments, without the stars or comment chars
@@ -479,6 +479,10 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * 
 	 */
 	private String getNewRawX10DocFor(Position pos) {
+		if (pos.isCompilerGenerated()) {
+			return "";
+		}
+
 		String path = pos.file();
 		Reader reader = getReader(path);
 		
