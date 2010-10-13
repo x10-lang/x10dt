@@ -50,7 +50,7 @@ public final class X10SearchEngine {
   // --- Public services
   
   /**
-   * Creates a type hierarchy for the given accessible from the project transmitted.
+   * Creates a type hierarchy for the given type name accessible from the project transmitted.
    * 
    * <p>Note that there is no refresh action at this point. If one wants an updated version of it, a new one needs to be
    * created.
@@ -66,6 +66,24 @@ public final class X10SearchEngine {
                                                    final IProgressMonitor monitor) throws ModelException, 
                                                                                           InterruptedException {
     return new TypeHierarchy(project, typeName, monitor);
+  }
+  
+  /**
+   * Creates a type hierarchy for the given type name accessible from the X10 runtime.
+   * 
+   * <p>Note that there is no refresh action at this point. If one wants an updated version of it, a new one needs to be
+   * created.
+   * 
+   * @param typeName The type name to use for the type hierarchy.
+   * @param monitor The monitor to use to report progress or cancel the operation.
+   * @return A non-null instance of {@link ITypeHierarchy}.
+   * @throws ModelException Occurs if the project does not exist.
+   * @throws InterruptedException Occurs if the operation gets canceled.
+   */
+  public static ITypeHierarchy createTypeHierarchy(final String typeName, 
+                                                   final IProgressMonitor monitor) throws ModelException, 
+                                                                                          InterruptedException {
+    return new TypeHierarchy(typeName, monitor);
   }
   
   /**

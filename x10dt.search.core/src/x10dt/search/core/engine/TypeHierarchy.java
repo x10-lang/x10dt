@@ -55,22 +55,29 @@ import x10dt.search.core.pdb.X10FlagsEncoder.X10;
 
 final class TypeHierarchy implements ITypeHierarchy {
   
+  TypeHierarchy(final String typeName, final IProgressMonitor monitor) throws InterruptedException {
+    this(WorkspaceContext.getInstance(), typeName, monitor);
+  }
+  
   TypeHierarchy(final IProject project, final String typeName, 
                 final IProgressMonitor monitor) throws ModelException, InterruptedException {
-    final IFactContext context = new ProjectContext(ModelFactory.open(project));
-    final FactBase factBase = FactBase.getInstance();
-    
+    this(new ProjectContext(ModelFactory.open(project)), typeName, monitor);
+  }
+  
+  TypeHierarchy(final IFactContext context, final String typeName, 
+                final IProgressMonitor monitor) throws InterruptedException {
     if (monitor.isCanceled()) {
       throw new InterruptedException();
     }
     
-    this.fProject = project;
+    this.fProject = (context instanceof ProjectContext) ? ((ProjectContext) context).getProject().getRawProject() : null;
     this.fClassToSuperClass = new HashMap<String, ITuple>();
     this.fTypeToSuperInterfaces = new HashMap<String, Set<ITuple>>();
     this.fTypeToSubInterfaces = new HashMap<String, Set<ITuple>>();
     this.fTypeToSubClasses = new HashMap<String, Set<ITuple>>();
     this.fAllTypes = new HashSet<ITuple>();
 
+    final FactBase factBase = FactBase.getInstance();
     final Job buildJob = new Job(Messages.TH_BuildTHJobName) {
       
       // --- Abstract methods implementation
