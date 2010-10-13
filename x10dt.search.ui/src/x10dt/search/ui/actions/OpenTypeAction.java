@@ -59,29 +59,6 @@ public class OpenTypeAction extends Action implements IWorkbenchWindowActionDele
 		runWithEvent(null);
 	}
 	
-	private void openEditor(ITypeInfo ti) throws CoreException
-	{
-		IResource res = SearchUtils.getResource(ti);
-		if(res != null)
-		{
-			EditorUtility.openInEditor(res, true);
-		}
-		
-		else
-		{
-			URI uri = ti.getLocation().getURI();
-			String scheme = uri.getSchemeSpecificPart();
-			if(uri.getScheme().equals("jar"))
-			{
-//				scheme = scheme.substring(0, scheme.lastIndexOf(":"));
-				scheme = scheme.replace("file:/", "");
-			}
-			
-			IPath path = new Path(scheme);
-			EditorUtility.openInEditor(path);
-		}
-	}
-
 	public void runWithEvent(Event e) {
 		Shell parent= UISearchPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getShell();
 		if (! doCreateProjectFirstOnEmptyWorkspace(parent)) {
@@ -102,7 +79,7 @@ public class OpenTypeAction extends Action implements IWorkbenchWindowActionDele
 
 		if (types.length == 1) {
 			try {
-				openEditor((ITypeInfo)types[0]);
+				SearchUtils.openEditor((ITypeInfo)types[0]);
 			} catch (CoreException x) {
 				//ExceptionHandler.handle(x, Messages.OpenTypeAction_errorTitle, Messages.OpenTypeAction_errorMessage);
 				UISearchPlugin.log(x);
@@ -122,7 +99,7 @@ public class OpenTypeAction extends Action implements IWorkbenchWindowActionDele
 		for (int i= 0; i < types.length; i++) {
 			ITypeInfo type= (ITypeInfo)types[i];
 			try {
-				openEditor(type);
+				SearchUtils.openEditor(type);
 			} catch (CoreException x) {
 				multiStatus.merge(x.getStatus());
 			}

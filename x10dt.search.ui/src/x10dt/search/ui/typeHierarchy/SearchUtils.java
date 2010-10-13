@@ -14,18 +14,22 @@ package x10dt.search.ui.typeHierarchy;
 import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.ui.dialogs.SearchPattern;
 
 import x10dt.search.core.engine.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
+import x10dt.search.ui.UISearchPlugin;
 
 
 
@@ -223,5 +227,39 @@ public class SearchUtils {
 	
 	public static boolean hasFlag(X10 flag, int modifiers) {
 		return (modifiers & flag.getCode()) != 0;
+	}
+	
+	public static void openEditor(ITypeInfo ti) throws CoreException
+	{
+		IResource res = SearchUtils.getResource(ti);
+		if(res != null)
+		{
+			EditorUtility.openInEditor(res, true);
+		}
+		
+		else
+		{
+			URI uri = ti.getLocation().getURI();
+			String scheme = uri.getSchemeSpecificPart();
+			if(uri.getScheme().equals("jar"))
+			{
+//				scheme = scheme.substring(0, scheme.lastIndexOf(":"));
+				scheme = scheme.replace("file:", "");
+			}
+			
+			IPath path = new Path(scheme);
+			EditorUtility.openInEditor(path);
+		}
+	}
+	
+	public static ITypeInfo getType(IProject project, String type)
+	{
+		try {
+			return X10SearchEngine.getTypeInfo(project, type, new NullProgressMonitor());
+		} catch (Exception e) {
+			UISearchPlugin.log(e);
+		}
+		
+		return null;
 	}
 }
