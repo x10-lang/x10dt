@@ -77,7 +77,6 @@ public class ParseController extends SimpleLPGParseController {
     }
 
     public CompilerDelegate getCompiler() {
-        initializeGlobalsIfNeeded();
         return fCompiler;
     }
 
@@ -192,7 +191,6 @@ public class ParseController extends SimpleLPGParseController {
             fCompiler = null;
             fParser = null;
             fLexer = null;
-            Globals.initialize(null);
         }
         return fCurrentAst;
     }
@@ -214,20 +212,6 @@ public class ParseController extends SimpleLPGParseController {
 
     public IPrsStream getParseStream() {
     	return fPrsStream;
-    }
-
-    /**
-     * Polyglot has a thread-local variable that must be initialized in each thread
-     * that uses the front end. The Eclipse platform creates many threads that may
-     * access the compiler front end (on behalf of various services like hover help
-     * or the documentation provider), and we don't have control over where/when this
-     * happens. As a result, this method is used to initialize the thread-local variable
-     * from within those accessor methods that give the client access to the front-end.
-     */
-    private void initializeGlobalsIfNeeded() {
-        if (Globals.Compiler() == null) {
-            Globals.initialize(fCompiler.getCompiler());
-        }
     }
 
     @Override

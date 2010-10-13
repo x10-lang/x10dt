@@ -95,8 +95,7 @@ public class CompilerDelegate {
 				}
 			}
 		};
-        final Compiler compiler = new Compiler(fExtInfo, eq);
-    	Globals.initialize(compiler);
+        new Compiler(fExtInfo, eq); // This also stores the compiler in fExtInfo
     }
     
 	protected Map<String, Object> getAttributes(ErrorInfo errorInfo) {
@@ -126,7 +125,6 @@ public class CompilerDelegate {
     	return (error.getErrorKind() == X10ErrorInfo.INVARIANT_VIOLATION_KIND);
     }
 
-    public Compiler getCompiler() { return Globals.Compiler(); }
     public ExtensionInfo getExtInfo() { return fExtInfo; }
 
     public X10Lexer getLexerFor(Source src) { return fExtInfo.getLexerFor(src); }
@@ -140,7 +138,7 @@ public class CompilerDelegate {
         }
 
         fExtInfo.setInterestingSources(sources);
-    	return Globals.Compiler().compile(sources);
+    	return fExtInfo.compiler().compile(sources);
     }
 
     /**

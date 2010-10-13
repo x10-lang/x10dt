@@ -111,7 +111,6 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
             typeManager.createIndexingFile(factBase, factContext);
           }
         } finally {
-          Globals.initialize(null);
           typeManager.clearWriter();
         }
       }
@@ -156,7 +155,6 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
             typeManager.createIndexingFile(factBase, factContext);
           }
         } finally {
-          Globals.initialize(null);
           typeManager.clearWriter();
         }
       }

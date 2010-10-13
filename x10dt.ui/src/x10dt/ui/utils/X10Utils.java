@@ -117,7 +117,6 @@ public final class X10Utils {
     }
     
     final Compiler compiler = new Compiler(extInfo, new ShallowErrorQueue());
-    Globals.initialize(compiler);
     try {
       monitor.subTask(Messages.XU_ParsingX10Files);
       // Unfortunately we can't pass the monitor to the compiler :-/
@@ -135,7 +134,6 @@ public final class X10Utils {
         }
       }
     } finally {
-      Globals.initialize(null);
       monitor.worked(3);
     }
   }
