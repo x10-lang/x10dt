@@ -35,6 +35,8 @@ public class Messages extends NLS {
 
   public static String TH_CollectingData;
 
+  public static String TH_MainTypeInfoError;
+
   public static String TH_SearchCanceled;
 
   public static String THFWV_UnknownSuperType;
