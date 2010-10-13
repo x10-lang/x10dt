@@ -12,7 +12,9 @@ package x10dt.search.ui.typeHierarchy;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -359,9 +361,18 @@ public abstract class TypeHierarchyContentProvider implements ITreeContentProvid
 	protected final boolean isObject(ITypeInfo type) {
 		return "x10.lang.Object".equals(type.getName());  //$NON-NLS-1$//$NON-NLS-2$
 	}
-
+	
+	Map<String, ITypeInfo> typeMap = new HashMap<String, ITypeInfo>();
 	protected ITypeInfo getType(String type)
 	{
-		return SearchUtils.getType(getHierarchy().getProject(), type);
+		ITypeInfo typeInfo = typeMap.get(type);
+		
+		if(typeInfo == null)
+		{
+			typeInfo = SearchUtils.getType(getHierarchy().getProject(), type);
+			typeMap.put(type, typeInfo);
+		}
+		
+		return typeInfo;
 	}
 }

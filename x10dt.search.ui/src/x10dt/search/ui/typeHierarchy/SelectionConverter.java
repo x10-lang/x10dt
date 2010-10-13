@@ -235,7 +235,7 @@ public class SelectionConverter {
 				
 				if(typeName != null)
 				{
-					info = X10SearchEngine.getTypeInfo(project, typeName, new NullProgressMonitor());
+					info = SearchUtils.getType(project, typeName);
 				}
 			}
 		} catch (Exception e) {
