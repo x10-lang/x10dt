@@ -46,7 +46,6 @@ final class IndexingCompiler {
     options.post_compiler = null;
     
     final Compiler compiler = new Compiler(extInfo, new ShallowErrorQueue());
-    Globals.initialize(compiler);
     compiler.compile(sources);
     return extInfo.scheduler().commandLineJobs();
   }
