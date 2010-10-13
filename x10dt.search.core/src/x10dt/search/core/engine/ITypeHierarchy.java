@@ -31,14 +31,14 @@ public interface ITypeHierarchy {
    * 
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getAllClasses();
+  public ITypeInfo[] getAllClasses();
   
   /**
    * Returns all the interfaces present in the type hierarchy built.
    * 
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getAllInterfaces();
+  public ITypeInfo[] getAllInterfaces();
   
   /**
    * Returns all the sub classes present in the type hierarchy built for the given type name.
@@ -46,7 +46,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getAllSubClasses(final String typeName);
+  public ITypeInfo[] getAllSubClasses(final String typeName);
   
   /**
    * Returns all the sub types present in the type hierarchy built for the given type name.
@@ -54,7 +54,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getAllSubTypes(final String typeName);
+  public ITypeInfo[] getAllSubTypes(final String typeName);
   
   /**
    * Returns all the super classes present in the type hierarchy built for the given type name.
@@ -62,7 +62,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getAllSuperClasses(final String typeName);
+  public ITypeInfo[] getAllSuperClasses(final String typeName);
   
   /**
    * Returns all the super interfaces present in the type hierarchy built for the given type name.
@@ -70,7 +70,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getAllSuperInterfaces(final String typeName);
+  public ITypeInfo[] getAllSuperInterfaces(final String typeName);
   
   /**
    * Returns all the super types present in the type hierarchy built for the given type name.
@@ -78,7 +78,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getAllSuperTypes(final String typeName);
+  public ITypeInfo[] getAllSuperTypes(final String typeName);
   
   /**
    * Returns the direct interfaces in the type hierarchy built for the given type name.
@@ -86,7 +86,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getInterfaces(final String typeName);
+  public ITypeInfo[] getInterfaces(final String typeName);
   
   /**
    * Returns the project in which the main type given to build hierarchy is located.
@@ -101,7 +101,7 @@ public interface ITypeHierarchy {
    *  @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getSubTypes(final String typeName);
+  public ITypeInfo[] getSubTypes(final String typeName);
   
   /**
    * Returns the super class in the type hierarchy built for the given type name.
@@ -109,7 +109,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null value if such type name has a super class, otherwise <b>null</b>.
    */
-  public String getSuperClass(final String typeName);
+  public ITypeInfo getSuperClass(final String typeName);
   
   /**
    * Returns the direct super-types in the type hierarchy built for the given type name.
@@ -117,7 +117,7 @@ public interface ITypeHierarchy {
    * @param typeName The type name of interest.
    * @return A non-null, but possibly empty, array of type names.
    */
-  public String[] getSuperTypes(final String typeName);
+  public ITypeInfo[] getSuperTypes(final String typeName);
   
   /**
    * Returns the type for which the type hierarchy was built.

@@ -59,7 +59,6 @@ import org.eclipse.osgi.util.NLS;
 
 import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;

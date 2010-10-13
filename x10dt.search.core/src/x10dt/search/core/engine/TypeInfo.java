@@ -7,10 +7,17 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 
 
 final class TypeInfo implements ITypeInfo {
+  
+  TypeInfo(final ITuple tuple) {
+    this(((IString) tuple.get(0)).getValue(), (ISourceLocation) tuple.get(1), ((IInteger) tuple.get(2)).intValue());
+  }
   
   TypeInfo(final String typeName, final ISourceLocation location, final int x10FlagsCode) {
     this.fLocation = location;

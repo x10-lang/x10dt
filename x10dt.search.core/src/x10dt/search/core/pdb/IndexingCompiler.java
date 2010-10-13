@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 
 import polyglot.frontend.Compiler;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;

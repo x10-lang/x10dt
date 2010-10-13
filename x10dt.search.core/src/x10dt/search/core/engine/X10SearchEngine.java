@@ -243,11 +243,6 @@ public final class X10SearchEngine {
                           ((IInteger) tuple.get(4)).intValue());
   }
   
-  private static ITypeInfo createTypeInfo(final ITuple tuple) {
-    return new TypeInfo(((IString) tuple.get(0)).getValue(), (ISourceLocation) tuple.get(1), 
-                        ((IInteger) tuple.get(2)).intValue());
-  }
-  
   private static boolean collectFieldInfo(final Collection<IFieldInfo> fieldInfos, final FactBase factBase, 
                                           final IFactContext context, final String typeName, final IFilter<String> filter, 
                                           final String scopeTypeName, final boolean pursueSearch,
@@ -308,7 +303,7 @@ public final class X10SearchEngine {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
         if (filter.accepts(((IString) tuple.get(0)).getValue())) {
-          typeInfos.add(createTypeInfo(tuple));
+          typeInfos.add(new TypeInfo(tuple));
         }
       }
     }
@@ -403,7 +398,7 @@ public final class X10SearchEngine {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
         if (((IString) tuple.get(0)).getValue().equals(typeName)) {
-          return createTypeInfo(tuple);
+          return new TypeInfo(tuple);
         }
       }
     }

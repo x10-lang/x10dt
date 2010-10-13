@@ -18,4 +18,5 @@ Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Export-Package: x10dt.search.core,
  x10dt.search.core.engine,
- x10dt.search.core.pdb
+ x10dt.search.core.pdb,
+ x10dt.search.core.utils
