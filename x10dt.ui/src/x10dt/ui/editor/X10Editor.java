@@ -1,5 +1,6 @@
 package x10dt.ui.editor;
 
+import org.eclipse.imp.editor.StructuredSourceViewerConfiguration;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.ui.DefaultPartListener;
 import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
@@ -19,13 +20,18 @@ import x10dt.ui.X10DTUIPlugin;
 public class X10Editor extends UniversalEditor {
 	private DefaultPartListener fRefreshContributions;
 
-	public static final String TYPE_ACTION_SET = X10DTUIPlugin.PLUGIN_ID
-			+ ".typeActionSet";
+	public static final String TYPE_ACTION_SET = X10DTUIPlugin.PLUGIN_ID + ".typeActionSet";
 
 	public X10Editor() {
 		super();
-		setSourceViewerConfiguration(new X10StructuredSourceViewerConfiguration(
-				X10DTUIPlugin.getInstance().getPreferenceStore(), this));
+	}
+
+	@Override
+	protected StructuredSourceViewerConfiguration createSourceViewerConfiguration() {
+		// RMF 13 Oct 2010 - For some reason, using the X10DTUIPlugin's preference store
+		// causes the eventStateMask to be 0, which effectively turns hyperlinking on
+		// even when the Cmd/Ctrl key is UP, the opposite of the normal behavior.
+		return new X10StructuredSourceViewerConfiguration(getPreferenceStore(), this);
 	}
 
 	public void createPartControl(Composite parent) {
@@ -70,8 +76,7 @@ public class X10Editor extends UniversalEditor {
 	protected void createActions() {
 		super.createActions();
 
-		IAction action = new TextOperationAction(Messages
-				.getBundleForConstructedKeys(),
+		IAction action = new TextOperationAction(Messages.getBundleForConstructedKeys(),
 				"OpenHierarchy.", this, JavaSourceViewer.SHOW_HIERARCHY, true); //$NON-NLS-1$
 		action.setActionDefinitionId(X10Constants.OPEN_HIERARCHY);
 		setAction(X10Constants.OPEN_HIERARCHY, action);
