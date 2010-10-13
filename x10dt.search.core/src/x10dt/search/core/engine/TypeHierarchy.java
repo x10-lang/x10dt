@@ -64,6 +64,7 @@ final class TypeHierarchy implements ITypeHierarchy {
       throw new InterruptedException();
     }
     
+    this.fProject = project;
     this.fTypeName = typeName;
     this.fClassToSuperClass = new HashMap<String, String>();
     this.fTypeToSuperInterfaces = new HashMap<String, Set<String>>();
@@ -201,6 +202,10 @@ final class TypeHierarchy implements ITypeHierarchy {
   public String[] getInterfaces(final String typeName) {
     final Set<String> interfaces = this.fTypeToSuperInterfaces.get(typeName);
     return (interfaces == null) ? new String[0] : interfaces.toArray(new String[interfaces.size()]);
+  }
+  
+  public IProject getProject() {
+    return this.fProject;
   }
   
   public String getSuperClass(final String typeName) {
@@ -344,5 +349,7 @@ final class TypeHierarchy implements ITypeHierarchy {
   private final Map<String, Set<String>> fTypeToSubInterfaces;
   
   private final Set<ITuple> fAllTypes;
+  
+  private final IProject fProject;
   
 }

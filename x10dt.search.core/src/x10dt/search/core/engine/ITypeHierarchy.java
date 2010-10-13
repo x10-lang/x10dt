@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import org.eclipse.core.resources.IProject;
+
 /**
  * Provides a type hierarchy for a given type.
  * 
@@ -85,6 +87,13 @@ public interface ITypeHierarchy {
    * @return A non-null, but possibly empty, array of type names.
    */
   public String[] getInterfaces(final String typeName);
+  
+  /**
+   * Returns the project in which the main type given to build hierarchy is located.
+   * 
+   * @return A non-null project instance.
+   */
+  public IProject getProject();
   
   /**
    * Returns the super class in the type hierarchy built for the given type name.
