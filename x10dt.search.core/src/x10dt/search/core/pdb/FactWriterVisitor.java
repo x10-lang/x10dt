@@ -94,7 +94,7 @@ public class FactWriterVisitor extends NodeVisitor {
     }
     scheme.append("file"); //$NON-NLS-1$
     try {
-      String path = position.path().length() == 0 ? position.file() : position.path();
+      String path = position.file();
       final String osName = System.getProperty("os.name"); //$NON-NLS-1$
       if (osName.startsWith("Windows")) { //$NON-NLS-1$
         path = '/' + path;
