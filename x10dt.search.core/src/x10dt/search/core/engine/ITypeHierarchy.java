@@ -96,12 +96,28 @@ public interface ITypeHierarchy {
   public IProject getProject();
   
   /**
+   * Returns the direct sub-types in the type hierarchy built for the given type name.
+   * 
+   *  @param typeName The type name of interest.
+   * @return A non-null, but possibly empty, array of type names.
+   */
+  public String[] getSubTypes(final String typeName);
+  
+  /**
    * Returns the super class in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
    * @return A non-null value if such type name has a super class, otherwise <b>null</b>.
    */
   public String getSuperClass(final String typeName);
+  
+  /**
+   * Returns the direct super-types in the type hierarchy built for the given type name.
+   * 
+   * @param typeName The type name of interest.
+   * @return A non-null, but possibly empty, array of type names.
+   */
+  public String[] getSuperTypes(final String typeName);
   
   /**
    * Returns the type for which the type hierarchy was built.

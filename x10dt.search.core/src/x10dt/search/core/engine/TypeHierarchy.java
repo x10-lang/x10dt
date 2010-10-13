@@ -208,8 +208,34 @@ final class TypeHierarchy implements ITypeHierarchy {
     return this.fProject;
   }
   
+  public String[] getSubTypes(final String typeName) {
+    final Set<String> subTypes = new HashSet<String>();
+    final Set<String> subClasses = this.fTypeToSubClasses.get(typeName);
+    if (subClasses != null) {
+      subTypes.addAll(subClasses);
+    }
+    final Set<String> subInterfaces = this.fTypeToSubInterfaces.get(typeName);
+    if (subInterfaces != null) {
+      subTypes.addAll(subInterfaces);
+    }
+    return subTypes.toArray(new String[subTypes.size()]);
+  }
+  
   public String getSuperClass(final String typeName) {
     return this.fClassToSuperClass.get(typeName);
+  }
+  
+  public String[] getSuperTypes(final String typeName) {
+    final Set<String> superTypes = new HashSet<String>();
+    final String superClass = this.fClassToSuperClass.get(typeName);
+    if (superClass != null) {
+      superTypes.add(superClass);
+    }
+    final Set<String> superInterfaces = this.fTypeToSuperInterfaces.get(typeName);
+    if (superInterfaces != null) {
+      superTypes.addAll(superInterfaces);
+    }
+    return superTypes.toArray(new String[superTypes.size()]);
   }
   
   public String getType() {
