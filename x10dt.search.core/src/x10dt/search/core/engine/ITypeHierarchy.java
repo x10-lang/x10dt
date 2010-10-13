@@ -36,7 +36,7 @@ public interface ITypeHierarchy {
   /**
    * Returns all the interfaces present in the type hierarchy built.
    * 
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getAllInterfaces();
   
@@ -44,7 +44,7 @@ public interface ITypeHierarchy {
    * Returns all the sub classes present in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getAllSubClasses(final String typeName);
   
@@ -52,7 +52,7 @@ public interface ITypeHierarchy {
    * Returns all the sub types present in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getAllSubTypes(final String typeName);
   
@@ -60,7 +60,7 @@ public interface ITypeHierarchy {
    * Returns all the super classes present in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getAllSuperClasses(final String typeName);
   
@@ -68,7 +68,7 @@ public interface ITypeHierarchy {
    * Returns all the super interfaces present in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getAllSuperInterfaces(final String typeName);
   
@@ -76,7 +76,7 @@ public interface ITypeHierarchy {
    * Returns all the super types present in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getAllSuperTypes(final String typeName);
   
@@ -84,7 +84,7 @@ public interface ITypeHierarchy {
    * Returns the direct interfaces in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getInterfaces(final String typeName);
   
@@ -99,7 +99,7 @@ public interface ITypeHierarchy {
    * Returns the direct sub-types in the type hierarchy built for the given type name.
    * 
    *  @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getSubTypes(final String typeName);
   
@@ -115,15 +115,15 @@ public interface ITypeHierarchy {
    * Returns the direct super-types in the type hierarchy built for the given type name.
    * 
    * @param typeName The type name of interest.
-   * @return A non-null, but possibly empty, array of type names.
+   * @return A non-null, but possibly empty, array of type info.
    */
   public ITypeInfo[] getSuperTypes(final String typeName);
   
   /**
-   * Returns the type for which the type hierarchy was built.
+   * Returns the type information for which the type hierarchy was built.
    * 
-   * @return A non-null non-empty string.
+   * @return A non-null type information.
    */
-  public String getType();
+  public ITypeInfo getType();
 
 }

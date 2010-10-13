@@ -45,6 +45,7 @@ import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.indexing.IndexManager;
+import org.eclipse.osgi.util.NLS;
 
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
@@ -64,7 +65,6 @@ final class TypeHierarchy implements ITypeHierarchy {
     }
     
     this.fProject = project;
-    this.fTypeName = typeName;
     this.fClassToSuperClass = new HashMap<String, ITuple>();
     this.fTypeToSuperInterfaces = new HashMap<String, Set<ITuple>>();
     this.fTypeToSubInterfaces = new HashMap<String, Set<ITuple>>();
@@ -104,6 +104,8 @@ final class TypeHierarchy implements ITypeHierarchy {
           return Status.OK_STATUS;
         } catch (InterruptedException except) {
           return new Status(IStatus.CANCEL, SearchCoreActivator.PLUGIN_ID, Messages.TH_SearchCanceled);
+        } catch (TypeHierarchyException except) {
+          return new Status(IStatus.ERROR, SearchCoreActivator.PLUGIN_ID, except.getMessage());
         }
       }
       
@@ -252,8 +254,8 @@ final class TypeHierarchy implements ITypeHierarchy {
     return superTypes.toArray(new ITypeInfo[superTypes.size()]);
   }
   
-  public String getType() {
-    return this.fTypeName;
+  public ITypeInfo getType() {
+    return this.fMainType;
   }
     
   // --- Private code
@@ -270,7 +272,13 @@ final class TypeHierarchy implements ITypeHierarchy {
   }
   
   private void buildHierarchy(final ISet allTypes, final ISet globalTypeHierarchy, final IValue typeNameValue,
-                              final IProgressMonitor monitor) throws InterruptedException {
+                              final IProgressMonitor monitor) throws InterruptedException, TypeHierarchyException {
+    final ITuple mainTypeTuple = getTypeInfo(allTypes, ((IString) typeNameValue).getValue());
+    if (mainTypeTuple == null) {
+      throw new TypeHierarchyException(NLS.bind(Messages.TH_MainTypeInfoError, typeNameValue));
+    }
+    this.fMainType = new TypeInfo(mainTypeTuple);
+    
     final Queue<IValue> subTypesWork = new LinkedList<IValue>();
     final Queue<IValue> superTypesWork = new LinkedList<IValue>();
     
@@ -388,7 +396,7 @@ final class TypeHierarchy implements ITypeHierarchy {
   
   // --- Fields
   
-  private final String fTypeName;
+  private ITypeInfo fMainType;
   
   private final Map<String, ITuple> fClassToSuperClass;
   
