@@ -1240,41 +1240,13 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         	if (dp == null) {
         		installDocPartitioner(d);
         	}
-        	// Apparently, if "use spaces for tabs" is set, the editor will have already substituted
-        	// spaces for tabs by the time we get here, so we won't see a 1-char insertion of "\t".
-        	// This makes it much harder to figure out whether the user typed "\t" or pasted in
-        	// N spaces. So either we have to handle spaces for tabs entirely on our own, or try to
-        	// figure out whether the user *might* have typed a "\t" when we see an insertion with
-        	// some number of spaces. Grrr...
-        	// TODO Figure out whether it's easier to just handle spaces-for-tabs by ourselves.
 	        if (c.length == 0 && c.text != null && isLineDelimiter(d, c.text)) {
 	            smartIndentAfterNewLine(d, c);
 	        } else if (c.text.length() == 1 && c.text.charAt(0) == '\t' && inLeadingWhitespace(c.offset, d)) {
 	            smartIndentOnKeypress(d, c);
 	        } else {
-	        	try {
-	        		// Try to figure out whether the command represents a set of spaces that
-	        		// would take us to the next "tab stop" (a multiple of the tab width).
-		        	int insertCol= c.offset - d.getLineOffset(d.getLineOfOffset(c.offset));
-		        	int tabWidth= fPrefsSvc.getIntPreference(X10Constants.P_TABWIDTH);
-
-					if (c.text.length() == (tabWidth - insertCol % tabWidth) && c.text.matches(" +")) {
-						// Ok, an expanded "tab character" is being inserted; fake a tab keypress
-						if (inLeadingWhitespace(c.offset, d)) { // do a smart indent
-							c.text= "\t";
-							smartIndentOnKeypress(d, c);
-						} else { // just push whatever's there right one indent level
-							int indentWidth= fPrefsSvc.getIntPreference(X10Constants.P_INDENTWIDTH);
-							StringBuilder sb= new StringBuilder();
-							for(int i=0; i < indentWidth; i++)
-								sb.append(' ');
-							c.text= sb.toString();
-							super.customizeDocumentCommand(d, c);
-						}
-			        } else if (c.text.length() > 1 && getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SMART_PASTE)) {
-			            smartPaste(d, c); // no smart backspace for paste
-			        }
-	        	} catch (BadLocationException e) {
+	        	if (c.text.length() > 1 && getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SMART_PASTE)) {
+	        		smartPaste(d, c); // no smart backspace for paste
 	        	}
 	        }
 	        if (dp == null) {
