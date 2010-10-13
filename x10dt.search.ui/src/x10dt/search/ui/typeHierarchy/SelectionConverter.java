@@ -22,6 +22,7 @@ import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.model.ICompilationUnit;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.services.IReferenceResolver;
@@ -259,8 +260,14 @@ public class SelectionConverter {
 		if (editor == null)
 			return null;
 		
-		return getInput(EditorUtility.getSourceProject(
-				editor.getEditorInput()).getRawProject(), editor.getParseController(), editor.getSelectedRegion().getOffset());
+		IProject proj = null;
+		ISourceProject sp = editor.getParseController().getProject();
+		if(sp != null)
+		{
+			proj = sp.getRawProject();
+		}
+		
+		return getInput(proj, editor.getParseController(), editor.getSelectedRegion().getOffset());
 	}
 
 	public static ITypeInfo getInputAsTypeRoot(UniversalEditor editor) {

@@ -171,9 +171,9 @@ public abstract class TypeHierarchyContentProvider implements ITreeContentProvid
 	protected void getRootTypes(List res) {
 		ITypeHierarchy hierarchy= getHierarchy();
 		if (hierarchy != null) {
-			String input= hierarchy.getType();
+			ITypeInfo input= hierarchy.getType();
 			if (input != null) {
-				res.add(getType(input));
+				res.add(input);
 			}
 			// opened on a region: dont show
 		}
@@ -360,19 +360,5 @@ public abstract class TypeHierarchyContentProvider implements ITreeContentProvid
 
 	protected final boolean isObject(ITypeInfo type) {
 		return "x10.lang.Object".equals(type.getName());  //$NON-NLS-1$//$NON-NLS-2$
-	}
-	
-	Map<String, ITypeInfo> typeMap = new HashMap<String, ITypeInfo>();
-	protected ITypeInfo getType(String type)
-	{
-		ITypeInfo typeInfo = typeMap.get(type);
-		
-		if(typeInfo == null)
-		{
-			typeInfo = SearchUtils.getType(getHierarchy().getProject(), type);
-			typeMap.put(type, typeInfo);
-		}
-		
-		return typeInfo;
 	}
 }

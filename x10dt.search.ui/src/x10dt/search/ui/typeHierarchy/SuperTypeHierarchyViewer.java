@@ -65,9 +65,9 @@ public class SuperTypeHierarchyViewer extends TypeHierarchyViewer {
 		protected final void getTypesInHierarchy(ITypeInfo type, List res) {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
-				String[] types= hierarchy.getSuperTypes(type.getName());
+				ITypeInfo[] types= hierarchy.getSuperTypes(type.getName());
 				for (int i= 0; i < types.length; i++) {
-					res.add(getType(types[i]));
+					res.add(types[i]);
 				}
 			}
 		}

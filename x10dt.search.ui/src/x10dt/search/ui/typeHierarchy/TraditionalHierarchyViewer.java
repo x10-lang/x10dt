@@ -85,7 +85,7 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 		public int getExpandLevel() {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
-				ITypeInfo input= getType(hierarchy.getType());
+				ITypeInfo input= hierarchy.getType();
 				if (input != null) {
 					return getDepth(hierarchy, input) + 2;
 				} else {
@@ -97,10 +97,10 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 
 		private int getDepth(ITypeHierarchy hierarchy, ITypeInfo input) {
 			int count= 0;
-			String superType= hierarchy.getSuperClass(input.getName());
+			ITypeInfo superType= hierarchy.getSuperClass(input.getName());
 			while (superType != null) {
 				count++;
-				superType= hierarchy.getSuperClass(superType);
+				superType= hierarchy.getSuperClass(superType.getName());
 			}
 			return count;
 		}
@@ -111,7 +111,7 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 		protected final void getRootTypes(List res) {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
-				ITypeInfo input= getType(hierarchy.getType());
+				ITypeInfo input= hierarchy.getType();
 //				if (input == null) {
 //					String[] classes= hierarchy.getAllSuperTypes(input);
 //					for (int i= 0; i < classes.length; i++) {
@@ -121,18 +121,18 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 					if(SearchUtils.hasFlag(X10.INTERFACE, input.getX10FlagsCode())) {
 						res.add(input);
 					} else if (isAnonymousFromInterface(input)) {
-						res.add(getType(hierarchy.getInterfaces(input.getName())[0]));
+						res.add(hierarchy.getInterfaces(input.getName())[0]);
 					} else {
-						String[] roots= hierarchy.getAllSuperClasses(input.getName());
+						ITypeInfo[] roots= hierarchy.getAllSuperClasses(input.getName());
 						for (int i= 0; i < roots.length; i++) {
-							ITypeInfo type = getType(roots[i]);
+							ITypeInfo type = roots[i];
 							if (isObject(type)) {
 								res.add(type);
 								return;
 							}
 						}
 						for (int i= 0; i < roots.length; i++) { // something wrong with the hierarchy
-							res.add(getType(roots[i]));
+							res.add(roots[i]);
 						}
 					}
 //				}
@@ -145,10 +145,10 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 		protected final void getTypesInHierarchy(ITypeInfo type, List res) {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
-				String[] types= hierarchy.getSubTypes(type.getName());
+				ITypeInfo[] types= hierarchy.getSubTypes(type.getName());
 				if (isObject(type)) {
 					for (int i= 0; i < types.length; i++) {
-						ITypeInfo curr= getType(types[i]);
+						ITypeInfo curr= types[i];
 						if(!isAnonymousFromInterface(curr)) { // no anonymous classes on 'Object' -> will be children of interface
 							res.add(curr);
 						}
@@ -158,11 +158,11 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 					boolean isClass= !SearchUtils.hasFlag(X10.INTERFACE, type.getX10FlagsCode());
 					if (isClass || isHierarchyOnType) {
 						for (int i= 0; i < types.length; i++) {
-							res.add(getType(types[i]));
+							res.add(types[i]);
 						}
 					} else {
 						for (int i= 0; i < types.length; i++) {
-							ITypeInfo curr = getType(types[i]);
+							ITypeInfo curr = types[i];
 							// no classes implementing interfaces, only if anonymous
 							if(SearchUtils.hasFlag(X10.INTERFACE, curr.getX10FlagsCode() /*|| isAnonymous(curr)*/))
 							{
@@ -177,7 +177,7 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 		protected ITypeInfo getParentType(ITypeInfo type) {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
-				return getType(hierarchy.getSuperClass(type.getName()));
+				return hierarchy.getSuperClass(type.getName());
 				// don't handle interfaces
 			}
 			return null;

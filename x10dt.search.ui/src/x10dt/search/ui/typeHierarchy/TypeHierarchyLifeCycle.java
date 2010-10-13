@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
@@ -116,12 +117,25 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 
 	private ITypeHierarchy createTypeHierarchy(ITypeInfo element, IProgressMonitor pm) throws Exception {
 //		if (element.getElementType() == ITypeInfo.TYPE) {
-			IProject project = editor.getParseController().getProject().getRawProject();
-			if (fIsSuperTypesOnly) {
-				ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(project, element.getName(), pm);
-				return X10SearchEngine.createTypeHierarchy(project, h.getSuperClass(element.getName()), pm);
-			} else {
-				return X10SearchEngine.createTypeHierarchy(project, element.getName(), pm);
+			ISourceProject sp = editor.getParseController().getProject();
+			if(sp == null)
+			{
+				if (fIsSuperTypesOnly) {
+					ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(element.getName(), pm);
+					return X10SearchEngine.createTypeHierarchy(h.getSuperClass(element.getName()).getName(), pm);
+				} else {
+					return X10SearchEngine.createTypeHierarchy(element.getName(), pm);
+				}
+			}
+			
+			else
+			{
+				if (fIsSuperTypesOnly) {
+					ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(sp.getRawProject(), element.getName(), pm);
+					return X10SearchEngine.createTypeHierarchy(sp.getRawProject(), h.getSuperClass(element.getName()).getName(), pm);
+				} else {
+					return X10SearchEngine.createTypeHierarchy(sp.getRawProject(), element.getName(), pm);
+				}
 			}
 //		} else {
 //			IRegion region= new Region();

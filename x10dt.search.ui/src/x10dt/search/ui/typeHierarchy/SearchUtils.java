@@ -255,6 +255,10 @@ public class SearchUtils {
 	public static ITypeInfo getType(IProject project, String type)
 	{
 		try {
+			if(project == null)
+			{
+				return X10SearchEngine.getX10RuntimeTypeInfo(type, new NullProgressMonitor());
+			}
 			return X10SearchEngine.getTypeInfo(project, type, new NullProgressMonitor());
 		} catch (Exception e) {
 			UISearchPlugin.log(e);
