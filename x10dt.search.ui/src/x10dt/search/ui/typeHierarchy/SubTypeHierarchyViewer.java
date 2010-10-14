@@ -29,8 +29,8 @@ import x10dt.search.core.engine.X10SearchEngine;
  */
 public class SubTypeHierarchyViewer extends TypeHierarchyViewer {
 
-	public SubTypeHierarchyViewer(UniversalEditor editor, Composite parent, TypeHierarchyLifeCycle lifeCycle) {
-		super(editor, parent, new SubTypeHierarchyContentProvider(lifeCycle), lifeCycle);
+	public SubTypeHierarchyViewer(Composite parent, TypeHierarchyLifeCycle lifeCycle) {
+		super(parent, new SubTypeHierarchyContentProvider(lifeCycle), lifeCycle);
 	}
 
 	/*

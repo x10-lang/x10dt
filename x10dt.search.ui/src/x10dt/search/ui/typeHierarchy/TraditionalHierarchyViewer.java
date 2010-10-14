@@ -38,8 +38,8 @@ import x10dt.search.ui.UISearchPlugin;
  */
 public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 
-	public TraditionalHierarchyViewer(UniversalEditor editor, Composite parent, TypeHierarchyLifeCycle lifeCycle) {
-		super(editor, parent, new TraditionalHierarchyContentProvider(lifeCycle, editor), lifeCycle);
+	public TraditionalHierarchyViewer(Composite parent, TypeHierarchyLifeCycle lifeCycle) {
+		super(parent, new TraditionalHierarchyContentProvider(lifeCycle), lifeCycle);
 	}
 
 	/*
@@ -75,11 +75,9 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 	 * Content provider for the 'traditional' type hierarchy.
 	 */
 	public static class TraditionalHierarchyContentProvider extends TypeHierarchyContentProvider {
-		UniversalEditor editor;
-
-		public TraditionalHierarchyContentProvider(TypeHierarchyLifeCycle provider, UniversalEditor editor) {
+		
+		public TraditionalHierarchyContentProvider(TypeHierarchyLifeCycle provider) {
 			super(provider);
-			this.editor = editor;
 		}
 
 		public int getExpandLevel() {

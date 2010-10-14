@@ -556,6 +556,13 @@
             name="X10 AST Info"
             restorable="true">
       </view>
+      <view
+            name="%hierarchyViewName"
+            icon="icons/class_hi.gif"
+            category="x10dt.ui.developerTools"
+            class="x10dt.search.ui.typeHierarchy.TypeHierarchyViewPart"
+            id="x10dt.ui.TypeHierarchy">
+      </view>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

@@ -13,6 +13,7 @@ package x10dt.search.ui.typeHierarchy;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -31,13 +32,12 @@ import x10dt.search.core.engine.ITypeInfo;
 public abstract class TypeHierarchyViewer extends ProblemTreeViewer {
 
 	private HierarchyLabelProvider fLabelProvider;
-	protected UniversalEditor editor;
-
-	public TypeHierarchyViewer(UniversalEditor editor, Composite parent, IContentProvider contentProvider, TypeHierarchyLifeCycle lifeCycle) {
+	
+	public TypeHierarchyViewer(Composite parent, IContentProvider contentProvider, TypeHierarchyLifeCycle lifeCycle) {
 		super(new Tree(parent, SWT.SINGLE));
 		fLabelProvider= new HierarchyLabelProvider(lifeCycle);
 
-		setLabelProvider(new DecoratingLabelProvider(fLabelProvider, true, editor.getLanguage()));
+		setLabelProvider(new DecoratingLabelProvider(fLabelProvider, true, LanguageRegistry.findLanguage("X10")));
 		setUseHashlookup(true);
 
 		setContentProvider(contentProvider);

@@ -27,8 +27,8 @@ import x10dt.search.core.engine.ITypeInfo;
  */
 public class SuperTypeHierarchyViewer extends TypeHierarchyViewer {
 
-	public SuperTypeHierarchyViewer(UniversalEditor editor, Composite parent, TypeHierarchyLifeCycle lifeCycle) {
-		super(editor, parent, new SuperTypeHierarchyContentProvider(lifeCycle), lifeCycle);
+	public SuperTypeHierarchyViewer(Composite parent, TypeHierarchyLifeCycle lifeCycle) {
+		super(parent, new SuperTypeHierarchyContentProvider(lifeCycle), lifeCycle);
 	}
 
 	/*

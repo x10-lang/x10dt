@@ -15,10 +15,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.jface.operation.IRunnableContext;
@@ -117,7 +115,12 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 
 	private ITypeHierarchy createTypeHierarchy(ITypeInfo element, IProgressMonitor pm) throws Exception {
 //		if (element.getElementType() == ITypeInfo.TYPE) {
-			ISourceProject sp = editor.getParseController().getProject();
+			ISourceProject sp = null;
+			if(editor != null)
+			{
+				sp = editor.getParseController().getProject();
+			}
+			
 			if(sp == null)
 			{
 				if (fIsSuperTypesOnly) {
@@ -270,6 +273,10 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 		if (getHierarchy().contains(type.getName())) {
 			changedTypes.add(type);
 		}
+	}
+
+	public void setEditor(UniversalEditor editor) {
+		this.editor = editor;
 	}
 
 //	private void processChildrenDelta(IJavaElementDelta delta, ArrayList changedTypes) {

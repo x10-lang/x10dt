@@ -35,6 +35,7 @@ import org.eclipse.ui.keys.SWTKeySupport;
 
 import x10dt.search.core.engine.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
+import x10dt.search.ui.actions.EditorActionDefinitionIds;
 import x10dt.search.ui.typeHierarchy.SuperTypeHierarchyViewer.SuperTypeHierarchyContentProvider;
 import x10dt.search.ui.typeHierarchy.TraditionalHierarchyViewer.TraditionalHierarchyContentProvider;
 
@@ -58,7 +59,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 //	private MethodOverrideTester fMethodOverrideTester;
 
 	public HierarchyInformationControl(UniversalEditor editor, Shell parent, int shellStyle, int treeStyle) {
-		super(editor, parent, shellStyle, treeStyle, X10Constants.OPEN_HIERARCHY, true);
+		super(editor, parent, shellStyle, treeStyle, EditorActionDefinitionIds.OPEN_HIERARCHY, true);
 		fOtherExpandedElements= null;
 		fDoFilter= true;
 //		fMethodOverrideTester= null;
@@ -271,7 +272,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 		}
 //		IMember[] memberFilter= locked != null ? new IMember[] { locked } : null;
 
-		TraditionalHierarchyContentProvider contentProvider= new TraditionalHierarchyContentProvider(fLifeCycle, editor);
+		TraditionalHierarchyContentProvider contentProvider= new TraditionalHierarchyContentProvider(fLifeCycle);
 //		contentProvider.setMemberFilter(memberFilter);
 		getTreeViewer().setContentProvider(contentProvider);
 

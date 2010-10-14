@@ -8,7 +8,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.RetargetTextEditorAction;
 
 import x10dt.search.ui.Messages;
-import x10dt.search.ui.typeHierarchy.X10Constants;
+import x10dt.search.ui.actions.EditorActionDefinitionIds;
 
 public class X10EditorActionContributer extends TextEditorActionContributor {
 
@@ -17,7 +17,7 @@ public class X10EditorActionContributer extends TextEditorActionContributor {
 	public X10EditorActionContributer() {
 		fOpenHierarchy = new RetargetTextEditorAction(Messages
 				.getBundleForConstructedKeys(), "OpenHierarchy."); //$NON-NLS-1$
-		fOpenHierarchy.setActionDefinitionId(X10Constants.OPEN_HIERARCHY);
+		fOpenHierarchy.setActionDefinitionId(EditorActionDefinitionIds.OPEN_HIERARCHY);
 	}
 
 	@Override
@@ -41,7 +41,11 @@ public class X10EditorActionContributer extends TextEditorActionContributor {
 			textEditor = (ITextEditor) part;
 
 		fOpenHierarchy.setAction(getAction(textEditor,
-				X10Constants.OPEN_HIERARCHY));
+				EditorActionDefinitionIds.OPEN_HIERARCHY));
+		
+		if (part instanceof X10Editor)
+		{
+			((X10Editor)part).ovg.fillActionBars(getActionBars());
+		}
 	}
-
 }
