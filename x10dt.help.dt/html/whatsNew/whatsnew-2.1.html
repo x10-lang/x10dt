@@ -88,10 +88,36 @@ color: SlateGray;
       Inclusion and exclusion patterns are now supported in the build path configuration. 
       The placeholders allowed are:
       <ul>
-		<li> '*': zero or more characters,
-		<li> '?': zero or one characters,
-		<li> '**': zero or more folders.
+		<li> '*': zero or more characters</li>
+		<li> '?': zero or one characters</li>
+		<li> '**': zero or more folders</li>
       </ul>
+    </td>
+  </tr>
+  
+    <tr> 
+    <td class="section_item">Quick fixes</td> 
+    <td class="section_content">
+    Whenever it detects an error, the Java editor highlights the error using a wavy red line 
+    under the offending code and a marker in the left editor margin. Moving the mouse over the 
+    underlined code or the marker will indicate the error. The marker can be selected with the 
+    left mouse to activate the Quick Fix pop-up, indicating actions that can be undertaken to 
+    repair the error. Alternatively, pressing Ctrl+1 will activate Quick Fix from the keyboard. 
+    </td>
+  </tr>
+  
+  <tr> 
+    <td class="section_item">Outline view</td> 
+    <td class="section_content">
+    The Outline view displays an outline of a structured file that is currently open in the 
+    editor area, and lists structural elements. The contents of the Outline view are editor 
+    specific. In the example below, which is for a Java source file, the structural elements 
+    are classes, fields, and methods. The contents of the toolbar are also editor specific. 
+	<p><img src="images/outline-view.png"/></p>
+    To add the Outline view to the current perspective, click   
+	<a class="command-link" href='javascript:executeCommand("org.eclipse.ui.views.showView(org.eclipse.ui.views.showView.viewId=org.eclipse.ui.views.ContentOutline)")'> 
+	<img src="PLUGINS_ROOT/org.eclipse.help/command_link.png"
+    alt="Opens the outline view"><b> Window > Show View > Other... > General > Outline.</b></img></a>
     </td>
   </tr>
   
