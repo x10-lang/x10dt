@@ -25,6 +25,8 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.internal.core.search.StringOperation;
+import org.eclipse.jface.text.Region;
+import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.SearchPattern;
 
 import x10dt.search.core.engine.ITypeInfo;
@@ -235,7 +237,8 @@ public class SearchUtils {
 		IResource res = SearchUtils.getResource(ti);
 		if(res != null)
 		{
-			EditorUtility.openInEditor(res, true);
+			IEditorPart part= EditorUtility.openInEditor(res, true);
+			EditorUtility.revealInEditor(part, new Region(ti.getLocation().getOffset(), 0));
 		}
 		
 		else
@@ -249,7 +252,8 @@ public class SearchUtils {
 			}
 			
 			IPath path = new Path(scheme);
-			EditorUtility.openInEditor(path);
+			IEditorPart part= EditorUtility.openInEditor(path);
+			EditorUtility.revealInEditor(part, new Region(ti.getLocation().getOffset(), ti.getLocation().getLength()));
 		}
 	}
 	
