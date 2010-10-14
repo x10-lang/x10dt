@@ -70,6 +70,7 @@ public final class IndexingCompilerTests extends NodeVisitor {
   
   // --- Overridden methods
   
+  @SuppressWarnings("unused")
   public NodeVisitor enter(final Node node) {
     if (node instanceof ClassDecl) {
       final ClassDecl classDecl = (ClassDecl) node;
