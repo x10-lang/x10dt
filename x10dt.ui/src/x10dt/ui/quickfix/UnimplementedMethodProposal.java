@@ -2,6 +2,7 @@ package x10dt.ui.quickfix;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -22,23 +23,28 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import polyglot.ast.Block;
+import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
+import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.QName;
-import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.visit.PrettyPrinter;
 import x10.ExtensionInfo;
 import x10.ast.X10NodeFactory_c;
+import x10.extension.X10Ext;
+import x10.types.X10MethodDef;
 import x10dt.core.utils.HierarchyUtils;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.parser.PolyglotNodeLocator;
@@ -52,6 +58,17 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 		super("Add unimplemented methods", context.getModel(), 8, null);
 		this.context = context;
 		setImage(PluginImages.get(PluginImages.IMG_CORRECTION_CHANGE));
+	}
+	
+	boolean contains(Collection<MethodInstance> list, MethodInstance mi)
+	{
+		for (MethodInstance m : list) {
+			if(m.signature().equals(mi.signature()))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -73,13 +90,14 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 					.getOffset());
 		}
 
-		// TODO this will only look at 1 superclass, needs to look at all ancestors
 		if (classDecl != null) {
 			
 			Set<ClassType> superClasses = HierarchyUtils.getSuperClasses(classDecl.classDef().asType());
-			Set<ClassType> interfaces = HierarchyUtils.getInterfaces(superClasses);
+			superClasses.add(classDecl.classDef().asType());
 			
+			Set<ClassType> interfaces = HierarchyUtils.getInterfaces(superClasses);
 			Set<MethodInstance> implementedMethods = HierarchyUtils.getImplementedMethods(superClasses);
+			
 			Set<MethodInstance> abstractMethods = HierarchyUtils.getMethods(superClasses, Flags.ABSTRACT);
 			Set<MethodInstance> interfaceMethods = HierarchyUtils.getMethods(interfaces);
 			
@@ -93,14 +111,14 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 //			
 			
 			for (MethodInstance mi : abstractMethods) {
-				if(!implementedMethods.contains(mi))
+				if(!contains(implementedMethods, mi))
 				{
 					unimplemented.add(mi);
 				}
 			}
 			
 			for (MethodInstance mi : interfaceMethods) {
-				if(!implementedMethods.contains(mi))
+				if(!contains(implementedMethods, mi))
 				{
 					unimplemented.add(mi);
 				}
@@ -118,17 +136,47 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						FlagsNode flags = factory.FlagsNode(null, mi.flags().clearAbstract());
 						TypeNode returnType = factory.TypeNodeFromQualifiedName(new Position("", ""), QName.make(mi.returnType().toString()));
 						
-						for(Type formal : mi.formalTypes())
-						{
-							ClassType ct = (ClassType)formal;
-							formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), factory.TypeNodeFromQualifiedName(new Position("", ""), ct.fullName()), factory.Id(null, ct.name())));
-							System.out.print("");
-							
-						}
+						
+						List<TypeNode> typeList = new ArrayList<TypeNode>();
+						List<Expr> args = new ArrayList<Expr>();
+						
+						for (LocalDef f : ((X10MethodDef)mi.def()).formalNames()) {
+							TypeNode tn = factory.TypeNodeFromQualifiedName(new Position("", ""), QName.make(f.type().toString()));
+							typeList.add(tn);
+							formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), tn, factory.Id(null, f.name())));
+				            args.add(factory.Local(null, factory.Id(null, f.name())));
+				        }
 						
 						Block body = factory.Block(null);
+						Node ret = null;
+						
+						if (!mi.returnType().isVoid()) {
+							if(!mi.flags().contains(Flags.ABSTRACT))
+							{
+								Call call = factory.X10Call(null, factory.Super(null), factory.Id(null, mi.name()), typeList, args);
+								ret = factory.Eval(null, call);
+							}
+							
+							else if (!mi.returnType().isBoolean()) {
+								ret = factory.Return(null, factory.NullLit(null));
+					        }
+							
+							else
+							{
+								ret = factory.Return(null, factory.BooleanLit(null, false));
+							}
+							
+							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub"));
+							body = body.append((Stmt)ret);
+				        }
+						
+						else
+						{
+//							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub"));
+						}
+						
 						MethodDecl newMethodDecl = factory.MethodDecl(null, flags, returnType, factory.Id(null, mi.name()), formals, body);
-					
+						
 						StringWriter sw = new StringWriter();
 						CodeWriter cw = new SimpleCodeWriter(sw, 1);
 						newMethodDecl.prettyPrint(cw, new PrettyPrinter());
