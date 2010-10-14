@@ -6,11 +6,8 @@ import org.eclipse.jface.preference.IPreferenceStore;
 public class X10Constants {
 	public static final String TYPEFILTER_ENABLED = "";
 	
-	public static final String ID_TYPE_HIERARCHY= "x10dt.search.ui.TypeHierarchy"; //$NON-NLS-1$
+	public static final String ID_TYPE_HIERARCHY= "x10dt.ui.TypeHierarchy"; //$NON-NLS-1$
     public static final String ID_HIERARCHYPERSPECTIVE= "x10dt.ui.perspective";
-    
-    public static final String OPEN_HIERARCHY= "x10dt.ui.navigate.OpenHierarchy"; //$NON-NLS-1$
-
 
     /**
 	 * A named preference that controls return type rendering of methods in the UI.
@@ -58,6 +55,46 @@ public class X10Constants {
 	 * </p>
 	 */
 	public static final String APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW= "PackagesView.pkgNamePatternForPackagesView";//$NON-NLS-1$
+
+	/**
+	 * Type hierarchy view part: pop-up menu target ID for type hierarchy viewer
+	 * (value <code>"org.eclipse.jdt.ui.TypeHierarchy.typehierarchy"</code>).
+	 *
+	 * @since 2.0
+	 */
+	public static final String TARGET_ID_HIERARCHY_VIEW= ID_TYPE_HIERARCHY + ".typehierarchy"; //$NON-NLS-1$
+
+	/**
+	 * Type hierarchy view part: pop-up menu target ID for supertype hierarchy viewer
+	 * (value <code>"org.eclipse.jdt.ui.TypeHierarchy.supertypes"</code>).
+	 *
+	 * @since 2.0
+	 */
+	public static final String TARGET_ID_SUPERTYPES_VIEW= ID_TYPE_HIERARCHY + ".supertypes"; //$NON-NLS-1$
+
+	/**
+	 * Type hierarchy view part: Pop-up menu target ID for the subtype hierarchy viewer
+	 * (value <code>"org.eclipse.jdt.ui.TypeHierarchy.subtypes"</code>).
+	 *
+	 * @since 2.0
+	 */
+	public static final String TARGET_ID_SUBTYPES_VIEW= ID_TYPE_HIERARCHY + ".subtypes"; //$NON-NLS-1$
+
+	/**
+	 * Type hierarchy view part: pop-up menu target ID for the member viewer
+	 * (value <code>"org.eclipse.jdt.ui.TypeHierarchy.members"</code>).
+	 *
+	 * @since 2.0
+	 */
+	public static final String TARGET_ID_MEMBERS_VIEW= ID_TYPE_HIERARCHY + ".members"; //$NON-NLS-1$
+	
+	/**
+	 * A string value used by the named preference <code>OPEN_TYPE_HIERARCHY</code>.
+	 *
+	 * @see #OPEN_TYPE_HIERARCHY
+	 */
+	public static final String OPEN_TYPE_HIERARCHY_IN_PERSPECTIVE= ID_HIERARCHYPERSPECTIVE; //$NON-NLS-1$
+
 
 	public static void initializeDefaultValues(IPreferenceStore store) {
 		store.setDefault(APPEARANCE_COMPRESS_PACKAGE_NAMES, false);
