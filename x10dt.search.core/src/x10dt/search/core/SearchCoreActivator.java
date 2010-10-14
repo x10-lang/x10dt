@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.pdb.facts.db.FactKey;
@@ -65,7 +66,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
       if (resourceDelta.getResource().getType() == IResource.PROJECT) {
         final IProject project = resourceDelta.getResource().getProject();
         switch (resourceDelta.getKind()) {
-          case IResourceDelta.ADDED:
+          case IResourceDelta.ADDED: {
             try {
               final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
               final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
@@ -74,16 +75,17 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
               log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
             }
             break;
+          }
             
-          case IResourceDelta.REMOVED:
-            try {
-              final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
-              final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
-              IndexManager.cancelFactUpdating(key);
-            } catch (ModelException except) {
-              log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
+          case IResourceDelta.REMOVED: {
+            final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
+            final ISourceProject sourceProject = ModelFactory.getProject(project);
+            if (sourceProject != null) {
+              IndexManager.cancelFactUpdating(new FactKey(hierarchyType, new ProjectContext(sourceProject)));
             }
+            ModelFactory.removeProject(project);
             break;
+          }
             
           default:
             // Nothing to do.
