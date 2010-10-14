@@ -121,7 +121,7 @@ public class TypeNameMatchLabelProvider extends LabelProvider {
 			boolean isInner= typeRef.getTypeContainerName().indexOf('.') != -1;
 			int modifiers= typeRef.getModifiers();
 
-			ImageDescriptor desc= JavaElementImageProvider.getTypeImageDescriptor(isInner, false, modifiers, false);
+			ImageDescriptor desc= JavaElementImageProvider.getTypeImageDescriptor(isInner, false, SearchUtils.getJavaFlags(modifiers), false);
 			int adornmentFlags= 0;
 			if (SearchUtils.hasFlag(X10.FINAL, modifiers)) {
 				adornmentFlags |= JavaElementImageDescriptor.FINAL;

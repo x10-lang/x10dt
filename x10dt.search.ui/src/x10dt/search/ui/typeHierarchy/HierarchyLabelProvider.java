@@ -135,32 +135,7 @@ public class HierarchyLabelProvider extends AppearanceAwareLabelProvider {
 		return decorateImage(result, element);
 	}
 	
-	int getJavaFlags(int flags)
-	{
-		int javaFlags = 0;
-		
-		if(SearchUtils.hasFlag(X10.INTERFACE, flags))
-		{
-			javaFlags |= Flags.AccInterface;
-		}
-		
-		if(SearchUtils.hasFlag(X10.PUBLIC, flags))
-		{
-			javaFlags |= Flags.AccPublic;
-		}
-		
-		if(SearchUtils.hasFlag(X10.PROTECTED, flags))
-		{
-			javaFlags |= Flags.AccProtected;
-		}
-		
-		if(SearchUtils.hasFlag(X10.PRIVATE, flags))
-		{
-			javaFlags |= Flags.AccPrivate;
-		}
-		
-		return javaFlags;
-	}
+	
 
 	private ImageDescriptor getTypeImageDescriptor(ITypeInfo type) {
 		ITypeHierarchy hierarchy= fHierarchy.getHierarchy();
@@ -190,7 +165,7 @@ public class HierarchyLabelProvider extends AppearanceAwareLabelProvider {
 			}
 		}
 
-		ImageDescriptor desc= JavaElementImageProvider.getTypeImageDescriptor(isInner, isInInterfaceOrAnnotation, getJavaFlags(flags), isDifferentScope(type));
+		ImageDescriptor desc= JavaElementImageProvider.getTypeImageDescriptor(isInner, isInInterfaceOrAnnotation, SearchUtils.getJavaFlags(flags), isDifferentScope(type));
 
 		int adornmentFlags= 0;
 		if (SearchUtils.hasFlag(X10.FINAL, flags)) {

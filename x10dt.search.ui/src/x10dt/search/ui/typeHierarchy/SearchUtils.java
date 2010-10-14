@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.EditorUtility;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.ui.dialogs.SearchPattern;
 
@@ -265,5 +266,32 @@ public class SearchUtils {
 		}
 		
 		return null;
+	}
+	
+	public static int getJavaFlags(int flags)
+	{
+		int javaFlags = 0;
+		
+		if(SearchUtils.hasFlag(X10.INTERFACE, flags))
+		{
+			javaFlags |= Flags.AccInterface;
+		}
+		
+		if(SearchUtils.hasFlag(X10.PUBLIC, flags))
+		{
+			javaFlags |= Flags.AccPublic;
+		}
+		
+		if(SearchUtils.hasFlag(X10.PROTECTED, flags))
+		{
+			javaFlags |= Flags.AccProtected;
+		}
+		
+		if(SearchUtils.hasFlag(X10.PRIVATE, flags))
+		{
+			javaFlags |= Flags.AccPrivate;
+		}
+		
+		return javaFlags;
 	}
 }
