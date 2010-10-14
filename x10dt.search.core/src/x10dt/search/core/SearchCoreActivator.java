@@ -83,7 +83,6 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
             if (sourceProject != null) {
               IndexManager.cancelFactUpdating(new FactKey(hierarchyType, new ProjectContext(sourceProject)));
             }
-            ModelFactory.removeProject(project);
             break;
           }
             
