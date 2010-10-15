@@ -44,6 +44,12 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.JavaCapabilityConfigurationPage;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ide.IDE;
 
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.cpp.CppLaunchCore;
@@ -185,6 +191,8 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
 
     this.fCreatedFile.create(WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello"), true /* force */, //$NON-NLS-1$
                              monitor);
+
+    openSourceFile(this.fCreatedFile);
   }
 
   private void deleteProjectFile(final URI projectLocation) throws CoreException {
@@ -234,6 +242,21 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
     } finally {
       monitor.done();
     }
+  }
+  
+  private void openSourceFile(final IFile srcFile) {
+    Display.getDefault().asyncExec(new Runnable() {
+      public void run() {
+        final IWorkbenchPage activePage = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+        try {
+          IDE.openEditor(activePage, srcFile, true);
+        } catch (PartInitException except) {
+          final IStatus status = except.getStatus();
+          CppLaunchCore.log(status.getSeverity(), NLS.bind(LaunchMessages.PWSP_EditorOpeningError, srcFile), 
+                            status.getException());
+        }
+      }
+    });
   }
 
   private void removeProvisionalProject() throws CoreException {

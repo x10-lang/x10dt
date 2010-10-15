@@ -251,6 +251,8 @@ public class LaunchMessages extends NLS {
 
   public static String PWSP_CPEntriesError;
 
+  public static String PWSP_EditorOpeningError;
+
   public static String PWSP_FinishTaskName;
 
   public static String PWSP_PageDescription;
