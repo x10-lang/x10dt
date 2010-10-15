@@ -43,9 +43,9 @@ public class X10EditorActionContributer extends TextEditorActionContributor {
 		fOpenHierarchy.setAction(getAction(textEditor,
 				EditorActionDefinitionIds.OPEN_HIERARCHY));
 		
-		if (part instanceof X10Editor)
-		{
-			((X10Editor)part).ovg.fillActionBars(getActionBars());
-		}
+//		if (part instanceof X10Editor)
+//		{
+//			((X10Editor)part).ovg.fillActionBars(getActionBars());
+//		}
 	}
 }
