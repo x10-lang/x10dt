@@ -1,5 +1,9 @@
 package x10dt.search.core;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -67,13 +71,22 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
         final IProject project = resourceDelta.getResource().getProject();
         switch (resourceDelta.getKind()) {
           case IResourceDelta.ADDED: {
-            try {
-              final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
-              final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
-              IndexManager.keepFactUpdated(key);
-            } catch (ModelException except) {
-              log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
-            }
+            final ExecutorService executorService = Executors.newSingleThreadExecutor();
+            executorService.submit(new Callable<Void>() {
+
+              public Void call() {
+                while (! project.isOpen()) ;
+                try {
+                  final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
+                  final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
+                  IndexManager.keepFactUpdated(key);
+                } catch (ModelException except) {
+                  log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
+                }
+                return null;
+              }
+              
+            });
             break;
           }
             
