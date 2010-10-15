@@ -225,7 +225,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     /*CHANGED*/private final Template fRegion1DTemplate= new Template("region 1-D", "1-dimensional region creation", CONTEXT_ID, "${lower}..${upper}", false);
     /*CHNGED*/private final Template fRegion2DTemplate= new Template("region 2-D", "2-dimensional region creation", CONTEXT_ID, "(${lower1}..${upper1})*(${lower2}..${upper2})", false);
     /*CHANGED*/ private final Template fArrayNewTemplate= new Template("array new", "array instantiation", CONTEXT_ID, "var ${name}: Array[${typename}] = new Array[${typename}](${distribution} , (p: Point) => ${initialization_expression} );", false);
-    /*CHANGED*/ private final Template fDistArrayNewTemplate= new Template("dist array new", "dist array instantiation", CONTEXT_ID, "var ${name}: DistArray[${typename}] = new DistArray[${typename}](${distribution} , (p: Point) => ${initialization_expression} );", false);
+    /*CHANGED*/ private final Template fDistArrayNewTemplate= new Template("dist array new", "dist array instantiation", CONTEXT_ID, "var ${name}: DistArray[${typename}] = DistArray.make[${typename}](${distribution} , (p: Point) => ${initialization_expression} );", false);
     private final Template fArrayAccessTemplate = new Template("dist array access", "remote array access", CONTEXT_ID, "at(${array_name}.dist(${point})) ${array_name}(${point}) = ${expression};", false);
     
     // Modifiers
