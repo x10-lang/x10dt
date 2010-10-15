@@ -97,7 +97,7 @@ public class FactWriterVisitor extends NodeVisitor {
       String path = position.file();
       final String osName = System.getProperty("os.name"); //$NON-NLS-1$
       if (osName.startsWith("Windows")) { //$NON-NLS-1$
-        path = '/' + path;
+        path = '/' + path.replace('\\', '/');
       }
       final URI uri = new URI(scheme.toString(), null /* host */, path, null /* fragment */);
       return this.fValueFactory.sourceLocation(uri, position.offset(), 
