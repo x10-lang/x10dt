@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
@@ -17,6 +18,14 @@ import x10dt.search.core.pdb.X10FlagsEncoder.X10;
  * @author egeay
  */
 public interface ITypeInfo extends IBasicTypeInfo {
+  
+  /**
+   * Indicates if the underlying type still exists in the indexing database.
+   * 
+   * @param monitor Monitor to report progress and/or cancel the operation.
+   * @return True if it exists, false otherwise.
+   */
+  public boolean exists(final IProgressMonitor monitor);
   
   /**
    * Returns the location of the type declaration.

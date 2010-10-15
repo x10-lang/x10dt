@@ -7,6 +7,14 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
@@ -32,6 +40,33 @@ final class TypeInfo implements ITypeInfo {
   }
 
   // --- ITypeInfo's interface methods implementation
+  
+  public boolean exists(final IProgressMonitor monitor) {
+    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    final IFile[] files = root.findFilesForLocationURI(this.fLocation.getURI());
+    if (files.length == 0) {
+      return false;
+    } else {
+      monitor.beginTask(null, files.length);
+      for (final IFile file : files) {
+        try {
+          file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+        } catch (CoreException except) {
+          // Let's simply forget in such case.
+        }
+        if (file.exists()) {
+          try {
+            if (X10SearchEngine.getTypeInfo(file.getProject(), this.fTypeName, new SubProgressMonitor(monitor, 1)) != null) {
+              return true;
+            }
+          } catch (Exception except) {
+            // Let's forget about it, since probably it is not good news about the type existence.
+          }
+        }
+      }
+      return false;
+    }
+  }
   
   public ISourceLocation getLocation() {
     return this.fLocation;
