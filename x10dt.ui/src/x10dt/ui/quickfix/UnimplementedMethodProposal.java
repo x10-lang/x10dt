@@ -23,7 +23,6 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import polyglot.ast.Block;
-import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
@@ -40,11 +39,12 @@ import polyglot.types.QName;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.SimpleCodeWriter;
-import polyglot.visit.PrettyPrinter;
+import polyglot.visit.ContextVisitor;
 import x10.ExtensionInfo;
 import x10.ast.X10NodeFactory_c;
 import x10.extension.X10Ext;
 import x10.types.X10MethodDef;
+import x10.types.X10TypeMixin;
 import x10dt.core.utils.HierarchyUtils;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.parser.PolyglotNodeLocator;
@@ -53,7 +53,7 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 	IQuickFixInvocationContext context;
 	
 	ISourcePositionLocator nodeLocator;
-
+	
 	public UnimplementedMethodProposal(IQuickFixInvocationContext context) {
 		super("Add unimplemented methods", context.getModel(), 8, null);
 		this.context = context;
@@ -63,7 +63,7 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 	boolean contains(Collection<MethodInstance> list, MethodInstance mi)
 	{
 		for (MethodInstance m : list) {
-			if(m.signature().equals(mi.signature()))
+			if(m.isSameMethod(mi, null))
 			{
 				return true;
 			}
@@ -151,35 +151,28 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						Node ret = null;
 						
 						if (!mi.returnType().isVoid()) {
-							if(!mi.flags().contains(Flags.ABSTRACT))
-							{
-								Call call = factory.X10Call(null, factory.Super(null), factory.Id(null, mi.name()), typeList, args);
-								ret = factory.Eval(null, call);
-							}
+//							if(!mi.flags().contains(Flags.ABSTRACT))
+//							{
+//								Call call = factory.X10Call(null, factory.Super(null), factory.Id(null, mi.name()), typeList, args);
+//								ret = factory.Eval(null, call);
+//							}
 							
-							else if (!mi.returnType().isBoolean()) {
-								ret = factory.Return(null, factory.NullLit(null));
-					        }
-							
-							else
-							{
-								ret = factory.Return(null, factory.BooleanLit(null, false));
-							}
-							
-							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub"));
-							body = body.append((Stmt)ret);
+							ret = factory.Return(null, X10TypeMixin.getZeroVal(mi.returnType(), null, new ContextVisitor(null, mi.typeSystem(), factory)));
+							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub\n"));
 				        }
 						
 						else
 						{
-//							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub"));
+							ret = factory.Empty(null);
+							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub"));
 						}
 						
+						body = body.append((Stmt)ret);
 						MethodDecl newMethodDecl = factory.MethodDecl(null, flags, returnType, factory.Id(null, mi.name()), formals, body);
 						
 						StringWriter sw = new StringWriter();
 						CodeWriter cw = new SimpleCodeWriter(sw, 1);
-						newMethodDecl.prettyPrint(cw, new PrettyPrinter());
+						newMethodDecl.prettyPrint(cw, new CommentPrettyPrinter());
 						cw.flush();
 						edit.addChild(new InsertEdit(offset, sw.toString()));
 						edit.addChild(new InsertEdit(offset, lineDelim));
