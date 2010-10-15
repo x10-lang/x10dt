@@ -34,6 +34,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
 import polyglot.types.ReferenceType;
@@ -60,6 +61,7 @@ public class CompilerTestsBase {
     protected static String[] STATIC_CALLS = {"-STATIC_CALLS=true", "-CHECK_INVARIANTS"};
     protected static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false", "-CHECK_INVARIANTS"};
 
+    private static String COMPILER_GENERATED = "Compiler Generated";
 
     private static String OUTPUT_DIR = "output";
 
@@ -294,9 +296,14 @@ public class CompilerTestsBase {
 							Assert.assertFalse("AST: position is null for node:" + n, true);
 						if (position.file() == null)
 							Assert.assertFalse("AST: position.file() is null for node:" + n, true);
-						if (!position.file().equals("Compiler Generated") && !position.file().startsWith(File.separator)) 
+						if (!position.file().equals(COMPILER_GENERATED) && !position.file().startsWith(File.separator)) 
 							Assert.assertFalse("AST: position.file() returned a string that was not in the original sources:" + n, true);
 				 		
+						if (position.file().equals(COMPILER_GENERATED)){
+							if (position.endOffset() - position.offset() != 0) // --- Non-zero extent
+								Assert.assertFalse("AST: position extent is non-zero", true);
+						}
+						
                          if (n instanceof TypeNode) {
 
                             TypeNode typeNode = (TypeNode) n;
@@ -335,7 +342,21 @@ public class CompilerTestsBase {
                             Assert.assertFalse("AST: ill type: " +mi.returnType(), illType(mi.returnType()));
                             if (mi.signature() == null)
                                 Assert.assertFalse("AST: call.methodInstance.signature() == null for node: " + n, true);
-
+                            MethodDef def = mi.def();
+                            if (def == null)
+                            	Assert.assertFalse("AST: call.methodInstance.def() == null for null: " + n, true);
+                            if (def.container() == null)
+                                Assert.assertFalse("AST: call.methodInstance.container() == null for node: " + n, true);
+                            if (def.returnType() == null)
+                                Assert.assertFalse("AST: call.methodInstance.returnType() == null for node: " + n, true);
+                            if (def.returnType().get() == null)
+                                Assert.assertFalse("AST: call.methodInstance.returnType().get() == null for node: " + n, true);
+                            Assert.assertFalse("AST: ill type: " +def.returnType().get(), illType(def.returnType().get()));
+                            if (def.signature() == null)
+                                Assert.assertFalse("AST: call.methodInstance.signature() == null for node: " + n, true);
+                            
+                            
+                            
                         } else if (n instanceof New) {
 
                             New nw = (New) n;
