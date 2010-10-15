@@ -1,9 +1,9 @@
 import x10.io.Console;
 
 public class Hello2 {
-    public static def main(args:Rail[String]!){
+    public static def main(args:String[String](1)){
     	val v = new Hi1();
-    	v.foo();
+    	v.foo1();
    
     }
     /** x10doc comment for myMethod */;

@@ -1,3 +1,3 @@
 class Xolal{
-   global var ywheatdod : Int = 1;
+   var ywheatdod : Int = 1;
 }

@@ -1,6 +1,6 @@
 public class Hello1 {
     public static def main(args: Array[String](1)) {
-         if (args.length > 0) {
+         if (args.size() > 0) {
            Console.OUT.println("The first arg is: "+args(0));
          }
          Console.OUT.println("Hello X10 world");
