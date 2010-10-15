@@ -61,7 +61,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
 
-            if (pos == null || pos.line() < 0) {
+            if (pos == null || pos.line() < 0 || pos.isCompilerGenerated()) {
                 if (DEBUG)
                     System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
                 return this;
@@ -92,7 +92,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 
             Position pos= n.position();
 
-            if (pos == null || pos.line() < 0) {
+            if (pos == null || pos.line() < 0 || pos.isCompilerGenerated()) {
                 //System.out.println("PolyglotNodeLocator.NodeVisitor.override(Node):  node positions < 0 for node type = " + n.getClass().getName());
                 return null;
             }
@@ -119,7 +119,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
 
-            if (pos == null || pos.line() < 0) {
+            if (pos == null || pos.line() < 0 || pos.isCompilerGenerated()) {
                 if (DEBUG)
                     System.out.println("PolyglotNodeLocator.ParentNodeVisitor.enter(Node,Node):  node positions < 0 for node type = " + n.getClass().getName());
                 return this;
@@ -146,7 +146,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
 
-            if (pos == null || pos.line() < 0) {
+            if (pos == null || pos.line() < 0 || pos.isCompilerGenerated()) {
                 //System.out.println("PolyglotNodeLocator.NodeVisitor.override(Node):  node positions < 0 for node type = " + n.getClass().getName());
                 return null;
             }
@@ -182,7 +182,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
 
-            if (pos == null || pos.line() < 0) {
+            if (pos == null || pos.line() < 0 || pos.isCompilerGenerated()) {
                 if (DEBUG)
                     System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
                 return this;
@@ -227,7 +227,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
 
-            if (pos == null || pos.line() < 0) {
+            if (pos == null || pos.line() < 0 || pos.isCompilerGenerated()) {
                 if (DEBUG)
                     System.out.println("PolyglotNodeLocator.NodeVisitor.enter(Node):  node positions < 0 for node type = " + n.getClass().getName());
                 return this;
