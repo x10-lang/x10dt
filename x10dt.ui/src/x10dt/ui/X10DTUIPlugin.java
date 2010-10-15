@@ -22,22 +22,14 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IPerspectiveDescriptor;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PerspectiveAdapter;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.contexts.IContextActivation;
-import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import x10dt.search.ui.typeHierarchy.X10Constants;
+import x10dt.search.ui.dialogs.OpenTypeHistory;
 
 public class X10DTUIPlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID= "x10dt.ui";
@@ -125,4 +117,18 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
 	    initImageRegistry();
 	return getInstance().getImageRegistry().get(key);
     }
+
+	@Override
+	public void start(BundleContext context) throws Exception {
+		super.start(context);
+		OpenTypeHistory.getInstance().checkConsistency(new NullProgressMonitor());
+	}
+
+	@Override
+	public void stop(BundleContext context) throws Exception {
+		OpenTypeHistory.shutdown();
+		super.stop(context);
+	}
+    
+	
 }

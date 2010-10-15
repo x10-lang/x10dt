@@ -12,6 +12,7 @@ package x10dt.search.ui.typeHierarchy;
 
 
 import java.net.URI;
+import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -167,7 +168,7 @@ public class SearchUtils {
 	}
 
 	public static String getHandleIdentifier(ITypeInfo info) {
-		return info.getName();
+		return info.getName() + "," +  info.getLocation().getURI().toString();
 	}
 
 	public static String getPackageName(ITypeInfo info) {
@@ -216,8 +217,9 @@ public class SearchUtils {
 	public static ITypeInfo createType(String handle)
 	{
 		try {
-			IResource res = getResource(new URI(handle));
-			return X10SearchEngine.getTypeInfo(res.getProject(), getTypeRegex(res.getName()), new NullProgressMonitor());
+			String[] tokens = handle.split(",");
+			IResource res = getResource(new URI(tokens[1]));
+			return X10SearchEngine.getTypeInfo(res.getProject(), tokens[0], new NullProgressMonitor());
 		} catch (Exception e) {
 			return null;
 		}
