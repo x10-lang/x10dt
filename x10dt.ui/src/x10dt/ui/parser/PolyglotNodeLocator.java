@@ -56,7 +56,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             if (DEBUG) {
             	System.out.println("Entering node type = " + n.getClass().getName());
             	if (fLS != null)
-            		System.out.println("  first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
+            		System.out.println("  first token '" + fLS.getIPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
             }
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
@@ -152,7 +152,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             }
 
             int nodeStartOffset= pos.offset();
-            int nodeEndOffset= pos.endOffset();
+//          int nodeEndOffset= pos.endOffset();
 
 //          if (nodeStartOffset == fOffset) System.out.println("NodeStartOffset = fOffset");
 //          if (nodeEndOffset == fEndOffset) System.out.println("NodeEndOffset = fEndOffset");
@@ -170,7 +170,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             if (DEBUG) {
             	System.out.println("Entering node type = " + n.getClass().getName());
             	if (fLS != null)
-            		System.out.println("  first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
+            		System.out.println("  first token '" + fLS.getIPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
             }
 
             NodeVisitor v = this;
@@ -215,7 +215,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             if (DEBUG) {
             	System.out.println("Entering node type = " + n.getClass().getName());
             	if (fLS != null)
-            		System.out.println("  first token '" + fLS.getPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
+            		System.out.println("  first token '" + fLS.getIPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
             }
 
             NodeVisitor v = this;
@@ -301,7 +301,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 //      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
 //        return null;
         if (DEBUG && fLS != null) {
-            IPrsStream ps= fLS.getPrsStream();
+            IPrsStream ps= fLS.getIPrsStream();
             if (endOffset == startOffset)
                 System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
             else {
@@ -364,7 +364,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 //      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
 //        return null;
         if (DEBUG && fLS != null) {
-            IPrsStream ps= fLS.getPrsStream();
+            IPrsStream ps= fLS.getIPrsStream();
             if (endOffset == startOffset)
                 System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
             else {
@@ -397,7 +397,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 //      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
 //        return null;
         if (DEBUG && fLS != null) {
-            IPrsStream ps= fLS.getPrsStream();
+            IPrsStream ps= fLS.getIPrsStream();
             if (endOffset == startOffset)
                 System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
             else {
@@ -465,16 +465,13 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         return getEndOffset(node) - getStartOffset(node);
     }
 
-    public IPath getPath(Object node) {
-        if (node instanceof Def) {
-            final Position defPos= ((Def) node).position();
+    public IPath getPath(Object obj) {
+        if (obj instanceof Def) {
+            final Position defPos= ((Def) obj).position();
             if (defPos.isCompilerGenerated())
                 return null;
             final String path= defPos.file();
             if (path.endsWith(".class")) {
-                // TODO Fix totally bogus hardwired rt.jar path inserted for testing.
-                // Probably need the IProject or ISourceProject to scan the classpath and
-                // figure out where this class file is.
                 try {
                     IClassFile classFile= resolveClassFile(path);
                     if (classFile.exists())
@@ -486,13 +483,21 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
                 }
             }
             return new Path(path);
-        } else if (node instanceof Node) {
-            return new Path(((Node)node).position().path());
-        } else if (node instanceof Position) {
-            return new Path(((Position) node).file());
-        } else if (node instanceof TypeObject) {
-            Position pos = ((TypeObject) node).position();
+        } else if (obj instanceof Node) {
+            Node node = (Node) obj;
+
+            return new Path(node.position().path());
+        } else if (obj instanceof Position) {
+            Position pos = (Position) obj;
+
+			return pos.isCompilerGenerated() ? null : new Path(pos.file());
+        } else if (obj instanceof TypeObject) {
+            Position pos = ((TypeObject) obj).position();
+
             if (pos == null) {
+            	return null;
+            }
+            if (pos.isCompilerGenerated()) {
             	return null;
             }
 			return new Path(pos.file()); // should be .path(), but that's currently empty for TypeObjects
