@@ -265,6 +265,8 @@ public class CompilerTestsBase {
             return true;
         if (e.getMessage().contains("self_"))
             return true;
+        if (e.getMessage().contains("#"))
+        	return true;
         return false;
     }
 
