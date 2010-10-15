@@ -35,7 +35,6 @@ import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodInstance;
-import polyglot.types.QName;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.SimpleCodeWriter;
@@ -50,6 +49,8 @@ import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.parser.PolyglotNodeLocator;
 
 public class UnimplementedMethodProposal extends CUCorrectionProposal {
+	private static final Position EMPTY_POS = new Position("", "");
+
 	IQuickFixInvocationContext context;
 	
 	ISourcePositionLocator nodeLocator;
@@ -63,7 +64,7 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 	boolean contains(Collection<MethodInstance> list, MethodInstance mi)
 	{
 		for (MethodInstance m : list) {
-			if(m.isSameMethod(mi, null))
+			if(m.isSameMethod(mi, mi.typeSystem().emptyContext()))
 			{
 				return true;
 			}
@@ -134,14 +135,14 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						List<Formal> formals = new ArrayList<Formal>();
 						
 						FlagsNode flags = factory.FlagsNode(null, mi.flags().clearAbstract());
-						TypeNode returnType = factory.TypeNodeFromQualifiedName(new Position("", ""), QName.make(mi.returnType().toString()));
+						TypeNode returnType = factory.CanonicalTypeNode(EMPTY_POS, mi.returnType());
 						
 						
 						List<TypeNode> typeList = new ArrayList<TypeNode>();
 						List<Expr> args = new ArrayList<Expr>();
 						
 						for (LocalDef f : ((X10MethodDef)mi.def()).formalNames()) {
-							TypeNode tn = factory.TypeNodeFromQualifiedName(new Position("", ""), QName.make(f.type().toString()));
+							TypeNode tn = factory.CanonicalTypeNode(EMPTY_POS, f.type());
 							typeList.add(tn);
 							formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), tn, factory.Id(null, f.name())));
 				            args.add(factory.Local(null, factory.Id(null, f.name())));
@@ -171,7 +172,12 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						MethodDecl newMethodDecl = factory.MethodDecl(null, flags, returnType, factory.Id(null, mi.name()), formals, body);
 						
 						StringWriter sw = new StringWriter();
-						CodeWriter cw = new SimpleCodeWriter(sw, 1);
+						CodeWriter cw = new SimpleCodeWriter(sw, 100) {
+							public void unifiedBreak(int n, int level, String alt, int altlen) {
+								newline(n, 1);
+							}
+						};
+						
 						newMethodDecl.prettyPrint(cw, new CommentPrettyPrinter());
 						cw.flush();
 						edit.addChild(new InsertEdit(offset, sw.toString()));
