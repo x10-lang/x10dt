@@ -66,7 +66,7 @@ final class TypeHierarchyManager extends AbstractTypeManager implements ITypeMan
     final Set<IString> typesToRemove = new HashSet<IString>();
     ((AllTypesManager) this.fAllTypesManager).initWriter(factBase, factContext, resource, typesToRemove);
     
-    initWriter();
+    super.fWriter = getType().writer(ValueFactory.getInstance());
     
     final IFactKey key = new FactKey(getType(), factContext);
     if (factBase.getAllKeys().contains(key)) {
