@@ -13,6 +13,7 @@
 	<topic label="C++" href="html/usage/cpp.html"/> 
 	<topic label="Options" href="html/usage/options.html"/> 
 </topic>
+<!--
 <topic label="Getting started with X10" href="html/tutorial/toc.html">
 	<topic label="Getting Started" href="html/tutorial/01-Tutorial.html"/> 
 	<topic label="Concurrency" href="html/tutorial/02-Tutorial.html"/> 
@@ -22,6 +23,7 @@
 	<topic label="Objects" href="html/tutorial/06-Tutorial.html"/> 
 	<topic label="Objects and Places" href="html/tutorial/07-Tutorial.html"/> 
 </topic>
+-->
 <topic label="X10 FAQs"  href="html/x10faqs.html"/>
 <!--
 <topic label="X10 FAQs">
@@ -40,7 +42,6 @@
 <topic label="Samples Inline"  href="html/samples/contents.html"/>
 -->
 <topic label="Samples">
-	<topic label="Hello" href="html/samples/Hello.html">Hello</topic>
 	<topic label="HelloWorld" href="html/samples/HelloWorld.html">HelloWorld</topic>
 	<topic label="HelloWholeWorld" href="html/samples/HelloWholeWorld.html">HelloWholeWorld</topic>
 	<topic label="Fib" href="html/samples/Fib.html">Fib</topic>
@@ -50,8 +51,15 @@
 	<topic label="ArraySum" href="html/samples/ArraySum.html">ArraySum</topic>
 	<topic label="Integrate" href="html/samples/Integrate.html">Integrate</topic>
 	<topic label="Histogram" href="html/samples/Histogram.html">Histogram</topic>
+	<topic label="QSort" href="html/samples/QSort.html">QSort</topic>
+	<topic label="KMeans" href="html/samples/KMeans.html">KMeans</topic>
+	<topic label="KMeansDist" href="html/samples/KMeansDist.html">KMeansDist</topic>
+	<topic label="FRASimpleDist" href="html/samples/FRASimpleDist.html">FRASimpleDist</topic>
+	<topic label="FSSimpleDist" href="html/samples/FSSimpleDist.html">FSSimpleDist</topic>
+	<topic label="StructSpheres" href="html/samples/StructSpheres.html">StructSpheres</topic>
+	<topic label="GCSpheres" href="html/samples/GCSpheres.html">GCSpheres</topic>
 </topic> 
-
+<!--
 <topic label="Programmers Guide">
 	<topic label="Preface" href="html/pguide/preface.html"/>
 	<topic label="A Whirlwind Tour of X10" href="html/pguide/tour.html">
@@ -67,7 +75,7 @@
 	</topic>
 	<topic label="The Standard Library" href="html/pguide/library.html"/>
 </topic> 
-
+-->
 <topic label="X10 Language Reference" href="html/langref/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
 	<topic label="Introduction"  href="html/langref/introduction.html"/> 
@@ -126,7 +134,10 @@
 		<topic label="Static initialization" href="html/langref/cla-staticinit.html"/>
 		<topic label="User-Defined Operators" href="html/langref/cla-userdefinedops.html"/> 
 		<topic label="Class Guards and Invariants" href="html/langref/cla-guards.html"/>
-		<topic label="Method Resolution" href="html/langref/cla-methodres.html"/>		
+		<topic label="Method Resolution" href="html/langref/cla-methodres.html"/>
+		<topic label="Static Nested Classes" href="html/langref/cla-staticnested.html"/>
+		<topic label="Inner Classes" href="html/langref/cla-inner.html"/>
+		<topic label="Anonymous Classes" href="html/langref/cla-anonymous.html"/>		
 	</topic>
 	<topic label="Structs" href="html/langref/structs.html"> 
 		<topic label="Struct declaration" href="html/langref/str-decl.html"/> 
@@ -134,7 +145,8 @@
 		<topic label="Optional Implementation of Any methods" href="html/langref/str-anymethods.html"/> 
 		<topic label="Primitive Types" href="html/langref/str-primitives.html"/> 
 		<topic label="Generic programming with structs" href="html/langref/str-genericprog.html"/> 
-		<topic label="Example structs" href="html/langref/str-example.html"/> 
+		<topic label="Example structs" href="html/langref/str-example.html"/>
+		<topic label="Nested Structs" href="html/langref/str-nested.html"/>  
 	</topic>
 	<topic label="Functions" href="html/langref/functions.html"> 
 		<topic label="Overview" href="html/langref/fun-overview.html"/> 
@@ -155,7 +167,7 @@
 		<topic label="Numeric Operations" href="html/langref/exp-numericops.html"/>   
 		<topic label="Bitwise complement" href="html/langref/exp-bitwisecompl.html"/> 
 		<topic label="Binary arithmetic operations" href="html/langref/exp-binarithops.html"/> 
-		<topic label="Binary shift" href="html/langref/exp-binshiftops.html"/>
+		<topic label="Binary shift operations" href="html/langref/exp-binshiftops.html"/>
 		<topic label="Binary bitwise operations" href="html/langref/exp-binbitwiseops.html"/>  
 		<topic label="String concatenation" href="html/langref/exp-strcat.html"/> 
 		<topic label="Logical negation" href="html/langref/exp-logicalneg.html"/> 
@@ -184,10 +196,12 @@
 		<topic label="Switch statement" href="html/langref/sta-switch.html"/> 
 		<topic label="While statement" href="html/langref/sta-while.html"/> 
 		<topic label="Do-while statement" href="html/langref/sta-dowhile.html"/>  
-		<topic label="For statement" href="html/langref/sta-for.html"/> 
+		<topic label="For statement" href="html/langref/sta-for.html"/>
+		<topic label="Return statement" href="html/langref/sta-return.html"/>
+		<topic label="Assert statement" href="html/langref/sta-assert.html"/>
+		<topic label="Exceptions in X10" href="html/langref/sta-exceptions.html"/>
 		<topic label="Throw statement" href="html/langref/sta-throw.html"/> 
-		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/> 
-		<topic label="Return statement" href="html/langref/sta-return.html"/> 
+		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/>  
 	</topic>
 	<topic label="Places" href="html/langref/places.html"> 
 		<topic label="The Structure of Places" href="html/langref/pla-structure.html"/> 
@@ -198,18 +212,14 @@
 		<topic label="at: Place changing" href="html/langref/act-placechanging.html"/>  
 		<topic label="async: Spawning an Activity" href="html/langref/act-spawn.html"/> 
 		<topic label="Finish" href="html/langref/act-finish.html"/> 
-		<topic label="Initial activity" href="html/langref/act-initial.html"/> 
-<!--		
-		<topic label="Foreach statements" href="html/langref/act-foreach.html"/>
--->		
+		<topic label="Initial activity" href="html/langref/act-initial.html"/> 	
 		<topic label="Ateach statements" href="html/langref/act-ateach.html"/>  
 <!--		
+		<topic label="Foreach statements" href="html/langref/act-foreach.html"/>
 		<topic label="Futures" href="html/langref/act-futures.html"/>
--->		
 		<topic label="At expressions" href="html/langref/act-atexpr.html"/>
-<!--		
-		<topic label="Shared variables" href="html/langref/act-sharedvars.html"/>   
--->		
+		<topic label="Shared variables" href="html/langref/act-sharedvars.html"/> 
+-->			
 		<topic label="Atomic blocks" href="html/langref/act-atomicblocks.html"/> 
 	</topic>
 	<topic label="Clocks" href="html/langref/clocks.html"> 
@@ -222,9 +232,13 @@
 		<topic label="Points" href="html/langref/arr-points.html"/> 
 		<topic label="Regions" href="html/langref/arr-regions.html"/> 
 		<topic label="Arrays" href="html/langref/arr-arrays.html"/> 
-		<topic label="Distributions" href="html/langref/arr-dists.html"/> 
+		<topic label="Distributions" href="html/langref/arr-dists.html"/>
+		<topic label="Distributed Arrays" href="html/langref/arr-distarrays.html"/>
+		<topic label="Distributed Array Construction" href="html/langref/arr-distarraryconstr.html"/>
+<!-- 
 		<topic label="Array Initializer" href="html/langref/arr-initializer.html"/> 
-		<topic label="Operations on arrays" href="html/langref/arr-ops.html"/> 
+-->
+		<topic label="Operations on Arrays and Destributed Arrays" href="html/langref/arr-ops.html"/> 
 	</topic>
 	<topic label="Annotations and compiler plugins" href="html/langref/annotations.html"> 
 		<topic label="Annotation syntax" href="html/langref/ann-syntax.html"/> 
@@ -237,13 +251,6 @@
 		<topic label="External Java Code" href="html/langref/ext-javacode.html"/> 
 		<topic label="External C++ Code" href="html/langref/ext-cppcode.html"/>
 	</topic>
-<!--	
-	<topic label="Objects" href="html/langref/objects.html"> 
-		<topic label="Object initialization" href="html/langref/obj-init.html"/> 
-	</topic>
-	<topic label="Method Resolution" href="html/langref/methodres.html"/>
--->
-	<topic label="Lost Bits" href="html/langref/lostbits.html"/>
 	<topic label="Grammar" href="html/langref/grammar.html"/>
 	<topic label="References" href="html/langref/refs.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>
