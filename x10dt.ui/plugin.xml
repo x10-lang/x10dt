@@ -131,6 +131,15 @@
       </context>
    </extension>
    <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            name="%context.X10Perspective.name"
+            description="%context.X10Perspective.description"
+            parentId="org.eclipse.ui.contexts.window"
+            id="x10dt.ui.x10PerspectiveScope">
+      </context>
+   </extension>
+   <extension
          point="org.eclipse.ui.bindings">
       <key
             commandId="x10dt.ui.launching.x10LaunchShortcut.run"
@@ -159,15 +168,21 @@
             sequence="M1+M3+M4+D X">
       </key>
       <key
-            sequence="M1+M2+T"
-            contextId="x10dt.ui.x10EditorScope"
+            sequence="M1+M2+M3+T"
+            contextId="x10dt.ui.x10PerspectiveScope"
             commandId="x10dt.ui.navigate.OpenType"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="M1+T"
+            sequence="M1+M3+T"
             contextId="x10dt.ui.x10EditorScope"
             commandId="x10dt.ui.navigate.OpenHierarchy"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+M2+T"
+            contextId="x10dt.ui.x10PerspectiveScope"
+            commandId="x10dt.ui.navigate.OpenTypeWarning"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
 <!--
@@ -205,6 +220,13 @@
             description="%ActionDefinition.open.hierarchy.description"
             categoryId="org.eclipse.ui.category.navigate"
             id="x10dt.ui.navigate.OpenHierarchy">
+      </command>
+      
+      <command
+            name="%ActionDefinition.openTypeWarning.name"
+            description="%ActionDefinition.openTypeWarning.description"
+            categoryId="org.eclipse.ui.category.navigate"
+            id="x10dt.ui.navigate.OpenTypeWarning">
       </command>
 <!--
       <command
@@ -517,6 +539,12 @@
                menubarPath="navigate/open.ext2"
                tooltip="%OpenTypeAction.tooltip">
          </action>
+         <action
+               id="openTypeWarning"
+               class="x10dt.search.ui.actions.OpenTypeActionWarning"
+               definitionId="x10dt.ui.navigate.OpenTypeWarning"
+               label="%OpenTypeAction.label">
+         </action>
 <!--
          <action
                definitionId="x10dt.ui.navigate.OpenTypeHierarchy"
@@ -645,5 +673,10 @@
             extensions="x10"
             icon="icons/compilationUnitNormal.gif">
       </editor>
+   </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="x10dt.ui.EarlyStartup"></startup>
    </extension>
 </plugin>

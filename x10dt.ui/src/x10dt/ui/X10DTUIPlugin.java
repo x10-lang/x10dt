@@ -23,18 +23,30 @@ import java.net.URL;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PerspectiveAdapter;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
+
+import x10dt.search.ui.typeHierarchy.X10Constants;
 
 public class X10DTUIPlugin extends AbstractUIPlugin {
     public static final String PLUGIN_ID= "x10dt.ui";
+    public static final String PERSPECTIVE_SCOPE = PLUGIN_ID + ".x10PerspectiveScope";
+    public static final String EDITOR_SCOPE = PLUGIN_ID + ".x10EditorScope";
     
     private static X10DTUIPlugin sInstance;
 
     private static ILog sLog;
-    
-    
 
     public X10DTUIPlugin() {
 	super();
@@ -45,7 +57,7 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
 	return sInstance;
     }
 
-    public void maybeWriteInfoMsg(String msg) {
+	public void maybeWriteInfoMsg(String msg) {
     	// BRT fEmitInfoMessages not read here, always write info msg for now, until can determine how to read/write correctly
 //        if (!fEmitInfoMessages) 
 //            return;

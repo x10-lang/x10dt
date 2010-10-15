@@ -69,6 +69,8 @@ public class Messages extends NLS {
 	public static String TypeSelectionDialog_error_type_doesnot_exist;
 	public static String TypeSelectionDialog2_title_format;
 	
+	public static String TypeSelectionDialog_keybindingWarning_title;
+	public static String TypeSelectionDialog_keybindingWarning_message;
 
 	public static String TypeSelectionComponent_label;
 	public static String TypeSelectionComponent_menu;

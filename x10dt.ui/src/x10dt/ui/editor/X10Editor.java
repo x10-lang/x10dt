@@ -12,12 +12,12 @@ import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.texteditor.TextOperationAction;
 
 import x10dt.search.ui.Messages;
 import x10dt.search.ui.actions.EditorActionDefinitionIds;
 import x10dt.search.ui.actions.OpenViewActionGroup;
+import x10dt.search.ui.typeHierarchy.X10Constants;
 import x10dt.ui.X10DTUIPlugin;
 
 public class X10Editor extends UniversalEditor {
@@ -71,7 +71,7 @@ public class X10Editor extends UniversalEditor {
 		fRefreshContributions = new DefaultPartListener() {
 			@Override
 			public void partActivated(IWorkbenchPart part) {
-				if (part instanceof UniversalEditor) {
+				if (part instanceof UniversalEditor || part.getSite().getPage().getPerspective().getId().equals(X10Constants.ID_HIERARCHYPERSPECTIVE)) {
 					part.getSite().getPage().showActionSet(TYPE_ACTION_SET);
 				} else {
 					part.getSite().getPage().hideActionSet(TYPE_ACTION_SET);
@@ -125,6 +125,6 @@ public class X10Editor extends UniversalEditor {
 	 * initializeKeyBindingScopes()
 	 */
 	protected void initializeKeyBindingScopes() {
-		setKeyBindingScopes(new String[] { "x10dt.ui.x10EditorScope" }); //$NON-NLS-1$
+		setKeyBindingScopes(new String[] { X10DTUIPlugin.EDITOR_SCOPE }); //$NON-NLS-1$
 	}
 }
