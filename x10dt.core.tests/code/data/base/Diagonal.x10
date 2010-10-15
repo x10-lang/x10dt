@@ -15,7 +15,7 @@ public class Diagonal(N:Int) implements Matrix(N,N) {
     def rail():Rail[Float](N) = d;
     public operator this * (that:Matrix) {
 	if (that instanceof Diagonal) {
-	    val other = that to Diagonal(N);
+	    val other = that as Diagonal(N);
 	    val dd = Rail.make[Float](N, (i:Int)=> (d(i)*other(i)));
 	    return new Diagonal(dd);
 	}

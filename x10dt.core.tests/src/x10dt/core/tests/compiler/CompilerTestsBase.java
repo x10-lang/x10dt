@@ -41,6 +41,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.ErrorInfo;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
@@ -115,7 +116,7 @@ public class CompilerTestsBase {
             sources.add(f);
         }
         try {
-            ExtensionInfo extInfo = new x10.ExtensionInfo();
+            ExtensionInfo extInfo = new x10c.ExtensionInfo();
             Compiler compiler = getCompiler(extInfo, options, errors, sourcepath);
             Globals.initialize(compiler);
             compiler.compile(sources);
@@ -286,7 +287,14 @@ public class CompilerTestsBase {
 
                     @Override
                     public NodeVisitor enterCall(Node n) throws SemanticException {
-
+                    	Position position = n.position();
+						if (position == null)
+							Assert.assertFalse("AST: position is null for node:" + n, true);
+						if (position.file() == null)
+							Assert.assertFalse("AST: position.file() is null for node:" + n, true);
+						if (!position.file().equals("Compiler Generated") && !position.file().startsWith(File.separator)) 
+							Assert.assertFalse("AST: position.file() returned a string that was not in the original sources:" + n, true);
+				 		
                          if (n instanceof TypeNode) {
 
                             TypeNode typeNode = (TypeNode) n;

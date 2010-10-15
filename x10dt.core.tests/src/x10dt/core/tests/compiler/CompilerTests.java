@@ -26,7 +26,14 @@ public class CompilerTests extends CompilerTestsBase {
 	private static String DATA_PATH = "data" + File.separator + "base" + File.separator;
 
 	@Test
-	public void jira1761() throws Exception {
+	public void fileBug() throws Exception {
+		String[] sources = {"EqSolver.x10"};
+		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
+	
+	
+	@Test
+	public void jira1761() throws Exception  {
 		String[] sources = {"Hello9.x10"};
 		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
 	}

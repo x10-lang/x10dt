@@ -1,4 +1,12 @@
 public class Foo1 {
-var i: Int;
-def this(bar: Bar!) { bar.hitMe(this); // this should be flagged as an error? }
+	var i: Int;
+	var myBar:    Bar;
+
+	def this(bar: Bar) { 
+		myBar    = bar;
+	}
+	
+	def foo(){
+		myBar.hitMe(this);
+	}
 }
