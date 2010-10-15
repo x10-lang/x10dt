@@ -1,7 +1,7 @@
 <html>
 <body>
 
-<h1>Windows Installation</h1>
+<h1>Windows X10 Command Line Installation</h1>
 In order to run X10 on Windows, you need to satisfy the follow pre-requisites.
 <h2>Prereqs</h2>
 <ul>
@@ -10,8 +10,49 @@ In order to run X10 on Windows, you need to satisfy the follow pre-requisites.
 	<li>open MPI / mpich2</li>
 </ul>
 
-<h4>gcc/g++</h4>
-gcc is not installed with Windows. To get gcc you will need to install cygwin.
+<a name="gcc-prereq">
+<h3>gcc/g++</h3>
+gcc is not installed with Windows. To get gcc you will need to install the Cygwin package.
+The latest version is 1.7.7. There are two ways to do this
+<ol>
+<li>script installation using the cygwin-install package documented 
+under <a href="#batch-cygwin">the batch installation</a> 
+<li>interactively using the cygwin installer which is documented 
+under <a href="#interactive-cygwin">the interactive installation</a> 
+</ol>
+
+<a name="batch-cygwin">
+<h4>1. Cygwin batch installation</h5>
+We have developed a batch installation of Cygwin that you can downloaded
+to install the Cygwin environment.  It can be downloaded from 
+<a href="http://dist.codehaus.org/x10/documentation/install/cygwin-install.zip">
+http://dist.codehaus.org/x10/documentation/install/cygwin-install.zip</a>
+<p>
+You should download this file to a temporary directory, unzip the contents, and
+run "cygsetup.bat".   This will prompt you for your windows id so it can create
+the login directory and install some cygwin shell files. Also watch out for any
+firewall prompts that you may have to respond to.
+<P>
+Once the installation is complete you will be in the cygwin directory, and you
+can start cygwin by running "cygwin.bat".  Then you should run "mpd &". 
+MPD is the MPICH daemon, which controls/runs/stops the proccesses on your machine.
+<p>
+We have also supplied another batch file called "addpkg.bat" which can be used
+to download additional packages.  For example, you might want to download and 
+install the unix editors, vim and emacs.  You would do this by running
+<pre>
+addpkg vim emacs
+</pre>
+<p>
+For those who are interested in compiling the X10 distribution,
+we have also supplied another batch file called "addbuildpkgs.bat" which will
+download all the packages you need to build the x10 distribution.
+<p>
+You can now proceed to checking the <a href="#java-prereq">java prereq.</a>
+
+
+<a name="interactive-cygwin">
+<h4>2. Cygwin interactive installation</h5>
 To get the base cygwin do the following
 <ul>
 <li>Go to the cygwin site
@@ -55,8 +96,8 @@ Select any other packages that you may want. Note any dependencies will be downl
 Utils - util-linux 2.14.1
 </pre>
 
-
-<h4>java</h4>
+<a name="java-prereq">
+<h3>java</h3>
 Java is not included by default with Windows. However, nost people will have installed one already.
 If not, you should download and install the latest Sun Java runtime or JDK for 1.5.0_x or 1.6.0_x.
 You should install Java in the normal fashion either in "Program Files" or directly at the
@@ -69,7 +110,7 @@ You can do this using the Windows control panel System application.
 Control Panel -> System -> Advanced -> Environment Variables
 </pre>
 Under System variables, check for JAVA_HOME and if not defined, click edit and enter the 
-"Variable name" JAVA_HOME and the "Varible value" as the JRE or JDK path. Click Ok to save
+"Variable name" JAVA_HOME and the "Variable value" as the JRE or JDK path. Click Ok to save
 your values.
 <p>
 You should start cygwin and test for Java by doing the following
@@ -92,11 +133,20 @@ $ echo $JAVA_HOME
 C:\jdk1.5.0_15
 </pre>
 
-
-<h4>openmpi / mpich2</h4>
+<a name="openmpi-prereq">
+<h3>openmpi / mpich2</h3>
 OpenMPI is not include with Windows.
 We have created a version of MPICH2 for Windows on the codehaus site that should be downloaded
-and installed in the cygwin directory. Start the cygwin setup again and add this as a Cygwin mirror.
+and installed in the cygwin directory.
+<p>
+<a name="batch-mpich">
+<h5>MPICH batch install</h5>
+If you have used the batch installation of cygwin, you can bypass the next section
+and proceed to <a href="#getting-started">getting started</a> section.
+<p>
+<a name="interactive-mpich">
+<h5>MPICH interactive install</h5>
+Start the cygwin setup again and add this as a Cygwin mirror.
 You'll have to run Cygwin setup with -X (command line, or through a shortcut) 
 to make it avoid checking signatures.
 <pre>
@@ -135,73 +185,8 @@ PATH=/usr/contrib/mpich2-1.2.1/bin:${PATH}
 export PATH
 </pre>
 
-<h2>Running X10 programs</h2>
-<p>
-Note that the C++ backend makes use of the MPICH2 runtime that is installed on your
-system, so you can also enter the following command to run an x10 program
-<p>
-<pre>
-mpirun -np 1 ./Hello.exe
-</pre>
-<p>
-However, on Windows, a daemon (mpd) has to be running to use mpirun. This daemon requires a
-.mpd.conf file in your home directory. You can create this by doing the following
-<pre>
-cd $HOME
-touch .mpd.conf
-chmod 600 .mpd.conf
+<a name="getting-started">
 
-...and then use an editor to insert a line like
-
-  MPD_SECRETWORD=mr45-j9z
-  
-Of course use some other secret word than mr45-j9z.
-
-</pre>
-<p>
-Now you can start the mpd daemon in the background so you can use mpirun to execute programs. 
-<p>
-<pre>
-mpd&
-</pre>
-<p>
-<p>
-You will need to prefix your program
-with a "./" so that mpirun knows to look in the current directory for the program. You
-can fix this by adding "./" to your PATH directive in your profile.
-<p>
-Now you should be able to use mpirun to schedule programs.
-
-<p>
-If you see this error, it means that you have not started the daemon
-<pre>
-mpiexec_IBM_575BEBB7377: cannot connect to local mpd (/tmp/mpd2.console_infos5);
-  posssible causes:
-  1. no mpd is running on this host
-  2. an mpd is running but was started without a "console" (-n option)
-In case 1, you can start an mpd on this host with:
-     mpd&
-and you will be able to run jobs just on this host.
-For more details on starting mpds on a set of hosts, se
-the MPICH2 installation guide.
-</pre>
-
-<p>
-If you get this error when starting the mpd daemon, you have not created the .mpd.conf
-file in your home directory.
-<pre>
-A file named .mpd.conf file must be present in the user's home
-directory (/etc/mpd.conf if root) with read and write access
-only for the user, and must contain a least one line with:
-MPD_SECRETWORD=<secretword>
-One way to safely create this file is to do the following:
-  cd $HOME
-  touch .mpd.conf
-  chmod 600 .mpd.conf
-and then use an editor to insert a line like
-  MPD_SECRETWORD=mr45-j9z
-into the file. (Of course use some other secret word than mr45-j9z.)
-</pre>
 <h2>Comments</h2>
 Comments and suggestions are welcome. 
 Please send email to 
