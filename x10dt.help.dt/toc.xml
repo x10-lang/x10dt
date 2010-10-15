@@ -101,8 +101,9 @@
 		<topic label="Formatting" href="html/reference/preferences/formatting.html" />  
 		<topic label="Runtime" href="html/reference/preferences/runtime.html" /> 
 	</topic> 
-	
+<!--	
 	<topic label="Preferences" href="html/reference/preferences/prefs-old.html"/>
+-->
 </topic>
 
 <!--
