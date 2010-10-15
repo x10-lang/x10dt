@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -294,17 +295,17 @@ public class OpenTypeHistory extends History {
 				continue;
 			try {
 				ITypeInfo jType= type.getType();
-//				if (jType == null || !jType.exists()) {
-//					remove(type);
-//				} else {
+				if (jType == null || !jType.exists(new NullProgressMonitor())) {
+					remove(type);
+				} else {
 					// copy over the modifiers since they may have changed
-//					int modifiers= jType.getFlags();
-//					if (modifiers != type.getModifiers()) {
-//						replace(type, SearchEngine.createTypeNameMatch(jType, modifiers));
-//					} else {
+					int modifiers= jType.getX10FlagsCode();
+					if (modifiers != type.getModifiers()) {
+						replace(type, new DefaultTypeNameMatch(jType, modifiers));
+					} else {
 						fTimestampMapping.put(type, new Long(currentTimestamp));
-//					}
-//				}
+					}
+				}
 			} catch (Exception e) {
 				remove(type);
 			}
@@ -328,7 +329,7 @@ public class OpenTypeHistory extends History {
 						// The element could be removed from the build path. So check
 						// if the Java element still exists.
 //						IJavaElement element= JavaCore.create(resource);
-//						if (element != null && element.exists())
+						if (typeInfo.exists(new NullProgressMonitor()))
 							return info.getLastModified();
 					}
 				}
@@ -401,7 +402,7 @@ public class OpenTypeHistory extends History {
 
 	protected void setAttributes(Object object, Element typeElement) {
 		TypeNameMatch type= (TypeNameMatch) object;
-		String handleId= SearchUtils.getResource(type.getType()).getRawLocationURI().toString();
+		String handleId= SearchUtils.getHandleIdentifier(type.getType());
 		typeElement.setAttribute(NODE_HANDLE, handleId);
 		typeElement.setAttribute(NODE_MODIFIERS, Integer.toString(type.getModifiers()));
 		Long timestamp= (Long) fTimestampMapping.get(type);

@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
@@ -434,21 +435,21 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 		for (int i= 0; i < newResult.size(); i++) {
 			if (newResult.get(i) instanceof TypeNameMatch) {
 				ITypeInfo type= ((TypeNameMatch) newResult.get(i)).getType();
-//				if (SearchUtils.getResource(type) != null) {
+				if (type.exists(new NullProgressMonitor())) {
 					// items are added to history in the
 					// org.eclipse.ui.dialogs.FilteredItemsSelectionDialog#computeResult()
 					// method
 					resultToReturn.add(type);
-//				} 
-//				else {
-//					TypeNameMatch typeInfo= (TypeNameMatch) newResult.get(i);
-//					String root= typeInfo.getPackageName();
-//					String containerName= root;
-//					String message= MessageFormat.format(Messages.FilteredTypesSelectionDialog_dialogMessage, new String[] 
-//					{ SearchUtils.getFullyQualifiedName(type), containerName });
-//					MessageDialog.openError(getShell(), fTitle, message);
-//					getSelectionHistory().remove(typeInfo);
-//				}
+				} 
+				else {
+					TypeNameMatch typeInfo= (TypeNameMatch) newResult.get(i);
+					String root= typeInfo.getPackageName();
+					String containerName= root;
+					String message= MessageFormat.format(Messages.FilteredTypesSelectionDialog_dialogMessage, new String[] 
+					{ SearchUtils.getFullyQualifiedName(type), containerName });
+					MessageDialog.openError(getShell(), fTitle, message);
+					getSelectionHistory().remove(typeInfo);
+				}
 			}
 		}
 
@@ -590,7 +591,7 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 
 		if (fValidator != null) {
 			ITypeInfo type= ((TypeNameMatch) item).getType();
-			if (!SearchUtils.getResource(type).exists()) {
+			if (!type.exists(new NullProgressMonitor())) {
 				String qualifiedName= SearchUtils.getFullyQualifiedName(type);
 				return new Status(IStatus.ERROR, UISearchPlugin.PLUGIN_ID, IStatus.ERROR, MessageFormat.format(Messages.FilteredTypesSelectionDialog_error_type_doesnot_exist, qualifiedName), null);
 			}

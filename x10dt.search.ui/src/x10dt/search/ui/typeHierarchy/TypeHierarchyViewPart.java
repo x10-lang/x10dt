@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -323,9 +324,9 @@ public class TypeHierarchyViewPart extends ViewPart implements ITypeHierarchyVie
 	private void updateHistoryEntries() {
 		for (int i= fInputHistory.size() - 1; i >= 0; i--) {
 			ITypeInfo type= (ITypeInfo) fInputHistory.get(i);
-//			if (!type.getResource().exists()) {
-//				fInputHistory.remove(i);
-//			}
+			if (!type.exists(new NullProgressMonitor())) {
+				fInputHistory.remove(i);
+			}
 		}
 		fHistoryDropDownAction.setEnabled(!fInputHistory.isEmpty());
 	}
@@ -1413,7 +1414,7 @@ public class TypeHierarchyViewPart extends ViewPart implements ITypeHierarchyVie
 	}
 
 	protected void doTypeHierarchyChangedOnViewers(ITypeInfo[] changedTypes) {
-		if (fHierarchyLifeCycle.getHierarchy() == null /*|| !fHierarchyLifeCycle.getHierarchy().exists()*/) {
+		if (fHierarchyLifeCycle.getHierarchy() == null || !fHierarchyLifeCycle.getHierarchy().getType().exists(new NullProgressMonitor())) {
 			clearInput();
 		} else {
 			if (changedTypes == null) {
@@ -1503,7 +1504,7 @@ public class TypeHierarchyViewPart extends ViewPart implements ITypeHierarchyVie
 		String elementId= memento.getString(TAG_INPUT);
 		if (elementId != null) {
 			input = SearchUtils.createType(elementId);
-			if (input != null /*&& !input.getResource().exists()*/) {
+			if (input != null && !input.exists(new NullProgressMonitor())) {
 				input= null;
 			}
 		}

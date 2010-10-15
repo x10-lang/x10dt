@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ISourceProject;
@@ -88,7 +89,7 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 	}
 
 	public void ensureRefreshedTypeHierarchy(final ITypeInfo element, IRunnableContext context) throws InvocationTargetException, InterruptedException {
-		if (element == null) {
+		if (element == null|| !element.exists(new NullProgressMonitor())) {
 			freeHierarchy();
 			return;
 		}
