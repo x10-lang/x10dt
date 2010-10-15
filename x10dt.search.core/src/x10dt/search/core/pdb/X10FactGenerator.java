@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.search.core.pdb;
 
+import static x10dt.search.core.pdb.X10FactTypeNames.APPLICATION;
 import static x10dt.search.core.pdb.X10FactTypeNames.RUNTIME;
 
 import java.io.File;
@@ -123,38 +124,49 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
     if (context instanceof ISourceEntityContext) {
       final ContextWrapper sourceContext = processResource(resource);
             
-      for (final Map.Entry<String, Collection<Source>> entry : sourceContext.getSourceEntrySet()) {
-        final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
-        
-        final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
-        
-        if (RUNTIME.equals(entry.getKey())) {
-          typeManager.loadIndexingFile(factBase, factContext);
-        
-          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
-          if ((value != null) && ! value.isEmpty()) {
-            continue; // We build the type info for the runtime context only one time.
-          }
-        }
-        typeManager.initWriter(factBase, factContext, resource);
-        
-        final FactWriterVisitor visitor = typeManager.createNodeVisitor();
-        visitor.setScopeType(entry.getKey());
+      final Set<Map.Entry<String, Collection<Source>>> entries = sourceContext.getSourceEntrySet();
+      if (entries.isEmpty()) {
+        final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
         try {
-          for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
-                                                              entry.getValue())) {
-            if (job.ast() != null) {
-              job.ast().visit(visitor);
-            }
-          }
-          
-          typeManager.writeDataInFactBase(factBase, factContext);
-          
-          if (RUNTIME.equals(entry.getKey()) && ! hasIndexingFile(typeManager.getType().getName())) {
-            typeManager.createIndexingFile(factBase, factContext);
-          }
+          typeManager.initWriter(factBase, context, resource);
+          typeManager.writeDataInFactBase(factBase, context);
         } finally {
           typeManager.clearWriter();
+        }
+      } else {
+        for (final Map.Entry<String, Collection<Source>> entry : entries) {
+          final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
+
+          final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
+
+          if (RUNTIME.equals(entry.getKey())) {
+            typeManager.loadIndexingFile(factBase, factContext);
+
+            final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
+            if ((value != null) && !value.isEmpty()) {
+              continue; // We build the type info for the runtime context only one time.
+            }
+          }
+          typeManager.initWriter(factBase, factContext, resource);
+
+          final FactWriterVisitor visitor = typeManager.createNodeVisitor();
+          visitor.setScopeType(entry.getKey());
+          try {
+            for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
+                                                                entry.getValue())) {
+              if (job.ast() != null) {
+                job.ast().visit(visitor);
+              }
+            }
+
+            typeManager.writeDataInFactBase(factBase, factContext);
+
+            if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
+              typeManager.createIndexingFile(factBase, factContext);
+            }
+          } finally {
+            typeManager.clearWriter();
+          }
         }
       }
     }
