@@ -23,6 +23,8 @@
 </a>
 
 
+
+
 <div class="p"><!----></div>
 The rooted nature of X10 computations permits the definition of a
 <em>rooted exception model.</em> In multi-threaded programming languages
@@ -47,8 +49,9 @@ We may now state the exception model for X10.  An uncaught exception
 propagates up the activation path to its nearest root activity, where
 it may be handled locally or propagated up the <em>root-of</em> tree when
 the activity terminates (based on the semantics of the statement being
-executed by the activity).<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  In Java, exceptions may be overlooked because there is no good
-place to put a <b>try</b>-<b>catch</b> block; this is never the case in X10.
+executed by the activity).<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  
+There is always a good place to put a <b>try</b>-<b>catch</b> block to catch
+exceptions thrown by an asynchronous activity.
 
 <div class="p"><!----></div>
 

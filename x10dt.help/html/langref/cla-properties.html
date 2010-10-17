@@ -22,6 +22,7 @@
 <a name="PropertiesInClasses">
 </a>
 
+
 <div class="p"><!----></div>
 The properties of an object (or struct) are  public <b>val</b> fields
 usable at compile time in constraints.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a> 
@@ -70,7 +71,7 @@ the signature <b>x(): T</b>.
 
 <div class="p"><!----></div>
 Properties are initialized by the invocation of a special <b>property</b>
-statement, which must be performed in each constructor of the class:
+statement, which must be performed by each constructor of the class:
 <pre>
 property(e1,..., en);
 </pre>
@@ -85,10 +86,8 @@ must be given values at the same time.
 
 <div class="p"><!----></div>
 By construction, the graph whose nodes are values and whose edges are
-properties is acyclic.  &lt;em&#62;E.g.&lt;/em&#62;, there cannot be values <b>a</b> and <b>b</b> with
+properties is acyclic.  <em>E.g.</em>, there cannot be values <b>a</b> and <b>b</b> with
 properties <b>c</b> and <b>d</b> such that <b>a.c == b</b> and <b>b.d == a</b>.
-(The similar graph whose edges are <b>public val</b> fields <em>can</em> have
-cycles.) 
 
 <div class="p"><!----></div>
 <a name="PropertyCall">

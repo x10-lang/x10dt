@@ -20,6 +20,8 @@
  <h2><a name="tth_sEc5">
 5</a>&nbsp;&nbsp;Local variables</h2><a name="local-variables">
 </a>
+
+
 Local variables are declared in a limited scope, and, dynamically, keep their
 values only for so long as the scope is being executed.  They may be <b>var</b>
 or <b>val</b>.  
@@ -45,7 +47,7 @@ class Tub(p:Int){
 </pre>
 
 produces a variable <b>t</b> of type <b>Tub</b>, even though the expression
-<b>new Tub(3)</b> produces a value of type <b>Tubself.p==3</b> - that is, a
+<b>new Tub(3)</b> produces a value of type <b>Tub{self.p==3}</b> - that is, a
 <b>Tub</b>  whose <b>p</b> field is 3.  This can be inconvenient when the
 constraint information is required.
 
@@ -57,7 +59,7 @@ something of the intent of the variable.  However, including types in
 documentation type declaration</em>, written <b>val t &lt;: T = e</b>.  This 
 has the same effect as <b>val t = e</b>, giving <b>t</b> the full type inferred
 from <b>e</b>; but it also confirms statically that that type is at least
-<b>T</b>.  For example, the following gives <b>t</b> the type <b>Tubself.p==3</b> as
+<b>T</b>.  For example, the following gives <b>t</b> the type <b>Tub{self.p==3}</b> as
 desired: 
 <pre>
    val t &lt;: Tub = new Tub(3);
@@ -71,7 +73,7 @@ Variables do not need to be initialized at the time of definition - not even
 only be assigned to once. The X10 compiler performs static checks guaranteeing
 this restriction. The following is correct, albeit obtuse: 
 <pre>
-static def main(r: Array[String](1)):Void {
+static def main(r: Array[String](1)):void {
   val a : Int;
   a = r.size;
   val b : String;

@@ -110,11 +110,11 @@ X10 provides certain guarantees about the common type <b>V{v}</b> computed for
 <li> If <b>T == U</b>, then <b>V == T == U</b>.  For example, 
       X10 will compute the type of <b>b ? 0 : 1</b> as 
       <b>Int{c}</b> for some constraint <b>c</b>-perhaps simply 
-      picking <b>Int{true}</b>, &lt;em&#62;viz&lt;/em&#62;, <b>Int</b>.
+      picking <b>Int{true}</b>, <em>viz</em>, <b>Int</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> X10 preserves place information, because it is so important. If both
+<li> X10 preserves place information about <b>GlobalRef</b>s, because it is so important. If both
       <b>t</b> and <b>u</b> entail <b>self.home==p</b>, then  
       <b>v</b> will also entail <b>self.home==p</b>.
 <div class="p"><!----></div>

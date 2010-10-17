@@ -20,6 +20,7 @@
  <h2><a name="tth_sEc3">
 3</a>&nbsp;&nbsp;Arrays</h2>
 
+
 <div class="p"><!----></div>
 Arrays are organized data, arranged so that it can be accessed by subscript.
 An <b>Array[T]</b> <b>A</b> has a <b>Region</b> <b>A.region</b>, telling which
@@ -27,7 +28,7 @@ An <b>Array[T]</b> <b>A</b> has a <b>Region</b> <b>A.region</b>, telling which
 <b>A(p)</b> is the datum of type <b>T</b> associated with <b>p</b>.  X10
 implementations should 
 attempt to store <b>Array</b>s efficiently, and to make array element accesses
-quick-, avoiding constructing <b>Point</b>s when unnecessary.
+quick-<em>e.g.</em>, avoiding constructing <b>Point</b>s when unnecessary.
 
 <div class="p"><!----></div>
 This generalizes the concepts of arrays appearing in many other programming
@@ -80,15 +81,12 @@ An <b>Array[T]</b> <b>A</b> has:
       Identical to <b>A.region.rank</b>.
 <div class="p"><!----></div>
 </li>
-
-<li>
-<div class="p"><!----></div>
-</li>
 </ul>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc3.1">
 3.1</a>&nbsp;&nbsp;Array Constructors</h3>
+
 
 <div class="p"><!----></div>
 To construct an array whose elements all have the same value, call
@@ -101,18 +99,20 @@ To construct and initialize an array, call the two-argument constructor.
 <b>new Array[T](R, f)</b> constructs an array of elements of type <b>T</b> on
 region <b>R</b>, with <b>A(p)</b> initialized to <b>f(p)</b> for each point
 <b>p</b> in <b>R</b>.  <b>f</b> must be a function taking a point of rank
-<b>R.rank</b> to a value of type <b>T</b>.  , to construct an array of a
+<b>R.rank</b> to a value of type <b>T</b>.  <em>E.g.</em>, to construct an array of a
 hundred zero values, call
 <b>new Array[Int](1..100, (Point(1))=&#62;0)</b>. 
 To construct a multiplication table, call
 <b>new Array[Int]((0..9)*(0..9), (p:Point(2)) =&#62; p(0)*p(1))</b>.
 
 <div class="p"><!----></div>
-Other constructors are available; see the API documentation.
+Other constructors are available; see the API documentation and
+&#167;. 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc3.2">
 3.2</a>&nbsp;&nbsp;Array Operations</h3>
+
 
 <div class="p"><!----></div>
 The basic operation on <b>Array</b>s is subscripting.  If <b>A:Array[T]</b> and 
@@ -140,48 +140,6 @@ subscript it.  For example, you could double every element of an
 <b>Array[Int]</b> by: 
 <pre>
 for (p in A) A(p) = 2*A(p);
-</pre>
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc3.3">
-3.3</a>&nbsp;&nbsp;Higher-Order Array Operations</h3>
-
-<div class="p"><!----></div>
-X10 has powerful operations which operation on the entirety of an array. Most
-of these take functions as an argument, explaining what to do to the array.
-
-<div class="p"><!----></div>
-<b>A.map(f)</b> applies the function <b>f</b> to all elements of <b>A</b>,
-collecting the results into a new array.  For example, 
-<pre>
-val A = new Array[Int](1..10, (p:Point(1))=&#62;p(0) );
-// A = 1,2,3,4,5,6,7,8,9,10
-val cube = (i:Int) =&#62; i*i;
-val B = A.map(cube);
-// B = 1,8,27,64,216,343,512,729,1000
-</pre>
-
-<div class="p"><!----></div>
-A variant operation lets you specify the array <b>B</b> into which the result
-will be stored.   
-<pre>
-val A = new Array[Int](1..10, (p:Point(1))=&#62;p(0) );
-// A = 1,2,3,4,5,6,7,8,9,10
-val cube = (i:Int) =&#62; i*i;
-val B = new Array[Int](A.region); // B = 0,0,0,0,0,0,0,0,0,0
-A.map(B, cube);
-// B = 1,8,27,64,216,343,512,729,1000
-</pre>
-
-This is convenient if you have an already-allocated array lying around unused.
-In particular, it can be used if you don't need <b>A</b> afterwards and want to
-reuse its space:
-<pre>
-val A = new Array[Int](1..10, (p:Point(1))=&#62;p(0) );
-// A = 1,2,3,4,5,6,7,8,9,10
-val cube = (i:Int) =&#62; i*i;
-A.map(A, cube);
-// A = 1,8,27,64,216,343,512,729,1000
 </pre>
 
 <div class="p"><!----></div>

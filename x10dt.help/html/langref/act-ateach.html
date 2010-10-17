@@ -21,62 +21,54 @@
 6</a>&nbsp;&nbsp;Ateach statements</h2><a name="ateach-section">
 </a>
 
+ The <b>ateach</b> construct is deprecated.
+
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>  
 <table>
-<tr><td align="right">Statement ::= AtEachStatement </td></tr>
-<tr><td align="right">AtEachStatement ::=
-      <b>ateach</b> <b>(</b> Formal <b>in</b> Expression <b>)</b>
-         Statement </td></tr>
-<tr><td align="right">AtEachStatement ::=
-      <b>ateach</b> <b>(</b> Expression <b>)</b>
-         Statement 
-</td></tr></table>
+<tr><td align="right">AtEachStatement    ::= <b>ateach</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> ClockedClause<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">
+    &#124; <b>ateach</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+<tr><td align="right">LoopIndexDeclarator    ::= Id HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">
+    &#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">LoopIndex    ::= Mods<sup>?</sup>&nbsp;LoopIndexDeclarator </td></tr>
+<tr><td align="right">
+    &#124; Mods<sup>?</sup>&nbsp;VarKeyword LoopIndexDeclarator</td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
+In <b>ateach(p in D) S</b>, <b>D</b> must be either of type <b>Dist</b>
+(see &#167;) or of type <b>DistArray[T]</b> (see
+&#167;), and <b>p</b> will be of type <b>Point</b> (see
+&#167;). If <b>D</b> is an <b>DistArray[T]</b>, then
+<b>ateach (p in D)S</b> is identical to 
+<b>ateach(p in D.dist)S</b>; the iteration is over the array's underlying
+distribution.   
 
 <div class="p"><!----></div>
-The <b>ateach</b> statement <b>ateach (p in D) S</b>
-spawns an activity <b>S</b> at each place <b>p</b> of a distribution <b>D</b>. 
-In <b>ateach(p in D) S</b>, 
-<b>D</b> must be either of type <b>Dist</b> 
-(see &#167;)
-or of type
-<b>DistArray[T]</b> (see &#167;), 
-and <b>p</b> will be of type <b>Point</b> (see &#167;).
+Instead of writing <b>ateach (p in D) S</b> the programmer should write 
+<b>for(p in D) at(D(p)) async S</b> to get the same effect. 
+For each point <b>p</b> in <b>D</b>, at place <b>D(p)</b>, <b>S</b> is
+executed simultaneously.
 
 <div class="p"><!----></div>
-<b>ateach(p in D)S</b> is equivalent to 
-<b>for(p in D) at(D(p)) async S</b>.  That is, the elements of <b>D</b> are all
-points <b>p</b>.  <b>D(p)</b> is a <b>Place</b>.  <b>ateach(p in D)S</b> executes
-the body <b>S</b> at the place <b>D(p)</b> (and may use the point <b>p</b>
-there). 
-
-<div class="p"><!----></div>
-However, the compiler may implement it more efficiently to avoid extraneous
-communications.  In particular, it is recommended that <b>ateach(p in D)S</b>
-be implemented as the following code, which coordinates with each place of
-<b>D</b> just once, rather than once per element of <b>D</b> at that place: 
-
-<div class="p"><!----></div>
+However, this often results in excessive communication and parallelism. Instead the
+programmer may want to write: 
 <pre>
-for (p in D.places()) async at (p) {
-    for (pt in D</td><td width="150">
-&#124;here) async {
-        S(pt);
+for (place in D.places()) async at (place) {
+    for (p in D</td><td width="150">
+&#124;here) {
+        S(p);
     }
 }
 </pre>
 
 <div class="p"><!----></div>
-If <b>e</b> is an <b>DistArray[T]</b>, then <b>ateach (p in e)S</b> is identical to
-<b>ateach(p in e.dist)S</b>; the iteration is over the array's underlying
-distribution.   
-The code below is a common and generally efficient way to work with the
-elements of a distributed array:
-<pre>
-ateach(p in A) 
-  dealWith(A(p));
-</pre>
+If the programmer wishes to execute <b>S</b> in parallel at each place,
+<b>S(p)</b> may be replaced by 
+<b>async S(p)</b>
+.
 
 <div class="p"><!----></div>
 

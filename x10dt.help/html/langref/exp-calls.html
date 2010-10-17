@@ -26,21 +26,32 @@
 <a name="MethodInvocationSubstitution">
 </a>
 
+
+
+
+
+
+
+
+
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>
 <table>
-<tr><td align="right">MethodCall ::= TypeName <b>.</b> Identifier TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">&#124; <b>super</b> <b>.</b> Identifier TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b> <b>.</b> Identifier TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">Call ::= Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">TypeArguments ::= <b>[</b> Type ( <b>,</b> Type )<sup>*</sup>&nbsp;<b>]</b> </td></tr>
+<tr><td align="right">MethodInvocation    ::= MethodName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">
+    &#124; Primary <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">&#124; Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+<tr><td align="right">ArgumentList    ::= Exp </td></tr>
+<tr><td align="right">
+    &#124; ArgumentList <b>,</b> Exp</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-A <em>MethodCall</em> may be to either a <b>static</b> or an 
-instance method.  A <em>Call</em> may invoke either a method
-or a closure.  
+A <em>MethodInvocation</em> may be to either a <b>static</b> method, an
+instance method, or a closure.
 
 <div class="p"><!----></div>
 The syntax is ambiguous; the target must be type-checked to determine if it is
@@ -68,14 +79,20 @@ A closure call &#235;(...)" is shorthand for a method call
 &#235;.apply(...)". 
 
 <div class="p"><!----></div>
-Method selection rules are similar to that of Java.
-For a call with no explicit type arguments, a method with 
-no parameters is considered more specific than a method with one or more
-type parameters that would have to be inferred.
+Method selection rules are given in &#167;.
 
 <div class="p"><!----></div>
 It is a static error if a method's <em>Guard</em> is not satisfied by the
-caller. 
+caller.  For example: 
+<pre>
+class DivideBy(denom:Int) {
+  def doIt(numer:Int){denom != 0} = numer / denom;
+  def example() {
+     //ERROR: denom might be zero: this.doIt(100); 
+     (this as DivideBy{self.denom != 0}).doIt(100);
+  }
+}
+</pre>
 
 <div class="p"><!----></div>
 

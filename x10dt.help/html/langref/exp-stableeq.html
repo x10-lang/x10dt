@@ -23,19 +23,22 @@
 </a>
 
 
+
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>
 <table>
-<tr><td align="right">EqualityExpression ::= Expression <b>==</b> Expression </td></tr>
-<tr><td align="right">&#124; Expression <b>!=</b> Expression </td></tr>
+<tr><td align="right">EqualityExp    ::= RelationalExp </td></tr>
+<tr><td align="right">
+    &#124; EqualityExp <b>==</b> RelationalExp</td></tr>
+<tr><td align="right">&#124; EqualityExp <b>!=</b> RelationalExp</td></tr>
+<tr><td align="right">&#124; Type  <b>==</b> Type </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 The <b>==</b> and <b>!=</b> operators provide a fundamental, though
 non-abstract, notion of equality.  <b>a==b</b> is true if the values of <b>a</b>
-and <b>b</b> are extremely identical, in a sense defined shortly.  <b>a != b</b>
-is true iff <b>a==b</b> is false.
+and <b>b</b> are extremely identical.
 
 <div class="p"><!----></div>
 
@@ -62,10 +65,14 @@ and all their fields or components must be <b>==</b>.
 </li>
 
 <li> If the operands have numeric types, they are coerced into the larger of
-      the two types and then compared for numeric equality.
+      the two types (see &#167;) and then compared for numeric equality.
 <div class="p"><!----></div>
 </li>
 </ul>
+
+<div class="p"><!----></div>
+<b>a != b</b>
+is true iff <b>a==b</b> is false.
 
 <div class="p"><!----></div>
 The predicates <b>==</b> and <b>!=</b> may not be overridden by the programmer.

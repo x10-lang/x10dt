@@ -17,7 +17,36 @@
 </head>
 
 <body>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Static Nested Classes</h2>
+<a name="StaticNestedClasses">
+</a>
 
+
+
+
+<div class="p"><!----></div>
+One class (or struct or interface) may be nested within another.  The simplest
+way to do this is as a <b>static</b> nested class. 
+For most purposes, a static nested class behaves like a top-level class.
+However, a static inner class has access to private static
+fields and methods of its containing class.  
+
+<div class="p"><!----></div>
+Nested interfaces and static structs are permitted as well.
+
+<div class="p"><!----></div>
+<pre>
+class Outer {
+  private static val priv = 1;
+  private static def special(n:Int) = n*n;
+  public static class StaticNested {
+     static def reveal(n:Int) = special(n) + priv;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
 
 </body>
 </html>

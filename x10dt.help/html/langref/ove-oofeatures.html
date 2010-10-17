@@ -69,7 +69,7 @@ struct PlanePoint implements Normed {
 An X10 interface specifies a collection of abstract methods; <b>Normed</b>
 specifies just <b>norm()</b>. Classes and
 structs can be specified to <em>implement</em> interfaces, as <b>Slider</b> and
-<b>PlanePoint</b> implement <b>Normed</b> , and, when they do so, must provide
+<b>PlanePoint</b> implement <b>Normed</b>, and, when they do so, must provide
 all the methods that the interface demands.
 
 <div class="p"><!----></div>
@@ -96,19 +96,19 @@ subclasses. Classes may have mutable fields, as <b>Slider</b> does.
 <div class="p"><!----></div>
 In contrast, structs are headerless values, lacking the internal organs
 which give objects their intricate behavior.  This makes them less powerful
-than objects (&lt;em&#62;e.g.&lt;/em&#62;, structs cannot inherit methods, though objects can), but also
-cheaper (&lt;em&#62;e.g.&lt;/em&#62;, they can be inlined, and they require less space than objects).  
+than objects (<em>e.g.</em>, structs cannot inherit methods, though objects can), but also
+cheaper (<em>e.g.</em>, they can be inlined, and they require less space than objects).  
 Structs are immutable, though their fields may be immutably set to objects
 which are themselves mutable.  They behave like objects in all ways consistent
-with these limitations; &lt;em&#62;e.g.&lt;/em&#62;, while they cannot <em>inherit</em> methods, they can
+with these limitations; <em>e.g.</em>, while they cannot <em>inherit</em> methods, they can
 have them - as <b>PlanePoint</b> does.
 
 <div class="p"><!----></div>
 X10 has no primitive classes per se. However, the standard library
-<b>x10.lang</b> supplies structs <b>Boolean</b>, <b>Byte</b>, <b>Short</b>,
-<b>Char</b>, <b>Int</b>, <b>Long</b>, <b>Float</b>, <b>Double</b>, <b>Complex</b>
-and <b>String</b>. The user may defined additional arithmetic structs using the
-facilities of the language.
+<b>x10.lang</b> supplies structs and objects <b>Boolean</b>, <b>Byte</b>,
+<b>Short</b>, <b>Char</b>, <b>Int</b>, <b>Long</b>, <b>Float</b>, <b>Double</b>,
+<b>Complex</b> and <b>String</b>. The user may defined additional arithmetic
+structs using the facilities of the language.
 
 <div class="p"><!----></div>
 
@@ -133,8 +133,9 @@ They are used extensively in X10
 programs.  For example, the normal way to construct an <b>Array[Int](1)</b> -
 that is, a fixed-length array of numbers, like an <b>int[]</b> in Java - is to
 pass two arguments to a factory method: the first argument being the length of
-the rail, and the second being a function which computes the initial value of
-the <b>i</b><sup>th</sup> element.  The following code constructs a rail
+the array, and the second being a function which computes the initial value of
+the <b>i</b><sup>th</sup> element.  The following code constructs a 1-dimensional
+array 
 initialized to the squares of 0,1,...,9: <b>r(0) == 0</b>, <b>r(5)==25</b>, etc. 
 <pre>
   val r : Array[Int](1) = new Array[Int](10, square);
@@ -153,7 +154,17 @@ properties, and can work with them logically.
 For example, an implementation of matrices <b>Mat</b> might have the numbers of
 rows and columns as properties.  A little bit of care in definitions allows
 the definition of a <b>+</b> operation that works on matrices of the same
-shape, and <b>*</b> that works on matrices with appropriately matching shapes
+shape, and <b>*</b> that works on matrices with appropriately matching shapes.
+<pre>
+abstract class Mat(rows:Int, cols:Int) {
+ static type Mat(r:Int, c:Int) = Mat{rows==r&amp;&amp;cols==c};
+ abstract operator this + (y:Mat(this.rows,this.cols))
+                 :Mat(this.rows, this.cols);
+ abstract operator this * (y:Mat) {this.cols == y.rows} 
+                 :Mat(this.rows, y.cols);
+</pre>
+
+<div class="p"><!----></div>
 The following code typechecks, but an attempt to compute <b>axb1 + bxc</b> or
 <b>bxc * axb1</b> would result in a compile-time type error:
 <pre>
@@ -174,19 +185,16 @@ The <b>(rows:Int, cols:Int)</b> in the class definition declares two
 properties, <b>rows</b> and <b>cols</b>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>  
 
 <div class="p"><!----></div>
-A constrained type looks like <b>Mat{self.rows==r &amp;&amp; self.cols==c}</b>: a type
-name, followed by a Boolean expression in braces.  The special variable
-<b>self</b> refers to the matrix whose number of rows and columns is being
-checked.  The <b>type</b> declaration on the second line makes
-<b>Mat(2,3)</b> be a synonym for <b>Mat{self.rows==r &amp;&amp; self.cols==c}</b>,
+A constrained type looks like <b>Mat{rows==r &amp;&amp; cols==c}</b>: a type
+name, followed by a Boolean expression in braces.  
+The <b>type</b> declaration on the second line makes
+<b>Mat(r,c)</b> be a synonym for <b>Mat{rows==r &amp;&amp; cols==c}</b>,
 allowing for compact types in many places.
 
 <div class="p"><!----></div>
 Functions can return constrained types.  
 The <b>makeMat(r,c)</b> method returns a <b>Mat(r,c)</b> - a matrix whose shape
-is given by the arguments to the method.  For the sake of brevity in
-the example, it returns <b>null</b>; in real code, it would actually produce a
-matrix - which must be statically provable to have the right shape.  In
+is given by the arguments to the method.    In
 particular, constructors can have constrained return types to provide specific
 information about the constructed values.
 
@@ -209,17 +217,6 @@ the shapes of the arguments.
 And that is all that is necessary for a user-defined class of matrices to have
 shape-checking for matrix addition and multiplication.  The <b>example</b>
 method compiles under those definitions.
-
-<div class="p"><!----></div>
-<pre>
-abstract class Mat(rows:Int, cols:Int) {
- static type Mat(r:Int, c:Int) = Mat{self.rows==r&amp;&amp;self.cols==c};
- static def makeMat(r:Int,c:Int) : Mat(r,c) = null;
- abstract operator this + (y:Mat(this.rows,this.cols))
-                 :Mat(this.rows, this.cols);
- abstract operator this * (y:Mat) {this.cols == y.rows} 
-                 :Mat(this.rows, y.cols);
-</pre>
 
 <div class="p"><!----></div>
 

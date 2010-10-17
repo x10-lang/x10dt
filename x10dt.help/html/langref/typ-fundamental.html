@@ -29,7 +29,7 @@ Certain types are used in fundamental ways by X10.
 
 <div class="p"><!----></div>
 It is quite convenient to have a type which all values are instances of; that
-is, a supertype of all types.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>  X10's universal supertype is the
+is, a supertype of all types.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>  X10's universal supertype is the
   interface <b>Any</b>. 
 
 <div class="p"><!----></div>
@@ -45,9 +45,9 @@ public interface Any {
 
 <div class="p"><!----></div>
 <b>Any</b> provides a handful of essential methods that make sense and are
-useful for everything.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a> <b>a.toString()</b> produces a
+useful for everything. <b>a.toString()</b> produces a
 string representation of <b>a</b>, and <b>a.typeName()</b> the string
-representation of its type; both are useful for debugging.  <b>aequals(b)</b>
+representation of its type; both are useful for debugging.  <b>a.equals(b)</b>
 is the programmer-overridable equality test, and <b>a.hashCode()</b> an integer
 useful for hashing.  
 

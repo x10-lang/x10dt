@@ -19,14 +19,23 @@
 <body>
  <h2><a name="tth_sEc3">
 3</a>&nbsp;&nbsp;Block statement</h2>
+
 <a name="Blocks">
 </a>
 
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>  
 <table>
-<tr><td align="right">Statement ::= BlockStatement </td></tr>
-<tr><td align="right">BlockStatement ::= <b> Statement<sup>*</sup>&nbsp;<b></b></b> </td></tr>
+<tr><td align="right">Block    ::= <b>{</b> BlockStatements<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">
+ BlockStatements    ::= BlockStatement </td></tr>
+<tr><td align="right">
+    &#124; BlockStatements BlockStatement</td></tr>
+<tr><td align="right">BlockStatement    ::= LocalVariableDeclStatement </td></tr>
+<tr><td align="right">
+    &#124; ClassDecl</td></tr>
+<tr><td align="right">&#124; TypeDefDecl</td></tr>
+<tr><td align="right">&#124; Statement</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

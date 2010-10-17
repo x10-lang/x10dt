@@ -22,13 +22,13 @@
 Functions, the last of the three kinds of values in X10, encapsulate pieces of
 code which can be applied to a vector of arguments to produce a value.
 Functions, when applied, can do nearly anything that any other code could do:
-fail to terminate, throw an exception, offer values, modify variables, spawn activities,
+fail to terminate, throw an exception, modify variables, spawn activities,
 execute in several places, and so on. X10 functions are not mathematical
 functions: the <b>f(1)</b> may return <b>true</b> on one call and <b>false</b> on
 an immediately following call.
 
 <div class="p"><!----></div>
-It is a limitation of X10 v2.0 that functions do not support
+It is a limitation of X10 v2.1 that functions do not support
 type arguments. This limitation may be removed in future versions of
 the language.
 
@@ -40,10 +40,12 @@ integers.
 <b>null</b> is also a function value.
 
 <div class="p"><!----></div>
+<em>Limitation</em> Function literals do not currently support guards. 
+
+<div class="p"><!----></div>
 Function application is written <b>f(a,b,c)</b>, following common mathematical
 usage. 
 
-Function invocation may throw unchecked exceptions. 
 
 <div class="p"><!----></div>
 The function body may be a block.  To compute integer squares by repeated
@@ -53,7 +55,7 @@ val sq: (Int) =&#62; Int
       = (n:Int) =&#62; {
            var s : Int = 0;
            val abs_n = n &lt; 0 ? -n : n;
-           for ((i) in 1..abs_n) s += abs_n;
+           for ([i] in 1..abs_n) s += abs_n;
            s
         };
 </pre>

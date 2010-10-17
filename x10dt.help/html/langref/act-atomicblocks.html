@@ -17,25 +17,34 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc8">
-8</a>&nbsp;&nbsp;Atomic blocks</h2><a name="AtomicBlocks">
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Atomic blocks</h2><a name="AtomicBlocks">
 </a>
-Languages such as Java use low-level synchronization locks to allow
-multiple interacting threads to coordinate the mutation of shared
-data. X10 eschews locks in favor of a very simple high-level
-construct, the <em>atomic block</em>.
+
 
 <div class="p"><!----></div>
+X10's <b>atomic</b> blocks provide a high-level construct for coordinating
+the mutation of shared data. 
 A programmer may use atomic blocks to guarantee that invariants of
 shared data-structures are maintained even as they are being accessed
 simultaneously by multiple activities running in the same place.  
 
 <div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">AtomicStatement    ::= <b>atomic</b> Statement </td></tr>
+<tr><td align="right">
+ WhenStatement    ::= <b>when</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right">
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
 For example, consider a class <b>Redund[T]</b>, which encapsulates a list
 <b>list</b> and, (redundantly) keeps the size of the list in a second field
 <b>size</b>.  Then <b>r:Redund[T]</b> has the invariant 
-<b>r.list.size() == r.size</b>, which must be true at any point that there are
-no method calls on <b>r</b> active.
+<b>r.list.size() == r.size</b>, which must be true at any point at which
+no method calls on <b>r</b> are active.
 
 <div class="p"><!----></div>
 If the <b>add</b> method on <b>Redund</b> (which adds an element to the list) 
@@ -76,24 +85,11 @@ def add(x:T) {
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc8.1">
-8.1</a>&nbsp;&nbsp;Unconditional atomic blocks</h3>
+     <h3><a name="tth_sEc7.1">
+7.1</a>&nbsp;&nbsp;Unconditional atomic blocks</h3>
 The simplest form of an atomic block is the <em>unconditional
-atomic block</em>:
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Statement ::= AtomicStatement </td></tr>
-<tr><td align="right">AtomicStatement ::= <b>atomic</b>  Statement </td></tr>
-<tr><td align="right">MethodModifier ::= <b>atomic</b> </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-Such a statement is executed by an activity as if in a single step
+atomic block</em>: <b>atomic S</b>.
+It is executed by an activity as if in a single step
 during which all other concurrent activities in the same place are
 blocked. If execution of the statement may throw an exception, it is
 the programmer's responsibility to wrap the atomic block within a
@@ -102,9 +98,6 @@ clause. Thus the <b>atomic</b> statement only guarantees atomicity on
 successful execution, not on a faulty execution.
 
 <div class="p"><!----></div>
-We allow methods of an object to be annotated with <b>atomic</b>. Such
-a method is taken to stand for a method whose body is wrapped within an
-<b>atomic</b> statement.
 
 <div class="p"><!----></div>
 Atomic blocks are closely related to non-blocking synchronization
@@ -112,27 +105,32 @@ constructs [], and can be used to implement
 non-blocking concurrent algorithms.
 
 <div class="p"><!----></div>
-In <b>atomic S</b>, <b>S</b> may include calls to <b>safe</b> methods, and use of
-sequential control structures.
+Code executed inside of <b>atomic S</b> and <b>when S</b> is subject
+to certain restrictions. A violation of these restrictions causes an 
+<b>IllegalOperationException</b> to be thrown at the point of the violation.
 
 <div class="p"><!----></div>
-It may <em>not</em> include an <b>async</b> activity (such as creation
-of a <b>future</b>).
+
+<ul>
+<li> <b>S</b> may not spawn another activity.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>S</b> may not use any blocking statements; <b>when</b>, <b>next</b>,
+      <b>finish</b>.  (The use of a nested <b>atomic</b> is permitted.)
+<div class="p"><!----></div>
+</li>
+
+<li> <b>S</b> may not <b>force()</b> a <b>Future</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>S</b> may not use <b>at</b> expressions.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
-It may <em>not</em> include any statement that may potentially block at
-runtime (&lt;em&#62;e.g.&lt;/em&#62;, <b>when</b>, <b>force</b> operations, <b>next</b>
-operations on clocks, <b>finish</b>). 
-
-<div class="p"><!----></div>
-It may <em>not</em> include any <b>at</b> expressions or
-statements. (Hence all locations accessed in the atomic block must
-belong to the current place.)
-
-<div class="p"><!----></div>
-The compiler checks for this condition by checking whether the statement
-could be the body of a <b>void</b> method annotated with <b>safe</b> at
-that point in the code (&#167;).
 
 <div class="p"><!----></div>
 
@@ -143,7 +141,7 @@ Note an important property of an (unconditional) atomic block:
 
 <br clear="all" /><table border="0" width="100%"><tr><td>
 <table border="0" cellspacing="0" cellpadding="0">
- <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table><tr><td nowrap="nowrap" align="right" colspan="1"> <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>atomic</b> <b>s</b><b>2</b>}</b> &amp;=&amp; <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>s</b><b>2</b>}</b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table><tr><td nowrap="nowrap" align="right" colspan="1"> <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>atomic</b> <b>s</b><b>2</b>}</b> = <b><b>atomic</b> {<b>s</b><b>1</b><b>;</b> <b>s</b><b>2</b>}</b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr></table>
 </td></tr></table>
 
 
@@ -154,8 +152,8 @@ behavior of sequential programs, including throwing exceptions and running
 forever, but they are guaranteed not to deadlock.
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc8.1.1">
-8.1.1</a>&nbsp;&nbsp;Example</h4>
+      <h4><a name="tth_sEc7.1.1">
+7.1.1</a>&nbsp;&nbsp;Example</h4>
 
 <div class="p"><!----></div>
 The following class method implements a (generic) compare and swap (CAS) operation:
@@ -173,8 +171,10 @@ public atomic def CAS(old1: Object, new1: Object): Boolean {
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc8.2">
-8.2</a>&nbsp;&nbsp;Conditional atomic blocks</h3>
+     <h3><a name="tth_sEc7.2">
+7.2</a>&nbsp;&nbsp;Conditional atomic blocks</h3>
+
+
 
 <div class="p"><!----></div>
 Conditional atomic blocks allow the activity to wait for some condition to be
@@ -212,26 +212,13 @@ And
 does not wait for <b>size&#62;0</b> to become true.
 
 <div class="p"><!----></div>
-Conditional atomic blocks are of the form:
+Conditional atomic blocks are of the form <b>when(b)S</b>; 
+<b>b</b> is called the <em>guard</em>, and <b>S</b> the <em>body</em>.
 
 <div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Statement ::=  WhenStatement </td></tr>
-<tr><td align="right">WhenStatement ::=  <b>when</b> <b>(</b> Expression <b>)</b> Statement </td></tr>
-<tr><td align="right">&#124; WhenStatement <b>or</b> <b>(</b> Expression <b>)</b> Statement 
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-In such a statement the one or more expressions are called <em>
-guards</em> and must be <b>Boolean</b> expressions. The statements are the
-corresponding <em>guarded statements</em>.  
-
-<div class="p"><!----></div>
-An activity executing such a statement suspends until such time as any
-one of the guards is true in the current state. In that state, the
-statement corresponding to the first guard that is true is executed.
+An activity executing such a statement suspends until such time as the  guard
+is true in the current state. In that state, the 
+body is executed. 
 The checking of the guards and the execution of the corresponding
 guarded statement is done atomically. 
 
@@ -248,32 +235,15 @@ to not hold any more).
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
- Rationale:
-The guarantee provided by <b>wait</b>/<b>notify</b> in Java is no
-stronger. Indeed conditional atomic blocks may be thought of as a
-replacement for Java's wait/notify functionality.
- 
-
-<div class="p"><!----></div>
 The statement <b>when (true) S</b> is
 behaviorally identical to <b>atomic S</b>: it never suspends.
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-For the sake of efficient implementation certain restrictions are
-placed on the guards and statements in a conditional atomic
-block. 
-
+The body <b>S</b> of <b>when(b)S</b> is subject to the same restrictions that
+the body of <b>await S</b> is.  The guard is subject to the same restrictions
+as well.  Furthermore, guards should not have side effects.
 
 <div class="p"><!----></div>
-Guards are statically required not to have side-effects, not to spawn
-asynchronous activities (as for the <b>sequential</b> qualifier on methods) and
-to have a statically determinable upper bound on their execution (as for the
-<b>nonblocking</b> qualifier on methods).
-
-<div class="p"><!----></div>
-The body of a <b>when</b> statement must satisfy the conditions
-for the body of an <b>atomic</b> block.
 
 <div class="p"><!----></div>
 Note that this implies that guarded statements are required to be <em>
@@ -323,14 +293,6 @@ class OneBuffer[T] {
 statement is the only statement that marks its activity as a root
 activity. Future versions of the language may introduce more such
 statements.
-<div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Strictly: the reference from the <tt>GlobalRef</tt> does not
-inspire copying.  Copying may be required due to some other, non-Global
-reference.
-<div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>X10 v2.1 does
-not specify a particular algorithm; this will be fixed in future
-versions.
 <br /><br />
 
 </body>

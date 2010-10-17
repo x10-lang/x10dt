@@ -21,11 +21,11 @@
 1</a>&nbsp;&nbsp;Packages</h2>
 
 <div class="p"><!----></div>
-A package is a named collection of top-level type declarations, , class,
+A package is a named collection of top-level type declarations, <em>viz</em>, class,
 interface, and struct declarations. Package names are sequences of
 identifiers, like <b>x10.lang</b> and <b>com.ibm.museum</b>. The multiple names
-are simply a convenience. Packages <b>a</b>, <b>a.b</b>, and <b>a.c</b> have only
-a very tenuous relationship, despite the similarity of their names.
+are simply a convenience, though there is a tenuous relationship between
+packages <b>a</b>, <b>a.b</b>, and <b>a.c</b>. 
 
 <div class="p"><!----></div>
 Packages and protection modifiers determine which top-level names can be used
@@ -57,9 +57,9 @@ be used from outside of <b>pack.age</b>.
 1.1</a>&nbsp;&nbsp;Name Collisions</h3>
 
 <div class="p"><!----></div>
-It is a static error for a package to have two members, or apparent members,
-with the same name.  For example, package <b>pack.age</b> cannot define two
-classes both named <b>Crash</b>, nor a class and an interface with that name.
+It is a static error for a package to have two members with the same name. For
+example, package <b>pack.age</b> cannot define two classes both named
+<b>Crash</b>, nor a class and an interface with that name.
 
 <div class="p"><!----></div>
 Furthermore, <b>pack.age</b> cannot define a member <b>Crash</b> if there is

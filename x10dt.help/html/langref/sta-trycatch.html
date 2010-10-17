@@ -17,21 +17,25 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc14">
-14</a>&nbsp;&nbsp;Try-catch statement</h2>
-
-<div class="p"><!----></div>
-  :  |        <em>  
+ <h2><a name="tth_sEc17">
+17</a>&nbsp;&nbsp;Try-catch statement</h2>
+<em>  
 <table>
-<tr><td align="right">Statement ::= TryStatement </td></tr>
-<tr><td align="right">TryStatement ::= <b>try</b> BlockStatement Catch<sup>+</sup>&nbsp;</td></tr>
-<tr><td align="right">&#124; <b>try</b> BlockStatement Catch<sup>*</sup>&nbsp;Finally </td></tr>
-<tr><td align="right">Catch ::= <b>catch</b> <b>(</b> Formal <b>)</b> BlockStatement </td></tr>
-<tr><td align="right">Finally ::= <b>finally</b> BlockStatement </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
+
+<tr><td align="right">TryStatement    ::= <b>try</b> Block Catches </td></tr>
+<tr><td align="right">
+    &#124; <b>try</b> Block Catches<sup>?</sup>&nbsp;Finally</td></tr>
+<tr><td align="right">Catches    ::= CatchClause </td></tr>
+<tr><td align="right">
+    &#124; Catches CatchClause</td></tr>
+<tr><td align="right">CatchClause    ::= <b>catch</b> <b>(</b> FormalParam <b>)</b> Block </td></tr>
+<tr><td align="right">
+ Finally    ::= <b>finally</b> Block </td></tr>
+<tr><td align="right">
 
 <div class="p"><!----></div>
+</td></tr></table>
+</em>
 Exceptions are handled with a <b>try</b> statement.
 A <b>try</b> statement consists of a <b>try</b> block, zero or more
 <b>catch</b> blocks, and an optional <b>finally</b> block.
@@ -57,10 +61,6 @@ If the <b>try</b> block completes
 exceptionally, the <b>finally</b> block is evaluated after the
 matching <b>catch</b> block, if any, and then the
 exception is rethrown.
-
-<div class="p"><!----></div>
-It is a static error to attempt to catch an exception type which is not
-throwable by the block.  
 
 <div class="p"><!----></div>
 

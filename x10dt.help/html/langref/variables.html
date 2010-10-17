@@ -18,7 +18,7 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 5 </a><br />Variables</h1><a name="XtenVariables">
+Chapter 1 </a><br />Variables</h1><a name="XtenVariables">
 </a>
 
 <div class="p"><!----></div>
@@ -83,30 +83,30 @@ be described in more detail in this chapter.
 <div class="p"><!----></div>
 </li>
 </ul>
-A few other kinds of things are called variables for historical reasons; &lt;em&#62;e.g.&lt;/em&#62;,
+A few other kinds of things are called variables for historical reasons; <em>e.g.</em>,
 type parameters are often called type variables, despite not being variables
 in this sense because they do not refer to X10 values.  Other named entities,
 such as classes and methods, are not called variables.  However, all
 name-to-whatever bindings enjoy similar concepts of scope and visibility.  
 
 <div class="p"><!----></div>
-In the following example, <b>n</b> is an instance variable, and <b>next</b> is a
+In the following example, <b>n</b> is an instance variable, and <b>nxt</b> is a
 local variable defined within the method <b>bump</b>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
 <pre>
 class Counter {
   private var n : Int = 0;
   public def bump() : Int {
-    val next = n+1;
-    n = next;
-    return next;
+    val nxt = n+1;
+    n = nxt;
+    return nxt;
     }
 }
 </pre>
 Both variables have type <b>Int</b> (or
 perhaps something more specific).    The scope of <b>n</b> is the body of
-<b>Counter</b>; the scope of <b>next</b> is the body of <b>bump</b>.  The
+<b>Counter</b>; the scope of <b>nxt</b> is the body of <b>bump</b>.  The
 lifetime of <b>n</b> is the lifetime of the <b>Counter</b> object holding it;
-the lifetime of <b>next</b> is the duration of the call to <b>bump</b>. Neither
+the lifetime of <b>nxt</b> is the duration of the call to <b>bump</b>. Neither
 variable can be seen from outside of its scope.
 
 <div class="p"><!----></div>

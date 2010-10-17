@@ -20,6 +20,10 @@
  <h2><a name="tth_sEc8">
 8</a>&nbsp;&nbsp;Method Resolution</h2>
 
+
+<a name="sect:MethodResolution">
+</a>
+
 <div class="p"><!----></div>
 Method resolution is the problem of determining, statically, which method (or
 constructor or operator)
@@ -69,15 +73,20 @@ generic types.
 <div class="p"><!----></div>
 For the purposes of method resolution, all that matters about a method,
 constructor, or operator <b>M</b> - we use the word method" to include all
-three choices for this section - is: 
+three choices for this section - is its signature, plus which method it is.
+So, a typical <b>M</b> might look like 
+"def m[G<sub>1</sub>,&#8230;, G<sub>g</sub>](x<sub>1</sub>:T<sub>1</sub>,&#8230;, x<sub>f</sub>:T<sub>f</sub>){c} =...".  The code body <b>...</b> is irrelevant for the purpose of whether a
+given method call means <b>M</b> or not, so we ignore it for this section.
+
+<div class="p"><!----></div>
 
 <ol type="1">
 <li> The method name <b>m</b>;
 <div class="p"><!----></div>
 </li>
 
-<li> The generic type parameters "G<sub>1</sub>,&#8230;, G<sub>g</sub>".  If there
-      are no generic type parameters, x=0.
+<li> The generic type parameters of the method <b>M</b>,  "G<sub>1</sub>,&#8230;, G<sub>g</sub>".  If there
+      are no generic type parameters, g=0.
 <div class="p"><!----></div>
 </li>
 
@@ -87,7 +96,7 @@ three choices for this section - is:
 <div class="p"><!----></div>
 </li>
 
-<li> The constraint <b>c</b>. If no constraint is specified, <b>c</b> is
+<li> The constraint <b>c</b> of the method <b>M</b>. If no constraint is specified, <b>c</b> is
       <b>true</b>.
 <div class="p"><!----></div>
 </li>
@@ -144,7 +153,7 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 
 <ol type="1">
 <li> Eliminate from <b>context</b> those methods which are not <em>
-      acceptable</em>; , those whose name, type parameters, formal parameters,
+      acceptable</em>; <em>viz</em>, those whose name, type parameters, formal parameters,
       and constraint do not suitably match <b>invo</b>.  In more detail:
       
 <ul>
@@ -175,7 +184,7 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 </li>
 
 <li> Eliminate from <b>context</b> those methods which are not <em>
-      available</em>; , those which cannot be called due to visibility
+      available</em>; <em>viz</em>, those which cannot be called due to visibility
       constraints, such as methods from other classes marked <b>private</b>.
       The remaining methods are both acceptable and available; they might be
       the one that is intended.
@@ -183,8 +192,8 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 </li>
 
 <li> From the remaining methods, find the unique <b>ms</b> which is more specific than all the
-      others, , for which <b>specific(ms,mo) = true</b> for all other
-      methods <b>mo</b>
+      others, <em>viz</em>, for which <b>specific(ms,mo) = true</b> for all other
+      methods <b>mo</b>.
       The specificity test <b>specific</b> is given next.
       
 <ul>
@@ -235,24 +244,6 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 </ol>
 
 <div class="p"><!----></div>
-<hr /><h3>Footnotes:</h3>
-
-<div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>In many cases, a 
-<b>val</b> field can be upgraded to a <b>property</b>, which 
-entails no compile-time or runtime cost.  Some cannot be, &lt;em&#62;e.g.&lt;/em&#62;, in cases where
-cyclic structures of <b>val</b> fields are required.
-<div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We use <b>Pt</b>
-to avoid any possible confusion with the built-in class <b>Point</b>.
-<div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>This is abominable behavior for 
-<b>toString</b>, but nonetheless it is allowed.
-<div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>The
-      variable names are relevant because one formal can be mentioned in a
-      later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
-<br /><br />
 
 </body>
 </html>

@@ -18,12 +18,12 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 17 </a><br />Annotations and compiler plugins</h1><a name="XtenAnnotations">
+Chapter 17 </a><br />Annotations</h1><a name="XtenAnnotations">
 </a>
 
 <div class="p"><!----></div>
 X10 provides an 
-an annotation system and compiler plugin system for to allow the
+an annotation system  system for to allow the
 compiler to be extended with new static analyses and new
 transformations.
 
@@ -35,17 +35,6 @@ In X10, interfaces may declare
 both methods and properties.  Therefore, like any interface type, an
 annotation may instantiate
 one or more of its interface's properties.
-Unlike with Java
-annotations,
-property initializers need not be
-compile-time constants;
-however, a given compiler plugin
-may do additional checks to constrain the allowable
-initializer expressions.
-The X10 type-checker does not check that
-all properties of an annotation are initialized,
-although this could be enforced by
-a compiler plugin.
 
 <div class="p"><!----></div>
 

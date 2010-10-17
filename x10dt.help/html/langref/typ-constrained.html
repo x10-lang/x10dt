@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Constrained types</h2>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Constrained types</h2>
 <a name="ConstrainedTypes">
 </a>
 <a name="DepType:DepType">
@@ -28,22 +28,22 @@
 
 <div class="p"><!----></div>
 Basic types, like <b>Int</b> and <b>List[String]</b>, provide useful
-descriptions of data.  Indeed, most typed programming languages get by with no
-more specific descriptions.
+descriptions of data.  
 
 <div class="p"><!----></div>
-However, there are a lot of things that one frequently wants to say about
-data.  One might want to know that a <b>String</b> variable is not <b>null</b>,
-or that a matrix is square, or that one matrix has the same number of columns
-that another has rows (so they can be multiplied).  In the multicore setting,
-one might wish to know that two values are located at the same processor, or
-that one is located at the same place as the current computation.
+However, one frequently wants to say more.  One might want to know
+that a <b>String</b> variable is not <b>null</b>, or that a matrix is
+square, or that one matrix has the same number of columns as another
+has rows (so they can be multiplied).  In the multicore setting, one
+might wish to know that two values are located at the same processor,
+or that one is located at the same place as the current computation.
 
 <div class="p"><!----></div>
-In most languages, there is simply no way to say these things statically.
-Programmers must made do with comments, <b>assert</b> statements, and dynamic
-tests.  X10 can do better, with <em>constraints</em> on types (and methods and
-other things).
+In most languages, there is simply no way to say these things
+statically.  Programmers must made do with comments, <b>assert</b>
+statements, and dynamic tests.  X10 programs can do better, with <em>
+  constraints</em> on types, and guards on class, method and type
+definitions,
 
 <div class="p"><!----></div>
 A constraint is a boolean expression <b>e</b> attached to a basic type <b>T</b>,
@@ -56,12 +56,13 @@ available.)  The values of type <b>T{e}</b> are the values of <b>T</b> for which
 <ul>
 <li> <b>String{self != null}</b> is the type of non-null strings.  <b>self</b>
       is a special variable available only in constraints; it refers to the
-      datum being constrained.
+      datum being constrained, and its type is the type to which the
+      constraint is attached.
 <div class="p"><!----></div>
 </li>
 
 <li> If <b>Matrix</b> has properties <b>rows</b> and <b>cols</b>, 
-      <b>Matrixrows == cols</b> is the type of square matrices.
+      <b>Matrixself.rows == self.cols</b> is the type of square matrices.
 <div class="p"><!----></div>
 </li>
 
@@ -88,25 +89,256 @@ type <b>T</b> is called the <em>base type</em> and <b>e</b> is called the <em>
   base type is unconstrained.
 
 <div class="p"><!----></div>
-Constraints may refer to values in the local environment: 
+Constraints may refer to immutable values in the local environment: 
 <pre>
      val n = 1;
      var p : Point{rank == n};
 </pre>
-Indeed, there is technically no need for a constraint to refer to the
-properties of its type; it can refer entirely to the environment, thus: 
-<pre>
-     val m = 1;
-     val n = 2;
-     var p : Point{m != n};
-</pre>
+In a variable declaration, the variable itself is in scope in its
+type. For example, <b>val nz: Int{nz != 0} = 1;</b> declares a
+non-zero variable <b>nz</b>.
+
 
 <div class="p"><!----></div>
-Constraints on properties induce a natural subtyping relationship:
-<b>C{c}</b> is a subtype of
-<b>D{d}</b> if <b>C</b> is a subclass of <b>D</b> and
+
+<div class="p"><!----></div>
+A constrained type may be constrained further: the type <b>S{c}{d}</b>
+is the same as the type <b>S{c,d}</b>.  Multiple constraints are equivalent to
+conjoined constraints: <b>S{c,d}</b> in turn is the same as <b>S{c &amp;&amp; d}</b>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Syntax of constraints</h3>
+
+
+<a name="PermittedConstraints">
+</a>
+
+
+
+
+<div class="p"><!----></div>
+Only a few kinds of expressions can appear in constraints.  For fundamental
+reasons of mathematical logic, the more kinds of expressions that can appear
+in constraints, the harder it is to compute the essential properties of
+constrained type - in particular, the harder it is to compute 
+<b>A{c} &lt;: B{d}</b>.  It doesn't take much to make this basic fact undecidable.
+In order to make sure that it stays decidable, X10 places stringent restrictions on
+constraints.  
+
+<div class="p"><!----></div>
+Only the following forms of expression are allowed in constraints.  
+
+<div class="p"><!----></div>
+<b>Value expressions in constraints</b> may be: 
+
+<ol type="1">
+<li> Literal constants, like <b>3</b> and <b>true</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Expressions computable at compile time, like <b>3*4+5</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Accessible and immutable variables and parameters;
+<div class="p"><!----></div>
+</li>
+
+<li> Accessible and immutable fields of objects;
+<div class="p"><!----></div>
+</li>
+
+<li> Properties of the type being constrained;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>this</b>, if the constraint is in a place where <b>this</b> is defined;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>here</b>, if the constraint is in a place where <b>here</b> is defined;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>self</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Calls to property methods, where the receiver and arguments must be
+      value expressions acceptable in constraints.
+<div class="p"><!----></div>
+</li>
+</ol>
+For an expression <b>self.p</b> to be legal in a constraint, 
+<b>p</b> must be 
+a property. However terms <b>t.f</b> may be
+used in constraints (where <b>t</b> is a term other than <b>self</b> and
+<b>f</b> is an immutable field.
+
+<div class="p"><!----></div>
+<b>Constraints</b>, and <b>Boolean expressions in constraints</b>  may be any of
+the following, where 
+all value expressions are of the forms which may appear in constraints: 
+
+<ol type="1">
+<li> Equalities <b>e == f</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Inequalities of the form <b>e != f</b>;<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+<div class="p"><!----></div>
+</li>
+
+<li> Conjunctions of Boolean expressions that may appear in constraints (but
+      only in top-level constraints, not in Boolean expressions in constraints);
+<div class="p"><!----></div>
+</li>
+
+<li> Subtyping and supertyping expressions: <b>T &lt;: U</b> and <b>T :&#62; U</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Type equalities and inequalities: <b>T == U</b> and <b>T != U</b>; 
+
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+All variables appearing in a constraint expression must be visible wherever
+that expression can used.  <em>E.g.</em>, properties and public fields of an object are
+always permitted, but private fields of an object can only constrain private
+members.  (Consider a class <b>PriVio</b> with a private field <b>p</b> and a
+public method <b>m(x: Int{self != p})</b>, and a call <b>ob.m(10)</b> made
+outside of the class. Since <b>p</b> is only visible inside the class, there is
+no way to tell if <b>10</b> is of type <b>Int{self != p}</b> at the call site.)
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> 
+Certain spurious syntactic forms - such as <b>a+b,a*b,(c==a&amp;&amp;b),a &lt;b</b> -
+are accepted by the compiler but treated incorrectly.  
+</em>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc4.1.1">
+4.1.1</a>&nbsp;&nbsp;Semantics of constraints</h4>
+
+<a name="SemanticsOfConstraints">
+</a>
+An assignment of values to variables is said to be a <em>solution</em> for a
+constraint <b>c</b> if under this assignment <b>c</b> evaluates to
+<b>true</b>. For instance, the assignment that maps 
+the variables <b>a</b> and <b>b</b> to a value <b>t</b> is a solution for
+the constraint <b>a==b</b>. An assignment that maps <b>a</b> to 
+<b>s</b> and <b>b</b> to a distinct value <b>t</b> is a solution for 
+<b>a != b</b>. 
+
+<div class="p"><!----></div>
+An instance <b>o</b> of <b>C</b> is said to be of type <b>C{c}</b> (or <em>
+belong to</em> <b>C{c}</b>) if the constraint <b>c</b> evaluates to <b>true</b> in
+the current lexical environment augmented with the binding <b>self</b>
+&#8594; <b>o</b>.
+
+<div class="p"><!----></div>
+A constraint <b>c</b> is said to <em>entail</em> a
+constraint <b>d</b> if every solution for <b>c</b> is also a solution
+for <b>d</b>. For instance the constraint
+<b>x==y &amp;&amp; y==z &amp;&amp; z !=a</b> entails <b>x != a</b>.
+
+<div class="p"><!----></div>
+The constraint solver considers the assignment <b>a</b> to <b>null</b>
+to  satisfy any constraint of the form <b>a.f==t</b>. Thus, for
+instance, the assignment <b>var x:Tree{self.home==p}=null</b> does not
+produce an error, since <b>self==null</b> is considered a solution for <b>self.home==p</b>.
+
+<div class="p"><!----></div>
+To ensure that type-checking is decidable, we require that property graphs be
+acyclic.  The property graph, at an instant in an X10 execution, is the graph
+whose nodes are all objects in existence at that instance, with an edge from
+x to y if x is an object with a property whose value is y. 
+The rules for constructors guarantee this.
+
+<div class="p"><!----></div>
+Constraints participate in the subtyping relationship in a natural way:
+"S[S1,&#8230;, Sm]{c}" 
+is a subtype of 
+"T[T1,&#8230;, Tn]{d}" 
+if "S[S1,&#8230;,Sm]" is a subtype of "T[T1,&#8230;,Tn]" and
 <b>c</b> entails <b>d</b>.
-For example: 
+
+<div class="p"><!----></div>
+For examples of constraints and entailment, see (&#167;)
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Constraint solver: incompleteness and approximation</h3>
+
+
+
+
+<div class="p"><!----></div>
+The constraint solver assumes all built-in types have an infinite
+number of values. Therefore it does not realize that 
+<b>a != b &amp;&amp; a != c &amp;&amp; b != c</b> is not satisfiable when <b>a</b>, <b>b</b>, and
+<b>c</b> are <b>Boolean</b> (since the <b>Boolean</b> type has only two values). 
+
+<div class="p"><!----></div>
+The constraint solver is sound in that if it claims that <b>c</b> entails <b>d</b>
+then in fact it is the case that every value that satisfies <b>c</b>
+satisfies <b>d</b>. 
+
+<div class="p"><!----></div>
+<em><em>Limitation</em> X10's Entailment Algorithm is Incomplete</em>
+However, X10's constraint solver is incomplete. There are situations
+in which <b>c</b> entails <b>d</b> but the solver cannot establish it. For
+instance it cannot establish that <b>a != b &amp;&amp; a != c &amp;&amp; b != c</b>
+entails <b>false</b> if <b>a</b>, <b>b</b>, and <b>c</b> are of type
+<b>Boolean</b>.
+
+<div class="p"><!----></div>
+Certain other constraint entailments are prohibitively expensive to calculate.  The issues
+concern constraints that connect different levels of recursively-defined
+types, such as the following.  
+<pre>
+class Listlike(x:Int) {
+  val kid : Listlike{self.x == this.x};
+  def this(x:Int, kid:Listlike) { 
+     property(x); 
+     this.kid = kid as Listlike{self.x == this.x};}
+}
+</pre>
+There is nothing wrong with <b>Listlike</b> itself, or with most uses of it;
+however, a sufficiently complicated use of it could, in principle, cause X10's
+typechecker to fail. 
+It is hard to give a plausible example of when X10's algorithm fails, as we
+have not yet observed such a failure in practice for a correct program.  
+
+<div class="p"><!----></div>
+The entailment algorithm of X10 2.0 imposes a certain limit on the number of
+times such types will be unwound.   If this limit is exceeded, the compiler
+will print a warning, and type-checking will fail in a situation where it is
+semantically allowed.  In this case, insert a dynamic cast at the point where
+type-checking failed.  
+
+<div class="p"><!----></div>
+<em><em>Limitation</em>  Support for comparisons of generic type variables is
+  limited. This will be fixed in future releases.</em>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Example of Constraints</h3>
+<a name="ConstraintExamples">
+</a>
+
+<div class="p"><!----></div>
+Example of entailment and subtyping involving constraints.
 
 <ul>
 <li> <b>Int{self == 3} &lt;: Int{self != 14}</b>.  The only value of
@@ -146,182 +378,15 @@ For example:
 </ul>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.1">
-5.1</a>&nbsp;&nbsp;Constraint Expressions</h3>
-
-<div class="p"><!----></div>
-Only a few kinds of expressions can appear in constraints.  For fundamental
-reasons of mathematical logic, the more kinds of expressions that can appear
-in constraints, the harder it is to compute the essential properties of
-constrained type - in particular, the harder it is to compute 
-<b>A{c} &lt;: B{d}</b>.  It doesn't take much to make this basic fact undecidable.
-In order to
-make sure that it stays decidable, X10 places quite stringent restrictions on
-constraints.  
-
-<div class="p"><!----></div>
-Only the following forms of expression are allowed in constraints.  
-
-<div class="p"><!----></div>
-<b>Value expressions in constraints</b> may be: 
-
-<ol type="1">
-<li> Literal constants, like <b>3</b> and <b>true</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> Expressions computable at compile time, like <b>3*4+5</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> Accessible and immutable variables and parameters;
-<div class="p"><!----></div>
-</li>
-
-<li> Accessible and immutable fields of the containing object;
-<div class="p"><!----></div>
-</li>
-
-<li> Properties of the type being constrained;
-<div class="p"><!----></div>
-</li>
-
-<li> Property methods;
-<div class="p"><!----></div>
-</li>
-
-<li> <b>this</b>, if the constraint is in a place where <b>this</b> is defined;
-<div class="p"><!----></div>
-</li>
-
-<li> <b>here</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> <b>self</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> Calls to property methods, where the receiver and arguments must be
-      value expressions acceptable in constraints.
-<div class="p"><!----></div>
-</li>
-</ol>
-
-<div class="p"><!----></div>
-<b>Constraints</b>, and <b>Boolean expressions in constraints</b>  may be any of
-the following, where 
-all value expressions are of the forms which may appear in constraints: 
-
-<ol type="1">
-<li> Equalities <b>e == f</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> Inequalities of the form <b>e != f</b>;<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
-<div class="p"><!----></div>
-</li>
-
-<li> Conjunctions of Boolean expressions that may appear in constraints;
-<div class="p"><!----></div>
-</li>
-
-<li> Subtyping and supertyping expressions: <b>T &lt;: U</b> and <b>T :&#62; U</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> Type equalities and inequalities: <b>T == U</b> and <b>T != U</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> Testing a type for a default: <b>hasZero T</b>.
-<div class="p"><!----></div>
-</li>
-</ol>
-
-<div class="p"><!----></div>
-All variables appearing in a constraint expression must be visible wherever
-that expression can used.  &lt;em&#62;E.g.&lt;/em&#62;, properties and public fields of an object are
-always permitted, but private fields of an object can only constrain private
-members.  (Consider a class <b>PriVio</b> with a private field <b>p</b> and a
-public method <b>m(x: Int{self != p})</b>, and a call <b>ob.m(10)</b> made
-outside of the class. Since <b>p</b> is only visible inside the class, there is
-no way to tell if <b>10</b> is of type <b>Int{self != p}</b> at the call site.)
-
-<div class="p"><!----></div>
-<em><em>Limitation</em> 
-Currently <b>hasZero T</b> is not supported.  
-Certain spurious syntactic forms are accepted by the compiler but treated
-incorrectly. 
-</em>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-The static constraint checker approximates computational reality in some
-cases.  For example, it assumes that built-in types are infinite. This is a
-good approximation for <b>Int</b>.  It is a poor approximation for <b>Boolean</b>,
-as the checker believes that <b>a != b &amp;&amp; a != c &amp;&amp; b != c</b> is satisfiable
-over <b>Boolean</b>, which it is not.  However, the checker is always correct
-when computing the truth or falsehood of a constraint.
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-      <h4><a name="tth_sEc5.1.1">
-5.1.1</a>&nbsp;&nbsp;Acyclicity restriction</h4>
-
-<div class="p"><!----></div>
-To ensure that type-checking is decidable, we require that property graphs be
-acyclic.  The property graph, at an instant in an X10 execution, is the graph
-whose nodes are all objects in existence at that instance, with an edge from
-x to y if x is an object with a property whose value is y. 
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc5.2">
-5.2</a>&nbsp;&nbsp;Variables in Constraints</h3>
-
-<div class="p"><!----></div>
-X10 permits a <b>val</b> variable to appear in constraints on its own type as
-it is being declared.  For example, <b>val nz: Int{nz != 0} = 1;</b> declares a
-non-zero variable <b>nz</b>.
-
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc5.3">
-5.3</a>&nbsp;&nbsp;Membership in Constrained Types</h3>
-
-<div class="p"><!----></div>
-An instance <b>o</b> of <b>C</b> is said to be of type <b>C{c}</b> (or: <em>
-belong to</em> <b>C{c}</b>) if the constraint <b>c</b> evaluates to <b>true</b> in
-the current lexical environment, augmented with the binding <b>self</b>
-&#8594; <b>o</b>.
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc5.4">
-5.4</a>&nbsp;&nbsp;Example of Constraints</h3>
-
-<div class="p"><!----></div>
 Constraints can be used to express simple relationships between objects,
 enforcing some class invariants statically.  For example, in geometry, a line
-is determined by two <em>distinct</em> points; a <b>Line</b> class can specify the
-distinctness in a type constraint:<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
+is determined by two <em>distinct</em> points; a <b>Line</b> struct can specify the
+distinctness in a type constraint:<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
 
 <div class="p"><!----></div>
 <pre>
-class Position(x: Int, y: Int) {
-   def this(x:Int,y:Int){property(x,y);}
-   }
-class Line(start: Position, 
-           end: Position{self != start}) {}
+struct Position(x: Int, y: Int) {}
+struct Line(start: Position, end: Position){start != end} {}
 </pre>
 
 <div class="p"><!----></div>
@@ -336,59 +401,17 @@ vertices are not collinear.
 
 <div class="p"><!----></div>
 <pre>
-class Triangle 
+struct Triangle 
  (a: Line, 
   b: Line{a.end == b.start}, 
-  c: Line{b.end == c.start &amp;&amp; c.end == a.start})  {
-   def this(a:Line,
-            b: Line{a.end == b.start}, 
-            c: Line{b.end == c.start &amp;&amp; c.end == a.start}) 
-   {property(a,b,c);}
- }
+  c: Line{b.end == c.start &amp;&amp; c.end == a.start})  
+ {}
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc5.5">
-5.5</a>&nbsp;&nbsp;Entailment of Constraints</h3>
-
-
-
-<div class="p"><!----></div>
-Recall that <b>T{c}</b> is a subtype of <b>T{d}</b> if every value of type
-<b>T{c}</b> is also a value of type <b>T{d}</b>.  This is true if, whenever
-<b>c</b> is true, <b>d</b> is also true.  Logicians call this concept <em>
-entailment</em>: in this case, <b>c</b> entails <b>d</b>.  
-
-<div class="p"><!----></div>
-So, computing subtyping in X10 requires computing entailment of constraints.
-One crucial reason why the constraint language is so limited is that computing
-entailment in richer sets of expressions quickly becomes computationally
-prohibitive, and, with a small number of innocuous-looking operations, becomes
-actually undecidable.  
-
-<div class="p"><!----></div>
-<em><em>Limitation</em> X10's Entailment Algorithm is Incomplete</em>
-
-<div class="p"><!----></div>
-Even with the restricted constraints available in X10, certain
-constraint entailments are prohibitively expensive to calculate.  The issues
-concern constraints that connect different levels of recursively-defined
-types.  
-<pre>
-class Listlike(x:Int) {
-  val kid : Listlike{self.x == this.x};
-  def this(x:Int, kid:Listlike) { 
-     property(x); 
-     this.kid = kid as Listlike{self.x == this.x};}
-}
-</pre>
-
-<div class="p"><!----></div>
-The entailment algorithm of X10 2.0 imposes a certain limit on the number of
-times such types will be unwound.   If this limit is exceeded, the compiler
-will print a warning, and type-checking will fail in a situation where it is
-semantically allowed.  In this case, insert a dynamic cast at the point where
-type-checking failed.  
+The <b>Triangle</b> class automatically gets a ternary constructor which takes
+suitably constrained <b>a</b>, <b>b</b>, and <b>c</b> and produces a new
+triangle. 
 
 <div class="p"><!----></div>
 

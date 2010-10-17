@@ -22,41 +22,26 @@
 <a name="OperatorFunction">
 </a>
 
-Every operator (e.g.,
+Every binary operator (e.g.,
 <b>+</b>,
 <b>-</b>,
 <b>*</b>,
 <b>/</b>,
 ...) has a family of functions, one for
 each type on which the operator is defined. The function can be
-selected using the "." syntax:
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">OperatorFunction
-        ::= TypeName <b>.</b> Operator <b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">&#124; TypeName <b>.</b> Operator </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-If an operator has more than one arity (, unary and binary
-<b>-</b>), the unary version may be selected by giving the
-formal parameter types.  The binary version is selected by
-default, or the types may be specified for clarity.
-For example, the following equivalences hold:
+selected using the "<b>.</b>" syntax:
 
 <div class="p"><!----></div>
 <pre>
 String.+              &#8801;  (x: String, y: String): String =&#62; x + y
 Long.-                &#8801;  (x: Long, y: Long): Long =&#62; x - y
-Float.-(Float,Float)  &#8801;  (x: Float, y: Float): Float =&#62; x - y
-Int.-(Int)            &#8801;  (x: Int): Int =&#62; -x
+Float.-               &#8801;  (x: Float, y: Float): Float =&#62; x - y
 Boolean.&amp;             &#8801;  (x: Boolean, y: Boolean): Boolean =&#62; x &amp; y
-Boolean.!             &#8801;  (x: Boolean): Boolean =&#62; !x
-Int.&lt;(Int,Int)        &#8801;  (x: Int, y: Int): Boolean =&#62; x &lt; y
-Dist.&#124;(Place)         &#8801;  (d: Dist, p: Place): Dist =&#62; d &#124; p
+Int.&lt;                 &#8801;  (x: Int, y: Int): Boolean =&#62; x &lt; y
+</pre>
+
+<div class="p"><!----></div>
+<pre>
 </pre>
 
 <div class="p"><!----></div>
@@ -70,45 +55,12 @@ operations; instead, the operands are coerced individually via implicit
 coercions (&#167;), as appropriate.
 
 <div class="p"><!----></div>
-<b>The following is not implemented in version 2.0.3:</b>
-
-<div class="p"><!----></div>
-Additionally, for every expression <b>e</b> of a type <b>T</b> at which a binary
-operator <b>OP</b> is defined, the expression <b>e.OP</b> or
-<b>e.OP(T)</b> represents the function
-defined by:
-
-<div class="p"><!----></div>
-<pre>
-(x: T): T =&#62; { e OP x }
-</pre>
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Primary ::= Expr <b>.</b> Operator <b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">&#124; Expr <b>.</b> Operator </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
 <pre>
 </pre>
-
-<div class="p"><!----></div>
-For example,
-one may write an expression that adds one to each member of a
-list <b>xs</b> by:
-
-<div class="p"><!----></div>
 <pre>
-xs.map(1.+);
 </pre>
-
-
-<div class="p"><!----></div>
+<pre>
+</pre>
 
 </body>
 </html>

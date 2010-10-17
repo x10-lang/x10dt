@@ -23,10 +23,12 @@
 
 
 <div class="p"><!----></div>
-A <em>distribution</em> is a mapping from a region to a set of places.
+Distributed arrays are spread across multiple <b>Place</b>s.  
+A <em>distribution</em>, a mapping from a region to a set of places, 
+describes where each element of a distributed array is kept.
 Distributions are embodied by the class <b>x10.lang.Dist</b>.
 This class is <b>final</b> in
-X10 v2.0; future versions of the language may permit
+X10 v2.1; future versions of the language may permit
 user-definable distributions. 
 The <em>rank</em> of a distribution is the rank of the underlying region, and
 thus the rank of every point that the distribution applies to.
@@ -52,6 +54,7 @@ if <b>p</b> does not lie in the underlying region.
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.1">
 4.1</a>&nbsp;&nbsp;Operations returning distributions</h3>
+
 
 <div class="p"><!----></div>
 Let <b>R</b> be a region, <b>Q</b> a Sequence of places {<b>p1</b>, ...,
@@ -123,7 +126,7 @@ in <b>D.region</b>. For instance, if <b>D</b> is a cyclic distribution,
 &#124; here</b> will typically contain points that differ by the number of
 places. 
 An implementation may find a
-way to still represent them in contiguous memory, , using a
+way to still represent them in contiguous memory, <em>e.g.</em>, using a
 complex arithmetic function to map from the region index to an index
 into the array.
 

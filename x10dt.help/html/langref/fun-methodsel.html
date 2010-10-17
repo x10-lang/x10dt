@@ -37,7 +37,7 @@ class Span(low:Int, high:Int) {
   def example() {
     val digit = new Span(0,9);
     val isDigit : (Int) =&#62; Boolean = digit.between.(Int);
-    if (isDigit(8)) x10.io.Console.OUT.println("8 is!");
+    if (isDigit(8)) Console.OUT.println("8 is!");
   }
 }
 </pre>
@@ -51,19 +51,11 @@ and nine.  It could also be written
 <b>(n:Int) =&#62; digit.between(n)</b>.
 
 <div class="p"><!----></div>
-This is formalized thus:
-
-<div class="p"><!----></div>
-  :  |        <em>  
+<em>
 <table>
-<tr><td align="right">MethodSelector ::=
-        Primary <b>.</b>
-        MethodName <b>.</b>
-                TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">&#124;
-        TypeName <b>.</b>
-        MethodName <b>.</b>
-                TypeParameters<sup>?</sup>&nbsp;<b>(</b> Formals<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">MethodSelection    ::= Primary <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">
+    &#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b></td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -82,23 +74,19 @@ Thus, the method selector
 
 <div class="p"><!----></div>
 <pre>
-e.m.[X<sub>1</sub>, ..., X<sub>m</sub>](T<sub>1</sub>, ..., T<sub>n</sub>)
+e.m.(T<sub>1</sub>, ..., T<sub>n</sub>)
 </pre>
  behaves as if it were the function
 <pre>
 ((v:V)=&#62;
-  [X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} 
-  =&#62; v.m[X<sub>1</sub>, ..., X<sub>m</sub>](x<sub>1</sub>, ..., x<sub>n</sub>))
+  (x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} 
+  =&#62; v.m(x<sub>1</sub>, ..., x<sub>n</sub>))
 (e)
 </pre>
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> X10 functions, including method selectors, do not currently accept
-generic arguments.</em>
-
-<div class="p"><!----></div>
 Because of overloading, a method name is not sufficient to
-uniquely identify a function for a given class (in Java-like languages).
+uniquely identify a function for a given class.
 One needs the argument type information as well.
 The selector syntax (dot) is used to distinguish <b>e.m()</b> (a
 method invocation on <b>e</b> of method named <b>m</b> with no arguments)
@@ -115,9 +103,9 @@ function bound to the static method named <b>m</b>, with argument types
 of the function is specified by the declaration of <b>T.m</b>.
 
 <div class="p"><!----></div>
-Users of a function type do not care whether a function was defined
-directly (using the function syntax), or obtained via (static or
-instance) function selectors.
+There is no difference between using a function defined directly 
+directly using the function syntax, or obtained via static or
+instance function selectors.
 
 <div class="p"><!----></div>
 

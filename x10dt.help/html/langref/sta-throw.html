@@ -17,21 +17,21 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc13">
-13</a>&nbsp;&nbsp;Throw statement</h2>
+ <h2><a name="tth_sEc16">
+16</a>&nbsp;&nbsp;Throw statement</h2>
 
 
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>  
 <table>
-<tr><td align="right">Statement ::= ThrowStatement </td></tr>
-<tr><td align="right">ThrowStatement ::= <b>throw</b> Expression <b>;</b>
+<tr><td align="right">ThrowStatement    ::= <b>throw</b> Exp <b>;</b> </td></tr>
+<tr><td align="right">
 </td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The <b>throw</b> statement throws an exception, which 
-must be an instance of <b>x10.lang.Throwable</b>. 
+<b>throw E</b> throws an exception whose value is <b>E</b>, which must be an
+instance of a subtype of <b>x10.lang.Throwable</b>. 
 
 <div class="p"><!----></div>
 For example, the following code checks if an index is in range and

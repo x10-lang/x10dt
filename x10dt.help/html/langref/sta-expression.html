@@ -21,6 +21,22 @@
 4</a>&nbsp;&nbsp;Expression statement</h2>
 
 <div class="p"><!----></div>
+<em>  
+<table>
+<tr><td align="right">ExpStatement    ::= StatementExp <b>;</b> </td></tr>
+<tr><td align="right">
+ StatementExp    ::= Assignment </td></tr>
+<tr><td align="right">
+    &#124; PreIncrementExp</td></tr>
+<tr><td align="right">&#124; PreDecrementExp</td></tr>
+<tr><td align="right">&#124; PostIncrementExp</td></tr>
+<tr><td align="right">&#124; PostDecrementExp</td></tr>
+<tr><td align="right">&#124; MethodInvocation</td></tr>
+<tr><td align="right">&#124; ClassInstCreationExp</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
 The expression statement evaluates an expression.  The value of the expression
 is not used.
 Side effects of the expression occur.  
@@ -36,8 +52,9 @@ class StmtEx {
   }
 }
 </pre>
-Note that only selected forms of expression can appear in expression
-statements.  
+Only selected forms of expression can appear in expression
+statements: assignments, increments, decrements, method invocations, and
+constructor invocations. 
 
 <div class="p"><!----></div>
 

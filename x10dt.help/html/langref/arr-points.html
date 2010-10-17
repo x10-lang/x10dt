@@ -21,16 +21,18 @@
 1</a>&nbsp;&nbsp;Points</h2><a name="point-syntax">
 </a>
 
+
+
 <div class="p"><!----></div>
-General arrays are indexed by <b>Point</b>s-n-dimensional tuples of
+General arrays are indexed by <b>Point</b>s, which are n-dimensional tuples of
 integers.  The <b>rank</b>
 property of a point gives its dimensionality.  Points can be constructed from
-integers or <b>ValRail</b>s by
+integers or <b>Array[Int](1)</b>s by
 the <b>Point.make</b> factory methods:
 <pre>
-val origin_1 : Point{self.rank==1} = Point.make(0);
-val origin_2 : Point{self.rank==2} = Point.make(0,0);
-val origin_5 : Point{self.rank==5} = Point.make([0,0,0,0,0]);
+val origin_1 : Point{rank==1} = Point.make(0);
+val origin_2 : Point{rank==2} = Point.make(0,0);
+val origin_5 : Point{rank==5} = Point.make([0,0,0,0,0]);
 </pre>
 
 <div class="p"><!----></div>

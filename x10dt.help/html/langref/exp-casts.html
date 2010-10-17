@@ -21,14 +21,16 @@
 22</a>&nbsp;&nbsp;Casts</h2><a name="ClassCast">
 </a>
 
+
 <div class="p"><!----></div>
 The cast operation may be used to cast an expression to a given type:
 
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>
 <table>
-<tr><td align="right">UnaryExpression ::= CastExpression </td></tr>
-<tr><td align="right">CastExpression ::= UnaryExpression <b>as</b> Type </td></tr>
+<tr><td align="right">CastExp    ::= 
+     CastExp <b>as</b> Type </td></tr>
+<tr><td align="right"></td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -53,7 +55,7 @@ type <b>T</b> (which may fail), and then the constraint <b>{c}</b> is checked.
 
 <li> If <b>T</b> is a class, then the first half of the cast succeeds if the
       run-time value of <b>E</b> is an instance of class <b>T</b>, or of a
-      subclass
+      subclass.
 <div class="p"><!----></div>
 </li>
 

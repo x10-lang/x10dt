@@ -28,7 +28,7 @@
 X10 v2.1 supports limited local type inference, permitting
 certain variable types and return types to be elided.
 It is a static error if an omitted type cannot be inferred or
-uniquely determined.
+uniquely determined. Type inference does not consider coercions.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc11.1">
@@ -46,7 +46,7 @@ Note that type inference gives the most precise X10 type, which might be more
 specific than the type that a programmer would write.
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> At the moment, only <b>val</b> declarations can have their types
+<em><em>Limitation</em> At the moment,  <b>var</b> declarations may not have their types
 elided in this way.  
 </em>
 
@@ -75,7 +75,7 @@ class Triangle extends Shape {
 </pre>
 
 the X10 compiler would reject this program for attempting to override
-<b>isTriangle()</b> by a method with the wrong type, &lt;em&#62;viz&lt;/em&#62;,
+<b>isTriangle()</b> by a method with the wrong type, <em>viz</em>,
 <b>Boolean{self==true}</b>.  In this case, supply the type that is actually
 intended for <b>isTriangle</b>, such as 
 <b>def isTriangle() :Boolean =false;</b>. 
@@ -102,28 +102,28 @@ class Spot(x:Int) {
 
 <div class="p"><!----></div>
 A method or closure that has expression-free <b>return</b> statements
-(<b>return;</b> rather than <b>return e;</b>) is said to return <b>Void</b>.
-<b>Void</b> is not a type; there are no <b>Void</b> values, nor can <b>Void</b>
-be used as the argument of a generic type. However, <b>Void</b> takes the
-syntactic place of a type. A method returning <b>Void</b> can be specified by
-<b>def m():Void</b>: 
+(<b>return;</b> rather than <b>return e;</b>) is said to return <b>void</b>.
+<b>void</b> is not a type; there are no <b>void</b> values, nor can <b>void</b>
+be used as the argument of a generic type. However, <b>void</b> takes the
+syntactic place of a type. A method returning <b>void</b> can be specified by
+<b>def m():void</b>: 
 
 <div class="p"><!----></div>
 <pre>
-val f : () =&#62; Void = () =&#62; {return;};
+val f : () =&#62; void = () =&#62; {return;};
 </pre>
 
 <div class="p"><!----></div>
-By a convenient abuse of language, <b>Void</b> is sometimes
-lumped in with types; &lt;em&#62;e.g.&lt;/em&#62;, we may say "return type of a method" rather than
+By a convenient abuse of language, <b>void</b> is sometimes
+lumped in with types; <em>e.g.</em>, we may say "return type of a method" rather than
 the formally correct but rather more awkward "return type of a method, or
-<b>Void</b>".   Despite this informal usage, <b>Void</b> is not a type.  For
+<b>void</b>".   Despite this informal usage, <b>void</b> is not a type.  For
 example, given 
 <pre>
   static def eval[T] (f:()=&#62;T):T = f();
 </pre>
 
-The call <b>eval[Void](f)</b> does <em>not</em> typecheck; <b>Void</b> is not a
+The call <b>eval[void](f)</b> does <em>not</em> typecheck; <b>void</b> is not a
 type and thus cannot be used as a type argument.  There is no way in X10 to
 write a generic function which works with both functions which return a value
 and functions which do not.  In most cases, functions which have no sensible
@@ -131,75 +131,66 @@ return value can be provided with a dummy return value.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc11.3">
-11.3</a>&nbsp;&nbsp;Type arguments</h3>
-
-<div class="p"><!----></div>
-<em><em>Limitation</em> This does not seem to work at all currently.</em>
+11.3</a>&nbsp;&nbsp;Inferring Type Arguments</h3>
 
 <div class="p"><!----></div>
 A call to a polymorphic method %, closure, or constructor 
 may omit the
 explicit type arguments.  If the method has a type parameter
 <b>T</b>, the type argument corresponding to <b>T</b> is inferred
-to be the least common ancestor of the types of any formal
+to be a common ancestor of the types of any formal
 parameters of type <b>T</b>.
 
-
 <div class="p"><!----></div>
-Consider the following method:
+Consider the following method, which chooses one of its arguments.  (A more
+sophisticated one might sometimes choose the second argument, but that does
+not matter for the sake of this example.)
 <pre>
-def choose[T](a: T, b: T): T { ... }
-</pre>
-Given <b>Set[T] &lt;: Collection[T]</b>, 
-<b>List[T] &lt;: Collection[T]</b>,
-and <b>SubClass &lt;: SuperClass</b>,
-in the following snippet, the algorithm will infer the type
-<b>Collection[Any]</b> for <b>x</b>.
-<pre>
-def m(intSet: Set[Int], stringList: List[String]) {
-  val x = choose(intSet, stringList);
-...
-}
-</pre>
-And in this snippet, the algorithm should infer the type
-<b>Collection[Int]</b> for <b>y</b>.
-<pre>
-def m(intSet: Set[Int], intList: List[Int]) {
-  val y = choose(intSet, intList);
-  ...
-}
-</pre>
-Finally, in this snippet, the algorithm should infer the type
-<b>CollectionT &lt;: SuperClass</b> for <b>z</b>.
-<pre>
-def m(intSet: Set[SubClass], numList: List{T &lt;: SuperClass}) {
-  val z = choose(intSet, numList);
-  ...
-}
+static def choose[T](a: T, b: T): T = a; 
 </pre>
 
 <div class="p"><!----></div>
+The type argument <b>T</b> can always be supplied: 
+<b>choose[Int](1, 2)</b> picks an integer, 
+and <b>choose[Any](1, &#255;es")</b> picks a value that might be an integer or a
+string.  
+However, the type argument can be elided.  Suppose that <b>Sub &lt;: Super</b>;
+then the following compiles: 
+
+<div class="p"><!----></div>
+<pre>
+  static def choose[T](a: T, b: T): T = a; 
+  static val j : Any = choose(&#223;tring", 1);
+  static val k : Super = choose(new Sub(), new Super());
+</pre>
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
 
 <div class="p"><!----></div>
 </li>
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Objects but no structs.  If we
-had wanted structs too, we could have used a <b>Cell[Any]</b>.
-<div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Currently inequalities
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Currently inequalities
       of the form <b>e &lt; f</b> are not supported.
 <div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>We call them
-<b>Position</b> to avoid confusion with the built-in class <b>Point</b>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We call them
+<b>Position</b> to avoid confusion with the built-in class <b>Point</b>. 
+Also, <b>Position</b> is a struct rather than a class so that the non-equality
+test <b>start != end</b> compares the coordinates.  If <b>Position</b> were a
+class, <b>start != end</b> would check for different <b>Position</b> objects,
+which might have the same coordinates.
+
 <div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>Java, for one, suffers a number of
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Java, for one, suffers a number of
   inconveniences because some built-in types like <b>int</b> and <b>char</b>
   aren't subtypes of anything else.
-<div class="p"><!----></div>
-<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>The behavioral annotation <b>property</b> is
-  explained in &#167;<a href="#properties">1.3</a>.
 <br /><br />
 
 </body>

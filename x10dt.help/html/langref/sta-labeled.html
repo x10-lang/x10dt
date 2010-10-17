@@ -20,24 +20,30 @@
  <h2><a name="tth_sEc5">
 5</a>&nbsp;&nbsp;Labeled statement</h2>
 
+
+
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>  
 <table>
-<tr><td align="right">Statement ::= LabeledStatement </td></tr>
-<tr><td align="right">LabeledStatement ::= Identifier <b>:</b> LoopStatement </td></tr>
+<tr><td align="right">LabeledStatement    ::= Id <b>:</b> LoopStatement </td></tr>
+<tr><td align="right">
+ LoopStatement    ::= ForStatement </td></tr>
+<tr><td align="right">
+    &#124; WhileStatement</td></tr>
+<tr><td align="right">&#124; DoStatement</td></tr>
+<tr><td align="right">&#124; AtEachStatement</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Loop statements (<b>for</b>, <b>while</b>, <b>do</b>, <b>ateach</b>,
-<b>foreach</b>) may be labeled. The label may be used as the target of a break
+Loop statements (<b>for</b>, <b>while</b>, <b>do</b>, <b>ateach</b>) may be labeled. The label may be used as the target of a break
 or continue statement. The scope of a label is the statement labeled.
 <pre>
 lbl : for ([i] in 1..10) {
    for ([j] in i..10) {  
       if (a(i,j) == 0) break lbl;
       if (a(i,j) == 1) continue lbl;
-      do_things_to(a(i,j)); 
+      if (a(i,j) == a(j,i)) break lbl;
    }
 }
 </pre>

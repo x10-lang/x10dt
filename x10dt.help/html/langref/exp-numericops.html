@@ -24,6 +24,8 @@
 
 
 
+
+
 <div class="p"><!----></div>
 Numeric types (<b>Byte</b>, <b>Short</b>, <b>Int</b>, <b>Long</b>, <b>Float</b>,
 <b>Double</b>, and unsigned variants of fixed-point types) are normal X10
@@ -44,8 +46,8 @@ value.  For example, <b>(255 as UByte) as UInt</b> is 255.
 Specifically, each numeric type can be converted or coerced into each other
 numeric type, perhaps with loss of accuracy.
 <pre>
-val f : (Int)=&#62;Boolean = (Int) =&#62; true; 
 val n : Byte = 123 as Byte; // explicit 
+val f : (Int)=&#62;Boolean = (Int) =&#62; true; 
 val ok = f(n); // implicit
 </pre>
 

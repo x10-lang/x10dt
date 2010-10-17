@@ -30,7 +30,7 @@ import x10.compiler.Native;
 class Son {
   @Native("c++", "printf(\"Hi!\")")
   @Native("java", "System.out.println(\"Hi!\")")
-  static def printNatively():Void = {};
+  static def printNatively():void = {};
 }
 </pre>
 
@@ -41,7 +41,7 @@ remaining back ends:
 import x10.compiler.Native;
 class Land {
   @Native("c++", "printf(\"Hi from C++!\")")
-  static def example():Void = {
+  static def example():void = {
     x10.io.Console.OUT.println("Hi from X10!");
   };
 }
@@ -56,7 +56,7 @@ import x10.compiler.Native;
 class Plants {
   @Native("c++", "printf(\"Hi!\")")
   @Native("java", "System.out.println(\"Hi!\")")
-  static native def printNatively():Void;
+  static native def printNatively():void;
 }
 </pre>
 
@@ -76,15 +76,15 @@ class Return {
 Parameters may be passed to external code.  <b>(#1)</b>  is the first parameter,
 <b>(#2)</b> the second, and so forth.  (<b>(#0)</b> is the name of the enclosing
 class.)  Be aware that this is macro substitution rather than normal parameter
-passing; , if the first actual parameter is <b>i++</b>, and <b>(#1)</b>
+passing; <em>e.g.</em>, if the first actual parameter is <b>i++</b>, and <b>(#1)</b>
 appears twice in the external code, <b>i</b> will be incremented twice.
 For example, a (ridiculous) way to print the sum of two numbers is: 
 <pre>
 import x10.compiler.Native;
 class Species {
   @Native("c++", "printf(\"Sum=%d\", ((#1)+(#2)) )")
-  @Native("java", "System.out.println(\"Hi!\")")
-  static native def printNatively(x:Int, y:Int):Void;
+  @Native("java", "System.out.println(\"\" + ((#1)+(#2)))")
+  static native def printNatively(x:Int, y:Int):void;
 }
 </pre>
 

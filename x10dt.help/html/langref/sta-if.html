@@ -20,14 +20,15 @@
  <h2><a name="tth_sEc8">
 8</a>&nbsp;&nbsp;If statement</h2>
 
+
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>  
 <table>
-<tr><td align="right">Statement ::= IfThenStatement </td></tr>
-<tr><td align="right">&#124; IfThenElseStatement </td></tr>
-<tr><td align="right">IfThenStatement ::= <b>if</b> <b>(</b> Expression <b>)</b> Statement </td></tr>
-<tr><td align="right">IfThenElseStatement ::= <b>if</b> <b>(</b> Expression <b>)</b> Statement <b>else</b> Statement </td></tr>
-<tr><td align="right"></td></tr></table>
+<tr><td align="right">IfThenStatement    ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right">
+ IfThenElseStatement    ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement  <b>else</b> Statement  </td></tr>
+<tr><td align="right">
+</td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -61,7 +62,7 @@ if (B1) {if (B2) S1} else S2
 X10, as is traditional, attaches an <b>else</b> clause to the most recent
 <b>if</b> that doesn't have one.
 This example is interpreted as 
-<b>if (B1)  if (B2) S1 else S2 </b>. 
+<b>if (B1) { if (B2) S1 else S2 }</b>. 
 
 <div class="p"><!----></div>
 

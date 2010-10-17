@@ -57,7 +57,9 @@ They are also interconvertable, within the constraints of structs. If you
 start off defining a struct and decide you need a class instead, the code
 change required is simply changing the keyword <b>struct</b> to <b>class</b>. If
 you have a class that does not use inheritance or mutable fields, it can be
-converted to a struct by changing its keyword.
+converted to a struct by changing its keyword. Client code using the struct
+that was a class will need certain changes: the <b>new</b> keyword must be
+added in constructor calls, and structs (unlike classes) do not have default values.
 
 <div class="p"><!----></div>
 

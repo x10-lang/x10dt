@@ -20,9 +20,35 @@
  <h2><a name="tth_sEc2">
 2</a>&nbsp;&nbsp;Local variable declaration</h2>
 
+
+
+
+<div class="p"><!----></div>
+<em> 
+<table>
+<tr><td align="right">LocalVariableDeclStatement    ::= LocalVariableDecl <b>;</b> </td></tr>
+<tr><td align="right">
+ LocalVariableDecl    ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators </td></tr>
+<tr><td align="right">
+    &#124; Mods<sup>?</sup>&nbsp;VariableDeclaratorsWithType</td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators</td></tr>
+<tr><td align="right">VariableDeclaratorsWithType    ::= VariableDeclaratorWithType </td></tr>
+<tr><td align="right">
+    &#124; VariableDeclaratorsWithType <b>,</b> VariableDeclaratorWithType</td></tr>
+<tr><td align="right">VariableDeclarators    ::= VariableDeclarator </td></tr>
+<tr><td align="right">
+    &#124; VariableDeclarators <b>,</b> VariableDeclarator</td></tr>
+<tr><td align="right">VariableInitializer    ::= Exp </td></tr>
+<tr><td align="right">
+ FormalDeclarators    ::= FormalDeclarator </td></tr>
+<tr><td align="right">
+    &#124; FormalDeclarators <b>,</b> FormalDeclarator</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
 <div class="p"><!----></div>
 Short-lived variables are introduced by local variables declarations, as
-described in &#167;. Local variables may be declared only
+described in &#167;5. Local variables may be declared only
 within a block statement (&#167;). The scope of a local variable
 declaration is the statement itself and the subsequent statements in the
 block.

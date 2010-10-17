@@ -21,17 +21,18 @@
 Chapter 14 </a><br />Activities</h1><a name="XtenActivities">
 </a>
 
+
 <div class="p"><!----></div>
 An <em>activity</em> is a statement being executed, independently, with its own
 local variables; it may be thought of as a very light-weight thread. An
-X10 computation may have many concurrent <em>activities</em> executing at any
+X10 computation may have many concurrent activities executing at any
 give time.  All X10 code runs as part of an activity; when an X10 program is
 started, the <b>main</b> method is invoked in an activity, called the <em>root
 activity</em>.
 
 <div class="p"><!----></div>
 Activities coordinate their execution by various control and data structures.
-For example, `
+For example, 
 <b>when(x==0);</b> blocks the current activity until some other activity
 sets <b>x</b> to zero.  However, activities determine the places at which they
 may be blocked and resumed, by <b>when</b> and similar constructs.  There are
@@ -49,7 +50,7 @@ activity terminates abruptly for the same reason.
 Activities can be long-running entities with a good deal of local state.  In
 particular they can involve recursive method calls (and therefore have runtime
 stacks).  However, activities can also be short-running light-weight entities,
-&lt;em&#62;e.g.&lt;/em&#62;, it is reasonable to have an activity that simply increments a variable.
+<em>e.g.</em>, it is reasonable to have an activity that simply increments a variable.
 
 <div class="p"><!----></div>
 An activity may asynchronously and in parallel launch activities at

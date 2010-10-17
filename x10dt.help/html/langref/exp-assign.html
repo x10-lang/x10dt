@@ -22,27 +22,29 @@
 </a>
 
 <div class="p"><!----></div>
-  :  |        <em>  
+<em>
 <table>
-<tr><td align="right">Expression ::= Assignment </td></tr>
-<tr><td align="right">Assignment ::= SimpleAssignment </td></tr>
-<tr><td align="right">&#124; OpAssignment </td></tr>
-<tr><td align="right">SimpleAssignment ::= LeftHandSide <b>=</b> Expression </td></tr>
-<tr><td align="right">OpAssignment ::= LeftHandSide <b>+=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>-=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>*=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>/=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>%=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>&amp;=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b></td><td align="center">&#124;=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>^=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>&lt;&lt;=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>&#62;&#62;=</b> Expression </td></tr>
-<tr><td align="right">::= LeftHandSide <b>&#62;&#62;&#62;=</b> Expression </td></tr>
-<tr><td align="right">LeftHandSide ::= Identifier </td></tr>
-<tr><td align="right">&#124; Primary <b>.</b> Identifier </td></tr>
-<tr><td align="right">&#124; Primary <b>(</b> Expression <b>)</b> </td></tr>
-<tr><td align="right"></td></tr></table>
+<tr><td align="right">Assignment    ::= LeftHandSide AssignmentOperator AssignmentExp </td></tr>
+<tr><td align="right">
+    &#124; ExpName  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AssignmentOperator AssignmentExp</td></tr>
+<tr><td align="right">&#124; Primary  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AssignmentOperator AssignmentExp</td></tr>
+<tr><td align="right">LeftHandSide    ::= ExpName </td></tr>
+<tr><td align="right">
+    &#124; FieldAccess</td></tr>
+<tr><td align="right">AssignmentOperator    ::= <b>=</b> </td></tr>
+<tr><td align="right">
+    &#124; <b>*=</b></td></tr>
+<tr><td align="right">&#124; <b>/=</b></td></tr>
+<tr><td align="right">&#124; <b>%=</b></td></tr>
+<tr><td align="right">&#124; <b>+=</b></td></tr>
+<tr><td align="right">&#124; <b>-=</b></td></tr>
+<tr><td align="right">&#124; <b>&lt;&lt;=</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;=</b></td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;&#62;=</b></td></tr>
+<tr><td align="right">&#124; <b>&amp;=</b></td></tr>
+<tr><td align="right">&#124; <b>^=</b></td></tr>
+<tr><td align="right">&#124; <b></td><td align="center">&#124;=</b>
+</td></tr></table>
 </em>
 
 <div class="p"><!----></div>

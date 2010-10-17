@@ -34,8 +34,9 @@ is a subtype of <b>Int</b> - every non-zero integer is an integer.
 
 <div class="p"><!----></div>
 This section formalizes the concept of subtyping. Subtyping of types depends
-on a <em>type context</em>, &lt;em&#62;viz&lt;/em&#62;. a set of constraints which may say something
-about types.   For example: 
+on a <em>type context</em>, <em>viz</em>. a set of constraints on type parameters
+and variables that occur in the type.
+For example: 
 
 <div class="p"><!----></div>
 <pre>
@@ -50,7 +51,7 @@ Outside of <b>upcast</b>, there is no reason to expect any relationship between
 them, and <b>T &lt;: U</b> may be false.
 However, subtyping of types that have no free variables does not depend
 on the context.    <b>Int{self != 0} &lt;: Int</b> is always
-true, regardless of what else is going on.
+true.
 
 <div class="p"><!----></div>
 <em><em>Limitation</em> Subtyping of type variables does not currently work.</em>
@@ -140,7 +141,7 @@ Every type <b>T</b> is a subtype of <b>x10.lang.Any</b>.
 <li> 
 <b>Type Variables:</b>
 Inside the scope of a constraint <b>c</b> which entails <b>A &lt;: B</b>, we have
-<b>A &lt;: B</b>.  &lt;em&#62;e.g.&lt;/em&#62;, <b>upcast</b> above.
+<b>A &lt;: B</b>.  <em>e.g.</em>, <b>upcast</b> above.
 <div class="p"><!----></div>
 </li>
 
@@ -150,7 +151,7 @@ If <b>C</b> is a generic type whose ith type parameter is covariant,
 and "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>"
 and  "T&#8242;<sub>j</sub> == T<sub>j</sub>" for all j  &#8800; i, 
 then "C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>] &lt;: C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>]".
-&lt;em&#62;E.g.&lt;/em&#62;, <b>class C[T1, +T2, T3]</b> with i=2, and <b>U2 &lt;: T2</b>, then
+<em>E.g.</em>, <b>class C[T1, +T2, T3]</b> with i=2, and <b>U2 &lt;: T2</b>, then
 <b>C[T1,U2,T3] &lt;: C[T1,T2,T3]</b>.
 <div class="p"><!----></div>
 </li>
@@ -161,7 +162,7 @@ If <b>C</b> is a generic type whose ith type parameter is contravariant,
 and "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>"
 and  "T&#8242;<sub>j</sub> == T<sub>j</sub>" for all j  &#8800; i, 
 then "C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>] :&#62; C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>]".
-&lt;em&#62;E.g.&lt;/em&#62;, <b>class C[T1, -T2, T3]</b> with i=2, and &#220;2 &lt;: T2", then
+<em>E.g.</em>, <b>class C[T1, -T2, T3]</b> with i=2, and &#220;2 &lt;: T2", then
 <b>C[T1,U2,T3] :&#62; C[T1,T2,T3]</b>.
 <div class="p"><!----></div>
 </li>
