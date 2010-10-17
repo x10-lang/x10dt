@@ -95,6 +95,55 @@ color: SlateGray;
     </td>
   </tr>
   
+  <tr> 
+    <td class="section_item">Source editors</td> 
+    <td class="section_content">
+	You can now open source editors on the X10 runtime source code. There are two ways to do this:
+	<ol>
+	<li>In the Package Explorer, open up the X10 Runtime Container, and double-click on one of the X10 source files.</li>
+    <li>Hyperlink (or invoke "Open Declaration" in the editor's context menu) from a reference to an X10 Runtime type or 
+    member to its declaration in the X10 Runtime source code.</li>
+ 	</ol>
+    Please note that when you do this, the editor that comes up will not have all of the usual IDE services enabled. A fix for this issue will be in the next release.   
+    </td>
+  </tr>
+
+  <tr> 
+    <td class="section_item">Auto-indentation</td> 
+    <td class="section_content">
+     Several bugs in the auto-indentation support in the source editor have been fixed, 
+     and indentation should now behave as expected.
+    </td>
+  </tr>
+  
+  <tr> 
+    <td class="section_item">Correct indentation</td> 
+    <td class="section_content">
+      You can now re-indent the current text selection in the source editor by invoking 
+      "Correct Indentation" from the "Source" menu in either the main menu bar or 
+      the editor's context menu.
+    </td>
+  </tr>
+  
+  <tr> 
+    <td class="section_item">Source menu</td> 
+    <td class="section_content">
+      The X10DT now provides a "Source" menu in both the main menu and the editor context menu, 
+      with several common menu items: "Correct Indentation", "Shift Left/Right", and "Toggle Comment". 
+    </td>
+  </tr>
+  
+  <tr> 
+    <td class="section_item">Entity information (F2)</td> 
+    <td class="section_content">
+       You can now hit F2 in the source editor to pop up a window showing information on the entity at the text caret. 
+       If there are compiler messages at that site, these will be displayed in the pop-up view; 
+       otherwise, information about the entity's declaration will be shown. 
+    </td>
+  </tr>
+  
+  
+  
 <!--
     <tr> 
     <td class="section_item">Quick fixes</td> 
