@@ -238,7 +238,7 @@
 		<topic label="Arrays" href="html/langref/arr-arrays.html"/> 
 		<topic label="Distributions" href="html/langref/arr-dists.html"/>
 		<topic label="Distributed Arrays" href="html/langref/arr-distarrays.html"/>
-		<topic label="Distributed Array Construction" href="html/langref/arr-distarraryconstr.html"/>
+		<topic label="Distributed Array Construction" href="html/langref/arr-distarrayconstr.html"/>
 <!-- 
 		<topic label="Array Initializer" href="html/langref/arr-initializer.html"/> 
 -->
