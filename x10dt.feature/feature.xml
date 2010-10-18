@@ -74,23 +74,9 @@
          version="0.0.0"/>
 
    <requires>
-      <import feature="lpg.runtime" version="2.0.18" match="greaterOrEqual"/>
-      <import feature="org.eclipse.imp.java.hosted"/>
-      <import feature="org.eclipse.imp.runtime"/>
       <import plugin="org.eclipse.imp.pdb"/>
       <import plugin="org.eclipse.imp.pdb.values"/>
-      <import feature="org.eclipse.cdt"/>
-      <import feature="org.eclipse.ptp.core" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.external" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.remote" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.remote.remotetools" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.remotetools" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.rm.ibm.ll" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.rm.ibm.pe" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.rm.mpich2" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.rm.openmpi" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.services" version="4.0.0" match="greaterOrEqual"/>
-      <import feature="org.eclipse.ptp.utils" version="4.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.cdt" version="7.0.0" match="greaterOrEqual"/>
    </requires>
 
    <plugin
