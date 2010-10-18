@@ -106,13 +106,25 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
     private void filterMethods(List<MethodInstance> methods, List<MethodInstance> in_methods, String prefix, boolean emptyPrefixMatches) {
         for(MethodInstance m: in_methods) {
-            String name= m.name().toString();   // PORT 1.7
-            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix))
+            String name= m.name().toString();
+            // RMF 18 Oct 2010 - prune methods w/ identical signatures, since signatures are
+            // what's presented in the list of proposals.
+            if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix) && !containsMethodSig(methods, m)) {
                 methods.add(m);
+            }
         }
     }
 
-    private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
+    private boolean containsMethodSig(List<MethodInstance> methods, MethodInstance m) {
+        for(MethodInstance mi: methods) {
+            if (mi.signature().equals(m.signature())) {
+                return true;
+            }
+        }
+		return false;
+	}
+
+	private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
         for(ReferenceType r: in_classes) {
             ClassType c= r.toClass();
             String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
