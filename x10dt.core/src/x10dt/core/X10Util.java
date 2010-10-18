@@ -91,7 +91,7 @@ public class X10Util {
 		IToken token=null;
 		if(parseController instanceof SimpleLPGParseController) {
 			SimpleLPGParseController pc = (SimpleLPGParseController) parseController;
-			IPrsStream prs = pc.getParser().getIPrsStream();
+			IPrsStream prs = pc.getParseStream();
 			token = getToken(offset, prs);
 		}
 		return token;
