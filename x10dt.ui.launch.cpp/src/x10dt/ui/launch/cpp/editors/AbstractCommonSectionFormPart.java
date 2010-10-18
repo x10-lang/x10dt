@@ -28,10 +28,16 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.Section;
 
 import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.editors.form_validation.FormCheckerFactory;
 import x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
+import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
+import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
+import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import x10dt.ui.launch.cpp.utils.PTPUtils;
@@ -143,21 +149,28 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     checker.validate(text.getText().trim());
   }
 
-	protected final void handlePathValidation(final Text text,
-			final String controlInfo) {
-		final IFormControlChecker checker = FormCheckerFactory
-				.createValidPathControlChecker(this.fFormPage, text,
-						controlInfo);
-		checker.validate(text.getText().trim());
-	}
+  protected final void handlePathValidation(final Text text, final String controlInfo) {
+    final ITargetOpHelper targetOpHelper= createTargetOpHelper();
+    final IFormControlChecker checker = FormCheckerFactory.createValidPathControlChecker(targetOpHelper, this.fFormPage, text, controlInfo);
 
-	protected final void handleExeValidation(final Text text,
-			final String controlInfo) {
-		final IFormControlChecker checker = FormCheckerFactory
-				.createValidExeControlChecker(this.fFormPage, text, controlInfo);
-		checker.validate(text.getText().trim());
-	}
-  
+    checker.validate(text.getText().trim());
+  }
+
+  protected final void handleExeValidation(final Text text, final String controlInfo) {
+    final ITargetOpHelper targetOpHelper= createTargetOpHelper();
+    final IFormControlChecker checker = FormCheckerFactory.createValidExeControlChecker(targetOpHelper, this.fFormPage, text, controlInfo);
+    checker.validate(text.getText().trim());
+  }
+
+  protected ITargetOpHelper createTargetOpHelper() {
+      final IX10PlatformConf platformConf = getPlatformConf();
+      final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
+      final IConnectionConf connConf = platformConf.getConnectionConf();
+      final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), 
+                                                                          cppCompConf.getTargetOS() == ETargetOS.WINDOWS, 
+                                                                          connConf.getConnectionName());
+      return targetOpHelper;
+    }
 
   protected final void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {
     ((X10PlatformConfFormEditor) this.fFormPage.getEditor()).setNewPlatformConfState(name, serviceProvider);

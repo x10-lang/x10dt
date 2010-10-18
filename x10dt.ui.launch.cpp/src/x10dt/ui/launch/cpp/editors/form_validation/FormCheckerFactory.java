@@ -58,9 +58,10 @@ public final class FormCheckerFactory {
    * @param controlInfo The information that defines the control content.
    * @return A non-null instance of {@link IFormControlChecker}.
    */
-  public static IFormControlChecker createValidPathControlChecker(final IFormPage formPage, final Control control, 
-                                                              final String controlInfo) {
-    return new ValidPathControlChecker(formPage, control, controlInfo);
+  public static IFormControlChecker createValidPathControlChecker(final ITargetOpHelper targetOpHelper,
+                                                                  final IFormPage formPage, final Control control, 
+                                                                  final String controlInfo) {
+    return new ValidPathControlChecker(targetOpHelper, formPage, control, controlInfo);
   }
   
   /**
@@ -71,9 +72,10 @@ public final class FormCheckerFactory {
    * @param controlInfo The information that defines the control content.
    * @return A non-null instance of {@link IFormControlChecker}.
    */
-  public static IFormControlChecker createValidExeControlChecker(final IFormPage formPage, final Control control, 
-                                                              final String controlInfo) {
-    return new ValidExeControlChecker(formPage, control, controlInfo);
+  public static IFormControlChecker createValidExeControlChecker(final ITargetOpHelper targetOpHelper,
+                                                                 final IFormPage formPage, final Control control,
+                                                                 final String controlInfo) {
+    return new ValidExeControlChecker(targetOpHelper, formPage, control, controlInfo);
   }
   
   // --- Private code

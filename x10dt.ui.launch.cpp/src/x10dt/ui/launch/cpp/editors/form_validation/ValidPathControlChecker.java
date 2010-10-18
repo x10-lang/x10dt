@@ -7,36 +7,36 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors.form_validation;
 
-import java.io.File;
-
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.editor.IFormPage;
 
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 
-final class ValidPathControlChecker extends AbstractFormControlChecker
-		implements IFormControlChecker {
+final class ValidPathControlChecker extends AbstractFormControlChecker implements IFormControlChecker {
 
-	protected ValidPathControlChecker(final IFormPage formPage,
+    protected ValidPathControlChecker(final ITargetOpHelper targetOpHelper, final IFormPage formPage,
 			final Control control, final String controlInfo) {
 		super(formPage, control);
+		this.fTargetOpHelper= targetOpHelper;
 		this.fControlInfo = controlInfo;
 	}
 
 	// --- Interface methods implementation
 
-	public boolean validate(final String text) {
+	public boolean validate(final String path) {
 		if (getControl().isEnabled()) {
-			if (text.length() == 0) {
+			if (path.length() == 0) {
 				addMessages(NLS.bind(LaunchMessages.ETIC_NoEmptyContent,
 						this.fControlInfo), IMessageProvider.ERROR);
 				return false;
 			}
 
-			else if (!validatePath(text)) {
-				addMessages(NLS.bind(LaunchMessages.CLCD_PathNotFound, text),
+			else if (!validatePath(path)) {
+				addMessages(NLS.bind(LaunchMessages.CLCD_PathNotFound, path),
 						IMessageProvider.ERROR);
 				return false;
 			}
@@ -46,16 +46,10 @@ final class ValidPathControlChecker extends AbstractFormControlChecker
 		return true;
 	}
 
-	private boolean validatePath(final String text) {
-		// check absolute path
-		File f = new File(text);
-		if(f.exists())
-		{
-			return true;
-		}
-		
-		// check current working dir
-		return f.exists();
+	private boolean validatePath(final String path) {
+	    IFileStore pathStore= fTargetOpHelper.getStore(path);
+
+	    return pathStore.fetchInfo().exists();
 	}
 
 	// --- Overridden methods
@@ -64,8 +58,7 @@ final class ValidPathControlChecker extends AbstractFormControlChecker
 		if (!(rhs instanceof ValidPathControlChecker)) {
 			return false;
 		}
-		return getControl().equals(
-				((AbstractFormControlChecker) rhs).getControl());
+		return getControl().equals(((AbstractFormControlChecker) rhs).getControl());
 	}
 
 	public int hashCode() {
@@ -76,4 +69,5 @@ final class ValidPathControlChecker extends AbstractFormControlChecker
 
 	private final String fControlInfo;
 
+    private final ITargetOpHelper fTargetOpHelper;
 }

@@ -13,13 +13,14 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.editor.IFormPage;
 
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 
-final class ValidExeControlChecker extends AbstractFormControlChecker implements
-		IFormControlChecker {
+final class ValidExeControlChecker extends AbstractFormControlChecker implements IFormControlChecker {
 
-	protected ValidExeControlChecker(final IFormPage formPage,
-			final Control control, final String controlInfo) {
+    protected ValidExeControlChecker(final ITargetOpHelper targetOpHelper, final IFormPage formPage,
+	                                 final Control control, final String controlInfo) {
 		super(formPage, control);
+		this.fTargetOpHelper = targetOpHelper;
 		this.fControlInfo = controlInfo;
 	}
 
@@ -44,17 +45,22 @@ final class ValidExeControlChecker extends AbstractFormControlChecker implements
 		return true;
 	}
 
-	private boolean validateExe(final String text) {
-		try {
-			Process p = Runtime.getRuntime().exec(text);
-			p.waitFor();
-			return true;
+	private boolean validateExe(final String exeName) {
+	    // TODO Remove this kind of validation altogether --
+	    //    Without embedding knowledge of the command being validated, we can't invoke it
+	    //    and be sure it won't produce a non-zero return code. E.g., running "g++" produces
+	    //    return code 1 (because it needs some input files to work on).
+//		try {
+//		    int retCode = fTargetOpHelper.run(Arrays.asList(exeName), new IProcessOuputListener() {
+//                public void readError(String line) { }
+//                public void read(String line) { }
+//            });
+//			return retCode == 0;
+//		} catch (Exception e) {
+//			// fall through
+//		}
 
-		} catch (Exception e) {
-			// fall through
-		}
-
-		return false;
+		return true;
 	}
 
 	// --- Overridden methods
@@ -63,8 +69,7 @@ final class ValidExeControlChecker extends AbstractFormControlChecker implements
 		if (!(rhs instanceof ValidPathControlChecker)) {
 			return false;
 		}
-		return getControl().equals(
-				((AbstractFormControlChecker) rhs).getControl());
+		return getControl().equals(((AbstractFormControlChecker) rhs).getControl());
 	}
 
 	public int hashCode() {
@@ -75,4 +80,5 @@ final class ValidExeControlChecker extends AbstractFormControlChecker implements
 
 	private final String fControlInfo;
 
+    private final ITargetOpHelper fTargetOpHelper;
 }
