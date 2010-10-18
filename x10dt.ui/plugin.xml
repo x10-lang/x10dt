@@ -168,23 +168,25 @@
             sequence="M1+M3+M4+D X">
       </key>
       <key
-            sequence="M1+M2+M3+T"
+            sequence="M1+M2+T"
             contextId="x10dt.ui.x10PerspectiveScope"
             commandId="x10dt.ui.navigate.OpenType"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
-            sequence="M1+M3+T"
+            sequence="M1+T"
             contextId="x10dt.ui.x10EditorScope"
             commandId="x10dt.ui.navigate.OpenHierarchy"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+<!--
       <key
             sequence="M1+M2+T"
             contextId="x10dt.ui.x10PerspectiveScope"
             commandId="x10dt.ui.navigate.OpenTypeWarning"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
+-->
 <!--
       <key
             sequence="F4"
