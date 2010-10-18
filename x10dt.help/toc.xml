@@ -80,7 +80,7 @@
 <topic label="X10 Language Reference" href="html/langref/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
 	<topic label="Introduction"  href="html/langref/introduction.html"/> 
-	<topic label="Overview of X10"  href="html/langref/Overview.html"> 
+	<topic label="Overview of X10"  href="html/langref/overview.html"> 
 		<topic label="Object-oriented features" href="html/langref/ove-oofeatures.html"/> 
 		<topic label="The sequential core" href="html/langref/ove-seqcore.html"/> 
 		<topic label="Places and activities" href="html/langref/ove-placesacts.html"/> 
@@ -262,7 +262,7 @@
 	<topic label="Changes" href="html/langref/changelog.html"/>
 	<topic label="Options" href="html/langref/options.html"/>
 </topic>
-<topic label="What&apos;s new" href="html/whatsNew/whatsNew-2.1.html"/>
+<topic label="What&apos;s new" href="html/whatsNew/whatsnew-2.1.html"/>
 
 <!--
 <topic label="X10DT"  href="html/x10dt/contents.html">
@@ -282,7 +282,7 @@
 	<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
 	<topic label="X10 Preferences" href="html/x10dt/prefs.html"/>
 
-	<topic label="What&apos;s New 2.0.5" href="html/x10dt/whatsNew/whatsNew-2_0_5.html"/>
+	<topic label="What&apos;s New 2.0.5" href="html/x10dt/whatsNew/whatsnew-2_0_5.html"/>
 </topic> 
 -->
 <!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
