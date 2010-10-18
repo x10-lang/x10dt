@@ -32,7 +32,14 @@ You should download this file to a temporary directory, unzip the contents, and
 run "cygsetup.bat".   This will prompt you for your windows id so it can create
 the login directory and install some cygwin shell files. Also watch out for any
 firewall prompts that you may have to respond to.
-<P>
+<p>
+Once the installation is complete you should double check that the Windows PATH
+environment variable has been updated to include the following directories:
+<ul>
+<li>C:\cygwin\bin</li>
+<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
+</ul>
+<p>
 Once the installation is complete you will be in the cygwin directory, and you
 can start cygwin by running "cygwin.bat".  Then you should run "mpd &". 
 MPD is the MPICH daemon, which controls/runs/stops the proccesses on your machine.
@@ -247,6 +254,14 @@ Here is a sample .bash_profile
 PATH=/usr/local/x10.2.1/bin:/usr/local/x10/2.1/lib:$PATH
 export PATH
 </pre>
+
+<p>
+Once the installation is complete you should update the Windows PATH
+environment variable  to include the following directories:
+<ul>
+<li>C:\cygwin\bin</li>
+<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
+</ul>
 
 Now you will be able to use the x10 commands to compile and run your programs.
 My recommendation is to make an x10 directory or an x10work directory in your
