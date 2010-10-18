@@ -116,7 +116,7 @@ public class Messages extends NLS {
 	private Messages() {
 	}
 
-	private static final String BUNDLE_NAME = "x10dt.search.ui.Messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "x10dt.search.ui.messages"; //$NON-NLS-1$
 
 	static {
 		// initialize resource bundle
