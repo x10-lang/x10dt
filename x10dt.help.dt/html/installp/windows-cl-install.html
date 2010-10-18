@@ -32,7 +32,14 @@ You should download this file to a temporary directory, unzip the contents, and
 run "cygsetup.bat".   This will prompt you for your windows id so it can create
 the login directory and install some cygwin shell files. Also watch out for any
 firewall prompts that you may have to respond to.
-<P>
+<p>
+Once the installation is complete you should double check that the Windows PATH
+environment variable has been updated to include the following directories:
+<ul>
+<li>C:\cygwin\bin</li>
+<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
+</ul>
+<p>
 Once the installation is complete you will be in the cygwin directory, and you
 can start cygwin by running "cygwin.bat".  Then you should run "mpd &". 
 MPD is the MPICH daemon, which controls/runs/stops the proccesses on your machine.
@@ -95,6 +102,15 @@ Select any other packages that you may want. Note any dependencies will be downl
 <pre>
 Utils - util-linux 2.14.1
 </pre>
+
+<p>
+Once the installation is complete you should update the Windows PATH
+environment variable  to include the following directories:
+<ul>
+<li>C:\cygwin\bin</li>
+<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
+</ul>
+
 
 <a name="java-prereq">
 <h3>java</h3>
@@ -184,6 +200,14 @@ Then you should modify your .bash_profile file to contain this directory in the 
 PATH=/usr/contrib/mpich2-1.2.1/bin:${PATH}
 export PATH
 </pre>
+
+<p>
+Once the installation is complete you should update the Windows PATH
+environment variable  to include the following directories:
+<ul>
+<li>C:\cygwin\bin</li>
+<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
+</ul>
 
 <a name="getting-started">
 
