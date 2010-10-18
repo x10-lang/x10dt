@@ -7,11 +7,8 @@
     <p2.mirror destination="file:${repoBaseLocation}/mirror">
       <source>
         <repository location="${lpg.update.url}" />
-<!--        <repository location="${eclipse.update.url}" /> -->
       </source>
       <iu id="lpg.runtime.feature.group" version="${lpg.version}" />
-<!--      <iu id="org.eclipse.jdt.feature.group" />
-      <iu id="org.eclipse.platform.feature.group" /> -->
 
       <slicingOptions followStrict="true" includeOptional="false" />
     </p2.mirror>

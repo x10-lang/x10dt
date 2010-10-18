@@ -15,10 +15,20 @@
     </not>
   </condition>
 
+  <condition property="deploy.release">
+    <and>
+      <isset property="release"/>
+      <not>
+        <isset property="no-release-deployment"/>
+      </not>
+    </and>
+  </condition>
+
   <propertyset id="properties-set">
     <propertyref name="release"/>
     <propertyref name="skipDirector"/>
     <propertyref name="skipMirroring"/>
+    <propertyref name="configs"/>
     <propertyref name="builder"/>
     <propertyref name="build.folder"/>
     <propertyref name="build.loc"/>
@@ -70,6 +80,10 @@
     <antcall target="publish-compilation-log">
       <param name="log.file" value="${build.folder}/x10dt.search.core/@dot.log" />
       <param name="component.name" value="x10dt.search.core" />
+    </antcall>
+    <antcall target="publish-compilation-log">
+      <param name="log.file" value="${build.folder}/x10dt.search.ui/@dot.log" />
+      <param name="component.name" value="x10dt.search.ui" />
     </antcall>
     <antcall target="publish-compilation-log">
       <param name="log.file" value="${build.folder}/x10dt.ui/@dot.log" />
@@ -141,7 +155,7 @@
     </delete>
   </target>
 
-  <target name="deploy-or-clean-release-if" if="release">
+  <target name="deploy-release" if="deploy.release">
     <property name="target.folder" value="${releases.folder}/${buildLabel}"/>
     <mkdir dir="${target.folder}"/>
     <copy todir="${target.folder}">
@@ -169,7 +183,7 @@
     </antcall>
     <antcall target="publishLink">
       <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-macosx.cocoa.x86.zip" />
-      <param name="link.label" value="All-In-One MacOS Cocoa x86_64 Release ${buildLabel}." />
+      <param name="link.label" value="All-In-One MacOS Cocoa x86 Release ${buildLabel}." />
     </antcall>
     <antcall target="publishLink">
       <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-win32.win32.x86.zip" />
@@ -177,7 +191,7 @@
     </antcall>
   </target>
 
-  <target name="deploy-or-clean-release-else">
+  <target name="clean-build-label" if="release">
     <delete includeemptydirs="true">
       <fileset dir="${x10dtBuildDirectory}/${buildLabel}">
         <include name="*.zip"/>
@@ -185,7 +199,7 @@
     </delete>
   </target>
 
-  <target name="deploy-or-clean-release" depends="deploy-or-clean-release-if,deploy-or-clean-release-else"/>
+  <target name="deploy-clean-release" depends="deploy-release,clean-build-label"/>
 
   <!--- Testing tasks -->
 
@@ -491,7 +505,7 @@
 
     <antcall target="post-build-cleaning"/>
 
-    <antcall target="deploy-or-clean-release"/>
+    <antcall target="deploy-clean-release"/>
   </target>
 
 </project>

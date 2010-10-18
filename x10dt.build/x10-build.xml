@@ -125,8 +125,20 @@
     </condition>
   </target>
 
-  <target name="transfer-release" if="release.based.build">
-    <property name="dist.file" value="${x10.release.build.base}/${zip.release.tag}/x10-${zip.release.tag}_${os}.tgz" />
+  <target name="transfer-x10-release" if="x10.release.based">
+    <property name="dist.file" value="${x10.release.build.base}/${x10.tarballs.release.tag}/x10-${x10.tarballs.release.tag}_${os}.tgz" />
+<!--    <fail message="Could not find ${dist.file}">
+      <condition>
+        <resourcecount when="greater" count="0">
+          <restrict>
+            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+            <fileset dir="${x10.release.build.base}/${x10.tarballs.release.tag}">
+              <include name="x10-${x10.tarballs.release.tag}_${os}.tgz" />
+            </fileset>
+          </restrict>
+        </resourcecount>
+      </condition>
+    </fail> -->
     <untar src="${dist.file}" dest="/tmp/x10-${zip.release.tag}_${os}" compression="gzip" />
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
     <svn username="anonymous">
@@ -157,7 +169,7 @@
     <echo message="${file.replaced}" file="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
   </target>
 
-  <target name="transfer" unless="release.based.build">
+  <target name="transfer-tools-branch-release" unless="x10.release.based">
     <property name="dist.file" value="${x10.build.base}/${svn.info.lastRev}/x10-tib_${svn.info.lastRev}_${os}.tgz" />
     <fail message="Could not find ${dist.file}">
       <condition>
@@ -210,35 +222,35 @@
       <fileset dir="${x10.build.loc}/x10.runtime" includes="x10.runtime_*.jar" />
       <fileset dir="${x10.build.loc}/x10.dist.host" includes="x10.dist.host_*.jar" />
     </copy>
-    <antcall target="transfer">
+    <antcall target="transfer-tools-branch-release">
       <param name="os" value="linux_x86" />
       <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
     </antcall>
-    <antcall target="transfer">
+    <antcall target="transfer-tools-branch-release">
       <param name="os" value="linux_x86_64" />
       <param name="fragment-name" value="x10.dist.linux.x86_64.fragment" />
     </antcall>
-    <antcall target="transfer">
+    <antcall target="transfer-tools-branch-release">
       <param name="os" value="cygwin_x86" />
       <param name="fragment-name" value="x10.dist.win32.x86.fragment" />
     </antcall>
-    <antcall target="transfer">
+    <antcall target="transfer-tools-branch-release">
       <param name="os" value="macosx_x86" />
       <param name="fragment-name" value="x10.dist.macosx.x86.fragment" />
     </antcall>
-    <antcall target="transfer-release">
+    <antcall target="transfer-x10-release">
       <param name="os" value="linux_x86" />
       <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
     </antcall>
-    <antcall target="transfer-release">
+    <antcall target="transfer-x10-release">
       <param name="os" value="linux_x86_64" />
       <param name="fragment-name" value="x10.dist.linux.x86_64.fragment" />
     </antcall>
-    <antcall target="transfer-release">
+    <antcall target="transfer-x10-release">
       <param name="os" value="cygwin_x86" />
       <param name="fragment-name" value="x10.dist.win32.x86.fragment" />
     </antcall>
-    <antcall target="transfer-release">
+    <antcall target="transfer-x10-release">
       <param name="os" value="macosx_x86" />
       <param name="fragment-name" value="x10.dist.macosx.x86.fragment" />
     </antcall>
