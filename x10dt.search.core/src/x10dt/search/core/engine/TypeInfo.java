@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import java.net.URI;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -43,28 +45,38 @@ final class TypeInfo implements ITypeInfo {
   
   public boolean exists(final IProgressMonitor monitor) {
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-    final IFile[] files = root.findFilesForLocationURI(this.fLocation.getURI());
-    if (files.length == 0) {
-      return false;
+    final URI uri = this.fLocation.getURI();
+    if ("jar".equals(uri.getScheme())) { //$NON-NLS-1$
+      try {
+        return X10SearchEngine.getX10RuntimeTypeInfo(this.fTypeName, monitor) != null;
+      } catch (Exception except) {
+        // Let's forget about it, since probably it is not good news about the type existence.
+        return false;
+      }
     } else {
-      monitor.beginTask(null, files.length);
-      for (final IFile file : files) {
-        try {
-          file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-        } catch (CoreException except) {
-          // Let's simply forget in such case.
-        }
-        if (file.exists()) {
+      final IFile[] files = root.findFilesForLocationURI(this.fLocation.getURI());
+      if (files.length == 0) {
+        return false;
+      } else {
+        monitor.beginTask(null, files.length);
+        for (final IFile file : files) {
           try {
-            if (X10SearchEngine.getTypeInfo(file.getProject(), this.fTypeName, new SubProgressMonitor(monitor, 1)) != null) {
-              return true;
+            file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+          } catch (CoreException except) {
+            // Let's simply forget in such case.
+          }
+          if (file.exists()) {
+            try {
+              if (X10SearchEngine.getTypeInfo(file.getProject(), this.fTypeName, new SubProgressMonitor(monitor, 1)) != null) {
+                return true;
+              }
+            } catch (Exception except) {
+              // Let's forget about it, since probably it is not good news about the type existence.
             }
-          } catch (Exception except) {
-            // Let's forget about it, since probably it is not good news about the type existence.
           }
         }
+        return false;
       }
-      return false;
     }
   }
   
