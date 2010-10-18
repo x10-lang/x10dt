@@ -60,8 +60,8 @@
 
 	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
 	<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html">
-		<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02NewProjJavaBackend.html"> </topic>
-		<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02NewProjCppBackend.html"> </topic> 
+		<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02newProjJavaBackend.html"> </topic>
+		<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02newProjCppBackend.html"> </topic> 
 	</topic>
 	<topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
 		<topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
