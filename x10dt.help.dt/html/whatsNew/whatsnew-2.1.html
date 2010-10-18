@@ -142,35 +142,58 @@ color: SlateGray;
     </td>
   </tr>
   
-  
-  
-<!--
     <tr> 
-    <td class="section_item">Quick fixes</td> 
+    <td class="section_item">Quick Fix Support</td> 
     <td class="section_content">
-    Whenever it detects an error, the Java editor highlights the error using a wavy red line 
-    under the offending code and a marker in the left editor margin. Moving the mouse over the 
-    underlined code or the marker will indicate the error. The marker can be selected with the 
-    left mouse to activate the Quick Fix pop-up, indicating actions that can be undertaken to 
-    repair the error. Alternatively, pressing Ctrl+1 will activate Quick Fix from the keyboard. 
+       <p>Quick fix support has been added to the editor.</p>
+       <p> 
+      When an error has a quick fix available, a lightbulb icon appears in the ruler instead of the standard error icon.
+      When hovering over the error in the editor available quick fixes will appear in the tooltip:
+      </p>
+      <p><img src="images/quickfix_hover.png" alt="Hover"></img></p>
+      <p>
+    	Quick fix can also be invoked by right clicking the lightbulb icon in the ruler and selecting the "Quick Fix" action:
+      </p>
+      <p><img src="images/quickfix_context.png" alt="Context Menu"></img></p>
+      <p>When quick fix is invoked in this way the available quick fixes show up similar to content assist:</p>
+      <p><img src="images/quickfix_context_action.png" alt="Context Menu Action"></img></p>
     </td>
   </tr>
   
   <tr> 
-    <td class="section_item">Outline view</td> 
+    <td class="section_item">Quick Type Hierarchy</td> 
     <td class="section_content">
-    The Outline view displays an outline of a structured file that is currently open in the 
-    editor area, and lists structural elements. The contents of the Outline view are editor 
-    specific. In the example below, which is for a Java source file, the structural elements 
-    are classes, fields, and methods. The contents of the toolbar are also editor specific. 
-	<p><img src="images/outline-view.png"/></p>
-    To add the Outline view to the current perspective, click   
-	<a class="command-link" href='javascript:executeCommand("org.eclipse.ui.views.showView(org.eclipse.ui.views.showView.viewId=org.eclipse.ui.views.ContentOutline)")'> 
-	<img src="PLUGINS_ROOT/org.eclipse.help/command_link.png"
-    alt="Opens the outline view"><b> Window > Show View > Other... > General > Outline.</b></img></a>
+      <p>A quick type hierarchy view is now available within the editor</p>
+      <p>  
+      It can be invoked by pressing Ctrl+T within the editor, and will show a type hierarchy based upon what is selected within the editor.
+      When first invoked it will show a tree containing sub types:
+      </p>
+    <p><img src="images/quickhierarchy_subtype.png" alt="Sub Type"></img></p>
+    <p>
+    Pressing Ctrl+T once the view is visible, allows you to toggle between the sub type and super type views:
+    </p>
+    <p><img src="images/quickhierarchy_supertype.png" alt="Sub Type"></img></p>
+    <p>
+    Typing in the text box perfoms a filter on the tree:
+    </p>
+    <p><img src="images/quickhierarchy_filter.png" alt="Sub Type"></img></p>
+    <p>
+    Selecting an item in the tree will open an editor on that type.  
+    </p>
     </td>
   </tr>
--->
+  
+    <tr> 
+    <td class="section_item">Open Type Dialog</td> 
+    <td class="section_content">
+    <p>
+       An Open Type dialog can be invoked within the X10 perspective by pressing Ctrl+Shift+T.
+    	Typing in the filter will show all types which match the text typed.  
+    	Selecting 1 or more items and clicking 'OK' will open editors on the selections.
+    </p>
+    <p><img src="images/opentype.png" alt="Open Type"></img></p>
+    </td>
+  </tr>
   
   <!-- ******************** Java back-end ********************** -->
   
