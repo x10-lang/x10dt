@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
-import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
@@ -30,9 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.model.ISourceProject;
-import org.eclipse.imp.parser.ILexer;
 import org.eclipse.imp.parser.IMessageHandler;
-import org.eclipse.imp.parser.IParser;
 import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
@@ -40,7 +37,6 @@ import org.eclipse.jface.text.IRegion;
 
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
@@ -60,20 +56,10 @@ public class ParseController extends SimpleLPGParseController {
 
     private CompilerDelegate fCompiler;
     private PMMonitor fMonitor;
-    private IPrsStream fPrsStream;
-    private ILexStream fLexStream;
     private InvariantViolationHandler fViolationHandler;
 
     public ParseController() {
     	super(X10DTCorePlugin.kLanguageName);
-    }
-
-    public IParser getParser() {
-    	return fParser;
-    }
-
-    public ILexer getLexer() {
-        return fLexer;
     }
 
     public CompilerDelegate getCompiler() {
@@ -161,7 +147,7 @@ public class ParseController extends SimpleLPGParseController {
 		            if (source != null && fCompiler != null) {
 		            	final X10Parser parser= fCompiler.getParserFor(source);
 		            	final X10Lexer lexer= fCompiler.getLexerFor(source);
-		            	fPrsStream = parser.getIPrsStream();
+		            	fParseStream = parser.getIPrsStream();
 		            	fLexStream = lexer.getILexStream();
 		            	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
 		            	fLexer = new LexerDelegate(lexer);
@@ -206,29 +192,13 @@ public class ParseController extends SimpleLPGParseController {
     	return null;
     }
 
-    public ILexStream getLexStream() {
-    	return fLexStream;
-    }
-
-    public IPrsStream getParseStream() {
-    	return fPrsStream;
-    }
-
-    @Override
-    public Object getCurrentAst() {
-//    	if (fCompiler == null)
-//    		return null;
-//        initializeGlobalsIfNeeded();
-        return super.getCurrentAst();
-    }
-
     @Override
     public Iterator<IToken> getTokenIterator(IRegion region) {
       final int regionOffset= region.getOffset();
       final int regionLength= region.getLength();
       final int regionEnd= regionOffset + regionLength - 1;
 
-      if (fPrsStream == null) {
+      if (fParseStream == null) {
     	  return new Iterator<IToken>() {
 			public boolean hasNext() {
 				return false;
@@ -242,7 +212,7 @@ public class ParseController extends SimpleLPGParseController {
 			} };
       }
       return new Iterator<IToken>() {
-          final IPrsStream stream= fPrsStream;
+          final IPrsStream stream= fParseStream;
           final int firstTokIdx= getTokenIndexAtCharacter(regionOffset);
           final int lastTokIdx;
           {
