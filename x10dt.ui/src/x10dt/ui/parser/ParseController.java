@@ -68,7 +68,7 @@ public class ParseController extends SimpleLPGParseController {
 
     @Override
     public ISourcePositionLocator getSourcePositionLocator() {
-    	return new PolyglotNodeLocator(fProject, getLexer() != null ? getLexer().getILexStream() : null);
+    	return new PolyglotNodeLocator(fProject, getLexStream());
     }
 
     public ILanguageSyntaxProperties getSyntaxProperties() {
