@@ -79,7 +79,7 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
     return cpEntries.toArray(new IClasspathEntry[cpEntries.size()]);
   }
 
-  private boolean isDeployedMode() throws CoreException {
+  public static boolean isDeployedMode() throws CoreException {
     try {
       URL bundleResourceURL= getBundleResourceURL(X10_RUNTIME_BUNDLE, CLASSES_DIR);
       final URL url = FileLocator.resolve(bundleResourceURL);
@@ -94,7 +94,7 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
     }
   }
 
-  private URL getBundleResourceURL(final String bundleName, final String folder) throws CoreException {
+  public static URL getBundleResourceURL(final String bundleName, final String folder) throws CoreException {
     final Bundle bundle = Platform.getBundle(bundleName);
     if (bundle == null) {
       throw new CoreException(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, 
