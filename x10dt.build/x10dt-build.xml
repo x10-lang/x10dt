@@ -106,8 +106,43 @@
 
   <target name="post-build" unless="skipMirroring">
     <!--    <antcall target="sign-jars" /> -->
-    <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
-         basedir="${orquesta.update.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
+    <p2.mirror>
+      <repository location="file:/${orquesta.update.site.loc}"/>
+      <source>
+        <repository location="file:${x10dtBuildDirectory}/buildRepo" />
+      </source>
+    </p2.mirror>
+    <p2.remove.iu>
+      <repository location="file:${orquesta.update.site.loc}" />
+      <iu id="org.eclipse.cdt.platform.feature.group" />
+      <iu id="org.eclipse.cdt.feature.group" />
+      <iu id="org.eclipse.cdt.ui" />
+      <iu id="org.eclipse.cdt.managedbuilder.core" />
+      <iu id="org.eclipse.cdt.make.core" />
+      <iu id="org.eclipse.cdt.launch" />
+      <iu id="org.eclipse.cdt.debug.ui" />
+      <iu id="org.eclipse.cdt.debug.core" />
+      <iu id="org.eclipse.cdt.core" />
+    </p2.remove.iu>
+    <delete includeEmptyDirs="true">
+      <fileset dir="${orquesta.update.site.loc}/features">
+        <include name="org.eclipse.cdt*/**" />
+      </fileset>
+      <fileset dir="${orquesta.update.site.loc}/plugins">
+        <include name="org.eclipse.cdt*/**" />
+      </fileset>
+    </delete>
+    <java jar="${toString:launcher.path.ref}" fork="true" failonerror="true">
+      <arg value="-application" />
+      <arg value="org.eclipse.equinox.p2.publisher.CategoryPublisher" />
+      <arg value="-metadataRepository" />
+      <arg value="file:${orquesta.update.site.loc}" />
+      <arg value="-categoryDefinition" />
+      <arg value="file:${build.loc}/category.xml" />
+      <arg value="-categoryQualifier" />
+      <arg value="-compress" />
+    </java>
+    <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" basedir="${orquesta.update.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
   </target>
 
   <target name="main" depends="x10dt-checkouts">

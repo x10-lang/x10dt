@@ -145,18 +145,6 @@
   <!-- Steps to do after running the build.xmls for the elements being built. -->
   <!-- ===================================================================== -->
   <target name="postProcess">
-    <p2.remove.iu>
-      <repository location="file:${transformedRepoLocation}"/>
-      <iu id="org.eclipse.cdt.platform.feature.group"/>
-      <iu id="org.eclipse.cdt.feature.group"/>
-      <iu id="org.eclipse.cdt.ui" />
-      <iu id="org.eclipse.cdt.managedbuilder.core" />
-      <iu id="org.eclipse.cdt.make.core" />
-      <iu id="org.eclipse.cdt.launch" />
-      <iu id="org.eclipse.cdt.debug.ui" />
-      <iu id="org.eclipse.cdt.debug.core" />
-      <iu id="org.eclipse.cdt.core" />
-    </p2.remove.iu>
   </target>
 
   <!-- ===================================================================== -->
