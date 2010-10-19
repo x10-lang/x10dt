@@ -9,6 +9,7 @@ package x10dt.ui.launch.core.builder;
 
 import org.eclipse.core.runtime.IPath;
 
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.utils.IFilter;
 
 /**
@@ -21,11 +22,7 @@ public final class RuntimeFilter implements IFilter<IPath> {
   // --- Interface methods implementation
 
   public boolean accepts(final IPath path) {
-    return path.toOSString().contains(X10_RUNTIME);
+    return path.toOSString().contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID);
   }
-  
-  // --- Fields
-  
-  private static final String X10_RUNTIME = "x10.runtime"; //$NON-NLS-1$
 
 }

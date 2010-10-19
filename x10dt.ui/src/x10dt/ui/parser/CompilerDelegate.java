@@ -12,7 +12,6 @@
 package x10dt.ui.parser;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,17 +28,14 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.editor.quickfix.IAnnotation;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.osgi.framework.Bundle;
 
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
@@ -57,7 +53,7 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
-import x10dt.core.project.X10ClasspathContainerInitializer;
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
 
 public class CompilerDelegate {
@@ -192,7 +188,7 @@ public class CompilerDelegate {
                 // can't be stored in Java class files, and for now, these source files
                 // actually live in the X10 runtime jar.
                 IPath path= e.getPath();
-                if (path.toPortableString().contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {
+                if (path.toPortableString().contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {
                     srcPath.add(path);
                 }
             }
@@ -266,7 +262,7 @@ public class CompilerDelegate {
                     buff.append(File.pathSeparatorChar);
                 buff.append(entryPath);
 
-                if (entryPath.contains(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
+                if (entryPath.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
                     hasRuntime= true;
                     if (new File(entryPath).exists())
                         runtimeValid= true;
@@ -283,33 +279,16 @@ public class CompilerDelegate {
         return buff.toString();
     }
 
-    private static final String X10_RUNTIME_BUNDLE = "x10.runtime"; //$NON-NLS-1$
-
-    private static final String CLASSES_DIR = "classes"; //$NON-NLS-1$
-
-    private static final String X10_JAR = "src-java/gen/x10.jar"; //$NON-NLS-1$
-
     /**
      * Find and return the location of the X10 runtime, to be used as part of the
      * compiler's search path when editing files (like the XRX sources themselves)
      * that have no associated workspace project.
      */
     private String getRuntimePath() {
-        URL runtimeURL;
-
         try {
-            if (! X10ClasspathContainerInitializer.isDeployedMode()) {
-                // We're running in "development mode", so just use x10.jar - it has all we need
-                final Bundle x10Runtime = Platform.getBundle(X10_RUNTIME_BUNDLE);
-                runtimeURL = x10Runtime.getResource(X10_JAR);
-            } else {
-                runtimeURL = X10ClasspathContainerInitializer.getBundleResourceURL(X10_RUNTIME_BUNDLE, CLASSES_DIR);
-            }
-            final URL url = FileLocator.resolve(runtimeURL);
-            return url.getPath();
+            final URL x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
+            return (x10RuntimeURL == null) ? "" : x10RuntimeURL.getPath();
         } catch (CoreException e) {
-            return "";
-        } catch (IOException e) {
             return "";
         }
     }

@@ -12,6 +12,7 @@
 package x10dt.ui.launching;
 
 import java.io.File;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +25,14 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.imp.runtime.RuntimePlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -38,14 +40,13 @@ import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMRunner;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbench;
 
 import x10dt.core.X10DTCorePlugin;
-import x10dt.core.X10Util;
 import x10dt.core.preferences.generated.X10Constants;
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
 
 /**
@@ -216,14 +217,20 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 		// String constraintsLoc=locPrefix +
 		// X10Plugin.X10_CONSTRAINTS_BUNDLE_ID;
 
-		String locnDir = getDir(x10RuntimeLoc);
 		// PORT1.7 -- common and constraints jars also need to be added to classpath
 
-		String commonJar=X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_COMMON_BUNDLE_ID);
-		String constraintsJar=X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_CONSTRAINTS_BUNDLE_ID);
-
-		classpathList.add(commonJar);
-		classpathList.add(constraintsJar);
+		if (X10BundleUtils.isDeployedX10Runtime(x10RuntimeLoc)) {
+		  try {
+		    final URL commonJarURL = X10BundleUtils.getX10CommonURL();
+		    final URL constraintsJarURL = X10BundleUtils.getX10ConstraintsURL();
+		
+		    classpathList.add(commonJarURL.getPath());
+		    classpathList.add(constraintsJarURL.getPath());
+		  } catch (CoreException except) {
+		    X10DTUIPlugin.getInstance().getLog().log(new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID,
+		                                                        "Unable to access X10 bundles", except));
+		  }
+		}
 		// PORT1.7 -- we might also want a third jar, the pre-built X10 classes
 
 		// test that each exists (be paranoid)
@@ -330,15 +337,4 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
     	return buf.toString();
     }
 
-
-	private String getDir(String pathLocation) {
-    	String result="";
-    	if(pathLocation.endsWith(File.separator)) {
-    		pathLocation=pathLocation.substring(0,pathLocation.length()-1);
-    	}
-    	int loc=pathLocation.lastIndexOf(File.separator);
-    	result=pathLocation.substring(0,loc+1);
-    	
-    	return result;
-    }
 }

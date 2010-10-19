@@ -37,7 +37,6 @@ import org.eclipse.osgi.util.NLS;
 
 import polyglot.ast.Node;
 import polyglot.frontend.Compiler;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Source;
 import polyglot.types.ClassType;
 import polyglot.types.MethodDef;
@@ -50,6 +49,7 @@ import x10.ast.X10MethodDecl;
 import x10.types.X10ClassType;
 import x10.types.X10TypeSystem;
 import x10dt.core.builder.StreamSource;
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.parser.ExtensionInfo;
@@ -95,7 +95,7 @@ public final class X10Utils {
     final List<File> sourcePath = new ArrayList<File>();
     for (final IPath pathEntry : entries) {
       final String entry = pathEntry.toOSString();
-      if (entry.contains(X10_RUNTIME) || entry.contains(javaProject.getElementName())) {
+      if (entry.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID) || entry.contains(javaProject.getElementName())) {
         sourcePath.add(pathEntry.toFile());
       }
     }
@@ -289,7 +289,5 @@ public final class X10Utils {
   private static final String X10_EXT = "x10"; //$NON-NLS-1$
   
   private static final String MAIN_METHOD_NAME = "main"; //$NON-NLS-1$
-  
-  private static final String X10_RUNTIME = "x10.runtime"; //$NON-NLS-1$
 
 }

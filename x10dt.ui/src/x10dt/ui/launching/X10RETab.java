@@ -18,18 +18,14 @@
 package x10dt.ui.launching;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
-import org.eclipse.osgi.service.datalocation.Location;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,10 +42,8 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
-import org.osgi.framework.Bundle;
 
-import x10dt.core.X10DTCorePlugin;
-import x10dt.core.X10Util;
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
 
 public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab {
@@ -224,8 +218,13 @@ public class X10RETab extends AbstractLaunchConfigurationTab implements ILaunchC
     }
 
     public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-		String runtimeJar = X10Util.getJarLocationForBundle(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID);
-		//String compilerJar=X10Util.getJarLocationForBundle(X10Plugin.X10_COMPILER_BUNDLE_ID);
+		String runtimeJar;
+    try {
+      final URL x10RuntimeUrl = X10BundleUtils.getX10RuntimeURL();
+      runtimeJar = (x10RuntimeUrl == null) ? "" : x10RuntimeUrl.getPath();
+    } catch (CoreException except) {
+      runtimeJar = "";
+    }
 
 		configuration.setAttribute(
 				X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimeJar);

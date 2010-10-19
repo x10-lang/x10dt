@@ -10,8 +10,11 @@ package x10dt.ui.launching;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 
-import java.io.File;
+import java.net.URL;
 
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
@@ -20,7 +23,9 @@ import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
 
 import polyglot.types.ClassType;
-import x10dt.core.X10DTCorePlugin;
+import x10dt.core.utils.X10BundleUtils;
+import x10dt.ui.Messages;
+import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.LaunchCore;
 
 /**
@@ -45,10 +50,15 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
     workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getJavaProject().getElementName());
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
     
-    String commonPath= X10DTCorePlugin.x10CompilerPath;
-    final String runtimePath = commonPath.substring(0, commonPath.lastIndexOf(File.separatorChar)+1) + 
-                               X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID + File.separator + "classes";
-    workingCopy.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, runtimePath);
+    try {
+      final URL x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
+      if (x10RuntimeURL != null) {
+        workingCopy.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, x10RuntimeURL.getPath());
+      }
+    } catch (CoreException except) {
+      X10DTUIPlugin.getInstance().getLog().log(new Status(IStatus.WARNING, X10DTUIPlugin.PLUGIN_ID, 
+                                                          Messages.XJS_X10RuntimeAccessError, except));
+    }
   }
   
   // --- Fields

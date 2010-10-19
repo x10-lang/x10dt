@@ -18,7 +18,6 @@
 package x10dt.core;
 
 import java.io.IOException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -26,11 +25,8 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
@@ -53,7 +49,6 @@ import org.eclipse.ui.console.IConsoleView;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
 import x10.Configuration;
@@ -77,20 +72,12 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
 	  public static final String kPluginID= "x10dt.core";
 	  public static final String X10DT_CONSOLE_NAME = "X10DT info";
     public static final String kLanguageName = "X10";
-    
-    /** Plugin id of version of X10 runtime used for this X10DT */
-    public static final String X10_RUNTIME_BUNDLE_ID="x10.runtime";      //PORT1.7 provide constant here for runtime
-    /** Plugin id of version of X10 compiler used for this X10DT */
-    public static final String X10_COMPILER_BUNDLE_ID ="x10.compiler";   //PORT1.7 provide constant here for compiler
-    public static final String X10_COMMON_BUNDLE_ID="x10.common";  //PORT1.7 added
-    public static final String X10_CONSTRAINTS_BUNDLE_ID="x10.constraints"; //PORT1.7 added
+   
     /**
      * The unique instance of this plugin class
      */
     protected static X10DTCorePlugin sPlugin;
     protected static MessageConsole console=null;
-    
-    public static String x10CompilerPath;
 
     public X10DTCorePlugin() {
       super();
@@ -235,12 +222,6 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
      */
     public void start(BundleContext context) throws Exception {
       super.start(context);
-
-      final Bundle x10CompilerBundle = Platform.getBundle(X10_COMPILER_BUNDLE_ID);
-      final URL x10CompilerURL = FileLocator.toFileURL(FileLocator.find(x10CompilerBundle, new Path(""), null));
-
-      // SMS 30 Oct 2006:  Note:  x10CompilerPath is *not* set as a preference
-      x10CompilerPath = x10CompilerURL.getPath();
       
       updateX10ConfigurationFromPreferences();
 

@@ -48,6 +48,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
 import x10dt.core.builder.StreamSource;
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.utils.CollectionUtils;
 import x10dt.ui.launch.core.utils.FileUtils;
 import x10dt.ui.launch.core.utils.IFilter;
@@ -134,7 +135,6 @@ final class CppCompilationChecker implements ICppCompilationChecker {
   
   // --- Private code
   
-  @SuppressWarnings("unchecked")
   private Pair<String, String> compileX10File(final File testFilePath, final InputStream sourceInputStream, 
                                               final String workspaceDir, final String[] x10LibsLocs, 
                                               final IRemoteFileManager fileManager, 
@@ -144,7 +144,7 @@ final class CppCompilationChecker implements ICppCompilationChecker {
       throw new InterruptedException();
     }
     
-    final Bundle x10RuntimeBundle = Platform.getBundle(X10_RUNTIME_BUNDLE);
+    final Bundle x10RuntimeBundle = Platform.getBundle(X10BundleUtils.X10_RUNTIME_BUNDLE_ID);
     final File x10RuntimeDir = getDirectory(x10RuntimeBundle);
     
     final File localTestDir = testFilePath.getParentFile();
@@ -484,8 +484,6 @@ final class CppCompilationChecker implements ICppCompilationChecker {
   private static final String TEST_LIB = "/libHello.a"; //$NON-NLS-1$
   
   private static final String TEST_LIB_LINK = "-lHello"; //$NON-NLS-1$
-  
-  private static final String X10_RUNTIME_BUNDLE = "x10.runtime"; //$NON-NLS-1$
   
   private static final String SRC_X10_DIR = "src-x10"; //$NON-NLS-1$
   
