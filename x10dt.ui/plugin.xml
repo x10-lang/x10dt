@@ -422,7 +422,7 @@
    <extension
          point="org.eclipse.ui.editorActions">
       <editorContribution
-            targetID="org.eclipse.imp.runtime.impEditor"
+            targetID="x10dt.ui.editor"
             id="imp.rulerActions">
          <action
                label="SelectRulerAction"
@@ -430,6 +430,12 @@
                actionID="RulerClick"
                id="x10dt.ui.editor.actions.X10SelectRulerAction">
          </action>
+         <action
+             label="Not Used"
+             class="org.eclipse.debug.ui.actions.RulerToggleBreakpointActionDelegate"
+             style="push"
+             actionID="RulerDoubleClick"
+             id="imp.doubleClickBreakpointAction"/>
       </editorContribution>
    </extension>
 <!--
