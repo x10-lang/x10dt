@@ -66,6 +66,7 @@ import x10dt.ui.launch.core.LaunchImages;
 import x10dt.ui.launch.core.dialogs.DialogsFactory;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
+import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.CppLaunchImages;
@@ -365,7 +366,6 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setPrivateKeyFile(privateKeyText.getText().trim());
         }
-        handlePathValidation(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel);
         
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
@@ -904,6 +904,20 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         fillConnectionControlsInfo(connectionInfo);
       }
     }
+    
+    KeyboardUtils.addDelayedActionOnControl(this.fPrivateKeyFileText, new Runnable() {
+      
+      public void run() {
+        getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
+          
+          public void run() {
+            handleLocalPathValidation(ConnectionSectionPart.this.fPrivateKeyFileText, LaunchMessages.RMCP_PrivateKeyFileLabel);
+          }
+          
+        });
+      }
+      
+    });
   }
   
   private void notifyConnectionUnknownStatus(final IConnectionInfo connectionInfo) {

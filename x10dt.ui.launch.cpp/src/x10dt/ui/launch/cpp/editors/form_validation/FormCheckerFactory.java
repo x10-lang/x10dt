@@ -51,7 +51,22 @@ public final class FormCheckerFactory {
   }
   
   /**
-   * Creates a checker that is responsible for validating that a given text control (Text, Combo, etc...) is not empty.
+   * Creates a checker that is responsible for validating that a given local path exists. This check is independent of
+   * the current connection, as opposed to {@link #createValidPathControlChecker(ITargetOpHelper, IFormPage, Control, String)}.
+   * 
+   * @param formPage The form page to get access to the form message managers.
+   * @param control The control that contains the text in question.
+   * @param controlInfo The information that defines the control content.
+   * @return A non-null instance of {@link IFormControlChecker}.
+   */
+  public static IFormControlChecker createLocalPathControlChecker(final IFormPage formPage, final Control control, 
+                                                                  final String controlInfo) {
+    return new LocalPathControlChecker(formPage, control, controlInfo);
+  }
+  
+  /**
+   * Creates a checker that is responsible for validating that a path (local or remote) exists. The location comes from
+   * the information of the current connection.
    * 
    * @param formPage The form page to get access to the form message managers.
    * @param control The control that contains the text in question.
@@ -62,20 +77,6 @@ public final class FormCheckerFactory {
                                                                   final IFormPage formPage, final Control control, 
                                                                   final String controlInfo) {
     return new ValidPathControlChecker(targetOpHelper, formPage, control, controlInfo);
-  }
-  
-  /**
-   * Creates a checker that is responsible for validating that a given text control (Text, Combo, etc...) is not empty.
-   * 
-   * @param formPage The form page to get access to the form message managers.
-   * @param control The control that contains the text in question.
-   * @param controlInfo The information that defines the control content.
-   * @return A non-null instance of {@link IFormControlChecker}.
-   */
-  public static IFormControlChecker createValidExeControlChecker(final ITargetOpHelper targetOpHelper,
-                                                                 final IFormPage formPage, final Control control,
-                                                                 final String controlInfo) {
-    return new ValidExeControlChecker(targetOpHelper, formPage, control, controlInfo);
   }
   
   // --- Private code

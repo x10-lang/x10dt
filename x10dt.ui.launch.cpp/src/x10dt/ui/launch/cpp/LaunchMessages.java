@@ -289,6 +289,8 @@ public class LaunchMessages extends NLS {
 
   public static String LLTCP_WarningBt;
 
+  public static String LPCC_NonExistentPath;
+
   public static String RMCP_AddBt;
 
   public static String RMCP_AdvancedSettingsExpandableCompo;

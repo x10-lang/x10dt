@@ -74,9 +74,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     this.fArchiverBrowseBt.setEnabled(shouldEnable);
     this.fLinkerBrowseBt.setEnabled(shouldEnable);
     if (shouldEnable) {
-      if (newConnection) {
-        selectOsAndArchitecture();
-      }
+      selectOsAndArchitecture();
       checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
     }
   }
@@ -102,8 +100,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
                             final Combo osCombo, final Combo archCombo) {
 		compilerText.addModifyListener(new ModifyListener() {
 			public void modifyText(final ModifyEvent event) {
-				handleExeValidation(compilerText,
-						LaunchMessages.XPCP_CompilerLabel);
+			  handleEmptyTextValidation(compilerText, LaunchMessages.XPCP_CompilerLabel);
 
 				getPlatformConf().setCompiler(compilerText.getText());
 				setPartCompleteFlag(hasCompleteInfo());
@@ -123,7 +120,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     archiverText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-    	handleExeValidation(archiverText, LaunchMessages.XPCP_ArchiverLabel);
+        handleEmptyTextValidation(archiverText, LaunchMessages.XPCP_ArchiverLabel);
         getPlatformConf().setArchiver(archiverText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
@@ -143,7 +140,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkerText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-    	handleExeValidation(linkerText, LaunchMessages.XPCP_LinkerLabel);
+        handleEmptyTextValidation(linkerText, LaunchMessages.XPCP_LinkerLabel);
         getPlatformConf().setLinker(linkerText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
