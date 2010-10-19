@@ -76,7 +76,7 @@
    <requires>
       <import plugin="org.eclipse.imp.pdb"/>
       <import plugin="org.eclipse.imp.pdb.values"/>
-      <import feature="org.eclipse.cdt" version="7.0.0" match="greaterOrEqual"/>
+      <import feature="org.eclipse.cdt"/>
    </requires>
 
    <plugin
