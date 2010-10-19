@@ -12,7 +12,10 @@
 package x10dt.ui.parser;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +28,8 @@ import lpg.runtime.Monitor;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -38,7 +43,6 @@ import org.osgi.framework.Bundle;
 
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
-import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.main.Options;
@@ -53,6 +57,7 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
+import x10dt.core.project.X10ClasspathContainerInitializer;
 import x10dt.ui.X10DTUIPlugin;
 
 public class CompilerDelegate {
@@ -148,8 +153,9 @@ public class CompilerDelegate {
     private List<IPath> getProjectSrcPath() throws JavaModelException {
         List<IPath> srcPath= new ArrayList<IPath>();
 
-        if (this.fX10Project == null)
-            return srcPath;
+        if (this.fX10Project == null) {
+            return Arrays.asList((IPath) new Path(getRuntimePath()));
+        }
 
         IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
 
@@ -209,7 +215,7 @@ public class CompilerDelegate {
                 // live inside the workspace, so use its actual location as the prefix
                 // for the rest of the specified path.
                 buff.append(projectRef.getLocation().append(path.removeFirstSegments(1)).toOSString());
-            } else if (fX10Project.getProject().exists(path)) {
+            } else if (fX10Project != null && fX10Project.getProject().exists(path)) {
                 buff.append(fX10Project.getProject().getLocation().append(path).toOSString());
             } else {
                 buff.append(path.toOSString());
@@ -222,10 +228,6 @@ public class CompilerDelegate {
 
     private void buildOptions(ExtensionInfo extInfo) {
         Options opts = extInfo.getOptions();
-
-        // Options.global= opts;//PORT1.7 Global options object no longer exists. 
-        //   instead, need to call Globals.initialize(compiler) prior to calling compiler
-        //    Note this is done in constructor
 
         try {
             List<IPath> projectSrcLoc = getProjectSrcPath();
@@ -247,12 +249,12 @@ public class CompilerDelegate {
 
     private String buildClassPathSpec() {
         StringBuffer buff= new StringBuffer();
-        // RMF 8/2/2006 - Determine whether an X10 runtime is on the project classpath,
-        // and if not, silently add the default X10 runtime, so that various IDE services
-        // can still run (e.g. syntax highlighting, outlining, etc.).
         boolean hasRuntime= false;
         boolean runtimeValid= false;
 
+        if (fX10Project == null) {
+            return getRuntimePath();
+        }
         try {
             IClasspathEntry[] classPath= (fX10Project != null) ? fX10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
 
@@ -275,25 +277,40 @@ public class CompilerDelegate {
                     buff.append(File.pathSeparatorChar);
                 buff.append(getRuntimePath());
             }
-            // if (X10Preferences.autoAddRuntime) {
-            //    String commonPath= X10Plugin.x10CommonPath;
-            //    String runtimePath= commonPath.substring(0, commonPath.lastIndexOf(File.separator) + 1) + "x10.runtime" + File.separator + "classes";
-            //
-            //    if (classPath.length > 0)
-            //        buff.append(';');
-            //    buff.append(runtimePath);
-            // }
         } catch (JavaModelException e) {
             X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
         }
         return buff.toString();
     }
 
-    private String getRuntimePath() {
-        Bundle x10RuntimeBundle= Platform.getBundle(X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID);//PORT1.7 use constant for runtime bundle
-        String bundleVersion= (String) x10RuntimeBundle.getHeaders().get("Bundle-Version");
-        String x10RuntimePath= Platform.getInstallLocation().getURL().getPath() + "plugins/"+X10DTCorePlugin.X10_RUNTIME_BUNDLE_ID+"_" + bundleVersion + ".jar";//PORT1.7 use constant
+    private static final String X10_RUNTIME_BUNDLE = "x10.runtime"; //$NON-NLS-1$
 
-        return x10RuntimePath;
+    private static final String CLASSES_DIR = "classes"; //$NON-NLS-1$
+
+    private static final String X10_JAR = "src-java/gen/x10.jar"; //$NON-NLS-1$
+
+    /**
+     * Find and return the location of the X10 runtime, to be used as part of the
+     * compiler's search path when editing files (like the XRX sources themselves)
+     * that have no associated workspace project.
+     */
+    private String getRuntimePath() {
+        URL runtimeURL;
+
+        try {
+            if (! X10ClasspathContainerInitializer.isDeployedMode()) {
+                // We're running in "development mode", so just use x10.jar - it has all we need
+                final Bundle x10Runtime = Platform.getBundle(X10_RUNTIME_BUNDLE);
+                runtimeURL = x10Runtime.getResource(X10_JAR);
+            } else {
+                runtimeURL = X10ClasspathContainerInitializer.getBundleResourceURL(X10_RUNTIME_BUNDLE, CLASSES_DIR);
+            }
+            final URL url = FileLocator.resolve(runtimeURL);
+            return url.getPath();
+        } catch (CoreException e) {
+            return "";
+        } catch (IOException e) {
+            return "";
+        }
     }
 }
