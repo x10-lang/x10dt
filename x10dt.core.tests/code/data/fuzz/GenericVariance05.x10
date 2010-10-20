@@ -11,21 +11,26 @@
 
 import harness.x10Test;
 
+
+
 /**
- * Ensures double arrays are implemented.
+ * @author bdlucas 8/2008
  */
 
-public class Array3Double extends x10Test {
+public class GenericVariance05 extends GenericTest {
 
-    public def run(): boolean = {
-        val r  = (1..10)*(1..10);
-        val ia = new Array[Double](r, (x:Point)=>0.0D);
-        ia(1, 1) = 42.0D;
-        x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
-        return 42.0D == ia(1,1);
+    class X {}
+    class Y extends X {}
+    class Z extends Y {}
+
+    class A[+T] {}
+
+    public def run() = {
+        val ax:A[X] = new A[Y](); // yes
+        return result;
     }
 
-    public static def main(Array[String](1)) = {
-        new Array3Double().execute();
+    public static def main(var args: Array[String](1)): void = {
+        new GenericVariance05().execute();
     }
 }

@@ -11,21 +11,23 @@
 
 import harness.x10Test;
 
+
 /**
- * Ensures double arrays are implemented.
+ * Closure expressions have zero or more formal parameters
+ *
+ * @author bdlucas 8/2008
  */
 
-public class Array3Double extends x10Test {
+public class ClosureFormalParameters1b extends ClosureTest {
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
-        val ia = new Array[Double](r, (x:Point)=>0.0D);
-        ia(1, 1) = 42.0D;
-        x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
-        return 42.0D == ia(1,1);
+        
+        check("((i:int)=>i+1)(1)", ((i:int)=>i+1)(1), 2);
+
+        return result;
     }
 
-    public static def main(Array[String](1)) = {
-        new Array3Double().execute();
+    public static def main(var args: Array[String](1)): void = {
+        new ClosureFormalParameters1b().execute();
     }
 }

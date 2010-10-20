@@ -11,38 +11,27 @@
 
 import harness.x10Test;
 
+
 /**
- * Basic typdefs and type equivalence.
- *
- * Type definitions are applicative, not generative; that is, they define
- * aliases for types and do not introduce new types.
- *
  * @author bdlucas 9/2008
  */
 
-public class TypedefBasic3 extends TypedefTest {
+public class TypedefConstraint1c extends TypedefTest {
+
+    class X           {def name(): String = "X";}
+    class Y extends X {def name(): String = "Y";}
+    class Z extends Y {def name(): String = "Z";}
 
     public def run(): boolean = {
         
-        type T1 = ()=>String;
-        type T2 = ()=>String;
-
-        var t0:()=>String = ()=>"0";
-        var t1:T1 = ()=>"1";
-        var t2:T2 = ()=>"2";
-
-        t0 = t1;
-        t1 = t2;
-        t2 = t0;
-
-        check("t0()", t0(), "1");
-        check("t1()", t1(), "2");
-        check("t2()", t2(), "1");
+        type C[T]{Y<:T} = T;
+        c:C[X] = new X();
+        check("c.name()", c.name(), "X");
 
         return result;
     }
 
     public static def main(var args: Array[String](1)): void = {
-        new TypedefBasic3().execute();
+        new TypedefConstraint1c().execute();
     }
 }

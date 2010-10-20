@@ -9,23 +9,32 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//LIMITATION:
+// top-level typedefs not supported - therefore I moved it into the class
+
 import harness.x10Test;
 
+
 /**
- * Ensures double arrays are implemented.
+ * All type definitions are members of their enclosing package or
+ * class.
+ *
+ * @author bdlucas 8/2008
  */
 
-public class Array3Double extends x10Test {
+
+public class TypedefScope1 extends TypedefTest {
+	static type T = int;
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
-        val ia = new Array[Double](r, (x:Point)=>0.0D);
-        ia(1, 1) = 42.0D;
-        x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
-        return 42.0D == ia(1,1);
+        
+        a:T = 1;
+        check("a", a, 1);
+
+        return result;
     }
 
-    public static def main(Array[String](1)) = {
-        new Array3Double().execute();
+    public static def main(var args: Array[String](1)): void = {
+        new TypedefScope1().execute();
     }
 }

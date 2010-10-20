@@ -12,20 +12,24 @@
 import harness.x10Test;
 
 /**
- * Ensures double arrays are implemented.
+ * Checking that constructor calls for structs work.
  */
+struct S1 {
+  val x:int;
+  val y:int;
 
-public class Array3Double extends x10Test {
+  public def this(a:int, b:int) { x = a; y = b; }
+  public final def sum() = x + y;
+}
 
-    public def run(): boolean = {
-        val r  = (1..10)*(1..10);
-        val ia = new Array[Double](r, (x:Point)=>0.0D);
-        ia(1, 1) = 42.0D;
-        x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
-        return 42.0D == ia(1,1);
+public class StructCall extends x10Test  {
+    
+    public def run():boolean {
+      val a = S1(3,4);
+      return a.sum() == 7;
     }
 
-    public static def main(Array[String](1)) = {
-        new Array3Double().execute();
+    public static def main(var args: Array[String](1)): void = {
+        new StructCall().execute();
     }
 }

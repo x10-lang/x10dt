@@ -12,20 +12,23 @@
 import harness.x10Test;
 
 /**
- * Ensures double arrays are implemented.
+ * @author Christian Grothoff
  */
-
-public class Array3Double extends x10Test {
-
+public class StructEquality extends x10Test {
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
-        val ia = new Array[Double](r, (x:Point)=>0.0D);
-        ia(1, 1) = 42.0D;
-        x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
-        return 42.0D == ia(1,1);
+        val v1 = V(1);
+        val v2 = V(1);
+        return v1 == v2;
     }
 
-    public static def main(Array[String](1)) = {
-        new Array3Double().execute();
+    public static def main(args: Array[String](1)): void = {
+        new StructEquality().execute();
+    }
+
+    static struct V {
+        val v: int;
+        def this(i: int) {
+            this.v = i;
+        }
     }
 }

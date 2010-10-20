@@ -12,20 +12,23 @@
 import harness.x10Test;
 
 /**
- * Ensures double arrays are implemented.
+ * Array Initializer test.
  */
 
-public class Array3Double extends x10Test {
+public class ArrayInitializer1a extends x10Test {
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
-        val ia = new Array[Double](r, (x:Point)=>0.0D);
-        ia(1, 1) = 42.0D;
-        x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
-        return 42.0D == ia(1,1);
+
+        val e = 0..9;
+        val r = e*e*e;
+        val ia = new Array[Int](r, ([i,j,k]: Point)=> i);
+
+        for (val p[i,j,k] in ia.region) chk(ia(p) == i); // should infer p:Point(3)
+
+        return true;
     }
 
-    public static def main(Array[String](1)) = {
-        new Array3Double().execute();
+    public static def main(Array[String](1)): Void = {
+        new ArrayInitializer1a().execute();
     }
 }

@@ -11,21 +11,18 @@
 
 import harness.x10Test;
 
-/**
- * Ensures double arrays are implemented.
- */
+public class RegionEquality extends x10Test {
 
-public class Array3Double extends x10Test {
+    // needs fix for XTENLANG-130
 
     public def run(): boolean = {
-        val r  = (1..10)*(1..10);
-        val ia = new Array[Double](r, (x:Point)=>0.0D);
-        ia(1, 1) = 42.0D;
-        x10.io.Console.OUT.println("ia(1,1)=" + ia(1,1));
-        return 42.0D == ia(1,1);
+        val size: int = 10;
+        val R: Region{rank==2} = (0..size-1)*(0..size-1);
+        val S: Region{rank==2} = (0..size-1)*(0..size-1);
+        return R.equals(S);
     }
 
-    public static def main(Array[String](1)) = {
-        new Array3Double().execute();
+    public static def main(var args: Array[String](1)): void = {
+         new RegionEquality().execute();
     }
 }

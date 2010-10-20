@@ -41,6 +41,7 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	 * Paths
 	 */
 	private static final String DATA_DIRNAME = "data"; //$NON-NLS-1$
+	private static final String CODE_DIRNAME = ".." + File.separator + ".." + File.separator + "code" + File.separator + DATA_DIRNAME;
 	private static final String FUZZGEN_DIRNAME = "fuzzgen"; //$NON-NLS-1$
 	private static final String FUZZ_DIRNAME = "fuzz"; //$NON-NLS-1$
 	private static final String FUZZ_PATH = DATA_DIRNAME + File.separator + FUZZGEN_DIRNAME  + File.separator;
@@ -133,7 +134,7 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 	public static void main(String[] args) throws URISyntaxException, IOException {
 	    final URL dataURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 	    final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(DATA_DIRNAME);
-	    File fuzzDir = new File(toFile(fuzzURL), "../../code");
+	    File fuzzDir = new File(toFile(fuzzURL), CODE_DIRNAME);
 	    final File fuzzgenFile = args.length > 0 ? new File(args[0]) : new File(fuzzDir, FUZZGEN_DIRNAME);
 	    if (!fuzzgenFile.exists() && ! fuzzgenFile.mkdir()) {
 	        throw new IOException("Could not create directory: " + fuzzgenFile.getAbsolutePath());
