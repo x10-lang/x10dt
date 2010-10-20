@@ -68,6 +68,31 @@ public final class IndexingCompilerTests extends NodeVisitor {
     }
   }
   
+  @Test public void emptyClassTest() throws IOException, URISyntaxException {
+    final String testCode = "indexing_compiler/Splat.x10";
+    
+    final URL codeURL = getClass().getClassLoader().getResource(testCode);
+    assertNotNull(NLS.bind("Could not find ''{0}'' with class loader transmitted.", testCode), codeURL);
+    
+    final URL jarURL = getClass().getClassLoader().getResource("x10.jar");
+    assertNotNull("Could not find x10.jar with class loader transmitted.", codeURL);
+    
+    final IndexingCompiler compiler = new IndexingCompiler();
+    
+    final File sourceFile = new File(codeURL.toURI());
+    
+    final List<File> sourcePath = new ArrayList<File>();
+    sourcePath.add(sourceFile);
+    sourcePath.add(new File(jarURL.toURI()));
+    
+    final Source source = new FileSource(new FileResource(sourceFile));
+    for (final Job job : compiler.compile("", sourcePath, Arrays.asList(source))) {
+      if (job.ast() != null) {
+        job.ast().visit(this);
+      }
+    }
+  }
+  
   // --- Overridden methods
   
   @SuppressWarnings("unused")
