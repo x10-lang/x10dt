@@ -26,6 +26,7 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
@@ -49,6 +50,15 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
                                 final EValidationStatus validationStatus, final boolean newConnection) {
+    if ((isLocal && this.fX10DistLocText.isEnabled()) || ((! isLocal) && ! this.fX10DistLocText.isEnabled())) {
+      this.fX10DistLocText.setText(Constants.EMPTY_STR);
+      this.fPGASLocText.setText(Constants.EMPTY_STR);
+      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+    } else {
+      handlePathValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+      handlePathValidation(this.fPGASLocText, LaunchMessages.XPCP_PGASDistLabel);
+    }
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
     }
@@ -69,8 +79,6 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     this.fX10DistBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
     this.fPGASDistBrowseBt.setEnabled(! isLocal && ((validationStatus == EValidationStatus.VALID) && ! useSameLoc));
     
-    handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-    handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
     setPartCompleteFlag(hasCompleteInfo());
   }
   
