@@ -90,7 +90,11 @@ public class SearchUtils {
      * @return whether it is a camel case pattern or not
      */
 	public static boolean isCamelCasePattern(String pattern) {
-		//return SearchPattern.getMatchRule() == SearchPattern.RULE_CAMELCASE_MATCH;
+		SearchPattern sp = new SearchPattern();
+		if(sp.matches(pattern))
+		{
+			return (sp.getMatchRule() & SearchPattern.RULE_CAMELCASE_MATCH) == SearchPattern.RULE_CAMELCASE_MATCH;
+		}
 		return false;
 	}
 	
@@ -166,21 +170,24 @@ public class SearchUtils {
 	public static String getFullyQualifiedName(ITypeInfo info, char qualifier) {
 		return info.getName().replaceAll("\\.", new String(new char[]{qualifier}));
 	}
+	
+	public static IPath getPath(ITypeInfo info)
+	{
+		return new Path(info.getLocation().getURI().getSchemeSpecificPart());
+	}
 
 	public static String getHandleIdentifier(ITypeInfo info) {
-		return info.getName() + "," +  info.getLocation().getURI().toString();
+		return info.getName() + "," +  getPath(info).toPortableString();
 	}
 
 	public static String getPackageName(ITypeInfo info) {
 		return getTypeContainerName(info);
 	}
-
+	
 	public static IResource getResource(ITypeInfo info) {
 		try {
-			String path = info.getLocation().getURI().getSchemeSpecificPart();
-			IPath p = new Path(path);
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			return root.findMember(p.makeRelativeTo(root.getLocation()));
+			IPath path = getPath(info);
+			return ResourcesPlugin.getWorkspace().getRoot().findMember(path);
 		} catch (Exception e) {
 			//ignore
 		}

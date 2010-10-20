@@ -37,12 +37,9 @@ import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.model.ISourceProject;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.internal.ui.preferences.TypeFilterPreferencePage;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableContext;
@@ -81,7 +78,6 @@ import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.actions.WorkingSetFilterActionGroup;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
-import org.eclipse.ui.dialogs.PreferencesUtil;
 
 import x10dt.search.core.engine.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
@@ -140,16 +136,6 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 
 	private boolean fAllowScopeSwitching;
 
-	/**
-	 * Flags defining nature of searched elements; the only valid
-	 * values are:
-	 *  {@link IJavaSearchConstants#TYPE},
-	 * 	{@link IJavaSearchConstants#ANNOTATION_TYPE},
-	 * 	{@link IJavaSearchConstants#INTERFACE},
-	 * 	{@link IJavaSearchConstants#ENUM},
-	 * 	{@link IJavaSearchConstants#CLASS_AND_INTERFACE},
-	 * 	{@link IJavaSearchConstants#CLASS_AND_ENUM}.
-	 */
 	private final int fElementKinds;
 
 	private final ITypeInfoFilterExtension fFilterExtension;
@@ -719,23 +705,23 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 		}
 	}
 
-	private class TypeFiltersPreferencesAction extends Action {
-
-		public TypeFiltersPreferencesAction() {
-			super(Messages.FilteredTypesSelectionDialog_TypeFiltersPreferencesAction_label);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 *
-		 * @see org.eclipse.jface.action.Action#run()
-		 */
-		public void run() {
-			String typeFilterID= TypeFilterPreferencePage.TYPE_FILTER_PREF_PAGE_ID;
-			PreferencesUtil.createPreferenceDialogOn(getShell(), typeFilterID, new String[] { typeFilterID }, null).open();
-			triggerSearch();
-		}
-	}
+//	private class TypeFiltersPreferencesAction extends Action {
+//
+//		public TypeFiltersPreferencesAction() {
+//			super(Messages.FilteredTypesSelectionDialog_TypeFiltersPreferencesAction_label);
+//		}
+//
+//		/*
+//		 * (non-Javadoc)
+//		 *
+//		 * @see org.eclipse.jface.action.Action#run()
+//		 */
+//		public void run() {
+//			String typeFilterID= TypeFilterPreferencePage.TYPE_FILTER_PREF_PAGE_ID;
+//			PreferencesUtil.createPreferenceDialogOn(getShell(), typeFilterID, new String[] { typeFilterID }, null).open();
+//			triggerSearch();
+//		}
+//	}
 
 	/**
 	 * A <code>LabelProvider</code> for (the table of) types.

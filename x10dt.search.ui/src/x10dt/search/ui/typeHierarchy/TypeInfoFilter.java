@@ -19,98 +19,6 @@ import static x10dt.search.core.pdb.X10FactTypeNames.APPLICATION;
 
 public class TypeInfoFilter {
 
-	private static class PatternMatcher {
-
-		private String fPattern;
-		private int fMatchKind;
-		private StringMatcher fStringMatcher;
-
-		private static final char END_SYMBOL= '<';
-		private static final char ANY_STRING= '*';
-		private static final char BLANK= ' ';
-
-		public PatternMatcher(String pattern) {
-			this(pattern, SearchPattern.RULE_EXACT_MATCH | SearchPattern.RULE_PREFIX_MATCH |
-				SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_CAMELCASE_MATCH);
-		}
-
-		private PatternMatcher(String pattern, int allowedModes) {
-			initializePatternAndMatchKind(pattern);
-			fMatchKind= fMatchKind & allowedModes;
-			if (fMatchKind == SearchPattern.RULE_PATTERN_MATCH) {
-				fStringMatcher= new StringMatcher(fPattern, true, false);
-			}
-		}
-
-		public String getPattern() {
-			return fPattern;
-		}
-
-		public int getMatchKind() {
-			return fMatchKind;
-		}
-
-		public boolean matches(String text) {
-			switch (fMatchKind) {
-				case SearchPattern.RULE_PATTERN_MATCH:
-					return fStringMatcher.match(text);
-				case SearchPattern.RULE_EXACT_MATCH:
-					return fPattern.equalsIgnoreCase(text);
-//				case SearchPattern.RULE_CAMELCASE_SAME_PART_COUNT_MATCH:
-//					return SearchPattern.camelCaseMatch(fPattern, text, true);
-				case SearchPattern.RULE_CAMELCASE_MATCH:
-//					if (SearchPattern.camelCaseMatch(fPattern, text)) {
-//						return true;
-//					}
-					// fall back to prefix match if camel case failed (bug 137244)
-					return Strings.startsWithIgnoreCase(text, fPattern);
-				default:
-					return Strings.startsWithIgnoreCase(text, fPattern);
-			}
-		}
-
-		private void initializePatternAndMatchKind(String pattern) {
-			int length= pattern.length();
-			if (length == 0) {
-				fMatchKind= SearchPattern.RULE_EXACT_MATCH;
-				fPattern= pattern;
-				return;
-			}
-			char last= pattern.charAt(length - 1);
-
-			if (pattern.indexOf('*') != -1 || pattern.indexOf('?') != -1) {
-				fMatchKind= SearchPattern.RULE_PATTERN_MATCH;
-				switch (last) {
-					case END_SYMBOL:
-					case BLANK:
-						fPattern= pattern.substring(0, length - 1);
-						break;
-					case ANY_STRING:
-						fPattern= pattern;
-						break;
-					default:
-						fPattern= pattern + ANY_STRING;
-				}
-				return;
-			}
-
-			if (last == END_SYMBOL || last == BLANK) {
-				fPattern= pattern.substring(0, length - 1);
-				fMatchKind= SearchPattern.RULE_EXACT_MATCH;
-				return;
-			}
-
-			if (SearchUtils.isCamelCasePattern(pattern)) {
-				fMatchKind= SearchPattern.RULE_CAMELCASE_MATCH;
-				fPattern= pattern;
-				return;
-			}
-
-			fMatchKind= SearchPattern.RULE_PREFIX_MATCH;
-			fPattern= pattern;
-		}
-	}
-
 	private final String fText;
 	private final String fSearchScope;
 	private final boolean fIsWorkspaceScope;
@@ -118,8 +26,8 @@ public class TypeInfoFilter {
 	private final ITypeInfoFilterExtension fFilterExtension;
 	private final TypeInfoRequestorAdapter fAdapter= new TypeInfoRequestorAdapter();
 
-	private final PatternMatcher fPackageMatcher;
-	private final PatternMatcher fNameMatcher;
+	private final SearchPattern fPackageMatcher;
+	private final SearchPattern fNameMatcher;
 
 	//private static final int TYPE_MODIFIERS= Flags.AccEnum | Flags.AccAnnotation | Flags.AccInterface;
 
@@ -132,14 +40,17 @@ public class TypeInfoFilter {
 
 		int index= text.lastIndexOf("."); //$NON-NLS-1$
 		if (index == -1) {
-			fNameMatcher= new PatternMatcher(text);
+			fNameMatcher= new SearchPattern();
+			fNameMatcher.setPattern(text);
 			fPackageMatcher= null;
 		} else {
-			fPackageMatcher= new PatternMatcher(evaluatePackagePattern(text.substring(0, index)));
+			fPackageMatcher= new SearchPattern();
+			fPackageMatcher.setPattern(evaluatePackagePattern(text.substring(0, index)));
 			String name= text.substring(index + 1);
 			if (name.length() == 0)
 				name= "*"; //$NON-NLS-1$
-			fNameMatcher= new PatternMatcher(name);
+			fNameMatcher= new SearchPattern();
+			fNameMatcher.setPattern(name);
 		}
 	}
 
@@ -198,7 +109,7 @@ public class TypeInfoFilter {
 
 	public boolean isCamelCasePattern() {
 		int ccMask= SearchPattern.RULE_CAMELCASE_MATCH;
-		return (fNameMatcher.getMatchKind() & ccMask) != 0;
+		return (fNameMatcher.getMatchRule() & ccMask) != 0;
 	}
 
 	public String getPackagePattern() {
@@ -212,7 +123,7 @@ public class TypeInfoFilter {
 	}
 
 	public int getSearchFlags() {
-		return fNameMatcher.getMatchKind();
+		return fNameMatcher.getMatchRule();
 	}
 
 	public int getElementKind() {
@@ -227,7 +138,7 @@ public class TypeInfoFilter {
 		if (fPackageMatcher == null)
 			return SearchPattern.RULE_EXACT_MATCH;
 
-		return fPackageMatcher.getMatchKind();
+		return fPackageMatcher.getMatchRule();
 	}
 
 	public boolean matchesRawNamePattern(TypeNameMatch type) {
