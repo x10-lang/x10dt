@@ -196,12 +196,12 @@ export PATH
 <h2>Getting started</h2>
 You need to download the X10 2.1 distributions for your platform,
 <pre>
-AIX/PowerPC 
-Cygwin/x86 
-Linux/x86 
-Linux/x86_64 
-MacOS/x86 
-MacOS/x86_64 
+AIX/Power
+Linux/Power (SLES11)
+Cygwin/x86
+Linux/x86 (RHEL5)
+Linux/x86_64 (RHEL5)
+MacOS/x86 and x86_64
 </pre>
 in this case Windows Cygwin/x86. The Common PGAS runtime is inlcuded in the download.
 Go to the <a href="http://x10.codehaus.org/X10+2.1.0+Release">X10 release 2.1 (http://x10.codehaus.org/X10+2.1.0+Release)</a> and download
@@ -251,7 +251,7 @@ system knows how to find the cyggc-1.dll file.
 Here is a sample .bash_profile
 <pre>
 .bash_profile
-PATH=/usr/local/x10.2.1/bin:/usr/local/x10/2.1/lib:$PATH
+PATH=/usr/local/x10/2.1/bin:/usr/local/x10/2.1/lib:$PATH
 export PATH
 </pre>
 
