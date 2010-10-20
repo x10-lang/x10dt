@@ -10,18 +10,21 @@ package x10dt.search.core.pdb;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.ExecutionException;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.pdb.analysis.AnalysisManager;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
-import org.eclipse.imp.pdb.facts.db.IFactKey;
 import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
 import org.eclipse.imp.pdb.facts.type.Type;
 
+import x10dt.search.core.utils.FactBaseUtils;
 import x10dt.tests.services.pde.utils.ProjectUtils;
 
 /**
@@ -71,7 +74,7 @@ public abstract class AbstractSearchTestBase {
     ResourcesPlugin.getWorkspace().getDescription().setAutoBuilding(false);
     final IProject project;
     if (shouldCreateProject) {
-      project = ProjectUtils.createX10ProjectCppBackEnd(projectName, getClass().getClassLoader(), data);
+      project = ProjectUtils.createX10ProjectJavaBackEnd(projectName, getClass().getClassLoader(), data);
     } else {
       project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     }
@@ -87,10 +90,10 @@ public abstract class AbstractSearchTestBase {
    * @param scopeType The scope type value to bound with the parametric type.
    * @return The value for the type identified or <b>null</b> if there is no value in the database.
    */
-  protected final IValue getValue(final String parametricTypeName, final String scopeType) {
-    final SearchDBTypes sdbTypes = SearchDBTypes.getInstance();
-    final IFactKey key = new FactKey(sdbTypes.getType(parametricTypeName, scopeType), this.fContext);
-    return FactBase.getInstance().queryFact(key);
+  protected final IValue getValue(final String parametricTypeName, 
+                                  final String scopeTypeName) throws InterruptedException, ExecutionException {
+    return FactBaseUtils.getFactBaseSetValue(FactBase.getInstance(), this.fContext, parametricTypeName, scopeTypeName, 
+                                             new NullProgressMonitor());
   }
   
   // --- Fields
