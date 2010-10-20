@@ -619,7 +619,7 @@
             class="x10dt.ui.wizards.NewX10ClassWizard"
             finalPerspective="x10dt.ui.perspective"
             hasPages="true"
-            icon="icons/newclass.gif"
+            icon="icons/newclass_wiz.gif"
             id="x10dt.ui.wizards.NewX10ClassWizard"
             name="X10 Class">
       </wizard>
@@ -628,7 +628,7 @@
             class="x10dt.ui.wizards.NewX10InterfaceWizard"
             finalPerspective="x10dt.ui.perspective"
             hasPages="true"
-            icon="icons/newinterface.gif"
+            icon="icons/newint_wiz.gif"
             id="x10dt.ui.wizards.NewX10InterfaceWizard"
             name="X10 Interface">
       </wizard>
@@ -637,7 +637,7 @@
             class="x10dt.ui.wizards.NewX10PackageWizard"
             finalPerspective="x10dt.ui.perspective"
             hasPages="true"
-            icon="icons/newpackage.gif"
+            icon="icons/newpack_wiz.gif"
             id="x10dt.ui.wizards.NewX10PackageWizard"
             name="X10 Package">
       </wizard>
