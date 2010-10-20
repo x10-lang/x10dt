@@ -29,6 +29,7 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
@@ -258,7 +259,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setInstallLocation(ciType, installLocText.getText().trim());
-        formPart.handlePathValidation(installLocText, LaunchMessages.RMCP_LocationLabel);
+        formPart.handleEmptyTextValidation(installLocText, LaunchMessages.RMCP_InstallLocGroup);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -349,6 +350,21 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     for (final Control control : installControls) {
       control.setEnabled(! this.fDefaultInstallLocBt.getSelection());
     }
+    
+    KeyboardUtils.addDelayedActionOnControl(this.fInstallLocText, new Runnable() {
+      
+      public void run() {
+        formPart.getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
+          
+          public void run() {
+            formPart.handlePathValidation(AbstractMPIBasedTypeConfigPart.this.fInstallLocText, 
+                                          LaunchMessages.RMCP_InstallLocGroup);
+          }
+          
+        });
+      }
+      
+    });
   }
   
   // --- Fields

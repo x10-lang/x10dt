@@ -36,6 +36,7 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
@@ -272,15 +273,13 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
       
     });
     alternateLibPathText.addModifyListener(new ModifyListener() {
-			public void modifyText(final ModifyEvent event) {
-				formPart.handlePathValidation(alternateLibPathText,
-						LaunchMessages.PETCP_AltLibraryPath);
-				x10PlatformConf.setAlternateLibraryPath(
-						PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID,
-						alternateLibPathText.getText().trim());
-				formPart.updateDirtyState(managedForm);
-			}
-		});
+      public void modifyText(final ModifyEvent event) {
+        formPart.handleEmptyTextValidation(alternateLibPathText, LaunchMessages.PETCP_AltLibraryPath);
+        x10PlatformConf.setAlternateLibraryPath(PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID, 
+                                                alternateLibPathText.getText().trim());
+        formPart.updateDirtyState(managedForm);
+      }
+    });
     runAfterProxyBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -388,6 +387,20 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     }
     traceOptCombo.select(traceLevelIndex);
     suspendProxyBt.setSelection(ciConf.shouldSuspendProxyAtStartup());
+    
+    KeyboardUtils.addDelayedActionOnControl(alternateLibPathText, new Runnable() {
+      
+      public void run() {
+        formPart.getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
+          
+          public void run() {
+            formPart.handlePathValidation(alternateLibPathText, LaunchMessages.PETCP_AltLibraryPath);
+          }
+          
+        });
+      }
+      
+    });
   }
   
   // --- Fields
