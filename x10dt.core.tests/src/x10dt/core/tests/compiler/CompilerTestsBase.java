@@ -296,10 +296,10 @@ public class CompilerTestsBase {
 							Assert.assertFalse("AST: position is null for node:" + n, true);
 						if (position.file() == null)
 							Assert.assertFalse("AST: position.file() is null for node:" + n, true);
-						if (!position.file().equals(COMPILER_GENERATED) && !position.file().startsWith(File.separator)) 
+						if (!position.isCompilerGenerated() && !position.file().startsWith(File.separator)) 
 							Assert.assertFalse("AST: position.file() returned a string that was not in the original sources:" + n, true);
 				 		
-						if (position.file().equals(COMPILER_GENERATED)){
+						if (position.isCompilerGenerated()){
 							if (position.endOffset() - position.offset() != 0) // --- Non-zero extent
 								Assert.assertFalse("AST: position extent is non-zero", true);
 						}
