@@ -56,9 +56,9 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     private X10Parser x10_parser;
     private final Monitor monitor;
     private final IMessageHandler handler;
-    private final Set<Source> fInterestingSources = new HashSet<Source>();
+    protected final Set<Source> fInterestingSources = new HashSet<Source>();
     private final Map<Source,Node> fInterestingASTs = new HashMap<Source,Node>();
-    private final Map<Source,Job> fInterestingJobs = new HashMap<Source,Job>();
+    protected final Map<Source,Job> fInterestingJobs = new HashMap<Source,Job>();
     private final Map<Source,X10Parser> fInterestingParsers = new HashMap<Source,X10Parser>();
     private final Map<Source,X10Lexer> fInterestingLexers = new HashMap<Source,X10Lexer>();
 

@@ -24,6 +24,7 @@ import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Platform;
@@ -135,7 +136,11 @@ public class ParseController extends SimpleLPGParseController {
             fCompiler.compile(streams);
         } catch (IOException e) {
             throw new Error(e);
+        } catch (CoreException e){
+        	//TODO: check that this is right -- MV.
+        	throw new Error(e);
         } finally {
+        
             // RMF 8/2/2006 - retrieve the AST, token stream and lex stream, if they exist; front-end semantic
             // checks may fail, even though the AST/token-stream are well-formed enough to support various IDE
         	// services, like syntax highlighting and the outline view's contents.

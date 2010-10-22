@@ -55,6 +55,7 @@ import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
+import x10dt.ui.launch.core.LaunchCore;
 
 public class CompilerDelegate {
 	private x10dt.ui.parser.ExtensionInfo fExtInfo;
@@ -63,10 +64,15 @@ public class CompilerDelegate {
 
     private final ParseController.InvariantViolationHandler fViolationHandler;
 
-    CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) {
+    CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) throws CoreException {
         this.fX10Project= (project != null) ? JavaCore.create(project) : null;
         fViolationHandler= violationHandler;
-        fExtInfo= new x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
+        if (fX10Project != null && !(fX10Project.getProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) &&
+        		!(fX10Project.getProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID))){
+        	fExtInfo = new x10dt.ui.parser.ParseExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
+        } else { //The project is either null, ot it is not null and has X10 nature
+        	fExtInfo= new x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
+        }
         buildOptions(fExtInfo);
 
 		ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
