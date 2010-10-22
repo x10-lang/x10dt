@@ -272,13 +272,15 @@ public class ASTInfoViewPart extends ViewPart implements ISelectionChangedListen
 			Expr expr= (Expr) node;
 			Type type= expr.type();
 
-			try {
-				String typeStr= type.toString();
-				sb.append("Expression type: ");
-				sb.append(typeStr);
-				sb.append('\n');
-			} catch (Exception e) {
-				reportException(sb, e, "obtaining type of expression");
+			if (type != null) {
+				try {
+					String typeStr= type.toString();
+					sb.append("Expression type: ");
+					sb.append(typeStr);
+					sb.append('\n');
+				} catch (Exception e) {
+					reportException(sb, e, "obtaining type of expression");
+				}
 			}
 		}
 	}
