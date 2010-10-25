@@ -1,3 +1,6 @@
+/******************************************/
+/* WARNING: GENERATED FILE - DO NOT EDIT! */
+/******************************************/
 package x10dt.core.preferences.generated;
 
 import org.eclipse.imp.preferences.PreferencesInitializer;
@@ -17,6 +20,7 @@ public class X10Initializer extends PreferencesInitializer {
 
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_TABWIDTH, 4);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_SPACESFORTABS, false);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_EDITORPERFORMANCEMODE, false);
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTWIDTH, 4);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTBLOCKSTATEMENTS, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTMETHODBODY, true);

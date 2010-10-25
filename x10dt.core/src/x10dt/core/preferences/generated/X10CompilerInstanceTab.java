@@ -1,11 +1,17 @@
+/******************************************/
+/* WARNING: GENERATED FILE - DO NOT EDIT! */
+/******************************************/
 package x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.imp.preferences.*;
 import org.eclipse.imp.preferences.fields.*;
 import org.osgi.service.prefs.Preferences;
@@ -39,9 +45,8 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 			"When rebuilding, include all files that have no generated files",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(ConservativeBuild);
 
 
@@ -51,9 +56,8 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 			"",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(PermitAssert);
 
 
@@ -63,9 +67,8 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 			"",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(StaticCalls);
 
 
@@ -75,9 +78,8 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 			"",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(VerboseCalls);
 
 
@@ -87,9 +89,8 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 			"The arguments to x10 compile command will be echoed in the console view.",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(EchoCompileArgumentsToConsole);
 
 
@@ -99,9 +100,8 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 			"",
 			parent,
 			true, true,
-			false, "Unspecified",
 			true, "",
-			true);
+			false);
 		AdditionalCompilerOptions.setValidator(new x10dt.core.preferences.fields.CompilerOptionsValidator());
 		fields.add(AdditionalCompilerOptions);
 

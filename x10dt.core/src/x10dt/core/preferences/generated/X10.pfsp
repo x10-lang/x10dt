@@ -2,14 +2,14 @@ package x10dt.core.preferences.generated;
 
 details off;
 
-page X10 {
-    tabs {
+tabs {
     	default out { }
     	configuration out { }
     	instance in {  }
-    	project out { } 
-    }
-    
+    	project out { }
+}
+
+page X10 {
     fields {
         int tabWidth {
             label "Tab width";
@@ -18,17 +18,16 @@ page X10 {
             defvalue 4; }
    	     boolean spacesForTabs {
 	            label "Use spaces for tabs";
+	            tooltip "When typing or pasting, insert an equivalent number of spaces in place of each tab character.";
             defvalue false; }
+        boolean editorPerformanceMode {
+            label "Disable editor features (hyperlinking, hover help, etc.) for better performance";
+          	  tooltip "When turned on, certain editor features like hyperlinking and hover help are disabled, in order to improve performance when working on large source files.";
+          	  defvalue false; }
     }
 }
 
 page X10.Formatting {
-    tabs {
-    	default out { }
-    	configuration out { }
-    	instance in {  }
-    	project out { } 
-    }
     fields {
         int indentWidth {
             tooltip "The number of spaces by which to indent various entities relative to their containing constructs";
@@ -44,12 +43,6 @@ page X10.Formatting {
 }
 
 page X10.Compiler {
-    tabs {
-        default out { }
-        configuration out { }
-        instance in {  }
-        project out { } 
-    }
     fields {
 	    boolean ConservativeBuild {
 		    defvalue true;
@@ -69,12 +62,6 @@ page X10.Compiler {
 }
 
 page X10.Compiler.Optimizations {
-    tabs {
-        default out { }
-        configuration out { }
-        instance in {  }
-        project out { } 
-    }
     fields {
         boolean Optimize            { defvalue false; }
         boolean LoopOptimizations   { defvalue true; }
@@ -85,12 +72,6 @@ page X10.Compiler.Optimizations {
 }
 
 page X10.Runtime {
-    tabs {
-        default out { }
-        configuration out { }
-        instance in {  }
-        project out { } 
-    }
     fields {
         directory DefaultRuntime {
             emptyallowed true ""; 

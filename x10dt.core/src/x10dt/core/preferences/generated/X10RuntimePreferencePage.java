@@ -1,3 +1,6 @@
+/******************************************/
+/* WARNING: GENERATED FILE - DO NOT EDIT! */
+/******************************************/
 package x10dt.core.preferences.generated;
 
 import org.eclipse.swt.widgets.TabFolder;import org.eclipse.imp.preferences.IPreferencesService;import org.eclipse.imp.preferences.PreferencesInitializer;import org.eclipse.imp.preferences.PreferencesTab;import org.eclipse.imp.preferences.TabbedPreferencesPage;import x10dt.core.X10DTCorePlugin;
@@ -5,8 +8,6 @@ import org.eclipse.swt.widgets.TabFolder;import org.eclipse.imp.preferences.IPre
 /**
  * A preference page class.
  */
-
-
 public class X10RuntimePreferencePage extends TabbedPreferencesPage {
 	public X10RuntimePreferencePage() {
 		super();

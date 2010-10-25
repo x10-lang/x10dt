@@ -1,11 +1,17 @@
+/******************************************/
+/* WARNING: GENERATED FILE - DO NOT EDIT! */
+/******************************************/
 package x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Group;
 import org.eclipse.imp.preferences.*;
 import org.eclipse.imp.preferences.fields.*;
 import org.osgi.service.prefs.Preferences;
@@ -39,22 +45,31 @@ public class X10InstanceTab extends InstancePreferencesTab {
 			"The number of spaces equivalent to one tab in the source editor",
 			parent,
 			true, true,
-			false, String.valueOf(0),
-			false, "0",
-			true);
+			true, "0",
+			false);
 		fields.add(tabWidth);
 
 
 		BooleanFieldEditor spacesForTabs = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
 			"instance", "spacesForTabs", "Use spaces for tabs",
-			"",
+			"When typing or pasting, insert an equivalent number of spaces in place of each tab character.",
 			parent,
 			true, true,
-			false, false,
-			false, false,
-			true);
+			true, false,
+			false);
 		fields.add(spacesForTabs);
+
+
+		BooleanFieldEditor editorPerformanceMode = fPrefUtils.makeNewBooleanField(
+			page, this, fPrefService,
+			"instance", "editorPerformanceMode", "Disable editor features (hyperlinking, hover help, etc.) for better performance",
+			"When turned on, certain editor features like hyperlinking and hover help are disabled, in order to improve performance when working on large source files.",
+			parent,
+			true, true,
+			true, false,
+			false);
+		fields.add(editorPerformanceMode);
 
 		return fields.toArray(new FieldEditor[fields.size()]);
 	}
