@@ -53,7 +53,9 @@ Identifiers consist of a single letter followed by zero or more
 letters or digits.
 The letters are the ASCII characters <b>a</b> through <b>z</b>, <b>A</b> through
 <b>Z</b>, and <b>_</b>.
-Digits are defined as the ASCII characters <b>0</b> through <b>9</b>.
+Digits are defined as the ASCII characters <b>0</b> through <b>9</b>. Case is
+significant; <b>a</b> and <b>A</b> are distinct identifiers, <b>as</b> is a
+keyword, but <b>As</b> and <b>AS</b> are identifiers.
 
 <div class="p"><!----></div>
 
@@ -164,6 +166,29 @@ f = b x</td></tr></table></td></tr></table>
 <div class="p"><!----></div>
 </li>
 
+<li> <b>Short</b> literals have the form si<tt>s</tt> or
+      si<tt>S</tt>. <em>E.g.</em>,  414S, <b>OxACES</b> and <b>7001s</b> are short
+      literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>UShort</b> literals  form i <tt>us</tt> or i  <tt>su</tt>, or capital versions of those.  For example, <b>609US</b>, 
+      <b>107us</b>, and <b>OxBeaus</b> are unsigned short literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Byte</b> literals have the form  si<tt>y</tt> or
+      si<tt>Y</tt>.  (The letter <b>B</b> cannot be used for bytes, as it is
+      a hexadecimal digit.)  <b>50Y</b> and <b>OxBABY</b> are byte literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>UByte</b> literals have the form i <tt>uy</tt> or i <tt>yu</tt>, or
+      capitalized versions of those.  For example, <b>9uy</b> and <b>OxBUY</b>
+      are <b>UByte</b> literals.
+<div class="p"><!----></div>
+</li>
+
 <li> <b>Float</b> literals have the form s f <tt>f</tt> or  s f <tt>F</tt>.  Note that the floating-point marker letter <b>f</b> is
       required: unmarked floating-point-looking literals are <b>Double</b>. 
       <em>E.g.</em>, <b>1f</b>, <b>6.023E+32f</b>, <b>6.626068E-34F</b> are <b>Float</b>
@@ -231,11 +256,6 @@ f = b x</td></tr></table></td></tr></table>
 <b>String</b> literals consist of a double-quote <b>"</b>, followed by
       zero or more of the contents of a <b>Char</b> literal, followed by
       another double quote.  <em>E.g.</em>, <b>"hi!"</b>, <b>""</b>.
-<div class="p"><!----></div>
-</li>
-
-<li> There are no literals of type <b>Byte</b>, <b>UByte</b>, <b>Short</b>, or
-      <b>UShort</b>.
 <div class="p"><!----></div>
 </li>
 </ul>
