@@ -63,7 +63,7 @@ public class X10InstanceTab extends InstancePreferencesTab {
 
 		BooleanFieldEditor editorPerformanceMode = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
-			"instance", "editorPerformanceMode", "Disable editor features (hyperlinking, hover help, etc.) for better performance",
+			"instance", "editorPerformanceMode", "Disable editor features (hyperlinking, hover help, etc.) for performance scalability",
 			"When turned on, certain editor features like hyperlinking and hover help are disabled, in order to improve performance when working on large source files.",
 			parent,
 			true, true,

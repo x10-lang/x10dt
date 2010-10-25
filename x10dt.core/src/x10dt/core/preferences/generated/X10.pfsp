@@ -21,7 +21,7 @@ page X10 {
 	            tooltip "When typing or pasting, insert an equivalent number of spaces in place of each tab character.";
             defvalue false; }
         boolean editorPerformanceMode {
-            label "Disable editor features (hyperlinking, hover help, etc.) for better performance";
+            label "Disable editor features (hyperlinking, hover help, etc.) for performance scalability";
           	  tooltip "When turned on, certain editor features like hyperlinking and hover help are disabled, in order to improve performance when working on large source files.";
           	  defvalue false; }
     }
