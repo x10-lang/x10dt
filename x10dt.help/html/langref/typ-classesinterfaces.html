@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc1">
-1</a>&nbsp;&nbsp;Classes and interfaces</h2>
+1</a>&nbsp;&nbsp;Classes, Structs,  and interfaces</h2>
 <a name="ReferenceTypes">
 </a>
 
@@ -84,7 +84,31 @@ all instances of <b>C</b> but not
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.2">
-1.2</a>&nbsp;&nbsp;Interface types</h3>
+1.2</a>&nbsp;&nbsp;Struct Types</h3>
+
+<div class="p"><!----></div>
+A <em>struct declaration</em> &#167; introduces a <em>struct type</em>
+containing all instances of the struct.  The <b>Coords</b> struct below gives
+an immutable position in 3-space: 
+<pre>
+struct Position {
+  public val x:Double, y:Double, z:Double; 
+  def this(x:Double, y:Double, z:Double) {
+     this.x = x; this.y = y; this.z = z;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Structs have many capabilities of classes: they can have methods, implement
+interfaces, and be generic. However, they have certain restrictions; for
+example, they cannot contain mutable (<b>val</b>) fields, or inherit from
+superclasses. There is no <b>null</b> value for structs. Due to these
+restrictions, structs may be implemented more efficiently than objects.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Interface types</h3>
 <a name="InterfaceTypes">
 </a>
 
@@ -134,8 +158,8 @@ class KimThePoint implements Person {
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc1.3">
-1.3</a>&nbsp;&nbsp;Properties</h3>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Properties</h3>
 
 <a name="properties">
 </a>
