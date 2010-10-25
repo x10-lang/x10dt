@@ -119,9 +119,7 @@ public class CompilerDelegate {
         IPreferencesService prefSvc= new PreferencesService(project, X10DTCorePlugin.kLanguageName);
         boolean perfMode= prefSvc.getBooleanPreference(X10Constants.P_EDITORPERFORMANCEMODE);
 
-        if (perfMode && fX10Project != null &&
-            !(project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) &&
-            !(project.hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID))) {
+        if (perfMode) {
         	fExtInfo = new x10dt.ui.parser.ParseExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
         } else { //The project is either null, or it is not null and has X10 nature
         	fExtInfo= new x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
