@@ -12,6 +12,8 @@
 package x10dt.ui.parser;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +23,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import lpg.runtime.Monitor;
 
@@ -32,6 +36,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.quickfix.IAnnotation;
 import org.eclipse.imp.parser.IMessageHandler;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -53,58 +59,90 @@ import x10.parser.X10Lexer;
 import x10.parser.X10Parser;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
+import x10dt.core.preferences.generated.X10Constants;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.LaunchCore;
 
 public class CompilerDelegate {
+	private class EditorErrorQueue extends AbstractErrorQueue {
+		private final IPath filePath;
+		private final IMessageHandler handler;
+
+		private EditorErrorQueue(int limit, String name, IPath filePath, IMessageHandler handler) {
+			super(limit, name);
+			this.filePath = filePath;
+			this.handler = handler;
+		}
+
+		protected void displayError(ErrorInfo error) {
+			if (isValidationMsg(error)) {
+				if (fViolationHandler != null) {
+					fViolationHandler.handleViolation(error);
+				}
+			} else {
+//				System.out.println(error.getMessage());
+				if (BuildPathUtils.isExcluded(filePath, fX10Project)) {
+					return;
+				}
+				
+				Map<String, Object> attributes = getAttributes(error);
+				Position pos = error.getPosition();
+				if (pos != null) {
+					IPath errorPath = new Path(pos.file());
+					if (filePath.equals(errorPath)) {
+						handler.handleSimpleMessage(error.getMessage(),
+													pos.offset(), pos.endOffset(), pos.column(),
+													pos.endColumn(), pos.line(), pos.endLine(),
+													attributes);
+					}
+				} else {
+					handler.handleSimpleMessage(error.getMessage(), 0, 0, 1, 1, 1, 1, attributes);
+				}
+			}
+		}
+	}
+
 	private x10dt.ui.parser.ExtensionInfo fExtInfo;
 
     private final IJavaProject fX10Project;
 
     private final ParseController.InvariantViolationHandler fViolationHandler;
 
+    private final IPath fFilePath;
+
     CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) throws CoreException {
         this.fX10Project= (project != null) ? JavaCore.create(project) : null;
+        this.fFilePath= filePath;
         fViolationHandler= violationHandler;
-        if (fX10Project != null && !(fX10Project.getProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) &&
-        		!(fX10Project.getProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID))){
+
+        IPreferencesService prefSvc= new PreferencesService(project, X10DTCorePlugin.kLanguageName);
+        boolean perfMode= prefSvc.getBooleanPreference(X10Constants.P_EDITORPERFORMANCEMODE);
+
+        if (perfMode && fX10Project != null &&
+            !(project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) &&
+            !(project.hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID))) {
         	fExtInfo = new x10dt.ui.parser.ParseExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
-        } else { //The project is either null, ot it is not null and has X10 nature
+        } else { //The project is either null, or it is not null and has X10 nature
         	fExtInfo= new x10dt.ui.parser.ExtensionInfo(monitor, new MessageHandlerAdapterFilter(handler, filePath, fX10Project));
         }
+
         buildOptions(fExtInfo);
 
-		ErrorQueue eq = new AbstractErrorQueue(1000000, fExtInfo.compilerName()) {
-			protected void displayError(ErrorInfo error) {
-				if (isValidationMsg(error)) {
-					if (fViolationHandler != null) {
-						fViolationHandler.handleViolation(error);
-					}
-				} else {
-					if (BuildPathUtils.isExcluded(filePath, fX10Project))
-            			return;
-					
-					Map<String, Object> attributes = getAttributes(error);
-					Position pos = error.getPosition();
-					if (pos != null) {
-						IPath errorPath = new Path(pos.file());
-						if (filePath.equals(errorPath)) {
-							handler.handleSimpleMessage(error.getMessage(), pos
-									.offset(), pos.endOffset(), pos.column(),
-									pos.endColumn(), pos.line(), pos.endLine(),
-									attributes);
-						}
-					} else {
-						handler.handleSimpleMessage(error.getMessage(), 0, 0,
-								1, 1, 1, 1, attributes);
-					}
-				}
-			}
-		};
+		ErrorQueue eq = new EditorErrorQueue(1000000, fExtInfo.compilerName(), filePath, handler);
         new Compiler(fExtInfo, eq); // This also stores the compiler in fExtInfo
     }
     
+	private boolean isX10Project() {
+		try {
+			return fX10Project.getProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) ||
+			       fX10Project.getProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID);
+		} catch (CoreException e) {
+			X10DTUIPlugin.log(e);
+			return false;
+		}
+	}
+
 	protected Map<String, Object> getAttributes(ErrorInfo errorInfo) {
 		Map<String, Object> map = null;
 		if (errorInfo instanceof CodedErrorInfo) {
@@ -148,15 +186,76 @@ public class CompilerDelegate {
     	return fExtInfo.compiler().compile(sources);
     }
 
+    private static final Pattern PKG_DECL_PATTERN= Pattern.compile("package[ \t]+([a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)*)[ \t]*;");
+
+    /**
+     * Attempts to heuristically determine the path of the "package root" for X10
+     * source files living outside the workspace, or within a non-X10-natured project.
+     * @return
+     */
+    private IPath determinePkgRootPath() {
+    	FileReader fileReader= null;
+    	try {
+    		String filePathStr = fFilePath.toOSString();
+			File file= new File(filePathStr);
+
+			if (file.exists()) {
+    			fileReader= new FileReader(file);
+    			char[] buf= new char[4096]; // Assume package decl lies within the first 4096 bytes.
+    			int len= fileReader.read(buf, 0, 4096);
+    			String bufStr= new String(buf, 0, len);
+    			Matcher pkgMatcher= PKG_DECL_PATTERN.matcher(bufStr);
+
+    			if (pkgMatcher.find()) {
+    				String pkgName= pkgMatcher.group(1);
+    				String pkgFolder= pkgName.replaceAll("\\.", "/");
+    				String folderPathStr = fFilePath.removeLastSegments(1).toPortableString();
+
+    				if (folderPathStr.endsWith(pkgFolder)) {
+    					IPath pkgRootPath= new Path(folderPathStr.substring(0, folderPathStr.length() - pkgFolder.length()));
+
+    					return pkgRootPath;
+    				}
+    			} else {
+    				return fFilePath.removeLastSegments(1);
+    			}
+    		}
+    	} catch (Exception e) {
+    		X10DTUIPlugin.log(e);
+    	} finally {
+    		if (fileReader != null) {
+    			try {
+					fileReader.close();
+				} catch (IOException e) {
+				}
+    		}
+    	}
+    	return null;
+    }
+
     /**
      * @return a list of all project-relative CPE_SOURCE-type classpath entries.
      * @throws JavaModelException
      */
-    private List<IPath> getProjectSrcPath() throws JavaModelException {
+    private List<IPath> getProjectSrcPath() throws CoreException {
         List<IPath> srcPath= new ArrayList<IPath>();
 
-        if (this.fX10Project == null) {
-            return Arrays.asList((IPath) new Path(getRuntimePath()));
+        // Produce a search path heuristically for files living outside the workspace,
+        // and for workspace files living in non-X10-natured projects.
+        if (fX10Project == null || !isX10Project()) {
+        	IPath pkgRootPath= determinePkgRootPath();
+
+        	if (pkgRootPath != null) {
+        		if (fX10Project != null && fX10Project.getProject().getName().equals("x10.runtime")) {
+        			// If the containing project happens to be x10.runtime,
+        			// don't add the runtime bound into the X10DT to the search path
+        			return Arrays.asList(pkgRootPath);
+        		} else {
+                    return Arrays.asList(pkgRootPath, new Path(getRuntimePath()));
+        		}
+        	} else {
+                return Arrays.asList((IPath) new Path(getRuntimePath()));
+        	}
         }
 
         IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
@@ -234,19 +333,21 @@ public class CompilerDelegate {
         try {
             List<IPath> projectSrcLoc = getProjectSrcPath();
             String projectSrcPath = pathListToPathString(projectSrcLoc);
+            x10.Configuration.CHECK_INVARIANTS= (fViolationHandler != null);
             opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", "-commandlineonly",
                     "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
             }, new HashSet<String>());
-            x10.Configuration.CHECK_INVARIANTS= (fViolationHandler != null);
         } catch (UsageError e) {
             if (!e.getMessage().equals("must specify at least one source file")) {
                 X10DTUIPlugin.getInstance().writeErrorMsg(e.getMessage());
             }
-        } catch (JavaModelException e) {
+        } catch (CoreException e) {
             X10DTUIPlugin.getInstance().writeErrorMsg("Unable to obtain resolved class path: " + e.getMessage());
         }
         // X10UIPlugin.getInstance().maybeWriteInfoMsg("Source path = " + opts.source_path);
         // X10UIPlugin.getInstance().maybeWriteInfoMsg("Class path = " + opts.classpath);
+        // System.out.println("Source path = " + opts.source_path);
+        // System.out.println("Class path = " + opts.classpath);
     }
 
     private String buildClassPathSpec() {
@@ -257,6 +358,10 @@ public class CompilerDelegate {
         if (fX10Project == null) {
             return getRuntimePath();
         }
+        if (!isX10Project()) {
+        	return ".";
+        }
+
         try {
             IClasspathEntry[] classPath= (fX10Project != null) ? fX10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
 
