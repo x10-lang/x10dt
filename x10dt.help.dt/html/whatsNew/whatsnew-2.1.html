@@ -195,6 +195,40 @@ color: SlateGray;
     </td>
   </tr>
   
+  <tr> 
+    <td class="section_item">Disable editor features preference</td> 
+    <td class="section_content">
+    <p>
+      Because of performance issues with the X10 compiler front-end, we've added a preference 
+      to improve editor performance when working on large source files. When this preference 
+      is turned on, certain editor features like hyperlinking and hover help are effectively 
+      disabled, by bypassing the more expensive front-end processing phases like name resolution 
+      and type-checking. This will also effectively disable some of the content assist. 
+      Basic editor functionality, such as syntax highlighting, source code folding, and 
+      outlining continue to function as usual. Likewise, all non-editor functionality, 
+      such as building and launching, will also behave normally in this mode.
+    </p>
+    <p><img src="images/disable-editor-features.png" alt="Open Type"></img></p>
+    </td>
+  </tr>
+  
+    <tr> 
+    <td class="section_item">Full Source Editor Functionality Now Provided for "External" Files</td> 
+    <td class="section_content">
+    <p>
+     When editing files that live outside the workspace, or that live within non-X10 workspace 
+     projects, the source editor now uses a search path derived from the location of the source 
+     file and the package declaration in that file, if any. It also adds the location of the X10 
+     runtime that is provided with the X10DT. As a result, the X10DT is able to resolve references 
+     to entities in "nearby" X10 source files, as well as X10 runtime entities. This enables nearly 
+     the full range of editor and navigation functionality (hover help, hyperlinking, content assist, 
+     and so on). Notably, the mechanism also works when editing the "X10 runtime in X10" (the "XRX") 
+     as a source project. Please note, however, that build and launch functionality still requires 
+     a proper X10 project, as created by the "New X10 Project" wizard.
+    </p>
+    </td>
+  </tr>
+  
   <!-- ******************** Java back-end ********************** -->
   
   <tr> 

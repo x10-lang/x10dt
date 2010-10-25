@@ -58,6 +58,25 @@ its color changes to red indicating its value has changed.
 		<p>Off</p>
 		</td>
 	</tr>
+		<tr>
+		<td valign="top">
+		<p>Disable editor features (hyperlinking, hover help, etc.) for performance scalability</p>
+		</td>
+		<td valign="top">
+		<p>Because of performance issues with the X10 compiler front-end, we've added a preference 
+		to improve editor performance when working on large source files. When this preference is 
+		turned on, certain editor features like hyperlinking and hover help are effectively disabled, 
+		by bypassing the more expensive front-end processing phases like name resolution and type-checking. 
+		This will also effectively disable some of the content assist. Basic editor functionality, 
+		such as syntax highlighting, source code folding, and outlining continue to function as usual. 
+		Likewise, all non-editor functionality, such as building and launching, will also behave normally 
+		in this mode.
+		</p>
+		</td>
+		<td valign="top">
+		<p>Off</p>
+		</td>
+	</tr>
 </table>
 <!--
 <p><img src="../../../../images/ngrelc.png" alt="Related concepts" border="0"></p>
