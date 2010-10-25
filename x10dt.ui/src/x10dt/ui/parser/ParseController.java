@@ -13,11 +13,14 @@ package x10dt.ui.parser;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.io.InputStream;
+import java.io.StringBufferInputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import lpg.runtime.IPrsStream;
@@ -49,13 +52,37 @@ import x10.visit.PositionInvariantChecker;
 import x10dt.core.X10DTCorePlugin;
 
 public class ParseController extends SimpleLPGParseController {
+	/**
+	 * A trivial extension of the class ZipResource that permits the user to provide the
+	 * source text as an explicit parameter, rather than reading it from the .zip file
+	 * itself. Useful for representing the contents of editor buffers that reside in
+	 * zip files, even when the editor buffers are read-only.<br>
+	 * Along with StringSource and StringResource, probably belongs in Polyglot, not here.
+	 * @author rfuhrer
+	 */
+	public static final class ZipStringResource extends ZipResource {
+		private final String contents;
+
+		private ZipStringResource(File source, ZipFile zip, String entryName, String contents) {
+			super(source, zip, entryName);
+			this.contents = contents;
+		}
+
+		@Override
+		public InputStream getInputStream() throws IOException {
+			return new StringBufferInputStream(contents);
+		}
+	}
+
 	public interface InvariantViolationHandler {
 		public void clear();
 		public void handleViolation(ErrorInfo error);
 		public void consumeAST(Node root);
 	}
 
-    private CompilerDelegate fCompiler;
+	private static final Pattern JAR_IDENTIFIER_PATTERN = Pattern.compile(".*\\.jar:.*");
+
+	private CompilerDelegate fCompiler;
     private PMMonitor fMonitor;
     private InvariantViolationHandler fViolationHandler;
 
@@ -86,49 +113,24 @@ public class ParseController extends SimpleLPGParseController {
     	fViolationHandler= handler;
     }
     
-    public Object parse(String contents, IProgressMonitor monitor) {
-        List<Source> streams= new ArrayList<Source>();
-        try {
-            fMonitor.setMonitor(monitor);
-            
-            Pattern pat= Pattern.compile(".*\\.jar:.*");
+    public Object parse(final String contents, IProgressMonitor monitor) {
+    	Source source= null;
 
-            int jarPathComponentIdx= -1;
-            for(int i=0; i < fFilePath.segmentCount(); i++) {
-            	String seg= fFilePath.segment(i);
-            	if (pat.matcher(seg).matches()) {
-            		jarPathComponentIdx= i;
-            		break;
-            	}
-            }
+    	try {
+            fMonitor.setMonitor(monitor);
+
+            int jarPathComponentIdx = findJarIdentifierComponent(fFilePath);
+
             if (jarPathComponentIdx >= 0) {
-            	String jarPathComponent= fFilePath.segment(jarPathComponentIdx);
-            	StringBuilder jarPath= new StringBuilder();
-            	for(int i=0; i < jarPathComponentIdx; i++) {
-            		jarPath.append(File.separatorChar);
-            		jarPath.append(fFilePath.segment(i));
-            	}
-            	String jarName= jarPathComponent.substring(0, jarPathComponent.indexOf(':'));
-            	String trailer= jarPathComponent.substring(jarPathComponent.indexOf(':') + 1);
-            	jarPath.append(File.separatorChar);
-            	jarPath.append(jarName);
-            	StringBuilder entryPath= new StringBuilder();
-            	entryPath.append(trailer);
-            	for(int i=jarPathComponentIdx+1; i < fFilePath.segmentCount(); i++) {
-            		entryPath.append('/');
-            		entryPath.append(fFilePath.segment(i));
-            	}
-            	ZipFile zipFile= new ZipFile(new File(jarPath.toString()));
-            	File jarFile= new File(jarPath.toString());
-            	ZipResource zipRsrc= new ZipResource(jarFile, zipFile, entryPath.toString());
-            	streams.add(new FileSource(zipRsrc));
-            	streams.add(new FileSource(new StringResource(contents, jarFile, jarFile.toString())));
+            	source = buildJarFileEntrySource(contents, jarPathComponentIdx);
             } else {
             	String path= fProject != null ? fProject.getRawProject().getLocation().append(fFilePath).toOSString() : fFilePath.toOSString();
             	File file= new File(path);
-            	streams.add(new FileSource(new StringResource(contents, file, path)));
+
+            	source= new FileSource(new StringResource(contents, file, path));
             }
 
+            List<Source> streams= Arrays.asList(source);
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
             IPath sourcePath = (fProject != null) ? Platform.getLocation().append(fProject.getName()).append(fFilePath) : fFilePath;
 
@@ -136,7 +138,7 @@ public class ParseController extends SimpleLPGParseController {
             fCompiler.compile(streams);
         } catch (IOException e) {
             throw new Error(e);
-        } catch (CoreException e){
+        } catch (CoreException e) {
         	//TODO: check that this is right -- MV.
         	throw new Error(e);
         } finally {
@@ -144,33 +146,26 @@ public class ParseController extends SimpleLPGParseController {
             // RMF 8/2/2006 - retrieve the AST, token stream and lex stream, if they exist; front-end semantic
             // checks may fail, even though the AST/token-stream are well-formed enough to support various IDE
         	// services, like syntax highlighting and the outline view's contents.
-        	
-        	for(Source source : streams)
-        	{
-        		if(fCompiler.getParserFor(source) != null)
-        		{
-		            if (source != null && fCompiler != null) {
-		            	final X10Parser parser= fCompiler.getParserFor(source);
-		            	final X10Lexer lexer= fCompiler.getLexerFor(source);
-		            	fParseStream = parser.getIPrsStream();
-		            	fLexStream = lexer.getILexStream();
-		            	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
-		            	fLexer = new LexerDelegate(lexer);
-		            	fCurrentAst= fCompiler.getASTFor(source); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
-		            }
-		            if (fViolationHandler != null && fCurrentAst != null) {
-		            	Job job= fCompiler.getJobFor(source);
-		            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "");
-		            	InstanceInvariantChecker iic= new InstanceInvariantChecker(job);
-		
-		            	((Node) fCurrentAst).visit(pic);
-		            	((Node) fCurrentAst).visit(iic);
-		
-		            	fViolationHandler.consumeAST((Node) fCurrentAst);
-		            }
-		            
-		            break;
-        		}
+
+            if (source != null && fCompiler != null) {
+            	final X10Parser parser= fCompiler.getParserFor(source);
+            	final X10Lexer lexer= fCompiler.getLexerFor(source);
+            	fParseStream = parser.getIPrsStream();
+            	fLexStream = lexer.getILexStream();
+            	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
+            	fLexer = new LexerDelegate(lexer);
+            	fCurrentAst= fCompiler.getASTFor(source); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
+
+            	if (fViolationHandler != null && fCurrentAst != null) {
+	            	Job job= fCompiler.getJobFor(source);
+	            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "");
+	            	InstanceInvariantChecker iic= new InstanceInvariantChecker(job);
+
+	            	((Node) fCurrentAst).visit(pic);
+	            	((Node) fCurrentAst).visit(iic);
+
+	            	fViolationHandler.consumeAST((Node) fCurrentAst);
+	            }
         	}
             // RMF 8/2/2006 - cacheKeywordsOnce() must have been run for syntax highlighting to work.
             // Must do this after attempting parsing (even though that might fail), since it depends
@@ -185,6 +180,59 @@ public class ParseController extends SimpleLPGParseController {
         }
         return fCurrentAst;
     }
+
+    /**
+     * Build a Polyglot Source object that refers to the jar file entry given by fFilePath,
+     * but using the given String as the source text contents.
+     * @param jarPathComponentIdx the index of the path component that contains the "jar:" indicator
+     */
+	private Source buildJarFileEntrySource(final String contents, int jarPathComponentIdx) throws ZipException, IOException {
+		Source source;
+		String jarPathComponent= fFilePath.segment(jarPathComponentIdx);
+		StringBuilder jarPath= new StringBuilder();
+
+		for(int i=0; i < jarPathComponentIdx; i++) {
+			jarPath.append(File.separatorChar);
+			jarPath.append(fFilePath.segment(i));
+		}
+
+		String jarName= jarPathComponent.substring(0, jarPathComponent.indexOf(':'));
+		String trailer= jarPathComponent.substring(jarPathComponent.indexOf(':') + 1);
+
+		jarPath.append(File.separatorChar);
+		jarPath.append(jarName);
+
+		StringBuilder entryPath= new StringBuilder();
+
+		entryPath.append(trailer);
+		for(int i=jarPathComponentIdx+1; i < fFilePath.segmentCount(); i++) {
+			entryPath.append('/');
+			entryPath.append(fFilePath.segment(i));
+		}
+
+		File jarFile= new File(jarPath.toString());
+		ZipFile zipFile= new ZipFile(jarFile);
+		ZipResource zipRsrc= new ZipStringResource(jarFile, zipFile, entryPath.toString(), contents);
+
+		source= new FileSource(zipRsrc);
+		return source;
+	}
+
+    /**
+     * @return the index of the given IPath that indicates that the path refers
+     * to a jar file entry, if any, or -1 if this is not a jar file entry path
+     */
+	private int findJarIdentifierComponent(IPath filePath) {
+		int jarPathComponentIdx= -1;
+		for(int i=0; i < filePath.segmentCount(); i++) {
+			String seg= filePath.segment(i);
+			if (JAR_IDENTIFIER_PATTERN.matcher(seg).matches()) {
+				jarPathComponentIdx= i;
+				break;
+			}
+		}
+		return jarPathComponentIdx;
+	}
 
     // TODO Use this rather than fCompiler.getASTFor() ? (more reliable?)
     private Object getASTFor(Source source) {
