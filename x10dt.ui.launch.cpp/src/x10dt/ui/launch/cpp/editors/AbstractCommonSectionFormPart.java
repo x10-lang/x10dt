@@ -132,10 +132,8 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     final IX10PlatformConf platformConf = getPlatformConf();
     final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
     final IConnectionConf connConf = platformConf.getConnectionConf();
-    final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), 
-                                                                        cppCompConf.getTargetOS() == ETargetOS.WINDOWS, 
-                                                                        connConf.getConnectionName());
-    return targetOpHelper;
+    return TargetOpHelperFactory.create(connConf.isLocal(), cppCompConf.getTargetOS() == ETargetOS.WINDOWS, 
+                                        connConf.getConnectionName());
   }
   
   protected final X10FormPage getFormPage() {
@@ -166,11 +164,12 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
   }
 
   protected final void handlePathValidation(final Text text, final String controlInfo) {
-    final ITargetOpHelper targetOpHelper= createTargetOpHelper();
-    final IFormControlChecker checker = FormCheckerFactory.createValidPathControlChecker(targetOpHelper, this.fFormPage, text, 
-                                                                                         controlInfo);
-
-    checker.validate(text.getText().trim());
+    final ITargetOpHelper targetOpHelper = createTargetOpHelper();
+    if (targetOpHelper != null) {
+      final IFormControlChecker checker = FormCheckerFactory.createValidPathControlChecker(targetOpHelper, this.fFormPage, 
+                                                                                           text, controlInfo);
+      checker.validate(text.getText().trim());
+    }
   }
 
   protected final void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {

@@ -238,15 +238,18 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), 
                                                                         cppCompConf.getTargetOS() ==  ETargetOS.WINDOWS, 
                                                                         connConf.getConnectionName());
-    final String osName = osCombo.getItem(osCombo.getSelectionIndex());
-    final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
-    final String archName = archCombo.getItem(archCombo.getSelectionIndex());
-    final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
+    if (targetOpHelper != null) {
+      final String osName = osCombo.getItem(osCombo.getSelectionIndex());
+      final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
+      final String archName = archCombo.getItem(archCombo.getSelectionIndex());
+      final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
     
-    final IFormControlChecker versionChecker = FormCheckerFactory.createCPPCompilerVersionChecker(targetOpHelper, targetOs, 
-                                                                                                  architecture, getFormPage(),
-                                                                                                  compilerText);
-    setPartCompleteFlag(hasCompleteInfo() && versionChecker.validate(compilerText.getText().trim()));
+      final IFormControlChecker versionChecker = FormCheckerFactory.createCPPCompilerVersionChecker(targetOpHelper, targetOs, 
+                                                                                                    architecture, 
+                                                                                                    getFormPage(),
+                                                                                                    compilerText);
+      setPartCompleteFlag(hasCompleteInfo() && versionChecker.validate(compilerText.getText().trim()));
+    }
   }
 
   
@@ -472,8 +475,10 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), 
                                                                         cppCompConf.getTargetOS() ==  ETargetOS.WINDOWS, 
                                                                         connConf.getConnectionName());
-    selectOS(targetOpHelper);
-    selectArchitecture(targetOpHelper);
+    if (targetOpHelper != null) {
+      selectOS(targetOpHelper);
+      selectArchitecture(targetOpHelper);
+    }
   }
   
   private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText,
