@@ -2,6 +2,8 @@
 <psf version="2.0">
 <provider id="org.tigris.subversion.subclipse.core.svnnature">
 <project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.java.hosted,org.eclipse.imp.java.hosted"/>
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.pdb,org.eclipse.imp.pdb"/>
+<project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.pdb.values,org.eclipse.imp.pdb.values"/>
 <project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.runtime,org.eclipse.imp.runtime"/>
 <project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.smapi,org.eclipse.imp.smapi"/>
 <project reference="0.9.3,http://dev.eclipse.org/svnroot/technology/org.eclipse.imp/trunk/org.eclipse.imp.smapifier,org.eclipse.imp.smapifier"/>
