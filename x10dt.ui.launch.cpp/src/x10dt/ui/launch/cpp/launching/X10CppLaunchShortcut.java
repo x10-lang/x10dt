@@ -7,8 +7,9 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching;
 
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
+import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
-import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
@@ -42,6 +43,9 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
                                                   final Pair<ClassType, IJavaElement> type) {
     workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getJavaProject().getElementName());
+    workingCopy.setAttribute(org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
+                             type.second.getJavaProject().getElementName());
+    workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
     workingCopy.setAttribute(ATTR_CONSOLE, true);
     workingCopy.setAttribute(Constants.ATTR_X10_MAIN_CLASS, type.first.fullName().toString());
   }
