@@ -366,7 +366,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           curConnInfo.setPrivateKeyFile(privateKeyText.getText().trim());
         }
-        
+        handleEmptyTextValidation(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel);
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf();
