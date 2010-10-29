@@ -28,7 +28,7 @@ public class X10SyntaxProperties extends LanguageSyntaxPropertiesBase {
     }
 
     public String getSingleLineCommentPrefix() {
-        return "//";
+        return "// ";
     }
 
     public String getBlockCommentContinuation() {
