@@ -150,7 +150,8 @@
 		<topic label="Primitive Types" href="html/langref/str-primitives.html"/> 
 		<topic label="Generic programming with structs" href="html/langref/str-genericprog.html"/> 
 		<topic label="Example structs" href="html/langref/str-example.html"/>
-		<topic label="Nested Structs" href="html/langref/str-nested.html"/>  
+		<topic label="Nested Structs" href="html/langref/str-nested.html"/>
+		<topic label="Converting Between Classes and Structs" href="html/langref/str-converting.html"/>  
 	</topic>
 	<topic label="Functions" href="html/langref/functions.html"> 
 		<topic label="Overview" href="html/langref/fun-overview.html"/> 

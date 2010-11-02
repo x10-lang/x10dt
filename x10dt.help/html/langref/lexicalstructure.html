@@ -49,19 +49,19 @@ allowed.  All text from the ASCII characters
 
 
 <div class="p"><!----></div>
-Identifiers consist of a single letter followed by zero or more
-letters or digits.
-The letters are the ASCII characters <b>a</b> through <b>z</b>, <b>A</b> through
-<b>Z</b>, and <b>_</b>.
-Digits are defined as the ASCII characters <b>0</b> through <b>9</b>. Case is
-significant; <b>a</b> and <b>A</b> are distinct identifiers, <b>as</b> is a
-keyword, but <b>As</b> and <b>AS</b> are identifiers.
+Identifiers consist of a single letter followed by zero or more letters or
+digits. The letters are the ASCII characters <b>a</b> through <b>z</b>, <b>A</b>
+through <b>Z</b>, and <b>_</b>. Digits are defined as the ASCII characters
+<b>0</b> through <b>9</b>. Case is significant; <b>a</b> and <b>A</b> are distinct
+identifiers, <b>as</b> is a keyword, but <b>As</b> and <b>AS</b> are identifiers.
+(However, case is insignificant in the hexadecimal numbers, exponent markers,
+and type-tags of numeric literals - 0xbabe = 0XBABE.)
 
 <div class="p"><!----></div>
 
 <b>Keywords&nbsp;&nbsp;</b>
 
-X10 reserves the following keywords:
+X10 uses the following keywords:
 <pre>
 abstract       false          offers         transient      
 as             final          operator       true           
@@ -69,16 +69,20 @@ assert         finally        package        try
 async          finish         private        var            
 ateach         for            property       when           
 break          goto           protected      while          
-case           if             public         at             
-catch          implements     return         atomic         
-class          import         self           await          
-continue       in             static         clocked        
-def            instanceof     struct         here           
-default        interface      super          next           
-do             native         switch         offer          
-else           new            this           resume         
-extends        null           throw          type           
+case           if             public         at (*)         
+catch          implements     return         atomic (*)     
+class          import         self           await (*)      
+continue       in             static         clocked (*)    
+def            instanceof     struct         here (*)       
+default        interface      super          next (*)       
+do             native         switch         offer (*)      
+else           new            this           resume (*)     
+extends        null           throw          type (*)       
 </pre>
+Keywords marked with a <b>(*)</b> are <em>soft</em> keywords, which may also be
+used as identifiers.  The other keywords may not be used as identifiers.
+
+<div class="p"><!----></div>
 Note that the primitive types are not considered keywords.
 
 <div class="p"><!----></div>
@@ -106,7 +110,7 @@ d = <span class="roman">one</span> <span class="roman">or</span> <span class="ro
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 d<sub>8</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">octal</span> <span class="roman">digits</span></td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-d<sub>16</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">hexadecimal</span> <span class="roman">digits</span><span class="roman">,</span> <span class="roman">using</span> <b><b>a</b></b>&#8722;<b><b>f</b></b><span class="roman">for</span> <span class="roman">10</span>&#8722;<span class="roman">15</span></td></tr></table></td></tr>
+d<sub>16</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">hexadecimal</span> <span class="roman">digits</span><span class="roman">,</span> <span class="roman">using</span> <b><b>a</b></b>&#8722;<b><b>f</b></b><span class="roman">or</span> <b><b>A</b></b>&#8722;<b><b>F</b></b><span class="roman">for</span> <span class="roman">10</span>&#8722;<span class="roman">15</span></td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 i = d  </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#124; <tt>0</tt> d<sub>8</sub>  </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">

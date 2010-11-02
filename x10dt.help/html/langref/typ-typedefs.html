@@ -135,12 +135,15 @@ var example : Vec(78);
 <div class="p"><!----></div>
 The following examples are legal type definitions, given <b>import x10.util.*</b>:
 <pre>
-type StringSet = Set[String];
-type MapToList[K,V] = Map[K,List[V]];
-type Int(x: Int) = Int{self==x};
-type Dist(r: Int) = Dist{self.rank==r};
-type Dist(r: Region) = Dist{self.region==r};
-type Redund(n:Int, r:Region){r.rank==n} = Dist{rank==n &amp;&amp; region==r};
+class TypeExamples {
+  static type StringSet = Set[String];
+  static type MapToList[K,V] = Map[K,List[V]];
+  static type Int(x: Int) = Int{self==x};
+  static type Dist(r: Int) = Dist{self.rank==r};
+  static type Dist(r: Region) = Dist{self.region==r};
+  static type Redund(n:Int, r:Region){r.rank==n} 
+      = Dist{rank==n &amp;&amp; region==r};
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -149,12 +152,14 @@ than generative.  <b>B</b> and <b>C</b> are both aliases for <b>String</b>,
 rather than new types, and so are interchangeable with each other and with
 <b>String</b>. Similarly, <b>A</b> and <b>Int</b> are equivalent.
 <pre>
-type A = Int;
-type B = String;
-type C = String;
-a: A = 3;
-b: B = new C("Hi");
-c: C = b + ", Mom!";
+def someTypeDefs () {
+  type A = Int;
+  type B = String;
+  type C = String;
+  a: A = 3;
+  b: B = new C("Hi");
+  c: C = b + ", Mom!";
+  }
 </pre>
 
 <div class="p"><!----></div>

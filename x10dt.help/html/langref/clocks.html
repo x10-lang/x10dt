@@ -54,6 +54,10 @@ neither proceeds to the third phase until both are ready.  This example uses
 
 <div class="p"><!----></div>
 <pre>
+class ClockEx {
+  static def say(s:String) = 
+     { atomic{x10.io.Console.OUT.println(s);} }
+  public static def main(argv:Rail[String]) {
     finish async{
       val cl = Clock.make();
       async clocked(cl) {// Activity A
@@ -73,6 +77,8 @@ neither proceeds to the third phase until both are ready.  This example uses
         say("B-3"); 
       }// Activity B
     }
+  }
+ }
 </pre>
 
 <div class="p"><!----></div>

@@ -70,7 +70,7 @@ methods on <b>Region</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> <b>Region.makeHalfspace(normal:Point, k:int)</b> returns the unbounded
+<li> <b>Region.makeHalfspace(normal:Point, k:Int)</b> returns the unbounded
       half-space of rank <b>normal.rank</b>, consisting of all points <b>p</b>
       satisfying `p&#183;normal  &#8804;  k`.
 <div class="p"><!----></div>
@@ -106,6 +106,24 @@ to the non-zero indices in an upper-triangular <b>N x N</b> matrix.
 
 <li> <b>Region.makeLowerTriangular(N)</b> returns a region corresponding
 to the non-zero indices in a lower-triangular <b>N x N</b> matrix.
+<div class="p"><!----></div>
+</li>
+
+<li> 
+  If <b>R</b> is a region, and <b>p</b> a Point of the same rank, then 
+  <b>R+p</b> is <b>R</b> translated forwards by 
+  <b>p</b> - the region whose
+  points are <b>r+p</b> 
+  for each <b>r</b> in <b>R</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> 
+  If <b>R</b> is a region, and <b>p</b> a Point of the same rank, then 
+  <b>R-p</b> is <b>R</b> translated backwards by 
+  <b>p</b> - the region whose
+  points are <b>r-p</b> 
+  for each <b>r</b> in <b>R</b>.
 <div class="p"><!----></div>
 </li>
 </ul>
