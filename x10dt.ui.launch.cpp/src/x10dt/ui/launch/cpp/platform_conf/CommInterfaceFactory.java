@@ -38,6 +38,10 @@ final class CommInterfaceFactory {
       configuration = new LoadLevelerConf((IIBMLLResourceManagerConfiguration) rmConf);
     } else if (PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(ciType)) {
       configuration = new ParallelEnvironmentConf((IPEResourceManagerConfiguration) rmConf);
+    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciType)) {
+      configuration = new SocketsConf(rmConf);
+    } else if (PTPConstants.STANDALONE_SERVICE_PROVIDER_ID.equals(ciType)) {
+      configuration = new StandaloneConf(rmConf);
     } else {
       configuration = null;
     }
@@ -78,7 +82,11 @@ final class CommInterfaceFactory {
         configuration = new LoadLevelerConf();
       } else if (PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(ciType)) {
         configuration = new ParallelEnvironmentConf();
-      } else { 
+      } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciType)) {
+        configuration = new SocketsConf();
+      } else if (PTPConstants.STANDALONE_SERVICE_PROVIDER_ID.equals(ciType)) {
+        configuration = new StandaloneConf();
+      } else {
         configuration = null;
       }
       this.fCommInterfaceConfs.put(ciType, configuration);

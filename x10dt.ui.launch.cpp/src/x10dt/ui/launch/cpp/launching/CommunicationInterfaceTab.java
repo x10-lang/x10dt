@@ -28,12 +28,10 @@ import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 import org.eclipse.ptp.launch.ui.extensions.RMLaunchValidation;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -50,12 +48,10 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   // --- ILaunchConfigurationTab's interface methods implementation
   
   public void createControl(final Composite parent) {
-    this.fScrolledComposite = new ScrolledComposite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
-    this.fScrolledComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-    this.fScrolledComposite.setExpandHorizontal(true);
-    this.fScrolledComposite.setExpandVertical(true);
+    this.fComposite = new Composite(parent, SWT.NONE);
+    this.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     
-    setControl(this.fScrolledComposite);
+    setControl(this.fComposite);
   }
   
   public String getName() {
@@ -77,7 +73,6 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   }
   
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-    // Do nothing here.
   }
   
   // --- ICppApplicationTabListener's interface methods implementation
@@ -126,23 +121,19 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     super.initializeFrom(configuration);
     
     final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
-    this.fScrolledComposite.setContent(null);
-    for (final Control child : this.fScrolledComposite.getChildren()) {
-      child.dispose();
-    }
     if (rmDynamicTab != null) {
       try {
-        rmDynamicTab.createControl(this.fScrolledComposite, this.fResourceManager, null /* queue */);
-        final Control dynControl = rmDynamicTab.getControl();
-        this.fScrolledComposite.setContent(dynControl);
-        final Point size = dynControl.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        this.fScrolledComposite.setMinSize(size);
-        rmDynamicTab.initializeFrom(this.fScrolledComposite, this.fResourceManager, null /* queue */, getLaunchConfiguration());
+        if (this.fComposite.getChildren().length == 0) {
+          this.fComposite.setLayout(new GridLayout(1, false));
+          rmDynamicTab.createControl(this.fComposite, this.fResourceManager, null /* queue */);
+          rmDynamicTab.setDefaults(null /* configuration */, this.fResourceManager, null /* queue */);
+        }
+        rmDynamicTab.initializeFrom(this.fComposite, this.fResourceManager, null /* queue */, 
+                                    getLaunchConfiguration());
       } catch (CoreException except) {
         setErrorMessage(except.getMessage());
       }
     }
-    this.fScrolledComposite.layout(true);
   }
   
   public boolean isValid(final ILaunchConfiguration configuration) {
@@ -203,7 +194,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   
   // --- Fields
   
-  private ScrolledComposite fScrolledComposite;
+  private Composite fComposite;
   
   private IResourceManager fResourceManager;
   

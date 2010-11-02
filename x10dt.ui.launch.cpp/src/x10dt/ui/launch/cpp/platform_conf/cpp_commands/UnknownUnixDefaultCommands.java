@@ -8,12 +8,13 @@
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
+import x10dt.ui.launch.core.platform_conf.ETransport;
 
 
 final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  UnknownUnixDefaultCommands(final boolean is64Arch, final EArchitecture architecture) {
-    super(is64Arch, architecture);
+  UnknownUnixDefaultCommands(final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
+    super(is64Arch, architecture, transport);
   }
   
   // --- Interface methods implementation
@@ -31,7 +32,8 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   }
 
   public String getCompilerOptions() {
-    final String cmpOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter -pthread"; //$NON-NLS-1$
+    final String cmpOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter -pthread", //$NON-NLS-1$
+                                         getTransportCompilerOption());
     if (is64Arch()) {
       return addNoChecksOptions(addOptimizeOptions(cmpOpts + M64BIT_OPTION));
     } else {
@@ -44,11 +46,11 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lx10rt_pgas_sockets -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib"; //$NON-NLS-1$
+    return String.format("-lx10 %s -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib", getTransportLibrary()); //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {
-    final String linkOpts = "-g -DTRANSPORT=sockets -Wno-long-long -Wno-unused-parameter"; //$NON-NLS-1$
+    final String linkOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter", getTransportCompilerOption()); //$NON-NLS-1$
     if (is64Arch()) {
       return addNoChecksOptions(addOptimizeOptions(linkOpts + M64BIT_OPTION));
     } else {

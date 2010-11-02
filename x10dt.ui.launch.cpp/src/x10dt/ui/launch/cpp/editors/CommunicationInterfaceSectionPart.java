@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
+import org.eclipse.ui.forms.editor.IFormPage;
 import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
@@ -44,6 +47,8 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
 
   CommunicationInterfaceSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage) {
     super(parent, formPage);
+    
+    this.fProviderListeners = new ArrayList<IServiceProviderChangeListener>();
     
     getSection().setFont(parent.getFont());
     getSection().setText(LaunchMessages.RMCP_CommInterfaceSectionTitle);
@@ -99,6 +104,21 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   
   public void dispose() {
     removeCompletePartListener(getFormPage());
+    this.fProviderListeners.clear();
+  }
+
+  // --- Overridden methods
+  
+  public boolean setFormInput(final Object input) {
+    final IFormPage page = getFormPage().getEditor().findPage(X10CompilationConfigurationPage.X10_COMPILATION_CONF_PAGE_ID);
+    if ((page != null) && (page.getManagedForm() != null)) {
+      for (final IFormPart formPart : page.getManagedForm().getParts()) {
+        if (formPart instanceof IServiceProviderChangeListener) {
+          this.fProviderListeners.add((IServiceProviderChangeListener) formPart);
+        }
+      }
+    }
+    return false;
   }
     
   // --- Internal services
@@ -123,7 +143,14 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         final String serviceName = ciModeCombo.getItem(ciModeCombo.getSelectionIndex());
         final String serviceModeId = (String) ciModeCombo.getData(serviceName);
         getPlatformConf().setServiceModeId(getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId(), serviceModeId);
+        
+        final String itemName = ciTypeCombo.getItem(ciTypeCombo.getSelectionIndex());
+        final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) ciTypeCombo.getData(itemName);
 
+        for (final IServiceProviderChangeListener listener : CommunicationInterfaceSectionPart.this.fProviderListeners) {
+          listener.serviceTypeChange(typeConfPart.getServiceProviderId());
+        }
+        
         updateDirtyState(managedForm);
       }
 
@@ -141,6 +168,10 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) ciTypeCombo.getData(serviceTypeName);
         getPlatformConf().setServiceTypeId(typeConfPart.getServiceProviderId());
         getPlatformConf().setServiceModeId(typeConfPart.getServiceProviderId(), serviceModeId);
+        
+        for (final IServiceProviderChangeListener listener : CommunicationInterfaceSectionPart.this.fProviderListeners) {
+          listener.serviceModeChange(serviceModeId);
+        }
 
         updateDirtyState(managedForm);
       }
@@ -217,6 +248,10 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       return new ParallelEnvironmentTypeConfigPart((IPEResourceManagerConfiguration) serviceProvider);
     } else if (PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new LoadLevelerTypeConfigPart((IIBMLLResourceManagerConfiguration) serviceProvider);
+    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+      return new SocketsTypeConfigPart();
+    } else if (PTPConstants.STANDALONE_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+      return new StandaloneTypeConfigPart();
     }
     return null;
   }
@@ -257,7 +292,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     }
 
     typeConfPart.create(managedForm, toolkit, parent, this);
-    parent.getParent().layout(true);
+    
     managedForm.reflow(true);
     
     this.fPreviousTypeConfPart = typeConfPart;
@@ -272,5 +307,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   private Combo fCIModeCombo;
   
   private ICITypeConfigurationPart fPreviousTypeConfPart;
+  
+  private final Collection<IServiceProviderChangeListener> fProviderListeners;
   
 }

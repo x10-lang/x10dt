@@ -151,17 +151,6 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       }
     }
     
-    final IConnectionConf connectionConf = getPlatformConf().getConnectionConf();
-    if (connectionConf.isLocal()) {
-      for (final IConnectionTypeListener listener : this.fConnectionTypeListeners) {
-        listener.connectionChanged(true, null, null, false);
-      }
-    } else if (this.fCurrentConnection != null) {
-      for (final IConnectionTypeListener listener : this.fConnectionTypeListeners) {
-        listener.connectionChanged(false, this.fCurrentConnection.getName(), this.fCurrentConnection.getValidationStatus(), false);
-      }
-    }
-    
     return false;
   }
  
@@ -638,9 +627,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     firstGroupControls.add(removeButton);
 
     final TableLayout tableLayout = new TableLayout();
-    tableLayout.addColumnData(new ColumnWeightData(10, 50));
-    tableLayout.addColumnData(new ColumnWeightData(60, 100 ));
-    tableLayout.addColumnData(new ColumnWeightData(10, 45));
+    tableLayout.addColumnData(new ColumnWeightData(15, 50));
+    tableLayout.addColumnData(new ColumnWeightData(70, 100));
+    tableLayout.addColumnData(new ColumnWeightData(15, 45));
     tableViewer.getTable().setLayout(tableLayout);
     final TableWrapData twData = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB);
     twData.rowspan = 4;

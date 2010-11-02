@@ -50,9 +50,14 @@ public final class PTPConstants {
   public static final String PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.ibm.pe.PEServiceProvider"; //$NON-NLS-1$
   
   /**
-   * Defines the Portable Batch System service provider id.
+   * Defines the Sockets service provider id.
    */
-  public static final String PBS_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.pbs.PBSServiceProvider"; //$NON-NLS-1$
+  public static final String SOCKETS_SERVICE_PROVIDER_ID = "x10dt.ui.launch.cpp.rms.provider.sockets"; //$NON-NLS-1$
+  
+  /**
+   * Defines the Standalone service provider id.
+   */
+  public static final String STANDALONE_SERVICE_PROVIDER_ID = "x10dt.ui.launch.cpp.rms.provider.standalone"; //$NON-NLS-1$
      
   /**
    * Defines the Runtime service category id.

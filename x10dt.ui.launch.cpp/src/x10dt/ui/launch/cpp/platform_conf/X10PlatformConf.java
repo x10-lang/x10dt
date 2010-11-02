@@ -39,6 +39,7 @@ import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
+import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CodingUtils;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
@@ -48,6 +49,7 @@ import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
+import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 class X10PlatformConf implements IX10PlatformConf {
@@ -73,9 +75,9 @@ class X10PlatformConf implements IX10PlatformConf {
     final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) serviceProvider;
     this.fConnectionConf = new ConnectionConfiguration(rmConf);
     this.fCppCompilationConf = new CppCompilationConfiguration();
+    this.fCommInterfaceFact = new CommInterfaceFactory(rmConf);
     initLocalCppCompilationCommands();
     initLocalX10DistribLocation();
-    this.fCommInterfaceFact = new CommInterfaceFactory(rmConf);
     this.fDescription = rmConf.getDescription();
     this.fName = rmConf.getName();
     this.fId = UUID.randomUUID().toString();
@@ -250,23 +252,32 @@ class X10PlatformConf implements IX10PlatformConf {
     final boolean is64Arch = is64Arch();
     this.fCppCompilationConf.fBitsArchitecture = is64Arch ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
     this.fCppCompilationConf.fArchitecture = EArchitecture.x86;
+    
+    final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
+    final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
+    
     final IDefaultCPPCommands defaultCPPCommands;
     switch (this.fCppCompilationConf.fTargetOS) {
-    case AIX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    case LINUX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    case MAC:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    case WINDOWS:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    default:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
-                                                                              this.fCppCompilationConf.fArchitecture);
+      case AIX:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                         transport);
+        break;
+      case LINUX:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                           transport);
+        break;
+      case MAC:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                         transport);
+        break;
+      case WINDOWS:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                            transport);
+        break;
+      default:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
+                                                                                this.fCppCompilationConf.fArchitecture,
+                                                                                transport);
     }
     this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
     this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();

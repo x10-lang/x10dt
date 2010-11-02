@@ -8,12 +8,13 @@
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
+import x10dt.ui.launch.core.platform_conf.ETransport;
 
 
 final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  AixDefaultCommands(final boolean is64Arch, final EArchitecture architecture) {
-    super(is64Arch, architecture);
+  AixDefaultCommands(final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
+    super(is64Arch, architecture, transport);
   }
   
   // --- Interface methods implementation
@@ -36,7 +37,8 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   }
 
   public String getCompilerOptions() {
-    final String cmpOpts = "-g -DTRANSPORT=lapi -qsuppress=1540-0809:1500-029 -qrtti=all -DX10_USE_BDWGC"; //$NON-NLS-1$
+    final String cmpOpts = String.format("-g %s -qsuppress=1540-0809:1500-029 -qrtti=all -DX10_USE_BDWGC", //$NON-NLS-1$
+                                         getTransportCompilerOption());
     if (is64Arch()) {
       return addNoChecksOptions(addOptimizeOptions(cmpOpts + " -q64")); //$NON-NLS-1$
     } else {
@@ -49,11 +51,12 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   }
 
   public String getLinkingLibraries() {
-    return "-lx10 -lgc -lupcrts_lapi -ldl -lm -lpthread"; //$NON-NLS-1$
+    return String.format("-lx10 -lgc %s -ldl -lm -lpthread", getTransportLibrary()); //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {
-    final String linkOpts = "-g -DTRANSPORT=lapi -qrtti=all -bbigtoc -bexpfull -qsuppress=1540-0809:1500-029 -DX10_USE_BDWGC"; //$NON-NLS-1$
+    final String linkOpts = String.format("-g %s -qrtti=all -bbigtoc -bexpfull -qsuppress=1540-0809:1500-029 -DX10_USE_BDWGC", //$NON-NLS-1$
+                                          getTransportCompilerOption());
     if (is64Arch()) {
       return addNoChecksOptions(addOptimizeOptions(linkOpts + " -q64")); //$NON-NLS-1$
     } else {

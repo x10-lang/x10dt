@@ -31,6 +31,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
+import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
@@ -45,10 +46,11 @@ import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
+import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPart 
-                                             implements IConnectionTypeListener, IFormPart {
+                                             implements IConnectionTypeListener, IServiceProviderChangeListener, IFormPart {
 
   CompilationAndLinkingSectionPart(final Composite parent, final X10FormPage formPage) {
     super(parent, formPage);
@@ -77,6 +79,24 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       selectOsAndArchitecture();
       checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
     }
+  }
+  
+  // --- IServiceProviderChangeListener's interface methods implementation
+  
+  public void serviceTypeChange(final String serviceTypeId) {
+    final String archName = this.fArchCombo.getItem(this.fArchCombo.getSelectionIndex());
+    final EArchitecture architecture = (EArchitecture) this.fArchCombo.getData(archName);
+    final String osName = this.fOSCombo.getItem(this.fOSCombo.getSelectionIndex());
+    final ETargetOS targetOs = (ETargetOS) this.fOSCombo.getData(osName);
+    
+    updateCompilationCommands(this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
+                              this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, 
+                              architecture, targetOs);
+  }
+
+
+  public void serviceModeChange(final String serviceModeId) {
+    // Nothing to do.
   }
   
   // --- IFormPart's interface methods implementation
@@ -484,25 +504,27 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText,
                                          final Text archivingOptsText, final Text linkerText, final Text linkingOptsText,
                                          final Text linkingLibsText, final Button bitsArchBt, final EArchitecture architecture,
-                                         final ETargetOS targetOs) {
+                                         final ETargetOS targetOS) {
     final boolean is64Arch = bitsArchBt.getSelection();
+    final String serviceTypeId = getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId();
+    final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, targetOS);
     
     final IDefaultCPPCommands defaultCPPCommands;
-    switch (targetOs) {
-    case AIX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, architecture);
-      break;
-    case LINUX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, architecture);
-      break;
-    case MAC:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, architecture);
-      break;
-    case WINDOWS:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, architecture);
-      break;
-    default:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, architecture);
+    switch (targetOS) {
+      case AIX:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, architecture, transport);
+        break;
+      case LINUX:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, architecture, transport);
+        break;
+      case MAC:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, architecture, transport);
+        break;
+      case WINDOWS:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, architecture, transport);
+        break;
+      default:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, architecture, transport);
     }
     compilerText.setText(defaultCPPCommands.getCompiler());
     compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());

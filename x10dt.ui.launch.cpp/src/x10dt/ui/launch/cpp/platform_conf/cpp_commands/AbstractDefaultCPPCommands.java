@@ -9,13 +9,15 @@ package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
 import x10.Configuration;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
+import x10dt.ui.launch.core.platform_conf.ETransport;
 
 
 abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  protected AbstractDefaultCPPCommands(final boolean is64Arch, final EArchitecture architecture) {
+  protected AbstractDefaultCPPCommands(final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
     this.fIs64Arch = is64Arch;
     this.fArchitecture = architecture;
+    this.fTransport = transport;
   }
   
   // --- Code for descendants
@@ -40,6 +42,35 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     return this.fArchitecture;
   }
   
+  protected final String getTransportCompilerOption() {
+    switch (this.fTransport) {
+      case LAPI:
+        return "-DTRANSPORT=lapi"; //$NON-NLS-1$
+      case MPI:
+        return "-DTRANSPORT=sockets"; //$NON-NLS-1$
+      case SOCKETS:
+      case STANDALONE:
+        return ""; //$NON-NLS-1$
+      default:
+        throw new AssertionError();
+    }
+  }
+  
+  protected final String getTransportLibrary() {
+    switch (this.fTransport) {
+      case LAPI:
+        return "-lupcrts_lapi"; //$NON-NLS-1$
+      case MPI:
+        return "-lx10rt_pgas_sockets"; //$NON-NLS-1$
+      case SOCKETS:
+        return "-lx10rt_sockets"; //$NON-NLS-1$
+      case STANDALONE:
+        return "-lx10rt_standalone"; //$NON-NLS-1$
+      default:
+        throw new AssertionError();
+    }
+  }
+  
   protected final boolean is64Arch() {
     return this.fIs64Arch;
   }
@@ -53,6 +84,8 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   private final boolean fIs64Arch;
   
   private final EArchitecture fArchitecture;
+  
+  private final ETransport fTransport;
   
   
   protected static final String M64BIT_OPTION = " -m64"; //$NON-NLS-1$

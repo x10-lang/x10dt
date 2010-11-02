@@ -321,6 +321,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
         ((IFormPage) page).getManagedForm().setInput(getCurrentPlatformConf());
       }
     }
+    ((IFormPage) super.pages.get(0)).getManagedForm().reflow(true);
     
     if (getActivePage() == -1) {
       super.setActivePage(0);

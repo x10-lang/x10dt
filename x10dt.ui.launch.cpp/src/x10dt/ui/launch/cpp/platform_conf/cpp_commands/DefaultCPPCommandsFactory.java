@@ -8,6 +8,7 @@
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
+import x10dt.ui.launch.core.platform_conf.ETransport;
 
 /**
  * Factory methods to create different implementations of {@link IDefaultCPPCommands}.
@@ -21,10 +22,12 @@ public final class DefaultCPPCommandsFactory {
    * 
    * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
    * @param architecture The architecture of the machine to consider.
+   * @param transport The current transport to consider.
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
-  public static IDefaultCPPCommands createAixCommands(final boolean is64Arch, final EArchitecture architecture) {
-    return new AixDefaultCommands(is64Arch, architecture);
+  public static IDefaultCPPCommands createAixCommands(final boolean is64Arch, final EArchitecture architecture,
+                                                      final ETransport transport) {
+    return new AixDefaultCommands(is64Arch, architecture, transport);
   }
   
   /**
@@ -32,10 +35,12 @@ public final class DefaultCPPCommandsFactory {
    * 
    * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
    * @param architecture The architecture of the machine to consider.
+   * @param transport The current transport to consider.
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
-  public static IDefaultCPPCommands createCygwinCommands(final boolean is64Arch, final EArchitecture architecture) {
-    return new CygwinDefaultCommands(is64Arch, architecture);
+  public static IDefaultCPPCommands createCygwinCommands(final boolean is64Arch, final EArchitecture architecture,
+                                                         final ETransport transport) {
+    return new CygwinDefaultCommands(is64Arch, architecture, transport);
   }
   
   /**
@@ -43,10 +48,12 @@ public final class DefaultCPPCommandsFactory {
    * 
    * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
    * @param architecture The architecture of the machine to consider.
+   * @param transport The current transport to consider.
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
-  public static IDefaultCPPCommands createLinuxCommands(final boolean is64Arch, final EArchitecture architecture) {
-    return new LinuxDefaultCommands(is64Arch, architecture);
+  public static IDefaultCPPCommands createLinuxCommands(final boolean is64Arch, final EArchitecture architecture,
+                                                        final ETransport transport) {
+    return new LinuxDefaultCommands(is64Arch, architecture, transport);
   }
   
   /**
@@ -54,10 +61,12 @@ public final class DefaultCPPCommandsFactory {
    * 
    * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
    * @param architecture The architecture of the machine to consider.
+   * @param transport The current transport to consider.
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
-  public static IDefaultCPPCommands createMacCommands(final boolean is64Arch, final EArchitecture architecture) {
-    return new MacDefaultCommands(is64Arch, architecture);
+  public static IDefaultCPPCommands createMacCommands(final boolean is64Arch, final EArchitecture architecture,
+                                                      final ETransport transport) {
+    return new MacDefaultCommands(is64Arch, architecture, transport);
   }
   
   /**
@@ -65,10 +74,12 @@ public final class DefaultCPPCommandsFactory {
    * 
    * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
    * @param architecture The architecture of the machine to consider.
+   * @param transport The current transport to consider.
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
-  public static IDefaultCPPCommands createUnkownUnixCommands(final boolean is64Arch, final EArchitecture architecture) {
-    return new UnknownUnixDefaultCommands(is64Arch, architecture);
+  public static IDefaultCPPCommands createUnkownUnixCommands(final boolean is64Arch, final EArchitecture architecture,
+                                                             final ETransport transport) {
+    return new UnknownUnixDefaultCommands(is64Arch, architecture, transport);
   }
   
   // --- Private code

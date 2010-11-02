@@ -7,8 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
-import static x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SERVICE_PROVIDER_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
@@ -16,6 +15,7 @@ import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
+import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
@@ -23,6 +23,7 @@ import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
+import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10PlatformConfWorkCopy {
@@ -46,21 +47,16 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   public void initializeToDefaultValues() {
+    AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
+    if (ciConf == null) {
+      ciConf = super.fCommInterfaceFact.getOrCreate(SOCKETS_SERVICE_PROVIDER_ID);
+      super.fCommInterfaceFact.defineCurrentCommInterfaceType(SOCKETS_SERVICE_PROVIDER_ID);
+      ciConf.fServiceTypeId = SOCKETS_SERVICE_PROVIDER_ID;
+      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+    }
     if (this.fConnectionConf.fIsLocal) {
       initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
-    }
-    AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
-    if (ciConf == null) {
-      final boolean isWindows = this.fCppCompilationConf.getTargetOS() == ETargetOS.WINDOWS;
-      final String ciType = isWindows ? MPICH2_SERVICE_PROVIDER_ID : OPEN_MPI_SERVICE_PROVIDER_ID;
-      ciConf = super.fCommInterfaceFact.getOrCreate(ciType);
-      super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-      ciConf.fServiceTypeId = ciType;
-      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
-      final MessagePassingInterfaceConf mpiConf = (MessagePassingInterfaceConf) ciConf;
-      mpiConf.fDefaultIntallLocation = true;
-      mpiConf.fDefaultToolCmds = true;
     }
     if (ciConf.fServiceModeId == null) {
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
@@ -179,23 +175,31 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void updateCompilationCommands() {
     final boolean is64Arch = (this.fCppCompilationConf.fBitsArchitecture == EBitsArchitecture.E64Arch);
+    final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
+    final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
+    
     final IDefaultCPPCommands defaultCPPCommands;
     switch (this.fCppCompilationConf.fTargetOS) {
-    case AIX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    case LINUX:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    case MAC:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    case WINDOWS:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture);
-      break;
-    default:
-      defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
-                                                                              this.fCppCompilationConf.fArchitecture);
+      case AIX:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                         transport);
+        break;
+      case LINUX:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                           transport);
+        break;
+      case MAC:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                         transport);
+        break;
+      case WINDOWS:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+                                                                            transport);
+        break;
+      default:
+        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
+                                                                                this.fCppCompilationConf.fArchitecture,
+                                                                                transport);
     }
     this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
     this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
