@@ -23,8 +23,6 @@ import static x10dt.ui.launch.cpp.platform_conf.CLoadLevelerProxyMsgs.INFO;
 import static x10dt.ui.launch.cpp.platform_conf.CLoadLevelerProxyMsgs.TRACE;
 import static x10dt.ui.launch.cpp.platform_conf.CLoadLevelerProxyMsgs.WARNING;
 
-import java.util.Map;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
@@ -52,6 +50,7 @@ import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetEnvironmentManager;
 import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
+import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
 import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
@@ -94,8 +93,8 @@ public final class PTPConfUtils {
    * @throws CoreException Occurs during configuration update of a PTP target element.
    */
   public static ITargetElement createRemoteConnection(final String connectionName, 
-                                                      final Map<String, String> attributes) throws RemoteConnectionException, 
-                                                                                                   CoreException {
+                                                      final ControlAttributes attributes) throws RemoteConnectionException, 
+                                                                                                 CoreException {
     final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
     final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
     final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
