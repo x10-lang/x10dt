@@ -103,88 +103,88 @@ final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements 
     protected IStatus run(final IProgressMonitor monitor) {
       this.fMainMonitor.beginTask(null, this.fHostNames.size());
       this.fMainMonitor.subTask(Messages.SXRS_ValidatesSSHTaskName);
-      for (final String hostName : this.fHostNames) {
-        final List<String> command = new ArrayList<String>();
-        command.add("ssh"); //$NON-NLS-1$
-        command.add(hostName);
-        command.add("hostname"); //$NON-NLS-1$
-        
-        final IRemoteProcessBuilder processBuilder = createProcessBuilder(command, null /* workingDirectory */);
-        IRemoteProcess initProcess = null;
-        try {
-          initProcess = processBuilder.start();
-        } catch (IOException except) {
-          return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, 
-                            NLS.bind(Messages.SXRS_ProcessStartError, getCommandString(command)), except);
-        }
-        
-        final IRemoteProcess process = initProcess;
-        final ExecutorService executorService = Executors.newSingleThreadExecutor();
-        
-        final Future<String> stderrExecService = executorService.submit(new Callable<String>() {
+      // Tries checking from the first machine in the list.
+      final String hostName = this.fHostNames.iterator().next();
+      final List<String> command = new ArrayList<String>();
+      command.add("ssh"); //$NON-NLS-1$
+      command.add(hostName);
+      command.add("hostname"); //$NON-NLS-1$
 
-          public String call() {
-            final StringBuilder errBuilder = new StringBuilder();
-            final BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            try {
-              String line = null;
-              int i = 0;
-              while ((line = stderr.readLine()) != null) {
-                if (i == 1) {
-                  errBuilder.append('\n');
-                } else {
-                  i = 1;
-                }
-                errBuilder.append(line);
+      final IRemoteProcessBuilder processBuilder = createProcessBuilder(command, null /* workingDirectory */);
+      IRemoteProcess initProcess = null;
+      try {
+        initProcess = processBuilder.start();
+      } catch (IOException except) {
+        return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, NLS.bind(Messages.SXRS_ProcessStartError,
+                                                                          getCommandString(command)), except);
+      }
+
+      final IRemoteProcess process = initProcess;
+      final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+      final Future<String> stderrExecService = executorService.submit(new Callable<String>() {
+
+        public String call() {
+          final StringBuilder errBuilder = new StringBuilder();
+          final BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+          try {
+            String line = null;
+            int i = 0;
+            while ((line = stderr.readLine()) != null) {
+              if (i == 1) {
+                errBuilder.append('\n');
+              } else {
+                i = 1;
               }
-            } catch (IOException except) {
-              // Simply forgets.
+              errBuilder.append(line);
             }
-            return errBuilder.toString();
+          } catch (IOException except) {
+            // Simply forgets.
           }
-          
-        });
-        
-        Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
-          
-          public void run() {
-            if (! process.isCompleted()) {
-              process.destroy();
-            }
-          }
-          
-        }, 3, TimeUnit.SECONDS);
-        try {
-          while (! process.isCompleted() && ! this.fMainMonitor.isCanceled()) {
-            try {
-              synchronized (this) {
-                wait(200);
-              }
-            } catch (InterruptedException except) {
-              // Simply forgets.
-            }
-          }
-          
-          if (process.exitValue() != 0) {
-            String error = Constants.EMPTY_STR;
-            try {
-              error = stderrExecService.get();
-            } catch (Exception except) {
-              // Simply forgets.
-            }
-            if (error.length() == 0) {
-              return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, 
-                                NLS.bind(Messages.SXRS_ValidationError, getCommandString(command)));
-            } else {
-              return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, 
-                                NLS.bind(Messages.SXRS_SSHValidationErrorWithErrOutput, getCommandString(command), error));
-            }
-          }
-        } finally {
-          stderrExecService.cancel(true);
-          process.destroy();
-          this.fMainMonitor.worked(1);
+          return errBuilder.toString();
         }
+
+      });
+
+      Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
+
+        public void run() {
+          if (!process.isCompleted()) {
+            process.destroy();
+          }
+        }
+
+      }, 3, TimeUnit.SECONDS);
+      try {
+        while (!process.isCompleted() && !this.fMainMonitor.isCanceled()) {
+          try {
+            synchronized (this) {
+              wait(200);
+            }
+          } catch (InterruptedException except) {
+            // Simply forgets.
+          }
+        }
+
+        if (process.exitValue() != 0) {
+          String error = Constants.EMPTY_STR;
+          try {
+            error = stderrExecService.get();
+          } catch (Exception except) {
+            // Simply forgets.
+          }
+          if (error.length() == 0) {
+            return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, NLS.bind(Messages.SXRS_ValidationError,
+                                                                              getCommandString(command)));
+          } else {
+            return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, NLS.bind(Messages.SXRS_SSHValidationErrorWithErrOutput,
+                                                                              getCommandString(command), error));
+          }
+        }
+      } finally {
+        stderrExecService.cancel(true);
+        process.destroy();
+        this.fMainMonitor.worked(1);
       }
       this.fMainMonitor.done();
       return Status.OK_STATUS;
