@@ -46,7 +46,6 @@ import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.debug.core.IPDebugger;
 import org.eclipse.ptp.debug.core.launch.IPLaunch;
-import org.eclipse.ptp.launch.PTPLaunchPlugin;
 import org.eclipse.ptp.launch.ParallelLaunchConfigurationDelegate;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
@@ -201,18 +200,18 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     }
     final IRemoteConnectionManager connMgr = remoteServices.getConnectionManager();
     if (connMgr == null) {
-      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID, LaunchMessages.CLCD_NoConnectionMgr));
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnectionMgr));
     }
     final IRemoteConnection conn = connMgr.getConnection(conf.getConnectionName());
     if (conn == null) {
-      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID, LaunchMessages.CLCD_NoConnection));
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnection));
     }
     final IRemoteFileManager fileManager = remoteServices.getFileManager(conn);
     if (fileManager == null) {
-      throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.PLUGIN_ID, LaunchMessages.CLCD_NoFileManager));
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoFileManager));
     }
     if (! fileManager.getResource(path).fetchInfo().exists()) {
-      throw new CoreException(new Status(IStatus.INFO, PTPLaunchPlugin.PLUGIN_ID,
+      throw new CoreException(new Status(IStatus.INFO, CppLaunchCore.PLUGIN_ID,
                                          NLS.bind(LaunchMessages.CLCD_PathNotFound, path)));
     }
     return new Path(path);

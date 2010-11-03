@@ -7,10 +7,9 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
-import java.util.Map;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 
@@ -33,7 +32,7 @@ interface IConnectionInfo {
  
   int getPort();
   
-  Map<String, String> getPTPAttributes();
+  ControlAttributes getPTPAttributes();
   
   String getPrivateKeyFile();
   

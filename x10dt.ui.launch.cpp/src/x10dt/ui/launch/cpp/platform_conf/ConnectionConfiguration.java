@@ -10,7 +10,6 @@ package x10dt.ui.launch.cpp.platform_conf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
@@ -18,11 +17,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.remotetools.core.environment.ConfigFactory;
-import org.eclipse.ptp.remote.remotetools.core.environment.PTPTargetControl;
-import org.eclipse.ptp.remote.remotetools.core.environment.conf.DefaultValues;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.remotetools.environment.generichost.core.ConfigFactory;
+import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 
 import x10dt.ui.launch.core.Constants;
@@ -35,19 +33,17 @@ final class ConnectionConfiguration implements IConnectionConf {
   
   // --- Interface methods implementation
   
-  public Map<String, String> getAttributes() {
-    final Map<String, String> attributes = new HashMap<String, String>();
-    attributes.put(ConfigFactory.ATTR_LOCALHOST_SELECTION, String.valueOf(this.fIsLocal));
-    attributes.put(ConfigFactory.ATTR_LOGIN_USERNAME, this.fUserName);
-    attributes.put(ConfigFactory.ATTR_LOGIN_PASSWORD, this.fPassword);
-    attributes.put(ConfigFactory.ATTR_CONNECTION_PORT, String.valueOf(this.fPort));
-    attributes.put(ConfigFactory.ATTR_CONNECTION_ADDRESS, this.fHostName);
-    attributes.put(ConfigFactory.ATTR_KEY_PATH, this.fPrivateKeyFile);
-    attributes.put(ConfigFactory.ATTR_KEY_PASSPHRASE, this.fPassphrase);
-    attributes.put(ConfigFactory.ATTR_IS_PASSWORD_AUTH, String.valueOf(this.fIsPasswordBasedAuth));
-    attributes.put(ConfigFactory.ATTR_CONNECTION_TIMEOUT, DefaultValues.CONNECTION_TIMEOUT);
-    attributes.put(ConfigFactory.ATTR_CIPHER_TYPE, PTPTargetControl.DEFAULT_CIPHER);
-    return attributes;
+  public ControlAttributes getAttributes() {
+    final ControlAttributes controlAttr = new ConfigFactory().getAttributes();
+    controlAttr.setBoolean(ConfigFactory.ATTR_LOCALHOST_SELECTION, this.fIsLocal);
+    controlAttr.setString(ConfigFactory.ATTR_LOGIN_USERNAME, this.fUserName);
+    controlAttr.setString(ConfigFactory.ATTR_LOGIN_PASSWORD, this.fPassword);
+    controlAttr.setInt(ConfigFactory.ATTR_CONNECTION_PORT, this.fPort);
+    controlAttr.setString(ConfigFactory.ATTR_CONNECTION_ADDRESS, this.fHostName);
+    controlAttr.setString(ConfigFactory.ATTR_KEY_PATH, this.fPrivateKeyFile);
+    controlAttr.setString(ConfigFactory.ATTR_IS_PASSWORD_AUTH, this.fPassphrase);
+    controlAttr.setBoolean(ConfigFactory.ATTR_IS_PASSWORD_AUTH, this.fIsPasswordBasedAuth);
+    return controlAttr;
   }
   
   public String getConnectionName() {
@@ -83,7 +79,7 @@ final class ConnectionConfiguration implements IConnectionConf {
   }
   
   public boolean hasSameConnectionInfo(final ITargetElement targetElement) {
-    return hasSameConnectionInfo(targetElement.getAttributes());
+    return hasSameConnectionInfo(targetElement.getAttributes().getAttributesAsMap());
   }
   
   public boolean isLocal() {
@@ -190,7 +186,7 @@ final class ConnectionConfiguration implements IConnectionConf {
     if (! this.fIsLocal && (this.fHostName != null)) {
       final Collection<ITargetElement> founds = new ArrayList<ITargetElement>();
       for (final ITargetElement targetElement : PTPConfUtils.getTargetElements()) {
-        if (this.fHostName.equals(targetElement.getAttributes().get(ConfigFactory.ATTR_CONNECTION_ADDRESS))) {
+        if (this.fHostName.equals(targetElement.getAttributes().getString(ConfigFactory.ATTR_CONNECTION_ADDRESS))) {
           founds.add(targetElement);
         }
       }
@@ -216,16 +212,16 @@ final class ConnectionConfiguration implements IConnectionConf {
   }
   
   void initValuesFromTargetElement(final ITargetElement targetElement) {
-    final Map<String, String> attributes = targetElement.getAttributes();
+    final ControlAttributes attributes = targetElement.getAttributes();
     this.fIsLocal = false;
     this.fConnectionName = targetElement.getName();
-    this.fHostName = attributes.get(ConfigFactory.ATTR_CONNECTION_ADDRESS);
-    this.fPort = Integer.parseInt(attributes.get(ConfigFactory.ATTR_CONNECTION_PORT));
-    this.fUserName = attributes.get(ConfigFactory.ATTR_LOGIN_USERNAME);
-    this.fIsPasswordBasedAuth = Boolean.parseBoolean(attributes.get(ConfigFactory.ATTR_IS_PASSWORD_AUTH));
-    this.fPassword = attributes.get(ConfigFactory.ATTR_LOGIN_PASSWORD);
-    this.fPrivateKeyFile = attributes.get(ConfigFactory.ATTR_KEY_PATH);
-    this.fPassphrase = attributes.get(ConfigFactory.ATTR_KEY_PASSPHRASE);
+    this.fHostName = attributes.getString(ConfigFactory.ATTR_CONNECTION_ADDRESS);
+    this.fPort = attributes.getInt(ConfigFactory.ATTR_CONNECTION_PORT);
+    this.fUserName = attributes.getString(ConfigFactory.ATTR_LOGIN_USERNAME);
+    this.fIsPasswordBasedAuth = attributes.getBoolean(ConfigFactory.ATTR_IS_PASSWORD_AUTH);
+    this.fPassword = attributes.getString(ConfigFactory.ATTR_LOGIN_PASSWORD);
+    this.fPrivateKeyFile = attributes.getString(ConfigFactory.ATTR_KEY_PATH);
+    this.fPassphrase = attributes.getString(ConfigFactory.ATTR_KEY_PASSPHRASE);
   }
   
   // --- Private code

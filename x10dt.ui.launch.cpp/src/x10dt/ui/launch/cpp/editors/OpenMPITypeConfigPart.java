@@ -14,7 +14,8 @@ import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_PERIO
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_PERIODIC_MONITOR_TIME;
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_REMOTE_INSTALL_PATH;
 
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.ptp.core.Preferences;
+import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPlugin;
 import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPreferenceManager;
 import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
@@ -35,7 +36,6 @@ import x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 
 
-@SuppressWarnings("deprecation")
 final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart implements ICITypeConfigurationPart {
   
   OpenMPITypeConfigPart(final IOpenMPIResourceManagerConfiguration toolRMConf) {
@@ -158,13 +158,15 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
   }
   
   private void updateOpenMPIVersionSelection(final String prefix) {
-    final Preferences preferences = OpenMPIPreferenceManager.getPreferences();
-    super.fLaunchCmdText.setText(preferences.getString(prefix + PREFS_LAUNCH_CMD));
-    super.fDebugCmdText.setText(preferences.getString(prefix + PREFS_DEBUG_CMD));
-    super.fDiscoverCmdText.setText(preferences.getString(prefix + PREFS_DISCOVER_CMD));
-    super.fMonitorCmdText.setText(preferences.getString(prefix + PREFS_PERIODIC_MONITOR_CMD));
-    super.fPeriodicTimeSpinner.setSelection(preferences.getInt(prefix + PREFS_PERIODIC_MONITOR_TIME));
-    super.fInstallLocText.setText(preferences.getString(prefix + PREFS_REMOTE_INSTALL_PATH));
+    super.fLaunchCmdText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), prefix + PREFS_LAUNCH_CMD));
+    super.fDebugCmdText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), prefix + PREFS_DEBUG_CMD));
+    super.fDiscoverCmdText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), prefix + PREFS_DISCOVER_CMD));
+    super.fMonitorCmdText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(), 
+                                                        prefix + PREFS_PERIODIC_MONITOR_CMD));
+    super.fPeriodicTimeSpinner.setSelection(Preferences.getInt(OpenMPIPlugin.getUniqueIdentifier(),
+                                                               prefix + PREFS_PERIODIC_MONITOR_TIME));
+    super.fInstallLocText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(),
+                                                        prefix + PREFS_REMOTE_INSTALL_PATH));
   }
   
   // --- Fields
