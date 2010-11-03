@@ -95,7 +95,11 @@ public class Messages extends NLS {
 
   public static String SXRS_ProcessStartError;
 
+  public static String SXRS_ValidatesSSHTaskName;
+
   public static String SXRS_ValidationError;
+
+  public static String SXRS_SSHValidationErrorWithErrOutput;
 
   public static String SXRS_SSHValidationTaskName;
 
