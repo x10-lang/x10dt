@@ -14,6 +14,7 @@ import static x10dt.ui.launch.cpp.rms.launch_configuration.LaunchConfigConstants
 import static x10dt.ui.launch.cpp.rms.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -204,9 +205,7 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
     final TableViewer viewer = new TableViewer(tableComposite, SWT.BORDER | SWT.FULL_SELECTION);
     this.fHostListViewer = viewer;
     this.fHostListViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-    
-    final List<String> input = this.fHosts;
-    
+        
     final TableViewerColumn column = new TableViewerColumn(this.fHostListViewer, SWT.NONE);
     column.setLabelProvider(new ColumnLabelProvider() {
 
@@ -222,18 +221,20 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
         return editor;
       }
 
+      @SuppressWarnings("unqualified-field-access")
       protected boolean canEdit(final Object element) {
-        return viewer.getTable().getSelectionIndex() < input.size();
+        return viewer.getTable().getSelectionIndex() < fHosts.size();
       }
 
       protected Object getValue(final Object element) {
         return element;
       }
 
+      @SuppressWarnings("unqualified-field-access")
       protected void setValue(final Object element, final Object value) {
-        final int index = input.indexOf(element);
-        input.remove(element);
-        input.add(index, (String) value);
+        final int index = fHosts.indexOf(element);
+        fHosts.remove(element);
+        fHosts.add(index, (String) value);
         viewer.refresh();
         
         fireContentChange();
@@ -253,13 +254,14 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
       public void dispose() {
       }
       
+      @SuppressWarnings("unqualified-field-access")
       public Object[] getElements(final Object inputElement) {
-        return input.toArray(new String[input.size()]);
+        return fHosts.toArray(new String[fHosts.size()]);
       }
       
     });
     
-    this.fHostListViewer.setInput(input);
+    this.fHostListViewer.setInput(this.fHosts);
     this.fHostListViewer.getTable().setLinesVisible(true);
     
     final Button addButton = new Button(hostsGroup, SWT.PUSH);
@@ -267,8 +269,9 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
     addButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
     addButton.addSelectionListener(new SelectionListener() {
       
+      @SuppressWarnings("unqualified-field-access")
       public void widgetSelected(final SelectionEvent event) {
-        input.add(""); //$NON-NLS-1$
+        fHosts.add(""); //$NON-NLS-1$
         viewer.getTable().select(viewer.getTable().getItemCount() - 1);
         viewer.add(""); //$NON-NLS-1$
         viewer.editElement("", 0); //$NON-NLS-1$
@@ -285,10 +288,11 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
     removeButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
     removeButton.addSelectionListener(new SelectionListener() {
       
+      @SuppressWarnings("unqualified-field-access")
       public void widgetSelected(final SelectionEvent event) {
         final Object hostName = viewer.getElementAt(viewer.getTable().getSelectionIndex());
         if (hostName != null) {
-          input.remove(hostName);
+          fHosts.remove(hostName);
           viewer.remove(hostName);
           
           fireContentChange();
@@ -313,7 +317,7 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
       attrs.add(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
       attrs.add(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
       final ArrayAttribute<String> attribute = LaunchAttributes.getHostListAttr().create();
-      attribute.setValue(configuration.getAttribute(ATTR_HOSTLIST, this.fHosts));
+      attribute.setValue(configuration.getAttribute(ATTR_HOSTLIST, Collections.emptyList()));
       attrs.add(attribute);
     } catch (IllegalValueException except) {
       throw new CoreException(new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, Messages.SRMLCDT_InvalidPlacesNb, except));
@@ -369,7 +373,7 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
     configuration.setAttribute(ATTR_USE_HOSTFILE, this.fHostFileBt.getSelection());
     configuration.setAttribute(ATTR_NUM_PLACES, this.fNumPlacesSpinner.getSelection());
     configuration.setAttribute(ATTR_HOSTFILE, this.fHostFileText.getText().trim());
-    configuration.setAttribute(ATTR_HOSTLIST, this.fHosts);
+    configuration.setAttribute(ATTR_HOSTLIST, new ArrayList<String>(this.fHosts));
     return new RMLaunchValidation(true, null);
   }
 
