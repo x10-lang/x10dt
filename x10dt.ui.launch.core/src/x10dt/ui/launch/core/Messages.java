@@ -62,6 +62,9 @@ public class Messages extends NLS {
   public static String XBU_ArchNameNotInEnum;
   public static String XBU_NoCheckerForLanguage;
   public static String XEQ_InternalCompilerErrorMsg;
+  public static String XTBH_NoHandler;
+  public static String XTBH_NoHandlerForCppBackEnd;
+  public static String XTBH_NoHandlerForJavaBackEnd;
   public static String AXB_EchoIOException;
   public static String AXB_BuildException;
   public static String AXB_CompilerInternalError;

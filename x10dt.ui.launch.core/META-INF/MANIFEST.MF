@@ -28,6 +28,7 @@ Export-Package: x10dt.ui.launch.core,
  x10dt.ui.launch.core.actions,
  x10dt.ui.launch.core.builder,
  x10dt.ui.launch.core.builder.target_op,
+ x10dt.ui.launch.core.debug,
  x10dt.ui.launch.core.dialogs,
  x10dt.ui.launch.core.platform_conf,
  x10dt.ui.launch.core.utils

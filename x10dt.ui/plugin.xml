@@ -565,12 +565,6 @@
       </actionSet>
    </extension>
    <extension
-         point="org.eclipse.imp.runtime.toggleBreakpointHandler">
-         <toggleBreakpointHandler
-             language="x10"
-             class="x10dt.ui.debug.X10ToggleBreakpointHandler"/>
-            </extension>
-   <extension
          point="org.eclipse.imp.runtime.entityNameLocator">
          <entityNameLocator
              language="x10"
