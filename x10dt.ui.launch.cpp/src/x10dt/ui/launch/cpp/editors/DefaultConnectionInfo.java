@@ -13,6 +13,7 @@ import org.eclipse.ptp.remotetools.environment.generichost.core.ConfigFactory;
 import org.eclipse.ptp.remotetools.environment.generichost.core.TargetConfig;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 
 
@@ -126,7 +127,7 @@ final class DefaultConnectionInfo implements IConnectionInfo {
   
   private final ControlAttributes fControlAttr;
   
-  private String fName;
+  private String fName = Constants.EMPTY_STR;
   
   private String fErrorMessage;
   
