@@ -885,13 +885,19 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     }
     
     int index = -1;
+    boolean found = false;
     for (final IConnectionInfo connectionInfo : tableInput) {
       ++index;
       validateRemoteHostConnection(connectionInfo);
       if (connectionConf.hasSameConnectionInfo(connectionInfo.getTargetElement())) {
         this.fCurrentConnection = connectionInfo;
         fillConnectionControlsInfo(connectionInfo);
+        found = true;
       }
+    }
+    if (! tableInput.isEmpty() && ! found) { // We have not found an equivalent, let's select the first one.
+      this.fCurrentConnection = tableInput.iterator().next();
+      fillConnectionControlsInfo(this.fCurrentConnection);
     }
     
     KeyboardUtils.addDelayedActionOnControl(this.fPrivateKeyFileText, new Runnable() {
