@@ -24,7 +24,6 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 
@@ -129,21 +128,6 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
       }
       handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
     }
-    
-    KeyboardUtils.addDelayedActionOnControl(this.fRemoteOutputFolderText, new Runnable() {
-      
-      public void run() {
-        getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
-          
-          public void run() {
-            handlePathValidation(RemoteOutputFolderSectionPart.this.fRemoteOutputFolderText, 
-                                 LaunchMessages.XPCP_FolderLabel);
-          }
-          
-        });
-      }
-      
-    });
   }
   
   // --- Fields
