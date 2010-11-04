@@ -89,64 +89,68 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   // --- Overridden methods
   
   protected AttributeManager getAttributeManager(final ILaunchConfiguration configuration, 
-                                                 final String mode) throws CoreException {
-    final AttributeManager attrMgr = new AttributeManager();
+                                                 final String mode, final IProgressMonitor monitor) throws CoreException {
+    try {
+      final AttributeManager attrMgr = new AttributeManager();
 
-    // Collects attributes from Resource tab
-    final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
-    if (this.fIsCygwin) {
-      final StringBuilder pathBuilder = new StringBuilder();
-      pathBuilder.append(this.fTargetOpHelper.getEnvVarValue(PATH_ENV)); 
-      for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations()) {
-        pathBuilder.append(File.pathSeparatorChar).append(x10Lib);
-      }
-      for (int i = 0; i < resourceAttributes.length; ++i) {
-        if (MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().equals(resourceAttributes[i].getDefinition())) {
-          final String curValue = resourceAttributes[i].getValueAsString();
-          final StringBuilder newArgs = new StringBuilder();
-          newArgs.append("-gpath '").append(pathBuilder.toString()).append("' ").append(curValue); //$NON-NLS-1$//$NON-NLS-2$
-          resourceAttributes[i] = MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().create(newArgs.toString());
+      // Collects attributes from Resource tab
+      final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
+      if (this.fIsCygwin) {
+        final StringBuilder pathBuilder = new StringBuilder();
+        pathBuilder.append(this.fTargetOpHelper.getEnvVarValue(PATH_ENV));
+        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations()) {
+          pathBuilder.append(File.pathSeparatorChar).append(x10Lib);
+        }
+        for (int i = 0; i < resourceAttributes.length; ++i) {
+          if (MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().equals(resourceAttributes[i].getDefinition())) {
+            final String curValue = resourceAttributes[i].getValueAsString();
+            final StringBuilder newArgs = new StringBuilder();
+            newArgs.append("-gpath '").append(pathBuilder.toString()).append("' ").append(curValue); //$NON-NLS-1$//$NON-NLS-2$
+            resourceAttributes[i] = MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().create(newArgs.toString());
+          }
         }
       }
-    }
-    attrMgr.addAttributes(resourceAttributes);
+      attrMgr.addAttributes(resourceAttributes);
 
-    // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
-    if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
-      final IPQueue queue = getQueueDefault(this.fResourceManager);
-      if (queue == null) {
-        throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRMQueueError));
+      // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
+      if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
+        final IPQueue queue = getQueueDefault(this.fResourceManager);
+        if (queue == null) {
+          throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRMQueueError));
+        }
+        attrMgr.addAttribute(JobAttributes.getQueueIdAttributeDefinition().create(queue.getID()));
       }
-      attrMgr.addAttribute(JobAttributes.getQueueIdAttributeDefinition().create(queue.getID()));
+
+      // Collects attributes from Application tab
+      final IPath programPath = verifyExecutablePath(configuration, monitor);
+      attrMgr.addAttribute(JobAttributes.getExecutableNameAttributeDefinition().create(programPath.lastSegment()));
+
+      final String path = programPath.removeLastSegments(1).toString();
+      if (path != null) {
+        attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(protectPath(path)));
+      }
+
+      // Collects attributes from Arguments tab
+      attrMgr.addAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition().create(this.fWorkspaceDir));
+
+      final String[] argArr = getProgramArguments(configuration);
+      if (argArr != null) {
+        attrMgr.addAttribute(JobAttributes.getProgramArgumentsAttributeDefinition().create(argArr));
+      }
+
+      // Collects attributes from Environment tab
+      final String[] envArr = getEnvironmentToAppend(configuration);
+      if (envArr != null) {
+        attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
+      }
+
+      // PTP launched this job
+      attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
+
+      return attrMgr;
+    } finally {
+      monitor.done();
     }
-
-    // Collects attributes from Application tab
-    final IPath programPath = verifyExecutablePath(configuration);
-    attrMgr.addAttribute(JobAttributes.getExecutableNameAttributeDefinition().create(programPath.lastSegment()));
-
-    final String path = programPath.removeLastSegments(1).toString();
-    if (path != null) {
-      attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(protectPath(path)));
-    }
-
-    // Collects attributes from Arguments tab
-    attrMgr.addAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition().create(this.fWorkspaceDir));
- 
-    final String[] argArr = getProgramArguments(configuration);
-    if (argArr != null) {
-      attrMgr.addAttribute(JobAttributes.getProgramArgumentsAttributeDefinition().create(argArr));
-    }
-
-    // Collects attributes from Environment tab
-    final String[] envArr = getEnvironmentToAppend(configuration);
-    if (envArr != null) {
-      attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
-    }
-
-    // PTP launched this job
-    attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
-    
-    return attrMgr;
   }
   
   protected void doCompleteJobLaunch(final ILaunchConfiguration configuration, final String mode, final IPLaunch launch, 
@@ -182,9 +186,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     }
   }
   
-  protected IPath verifyExecutablePath(final ILaunchConfiguration configuration)  throws CoreException {
+  protected IPath verifyExecutablePath(final ILaunchConfiguration configuration, 
+                                       final IProgressMonitor monitor)  throws CoreException {
     try {
-      return verifyResource(this.fExecPath, configuration);
+      return verifyResource(this.fExecPath, configuration, monitor);
     } catch (CoreException except) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID,
                                          NLS.bind(LaunchMessages.CLCD_NoCppExecutable, this.fExecPath),
@@ -192,7 +197,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
     }
   }
   
-  protected IPath verifyResource(final String path, final ILaunchConfiguration configuration) throws CoreException {
+  protected IPath verifyResource(final String path, final ILaunchConfiguration configuration,
+                                 final IProgressMonitor monitor) throws CoreException {
     final IResourceManagerConfiguration conf = this.fResourceManager.getConfiguration();
     final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(conf.getRemoteServicesId());
     if (remoteServices == null) {
