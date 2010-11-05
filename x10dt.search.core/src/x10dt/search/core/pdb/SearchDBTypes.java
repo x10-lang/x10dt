@@ -35,15 +35,16 @@ import org.eclipse.imp.utils.Pair;
  * @author egeay
  */
 public final class SearchDBTypes {
+
+  // --- Public services
   
   /**
    * Initializes all the relevant types for X10 Search facilities.
    * 
    * @see X10FactTypeNames
+   * 
+   * @return A non-null and unique instance of {@link SearchDBTypes}.
    */
-
-  // --- Public services
-  
   public static SearchDBTypes getInstance() {
     if (fInstance == null) {
       fInstance = new SearchDBTypes();

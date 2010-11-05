@@ -43,6 +43,16 @@ public class Messages extends NLS {
 
   public static String XFG_ClassPathResolutionError;
 
+  public static String XFG_IndexerCompilationLogError;
+
+  public static String XFG_IndexerStatusDialogMsg;
+
+  public static String XFG_IndexingProblemDialogMsg;
+
+  public static String XFG_IndexingProblemDialogTitle;
+
+  public static String XFG_IndexStatusDialogTitle;
+
   public static String XFG_JarReadingError;
 
   public static String XFG_ResourceAccessError;

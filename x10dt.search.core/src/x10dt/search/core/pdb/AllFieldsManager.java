@@ -58,7 +58,7 @@ final class AllFieldsManager extends AbstractTypeManager implements ITypeManager
 
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
-    initWriter(factBase, factContext, resource, new HashSet<IString>());
+    initWriter(factBase, factContext, new HashSet<IString>());
   }
   
   public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
@@ -67,7 +67,7 @@ final class AllFieldsManager extends AbstractTypeManager implements ITypeManager
   
   // --- Internal services
   
-  void initWriter(final FactBase factBase, final IFactContext factContext, final IResource resource, 
+  void initWriter(final FactBase factBase, final IFactContext factContext, 
                   final Set<IString> typesToRemove) throws AnalysisException {
     initWriter();
     

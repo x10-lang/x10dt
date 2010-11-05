@@ -239,7 +239,6 @@ public final class X10SearchEngine {
   // --- Private code
   
   private static IFieldInfo createFieldInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
-                                            final String typeName, 
                                             final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
     final String fieldTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
     IBasicTypeInfo fieldTypeInfo = getTypeInfo(factBase, context, fieldTypeName, monitor);
@@ -251,7 +250,6 @@ public final class X10SearchEngine {
   }
   
   private static IMethodInfo createMethodInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
-                                              final String typeName,
                                               final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
     final String returnTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
     IBasicTypeInfo returnTypeInfo;
@@ -291,7 +289,7 @@ public final class X10SearchEngine {
           for (final IValue listElement : list) {
             final ITuple fieldTuple = (ITuple) listElement;
             if (filter.accepts(((IString) fieldTuple.get(1)).getValue())) {
-              fieldInfos.add(createFieldInfo(fieldTuple, factBase, context, typeName, monitor));
+              fieldInfos.add(createFieldInfo(fieldTuple, factBase, context, monitor));
               if (! pursueSearch) {
                 return true;
               }
@@ -318,7 +316,7 @@ public final class X10SearchEngine {
           for (final IValue listElement : list) {
             final ITuple methodTuple = (ITuple) listElement;
             if (filter.accepts(((IString) methodTuple.get(1)).getValue())) {
-              methodInfos.add(createMethodInfo(methodTuple, factBase, context, typeName, monitor));
+              methodInfos.add(createMethodInfo(methodTuple, factBase, context, monitor));
             }
           }
           return true;

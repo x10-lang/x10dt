@@ -110,8 +110,8 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
       }
     }
     
-    ((AllMethodsManager) this.fAllMethodsManager).initWriter(factBase, factContext, resource, typesToRemove);
-    ((AllFieldsManager) this.fAllFieldsManager).initWriter(factBase, factContext, resource, typesToRemove);
+    ((AllMethodsManager) this.fAllMethodsManager).initWriter(factBase, factContext, typesToRemove);
+    ((AllFieldsManager) this.fAllFieldsManager).initWriter(factBase, factContext, typesToRemove);
   }
   
   // --- Private classes
