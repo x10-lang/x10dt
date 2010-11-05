@@ -165,86 +165,92 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
   }
   
   private void doExecutionFinished(final IProgressMonitor monitor) {
-    terminateProcesses();
-    if (this.fJobProcess.exitValue() != 0) {
-      changeJobStatusMessage(NLS.bind(Messages.AXRSJ_JobExitValueErrorMsg, 
-                                      new Integer(this.fJobProcess.exitValue())));
-      changeJobState(JobAttributes.State.COMPLETED, EX10JobStatus.ERROR);
+    if (! monitor.isCanceled()) {
+      terminateProcesses();
+      if (this.fJobProcess.exitValue() != 0) {
+        changeJobStatusMessage(NLS.bind(Messages.AXRSJ_JobExitValueErrorMsg, 
+                                        new Integer(this.fJobProcess.exitValue())));
+        changeJobState(JobAttributes.State.COMPLETED, EX10JobStatus.ERROR);
+      }
     }
   }
   
   private void doExecutionStarted(final IProgressMonitor monitor) {
-    initializeProcesses();
-    
-    final IPJob ipJob = this.fRuntimeSystem.getPJob(this.fQueueId, this.fJobId);
-    
-    final BufferedReader outReader = new BufferedReader(new InputStreamReader(this.fJobProcess.getInputStream()));
-    this.fStdOutThread = new Thread(new Runnable() {
-      
-      public void run() {
-        try {
-          String line;
-          while ((line = outReader.readLine()) != null) {
-            final StringAttribute attr = ProcessAttributes.getStdoutAttributeDefinition().create(line + '\n');
-            final IPJobControl ipJobControl = (IPJobControl) ipJob;
-            final BitSet procZero = new BitSet();
-            procZero.set(0);
-            ipJobControl.addProcessAttributes(procZero, new AttributeManager(attr));
+    if (! monitor.isCanceled()) {
+      initializeProcesses();
+
+      final IPJob ipJob = this.fRuntimeSystem.getPJob(this.fQueueId, this.fJobId);
+
+      final BufferedReader outReader = new BufferedReader(new InputStreamReader(this.fJobProcess.getInputStream()));
+      this.fStdOutThread = new Thread(new Runnable() {
+
+        public void run() {
+          try {
+            String line;
+            while ((line = outReader.readLine()) != null) {
+              final StringAttribute attr = ProcessAttributes.getStdoutAttributeDefinition().create(line + '\n');
+              final IPJobControl ipJobControl = (IPJobControl) ipJob;
+              final BitSet procZero = new BitSet();
+              procZero.set(0);
+              ipJobControl.addProcessAttributes(procZero, new AttributeManager(attr));
+            }
+          } catch (IOException except) {
+            RMSActivator.log(IStatus.ERROR, Messages.AXRSJ_OutputStreamReadingError, except);
           }
-        } catch (IOException except) {
-          RMSActivator.log(IStatus.ERROR, Messages.AXRSJ_OutputStreamReadingError, except);
         }
-      }
-      
-    });
-  
-    final BufferedReader errReader = new BufferedReader(new InputStreamReader(this.fJobProcess.getErrorStream()));
-    this.fStdErrThread = new Thread(new Runnable() {
-      
-      public void run() {
-        try {
-          String line;
-          while ((line = errReader.readLine()) != null) {
-            final StringAttribute attr = ProcessAttributes.getStderrAttributeDefinition().create(line + '\n');
-            final IPJobControl ipJobControl = (IPJobControl)ipJob;
-            final BitSet procZero = new BitSet();
-            procZero.set(0);
-            ipJobControl.addProcessAttributes(procZero, new AttributeManager(attr));
+
+      });
+
+      final BufferedReader errReader = new BufferedReader(new InputStreamReader(this.fJobProcess.getErrorStream()));
+      this.fStdErrThread = new Thread(new Runnable() {
+
+        public void run() {
+          try {
+            String line;
+            while ((line = errReader.readLine()) != null) {
+              final StringAttribute attr = ProcessAttributes.getStderrAttributeDefinition().create(line + '\n');
+              final IPJobControl ipJobControl = (IPJobControl) ipJob;
+              final BitSet procZero = new BitSet();
+              procZero.set(0);
+              ipJobControl.addProcessAttributes(procZero, new AttributeManager(attr));
+            }
+          } catch (IOException except) {
+            RMSActivator.log(IStatus.ERROR, Messages.AXRSJ_ErrorStreamReadingError, except);
           }
-        } catch (IOException except) {
-          RMSActivator.log(IStatus.ERROR, Messages.AXRSJ_ErrorStreamReadingError, except);
         }
-      }
-      
-    });
-    
-    this.fStdOutThread.start();
-    this.fStdErrThread.start();
+
+      });
+
+      this.fStdOutThread.start();
+      this.fStdErrThread.start();
+    }
   }
   
   private void doWaitExecution(final IProgressMonitor monitor) {
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stderr thread to finish", this.fJobId); //$NON-NLS-1$
-    try {
-      this.fStdErrThread.join();
-    } catch (InterruptedException except) {
-      // Simply ignore
-    }
+    if (! monitor.isCanceled()) {
+      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stderr thread to finish", this.fJobId); //$NON-NLS-1$
+      try {
+        this.fStdErrThread.join();
+      } catch (InterruptedException except) {
+        // Simply ignore
+      }
 
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stdout thread to finish", this.fJobId); //$NON-NLS-1$
-    try {
-      this.fStdOutThread.join();
-    } catch (InterruptedException except) {
-      // Simply ignore
-    }
+      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stdout thread to finish", this.fJobId); //$NON-NLS-1$
+      try {
+        this.fStdOutThread.join();
+      } catch (InterruptedException except) {
+        // Simply ignore
+      }
 
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting for process to finish completely", this.fJobId); //$NON-NLS-1$
-    try {
-      this.fJobProcess.waitFor();
-    } catch (InterruptedException except) {
-      // Simply ignore
+      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting for process to finish completely", this.fJobId); //$NON-NLS-1$
+      try {
+        this.fJobProcess.waitFor();
+      } catch (InterruptedException except) {
+        // Simply ignore
+      }
+
+      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: completely finished", this.fJobId); //$NON-NLS-1$
     }
-    
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: completely finished", this.fJobId); //$NON-NLS-1$
   }
   
   private Map<String, String> getEnvironmentVariables() {

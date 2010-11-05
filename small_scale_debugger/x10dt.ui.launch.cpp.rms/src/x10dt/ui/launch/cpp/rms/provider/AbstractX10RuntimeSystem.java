@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.attributes.AttributeDefinitionManager;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.attributes.BooleanAttribute;
 import org.eclipse.ptp.core.attributes.IAttribute;
@@ -59,7 +58,7 @@ import x10dt.ui.launch.cpp.rms.hostmap.IHostMapReader;
 
 abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem implements IX10RuntimeSystem {
   
-  AbstractX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig, final AttributeDefinitionManager attrDefManager) {
+  AbstractX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
     this.fRMId = String.valueOf(id);
     this.fNextId = id;
     this.fRMConfig = rmConfig;

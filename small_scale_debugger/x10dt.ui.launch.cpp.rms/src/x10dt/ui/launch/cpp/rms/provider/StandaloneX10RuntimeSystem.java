@@ -13,16 +13,14 @@ import java.util.Map;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ptp.core.attributes.AttributeDefinitionManager;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 
 
 final class StandaloneX10RuntimeSystem extends AbstractX10RuntimeSystem implements IX10RuntimeSystem {
 
-  StandaloneX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig, 
-                             final AttributeDefinitionManager attrDefManager) {
-    super(id, rmConfig, attrDefManager);
+  StandaloneX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
+    super(id, rmConfig);
   }
 
   // --- Abstract methods implementation

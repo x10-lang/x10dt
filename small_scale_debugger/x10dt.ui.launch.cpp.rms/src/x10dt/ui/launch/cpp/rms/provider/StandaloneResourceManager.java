@@ -73,7 +73,7 @@ public final class StandaloneResourceManager extends AbstractRuntimeResourceMana
 
   protected IRuntimeSystem doCreateRuntimeSystem() throws CoreException {
     final IX10RMConfiguration rmConfig = (IX10RMConfiguration) getConfiguration();
-    return new StandaloneX10RuntimeSystem(Integer.parseInt(getID()), rmConfig, getAttributeDefinitionManager());
+    return new StandaloneX10RuntimeSystem(Integer.parseInt(getID()), rmConfig);
   }
 
   protected boolean doUpdateJobs(final IPQueueControl queue, final Collection<IPJobControl> jobs, 
