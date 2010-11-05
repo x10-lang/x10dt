@@ -114,15 +114,21 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
     changeJobState(JobAttributes.State.RUNNING);
 
     DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: wait to finish", this.fJobId); //$NON-NLS-1$
-    doWaitExecution(monitor);
-
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING, "RTS job #{0}: exit value {1}", this.fJobId, //$NON-NLS-1$
-                    new Integer(this.fJobProcess.exitValue()));
-
-    doExecutionFinished(monitor);
-
-    changeJobState(JobAttributes.State.COMPLETED);
-
+    doWaitExecution();
+    
+    terminateProcesses();
+    if (this.fJobProcess == null) {
+      changeJobStatusMessage(Messages.AXRSJ_JobCanceled);
+      changeJobState(JobAttributes.State.COMPLETED, EX10JobStatus.CANCEL);
+      return new Status(IStatus.CANCEL, RMSActivator.PLUGIN_ID, Messages.AXRSJ_JobCanceled);
+    }
+    if (this.fJobProcess.exitValue() == 0) {
+      changeJobState(JobAttributes.State.COMPLETED);
+    } else {
+      changeJobStatusMessage(NLS.bind(Messages.AXRSJ_JobExitValueErrorMsg, new Integer(this.fJobProcess.exitValue())));
+      changeJobState(JobAttributes.State.COMPLETED, EX10JobStatus.ERROR);
+    }
+    
     return new Status(IStatus.OK, RMSActivator.PLUGIN_ID, NLS.bind(Messages.AXRSJ_SuccessfulRunMsg,
                                                                    new Integer(this.fJobProcess.exitValue())));
   }
@@ -162,17 +168,6 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
     final AttributeManager attrManager = new AttributeManager();
     attrManager.addAttribute(message);
     this.fRuntimeSystem.changeJobAttributes(this.fJobId, attrManager);
-  }
-  
-  private void doExecutionFinished(final IProgressMonitor monitor) {
-    if (! monitor.isCanceled()) {
-      terminateProcesses();
-      if (this.fJobProcess.exitValue() != 0) {
-        changeJobStatusMessage(NLS.bind(Messages.AXRSJ_JobExitValueErrorMsg, 
-                                        new Integer(this.fJobProcess.exitValue())));
-        changeJobState(JobAttributes.State.COMPLETED, EX10JobStatus.ERROR);
-      }
-    }
   }
   
   private void doExecutionStarted(final IProgressMonitor monitor) {
@@ -226,31 +221,29 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
     }
   }
   
-  private void doWaitExecution(final IProgressMonitor monitor) {
-    if (! monitor.isCanceled()) {
-      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stderr thread to finish", this.fJobId); //$NON-NLS-1$
-      try {
-        this.fStdErrThread.join();
-      } catch (InterruptedException except) {
-        // Simply ignore
-      }
-
-      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stdout thread to finish", this.fJobId); //$NON-NLS-1$
-      try {
-        this.fStdOutThread.join();
-      } catch (InterruptedException except) {
-        // Simply ignore
-      }
-
-      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting for process to finish completely", this.fJobId); //$NON-NLS-1$
-      try {
-        this.fJobProcess.waitFor();
-      } catch (InterruptedException except) {
-        // Simply ignore
-      }
-
-      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: completely finished", this.fJobId); //$NON-NLS-1$
+  private void doWaitExecution() {
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting for process to finish completely", this.fJobId); //$NON-NLS-1$
+    try {
+      this.fJobProcess.waitFor();
+    } catch (InterruptedException except) {
+      // Simply ignore
     }
+    
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stderr thread to finish", this.fJobId); //$NON-NLS-1$
+    try {
+      this.fStdErrThread.join();
+    } catch (InterruptedException except) {
+      // Simply ignore
+    }
+
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stdout thread to finish", this.fJobId); //$NON-NLS-1$
+    try {
+      this.fStdOutThread.join();
+    } catch (InterruptedException except) {
+      // Simply ignore
+    }
+
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: completely finished", this.fJobId); //$NON-NLS-1$
   }
   
   private Map<String, String> getEnvironmentVariables() {
