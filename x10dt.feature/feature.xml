@@ -62,6 +62,10 @@
          version="0.0.0"/>
 
    <includes
+         id="org.eclipse.ptp.debug.sdm"
+         version="0.0.0"/>
+
+   <includes
          id="lpg.runtime"
          version="0.0.0"/>
 
