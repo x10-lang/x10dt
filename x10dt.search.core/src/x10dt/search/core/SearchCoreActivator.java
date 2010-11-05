@@ -75,7 +75,15 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
             executorService.submit(new Callable<Void>() {
 
               public Void call() {
-                while (! project.isOpen()) ;
+                while (! project.isOpen()) {
+                  try {
+                    synchronized (this) {
+                      wait(200);
+                    }
+                  } catch (InterruptedException except) {
+                    // Simply forgets.
+                  }
+                }
                 try {
                   final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
                   final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
@@ -111,7 +119,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
   /**
    * Returns the context associated with the bundle for <b>x10dt.search.core</b> plugin.
    * 
-   * A non-null value if the plugin is started, otherwise <b>null</b>.
+   * @return A non-null value if the plugin is started, otherwise <b>null</b>.
    */
   public static Plugin getInstance() {
     return fPlugin;
