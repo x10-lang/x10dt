@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -35,11 +36,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.model.ICompilationUnit;
-import org.eclipse.imp.model.ISourceEntity;
-import org.eclipse.imp.model.ISourceFolder;
-import org.eclipse.imp.model.ISourceProject;
-import org.eclipse.imp.model.IWorkspaceModel;
 import org.eclipse.imp.pdb.analysis.AnalysisException;
 import org.eclipse.imp.pdb.analysis.IFactGenerator;
 import org.eclipse.imp.pdb.analysis.IFactUpdater;
@@ -50,13 +46,17 @@ import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.ISourceEntityContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.utils.UnimplementedError;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.PlatformUI;
 
 import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
@@ -66,6 +66,7 @@ import polyglot.frontend.ZipResource;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.core.dialogs.DialogsFactory;
 
 
 final class X10FactGenerator implements IFactGenerator, IFactUpdater {
@@ -78,43 +79,8 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   // --- IFactGenerator's interface methods implementation
   
   public void generate(final FactBase factBase, final Type type, final IFactContext context) throws AnalysisException {
-    if (context instanceof ISourceEntityContext) {
-      final ContextWrapper sourceContext = processEntity(((ISourceEntityContext) context).getEntity());
-            
-      for (final Map.Entry<String, Collection<Source>> entry : sourceContext.getSourceEntrySet()) {
-        final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
-        
-        final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
-        
-        if (RUNTIME.equals(entry.getKey())) {
-          typeManager.loadIndexingFile(factBase, factContext);
-        
-          final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
-          if ((value != null) && ! value.isEmpty()) {
-            continue; // We build the type info for the runtime context only one time.
-          }
-        }
-        typeManager.initWriter();
-        
-        final FactWriterVisitor visitor = typeManager.createNodeVisitor();
-        visitor.setScopeType(entry.getKey());
-        try {
-          for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
-                                                              entry.getValue())) {
-            if (job.ast() != null) {
-              job.ast().visit(visitor);
-            }
-          }
-          typeManager.writeDataInFactBase(factBase, factContext);
-          
-          if (RUNTIME.equals(entry.getKey()) && ! hasIndexingFile(typeManager.getType().getName())) {
-            typeManager.createIndexingFile(factBase, factContext);
-          }
-        } finally {
-          typeManager.clearWriter();
-        }
-      }
-    }
+    // Should never be called by the indexer.
+    throw new UnimplementedError();
   }
   
   // --- IFactUpdater's interface methods implementation
@@ -163,6 +129,32 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
 
             if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
               typeManager.createIndexingFile(factBase, factContext);
+            }
+            if (fFailedResources.contains(resource)) {
+              fFailedResources.remove(resource);
+              if (fFailedResources.isEmpty()) {
+                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                  public void run() {
+                    final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                    MessageDialog.openInformation(shell, Messages.XFG_IndexStatusDialogTitle, 
+                                                  Messages.XFG_IndexerStatusDialogMsg);
+                  }
+                });
+              }
+            }
+          } catch (Throwable except) {
+            SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
+            final Throwable exception = except;
+            if (fFailedResources.isEmpty()) {
+              fFailedResources.add(resource);
+              PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                public void run() {
+                  final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                  DialogsFactory.createErrorBuilder().setDetailedMessage(exception)
+                                .createAndOpen(shell, Messages.XFG_IndexingProblemDialogTitle, 
+                                               NLS.bind(Messages.XFG_IndexingProblemDialogMsg, resource.getLocation()));
+                }
+              });
             }
           } finally {
             typeManager.clearWriter();
@@ -241,27 +233,6 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         break;
       }
     }
-  }
-  
-  private ContextWrapper processEntity(final ISourceEntity sourceEntity) throws AnalysisException {
-    final ContextWrapper context = new ContextWrapper();
-    final IProject project = ((ISourceProject) sourceEntity.getAncestor(ISourceProject.class)).getRawProject();
-    final IWorkspaceRoot wsRoot = project.getWorkspace().getRoot();
-    try {
-      final IJavaProject javaProject = JavaCore.create(project);
-      if ((sourceEntity instanceof ISourceProject) || (sourceEntity instanceof ISourceFolder) || 
-          (sourceEntity instanceof ICompilationUnit)) {
-        processEntries(context, wsRoot, javaProject.getRawClasspath(), javaProject, sourceEntity.getResource(), false);
-      }
-      if (sourceEntity instanceof IWorkspaceModel) {
-        for (final ISourceProject sourceProject : ((IWorkspaceModel) sourceEntity).getProjects()) {
-          processEntries(context, wsRoot, javaProject.getRawClasspath(), javaProject, sourceProject.getRawProject(), false);
-        }
-      }
-    } catch (CoreException except) {
-      throw new AnalysisException(NLS.bind(Messages.XFG_ClassPathResolutionError, project.getName()), except);
-    }
-    return context;
   }
   
   private ContextWrapper processResource(final IResource resource) throws AnalysisException {
@@ -398,6 +369,9 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   private final IndexingCompiler fIndexingCompiler;
   
   private final SearchDBTypes fSearchDBTypes;
+  
+  
+  private static Set<IResource> fFailedResources = new HashSet<IResource>();
   
   
   private static final String JAR_EXT = "jar"; //$NON-NLS-1$
