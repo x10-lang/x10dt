@@ -14,7 +14,6 @@ import static x10dt.ui.launch.cpp.rms.launch_configuration.LaunchConfigConstants
 import static x10dt.ui.launch.cpp.rms.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -317,7 +316,16 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
       attrs.add(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
       attrs.add(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
       final ArrayAttribute<String> attribute = LaunchAttributes.getHostListAttr().create();
-      attribute.setValue(configuration.getAttribute(ATTR_HOSTLIST, Collections.emptyList()));
+      final List<String> defaultHostList = new ArrayList<String>();
+      if (defaultHostList.isEmpty()) {
+        // In case of launching via shortcut.
+        for (final IPMachine machine : resourceManager.getMachines()) {
+          for (final IPNode node : machine.getNodes()) {
+            defaultHostList.add(node.getName());
+          }
+        }
+      }
+      attribute.setValue(configuration.getAttribute(ATTR_HOSTLIST, defaultHostList));
       attrs.add(attribute);
     } catch (IllegalValueException except) {
       throw new CoreException(new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, Messages.SRMLCDT_InvalidPlacesNb, except));
