@@ -168,7 +168,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         if (localConnBt.getSelection()) {
           getPlatformConf().setIsLocalFlag(true);
           for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-            listener.connectionChanged(true, null, null, false);
+            listener.connectionChanged(true, null, null, true);
           }
           for (final Control control : firstGroupControls) {
             control.setEnabled(false);
@@ -215,10 +215,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
             listener.connectionChanged(false, (curConnInfo == null) ? null : curConnInfo.getName(),
-                                       (curConnInfo == null) ? null : curConnInfo.getValidationStatus(), false);
+                                       (curConnInfo == null) ? null : curConnInfo.getValidationStatus(), true);
           }
           for (final IConnectionInfo connectionInfo : getAllConnectionInfo()) {
-            validateRemoteHostConnection(connectionInfo);
+            validateRemoteHostConnection(connectionInfo, false);
           }
           setPartCompleteFlag(hasCompleteInfo());
           updateDirtyState(managedForm);
@@ -558,7 +558,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
           tableViewer.update(tableItem.getData(), null);
         }
-        validateRemoteHostConnection(currentConnection);
+        validateRemoteHostConnection(currentConnection, true);
         setPartCompleteFlag(hasCompleteInfo());
       }
       
@@ -579,7 +579,6 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       
       public void widgetSelected(final SelectionEvent event) {
         final IConnectionInfo connectionInfo = new DefaultConnectionInfo();
-        ConnectionSectionPart.this.fAddingConnection = true;
         tableViewer.add(connectionInfo);
         tableViewer.getTable().setTopIndex(tableViewer.getTable().getItemCount());
         tableViewer.getTable().select(tableViewer.getTable().getItemCount() - 1);
@@ -611,7 +610,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
             updateConnectionConf();
             for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
               listener.connectionChanged(false, ConnectionSectionPart.this.fCurrentConnection.getName(), 
-                                         ConnectionSectionPart.this.fCurrentConnection.getValidationStatus(), false);
+                                         ConnectionSectionPart.this.fCurrentConnection.getValidationStatus(), true);
             }
           }
           tableViewer.getTable().select(tableViewer.getTable().getItemCount() - 1);
@@ -674,7 +673,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           tableViewer.update(tableItem.getData(), null);
         }
         for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-          listener.connectionChanged(false, curConnInfo.getName(), curConnInfo.getValidationStatus(), false);
+          listener.connectionChanged(false, curConnInfo.getName(), curConnInfo.getValidationStatus(), true);
         }
         setPartCompleteFlag(hasCompleteInfo());
       }
@@ -888,7 +887,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     boolean found = false;
     for (final IConnectionInfo connectionInfo : tableInput) {
       ++index;
-      validateRemoteHostConnection(connectionInfo);
+      validateRemoteHostConnection(connectionInfo, false);
       if (connectionConf.hasSameConnectionInfo(connectionInfo.getTargetElement())) {
         this.fCurrentConnection = connectionInfo;
         fillConnectionControlsInfo(connectionInfo);
@@ -921,7 +920,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         listener.remoteConnectionUnknownStatus();
       }      
     }
-    new ConnectionInfoValidationListener(connectionInfo).remoteConnectionUnknownStatus();
+    new ConnectionInfoValidationListener(connectionInfo, false).remoteConnectionUnknownStatus();
   }
   
   private void resetConnectionControlsInfo() {
@@ -950,12 +949,12 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     }
   }
   
-  private void validateRemoteHostConnection(final IConnectionInfo connectionInfo) {
+  private void validateRemoteHostConnection(final IConnectionInfo connectionInfo, final boolean newCurrent) {
   	if (connectionInfo == this.fCurrentConnection) {
   		CoreResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getFormPage().getEditorInput()).getFile());
   	}
   	
-    final IX10PlatformValidationListener validationListener = new ConnectionInfoValidationListener(connectionInfo);
+    final IX10PlatformValidationListener validationListener = new ConnectionInfoValidationListener(connectionInfo, newCurrent);
     final IX10PlatformChecker checker = PlatformCheckerFactory.create();
     checker.addValidationListener(validationListener);
     if (this.fCurrentConnection == connectionInfo) {
@@ -1037,8 +1036,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   
   private final class ConnectionInfoValidationListener implements IX10PlatformValidationListener {
     
-    ConnectionInfoValidationListener(final IConnectionInfo connectionInfo) {
+    ConnectionInfoValidationListener(final IConnectionInfo connectionInfo, final boolean newCurrent) {
       this.fConnectionInfo = connectionInfo;
+      this.fNewCurrent = newCurrent;
     }
     
     // --- Interface methods implementation
@@ -1123,10 +1123,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
           listener.connectionChanged(ConnectionSectionPart.this.fLocalConnBt.getSelection(), 
                                      this.fConnectionInfo.getName(), this.fConnectionInfo.getValidationStatus(),
-                                     ConnectionSectionPart.this.fAddingConnection);
-        }
-        if (ConnectionSectionPart.this.fAddingConnection) {
-          ConnectionSectionPart.this.fAddingConnection = false;
+                                     this.fNewCurrent);
         }
       }
     }
@@ -1134,6 +1131,8 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     // --- Fields
     
     private final IConnectionInfo fConnectionInfo;
+    
+    private final boolean fNewCurrent;
     
   }
   
@@ -1168,9 +1167,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   private Button fValidateButton;
   
   private IConnectionInfo fCurrentConnection;
-  
-  private boolean fAddingConnection;
-   
+     
   
   private final Collection<IConnectionTypeListener> fConnectionTypeListeners;
   

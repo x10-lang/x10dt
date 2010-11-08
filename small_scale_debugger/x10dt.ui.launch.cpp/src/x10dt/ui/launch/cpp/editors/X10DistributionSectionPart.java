@@ -49,7 +49,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
-                                final EValidationStatus validationStatus, final boolean newConnection) {
+                                final EValidationStatus validationStatus, final boolean newCurrent) {
     if ((isLocal && this.fX10DistLocText.isEnabled()) || ((! isLocal) && ! this.fX10DistLocText.isEnabled())) {
       this.fX10DistLocText.setText(Constants.EMPTY_STR);
       this.fPGASLocText.setText(Constants.EMPTY_STR);
