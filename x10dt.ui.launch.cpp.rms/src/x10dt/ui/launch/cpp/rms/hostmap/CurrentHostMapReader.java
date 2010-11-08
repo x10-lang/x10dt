@@ -10,9 +10,6 @@ package x10dt.ui.launch.cpp.rms.hostmap;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
@@ -27,21 +24,21 @@ final class CurrentHostMapReader implements IHostMapReader {
 
   // --- Interface methods implementation
   
-  public Collection<String> loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
-                                    final IRemoteServices remoteServices, final String machineId, 
-                                    final IProgressMonitor monitor) {
+  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
+                         final IRemoteServices remoteServices, final String machineId, 
+                         final IProgressMonitor monitor) {
     try {
       final String hostName = getHostname(connection, remoteServices);
       if (hostName == null) {
-        return Collections.emptyList();
+        return new HostMap();
       } else {
         runtimeSystem.createNode(machineId, hostName, 0);
-        return Arrays.asList(hostName);
+        return new HostMap(hostName);
       }
     } catch (IOException except) {
       // Simply forgets.
     }
-    return Collections.emptyList();
+    return new HostMap();
   }
   
    // --- Private code
