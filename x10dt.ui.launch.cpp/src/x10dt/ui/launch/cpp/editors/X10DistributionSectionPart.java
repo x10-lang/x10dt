@@ -55,7 +55,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
       this.fPGASLocText.setText(Constants.EMPTY_STR);
       handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
       handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-    } else {
+    } else if (validationStatus == EValidationStatus.VALID) {
       handlePathValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
       handlePathValidation(this.fPGASLocText, LaunchMessages.XPCP_PGASDistLabel);
     }
