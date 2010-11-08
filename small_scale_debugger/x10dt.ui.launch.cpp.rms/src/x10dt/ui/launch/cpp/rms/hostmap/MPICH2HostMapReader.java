@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -33,9 +32,9 @@ final class MPICH2HostMapReader implements IHostMapReader {
 
   // --- Interface methods implementation
   
-  public Collection<String> loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
-                                    final IRemoteServices remoteServices, final String machineId, 
-                                    final IProgressMonitor monitor) {
+  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
+                         final IRemoteServices remoteServices, final String machineId, 
+                         final IProgressMonitor monitor) {
     final List<String> command = Arrays.asList("mpdtrace", "-l"); //$NON-NLS-1$ //$NON-NLS-2$
     final IRemoteProcessBuilder cmdBuilder = runtimeSystem.createProcessBuilder(command, null /* workingDirectory */);
     try {
@@ -46,11 +45,11 @@ final class MPICH2HostMapReader implements IHostMapReader {
       try {
         final MPICH2HostMap hostMap = parser.parse(stdout);
         if (hostMap == null) {
-          return Collections.emptyList();
+          return new HostMap();
         } else {
           final Collection<String> hostNames = new ArrayList<String>();
           processHostMap(hostMap, runtimeSystem, machineId, hostNames);
-          return hostNames;
+          return new HostMap(hostNames);
         }
       } finally {
         process.waitFor();
@@ -58,7 +57,7 @@ final class MPICH2HostMapReader implements IHostMapReader {
     } catch (Exception except) {
       // Simply forgets
     }
-    return Collections.emptyList();
+    return new HostMap();
   }
   
   // --- Private code
