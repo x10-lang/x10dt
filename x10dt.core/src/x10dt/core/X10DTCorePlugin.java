@@ -252,16 +252,17 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
     private void updateX10ConfigurationFromPreferences() {
       final IPreferencesService prefService = getPreferencesService();
       // Compiler prefs update
-      Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
-      Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
+      Configuration.DEBUG = true;
       final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
       if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
         // First initialize to default values.
-        Configuration.DEBUG = false;
         Configuration.CHECK_INVARIANTS = false;
         Configuration.ONLY_TYPE_CHECKING = false;
         Configuration.NO_CHECKS = false;
         Configuration.FLATTEN_EXPRESSIONS = false;
+        Configuration.INLINE_SMALL_METHODS = false;
+        Configuration.WALA = false;
+        Configuration.FINISH_ASYNCS = false;
         for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
           try {
             Configuration.parseArgument(opt);
@@ -273,6 +274,8 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
         }
       }
       // Optimization prefs update
+      Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
+      Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
       Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
       Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
       Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
