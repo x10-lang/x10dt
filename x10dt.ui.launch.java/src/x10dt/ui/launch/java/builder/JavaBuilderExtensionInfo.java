@@ -45,7 +45,7 @@ public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
             protected Goal PostCompiled() {
                 return new PostCompiled(extInfo) {
 					protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
-						if (options.post_compiler != null && !options.output_stdout) {
+						if (options.post_compiler != null && !options.output_stdout && !compiler.outputFiles().isEmpty()) {
 							Collection<String> commandline = new ArrayList<String>();
 							commandline.add("-1.5");
 							commandline.add("-nowarn");
