@@ -197,7 +197,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
-                                final EValidationStatus validationStatus, final boolean newConnection) {
+                                final EValidationStatus validationStatus, final boolean newCurrent) {
     getHeaderForm().getMessageManager().removeMessage(this.fConnKey);
     if (this.fValidateAction.isEnabled()) {
       this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);
@@ -293,8 +293,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     form.setText(LaunchMessages.XPCFE_FormTitle);
     headerForm.getToolkit().decorateFormHeading(form);
     
-    this.fSaveAction = new SaveAction(CppLaunchImages.createUnmanaged(CppLaunchImages.SAVE_PLATFORM_CONF));
-    this.fValidateAction = new ValidateAction(this.fUncheckedPlatformImg);
+    this.fSaveAction = new SaveAction();
+    this.fValidateAction = new ValidateAction();
     form.getToolBarManager().add(this.fSaveAction);
     form.getToolBarManager().add(this.fValidateAction);
     form.getToolBarManager().update(true);
@@ -327,6 +327,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
       super.setActivePage(0);
     }
     this.fValidateAction.setEnabled(getCurrentPlatformConf().isComplete(false));
+    this.fSaveAction.setImageDescriptor(CppLaunchImages.createUnmanaged(CppLaunchImages.SAVE_PLATFORM_CONF));
   }
   
   public void dispose() {
@@ -405,8 +406,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private final class ValidateAction extends Action {
     
-    ValidateAction(final ImageDescriptor acceptConfImgDescriptor) {
-      super(LaunchMessages.XPCFE_ValidationPlatformActionMsg, acceptConfImgDescriptor);
+    ValidateAction() {
+      super(LaunchMessages.XPCFE_ValidationPlatformActionMsg);
     }
     
     // --- Overridden methods
@@ -419,8 +420,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private final class SaveAction extends Action {
     
-    SaveAction(final ImageDescriptor saveConfImgDescriptor) {
-      super(LaunchMessages.XPCFE_SavePlatformActionMsg, saveConfImgDescriptor);
+    SaveAction() {
+      super(LaunchMessages.XPCFE_SavePlatformActionMsg);
     }
     
     // --- Overridden methods
