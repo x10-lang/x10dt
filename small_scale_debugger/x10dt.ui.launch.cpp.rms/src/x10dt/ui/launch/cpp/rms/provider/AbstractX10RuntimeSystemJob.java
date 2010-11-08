@@ -264,7 +264,7 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
     final List<String> command = new ArrayList<String>();
     final StringAttribute execName = this.fAttrManager.getAttribute(JobAttributes.getExecutableNameAttributeDefinition());
     final StringAttribute execPath = this.fAttrManager.getAttribute(JobAttributes.getExecutablePathAttributeDefinition());
-    command.add(new Path(execPath.getValue()).append(execName.getValue()).toOSString());
+    command.add(new Path(execPath.getValue()).append(execName.getValue()).toString());
     command.addAll(this.fAttrManager.getAttribute(JobAttributes.getProgramArgumentsAttributeDefinition()).getValue());
     return command;
   }
