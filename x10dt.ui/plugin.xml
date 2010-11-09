@@ -126,7 +126,7 @@
       <context
             name="%context.editingX10Source.name"
             description="%context.editingX10Source.description"
-            parentId="org.eclipse.ui.textEditorScope"
+            parentId="org.eclipse.imp.runtime.sourceEditorScope"
             id="x10dt.ui.x10EditorScope">
       </context>
    </extension>
