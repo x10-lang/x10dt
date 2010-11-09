@@ -145,7 +145,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
       
       final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
       final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
-      platformConfWorkCopy.initializeToDefaultValues();
+      platformConfWorkCopy.initializeToDefaultValues(platformConfFile.getProject());
       platformConfWorkCopy.applyChanges();
 
       X10PlatformConfFactory.save(platformConfFile, platformConfWorkCopy);

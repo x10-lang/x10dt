@@ -341,7 +341,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     final IProject project = ((IFileEditorInput) input).getFile().getProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
     final IX10PlatformConfWorkCopy workCopy = platformConf.createWorkingCopy();
-    workCopy.initializeToDefaultValues();
+    workCopy.initializeToDefaultValues(project);
     
     this.fX10PlatformConfs.put(workCopy.getName(), workCopy);
     this.fCurConfiguration = workCopy;

@@ -121,6 +121,8 @@ public class LaunchMessages extends NLS {
 
   public static String CLC_RebuildWorkspaceJobName;
 
+  public static String CLC_RMShutdownError;
+
 	public static String CLCD_CmdUsedMsg;
 
   public static String CLCD_ExecCreationTaskName;
@@ -316,8 +318,6 @@ public class LaunchMessages extends NLS {
   public static String RMCP_CurrentColumn;
 
   public static String RMCP_DebugLabel;
-
-  public static String RMCP_DefaultConnName;
 
   public static String RMCP_DefaultLocalConnName;
 

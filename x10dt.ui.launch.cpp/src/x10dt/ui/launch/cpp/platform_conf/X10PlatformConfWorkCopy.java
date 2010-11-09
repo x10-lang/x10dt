@@ -9,7 +9,7 @@ package x10dt.ui.launch.cpp.platform_conf;
 
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
@@ -22,7 +22,6 @@ import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
-import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
@@ -46,7 +45,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fIsDirty = false;
   }
   
-  public void initializeToDefaultValues() {
+  public void initializeToDefaultValues(final IProject project) {
     AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
     if (ciConf == null) {
       ciConf = super.fCommInterfaceFact.getOrCreate(SOCKETS_SERVICE_PROVIDER_ID);
@@ -67,8 +66,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       if (connectionName.trim().length() == 0) {
         connectionName = LaunchMessages.RMCP_UnknownTargetName;
       }
-      this.fName = NLS.bind(LaunchMessages.RMCP_DefaultConnName, PTPConfUtils.getCommunicationInterfaceTypeName(ciConf),
-                            connectionName);
+      this.fName = project.getName();
     }
   }
   
