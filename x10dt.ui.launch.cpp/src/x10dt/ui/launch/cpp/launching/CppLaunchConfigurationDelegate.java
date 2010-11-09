@@ -92,15 +92,33 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
                                                  final String mode, final IProgressMonitor monitor) throws CoreException {
     try {
       final AttributeManager attrMgr = new AttributeManager();
+      
+      // Collects attributes from Environment tab
+      String[] envArr = getEnvironmentToAppend(configuration);
 
       // Collects attributes from Resource tab
       final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
       if (this.fIsCygwin) {
         final StringBuilder pathBuilder = new StringBuilder();
-        pathBuilder.append(this.fTargetOpHelper.getEnvVarValue(PATH_ENV));
-        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations()) {
-          pathBuilder.append(File.pathSeparatorChar).append(x10Lib);
+        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(LD_LIBRARY_PATH_ENV);
+        if (ldLibPathValue != null) {
+          pathBuilder.append(ldLibPathValue);
         }
+        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations()) {
+          if (pathBuilder.length() > 0) {
+            pathBuilder.append(File.pathSeparatorChar);
+          }
+          pathBuilder.append(x10Lib);
+        }
+        
+        final String[] newEnvArr = (envArr == null) ? new String[1] : new String[envArr.length + 1];
+        if (envArr != null) {
+          System.arraycopy(envArr, 0, newEnvArr, 0, envArr.length);
+        }
+        newEnvArr[newEnvArr.length -1] = String.format("%s=%s", LD_LIBRARY_PATH_ENV, pathBuilder.toString()); //$NON-NLS-1$
+        envArr = newEnvArr;
+        
+        // In the case of MPICH-2 we need to add it via 'gpath' option.
         for (int i = 0; i < resourceAttributes.length; ++i) {
           if (MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().equals(resourceAttributes[i].getDefinition())) {
             final String curValue = resourceAttributes[i].getValueAsString();
@@ -112,6 +130,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       }
       attrMgr.addAttributes(resourceAttributes);
 
+      if (envArr != null) {
+        attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
+      }
+      
       // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
       if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
         final IPQueue queue = getQueueDefault(this.fResourceManager);
@@ -136,12 +158,6 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final String[] argArr = getProgramArguments(configuration);
       if (argArr != null) {
         attrMgr.addAttribute(JobAttributes.getProgramArgumentsAttributeDefinition().create(argArr));
-      }
-
-      // Collects attributes from Environment tab
-      final String[] envArr = getEnvironmentToAppend(configuration);
-      if (envArr != null) {
-        attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
       }
 
       // PTP launched this job
@@ -512,7 +528,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   private static final String LIB_OPT = "-L"; //$NON-NLS-1$
   
-  private static final String PATH_ENV = "PATH"; //$NON-NLS-1$
+  private static final String LD_LIBRARY_PATH_ENV = "LD_LIBRARY_PATH"; //$NON-NLS-1$
   
   private static final String PACKAGE_SEP = "."; //$NON-NLS-1$
   
