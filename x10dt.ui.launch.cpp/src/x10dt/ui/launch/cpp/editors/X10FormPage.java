@@ -33,9 +33,7 @@ class X10FormPage extends FormPage implements IFormPage, ICompletePartListener {
           break;
         }
       }
-      if (isAllComplete != isPageComplete()) {
-        updateCompletePageStatus(isAllComplete);
-      }
+      updateCompletePageStatus(isAllComplete);
     } else {
       if (isPageComplete()) {
         updateCompletePageStatus(false);
@@ -60,11 +58,9 @@ class X10FormPage extends FormPage implements IFormPage, ICompletePartListener {
   // --- Private code
   
   private void updateCompletePageStatus(final boolean isComplete) {
-    if (isComplete != this.fIsComplete) {
-      this.fIsComplete = isComplete;
-      for (final ICompletePageChangedListener listener : this.fListeners) {
-        listener.completePageChanged(this, this.fIsComplete);
-      }
+    this.fIsComplete = isComplete;
+    for (final ICompletePageChangedListener listener : this.fListeners) {
+      listener.completePageChanged(this, this.fIsComplete);
     }
   }
   

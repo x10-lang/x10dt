@@ -224,9 +224,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   public void setIsLocalFlag(final boolean isLocal) {
     super.fConnectionConf.fIsLocal = isLocal;
     if (isLocal) {
-      if (this.fCppCompilationConf.fTargetOS == null) {
-        initLocalCppCompilationCommands();
-      }
+      initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
     }
     updateDirtyFlag();
