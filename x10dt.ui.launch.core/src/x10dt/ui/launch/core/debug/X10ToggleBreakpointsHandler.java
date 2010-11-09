@@ -90,7 +90,7 @@ public final class X10ToggleBreakpointsHandler implements IToggleBreakpointsHand
   private IToggleBreakpointsHandler fCPPNatureHandler;
   
   
-  private static final String HANDLER_EXTENSION_POINT_ID = LaunchCore.PLUGIN_ID + "x10ToggleBreakpointHandler"; //$NON-NLS-1$
+  private static final String HANDLER_EXTENSION_POINT_ID = LaunchCore.PLUGIN_ID + ".x10ToggleBreakpointHandler"; //$NON-NLS-1$
   
   private static final String BACKEND_TYPE_ATTR = "backEndType"; //$NON-NLS-1$
   
