@@ -50,15 +50,6 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
                                 final EValidationStatus validationStatus, final boolean newCurrent) {
-    if ((isLocal && this.fX10DistLocText.isEnabled()) || ((! isLocal) && ! this.fX10DistLocText.isEnabled())) {
-      this.fX10DistLocText.setText(Constants.EMPTY_STR);
-      this.fPGASLocText.setText(Constants.EMPTY_STR);
-      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-    } else if (validationStatus == EValidationStatus.VALID) {
-      handlePathValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-      handlePathValidation(this.fPGASLocText, LaunchMessages.XPCP_PGASDistLabel);
-    }
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
     }
@@ -69,15 +60,28 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
       getPlatformConf().setPGASLocation(pgasLoc.length() == 0 ? null : pgasLoc);
     }
     final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
-    final boolean useSameLoc = (cppCompConf.getPGASLocation() == null) || 
-                                cppCompConf.getPGASLocation().equals(cppCompConf.getX10DistribLocation());
+    final boolean useSameLoc = (cppCompConf.getPGASLocation() == null) ||
+                               cppCompConf.getPGASLocation().equals(cppCompConf.getX10DistribLocation());
     this.fUseSameLocBt.setSelection(useSameLoc);
     for (final Control control : this.fPGASControls) {
-      control.setEnabled(! useSameLoc);
+      control.setEnabled(!useSameLoc);
     }
-    
+
     this.fX10DistBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
     this.fPGASDistBrowseBt.setEnabled(! isLocal && ((validationStatus == EValidationStatus.VALID) && ! useSameLoc));
+
+    if (isLocal) {
+      this.fX10DistLocText.setText(Constants.EMPTY_STR);
+      this.fPGASLocText.setText(Constants.EMPTY_STR);
+      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+      handleEmptyTextValidation(this.fPGASLocText, LaunchMessages.XPCP_PGASDistLabel);
+    } else if (validationStatus == EValidationStatus.VALID) {
+      handlePathValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+      handlePathValidation(this.fPGASLocText, LaunchMessages.XPCP_PGASDistLabel);
+    } else {
+      handleEmptyTextValidation(this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+      handleEmptyTextValidation(this.fPGASLocText, LaunchMessages.XPCP_PGASDistLabel);
+    }
     
     setPartCompleteFlag(hasCompleteInfo());
   }

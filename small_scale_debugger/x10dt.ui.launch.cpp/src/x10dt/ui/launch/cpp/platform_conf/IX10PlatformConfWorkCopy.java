@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
@@ -33,8 +34,10 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   /**
    * Initializes the working copy with some default values in local mode.
+   * 
+   * @param project The project that contains the platform configuration.
    */
-  public void initializeToDefaultValues();
+  public void initializeToDefaultValues(final IProject project);
   
   /**
    * Indicates if the working copy has been altered in comparison to the original configuration.

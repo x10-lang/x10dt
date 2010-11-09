@@ -39,7 +39,7 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
     if (! EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI()).fetchInfo().exists()) {
       final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
       final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
-      platformConfWorkCopy.initializeToDefaultValues();
+      platformConfWorkCopy.initializeToDefaultValues(project);
       platformConfWorkCopy.applyChanges();
 
       try {

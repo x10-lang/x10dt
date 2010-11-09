@@ -160,6 +160,34 @@ public final class PTPConfUtils {
   }
   
   /**
+   * Deletes the resource managers for the platform configuration given.
+   * 
+   * @param platformConf The platform configuration to consider.
+   * @throws CoreException Occurs if we could not shutdown the existing resource manager.
+   */
+  public static void deleteResourceManager(final IX10PlatformConf platformConf) throws CoreException {
+    final IResourceManager sameRMName = findResourceManager(platformConf.getName());
+    if (sameRMName != null) {
+      sameRMName.shutdown();
+      final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
+      final ServiceModelManager modelManager = ServiceModelManager.getInstance();
+      loop:
+      for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
+        for (final IService service : serviceConf.getServices()) {
+          if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) &&
+              service.getId().equals(platformConf.getCommunicationInterfaceConf().getServiceModeId())) {
+            final IServiceProvider provider = serviceConf.getServiceProvider(service);
+            if (rmConf.getUniqueName().equals(provider.getProperties().get("uniqName"))) { //$NON-NLS-1$
+              modelManager.remove(serviceConf);
+              break loop;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  /**
    * Returns the communication interface type name from the id encapsulated in the configuration.
    * 
    * @param commInterfaceConf The communication interface configuration to consider.
@@ -246,25 +274,7 @@ public final class PTPConfUtils {
     }
 
     if (finalRM == null) {
-      final IResourceManager sameRMName = findResourceManager(platformConf.getName());
-      if (sameRMName != null) {
-        sameRMName.shutdown();
-        final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
-        final ServiceModelManager modelManager = ServiceModelManager.getInstance();
-        loop:
-        for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
-          for (final IService service : serviceConf.getServices()) {
-            if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) &&
-                service.getId().equals(platformConf.getCommunicationInterfaceConf().getServiceModeId())) {
-              final IServiceProvider provider = serviceConf.getServiceProvider(service);
-              if (rmConf.getUniqueName().equals(provider.getProperties().get("uniqName"))) { //$NON-NLS-1$
-                modelManager.remove(serviceConf);
-                break loop;
-              }
-            }
-          }
-        }
-      }
+      deleteResourceManager(platformConf);
       return createResourceManager(platformConf);
     } else {
       return finalRM;
