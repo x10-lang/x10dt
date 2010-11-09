@@ -57,10 +57,13 @@ public class X10FoldingUpdater extends LPGFolderBase {
      */
     private int findNextLineStart(int offset) {
     	int lineNum= fLexStream.getLineNumberOfCharAt(offset);
-//    	if (lineNum < fLexStream.getLineCount()) {
-//    		lineNum++;
-//    	}
-		int lineStart= fLexStream.getLineOffset(lineNum);
+
+    	if (lineNum > fLexStream.getLineCount()) {
+    	    return fLexStream.getStreamLength()+1;
+    	}
+
+    	int lineStart= fLexStream.getLineOffset(lineNum);
+
 		return lineStart;
 	}
 
