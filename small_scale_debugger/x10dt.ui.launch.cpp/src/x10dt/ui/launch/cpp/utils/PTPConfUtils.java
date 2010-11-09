@@ -63,6 +63,7 @@ import org.eclipse.ptp.services.core.IServiceProviderDescriptor;
 import org.eclipse.ptp.services.core.ServiceModelManager;
 import org.eclipse.ptp.services.core.ServicesCorePlugin;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.platform_conf.EClusterMode;
 import x10dt.ui.launch.cpp.platform_conf.ELLTemplateOpt;
@@ -144,6 +145,7 @@ public final class PTPConfUtils {
     rmConf.setConnectionName(connConf.getConnectionName());
     rmConf.setName(platformConf.getName());
     rmConf.setRemoteServicesId(connConf.isLocal() ? PTPConstants.LOCAL_CONN_SERVICE_ID : PTPConstants.REMOTE_CONN_SERVICE_ID);
+    pair.second.putString(PLATFORM_CONF_ID, platformConf.getId());
     
     final ResourceManagerListener listener = new ResourceManagerListener();
     PTPCorePlugin.getDefault().getModelManager().addListener(listener);
@@ -235,50 +237,46 @@ public final class PTPConfUtils {
    * <p>
    * Note that in the case or creation, a previous manager that would happen to share the same name will be removed first.
    * 
-   * @param platformConf
-   *          The platform configuration to use.
-   * @return A n
+   * @param platformConf The platform configuration to use.
+   * @return A non-null resource manager relevant for the platform configuration provided.
    * @throws RemoteConnectionException
-   * @throws CoreException
-   *           Occurs if we could not create the service provider from the plugin extension mechanism.
+   * @throws CoreException Occurs if we could not create the service provider from the plugin extension mechanism.
    */
   public static IResourceManager getResourceManager(final IX10PlatformConf platformConf) throws RemoteConnectionException,  
                                                                                                 CoreException {
     final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
 
-    final ICommunicationInterfaceConf communicationInterfaceConf = platformConf.getCommunicationInterfaceConf();
-
-    IResourceManager finalRM = null;
     for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
-      final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
+      final IServiceProvider serviceProvider = (IServiceProvider) resourceManager.getConfiguration();
+      if (platformConf.getId().equals(serviceProvider.getString(PLATFORM_CONF_ID, Constants.EMPTY_STR))) {
+        final ICommunicationInterfaceConf communicationInterfaceConf = platformConf.getCommunicationInterfaceConf();
+        final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) serviceProvider;
+        
+        if (rmConf.getResourceManagerId().equals(communicationInterfaceConf.getServiceTypeId()) &&
+            ((IServiceProvider) rmConf).getServiceId().equals(communicationInterfaceConf.getServiceModeId())) {
+          if (communicationInterfaceConf.hasSameCommunicationInterfaceInfo(rmConf)) {
+            if (platformConf.getConnectionConf().isLocal()) {
+              if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
+                return resourceManager;
+              }
+            } else if (PTPConstants.REMOTE_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
+              final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
+              final IRemoteServices remoteServices = plugin.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
 
-      if (rmConf.getResourceManagerId().equals(communicationInterfaceConf.getServiceTypeId()) &&
-          ((IServiceProvider) rmConf).getServiceId().equals(communicationInterfaceConf.getServiceModeId())) {
-        if (communicationInterfaceConf.hasSameCommunicationInterfaceInfo(rmConf)) {
-          if (platformConf.getConnectionConf().isLocal()) {
-            if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
-              return resourceManager;
-            }
-          } else if (PTPConstants.REMOTE_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
-            final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
-            final IRemoteServices remoteServices = plugin.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
-
-            final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(rmConf.getConnectionName());
-            if ((rmConn != null) && platformConf.getConnectionConf().hasSameConnectionInfo(rmConn)) {
-              finalRM = resourceManager;
-              break;
+              final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(rmConf.getConnectionName());
+              if ((rmConn != null) && platformConf.getConnectionConf().hasSameConnectionInfo(rmConn)) {
+                return resourceManager;
+              }
             }
           }
         }
+        
+        break;
       }
     }
 
-    if (finalRM == null) {
-      deleteResourceManager(platformConf);
-      return createResourceManager(platformConf);
-    } else {
-      return finalRM;
-    }
+    deleteResourceManager(platformConf);
+    return createResourceManager(platformConf);
   }
   
   /**
@@ -371,7 +369,7 @@ public final class PTPConfUtils {
                 if (element.getName().equals(PROVIDER_ELEMENT_NAME)) {
                   if (element.getAttribute(ATTR_ID).equals(descriptor.getId())) {
                   	final IServiceProvider provider = (IServiceProvider) element.createExecutableExtension(ATTR_CLASS);
-                  	provider.setDescriptor(descriptor);                    
+                  	provider.setDescriptor(descriptor);
                   	return new Pair<IService, IServiceProvider>(service, provider);
                   }
                 }
@@ -559,5 +557,7 @@ public final class PTPConfUtils {
   private final static String ATTR_ID = "id"; //$NON-NLS-1$
   
   private final static String ATTR_CLASS = "class"; //$NON-NLS-1$
+  
+  private final static String PLATFORM_CONF_ID = "platform-conf-id"; //$NON-NLS-1$
 
 }

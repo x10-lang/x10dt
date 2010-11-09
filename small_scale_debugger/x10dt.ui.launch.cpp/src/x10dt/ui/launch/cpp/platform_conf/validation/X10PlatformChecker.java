@@ -93,28 +93,24 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   	if (monitor.isCanceled()) {
   		return;
   	}
-  	if (resourceManager.getState() == State.ERROR) {
-			try {
-				resourceManager.shutdown();
-			} catch (CoreException except) {
-				for (final IX10PlatformValidationListener listener : this.fListeners) {
-		  		listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
-		  	}
-				return;
-			}
+  	try {
+  	  resourceManager.shutdown();
+  	} catch (CoreException except) {
+  	  for (final IX10PlatformValidationListener listener : this.fListeners) {
+  	    listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
+  	  }
+  	  return;
 		}
   	if (monitor.isCanceled()) {
   		return;
   	}
-  	if (resourceManager.getState() != State.STARTED) {
-			try {
-				resourceManager.startUp(monitor);
-			} catch (CoreException except) {
-				for (final IX10PlatformValidationListener listener : this.fListeners) {
-		  		listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
-		  	}
-				return;
-			}
+  	try {
+  	  resourceManager.startUp(monitor);
+  	} catch (CoreException except) {
+  	  for (final IX10PlatformValidationListener listener : this.fListeners) {
+  	    listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
+  	  }
+  	  return;
   	}
   	
   	// The following code is hack to handle the fact that PE resource manager does not follow the same contract that

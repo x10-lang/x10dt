@@ -213,6 +213,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
               control.setEnabled(true);
             }
             fillConnectionControlsInfo(curConnInfo);
+            updateConnectionConf();
           }
           for (final IConnectionInfo connectionInfo : getAllConnectionInfo()) {
             validateRemoteHostConnection(connectionInfo, (connectionInfo == curConnInfo));
@@ -241,6 +242,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
           updateConnectionConf();
+          updateDirtyState(managedForm);
         }
       }
       

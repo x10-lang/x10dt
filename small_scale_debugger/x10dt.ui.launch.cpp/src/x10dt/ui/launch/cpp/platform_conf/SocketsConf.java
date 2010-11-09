@@ -30,6 +30,16 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
     return new SocketsConf(this);
   }
   
+  // --- Overridden methods
+  
+  public boolean equals(final Object rhs) {
+    return (rhs != null) && (rhs instanceof SocketsConf) && super.equals(rhs);
+  }
+  
+  public int hashCode() {
+    return 65747;
+  }
+  
   // --- Private code
   
   SocketsConf() {}

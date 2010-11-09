@@ -106,13 +106,15 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
                             final Collection<Control> pgasControls) {
     x10DistLocText.addModifyListener(new ModifyListener() {
       public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(x10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-        getPlatformConf().setX10DistribLocation(x10DistLocText.getText());
-        if (useSameLocBt.getSelection()) {
-          pgasLocText.setText(x10DistLocText.getText());
+        if (! getPlatformConf().getConnectionConf().isLocal()) {
+          handleEmptyTextValidation(x10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+          getPlatformConf().setX10DistribLocation(x10DistLocText.getText());
+          if (useSameLocBt.getSelection()) {
+            pgasLocText.setText(x10DistLocText.getText());
+          }
+          setPartCompleteFlag(hasCompleteInfo());
+          updateDirtyState(managedForm);
         }
-        setPartCompleteFlag(hasCompleteInfo());
-        updateDirtyState(managedForm);
       }
     });
     useSameLocBt.addSelectionListener(new SelectionListener() {
@@ -136,10 +138,12 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     });
     pgasLocText.addModifyListener(new ModifyListener() {
       public void modifyText(final ModifyEvent event) {
-        handleEmptyTextValidation(pgasLocText, LaunchMessages.XPCP_PGASDistLabel);
-        getPlatformConf().setPGASLocation(pgasLocText.getText());
-        setPartCompleteFlag(hasCompleteInfo());
-        updateDirtyState(managedForm);
+        if (! getPlatformConf().getConnectionConf().isLocal()) {
+          handleEmptyTextValidation(pgasLocText, LaunchMessages.XPCP_PGASDistLabel);
+          getPlatformConf().setPGASLocation(pgasLocText.getText());
+          setPartCompleteFlag(hasCompleteInfo());
+          updateDirtyState(managedForm);
+        }
       }
     });
   }
