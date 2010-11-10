@@ -15,7 +15,6 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DI
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -77,14 +76,10 @@ import x10dt.ui.utils.LaunchUtils;
 
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
   
-  CppApplicationTab(final Collection<ICppApplicationTabListener> tabListeners) {
-    this.fTabListeners = tabListeners;
+  CppApplicationTab(final CommunicationInterfaceTab commIntfTab) {
+    this.fCommIntfTab = commIntfTab;
   }
   
-  CppApplicationTab(final ICppApplicationTabListener tabListener) {
-    this(Collections.singleton(tabListener));
-  }
-
   // --- Interface methods implementation
   
   public void createControl(final Composite parent) {
@@ -149,33 +144,34 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   public void initializeFrom(final ILaunchConfiguration configuration) {
     super.initializeFrom(configuration);
-    
-    if (this.fX10PlatformConf == null) {
-      try {
-        setTextWithoutNotification(this.fProjectText, configuration, ATTR_PROJECT_NAME);
-        setTextWithoutNotification(this.fMainTypeText, configuration, Constants.ATTR_X10_MAIN_CLASS);
-        setTextWithoutNotification(this.fPgrmArgsText, configuration, ATTR_ARGUMENTS);
-        this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
+    try {
+    	IProject incomingProject = ResourcesPlugin.getWorkspace().getRoot().getProject(configuration.getAttribute(ATTR_PROJECT_NAME, ""));
+    	IX10PlatformConf incomingPlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(incomingProject);
+
+	    if (this.fX10PlatformConf == null || this.fX10PlatformConf != incomingPlatformConf) {
+	        setTextWithoutNotification(this.fProjectText, configuration, ATTR_PROJECT_NAME);
+	        setTextWithoutNotification(this.fMainTypeText, configuration, Constants.ATTR_X10_MAIN_CLASS);
+	        setTextWithoutNotification(this.fPgrmArgsText, configuration, ATTR_ARGUMENTS);
+	        this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
       
-        if (this.fProjectText.getText().length() > 0) {
-          final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(this.fProjectText.getText());
-          if (project.exists()) {
-            this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-            if (this.fX10PlatformConf != null) {
-            	final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-            	if (errors == 0) {
-            		for (final ICppApplicationTabListener listener : this.fTabListeners) {
-            			listener.platformConfSelected(this.fX10PlatformConf);
-            		}
-            	}
-            }
-          }
-        }
+	        if (this.fProjectText.getText().length() > 0) {
+	          final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(this.fProjectText.getText());
+	          if (project.exists()) {
+	            this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+	            if (this.fX10PlatformConf != null) {
+	            	final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+	            	if (errors == 0) {
+	            		fCommIntfTab.setLaunchConfiguration(configuration);
+	            		fCommIntfTab.platformConfSelected(this.fX10PlatformConf);
+	            	}
+	            }
+	          }
+	        }
+	    }
       } catch (CoreException except) {
         setErrorMessage(LaunchMessages.CAT_ReadConfigError);
         CppLaunchCore.log(except.getStatus());
       }
-    }
   }
   
   public boolean isValid(final ILaunchConfiguration configuration) {
@@ -404,9 +400,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           	final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
           	if (errors == 0) {
           		CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-          		for (final ICppApplicationTabListener listener : CppApplicationTab.this.fTabListeners) {
-          			listener.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
-          		}
+          		fCommIntfTab.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
           	}
           }
         }
@@ -504,7 +498,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   
   // --- Fields
   
-  private final Collection<ICppApplicationTabListener> fTabListeners;
+  private final CommunicationInterfaceTab fCommIntfTab;
   
   private Text fProjectText;
   
