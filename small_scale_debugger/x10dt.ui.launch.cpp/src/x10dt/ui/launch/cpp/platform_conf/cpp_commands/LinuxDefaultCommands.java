@@ -27,10 +27,6 @@ final class LinuxDefaultCommands extends AbstractDefaultCPPCommands implements I
     return "cq"; //$NON-NLS-1$
   }
 
-  public String getCompiler() {
-    return "g++"; //$NON-NLS-1$
-  }
-
   public String getCompilerOptions() {
     String cmpOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter -pthread -DX10_USE_BDWGC", //$NON-NLS-1$
                                    getTransportCompilerOption());
