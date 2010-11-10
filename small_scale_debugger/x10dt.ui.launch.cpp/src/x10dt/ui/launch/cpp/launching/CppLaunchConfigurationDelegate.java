@@ -100,7 +100,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
       if (this.fIsCygwin) {
         final StringBuilder pathBuilder = new StringBuilder();
-        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(LD_LIBRARY_PATH_ENV);
+        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
         if (ldLibPathValue != null) {
           pathBuilder.append(ldLibPathValue);
         }
@@ -115,7 +115,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         if (envArr != null) {
           System.arraycopy(envArr, 0, newEnvArr, 0, envArr.length);
         }
-        newEnvArr[newEnvArr.length -1] = String.format("%s=%s", LD_LIBRARY_PATH_ENV, pathBuilder.toString()); //$NON-NLS-1$
+        newEnvArr[newEnvArr.length -1] = String.format("%s=%s", PATH_ENV, pathBuilder.toString()); //$NON-NLS-1$
         envArr = newEnvArr;
         
         // In the case of MPICH-2 we need to add it via 'gpath' option.
@@ -528,7 +528,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   private static final String LIB_OPT = "-L"; //$NON-NLS-1$
   
-  private static final String LD_LIBRARY_PATH_ENV = "LD_LIBRARY_PATH"; //$NON-NLS-1$
+  private static final String PATH_ENV = "PATH"; //$NON-NLS-1$
   
   private static final String PACKAGE_SEP = "."; //$NON-NLS-1$
   
