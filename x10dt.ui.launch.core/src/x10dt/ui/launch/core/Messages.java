@@ -68,6 +68,9 @@ public class Messages extends NLS {
   public static String AXB_EchoIOException;
   public static String AXB_BuildException;
   public static String AXB_CompilerInternalError;
+  public static String AXB_NonExistentSRCFolder;
+  public static String AXB_EmptySRCFolder;
+  public static String AXB_NoSRCFolder;
   public static String CPD_PackageDeclError;
  
   // --- Private code

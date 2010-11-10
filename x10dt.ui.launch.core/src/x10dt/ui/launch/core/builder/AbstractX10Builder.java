@@ -45,6 +45,7 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -390,7 +391,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
           if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-            root.getFolder(cpEntry.getPath()).accept(visitor);
+        	IFolder folder = root.getFolder(cpEntry.getPath());
+        	if (folder.exists()){
+        		root.getFolder(cpEntry.getPath()).accept(visitor);
+        	}
           }
         }
       }
@@ -429,6 +433,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private Collection<File> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                            final IProgressMonitor monitor) throws CoreException {
+	checkSrcFolders();  
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
                                                               new AlwaysTrueFilter<IPath>());
     final StringBuilder cpBuilder = new StringBuilder();
@@ -527,6 +532,35 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
 
+  private void checkSrcFolders() throws CoreException {
+	  try {
+		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		boolean hasNoSourceTypeEntries = true;
+		IClasspathEntry[] entries = fProjectWrapper.getResolvedClasspath(true);
+		for(int i = 0; i< entries.length; i++){
+			if (entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE){
+				hasNoSourceTypeEntries = false;
+				IPath path = entries[i].getPath();
+				final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(path).getLocationURI());
+		        if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
+		        	CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NonExistentSRCFolder, path.lastSegment()),
+                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+		        }
+		       if (fileStore.childNames(EFS.NONE, null).length == 0){ // --- Empty source directory
+		    	   CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_EmptySRCFolder, path.lastSegment()),
+                           IMarker.SEVERITY_WARNING, IMarker.PRIORITY_HIGH);
+		       }
+			}
+		}
+		if (hasNoSourceTypeEntries) { // --- Project has no source entry
+			CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NoSRCFolder, getProject().getName()),
+                    IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+		}
+	} catch (JavaModelException e) {
+		LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, e);
+	}
+  }
+  
   private void analyze(final Collection<Job> jobs) {
     computeDependencies(jobs);
     collectBookmarks(jobs);
