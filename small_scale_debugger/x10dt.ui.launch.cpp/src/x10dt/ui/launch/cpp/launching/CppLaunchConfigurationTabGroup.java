@@ -30,8 +30,8 @@ public class CppLaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
   
   public final void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
     final List<ILaunchConfigurationTab> tabs = new ArrayList<ILaunchConfigurationTab>();
-    final ILaunchConfigurationTab secondTab = new CommunicationInterfaceTab();
-    tabs.add(new CppApplicationTab((ICppApplicationTabListener) secondTab));
+    final CommunicationInterfaceTab secondTab = new CommunicationInterfaceTab();
+    tabs.add(new CppApplicationTab(secondTab));
     tabs.add(secondTab);
     if (ILaunchManager.DEBUG_MODE.equals(mode)) {
       final ILaunchConfigurationTab debugTab = getDebugTab();
