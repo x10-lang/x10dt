@@ -115,6 +115,10 @@ public class LaunchMessages extends NLS {
 
   public static String CIT_NoLaunchConfigAvailable;
 
+  public static String CIT_NoLaunchConfigForRM;
+
+  public static String CIT_NoResourceManager;
+
   public static String CIT_NoX10ProjectIdentified;
 
   public static String CLC_CheckConnAndCommJobMsg;

@@ -20,6 +20,12 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     this.fTransport = transport;
   }
   
+   // --- Interface methods implementation
+  
+  public String getCompiler() {
+    return (getTransport() == ETransport.MPI) ? "mpicxx" : "g++"; //$NON-NLS-1$ //$NON-NLS-2$
+  }
+  
   // --- Code for descendants
   
   protected final String addNoChecksOptions(final String command) {
@@ -47,7 +53,6 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
       case LAPI:
         return "-DTRANSPORT=lapi"; //$NON-NLS-1$
       case MPI:
-        return "-DTRANSPORT=sockets"; //$NON-NLS-1$
       case SOCKETS:
       case STANDALONE:
         return ""; //$NON-NLS-1$
@@ -56,12 +61,16 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     }
   }
   
+  protected final ETransport getTransport() {
+    return this.fTransport;
+  }
+  
   protected final String getTransportLibrary() {
     switch (this.fTransport) {
       case LAPI:
-        return "-lupcrts_lapi"; //$NON-NLS-1$
+        return "=-lx10rt_pgas_lapi -lpoe -lmpi_ibm -llapi"; //$NON-NLS-1$
       case MPI:
-        return "-lx10rt_pgas_sockets"; //$NON-NLS-1$
+        return "-lx10rt_mpi"; //$NON-NLS-1$
       case SOCKETS:
         return "-lx10rt_sockets"; //$NON-NLS-1$
       case STANDALONE:

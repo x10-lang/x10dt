@@ -45,6 +45,8 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
         listener = new XlC_CompilerVersionOutputListener();
       } else if (text.startsWith(GPP) || text.startsWith(GCC)){
         listener = new GnuCompilerVersionOutputListener();
+      } else if (text.equals(MPICXX)) {
+        listener = new MpicxxAccessibilityListener();
       } else {
         listener = null;
       }
@@ -213,6 +215,28 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
 
   }
   
+  private static final class MpicxxAccessibilityListener extends AbstractCompilerVersionOutputListener
+                                                         implements IProcessOuputListener {
+
+    // --- Interface methods implementation
+    
+    public void read(final String line) {
+      // Simply forget.
+    }
+
+    // --- Abstract methods implementation
+    
+    protected String getOption() {
+      return GNU_COMPILER_OPTION;
+    }
+
+    protected boolean validateVersion() {
+      super.errorChecking();
+      return true;
+    }
+    
+  }
+  
   // --- Fields
   
   private final ITargetOpHelper fTargetOpHelper;
@@ -225,6 +249,8 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
   private static final String GCC = "gcc"; //$NON-NLS-1$
   
   private static final String GPP = "g++"; //$NON-NLS-1$
+  
+  private static final String MPICXX = "mpicxx"; //$NON-NLS-1$
   
   private static final String MPCC = "mpCC_r"; //$NON-NLS-1$
   
