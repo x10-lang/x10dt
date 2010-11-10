@@ -16,7 +16,11 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
+import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
+import org.eclipse.ptp.core.PTPCorePlugin;
+import org.eclipse.ptp.core.elements.IPUniverse;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.launch.PTPLaunchPlugin;
@@ -49,7 +53,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   // --- ILaunchConfigurationTab's interface methods implementation
   
   public void createControl(final Composite parent) {
-    this.fComposite = new Composite(parent, SWT.NONE);
+    this.fComposite = new Composite(parent, SWT.H_SCROLL | SWT.V_SCROLL);
     this.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     
     setControl(this.fComposite);
@@ -74,6 +78,29 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   }
   
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
+    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IPUniverse universe = modelManager.getUniverse();
+    IResourceManager resourceManager = null;
+    if (universe != null) {
+      final IResourceManager[] rms = universe.getResourceManagers();
+      if (rms.length == 1) {
+        resourceManager = rms[0];
+      }
+    }
+    if (resourceManager == null) {
+      setErrorMessage(LaunchMessages.CIT_NoResourceManager);
+      return;
+    }
+    final String resourceManagerUniqName = resourceManager.getUniqueName();
+    configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, resourceManagerUniqName);
+
+    final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(resourceManager);
+    if (rmDynamicTab == null) {
+      setErrorMessage(NLS.bind(LaunchMessages.CIT_NoLaunchConfigForRM, 
+                               new Object[] { resourceManager.getName() }));
+    } else {
+      rmDynamicTab.setDefaults(configuration, resourceManager, null);
+    }
   }
   
   // --- ICppApplicationTabListener's interface methods implementation
@@ -98,11 +125,6 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
 				this.fResourceManager = null;
 				return;
 			}
-    }
-    for (final Control child : this.fComposite.getChildren()) {
-      if (! child.isDisposed()) {
-        child.dispose();
-      }
     }
     if (this.fResourceManager.getState() != State.STARTED) { 
       try {
@@ -129,11 +151,14 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
     if (rmDynamicTab != null) {
       try {
-        if (this.fComposite.getChildren().length == 0) {
-          this.fComposite.setLayout(new GridLayout(1, false));
-          rmDynamicTab.createControl(this.fComposite, this.fResourceManager, null /* queue */);
-          rmDynamicTab.setDefaults(null /* configuration */, this.fResourceManager, null /* queue */);
+        for (final Control child : this.fComposite.getChildren()) {
+          if (! child.isDisposed()) {
+            child.dispose();
+          }
         }
+        this.fComposite.setLayout(new GridLayout(1, false));
+        rmDynamicTab.createControl(this.fComposite, this.fResourceManager, null /* queue */);
+        rmDynamicTab.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
         rmDynamicTab.initializeFrom(this.fComposite, this.fResourceManager, null /* queue */, 
                                     getLaunchConfiguration());
       } catch (CoreException except) {
