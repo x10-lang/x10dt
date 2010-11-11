@@ -341,6 +341,12 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
   @SuppressWarnings("unchecked")
   public RMLaunchValidation initializeFrom(final Control control, final IResourceManager resourceManager, final IPQueue queue,
                                            final ILaunchConfiguration configuration) {
+    this.fHosts.clear();
+    for (final IPMachine machine : resourceManager.getMachines()) {
+      for (final IPNode node : machine.getNodes()) {
+        this.fHosts.add(node.getName());
+      }
+    }
     try {
       this.fHostFileBt.setSelection(configuration.getAttribute(ATTR_USE_HOSTFILE, false));
       this.fNumPlacesSpinner.setSelection(configuration.getAttribute(ATTR_NUM_PLACES, DEFAULT_NUM_PLACES));
@@ -391,12 +397,6 @@ final class SocketsRMLaunchConfigurationDynamicTab implements IRMLaunchConfigura
 
   public RMLaunchValidation setDefaults(final ILaunchConfigurationWorkingCopy configuration, 
                                         final IResourceManager resourceManager, final IPQueue queue) {
-    this.fHosts.clear();
-    for (final IPMachine machine : resourceManager.getMachines()) {
-      for (final IPNode node : machine.getNodes()) {
-        this.fHosts.add(node.getName());
-      }
-    }
     return new RMLaunchValidation(true, null);
   }
   
