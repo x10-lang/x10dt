@@ -7,8 +7,9 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
-public interface IConnectionSwitchListener {
 
-	void connectionSwitched(final boolean isLocal);
-	
+interface IConnectionSwitchListener {
+
+  void connectionSwitched(final boolean isLocal);
+
 }

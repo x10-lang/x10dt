@@ -104,21 +104,25 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     }
   }
   
-  public void connectionSwitched(final boolean isLocal) {
-	  this.fCITypeCombo.removeAll();
-	    final Set<IServiceProviderDescriptor> serviceProviders = new HashSet<IServiceProviderDescriptor>();
-	    
-	    final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
-	    for (final IService service : serviceModelManager.getServices()) {
-	      if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {        
-	        serviceProviders.addAll(service.getProviders());
-	      }
-	    }
-	    initTypeCombo(serviceProviders, serviceModelManager);
-	    this.fCITypeCombo.select(0);
-	    this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
-  }
+  // --- IConnectionSwitchListener's interface methods implementation
   
+  public void connectionSwitched(final boolean isLocal) {
+    if (getPlatformConf().getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS) {
+      this.fCITypeCombo.removeAll();
+      final Set<IServiceProviderDescriptor> serviceProviders = new HashSet<IServiceProviderDescriptor>();
+
+      final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
+      for (final IService service : serviceModelManager.getServices()) {
+        if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
+          serviceProviders.addAll(service.getProviders());
+        }
+      }
+      initTypeCombo(serviceProviders, serviceModelManager);
+      this.fCITypeCombo.select(0);
+      this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
+    }
+  }
+
   // --- IFormPart's methods implementation
   
   public void dispose() {
