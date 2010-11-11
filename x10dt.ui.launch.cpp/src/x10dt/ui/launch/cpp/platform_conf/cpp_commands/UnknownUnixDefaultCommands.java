@@ -27,6 +27,10 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
     return "r"; //$NON-NLS-1$
   }
 
+  public String getCompiler() {
+    return "g++"; //$NON-NLS-1$
+  }
+
   public String getCompilerOptions() {
     final String cmpOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter -pthread", //$NON-NLS-1$
                                          getTransportCompilerOption());

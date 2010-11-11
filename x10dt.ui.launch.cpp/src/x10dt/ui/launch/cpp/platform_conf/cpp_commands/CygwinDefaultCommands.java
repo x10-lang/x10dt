@@ -27,6 +27,10 @@ final class CygwinDefaultCommands extends AbstractDefaultCPPCommands implements 
     return "r"; //$NON-NLS-1$
   }
 
+  public String getCompiler() {
+    return "g++-4"; //$NON-NLS-1$
+  }
+
   public String getCompilerOptions() {
     String cmpOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter -DX10_USE_BDWGC", //$NON-NLS-1$
                                    getTransportCompilerOption());
@@ -57,12 +61,6 @@ final class CygwinDefaultCommands extends AbstractDefaultCPPCommands implements 
       linkOpts += STREAMING_SIMD_EXTENSIONS;
     }
     return addNoChecksOptions(addOptimizeOptions(linkOpts));
-  }
-  
-  // --- Overridden methods
-  
-  public String getCompiler() {
-    return (getTransport() == ETransport.MPI) ? "mpicxx" : "g++-4"; //$NON-NLS-1$ //$NON-NLS-2$
   }
 
 }
