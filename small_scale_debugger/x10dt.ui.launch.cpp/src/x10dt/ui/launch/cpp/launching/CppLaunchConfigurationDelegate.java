@@ -92,9 +92,6 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
                                                  final String mode, final IProgressMonitor monitor) throws CoreException {
     try {
       final AttributeManager attrMgr = new AttributeManager();
-      
-      // Collects attributes from Environment tab
-      String[] envArr = getEnvironmentToAppend(configuration);
 
       // Collects attributes from Resource tab
       final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
@@ -111,13 +108,6 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
           pathBuilder.append(x10Lib);
         }
         
-        final String[] newEnvArr = (envArr == null) ? new String[1] : new String[envArr.length + 1];
-        if (envArr != null) {
-          System.arraycopy(envArr, 0, newEnvArr, 0, envArr.length);
-        }
-        newEnvArr[newEnvArr.length -1] = String.format("%s=%s", PATH_ENV, pathBuilder.toString()); //$NON-NLS-1$
-        envArr = newEnvArr;
-        
         // In the case of MPICH-2 we need to add it via 'gpath' option.
         for (int i = 0; i < resourceAttributes.length; ++i) {
           if (MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().equals(resourceAttributes[i].getDefinition())) {
@@ -130,6 +120,8 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       }
       attrMgr.addAttributes(resourceAttributes);
 
+      // Collects attributes from Environment tab
+      final String[] envArr = getEnvironmentToAppend(configuration);
       if (envArr != null) {
         attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
       }
@@ -190,7 +182,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
             
       final IProject project = verifyProject(configuration);
       if (! monitor.isCanceled() && shouldProcessToLinkStep(project) && 
-      		createExecutable(configuration, project, new SubProgressMonitor(monitor, 5)) == 0) {
+      		createExecutable(configuration, project, mode, new SubProgressMonitor(monitor, 5)) == 0) {
         // Then, performs the launch.
       	if (! monitor.isCanceled()) {
       		monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
@@ -241,7 +233,7 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
 
   // --- Private code
   
-  private int createExecutable(final ILaunchConfiguration configuration, final IProject project, 
+  private int createExecutable(final ILaunchConfiguration configuration, final IProject project, final String mode,
                                final IProgressMonitor monitor) throws CoreException {
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
     try {
@@ -288,7 +280,13 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       project.setPersistentProperty(Constants.EXEC_PATH, this.fExecPath);
       
       final List<String> command = new ArrayList<String>();
-      command.add(this.fTargetOpHelper.getTargetSystemPath(cppCompConf.getLinker()));
+      final String linker = this.fTargetOpHelper.getTargetSystemPath(cppCompConf.getLinker());
+      if ("debug".equals(mode)) {
+    	  // !! Hack to switch into using the MPI library for the debugger rather than PGAS sockets.
+    	  command.add(linker.replace("g++", "mpicxx")); //$NON-NLS-1$ //$NON-NLS-2$
+      } else {
+    	  command.add(linker);
+      }
       command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingOpts(true)));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(mainCppFileIncludePath));
@@ -303,7 +301,15 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
         command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(libLoc));
       }
       command.add("-l" + project.getName()); //$NON-NLS-1$
-      command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs(true)));
+      final List<String> linkingLibs = X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs(true));
+      if ("debug".equals(mode)) {
+    	  // !! Hack to switch into using the MPI library for the debugger rather than PGAS sockets.
+    	  for (final String linkingLib : linkingLibs) {
+    		  command.add(linkingLib.replace("-lx10rt_pgas_sockets", "-lx10rt_mpi")); //$NON-NLS-1$ //$NON-NLS-2$
+    	  }
+      } else {
+    	  command.addAll(linkingLibs);
+      }
       
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
