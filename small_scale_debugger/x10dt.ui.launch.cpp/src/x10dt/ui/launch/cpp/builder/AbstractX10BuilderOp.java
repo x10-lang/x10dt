@@ -149,13 +149,15 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         monitor.worked(1);
       }
       
-      final IFileStore parentStore = this.fTargetOpHelper.getStore(this.fWorkspaceDir);
-      deleteFile(parentStore.getChild("xxx_main_xxx.cc"), nullMonitor); //$NON-NLS-1$
-      deleteFile(parentStore.getChild("lib" + getProject().getName() + A_EXT), nullMonitor); //$NON-NLS-1$
+      if (files.getSize() > 0) {
+        final IFileStore parentStore = this.fTargetOpHelper.getStore(this.fWorkspaceDir);
+        deleteFile(parentStore.getChild("xxx_main_xxx.cc"), nullMonitor); //$NON-NLS-1$
+        deleteFile(parentStore.getChild("lib" + getProject().getName() + A_EXT), nullMonitor); //$NON-NLS-1$
       
-      final String execPath = getProject().getPersistentProperty(EXEC_PATH);
-      if (execPath != null) {
-        deleteFile(this.fTargetOpHelper.getStore(execPath), nullMonitor);
+        final String execPath = getProject().getPersistentProperty(EXEC_PATH);
+        if (execPath != null) {
+          deleteFile(this.fTargetOpHelper.getStore(execPath), nullMonitor);
+        }
       }
       monitor.worked(1);
     } finally {
