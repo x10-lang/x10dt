@@ -170,7 +170,8 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			String ownerName = ownerClass.fullName().toString();
 			String type = fi.type().toString(); // int or pkg.TypeName; want TypeName only
 
-			type= unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
+			// RMF 10 Nov 2010 - Disable this for now - unqualify() is horribly broken, since types can also include '.' as part of property refs in constraints
+//			type= unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
 			
 			String varName= fi.name().toString();
 
