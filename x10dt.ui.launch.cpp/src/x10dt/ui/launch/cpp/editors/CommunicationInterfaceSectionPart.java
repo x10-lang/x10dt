@@ -36,14 +36,17 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
+import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
+import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 
 
 final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormPart 
-                                              implements IServiceConfigurationListener, IConnectionTypeListener, IFormPart {
+                                              implements IServiceConfigurationListener, IConnectionTypeListener, IFormPart,
+                                                         IConnectionSwitchListener {
 
   CommunicationInterfaceSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage) {
     super(parent, formPage);
@@ -98,6 +101,20 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) this.fCITypeCombo.getData(itemName);
       typeConfPart.connectionChanged(isLocal, remoteConnectionName, validationStatus);
     }
+  }
+  
+  public void connectionSwitched(final boolean isLocal) {
+	  this.fCITypeCombo.removeAll();
+	    final Set<IServiceProviderDescriptor> serviceProviders = new HashSet<IServiceProviderDescriptor>();
+	    
+	    final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
+	    for (final IService service : serviceModelManager.getServices()) {
+	      if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {        
+	        serviceProviders.addAll(service.getProviders());
+	      }
+	    }
+	    initTypeCombo(serviceProviders, serviceModelManager);
+	    this.fCITypeCombo.select(0);
   }
   
   // --- IFormPart's methods implementation
@@ -216,16 +233,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         serviceProviders.addAll(service.getProviders());
       }
     }
-    for (final IServiceProviderDescriptor providerDescriptor : serviceProviders) {
-      final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(providerDescriptor);
-      if (serviceProvider instanceof IRemoteResourceManagerConfiguration) {
-        final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);
-        if (typeConfPart != null) {
-          this.fCITypeCombo.add(providerDescriptor.getName());
-          this.fCITypeCombo.setData(providerDescriptor.getName(), typeConfPart);
-        }
-      }
-    }
+    initTypeCombo(serviceProviders, serviceModelManager);
     
     new Label(sectionClient, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new TableWrapData(TableWrapData.FILL));
     
@@ -277,6 +285,24 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         break;
       }
     }
+  }
+  
+  private void initTypeCombo(final Set<IServiceProviderDescriptor> serviceProviders, final ServiceModelManager serviceModelManager) {
+	final ICppCompilationConf cppCompilationConf = getPlatformConf().getCppCompilationConf();
+	final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
+	for (final IServiceProviderDescriptor providerDescriptor : serviceProviders) {
+      final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(providerDescriptor);
+      if (serviceProvider instanceof IRemoteResourceManagerConfiguration) {
+    	  if ((cppCompilationConf.getTargetOS() != ETargetOS.WINDOWS) || ! isLocal ||
+    		  (((IRemoteResourceManagerConfiguration) serviceProvider).getResourceManagerId().equals(PTPConstants.MPICH2_SERVICE_PROVIDER_ID))) {
+    	    final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);
+    	    if (typeConfPart != null) {
+    	      this.fCITypeCombo.add(providerDescriptor.getName());
+    	      this.fCITypeCombo.setData(providerDescriptor.getName(), typeConfPart);
+    	    }
+    	  }
+      }
+	}
   }
   
   private void updateCommunicationTypeInfo(final Combo ciTypeCombo, final IManagedForm managedForm,
