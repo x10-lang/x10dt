@@ -159,7 +159,6 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
         this.fComposite.setLayout(new GridLayout(1, false));
         rmDynamicTab.createControl(this.fComposite, this.fResourceManager, null /* queue */);
         rmDynamicTab.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-        rmDynamicTab.setDefaults((ILaunchConfigurationWorkingCopy) getLaunchConfiguration(), this.fResourceManager, null);
         rmDynamicTab.initializeFrom(this.fComposite, this.fResourceManager, null /* queue */, 
                                     getLaunchConfiguration());
       } catch (CoreException except) {
