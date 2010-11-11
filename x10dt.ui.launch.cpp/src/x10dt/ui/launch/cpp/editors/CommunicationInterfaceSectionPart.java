@@ -27,6 +27,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -115,6 +116,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
 	    }
 	    initTypeCombo(serviceProviders, serviceModelManager);
 	    this.fCITypeCombo.select(0);
+	    this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
   }
   
   // --- IFormPart's methods implementation
