@@ -73,21 +73,20 @@ import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import x10dt.ui.utils.LaunchUtils;
 
-
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
-  
+
   CppApplicationTab(final CommunicationInterfaceTab commIntfTab) {
     this.fCommIntfTab = commIntfTab;
   }
-  
+
   // --- Interface methods implementation
-  
+
   public void createControl(final Composite parent) {
     final Composite composite = new Composite(parent, SWT.NULL);
     composite.setFont(parent.getFont());
     composite.setLayout(new GridLayout(1, false));
     composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
-    
+
     createProjectEditor(composite);
     createVerticalSpacer(composite, 2);
     createMainTypeEditor(composite);
@@ -95,7 +94,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     createProgramArgs(composite);
     createVerticalSpacer(composite, 2);
     createOutputToConsoleButton(composite);
-    
+
     setControl(composite);
   }
 
@@ -107,7 +106,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     final String projectName = this.fProjectText.getText().trim();
     if (projectName.length() > 0) {
       configuration.setAttribute(ATTR_PROJECT_NAME, projectName);
-    
+
       final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
       if (project.exists()) {
         if (this.fX10PlatformConf != null) {
@@ -118,12 +117,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           }
         }
       }
-      
+
       configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, this.fMainTypeText.getText().trim());
-    
-      final String content = this.fPgrmArgsText.getText().trim();    
+
+      final String content = this.fPgrmArgsText.getText().trim();
       configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
-    
+
       configuration.setAttribute(ATTR_CONSOLE, this.fToConsoleBt.getSelection());
     }
   }
@@ -135,49 +134,55 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
     configuration.setAttribute(ATTR_CONSOLE, true);
   }
-  
+
   // --- Overridden methods
-  
+
   public Image getImage() {
     return LaunchImages.getImage(LaunchImages.IMG_MAIN_TAB);
   }
-  
+
   public void initializeFrom(final ILaunchConfiguration configuration) {
     super.initializeFrom(configuration);
     try {
-    	IProject incomingProject = ResourcesPlugin.getWorkspace().getRoot().getProject(configuration.getAttribute(ATTR_PROJECT_NAME, ""));
-    	IX10PlatformConf incomingPlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(incomingProject);
-
-	    if (this.fX10PlatformConf == null || this.fX10PlatformConf != incomingPlatformConf) {
-	        setTextWithoutNotification(this.fProjectText, configuration, ATTR_PROJECT_NAME);
-	        setTextWithoutNotification(this.fMainTypeText, configuration, Constants.ATTR_X10_MAIN_CLASS);
-	        setTextWithoutNotification(this.fPgrmArgsText, configuration, ATTR_ARGUMENTS);
-	        this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
-      
-	        if (this.fProjectText.getText().length() > 0) {
-	          final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(this.fProjectText.getText());
-	          if (project.exists()) {
-	            this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-	            if (this.fX10PlatformConf != null) {
-	            	final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-	            	if (errors == 0) {
-	            		fCommIntfTab.setLaunchConfiguration(configuration);
-	            		fCommIntfTab.platformConfSelected(this.fX10PlatformConf);
-	            	}
-	            }
-	          }
-	        }
-	    }
-      } catch (CoreException except) {
-        setErrorMessage(LaunchMessages.CAT_ReadConfigError);
-        CppLaunchCore.log(except.getStatus());
+      final String projectName = configuration.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR);
+      final IX10PlatformConf incomingPlatformConf;
+      if (projectName.length() == 0) {
+        incomingPlatformConf = null;
+      } else {
+        final IProject incomingProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+        incomingPlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(incomingProject);
       }
+
+      if (this.fX10PlatformConf == null || this.fX10PlatformConf != incomingPlatformConf) {
+        setTextWithoutNotification(this.fProjectText, configuration, ATTR_PROJECT_NAME);
+        setTextWithoutNotification(this.fMainTypeText, configuration, Constants.ATTR_X10_MAIN_CLASS);
+        setTextWithoutNotification(this.fPgrmArgsText, configuration, ATTR_ARGUMENTS);
+        this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
+
+        if (this.fProjectText.getText().length() > 0) {
+          final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(this.fProjectText.getText());
+          if (project.exists()) {
+            this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+            if (this.fX10PlatformConf != null) {
+              final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+              if (errors == 0) {
+                this.fCommIntfTab.setLaunchConfiguration(configuration);
+                this.fCommIntfTab.platformConfSelected(this.fX10PlatformConf);
+              }
+            }
+          }
+        }
+      }
+    } catch (CoreException except) {
+      setErrorMessage(LaunchMessages.CAT_ReadConfigError);
+      CppLaunchCore.log(except.getStatus());
+    }
   }
-  
+
   public boolean isValid(final ILaunchConfiguration configuration) {
     setErrorMessage(null);
     setMessage(null);
-    
+
     final String projectName = this.fProjectText.getText().trim();
     if (projectName.length() == 0) {
       setErrorMessage(LaunchMessages.CAT_RequiredPrjName);
@@ -187,12 +192,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       final IStatus status = workspace.validateName(projectName, IResource.PROJECT);
       if (status.isOK()) {
         final IProject project = workspace.getRoot().getProject(projectName);
-        if (! project.exists()) {
+        if (!project.exists()) {
           setErrorMessage(NLS.bind(LaunchMessages.CAT_NoExistingProject, projectName));
           return false;
         }
         try {
-          if (! project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+          if (!project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
             setErrorMessage(NLS.bind(LaunchMessages.CAT_NoCPPProjectNature, projectName));
             return false;
           }
@@ -200,16 +205,16 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           setErrorMessage(NLS.bind(LaunchMessages.CAT_ProjectNatureAccessError, projectName));
           return false;
         }
-        if (! project.isOpen()) {
+        if (!project.isOpen()) {
           setErrorMessage(NLS.bind(LaunchMessages.CAT_ClosedProject, projectName));
           return false;
         }
         // Project exists and is not closed. Checks now that it does not have platform configuration error.
-    		final int errorCount = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-      	if (errorCount > 0) {
-      		setErrorMessage(NLS.bind(LaunchMessages.CAT_FixPlatformConfErrors, project.getName()));
-      		return false;
-      	}
+        final int errorCount = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+        if (errorCount > 0) {
+          setErrorMessage(NLS.bind(LaunchMessages.CAT_FixPlatformConfErrors, project.getName()));
+          return false;
+        }
         // Checks now if we have a correct main type file path.
         if (this.fMainTypeText.getText().trim().length() == 0) {
           setErrorMessage(LaunchMessages.CAT_RequiredMainTypeName);
@@ -218,11 +223,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         if (this.fX10PlatformConf == null) {
           setMessage(NLS.bind(LaunchMessages.CAT_CouldNotLoadPlatformWarning, projectName));
         } else {
-        	final ITargetOpHelper targetOpHelper = getTargetOpHelper();
-        	if (targetOpHelper == null) {
-        		setErrorMessage(x10dt.ui.launch.core.Messages.CPPB_NoPTPConnectionForName);
-        		return false;
-        	}
+          final ITargetOpHelper targetOpHelper = getTargetOpHelper();
+          if (targetOpHelper == null) {
+            setErrorMessage(x10dt.ui.launch.core.Messages.CPPB_NoPTPConnectionForName);
+            return false;
+          }
           try {
             PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project);
           } catch (CoreException except) {
@@ -237,32 +242,32 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     }
     return true;
   }
-  
+
   // --- Private code
-  
+
   private void createMainTypeEditor(final Composite parent) {
     final Group group = new Group(parent, SWT.NONE);
     group.setFont(parent.getFont());
     group.setLayout(new GridLayout(2, false));
     group.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     group.setText(LaunchMessages.CAT_MainTypeGroupName);
-    
+
     this.fMainTypeText = new Text(group, SWT.SINGLE | SWT.BORDER);
     this.fMainTypeText.setFont(group.getFont());
     this.fMainTypeText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     this.fMainTypeText.addModifyListener(new TextModificationListener());
-    
+
     this.fSearchMainTypeBt = createPushButton(group, LaunchMessages.CAT_SearchButton, null /* image */);
     this.fSearchMainTypeBt.addSelectionListener(new SearchMainTypeBtSelectionListener());
   }
-  
+
   private void createProgramArgs(final Composite parent) {
     final Group group = new Group(parent, SWT.NONE);
     group.setFont(parent.getFont());
     group.setLayout(new GridLayout(1, false));
     group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     group.setText(LaunchMessages.AT_ProgArgsGroupName);
-    
+
     this.fPgrmArgsText = new Text(group, SWT.MULTI | SWT.WRAP | SWT.BORDER | SWT.V_SCROLL);
     this.fPgrmArgsText.addTraverseListener(new TraverseListener() {
       public void keyTraversed(final TraverseEvent event) {
@@ -277,7 +282,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         case SWT.TRAVERSE_TAB_PREVIOUS:
           if ((CppApplicationTab.this.fPgrmArgsText.getStyle() & SWT.SINGLE) != 0) {
             event.doit = true;
-          } else if (! CppApplicationTab.this.fPgrmArgsText.isEnabled() || (event.stateMask & SWT.MODIFIER_MASK) != 0) {
+          } else if (!CppApplicationTab.this.fPgrmArgsText.isEnabled() || (event.stateMask & SWT.MODIFIER_MASK) != 0) {
             event.doit = true;
           }
           break;
@@ -304,38 +309,38 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
     });
   }
-  
+
   private void createOutputToConsoleButton(final Composite parent) {
     this.fToConsoleBt = new Button(parent, SWT.CHECK);
     this.fToConsoleBt.setText(LaunchMessages.CAT_OutputToConsoleMsg);
     this.fToConsoleBt.addSelectionListener(new ButtonSelectionListener());
   }
-  
+
   private void createProjectEditor(final Composite parent) {
     final Group group = new Group(parent, SWT.NONE);
     group.setFont(parent.getFont());
     group.setLayout(new GridLayout(2, false));
     group.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     group.setText(LaunchMessages.CAT_ProjectGroupName);
-    
+
     this.fProjectText = new Text(group, SWT.SINGLE | SWT.BORDER);
     this.fProjectText.setFont(group.getFont());
     this.fProjectText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     this.fProjectText.addModifyListener(new ProjectTextModificationListener());
-    
+
     this.fProjectBt = createPushButton(group, LaunchMessages.CAT_BrowseButton, null /* image */);
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
   }
-  
+
   private ITargetOpHelper getTargetOpHelper() {
-  	final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
+    final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
     final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
     final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
     return TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
   }
-  
-  private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, 
-                                          final String name) throws CoreException {
+
+  private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, final String name)
+                                                                                                                       throws CoreException {
     final Listener[] listeners = text.getListeners(SWT.Modify);
     for (final Listener listener : listeners) {
       text.removeListener(SWT.Modify, listener);
@@ -345,13 +350,13 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       text.addListener(SWT.Modify, listener);
     }
   }
-  
+
   // --- Private classes
-  
+
   private final class ProjectBtSelectionListener implements SelectionListener {
-    
+
     // --- Interface methods implementation
-    
+
     public void widgetDefaultSelected(final SelectionEvent event) {
     }
 
@@ -371,9 +376,9 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         CppApplicationTab.this.fProjectText.setText(project.getName());
       }
     }
-    
+
     // --- Private code
-    
+
     private IProject[] getProjectList() throws CoreException {
       final IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
       final Collection<IProject> projects = new ArrayList<IProject>(allProjects.length);
@@ -384,24 +389,24 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
       return projects.toArray(new IProject[projects.size()]);
     }
-    
+
   }
-  
+
   private final class ProjectTextModificationListener implements ModifyListener {
 
     // --- Interface methods implementation
-    
+
     public void modifyText(final ModifyEvent event) {
       final String name = CppApplicationTab.this.fProjectText.getText().trim();
       try {
         if (name.length() > 0) {
           final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
           if (project.exists() && project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
-          	final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-          	if (errors == 0) {
-          		CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-          		fCommIntfTab.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
-          	}
+            final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
+            if (errors == 0) {
+              CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+              CppApplicationTab.this.fCommIntfTab.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
+            }
           }
         }
       } catch (CoreException except) {
@@ -411,13 +416,13 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       setDirty(true);
       updateLaunchConfigurationDialog();
     }
-    
+
   }
-  
+
   private final class SearchMainTypeBtSelectionListener implements SelectionListener {
 
     // --- Interface methods implementation
-    
+
     public void widgetDefaultSelected(final SelectionEvent event) {
       widgetSelected(event);
     }
@@ -431,7 +436,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         project = null;
       }
       final IJavaElement[] scope;
-      if ((project == null) || ! project.exists()) {
+      if ((project == null) || !project.exists()) {
         scope = null;
       } else {
         boolean hasValidNature = false;
@@ -453,7 +458,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         }
       } catch (InvocationTargetException except) {
         if (except.getTargetException() instanceof CoreException) {
-          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, 
+          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg,
                                 ((CoreException) except.getTargetException()).getStatus());
           CppLaunchCore.log(((CoreException) except.getTargetException()).getStatus());
         } else {
@@ -467,11 +472,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
       updateLaunchConfigurationDialog();
     }
-    
+
   }
-  
+
   private final class ButtonSelectionListener implements SelectionListener {
-    
+
     // --- Interface methods implementation
 
     public void widgetDefaultSelected(final SelectionEvent event) {
@@ -482,36 +487,36 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       setDirty(true);
       updateLaunchConfigurationDialog();
     }
-    
+
   }
-  
+
   private final class TextModificationListener implements ModifyListener {
 
     // --- Interface methods implementation
-    
+
     public void modifyText(final ModifyEvent event) {
       setDirty(true);
       updateLaunchConfigurationDialog();
     }
-    
+
   }
-  
+
   // --- Fields
-  
+
   private final CommunicationInterfaceTab fCommIntfTab;
-  
+
   private Text fProjectText;
-  
+
   private Text fMainTypeText;
-  
+
   private Text fPgrmArgsText;
-  
+
   private Button fProjectBt;
-  
+
   private Button fSearchMainTypeBt;
-  
+
   private Button fToConsoleBt;
-  
+
   private IX10PlatformConf fX10PlatformConf;
-    
+
 }
