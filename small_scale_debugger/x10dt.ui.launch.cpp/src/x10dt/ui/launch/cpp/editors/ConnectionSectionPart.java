@@ -842,11 +842,15 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   }
   
   private IConnectionInfo getCurrentConnectionInfo() {
-    final IStructuredSelection selection = (IStructuredSelection) this.fTableViewer.getSelection();
-    if (selection.isEmpty()) {
-      return null;
+    if (this.fCurrentConnection == null) {
+      final IStructuredSelection selection = (IStructuredSelection) this.fTableViewer.getSelection();
+      if (selection.isEmpty()) {
+        return null;
+      } else {
+        return (IConnectionInfo) selection.iterator().next();
+      }
     } else {
-      return (IConnectionInfo) selection.iterator().next();
+      return this.fCurrentConnection;
     }
   }
   
