@@ -11,6 +11,12 @@
 	<topic label="Windows" href="html/installp/windows-cl-install.html"/> 
 </topic>
 
+<topic label="Getting Started"> 
+	<topic label="Get X10 and X10DT on your machine" href="html/gettingstarted/preface.html"/>
+	<topic label="Editor basics and launching" href="html/gettingstarted/steps1-8.html"/>
+	<topic label="Remote launching and debugging basics" href="html/gettingstarted/steps9-14.html"/>
+</topic>
+
 <!--
 <topic label="Getting Started" href="html/x10dt/contents.html"> 
 	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
