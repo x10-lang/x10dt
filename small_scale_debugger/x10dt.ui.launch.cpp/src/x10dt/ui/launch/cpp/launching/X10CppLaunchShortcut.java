@@ -101,7 +101,7 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
             if (i == 0) {
               i = 1;
             } else {
-              hostListBuilder.append(' ');
+              hostListBuilder.append(',');
             }
             hostListBuilder.append(node.getName());
           }
