@@ -408,6 +408,10 @@ public class LaunchMessages extends NLS {
   public static String XPC_InputStreamReadingError;
 
   public static String XPC_LinkingFailure;
+  
+  public static String XPC_RemoteConnRequirementMsg;
+  
+  public static String XPC_RemoteConnRequirementTitle;
 
   public static String XPCFE_CommInterfaceFailure;
 

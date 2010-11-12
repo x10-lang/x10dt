@@ -168,7 +168,8 @@ final class X10PlatformChecker implements IX10PlatformChecker {
             
             public void run() {
               final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-              MessageDialog.openInformation(shell, Messages.PC_ConnRequirementTitle, Messages.PC_ConnRequirementMsg);
+              MessageDialog.openInformation(shell, LaunchMessages.XPC_RemoteConnRequirementTitle, 
+                                            LaunchMessages.XPC_RemoteConnRequirementMsg);
             }
             
           });
