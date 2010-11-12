@@ -24,6 +24,7 @@ public class Messages extends NLS {
   public static String ACXPA_FoundMultipleExtPoints;
   public static String ACXPA_NoExtensionFound;
   public static String AXB_IncompleteConfMsg;
+  public static String CLCD_CmdUsedMsg;
   public static String CPPB_LibCreationError;
   public static String CPPB_ArchivingCmdLabel;
   public static String CPPB_ArchivingTaskName;
@@ -71,6 +72,7 @@ public class Messages extends NLS {
   public static String AXB_NonExistentSRCFolder;
   public static String AXB_EmptySRCFolder;
   public static String AXB_NoSRCFolder;
+  public static String AXBO_NoRemoteOutputFolder;
   public static String CPD_PackageDeclError;
  
   // --- Private code
