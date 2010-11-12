@@ -168,7 +168,7 @@ public final class PTPConfUtils {
    * @throws CoreException Occurs if we could not shutdown the existing resource manager.
    */
   public static void deleteResourceManager(final IX10PlatformConf platformConf) throws CoreException {
-    final IResourceManager sameRMName = findResourceManager(platformConf.getName());
+    final IResourceManager sameRMName = findResourceManagerByName(platformConf.getName());
     if (sameRMName != null) {
       sameRMName.shutdown();
       final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
@@ -216,13 +216,32 @@ public final class PTPConfUtils {
    * @param platformConfName The platform configuration name to consider.
    * @return A non-null resource manager if we found a match, <b>null</b> otherwise.
    */
-  public static IResourceManager findResourceManager(final String platformConfName) {
+  public static IResourceManager findResourceManagerByName(final String platformConfName) {
     final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
     
     for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
       final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
       
       if (rmConf.getName().equals(platformConfName)) {
+        return resourceManager;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * Finds the resource manager associated with the platform configuration id.
+   * 
+   * @param platformConf The platform configuration to consider.
+   * @return A non-null resource manager if we found a match, <b>null</b> otherwise.
+   */
+  public static IResourceManager findResourceManagerById(final IX10PlatformConf platformConf) {
+    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
+
+    for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
+      final IServiceProvider serviceProvider = (IServiceProvider) resourceManager.getConfiguration();
+      if (platformConf.getId().equals(serviceProvider.getString(PLATFORM_CONF_ID, Constants.EMPTY_STR))) {
         return resourceManager;
       }
     }
