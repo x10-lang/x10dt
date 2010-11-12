@@ -12,9 +12,9 @@
 </topic>
 
 <topic label="Getting Started"> 
-	<topic label="Get X10 and X10DT on your machine" href="html/gettingstarted/preface.html"/>
 	<topic label="Editor basics and launching" href="html/gettingstarted/steps1-8.html"/>
 	<topic label="Remote launching and debugging basics" href="html/gettingstarted/steps9-14.html"/>
+	<topic label="Advanced installation notes for X10 and X10DT" href="html/gettingstarted/preface.html"/>
 </topic>
 
 <!--
