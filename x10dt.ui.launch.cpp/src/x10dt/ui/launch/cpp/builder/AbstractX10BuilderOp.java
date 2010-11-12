@@ -63,6 +63,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IProject project, 
                                  final String workspaceDir) throws CoreException {
+    if (workspaceDir == null) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.AXBO_NoRemoteOutputFolder));
+    }
     this.fConfName = platformConf.getName();
     this.fProject = project;
     this.fWorkspaceDir = workspaceDir;
