@@ -84,11 +84,16 @@ final class ConnectionConfiguration implements IConnectionConf {
   }
   
   public boolean hasSameConnectionInfo(final IRemoteConnection remoteConnection) {
-    return hasSameConnectionInfo(remoteConnection.getAttributes());
+    final ControlAttributes ctrAttr = new ControlAttributes(remoteConnection.getAttributes());
+    final ConfigFactory cfgFactory = new ConfigFactory(new ControlAttributes());
+    for (final String key : cfgFactory.getAttributes().keySet()) {
+      ctrAttr.setDefaultString(key, cfgFactory.getAttributes().getString(key));
+    }
+    return hasSameConnectionInfo(ctrAttr);
   }
   
   public boolean hasSameConnectionInfo(final ITargetElement targetElement) {
-    return hasSameConnectionInfo(targetElement.getAttributes().getAttributesAsMap());
+    return hasSameConnectionInfo(targetElement.getAttributes());
   }
   
   public boolean isLocal() {
@@ -252,31 +257,31 @@ final class ConnectionConfiguration implements IConnectionConf {
   
   // --- Private code
   
-  private boolean hasSameConnectionInfo(final Map<String, String> attributes) {
-    if (this.fIsLocal == Boolean.parseBoolean(attributes.get(ConfigFactory.ATTR_LOCALHOST_SELECTION))) {
+  private boolean hasSameConnectionInfo(final ControlAttributes attributes) {
+    if (this.fIsLocal == attributes.getBoolean(ConfigFactory.ATTR_LOCALHOST_SELECTION)) {
       if (this.fIsLocal) {
         return true;
       } else {
-        if (! attributes.get(ConfigFactory.ATTR_CONNECTION_ADDRESS).equals(this.fHostName)) {
+        if (! attributes.getString(ConfigFactory.ATTR_CONNECTION_ADDRESS).equals(this.fHostName)) {
           return false;
         }
-        if (this.fPort != Integer.parseInt(attributes.get(ConfigFactory.ATTR_CONNECTION_PORT))) {
+        if (this.fPort != attributes.getInt(ConfigFactory.ATTR_CONNECTION_PORT)) {
           return false;
         }
-        if (! attributes.get(ConfigFactory.ATTR_LOGIN_USERNAME).equals(this.fUserName)) {
+        if (! attributes.getString(ConfigFactory.ATTR_LOGIN_USERNAME).equals(this.fUserName)) {
           return false;
         }
-        if (this.fTimeout != Integer.parseInt(attributes.get(ConfigFactory.ATTR_CONNECTION_TIMEOUT))) {
+        if (this.fTimeout != attributes.getInt(ConfigFactory.ATTR_CONNECTION_TIMEOUT)) {
           return false;
         }
-        if (this.fIsPasswordBasedAuth == Boolean.parseBoolean(attributes.get(ConfigFactory.ATTR_IS_PASSWORD_AUTH))) {
+        if (this.fIsPasswordBasedAuth == attributes.getBoolean(ConfigFactory.ATTR_IS_PASSWORD_AUTH)) {
           if (this.fIsPasswordBasedAuth) {
-            return attributes.get(ConfigFactory.ATTR_LOGIN_PASSWORD).equals(this.fPassword);
+            return attributes.getString(ConfigFactory.ATTR_LOGIN_PASSWORD).equals(this.fPassword);
           } else {
-            if (! attributes.get(ConfigFactory.ATTR_KEY_PATH).equals(this.fPrivateKeyFile)) {
+            if (! attributes.getString(ConfigFactory.ATTR_KEY_PATH).equals(this.fPrivateKeyFile)) {
               return false;
             }
-            return attributes.get(ConfigFactory.ATTR_KEY_PASSPHRASE).equals(this.fPassphrase);
+            return attributes.getString(ConfigFactory.ATTR_KEY_PASSPHRASE).equals(this.fPassphrase);
           }
         } else {
           return false;

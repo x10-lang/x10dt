@@ -773,8 +773,6 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       
       protected void setValue(final Object element, final Object value) {
         final IConnectionInfo curConnInfo = (IConnectionInfo) element;
-        ConnectionSectionPart.this.fCurrentConnection = curConnInfo;
-        updateConnectionConf();
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
           tableViewer.update(tableItem.getData(), null);
         }
@@ -885,8 +883,8 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           if (! validateButton.isEnabled()) {
             validateButton.setEnabled(true);
           }
-          final Object curSelection = ((IStructuredSelection) event.getSelection()).iterator().next();
-          final IConnectionInfo connectionInfo = (IConnectionInfo) curSelection;
+          final Object newSelection = ((IStructuredSelection) event.getSelection()).iterator().next();
+          final IConnectionInfo connectionInfo = (IConnectionInfo) newSelection;
           
           if ((connectionInfo.getValidationStatus() == EValidationStatus.FAILURE) ||
               (connectionInfo.getValidationStatus() == EValidationStatus.ERROR)) {
@@ -926,6 +924,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       this.fPrivateKeyFileText.setText(connectionInfo.getPrivateKeyFile());
       this.fPassphraseText.setText(connectionInfo.getPassphrase());
     }
+    this.fConnectionTimeoutSpinner.setSelection(connectionInfo.getConnectionTimeout());
   }
   
   private Iterable<IConnectionInfo> getAllConnectionInfo() {
@@ -1019,7 +1018,6 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       
     });
     
-    this.fConnectionTimeoutSpinner.setSelection(connectionConf.getConnectionTimeout());
     this.fLocalAddressText.setText(connectionConf.getLocalAddress());
     this.fUsePortForwardingBt.setSelection(connectionConf.shouldUsePortForwarding());
   }
@@ -1043,6 +1041,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fPasswordText.setText(Constants.EMPTY_STR);
     this.fPrivateKeyFileText.setText(Constants.EMPTY_STR);
     this.fPassphraseText.setText(Constants.EMPTY_STR);
+    this.fConnectionTimeoutSpinner.setSelection(5);
   }
   
   private void updateConnectionConf() {

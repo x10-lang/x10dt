@@ -22,6 +22,7 @@ final class DefaultConnectionInfo implements IConnectionInfo {
   DefaultConnectionInfo() {
     this.fControlAttr = new ConfigFactory().getAttributes();
     this.fTargetConfig = new TargetConfig(this.fControlAttr);
+    this.fTargetConfig.setConnectionTimeout(5);
   }
   
   // --- Interface methods implementation
