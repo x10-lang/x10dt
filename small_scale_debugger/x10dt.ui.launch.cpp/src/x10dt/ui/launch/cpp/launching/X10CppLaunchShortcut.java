@@ -25,6 +25,7 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.ui.actions.MultiOrganizeImportAction;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
@@ -115,7 +116,8 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
   private void updateOpenMPIConfig(ILaunchConfigurationWorkingCopy workingCopy, IOpenMPIInterfaceConf mpiConf) {
   }
 
-  private void setOpenMPIDefaults(ILaunchConfigurationWorkingCopy workingCopy) {
+  private void setOpenMPIDefaults(ILaunchConfigurationWorkingCopy workingCopy) throws CoreException {
+    OpenMPILaunchConfigurationDefaults.loadDefaults();
     workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_NUMPROCS, OpenMPILaunchConfigurationDefaults.ATTR_NUMPROCS);
     workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_USEHOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTLIST);
     workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_HOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_HOSTLIST);
@@ -136,7 +138,8 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
     return config.hasAttribute(MPICH2LaunchConfiguration.ATTR_NUMPROCS);
   }
 
-  private void setMPICNDefaults(ILaunchConfigurationWorkingCopy workingCopy) {
+  private void setMPICNDefaults(ILaunchConfigurationWorkingCopy workingCopy) throws CoreException {
+    MPICH2LaunchConfigurationDefaults.loadDefaults();
     workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_NUMPROCS, MPICH2LaunchConfigurationDefaults.ATTR_NUMPROCS);
     workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_NOLOCAL, MPICH2LaunchConfigurationDefaults.ATTR_NOLOCAL);
     workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_PREFIX, MPICH2LaunchConfigurationDefaults.ATTR_PREFIX);
