@@ -37,10 +37,6 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
     return (this.fTemplateOpt == null) ? ELLTemplateOpt.ENeverWrite : this.fTemplateOpt;
   }
   
-  public boolean shouldUsePortForwarding() {
-    return this.fUsePortForwarding;
-  }
-  
   // --- ICommunicationInterfaceConf's interface methods implementation
   
   public boolean hasSameCommunicationInterfaceInfo(final IResourceManagerConfiguration rmConfiguration) {
@@ -53,10 +49,6 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
     }
     final boolean manualLaunch = (llRMConf.getOptions() & IRemoteProxyOptions.MANUAL_LAUNCH) != 0;
     if (manualLaunch != shouldLaunchProxyManually()) {
-      return false;
-    }
-    final boolean portForwarding = (llRMConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
-    if (portForwarding != shouldUsePortForwarding()) {
       return false;
     }
     switch (getClusterMode()) {
@@ -190,7 +182,6 @@ final class LoadLevelerConf extends IBMCommunicationInterfaceConf implements ILo
     super.fNodePollingMax = rmConf.getMaxNodePolling();
     super.fProxyServerPath = rmConf.getProxyServerPath();
     super.fLaunchProxyManually = (rmConf.getOptions() & IRemoteProxyOptions.MANUAL_LAUNCH) != 0;
-    super.fUsePortForwarding = (rmConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
     super.fSuspendProxyAtStartup = LL_YES.equals(rmConf.getDebugLoop());
 
     this.fTemplateFilePath = rmConf.getTemplateFile();

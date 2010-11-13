@@ -73,12 +73,5 @@ public interface IIBMCommunicationInterfaceConf extends ICommunicationInterfaceC
    * @return True to stop at the main proxy entry, false otherwise.
    */
   public boolean shouldSuspendProxyAtStartup();
-  
-  /**
-   * Indicates if we should use port forwarding or not.
-   * 
-   * @return True if we should use port forwarding, false otherwise.
-   */
-  public boolean shouldUsePortForwarding();
 
 }

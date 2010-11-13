@@ -104,11 +104,15 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setConnectionName(final String connectionName);
   
+  public void setConnectionTimeout(final int timeout);
+  
   public void setHostName(final String hostName);
   
   public void setIsLocalFlag(final boolean isLocal);
   
   public void setIsPasswordBasedAuthenticationFlag(final boolean isPasswordBasedAuth);
+  
+  public void setLocalAddress(final String localAddress);
   
   public void setPassphrase(final String passphrase);
   
@@ -117,6 +121,8 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setPort(final int port);
   
   public void setPrivateKeyFile(final String privateKeyFile);
+  
+  public void setShouldUsePortForwarding(final boolean usePortForwarding);
   
   public void setTargetElement(final ITargetElement targetElement);
   
@@ -165,8 +171,6 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setLaunchProxyManuallyFlag(final String ciType, final boolean shouldLaunchProxyManually);
   
   public void setSuspendProxyAtStartupFlag(final String ciType, final boolean shouldSuspendProxy);
-  
-  public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding);
   
   /// IBM Parallel Environment
   

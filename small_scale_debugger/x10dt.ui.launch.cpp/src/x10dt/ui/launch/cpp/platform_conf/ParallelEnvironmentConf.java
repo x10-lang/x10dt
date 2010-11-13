@@ -33,10 +33,6 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
     if (manualLaunch != shouldLaunchProxyManually()) {
       return false;
     }
-    final boolean portForwarding = (peRMConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
-    if (portForwarding != shouldUsePortForwarding()) {
-      return false;
-    }
     
     if (this.fUseLoadLeveler) {
       if (! PEPreferenceConstants.OPTION_YES.equals(peRMConf.getUseLoadLeveler())) {
@@ -186,7 +182,6 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
     super.fNodePollingMax = Integer.parseInt(rmConf.getNodeMaxPollInterval());
     super.fProxyServerPath = rmConf.getProxyServerPath();
     super.fLaunchProxyManually = (rmConf.getOptions() & IRemoteProxyOptions.MANUAL_LAUNCH) != 0;
-    super.fUsePortForwarding = (rmConf.getOptions() & IRemoteProxyOptions.PORT_FORWARDING) != 0;
     super.fSuspendProxyAtStartup = PEPreferenceConstants.OPTION_YES.equals(rmConf.getSuspendProxy());
     
     if (PEPreferenceConstants.TRACE_FUNCTION.equals(rmConf.getDebugLevel())) {

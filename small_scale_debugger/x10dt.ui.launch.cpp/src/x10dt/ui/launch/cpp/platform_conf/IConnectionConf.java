@@ -31,6 +31,13 @@ public interface IConnectionConf {
    * @return A non-null, possibly empty, string.
    */
   public String getConnectionName();
+  
+  /**
+   * Returns the connection time out.
+   * 
+   * @return A natural number.
+   */
+  public int getConnectionTimeout();
 
   /**
    * Returns the name of the machine to connect to.
@@ -38,6 +45,13 @@ public interface IConnectionConf {
    * @return A non-null, possibly empty, string.
    */
   public String getHostName();
+  
+  /**
+   * Returns the local address to connect back to.
+   * 
+   * @return A non-null, possibly empty, string.
+   */
+  public String getLocalAddress();
   
   /**
    * Returns the passphrase to use associated with a private key for login identification.
@@ -105,5 +119,12 @@ public interface IConnectionConf {
    * passphrase.
    */
   public boolean isPasswordBasedAuthentication();
+  
+  /**
+   * Returns if yes or no we should use port forwarding feature.
+   * 
+   * @return True if we should, false otherwise.
+   */
+  public boolean shouldUsePortForwarding();
 
 }
