@@ -72,9 +72,6 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     this.fBrowseBts.add(pair.second);
     pair.second.addSelectionListener(formPart.new FileDialogSelectionListener(proxyExecPathText));
     
-    final Button usePortFwdBt = toolkit.createButton(parent, LaunchMessages.PETCP_PortFwrd, SWT.CHECK);
-    addControl(usePortFwdBt);
-    
     final Button launchServerManuallyBt = toolkit.createButton(parent, LaunchMessages.PETCP_LaunchServerManually, SWT.CHECK);
     addControl(launchServerManuallyBt);
     
@@ -174,12 +171,12 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
     initConfiguration(x10PlatformConf, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf());
     initializeControls(formPart, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(), proxyExecPathText, 
-                       usePortFwdBt, launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, nodePollingMaxSp, 
+                       launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, nodePollingMaxSp, 
                        jobPollingSp, alternateLibPathText, pair.second, traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt,
                        pair3.first, templateOptCombo, suspendProxyAtStartupBt);
     
     addListeners(x10PlatformConf, managedForm, formPart, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(),
-                 proxyExecPathText, usePortFwdBt, launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, 
+                 proxyExecPathText, launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, 
                  nodePollingMaxSp, jobPollingSp, alternateLibPathText, traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt, 
                  pair3.first, templateOptCombo, suspendProxyAtStartupBt);
   }
@@ -203,8 +200,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
   
   private void addListeners(final IX10PlatformConfWorkCopy x10PlatformConf, final IManagedForm managedForm, 
                             final AbstractCommonSectionFormPart formPart, final ILoadLevelerConf ciConf,
-                            final Text proxyExecPathText, final Button usePortFwdBt, final Button launchServerManuallyBt, 
-                            final Combo multiClusterCombo, final Spinner nodePollingMinSp, final Spinner nodePollingMaxSp, 
+                            final Text proxyExecPathText, final Button launchServerManuallyBt, final Combo multiClusterCombo, final Spinner nodePollingMinSp, final Spinner nodePollingMaxSp, 
                             final Spinner jobPollingSp, final Text alternateLibPathText, final Button traceBt, 
                             final Button infoBt, final Button warningBt, final Button errorBt, final Button fatalBt, 
                             final Button argsBt, final Text templateFilePathText, final Combo templateOptCombo, 
@@ -216,18 +212,6 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
         formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
-      }
-      
-    });
-    usePortFwdBt.addSelectionListener(new SelectionListener() {
-      
-      public void widgetSelected(final SelectionEvent event) {
-        x10PlatformConf.setUsePortForwardingFlag(LOAD_LEVELER_SERVICE_PROVIDER_ID, usePortFwdBt.getSelection());
-        formPart.updateDirtyState(managedForm);
-      }
-      
-      public void widgetDefaultSelected(final SelectionEvent event) {
-        widgetSelected(event);
       }
       
     });
@@ -416,7 +400,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
   }
   
   private void initializeControls(final AbstractCommonSectionFormPart formPart, final ILoadLevelerConf ciConf, 
-                                  final Text proxyExecPathText, final Button usePortFwdBt, final Button launchServerManuallyBt, 
+                                  final Text proxyExecPathText, final Button launchServerManuallyBt, 
                                   final Combo multiClusterCombo, final Spinner nodePollingMinSp, 
                                   final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
                                   final Button proxyServerBrowseBt, final Button traceBt, final Button infoBt, 
@@ -426,7 +410,6 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     proxyExecPathText.setText(ciConf.getProxyServerPath());
     formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
     proxyServerBrowseBt.setEnabled(this.fBrowseBtEnabled);
-    usePortFwdBt.setSelection(ciConf.shouldUsePortForwarding());
     launchServerManuallyBt.setSelection(ciConf.shouldLaunchProxyManually());
  
     

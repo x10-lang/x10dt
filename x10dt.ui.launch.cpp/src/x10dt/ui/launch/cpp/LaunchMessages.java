@@ -189,6 +189,12 @@ public class LaunchMessages extends NLS {
 
   public static String CCVC_WrongLinuxPPCVersionRequirement;
   
+  public static String CSP_ConnTimeout;
+
+  public static String CSP_LocalAddress;
+
+  public static String CSP_UsePortFwrd;
+
   public static String ES_CompileTaskName;
   
   public static String ES_GeneratingCppCilesTaskName;
@@ -222,8 +228,6 @@ public class LaunchMessages extends NLS {
   public static String PETCP_NodePollingMin;
 
   public static String PETCP_NoTraceOpt;
-
-  public static String PETCP_PortFwrd;
 
   public static String PETCP_ProxyExecPath;
 

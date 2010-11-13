@@ -65,6 +65,12 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
     }
+    if (this.fConnectionConf.fTimeout == 0) {
+      this.fConnectionConf.fTimeout = 5;
+    }
+    if (this.fConnectionConf.fLocalAddress == null) {
+      this.fConnectionConf.fLocalAddress = "localhost"; //$NON-NLS-1$
+    }
     if (ciConf.fServiceModeId == null) {
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
     }
@@ -224,6 +230,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
+  public void setConnectionTimeout(final int timeout) {
+    super.fConnectionConf.fTimeout = timeout;
+    updateDirtyFlag();
+  }
+  
   public void setHostName(final String hostName) {
     super.fConnectionConf.fHostName = hostName;
     updateDirtyFlag();
@@ -240,6 +251,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setIsPasswordBasedAuthenticationFlag(final boolean isPasswordBasedAuth) {
     super.fConnectionConf.fIsPasswordBasedAuth = isPasswordBasedAuth;
+    updateDirtyFlag();
+  }
+  
+  public void setLocalAddress(final String localAddress) {
+    super.fConnectionConf.fLocalAddress = localAddress;
     updateDirtyFlag();
   }
   
@@ -260,6 +276,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setPrivateKeyFile(final String privateKeyFile) {
     super.fConnectionConf.fPrivateKeyFile = privateKeyFile;
+    updateDirtyFlag();
+  }
+  
+  public void setShouldUsePortForwarding(final boolean usePortForwarding) {
+    super.fConnectionConf.fUsePortForwarding = usePortForwarding;
     updateDirtyFlag();
   }
   
@@ -406,13 +427,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
     final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fSuspendProxyAtStartup = shouldSuspendProxy;
-    updateDirtyFlag();
-  }
-  
-  public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding) {
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
-    conf.fUsePortForwarding = shouldUsePortForwarding;
     updateDirtyFlag();
   }
   

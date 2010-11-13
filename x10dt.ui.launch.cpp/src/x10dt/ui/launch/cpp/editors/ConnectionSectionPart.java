@@ -165,7 +165,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
                             final Button passwordAuthBt, final Label passwordLabel, final Text passwordText, 
                             final Button privateKeyFileAuthBt, final Text privateKeyText, final Button browseBt, 
                             final Text passphraseText, final Collection<Control> firstGroupControls, 
-                            final Collection<Control> secondGroupControls, final Collection<Control> keyFileControls) {
+                            final Button portForwarding, final Text localAddress, final Spinner connectionTimeoutSpinner,
+                            final Collection<Control> secondGroupControls, final Collection<Control> keyFileControls,
+                            final Collection<Control> localAddressControls) {
     localConnBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -406,6 +408,67 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       }
       
     });
+    portForwarding.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        getPlatformConf().setShouldUsePortForwarding(portForwarding.getSelection());
+        for (final Control control : firstGroupControls) {
+          control.setEnabled(true);
+        }
+        final IConnectionInfo curConnInfo = ConnectionSectionPart.this.fCurrentConnection;
+        if (curConnInfo != null) {
+          notifyConnectionUnknownStatus(curConnInfo);
+          fillConnectionControlsInfo(curConnInfo);
+          updateConnectionConf();
+        }
+        
+        for (final Control localAddressControl : localAddressControls) {
+          localAddressControl.setEnabled(portForwarding.getSelection());
+        }
+        
+        setPartCompleteFlag(hasCompleteInfo());
+        updateDirtyState(managedForm);
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    localAddress.addModifyListener(new ModifyListener() {
+      
+      public void modifyText(final ModifyEvent event) {
+        getPlatformConf().setLocalAddress(localAddress.getText().trim());
+
+        final IConnectionInfo curConnInfo = ConnectionSectionPart.this.fCurrentConnection;
+        if (curConnInfo != null) {
+          notifyConnectionUnknownStatus(curConnInfo);
+          fillConnectionControlsInfo(curConnInfo);
+          updateConnectionConf();
+        }
+        
+        setPartCompleteFlag(hasCompleteInfo());
+        updateDirtyState(managedForm);
+      }
+      
+    });
+    connectionTimeoutSpinner.addModifyListener(new ModifyListener() {
+      
+      public void modifyText(final ModifyEvent event) {
+        getPlatformConf().setConnectionTimeout(connectionTimeoutSpinner.getSelection());
+
+        final IConnectionInfo curConnInfo = ConnectionSectionPart.this.fCurrentConnection;
+        if (curConnInfo != null) {
+          notifyConnectionUnknownStatus(curConnInfo);
+          fillConnectionControlsInfo(curConnInfo);
+          updateConnectionConf();
+        }
+        
+        setPartCompleteFlag(hasCompleteInfo());
+        updateDirtyState(managedForm);
+      }
+      
+    });
   }
   
   private void createClient(final IManagedForm managedForm, final FormToolkit toolkit) {
@@ -506,7 +569,36 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     
     this.fPassphraseText = SWTFormUtils.createLabelAndText(groupCompo, LaunchMessages.RMCP_PassphraseLabel, toolkit, 
                                                            keyFileControls);
-        
+    
+    final Label separator2 = new Label(groupCompo, SWT.SEPARATOR | SWT.SHADOW_OUT | SWT.HORIZONTAL);
+    separator2.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    
+    
+    final Composite timeoutPortFwdCompo = toolkit.createComposite(groupCompo);
+    timeoutPortFwdCompo.setFont(getSection().getFont());
+    final TableWrapLayout timeoutWLayout = new TableWrapLayout();
+    timeoutWLayout.numColumns = 3;
+    timeoutPortFwdCompo.setLayout(timeoutWLayout);
+    timeoutPortFwdCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    
+    this.fUsePortForwardingBt = toolkit.createButton(timeoutPortFwdCompo, LaunchMessages.CSP_UsePortFwrd, SWT.CHECK);
+    secondGroupControls.add(this.fUsePortForwardingBt);
+    this.fUsePortForwardingBt.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.MIDDLE));
+    final Label timeoutLabel = toolkit.createLabel(timeoutPortFwdCompo, LaunchMessages.CSP_ConnTimeout);
+    timeoutLabel.setLayoutData(new TableWrapData(TableWrapData.RIGHT, TableWrapData.MIDDLE));
+    secondGroupControls.add(timeoutLabel);
+    
+    this.fConnectionTimeoutSpinner = new Spinner(timeoutPortFwdCompo, SWT.SINGLE | SWT.BORDER);
+    this.fConnectionTimeoutSpinner.setMinimum(0);
+    this.fConnectionTimeoutSpinner.setTextLimit(5);
+    this.fConnectionTimeoutSpinner.setLayoutData(new TableWrapData(TableWrapData.RIGHT, TableWrapData.MIDDLE));
+    secondGroupControls.add(this.fConnectionTimeoutSpinner);
+    
+    final Collection<Control> localAddressControls = new ArrayList<Control>();
+    this.fLocalAddressText = SWTFormUtils.createLabelAndText(groupCompo, LaunchMessages.CSP_LocalAddress, toolkit, 
+                                                             localAddressControls);
+    secondGroupControls.addAll(localAddressControls);
+
     final Label infoLabel = new Label(marginCompo, SWT.WRAP);
     infoLabel.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     infoLabel.setText(LaunchMessages.RMCP_RemoteConnDataInfo);
@@ -523,7 +615,8 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     addListeners(managedForm, this.fLocalConnBt, this.fRemoteConnBt, this.fValidateButton,
                  this.fHostText, this.fPortText, this.fUserNameText, this.fPasswordAuthBt, this.fPasswordLabel, 
                  this.fPasswordText, this.fPrivateKeyFileAuthBt, this.fPrivateKeyFileText, browseBt, this.fPassphraseText,
-                 firstGroupControls, secondGroupControls, keyFileControls);
+                 firstGroupControls, this.fUsePortForwardingBt, this.fLocalAddressText, this.fConnectionTimeoutSpinner,
+                 secondGroupControls, keyFileControls, localAddressControls);
     
     getSection().setClient(sectionClient);
   }
@@ -927,6 +1020,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       }
       
     });
+    
+    this.fConnectionTimeoutSpinner.setSelection(connectionConf.getConnectionTimeout());
+    this.fLocalAddressText.setText(connectionConf.getLocalAddress());
+    this.fUsePortForwardingBt.setSelection(connectionConf.shouldUsePortForwarding());
   }
   
   private void notifyConnectionUnknownStatus(final IConnectionInfo connectionInfo) {
@@ -1180,6 +1277,12 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   private Text fPrivateKeyFileText;
   
   private Text fPassphraseText;
+  
+  private Spinner fConnectionTimeoutSpinner;
+  
+  private Button fUsePortForwardingBt;
+  
+  private Text fLocalAddressText;
     
   private TableViewer fTableViewer;
   

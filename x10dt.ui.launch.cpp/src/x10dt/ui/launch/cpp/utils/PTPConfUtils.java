@@ -51,6 +51,7 @@ import org.eclipse.ptp.remotetools.environment.core.TargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetEnvironmentManager;
 import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
+import org.eclipse.ptp.rm.core.rmsystem.IRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
 import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
@@ -134,7 +135,7 @@ public final class PTPConfUtils {
     if ((pair == null) || (pair.second == null)) {
       return null;
     }
-    final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) pair.second;
+    final IRemoteResourceManagerConfiguration rmConf = (IRemoteResourceManagerConfiguration) pair.second;
     
     commConf.visitInterfaceOptions(new CommunicationInterfaceInitializer(rmConf));
     
@@ -143,6 +144,10 @@ public final class PTPConfUtils {
       createRemoteConnection(connConf.getConnectionName(), connConf.getAttributes());
     }
     rmConf.setConnectionName(connConf.getConnectionName());
+    rmConf.setLocalAddress(connConf.getLocalAddress());
+    if (connConf.shouldUsePortForwarding()) {
+      rmConf.setOptions(IRemoteProxyOptions.PORT_FORWARDING);
+    }
     rmConf.setName(platformConf.getName());
     rmConf.setRemoteServicesId(connConf.isLocal() ? PTPConstants.LOCAL_CONN_SERVICE_ID : PTPConstants.REMOTE_CONN_SERVICE_ID);
     pair.second.putString(PLATFORM_CONF_ID, platformConf.getId());
@@ -487,9 +492,6 @@ public final class PTPConfUtils {
       if (configuration.shouldLaunchProxyManually()) {
         options |= IRemoteProxyOptions.MANUAL_LAUNCH;
       }
-      if (configuration.shouldUsePortForwarding()) {
-        options |= IRemoteProxyOptions.PORT_FORWARDING;
-      }
       peConf.setOptions(options);
       
       switch (configuration.getDebuggingLevel()) {
@@ -521,9 +523,6 @@ public final class PTPConfUtils {
       int options = 0;
       if (configuration.shouldLaunchProxyManually()) {
         options |= IRemoteProxyOptions.MANUAL_LAUNCH;
-      }
-      if (configuration.shouldUsePortForwarding()) {
-        options |= IRemoteProxyOptions.PORT_FORWARDING;
       }
       llConf.setOptions(options);
       

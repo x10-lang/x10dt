@@ -43,15 +43,24 @@ final class ConnectionConfiguration implements IConnectionConf {
     controlAttr.setString(ConfigFactory.ATTR_KEY_PATH, this.fPrivateKeyFile);
     controlAttr.setString(ConfigFactory.ATTR_IS_PASSWORD_AUTH, this.fPassphrase);
     controlAttr.setBoolean(ConfigFactory.ATTR_IS_PASSWORD_AUTH, this.fIsPasswordBasedAuth);
+    controlAttr.setInt(ConfigFactory.ATTR_CONNECTION_TIMEOUT, this.fTimeout);
     return controlAttr;
   }
   
   public String getConnectionName() {
     return (this.fConnectionName == null) ? Constants.EMPTY_STR : this.fConnectionName;
   }
+  
+  public int getConnectionTimeout() {
+    return this.fTimeout;
+  }
 
   public String getHostName() {
     return (this.fHostName == null) ? Constants.EMPTY_STR : this.fHostName;
+  }
+  
+  public String getLocalAddress() {
+    return (this.fLocalAddress == null) ? Constants.EMPTY_STR : this.fLocalAddress;
   }
   
   public String getPassphrase() {
@@ -90,6 +99,10 @@ final class ConnectionConfiguration implements IConnectionConf {
     return this.fIsPasswordBasedAuth;
   }
   
+  public boolean shouldUsePortForwarding() {
+    return this.fUsePortForwarding;
+  }
+  
   // --- Overridden methods
   
   public boolean equals(final Object rhs) {
@@ -98,9 +111,10 @@ final class ConnectionConfiguration implements IConnectionConf {
       if (this.fIsLocal) {
         return true;
       } else {
-        if (Arrays.equals(new Object[] { this.fConnectionName, this.fHostName, this.fUserName }, 
-                          new Object[] { rhsObj.fConnectionName, rhsObj.fHostName, rhsObj.fUserName }) && 
-            (getPort() == rhsObj.getPort())) {
+        if (Arrays.equals(new Object[] { this.fConnectionName, this.fHostName, this.fUserName, this.fLocalAddress }, 
+                          new Object[] { rhsObj.fConnectionName, rhsObj.fHostName, rhsObj.fUserName, rhsObj.fLocalAddress }) && 
+            (getPort() == rhsObj.getPort()) && (this.fUsePortForwarding == rhsObj.fUsePortForwarding) &&
+            (this.fTimeout == rhsObj.fTimeout)) {
           if (this.fIsPasswordBasedAuth == rhsObj.fIsPasswordBasedAuth) {
             if (this.fIsPasswordBasedAuth) {
               return CodingUtils.equals(this.fPassword, rhsObj.fPassword);
@@ -122,7 +136,8 @@ final class ConnectionConfiguration implements IConnectionConf {
   
   public int hashCode() {
     return CodingUtils.generateHashCode(34, this.fIsLocal, this.fConnectionName, this.fHostName, this.fPort, this.fUserName, 
-                                        this.fIsPasswordBasedAuth, this.fPassword, this.fPrivateKeyFile, this.fPassphrase);
+                                        this.fIsPasswordBasedAuth, this.fPassword, this.fPrivateKeyFile, this.fPassphrase,
+                                        this.fLocalAddress, this.fTimeout, (this.fUsePortForwarding) ? 345345 : 4565);
   }
   
   public String toString() {
@@ -135,7 +150,10 @@ final class ConnectionConfiguration implements IConnectionConf {
       .append("\nIs password authentication: ").append(this.fIsPasswordBasedAuth) //$NON-NLS-1$
       .append("\nPassword: ").append(this.fPassword) //$NON-NLS-1$
       .append("\nPrivate key file: ").append(this.fPrivateKeyFile) //$NON-NLS-1$
-      .append("\nPassphrase: ").append(this.fPassphrase); //$NON-NLS-1$
+      .append("\nPassphrase: ").append(this.fPassphrase) //$NON-NLS-1$
+      .append("\nTime out: ").append(this.fTimeout) //$NON-NLS-1$
+      .append("\nUse Port Forwarding: ").append(this.fUsePortForwarding) //$NON-NLS-1$
+      .append("\nTimeout: ").append(this.fTimeout); //$NON-NLS-1$
     return sb.toString();
   }
   
@@ -156,6 +174,7 @@ final class ConnectionConfiguration implements IConnectionConf {
     this.fPassword = attributes.get(ConfigFactory.ATTR_LOGIN_PASSWORD);
     this.fPrivateKeyFile = attributes.get(ConfigFactory.ATTR_KEY_PATH);
     this.fPassphrase = attributes.get(ConfigFactory.ATTR_KEY_PASSPHRASE);
+    this.fTimeout = Integer.parseInt(attributes.get(ConfigFactory.ATTR_CONNECTION_TIMEOUT));
   }
   
   ConnectionConfiguration(final ConnectionConfiguration original) {
@@ -168,6 +187,9 @@ final class ConnectionConfiguration implements IConnectionConf {
     this.fPassword = original.fPassword;
     this.fPrivateKeyFile = original.fPrivateKeyFile;
     this.fPassphrase = original.fPassphrase;
+    this.fLocalAddress = original.fLocalAddress;
+    this.fUsePortForwarding = original.fUsePortForwarding;
+    this.fTimeout = original.fTimeout;
   }
   
   void applyChanges(final ConnectionConfiguration source) {
@@ -180,6 +202,9 @@ final class ConnectionConfiguration implements IConnectionConf {
     this.fPassword = source.fPassword;
     this.fPrivateKeyFile = source.fPrivateKeyFile;
     this.fPassphrase = source.fPassphrase;
+    this.fLocalAddress = source.fLocalAddress;
+    this.fUsePortForwarding = source.fUsePortForwarding;
+    this.fTimeout = source.fTimeout;
   }
   
   void initTargetElement() {
@@ -222,6 +247,7 @@ final class ConnectionConfiguration implements IConnectionConf {
     this.fPassword = attributes.getString(ConfigFactory.ATTR_LOGIN_PASSWORD);
     this.fPrivateKeyFile = attributes.getString(ConfigFactory.ATTR_KEY_PATH);
     this.fPassphrase = attributes.getString(ConfigFactory.ATTR_KEY_PASSPHRASE);
+    this.fTimeout = attributes.getInt(ConfigFactory.ATTR_CONNECTION_TIMEOUT);
   }
   
   // --- Private code
@@ -238,6 +264,9 @@ final class ConnectionConfiguration implements IConnectionConf {
           return false;
         }
         if (! attributes.get(ConfigFactory.ATTR_LOGIN_USERNAME).equals(this.fUserName)) {
+          return false;
+        }
+        if (this.fTimeout != Integer.parseInt(attributes.get(ConfigFactory.ATTR_CONNECTION_TIMEOUT))) {
           return false;
         }
         if (this.fIsPasswordBasedAuth == Boolean.parseBoolean(attributes.get(ConfigFactory.ATTR_IS_PASSWORD_AUTH))) {
@@ -277,5 +306,11 @@ final class ConnectionConfiguration implements IConnectionConf {
   String fPrivateKeyFile;
   
   String fPassphrase;
+  
+  String fLocalAddress;
+  
+  boolean fUsePortForwarding;
+  
+  int fTimeout;
   
 }
