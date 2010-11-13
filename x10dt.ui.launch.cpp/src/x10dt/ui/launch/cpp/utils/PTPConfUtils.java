@@ -146,7 +146,7 @@ public final class PTPConfUtils {
     rmConf.setConnectionName(connConf.getConnectionName());
     rmConf.setLocalAddress(connConf.getLocalAddress());
     if (connConf.shouldUsePortForwarding()) {
-      rmConf.setOptions(IRemoteProxyOptions.PORT_FORWARDING);
+      rmConf.setOptions((rmConf.getOptions() & ~IRemoteProxyOptions.STDIO) | IRemoteProxyOptions.PORT_FORWARDING);
     }
     rmConf.setName(platformConf.getName());
     rmConf.setRemoteServicesId(connConf.isLocal() ? PTPConstants.LOCAL_CONN_SERVICE_ID : PTPConstants.REMOTE_CONN_SERVICE_ID);
