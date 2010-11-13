@@ -30,7 +30,7 @@ public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
 
     @Override
     protected Scheduler createScheduler() {
-        return new X10Scheduler(this) {
+        return new X10CScheduler(this) {
             @Override
             public List<Goal> goals(Job job) {
                 List<Goal> goals = super.goals(job);
