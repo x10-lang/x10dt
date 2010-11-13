@@ -226,24 +226,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     synchronized (file) {
       CoreResourceUtils.deletePlatformConfMarkers(file);
       
-      boolean canClean = true;
-      final IX10PlatformConf previousPlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(file.getProject());
-      final String outputFolder = previousPlatformConf.getCppCompilationConf().getRemoteOutputFolder();
-      if ((outputFolder == null) || (outputFolder.length() == 0)) {
-        CoreResourceUtils.addPlatformConfMarker(file, Messages.AXBO_NoRemoteOutputFolder, IMarker.SEVERITY_ERROR, 
-                                                IMarker.PRIORITY_HIGH);
-        canClean = false;
-      }
-      
-      final IConnectionConf connConf = previousPlatformConf.getConnectionConf();
-      final boolean isCygwin = previousPlatformConf.getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
-      if (TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName()) == null) {
-        CoreResourceUtils.addPlatformConfMarker(file, Messages.CPPB_NoValidConnectionError, IMarker.SEVERITY_ERROR, 
-                                                IMarker.PRIORITY_HIGH);
-        canClean = false;
-      }
-      
-      if (canClean) {
+      {//TODO: Probably to remove.
         final IProject project = file.getProject();
         final IWorkspace workspace = project.getWorkspace();
         final IWorkspaceDescription description = workspace.getDescription();
@@ -284,8 +267,23 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
           return;
         }
       }
+
       try {
         getCurrentPlatformConf().applyChanges();
+        
+        final String outputFolder = getCurrentPlatformConf().getCppCompilationConf().getRemoteOutputFolder();
+        if ((outputFolder == null) || (outputFolder.length() == 0)) {
+          CoreResourceUtils.addPlatformConfMarker(file, Messages.AXBO_NoRemoteOutputFolder, IMarker.SEVERITY_ERROR, 
+                                                  IMarker.PRIORITY_HIGH);
+        }
+        
+        final IConnectionConf connConf = getCurrentPlatformConf().getConnectionConf();
+        final boolean isCygwin = getCurrentPlatformConf().getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
+        if (TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName()) == null) {
+          CoreResourceUtils.addPlatformConfMarker(file, Messages.CPPB_NoValidConnectionError, IMarker.SEVERITY_ERROR, 
+                                                  IMarker.PRIORITY_HIGH);
+        }
+        
         X10PlatformConfFactory.save(file, getCurrentPlatformConf());
         monitor.worked(1);
         commitPages(true);
