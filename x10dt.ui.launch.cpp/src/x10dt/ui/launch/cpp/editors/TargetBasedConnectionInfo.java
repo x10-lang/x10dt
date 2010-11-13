@@ -38,6 +38,10 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
     }
   }
   
+  public int getConnectionTimeout() {
+    return this.fTargetConfig.getConnectionTimeout();
+  }
+  
   public String getErrorMessage() {
     return this.fErrorMessage;
   }
@@ -84,6 +88,11 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
 
   public boolean isPasswordBasedAuth() {
     return this.fTargetConfig.isPasswordAuth();
+  }
+  
+  public void setConnectionTimeout(final int timeout) {
+    this.fTargetConfig.setConnectionTimeout(timeout);
+    this.fIsDirty = true;
   }
   
   public void setErrorMessage(final String errorMessage) {

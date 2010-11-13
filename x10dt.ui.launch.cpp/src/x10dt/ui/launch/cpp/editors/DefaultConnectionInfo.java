@@ -26,6 +26,10 @@ final class DefaultConnectionInfo implements IConnectionInfo {
   
   // --- Interface methods implementation
   
+  public int getConnectionTimeout() {
+    return this.fTargetConfig.getConnectionTimeout();
+  }
+  
   public void applyChangesToTargetElement() {
     // Nothing to do here.
   }
@@ -80,6 +84,10 @@ final class DefaultConnectionInfo implements IConnectionInfo {
   
   public void setErrorMessage(final String errorMessage) {
     this.fErrorMessage = errorMessage;
+  }
+  
+  public void setConnectionTimeout(final int timeout) {
+    this.fTargetConfig.setConnectionTimeout(timeout);
   }
 
   public void setHostName(final String hostName) {

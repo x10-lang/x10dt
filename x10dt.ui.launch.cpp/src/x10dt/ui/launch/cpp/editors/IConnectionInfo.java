@@ -20,6 +20,8 @@ interface IConnectionInfo {
   
   boolean isPasswordBasedAuth();
   
+  int getConnectionTimeout();
+  
   String getErrorMessage();
   
   String getHostName();
@@ -43,6 +45,8 @@ interface IConnectionInfo {
   EValidationStatus getValidationStatus();
   
   void setErrorMessage(final String errorMessage);
+  
+  void setConnectionTimeout(final int timeout);
   
   void setHostName(final String hostName);
   
