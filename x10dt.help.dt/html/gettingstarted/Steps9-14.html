@@ -6,7 +6,7 @@
 
 <body>
 
-<h1>Remote Launching and Debugging Basics</h1>
+<h1>Remote Launching and Debugger Basics</h1>
 
 X10DT allows you to compile and run your programs on different machines with the C++ back-end.
 
@@ -40,7 +40,7 @@ Switch to the <b>C++ Compilation and Linking</b> tab. Specify the output folder 
 your output folder <b>using your own name</b>. This is to ensure that different participants in the tutorial won't share output directories accidentally.
 For example, if you chose <b>tutorial01</b> for your account, then your output folder would be: 
 <br><br><b>/home/tutorial01/JohnDoe</b><br><br>
-In the <b>X10 Distribution</b> field, enter: <b>/opt/x10-2.1.0.1_ompi</b>. This will be automatically carried to the PGAS distribution field.
+In the <b>X10 Distribution</b> field, enter: <b>/opt/x10</b>. This will be automatically carried to the PGAS distribution field.
 
 <br>
 Be sure that the checkbox <b>Use MPI Library for Debugger</b> under <b>Compilation and Linking</b> is checked.
@@ -56,7 +56,14 @@ above.
 <img src="images/platformConfig3.png" border="0" />
 <br><br>
 
-After your platform configuration is set, you need to run the program once. To do so, go to:
+After your platform configuration is set, you need to run the program once. To do so, 
+select the type with the main method, right click and select
+<br><br><b>Run As -> X10 Application (C++ back-end)</b><br><br>
+
+This will open the <b>Parallel Runtime</b> view, where you will see the output of your program when it's finished.
+
+<br><br>
+If this step does not work for you, then create a run configuration manually:
 <br><br><b>Run -> Run Configurations...</b><br><br>
 
 Double click on <b>X10 Application (C++ back-end)</b> to create a new Run Configuration. In the <b>Application</b> tab,
@@ -86,7 +93,7 @@ that will be fixed in a future release).
 
 
 When you are finished with the <b>Run Configurations</b> settings, and no tab shows any errors, hit <b>Apply</b> to save, and then hit <b>Run</b>.
-This will open the <b>Parallel Runtime</b> view, where you will see the output of your program when it's finished.
+
 
 <br><br>
 If this step fails for you, go to the <b>Resources Manager</b> pane in the <b>Parallel Runtime</b> perspective. Right click on the resource manager

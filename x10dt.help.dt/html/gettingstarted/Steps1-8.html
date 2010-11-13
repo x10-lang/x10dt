@@ -20,17 +20,20 @@ You will see a button (labeled <b>X10</b>) appear in the upper right corner of e
 back to the X10 perspective if you happen to move away from it.
 
 <ul>
-<li><a href="#import">Importing from a zip file</a></li>
-<li><a href="#create">Creating X10 Projects</a></li>
+<li><a href="#import">Importing X10 projects from a zip file</a></li>
+<li><a href="#create">Creating new X10 Projects</a></li>
 <li><a href="#editor">Using the Editor</a></li>
 <li><a href="#building">Building</a></li>
 <li><a href="#launching">Launching</a></li>
 <li><a href="#conversions">Conversions between C++ and Java back-ends</a></li>
 </ul>
 
+<br><br>
+<img src="images/X10DT.png" border="0" />
+<br><br>
 
 <br><hr>
-<h2 id="import"> Importing from a zip file </h2>
+<h2 id="import"> Importing X10 projects from a zip file </h2>
 
 Given a zip file that contains an existing X10 project, follow these steps to import it into X10DT.
 Go to 
@@ -41,11 +44,11 @@ select <b>"Select archive file"</b>, and enter the path for the zip file. Click 
 imported project.
 
 <br><hr>
-<h2 id="create"> Creating X10 Projects </h2>
+<h2 id="create"> Creating new X10 projects </h2>
 
 To create an X10 project with the Java backend, go to
 <br><br><b>File -> New -> X10 Project (Java back-end)</b><br><br>
-Enter the name of the project in the window that pops up. The <b>Project Layout</b> defaults to creating seperate folders for sources
+Enter the name of the project in the window that pops up. The <b>Project Layout</b> defaults to creating separate folders for sources
 and class files. Be sure to keep this default. In the <b>Sample Source</b> area, you have the choice of having the wizard create
 a sample "Hello World" program, or not. This program will help you to get started with X10. Click <b>Finish</b>.
 
@@ -61,7 +64,7 @@ To create a new X10 class, interface, or package, select a src folder and right 
 to create. In the popup window, simply type the name of the new entity and click <b>Finish</b>.
 
 <br><hr>
-<h2 id="editor"> Using the Editor </h2>
+<h2 id="editor"> Using the editor </h2>
 
 If you double click on an X10 file in the Package Explorer, it will open an editor for that file. The editor offers the following services:
 <ul>
@@ -70,7 +73,11 @@ If you double click on an X10 file in the Package Explorer, it will open an edit
 <li><b>Hover Help </b> 
 <br>
 If you move the mouse and hover over an entity in the editor, a small window will popup to show you information on that
-entity including its documentation, if any. This feature is especially useful for <b>val</b>s in X10, because it shows the inferred type.</li>
+entity including its documentation, if any. This feature is especially useful for <b>val</b>s in X10, because it shows the inferred type.
+<br><br>
+<img src="images/hoverHelp.png" border="0" />
+<br><br>
+</li>
 <br>
 <li><b>Hyperlinking </b> 
 <br>
@@ -80,18 +87,26 @@ will take you to the definition of that entity.</li>
 <li><b>Outline View </b> 
 <br>
 This is the right-most view in Eclipse under the X10 perspective. If you click on an entity in the Outline View, it will take you
-to that entity in the editor.</li>
+to that entity in the editor.
+<br><br>
+<img src="images/outlineView.png" border="0" />
+<br><br></li>
 <br>
 <li><b>Quick Outline </b> 
 <br>
 If you hit control (command on Mac) and the letter 'o', a popup window will show the outline of the current file. If you start typing the
-name of an entity, the window will only show entities whose names start with what you just typed.</li>
+name of an entity, the window will only show entities whose names start with what you just typed.
+<br><br>
+<img src="images/quickOutline.png" border="0" />
+<br><br></li>
 <br>
 <li><b>Folding </b> 
 <br>
-By clicking on the minus signs in the left margin of the editor, you may fold a region of text. To unfold, simply click on the corresponding plus signs.
-If Folding is not enabled in your workspace, right click in the margin and got to
-<br><br><b>Folding -> Enable</b></li>
+By clicking on the minus signs in the left margin of the editor, you may fold a region of text. 
+To unfold, simply click on the corresponding plus signs.
+<br><br>
+<img src="images/folding.png" border="0" />
+<br><br></li>
 <br>
 <li><b>Content Assist </b> 
 <br>
@@ -99,7 +114,11 @@ If you hit control + space, a window will appear with a selection of templates f
 proposed is context sensitive. When you choose a template, it will be inserted in your code. You will need to edit the missing parts to adapt the
 template to your code. If you hit control + space after a dot '.', it will give you all the members of the type of the receiver. 
 <b>Note that Content Assist currently only works when your file compiles successfully</b>. If there is any compilation error, which often happens
-as you are typing, then this feature will not work. This shortcoming will be fixed in a future release.</li>
+as you are typing, then this feature will not work. This shortcoming will be fixed in a future release.
+<br><br>
+<img src="images/contentAssist.png" border="0" />
+<br><br>
+</li>
 </ul>
 
 <b>When working with multiple editors, be sure to keep only a few open at any time (<10)</b>. This shortcoming is due to memory issues and will be
@@ -107,7 +126,7 @@ addressed in a future release.
 <br><br>
 If you have a file that is larger than 1K lines of code, the services of the editor might be slow. In that case, you may turn off most services
 by going to the <b>Preferences</b> page, select <b>X10</b>, and select <b>"Disable editor features (hyperlinking, hover help, etc.) for performance
-scalability"</b>. This will leave you with only syntax highlighting, outline view, and folding, but will make the editor be more responsive.
+scalability"</b>. This will leave you with only syntax highlighting, outline view, and folding, but will make the editor more responsive.
 
 <br><hr>
 <h2 id="building">Building</h2>
@@ -118,10 +137,10 @@ corner of Eclipse that shows the progress for the builder.
 To clean a project go to
 <br><br><b> Project -> Clean...</b><br><br>
 
-If there are any compilation errors, they will appear in the Problems View, located at the bottom in Eclipse. Cliking on a problem will take you to its location
+If there are any compilation errors, they will appear in the Problems View, located at the bottom in Eclipse. Clicking on a problem will take you to its location
 in an editor.
 
-Occasionally, the Problems View will indicate that an internal compiler error has occured. In that case, open the Error Log:
+If the Problems View indicates that an internal compiler error has occurred, then open the Error Log:
 
 <br><br><b>Window -> Show View -> Other... </b><br><br>
 
@@ -157,9 +176,19 @@ You are now ready to run your X10 program with the C++ back-end. Select the type
 You may also go to
 <br><br><b>Run -> Run Configurations...</b><br><br>
 
-to see all of the launch configurations that you have so far created, and modify them further. The launch configuration tabs allow you to
-enter program parameters.
+to see all of the run configurations that you have so far created, and modify them further. The run configuration tabs allow you to
+enter program parameters (For more information see <a href="Steps9-14.html">Remote Launching and Debugging Basics</a>).
 
+<br><hr>
+<h2 id="conversions">Conversions between C++ and Java back-ends</h2>
+
+To convert an X10 project from C++ back-end to Java back-end, select the project in the Package Explorer, right click, and select
+<br><br><b>Configure -> Convert to X10 Project with Java back-end</b><br><br>
+
+and similarly for converting from Java back-end to C++ back-end.
+
+<br><br>
+It is often convenient to start prototyping a program in the Java back-end, and then convert it to the C++ back-end.
 </body>
 </html>
 
