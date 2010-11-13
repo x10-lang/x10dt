@@ -779,9 +779,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
           tableViewer.update(tableItem.getData(), null);
         }
-        for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-          listener.connectionChanged(false, curConnInfo.getName(), curConnInfo.getValidationStatus(), true);
-        }
+        validateRemoteHostConnection(curConnInfo, true);
         setPartCompleteFlag(hasCompleteInfo());
       }
       
