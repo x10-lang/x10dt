@@ -152,10 +152,8 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     try {
       final ILaunchConfiguration[] configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
       for (final ILaunchConfiguration config : configs) {
-        if (config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName)) { //$NON-NLS-1$
-          if (config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName)) { //$NON-NLS-1$
-            candidateConfigs.add(config);
-          }
+        if (launchConfigMatches(config, typeName, projectName)) { //$NON-NLS-1$
+          candidateConfigs.add(config);
         }
       }
     } catch (CoreException except) {
@@ -169,7 +167,26 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     }
     return null;
   }
-  
+
+  protected boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
+		  								final String projectName) throws CoreException {
+    // This is a fairly loose match, based only on the project and main type names.
+    // This is based on the notion that the most common scenario is to have a single
+    // launch configuration for a given project and main type.
+    // If we want to support multiple launch types (e.g. with different comm interfaces)
+    // for a given project/main type better, we should tighten this match.
+	return config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName) && //$NON-NLS-1$
+		   config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName);
+  }
+
+  /**
+   * Makes sure the launch configuration's attributes are in sync with the platform conf
+   * or any other project-level settings.
+   */
+  protected void updateLaunchConfig(ILaunchConfigurationWorkingCopy launchConfigWC) throws CoreException {
+    // do nothing by default
+  }
+
   private void searchAndLaunch(final IJavaElement[] selection, final String mode) {
     try {
       final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(selection, getProjectNatureId(), getShell());
@@ -178,6 +195,14 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
                                                               mainType.second.getJavaProject().getElementName());
         if (config == null) {
           config = createConfiguration(mainType);
+        } else {
+          // The assumption here is that whatever launch config is found by launchConfigMatches(),
+          // if any, should be updated with the latest info from the platform configuration, or
+          // other project-specific settings.
+          ILaunchConfigurationWorkingCopy workingCopy= config.getWorkingCopy();
+          updateLaunchConfig(workingCopy);
+          workingCopy.doSave();
+          config= workingCopy;
         }
         if (config != null) {
           DebugUITools.launch(config, mode);
@@ -196,6 +221,8 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
         ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
         X10DTUIPlugin.getInstance().getLog().log(status);
       }
+    } catch (CoreException e) {
+      X10DTUIPlugin.getInstance().getLog().log(e.getStatus());
     }
   }
 
