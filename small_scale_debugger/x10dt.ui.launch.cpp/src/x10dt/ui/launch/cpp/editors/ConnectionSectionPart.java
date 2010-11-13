@@ -775,6 +775,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       
       protected void setValue(final Object element, final Object value) {
         final IConnectionInfo curConnInfo = (IConnectionInfo) element;
+        ConnectionSectionPart.this.fCurrentConnection = curConnInfo;
         for (final TableItem tableItem : tableViewer.getTable().getItems()) {
           tableViewer.update(tableItem.getData(), null);
         }
