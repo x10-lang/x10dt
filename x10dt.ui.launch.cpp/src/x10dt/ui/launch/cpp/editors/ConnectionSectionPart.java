@@ -461,7 +461,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
         if (curConnInfo != null) {
           curConnInfo.setConnectionTimeout(connectionTimeoutSpinner.getSelection());
           
-          notifyConnectionUnknownStatus(curConnInfo);
+          if (curConnInfo.getConnectionTimeout() != connectionTimeoutSpinner.getSelection()) {
+            notifyConnectionUnknownStatus(curConnInfo);
+          }
           fillConnectionControlsInfo(curConnInfo);
           updateConnectionConf();
         }
