@@ -8,6 +8,7 @@
 package x10dt.ui.launch.cpp.rms.launch_configuration;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
@@ -27,7 +28,8 @@ public final class SocketsRMLaunchConfigurationFactory extends AbstractRMLaunchC
     return SocketsResourceManager.class;
   }
 
-  protected IRMLaunchConfigurationDynamicTab doCreate(final IResourceManager resourceManager) throws CoreException {
+  protected IRMLaunchConfigurationDynamicTab doCreate(final IResourceManager resourceManager,
+                                                      final ILaunchConfigurationDialog launchDialog) throws CoreException {
     return new SocketsRMLaunchConfigurationDynamicTab();
   }
 

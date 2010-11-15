@@ -7,8 +7,6 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.rms.hostmap;
 
-import java.util.Collection;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
@@ -34,10 +32,10 @@ public interface IHostMapReader {
    * @param remoteServices The remote services instance for the current runtime system.
    * @param machineId The machine id identifying uniquely the machine to consider.
    * @param monitor The monitor to use in order to report progress or cancel the operation.
-   * @return The list of host names that have been loaded.
+   * @return The object instance wrapping the host names.
    */
-  public Collection<String> loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection,
-                                    final IRemoteServices remoteServices, final String machineId, 
-                                    final IProgressMonitor monitor);
+  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection,
+                         final IRemoteServices remoteServices, final String machineId, 
+                         final IProgressMonitor monitor);
 
 }

@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.attributes.AttributeDefinitionManager;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.attributes.BooleanAttribute;
 import org.eclipse.ptp.core.attributes.IAttribute;
@@ -53,13 +52,14 @@ import org.eclipse.ptp.utils.core.RangeSet;
 
 import x10dt.ui.launch.cpp.rms.Messages;
 import x10dt.ui.launch.cpp.rms.RMSActivator;
+import x10dt.ui.launch.cpp.rms.hostmap.HostMap;
 import x10dt.ui.launch.cpp.rms.hostmap.HostMapReaderFactory;
 import x10dt.ui.launch.cpp.rms.hostmap.IHostMapReader;
 
 
 abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem implements IX10RuntimeSystem {
   
-  AbstractX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig, final AttributeDefinitionManager attrDefManager) {
+  AbstractX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
     this.fRMId = String.valueOf(id);
     this.fNextId = id;
     this.fRMConfig = rmConfig;
@@ -175,9 +175,8 @@ abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem implements
       createQueue(Messages.AXRS_defaultQueueName);
       
       final IHostMapReader hostMapReader = HostMapReaderFactory.createAllReaders();
-      final Collection<String> hostNames = hostMapReader.loadMap(this, this.fConnection, this.fRemoteServices, machineId, 
-                                                                 monitor);
-      if (hostNames.isEmpty()) {
+      final HostMap hostMap = hostMapReader.loadMap(this, this.fConnection, this.fRemoteServices, machineId, monitor);
+      if (hostMap.getHosts().isEmpty()) {
         throw new CoreException(new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, Messages.AXRS_NoHostNameFound));
       }
 
@@ -186,16 +185,20 @@ abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem implements
         return;
       }
       
-      final Job checkRequirementsJob = createCheckRequirementsJob(subMon.newChild(50), hostNames);
-      if (checkRequirementsJob != null) {
-        checkRequirementsJob.schedule();
-        try {
-          checkRequirementsJob.join();
-        } catch (InterruptedException except) {
-          // Just ignores.
-        }
-        if (! checkRequirementsJob.getResult().isOK()) {
-          throw new CoreException(checkRequirementsJob.getResult());
+      if (hostMap.isOnlyLocalHost()) {
+        subMon.worked(50);
+      } else {
+        final Job checkRequirementsJob = createCheckRequirementsJob(subMon.newChild(50), hostMap.getHosts());
+        if (checkRequirementsJob != null) {
+          checkRequirementsJob.schedule();
+          try {
+            checkRequirementsJob.join();
+          } catch (InterruptedException except) {
+            // Just ignores.
+          }
+          if (! checkRequirementsJob.getResult().isOK()) {
+            throw new CoreException(checkRequirementsJob.getResult());
+          }
         }
       }
       

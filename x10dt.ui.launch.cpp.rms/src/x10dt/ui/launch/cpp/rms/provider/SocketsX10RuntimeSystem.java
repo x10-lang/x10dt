@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.attributes.AttributeDefinitionManager;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.remote.core.IRemoteProcess;
@@ -40,8 +39,8 @@ import x10dt.ui.launch.cpp.rms.launch_configuration.LaunchAttributes;
 
 final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements IX10RuntimeSystem {
 
-  SocketsX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig, final AttributeDefinitionManager attrDefManager) {
-    super(id, rmConfig, attrDefManager);
+  SocketsX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
+    super(id, rmConfig);
   }
 
   // --- Abstract methods implementation

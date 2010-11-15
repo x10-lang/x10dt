@@ -39,6 +39,8 @@ public class Messages extends NLS {
 
   public static String AXRSJ_JobCancelationMsg;
 
+  public static String AXRSJ_JobCanceled;
+
   public static String AXRSJ_JobExitValueErrorMsg;
 
   public static String AXRSJ_OutputStreamReadingError;

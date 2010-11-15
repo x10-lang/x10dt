@@ -11,6 +11,7 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.ptp.services.core.IServiceProvider;
+import org.eclipse.ptp.services.core.IServiceProviderWorkingCopy;
 import org.eclipse.ptp.services.ui.IServiceProviderContributor;
 import org.eclipse.swt.widgets.Composite;
 
@@ -22,7 +23,7 @@ public final class SocketsProviderContributor implements IServiceProviderContrib
 
   // --- Interface methods implementation
   
-  public void configureServiceProvider(final IServiceProvider provider, final Composite composite) {
+  public void configureServiceProvider(final IServiceProviderWorkingCopy provider, final Composite composite) {
   }
 
   public WizardPage[] getWizardPages(final IWizard wizard, final IServiceProvider provider) {

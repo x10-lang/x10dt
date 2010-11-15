@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.filesystem.EFS;
@@ -44,9 +43,9 @@ final class OpenMPIHostMapReader implements IHostMapReader {
 
   // --- Interface methods implementation
   
-  public Collection<String> loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
-                                    final IRemoteServices remoteServices, final String machineId, 
-                                    final IProgressMonitor monitor) {
+  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
+                         final IRemoteServices remoteServices, final String machineId, 
+                         final IProgressMonitor monitor) {
     final OmpiInfo ompiInfo = new OmpiInfo();
     
     final List<String> command = Arrays.asList("ompi_info", "-a", "--parseable"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -60,11 +59,11 @@ final class OpenMPIHostMapReader implements IHostMapReader {
       
         final OpenMPIHostMap hostMap = readHostFile(connection, remoteServices, ompiInfo);
         if ((hostMap == null) || (hostMap.count() == 0)) {
-          return Collections.emptyList();
+          return new HostMap();
         } else {
           final List<String> hostNames = new ArrayList<String>();
           processHostMap(hostMap, runtimeSystem, machineId, hostNames);
-          return hostNames;
+          return new HostMap(hostNames);
         }
       } finally {
         process.waitFor();
@@ -72,7 +71,7 @@ final class OpenMPIHostMapReader implements IHostMapReader {
     } catch (Exception except) {
       // Simply forgets
     }
-    return Collections.emptyList();
+    return new HostMap();
   }
   
   // --- Private
