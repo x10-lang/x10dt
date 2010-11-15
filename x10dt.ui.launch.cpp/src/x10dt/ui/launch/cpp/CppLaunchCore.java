@@ -51,6 +51,7 @@ import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
 import x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformValidationListener;
 import x10dt.ui.launch.cpp.platform_conf.validation.PlatformCheckerFactory;
+import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 
 /**
  * Controls the plug-in life cycle for this project and provides logging services.
@@ -90,9 +91,17 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
           }
           break;
         }
-        case IResourceDelta.REMOVED:
-          this.fProjectToPlatform.remove(project);
+        case IResourceDelta.REMOVED: {
+          final IX10PlatformConf platformConf = this.fProjectToPlatform.remove(project);
+          if (platformConf != null) {
+            try {
+              PTPConfUtils.deleteResourceManager(platformConf);
+            } catch (CoreException except) {
+              log(IStatus.ERROR, NLS.bind(LaunchMessages.CLC_RMShutdownError, project.getName()), except);
+            }
+          }
           break;
+        }
         case IResourceDelta.CHANGED: {
           final IPath path = X10PlatformConfFactory.getFile(resourceDelta.getResource().getProject()).getFullPath();
           final IResourceDelta platformConfDelta = rootResourceDelta.findMember(path);

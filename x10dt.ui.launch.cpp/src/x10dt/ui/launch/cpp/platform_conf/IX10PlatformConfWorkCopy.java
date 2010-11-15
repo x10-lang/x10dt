@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
@@ -33,8 +34,10 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   /**
    * Initializes the working copy with some default values in local mode.
+   * 
+   * @param project The project that contains the platform configuration.
    */
-  public void initializeToDefaultValues();
+  public void initializeToDefaultValues(final IProject project);
   
   /**
    * Indicates if the working copy has been altered in comparison to the original configuration.
@@ -101,11 +104,15 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setConnectionName(final String connectionName);
   
+  public void setConnectionTimeout(final int timeout);
+  
   public void setHostName(final String hostName);
   
   public void setIsLocalFlag(final boolean isLocal);
   
   public void setIsPasswordBasedAuthenticationFlag(final boolean isPasswordBasedAuth);
+  
+  public void setLocalAddress(final String localAddress);
   
   public void setPassphrase(final String passphrase);
   
@@ -114,6 +121,8 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setPort(final int port);
   
   public void setPrivateKeyFile(final String privateKeyFile);
+  
+  public void setShouldUsePortForwarding(final boolean usePortForwarding);
   
   public void setTargetElement(final ITargetElement targetElement);
   
@@ -162,8 +171,6 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setLaunchProxyManuallyFlag(final String ciType, final boolean shouldLaunchProxyManually);
   
   public void setSuspendProxyAtStartupFlag(final String ciType, final boolean shouldSuspendProxy);
-  
-  public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding);
   
   /// IBM Parallel Environment
   

@@ -64,33 +64,6 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   // --- IServiceModelEventListener's interface methods implementation
   
   public void handleEvent(final IServiceModelEvent event) {
-    final IServiceConfiguration serviceConf = (IServiceConfiguration) event.getSource();
-    switch (event.getType()) {
-      case IServiceModelEvent.SERVICE_CONFIGURATION_ADDED:
-        getFormPage().getSite().getShell().getDisplay().syncExec(new Runnable() {
-          
-          public void run() {
-            if (ConfNameSectionPart.this.fRMServiceConfNameCombo.indexOf(serviceConf.getName()) == -1) {
-              ConfNameSectionPart.this.fRMServiceConfNameCombo.add(serviceConf.getName());
-              ConfNameSectionPart.this.fRMServiceConfNameCombo.setData(serviceConf.getName(), serviceConf);
-            }
-          }
-          
-        });
-        break;
-        
-      case IServiceModelEvent.SERVICE_CONFIGURATION_REMOVED:
-        getFormPage().getSite().getShell().getDisplay().syncExec(new Runnable() {
-          
-          public void run() {
-            if (ConfNameSectionPart.this.fRMServiceConfNameCombo.indexOf(serviceConf.getName()) != -1) {
-              ConfNameSectionPart.this.fRMServiceConfNameCombo.remove(serviceConf.getName());
-            }
-          }
-          
-        });
-        break;
-    }
   }
   
   // --- IModelManagerChildListener's interface methods implementation
@@ -104,16 +77,6 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   }
 
   public void handleEvent(final IRemoveResourceManagerEvent event) {
-  	getFormPage().getSite().getShell().getDisplay().syncExec(new Runnable() {
-      
-      public void run() {
-      	if (ConfNameSectionPart.this.fRMServiceConfNameCombo.indexOf(event.getResourceManager().getName()) != -1) {
-      		ConfNameSectionPart.this.fRMServiceConfNameCombo.remove(event.getResourceManager().getName());
-      	}
-      	
-      }
-      
-  	});
   }
   
   // --- Overridden methods

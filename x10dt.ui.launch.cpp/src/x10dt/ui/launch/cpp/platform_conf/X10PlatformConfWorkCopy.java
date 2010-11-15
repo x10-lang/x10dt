@@ -7,9 +7,9 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
-import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.*;
 
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
@@ -17,12 +17,12 @@ import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.core.utils.EnumUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
-import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
@@ -46,17 +46,30 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fIsDirty = false;
   }
   
-  public void initializeToDefaultValues() {
+  public void initializeToDefaultValues(final IProject project) {
     AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
     if (ciConf == null) {
-      ciConf = super.fCommInterfaceFact.getOrCreate(SOCKETS_SERVICE_PROVIDER_ID);
-      super.fCommInterfaceFact.defineCurrentCommInterfaceType(SOCKETS_SERVICE_PROVIDER_ID);
-      ciConf.fServiceTypeId = SOCKETS_SERVICE_PROVIDER_ID;
+      final boolean isWindows = EnumUtils.getLocalOS() == ETargetOS.WINDOWS;
+      final String ciType = isWindows ? MPICH2_SERVICE_PROVIDER_ID : SOCKETS_SERVICE_PROVIDER_ID;
+      ciConf = super.fCommInterfaceFact.getOrCreate(ciType);
+      super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+      ciConf.fServiceTypeId = ciType;
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+      if (isWindows) {
+        final MessagePassingInterfaceConf mpiConf = (MessagePassingInterfaceConf) ciConf;
+        mpiConf.fDefaultIntallLocation = true;
+        mpiConf.fDefaultToolCmds = true;
+      }
     }
     if (this.fConnectionConf.fIsLocal) {
       initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
+    }
+    if (this.fConnectionConf.fTimeout == 0) {
+      this.fConnectionConf.fTimeout = 5;
+    }
+    if (this.fConnectionConf.fLocalAddress == null) {
+      this.fConnectionConf.fLocalAddress = "localhost"; //$NON-NLS-1$
     }
     if (ciConf.fServiceModeId == null) {
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
@@ -67,8 +80,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       if (connectionName.trim().length() == 0) {
         connectionName = LaunchMessages.RMCP_UnknownTargetName;
       }
-      this.fName = NLS.bind(LaunchMessages.RMCP_DefaultConnName, PTPConfUtils.getCommunicationInterfaceTypeName(ciConf),
-                            connectionName);
+      this.fName = project.getName();
     }
   }
   
@@ -218,6 +230,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
+  public void setConnectionTimeout(final int timeout) {
+    super.fConnectionConf.fTimeout = timeout;
+    updateDirtyFlag();
+  }
+  
   public void setHostName(final String hostName) {
     super.fConnectionConf.fHostName = hostName;
     updateDirtyFlag();
@@ -226,9 +243,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   public void setIsLocalFlag(final boolean isLocal) {
     super.fConnectionConf.fIsLocal = isLocal;
     if (isLocal) {
-      if (this.fCppCompilationConf.fTargetOS == null) {
-        initLocalCppCompilationCommands();
-      }
+      initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
     }
     updateDirtyFlag();
@@ -236,6 +251,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setIsPasswordBasedAuthenticationFlag(final boolean isPasswordBasedAuth) {
     super.fConnectionConf.fIsPasswordBasedAuth = isPasswordBasedAuth;
+    updateDirtyFlag();
+  }
+  
+  public void setLocalAddress(final String localAddress) {
+    super.fConnectionConf.fLocalAddress = localAddress;
     updateDirtyFlag();
   }
   
@@ -256,6 +276,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setPrivateKeyFile(final String privateKeyFile) {
     super.fConnectionConf.fPrivateKeyFile = privateKeyFile;
+    updateDirtyFlag();
+  }
+  
+  public void setShouldUsePortForwarding(final boolean usePortForwarding) {
+    super.fConnectionConf.fUsePortForwarding = usePortForwarding;
     updateDirtyFlag();
   }
   
@@ -402,13 +427,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
     final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fSuspendProxyAtStartup = shouldSuspendProxy;
-    updateDirtyFlag();
-  }
-  
-  public void setUsePortForwardingFlag(final String ciType, final boolean shouldUsePortForwarding) {
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final IBMCommunicationInterfaceConf conf = (IBMCommunicationInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
-    conf.fUsePortForwarding = shouldUsePortForwarding;
     updateDirtyFlag();
   }
   

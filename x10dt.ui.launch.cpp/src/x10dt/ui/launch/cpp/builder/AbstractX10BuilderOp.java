@@ -63,6 +63,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IProject project, 
                                  final String workspaceDir) throws CoreException {
+    if (workspaceDir == null) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.AXBO_NoRemoteOutputFolder));
+    }
     this.fConfName = platformConf.getName();
     this.fProject = project;
     this.fWorkspaceDir = workspaceDir;
@@ -149,13 +152,15 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         monitor.worked(1);
       }
       
-      final IFileStore parentStore = this.fTargetOpHelper.getStore(this.fWorkspaceDir);
-      deleteFile(parentStore.getChild("xxx_main_xxx.cc"), nullMonitor); //$NON-NLS-1$
-      deleteFile(parentStore.getChild("lib" + getProject().getName() + A_EXT), nullMonitor); //$NON-NLS-1$
+      if (files.getSize() > 0) {
+        final IFileStore parentStore = this.fTargetOpHelper.getStore(this.fWorkspaceDir);
+        deleteFile(parentStore.getChild("xxx_main_xxx.cc"), nullMonitor); //$NON-NLS-1$
+        deleteFile(parentStore.getChild("lib" + getProject().getName() + A_EXT), nullMonitor); //$NON-NLS-1$
       
-      final String execPath = getProject().getPersistentProperty(EXEC_PATH);
-      if (execPath != null) {
-        deleteFile(this.fTargetOpHelper.getStore(execPath), nullMonitor);
+        final String execPath = getProject().getPersistentProperty(EXEC_PATH);
+        if (execPath != null) {
+          deleteFile(this.fTargetOpHelper.getStore(execPath), nullMonitor);
+        }
       }
       monitor.worked(1);
     } finally {

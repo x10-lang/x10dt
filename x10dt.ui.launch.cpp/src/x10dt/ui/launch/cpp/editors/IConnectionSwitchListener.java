@@ -5,22 +5,11 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui.launch.cpp.launching;
+package x10dt.ui.launch.cpp.editors;
 
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
-/**
- * Listener of some events for the C++ Application Launch tab.
- * 
- * @author egeay
- */
-public interface ICppApplicationTabListener {
-  
-  /**
-   * Gets notified that a platform configuration has been selected as a result of a project selection.
-   * 
-   * @param platformConf The platform configuration mentioned.
-   */
-  public void platformConfSelected(final IX10PlatformConf platformConf);
+interface IConnectionSwitchListener {
+
+  void connectionSwitched(final boolean isLocal);
 
 }

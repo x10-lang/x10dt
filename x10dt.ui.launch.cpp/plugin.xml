@@ -281,5 +281,12 @@
             class="x10dt.ui.launch.cpp.actions.CppBackEndProjectConverter">
       </converter>
    </extension>
+   <extension
+         point="x10dt.ui.launch.core.x10ToggleBreakpointHandler">
+      <x10ToggleBreakpointHandler
+            backEndType="c++"
+            class="x10dt.ui.launch.cpp.debug.X10CppToggleBreakpointsHandler">
+      </x10ToggleBreakpointHandler>
+   </extension>
 
 </plugin>

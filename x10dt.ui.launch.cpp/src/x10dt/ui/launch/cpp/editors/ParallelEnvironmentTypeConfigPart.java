@@ -73,9 +73,6 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     this.fBrowseBts.add(pair.second);
     pair.second.addSelectionListener(formPart.new FileDialogSelectionListener(proxyExecPathText));
     
-    final Button usePortFwdBt = toolkit.createButton(parent, LaunchMessages.PETCP_PortFwrd, SWT.CHECK);
-    addControl(usePortFwdBt);
-    
     final Button launchServerManuallyBt = toolkit.createButton(parent, LaunchMessages.PETCP_LaunchServerManually, SWT.CHECK);
     addControl(launchServerManuallyBt);
     
@@ -149,11 +146,11 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
     initConfiguration(x10PlatformConf, (IParallelEnvironmentConf) x10PlatformConf.getCommunicationInterfaceConf());
     initializeControls(formPart, (IParallelEnvironmentConf) x10PlatformConf.getCommunicationInterfaceConf(), 
-                       proxyExecPathText, usePortFwdBt, launchServerManuallyBt, useLoadLevelerBt, multiClusterCombo, 
+                       proxyExecPathText, launchServerManuallyBt, useLoadLevelerBt, multiClusterCombo, 
                        nodePollingMinSp, nodePollingMaxSp, jobPollingSp, alternateLibPathText, runAfterProxyBt, traceOptCombo,
                        suspendProxyBt, pair.second, pair2.second, llGroupControls);
     
-    addListeners(x10PlatformConf, managedForm, formPart, proxyExecPathText, usePortFwdBt, launchServerManuallyBt, 
+    addListeners(x10PlatformConf, managedForm, formPart, proxyExecPathText, launchServerManuallyBt, 
                  useLoadLevelerBt, multiClusterCombo, nodePollingMinSp, nodePollingMaxSp, jobPollingSp, alternateLibPathText,
                  runAfterProxyBt, traceOptCombo, suspendProxyBt, llGroupControls);
   }
@@ -177,11 +174,10 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
   
   private void addListeners(final IX10PlatformConfWorkCopy x10PlatformConf, final IManagedForm managedForm, 
                             final AbstractCommonSectionFormPart formPart, final Text proxyExecPathText, 
-                            final Button usePortFwdBt, final Button launchServerManuallyBt, 
-                            final Button useLoadLevelerBt, final Combo multiClusterCombo, final Spinner nodePollingMinSp,
-                            final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
-                            final Button runAfterProxyBt, final Combo traceOptCombo, final Button suspendProxyBt,
-                            final Collection<Control> llGroupControls) {
+                            final Button launchServerManuallyBt, final Button useLoadLevelerBt, final Combo multiClusterCombo,
+                            final Spinner nodePollingMinSp, final Spinner nodePollingMaxSp, final Spinner jobPollingSp, 
+                            final Text alternateLibPathText, final Button runAfterProxyBt, final Combo traceOptCombo, 
+                            final Button suspendProxyBt, final Collection<Control> llGroupControls) {
     proxyExecPathText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
@@ -189,18 +185,6 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
         formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
-      }
-      
-    });
-    usePortFwdBt.addSelectionListener(new SelectionListener() {
-      
-      public void widgetSelected(final SelectionEvent event) {
-        x10PlatformConf.setUsePortForwardingFlag(PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID, usePortFwdBt.getSelection());
-        formPart.updateDirtyState(managedForm);
-      }
-      
-      public void widgetDefaultSelected(final SelectionEvent event) {
-        widgetSelected(event);
       }
       
     });
@@ -339,7 +323,7 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
   }
   
   private void initializeControls(final AbstractCommonSectionFormPart formPart, final IParallelEnvironmentConf ciConf, 
-                                  final Text proxyExecPathText, final Button usePortFwdBt, final Button launchServerManuallyBt, 
+                                  final Text proxyExecPathText, final Button launchServerManuallyBt, 
                                   final Button useLoadLevelerBt, final Combo multiClusterCombo, final Spinner nodePollingMinSp, 
                                   final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
                                   final Button runAfterProxyBt, final Combo traceOptCombo, final Button suspendProxyBt,
@@ -348,7 +332,6 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     proxyExecPathText.setText(ciConf.getProxyServerPath());
     formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);
     proxyServerBrowseBt.setEnabled(this.fBrowseBtEnabled);
-    usePortFwdBt.setSelection(ciConf.shouldUsePortForwarding());
     launchServerManuallyBt.setSelection(ciConf.shouldLaunchProxyManually());
     
     useLoadLevelerBt.setSelection(ciConf.shouldUseLoadLeveler());

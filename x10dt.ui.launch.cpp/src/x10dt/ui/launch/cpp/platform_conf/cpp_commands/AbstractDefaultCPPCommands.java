@@ -42,7 +42,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     return this.fArchitecture;
   }
   
-  protected final String getTransportCompilerOption() {
+  protected String getTransportCompilerOption() {
     switch (this.fTransport) {
       case LAPI:
         return "-DTRANSPORT=lapi"; //$NON-NLS-1$
@@ -56,7 +56,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     }
   }
   
-  protected final String getTransportLibrary() {
+  protected String getTransportLibrary() {
     switch (this.fTransport) {
       case LAPI:
         return "-lupcrts_lapi"; //$NON-NLS-1$

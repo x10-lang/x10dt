@@ -30,6 +30,17 @@ final class StandaloneConf extends AbstractCommunicationInterfaceConfiguration i
     return new StandaloneConf(this);
   }
   
+  // --- Overridden methods
+  
+  public boolean equals(final Object rhs) {
+    return (rhs != null) && (rhs instanceof StandaloneConf) && super.equals(rhs);
+  }
+  
+  public int hashCode() {
+    return 23423;
+  }
+  
+
   // --- Private code
   
   StandaloneConf() {}

@@ -115,11 +115,17 @@ public class LaunchMessages extends NLS {
 
   public static String CIT_NoLaunchConfigAvailable;
 
+  public static String CIT_NoLaunchConfigForRM;
+
+  public static String CIT_NoResourceManager;
+
   public static String CIT_NoX10ProjectIdentified;
 
   public static String CLC_CheckConnAndCommJobMsg;
 
   public static String CLC_RebuildWorkspaceJobName;
+
+  public static String CLC_RMShutdownError;
 
 	public static String CLCD_CmdUsedMsg;
 
@@ -183,6 +189,12 @@ public class LaunchMessages extends NLS {
 
   public static String CCVC_WrongLinuxPPCVersionRequirement;
   
+  public static String CSP_ConnTimeout;
+
+  public static String CSP_LocalAddress;
+
+  public static String CSP_UsePortFwrd;
+
   public static String ES_CompileTaskName;
   
   public static String ES_GeneratingCppCilesTaskName;
@@ -216,8 +228,6 @@ public class LaunchMessages extends NLS {
   public static String PETCP_NodePollingMin;
 
   public static String PETCP_NoTraceOpt;
-
-  public static String PETCP_PortFwrd;
 
   public static String PETCP_ProxyExecPath;
 
@@ -317,8 +327,6 @@ public class LaunchMessages extends NLS {
 
   public static String RMCP_DebugLabel;
 
-  public static String RMCP_DefaultConnName;
-
   public static String RMCP_DefaultLocalConnName;
 
   public static String RMCP_UnknownTargetName;
@@ -404,6 +412,10 @@ public class LaunchMessages extends NLS {
   public static String XPC_InputStreamReadingError;
 
   public static String XPC_LinkingFailure;
+  
+  public static String XPC_RemoteConnRequirementMsg;
+  
+  public static String XPC_RemoteConnRequirementTitle;
 
   public static String XPCFE_CommInterfaceFailure;
 
@@ -486,6 +498,8 @@ public class LaunchMessages extends NLS {
   public static String XPCP_RemoteOutputFolderSection;
 
   public static String XPCP_RemoteOutputFolderSectionDescr;
+
+  public static String XPCP_UseMPILibForDebugger;
 
   public static String XPCP_UseX10DistLoc;
 

@@ -27,6 +27,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -36,14 +37,17 @@ import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
+import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
+import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 
 
 final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormPart 
-                                              implements IServiceConfigurationListener, IConnectionTypeListener, IFormPart {
+                                              implements IServiceConfigurationListener, IConnectionTypeListener, IFormPart,
+                                                         IConnectionSwitchListener {
 
   CommunicationInterfaceSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage) {
     super(parent, formPage);
@@ -93,13 +97,32 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
-                                final EValidationStatus validationStatus, final boolean newConnection) {
+                                final EValidationStatus validationStatus, final boolean newCurrent) {
     for (final String itemName : this.fCITypeCombo.getItems()) {
       final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) this.fCITypeCombo.getData(itemName);
       typeConfPart.connectionChanged(isLocal, remoteConnectionName, validationStatus);
     }
   }
   
+  // --- IConnectionSwitchListener's interface methods implementation
+  
+  public void connectionSwitched(final boolean isLocal) {
+    if (getPlatformConf().getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS) {
+      this.fCITypeCombo.removeAll();
+      final Set<IServiceProviderDescriptor> serviceProviders = new HashSet<IServiceProviderDescriptor>();
+
+      final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
+      for (final IService service : serviceModelManager.getServices()) {
+        if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
+          serviceProviders.addAll(service.getProviders());
+        }
+      }
+      initTypeCombo(serviceProviders, serviceModelManager);
+      this.fCITypeCombo.select(0);
+      this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
+    }
+  }
+
   // --- IFormPart's methods implementation
   
   public void dispose() {
@@ -216,16 +239,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         serviceProviders.addAll(service.getProviders());
       }
     }
-    for (final IServiceProviderDescriptor providerDescriptor : serviceProviders) {
-      final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(providerDescriptor);
-      if (serviceProvider instanceof IRemoteResourceManagerConfiguration) {
-        final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);
-        if (typeConfPart != null) {
-          this.fCITypeCombo.add(providerDescriptor.getName());
-          this.fCITypeCombo.setData(providerDescriptor.getName(), typeConfPart);
-        }
-      }
-    }
+    initTypeCombo(serviceProviders, serviceModelManager);
     
     new Label(sectionClient, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new TableWrapData(TableWrapData.FILL));
     
@@ -277,6 +291,24 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
         break;
       }
     }
+  }
+  
+  private void initTypeCombo(final Set<IServiceProviderDescriptor> serviceProviders, final ServiceModelManager serviceModelManager) {
+	final ICppCompilationConf cppCompilationConf = getPlatformConf().getCppCompilationConf();
+	final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
+	for (final IServiceProviderDescriptor providerDescriptor : serviceProviders) {
+      final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(providerDescriptor);
+      if (serviceProvider instanceof IRemoteResourceManagerConfiguration) {
+    	  if ((cppCompilationConf.getTargetOS() != ETargetOS.WINDOWS) || ! isLocal ||
+    		  (((IRemoteResourceManagerConfiguration) serviceProvider).getResourceManagerId().equals(PTPConstants.MPICH2_SERVICE_PROVIDER_ID))) {
+    	    final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);
+    	    if (typeConfPart != null) {
+    	      this.fCITypeCombo.add(providerDescriptor.getName());
+    	      this.fCITypeCombo.setData(providerDescriptor.getName(), typeConfPart);
+    	    }
+    	  }
+      }
+	}
   }
   
   private void updateCommunicationTypeInfo(final Combo ciTypeCombo, final IManagedForm managedForm,

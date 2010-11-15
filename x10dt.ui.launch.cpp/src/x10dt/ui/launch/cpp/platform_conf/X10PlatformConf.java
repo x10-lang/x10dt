@@ -134,11 +134,14 @@ class X10PlatformConf implements IX10PlatformConf {
     
     final IMemento connectionTag = platformTag.createChild(CONNECTION_TAG);
     connectionTag.putBoolean(IS_LOCAL_ATTR, this.fConnectionConf.fIsLocal);
+    connectionTag.putBoolean(USE_PORT_FORWARDING_TAG, this.fConnectionConf.fUsePortForwarding);
     if (! this.fConnectionConf.fIsLocal) {
       if (hasData(this.fConnectionConf.fHostName)) {
         connectionTag.createChild(HOSTNAME_TAG).putTextData(this.fConnectionConf.fHostName);
       }
       connectionTag.createChild(PORT_TAG).putTextData(String.valueOf(this.fConnectionConf.fPort));
+      connectionTag.createChild(LOCAL_ADDRESS_TAG).putTextData(this.fConnectionConf.fLocalAddress);
+      connectionTag.createChild(TIMEOUT_TAG).putTextData(String.valueOf(this.fConnectionConf.fTimeout));
     }
     
     final IMemento communicationInterfaceTag = platformTag.createChild(COMMUNICATION_INTERFACE_TAG);
@@ -395,6 +398,12 @@ class X10PlatformConf implements IX10PlatformConf {
     if (! this.fConnectionConf.fIsLocal) {
       this.fConnectionConf.fHostName = getTextDataValue(connectionMemento, HOSTNAME_TAG);
       this.fConnectionConf.fPort = Integer.parseInt(getTextDataValue(connectionMemento, PORT_TAG));
+      this.fConnectionConf.fUsePortForwarding = getBooleanValue(connectionMemento, USE_PORT_FORWARDING_TAG, false);
+      final String timeout = getTextDataValue(connectionMemento, USE_PORT_FORWARDING_TAG);
+      if (timeout != null) {
+        this.fConnectionConf.fTimeout = Integer.parseInt(timeout);
+      }
+      this.fConnectionConf.fLocalAddress = getTextDataValue(connectionMemento, LOCAL_ADDRESS_TAG);
     }
     this.fConnectionConf.initTargetElement();
     
@@ -472,7 +481,6 @@ class X10PlatformConf implements IX10PlatformConf {
     ciConf.fProxyServerPath = getTextDataValue(ciMemento, PROXY_SERVER_PATH);
     ciConf.fLaunchProxyManually = getBooleanValue(ciMemento, LAUNCH_PROXY_MANUALLY, false);
     ciConf.fSuspendProxyAtStartup = getBooleanValue(ciMemento, SUSPEND_PROXY_AT_STARTUP, false);
-    ciConf.fUsePortForwarding = getBooleanValue(ciMemento, USE_PORT_FORWARDING, false);
   }
   
   private void load(final IMemento ciMemento, final ParallelEnvironmentConf ciConf) {
@@ -533,7 +541,6 @@ class X10PlatformConf implements IX10PlatformConf {
       ciMemento.createChild(PROXY_SERVER_PATH).putTextData(ciConf.fProxyServerPath);
     }
     ciMemento.putBoolean(LAUNCH_PROXY_MANUALLY, ciConf.fLaunchProxyManually);
-    ciMemento.putBoolean(USE_PORT_FORWARDING, ciConf.fUsePortForwarding);
     
     if (shouldSaveAlternateInfo) {
       if (hasData(ciConf.fAlternateLibPath)) {
@@ -602,6 +609,12 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String HOSTNAME_TAG = "hostname"; //$NON-NLS-1$
   
   private static final String PORT_TAG = "port"; //$NON-NLS-1$
+  
+  private static final String USE_PORT_FORWARDING_TAG = "use-port-forwarding"; //$NON-NLS-1$
+  
+  private static final String LOCAL_ADDRESS_TAG = "local-address"; //$NON-NLS-1$
+  
+  private static final String TIMEOUT_TAG = "timeout"; //$NON-NLS-1$
     
   
   private static final String COMMUNICATION_INTERFACE_TAG = "communication-interface"; //$NON-NLS-1$
@@ -641,8 +654,6 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String PROXY_SERVER_PATH = "proxy-server-path"; //$NON-NLS-1$
   
   private static final String LAUNCH_PROXY_MANUALLY = "launch-proxy-manually"; //$NON-NLS-1$
-  
-  private static final String USE_PORT_FORWARDING = "use-port-forwarding"; //$NON-NLS-1$
   
   private static final String PE_DEBUG_LEVEL = "pe-debug-level"; //$NON-NLS-1$
   

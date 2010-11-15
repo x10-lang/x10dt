@@ -46,12 +46,16 @@ import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.widgets.Form;
 
 import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.dialogs.DialogsFactory;
+import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.CppLaunchImages;
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
+import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
@@ -197,7 +201,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
-                                final EValidationStatus validationStatus, final boolean newConnection) {
+                                final EValidationStatus validationStatus, final boolean newCurrent) {
     getHeaderForm().getMessageManager().removeMessage(this.fConnKey);
     if (this.fValidateAction.isEnabled()) {
       this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);
@@ -222,45 +226,64 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     synchronized (file) {
       CoreResourceUtils.deletePlatformConfMarkers(file);
       
-      final IProject project = file.getProject();
-      final IWorkspace workspace = project.getWorkspace();
-      final IWorkspaceDescription description = workspace.getDescription();
-      boolean isAutoBuilding = description.isAutoBuilding();
-      if (isAutoBuilding == true) {
-        description.setAutoBuilding(false);
-        try {
-          workspace.setDescription(description);
-        } catch (CoreException except) {
-          CppLaunchCore.log(except.getStatus());
-        }
-      }
-
-      monitor.beginTask(null, 3);
-      final BuildChangeListener buildListener = new BuildChangeListener();
-      try {
-        project.getWorkspace().addResourceChangeListener(buildListener);
-        project.build(IncrementalProjectBuilder.CLEAN_BUILD, new SubProgressMonitor(monitor, 1));
-        while (buildListener.hasFinished()) ;
-      } catch (CoreException except) {
-        DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
-                      .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
-                                     LaunchMessages.XPCFE_CouldNotCleanOutputDir);
-      } finally {
-        if (isAutoBuilding) {
-          description.setAutoBuilding(true);
+      {//TODO: Probably to remove.
+        final IProject project = file.getProject();
+        final IWorkspace workspace = project.getWorkspace();
+        final IWorkspaceDescription description = workspace.getDescription();
+        boolean isAutoBuilding = description.isAutoBuilding();
+        if (isAutoBuilding == true) {
+          description.setAutoBuilding(false);
           try {
             workspace.setDescription(description);
           } catch (CoreException except) {
             CppLaunchCore.log(except.getStatus());
           }
         }
-        project.getWorkspace().removeResourceChangeListener(buildListener);
+
+        monitor.beginTask(null, 3);
+        final BuildChangeListener buildListener = new BuildChangeListener();
+        try {
+          project.getWorkspace().addResourceChangeListener(buildListener);
+          project.build(IncrementalProjectBuilder.CLEAN_BUILD, new SubProgressMonitor(monitor, 1));
+          while (buildListener.hasFinished())
+            ;
+        } catch (CoreException except) {
+          DialogsFactory.createErrorBuilder()
+                        .setDetailedMessage(except.getStatus())
+                        .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
+                                       LaunchMessages.XPCFE_CouldNotCleanOutputDir);
+        } finally {
+          if (isAutoBuilding) {
+            description.setAutoBuilding(true);
+            try {
+              workspace.setDescription(description);
+            } catch (CoreException except) {
+              CppLaunchCore.log(except.getStatus());
+            }
+          }
+          project.getWorkspace().removeResourceChangeListener(buildListener);
+        }
+        if (monitor.isCanceled()) {
+          return;
+        }
       }
-      if (monitor.isCanceled()) {
-        return;
-      }
+
       try {
         getCurrentPlatformConf().applyChanges();
+        
+        final String outputFolder = getCurrentPlatformConf().getCppCompilationConf().getRemoteOutputFolder();
+        if ((outputFolder == null) || (outputFolder.length() == 0)) {
+          CoreResourceUtils.addPlatformConfMarker(file, Messages.AXBO_NoRemoteOutputFolder, IMarker.SEVERITY_ERROR, 
+                                                  IMarker.PRIORITY_HIGH);
+        }
+        
+        final IConnectionConf connConf = getCurrentPlatformConf().getConnectionConf();
+        final boolean isCygwin = getCurrentPlatformConf().getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
+        if (TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName()) == null) {
+          CoreResourceUtils.addPlatformConfMarker(file, Messages.CPPB_NoValidConnectionError, IMarker.SEVERITY_ERROR, 
+                                                  IMarker.PRIORITY_HIGH);
+        }
+        
         X10PlatformConfFactory.save(file, getCurrentPlatformConf());
         monitor.worked(1);
         commitPages(true);
@@ -293,8 +316,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     form.setText(LaunchMessages.XPCFE_FormTitle);
     headerForm.getToolkit().decorateFormHeading(form);
     
-    this.fSaveAction = new SaveAction(CppLaunchImages.createUnmanaged(CppLaunchImages.SAVE_PLATFORM_CONF));
-    this.fValidateAction = new ValidateAction(this.fUncheckedPlatformImg);
+    this.fSaveAction = new SaveAction();
+    this.fValidateAction = new ValidateAction();
     form.getToolBarManager().add(this.fSaveAction);
     form.getToolBarManager().add(this.fValidateAction);
     form.getToolBarManager().update(true);
@@ -326,7 +349,9 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     if (getActivePage() == -1) {
       super.setActivePage(0);
     }
+    this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);
     this.fValidateAction.setEnabled(getCurrentPlatformConf().isComplete(false));
+    this.fSaveAction.setImageDescriptor(CppLaunchImages.createUnmanaged(CppLaunchImages.SAVE_PLATFORM_CONF));
   }
   
   public void dispose() {
@@ -340,7 +365,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     final IProject project = ((IFileEditorInput) input).getFile().getProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
     final IX10PlatformConfWorkCopy workCopy = platformConf.createWorkingCopy();
-    workCopy.initializeToDefaultValues();
+    workCopy.initializeToDefaultValues(project);
     
     this.fX10PlatformConfs.put(workCopy.getName(), workCopy);
     this.fCurConfiguration = workCopy;
@@ -405,8 +430,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private final class ValidateAction extends Action {
     
-    ValidateAction(final ImageDescriptor acceptConfImgDescriptor) {
-      super(LaunchMessages.XPCFE_ValidationPlatformActionMsg, acceptConfImgDescriptor);
+    ValidateAction() {
+      super(LaunchMessages.XPCFE_ValidationPlatformActionMsg);
     }
     
     // --- Overridden methods
@@ -419,8 +444,8 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private final class SaveAction extends Action {
     
-    SaveAction(final ImageDescriptor saveConfImgDescriptor) {
-      super(LaunchMessages.XPCFE_SavePlatformActionMsg, saveConfImgDescriptor);
+    SaveAction() {
+      super(LaunchMessages.XPCFE_SavePlatformActionMsg);
     }
     
     // --- Overridden methods

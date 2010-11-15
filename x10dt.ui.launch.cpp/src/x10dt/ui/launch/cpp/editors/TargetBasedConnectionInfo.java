@@ -7,13 +7,13 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
-import java.util.Map;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.ptp.remote.remotetools.core.environment.ConfigFactory;
+import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.remotetools.environment.generichost.core.TargetConfig;
+import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 
@@ -23,6 +23,7 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   TargetBasedConnectionInfo(final ITargetElement targetElement) {
     this.fTargetElement = targetElement;
     this.fAttributes = targetElement.getAttributes();
+    this.fTargetConfig = new TargetConfig(this.fAttributes);
   }
   
   // --- Interface methods implementation
@@ -37,12 +38,16 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
     }
   }
   
+  public int getConnectionTimeout() {
+    return this.fTargetConfig.getConnectionTimeout();
+  }
+  
   public String getErrorMessage() {
     return this.fErrorMessage;
   }
 
   public String getHostName() {
-    return this.fAttributes.get(ConfigFactory.ATTR_CONNECTION_ADDRESS);
+    return this.fTargetConfig.getConnectionAddress();
   }
 
   public String getName() {
@@ -50,27 +55,27 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   }
 
   public String getPassphrase() {
-    return this.fAttributes.get(ConfigFactory.ATTR_KEY_PASSPHRASE);
+    return this.fTargetConfig.getKeyPassphrase();
   }
 
   public String getPassword() {
-    return this.fAttributes.get(ConfigFactory.ATTR_LOGIN_PASSWORD);
+    return this.fTargetConfig.getLoginPassword();
   }
 
   public int getPort() {
-    return Integer.parseInt(this.fAttributes.get(ConfigFactory.ATTR_CONNECTION_PORT));
+    return this.fTargetConfig.getConnectionPort();
   }
   
-  public Map<String, String> getPTPAttributes() {
+  public ControlAttributes getPTPAttributes() {
     return this.fAttributes;
   }
 
   public String getPrivateKeyFile() {
-    return this.fAttributes.get(ConfigFactory.ATTR_KEY_PATH);
+    return this.fTargetConfig.getKeyPath();
   }
   
   public String getUserName() {
-    return this.fAttributes.get(ConfigFactory.ATTR_LOGIN_USERNAME);
+    return this.fTargetConfig.getLoginUsername();
   }
 
   public ITargetElement getTargetElement() {
@@ -82,7 +87,12 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   }
 
   public boolean isPasswordBasedAuth() {
-    return Boolean.parseBoolean(this.fAttributes.get(ConfigFactory.ATTR_IS_PASSWORD_AUTH));
+    return this.fTargetConfig.isPasswordAuth();
+  }
+  
+  public void setConnectionTimeout(final int timeout) {
+    this.fTargetConfig.setConnectionTimeout(timeout);
+    this.fIsDirty = true;
   }
   
   public void setErrorMessage(final String errorMessage) {
@@ -90,12 +100,12 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   }
 
   public void setHostName(final String hostName) {
-    this.fAttributes.put(ConfigFactory.ATTR_CONNECTION_ADDRESS, hostName);
+    this.fTargetConfig.setConnectionAddress(hostName);
     this.fIsDirty = true;
   }
 
   public void setIsPasswordBasedFlag(final boolean isPasswordBasedAuth) {
-    this.fAttributes.put(ConfigFactory.ATTR_IS_PASSWORD_AUTH, String.valueOf(isPasswordBasedAuth));
+    this.fTargetConfig.setPasswordAuth(isPasswordBasedAuth);
     this.fIsDirty = true;
   }
 
@@ -105,27 +115,27 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   }
   
   public void setPassphrase(final String passphrase) {
-    this.fAttributes.put(ConfigFactory.ATTR_KEY_PASSPHRASE, passphrase);
+    this.fTargetConfig.setKeyPassphrase(passphrase);
     this.fIsDirty = true;
   }
 
   public void setPassword(final String password) {
-    this.fAttributes.put(ConfigFactory.ATTR_LOGIN_PASSWORD, password);
+    this.fTargetConfig.setLoginPassword(password);
     this.fIsDirty = true;
   }
 
   public void setPort(final int port) {
-    this.fAttributes.put(ConfigFactory.ATTR_CONNECTION_PORT, String.valueOf(port));
+    this.fTargetConfig.setConnectionPort(port);
     this.fIsDirty = true;
   }
 
   public void setPrivateKeyFile(final String privateKeyFile) {
-    this.fAttributes.put(ConfigFactory.ATTR_KEY_PATH, privateKeyFile);
+    this.fTargetConfig.setKeyPath(privateKeyFile);
     this.fIsDirty = true;
   }
   
   public void setUserName(final String userName) {
-    this.fAttributes.put(ConfigFactory.ATTR_LOGIN_USERNAME, userName);
+    this.fTargetConfig.setLoginUsername(userName);
     this.fIsDirty = true;
   }
 
@@ -140,7 +150,9 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   
   private final ITargetElement fTargetElement;
   
-  private final Map<String, String> fAttributes;
+  private final ControlAttributes fAttributes;
+  
+  private final ITargetConfig fTargetConfig;
   
   private EValidationStatus fValidationStatus = EValidationStatus.UNKNOWN;
   

@@ -7,10 +7,9 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
-import java.util.Map;
-
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 /**
  * Encapsulates the information for connecting to a remote machine or identifying a local connection.
@@ -24,7 +23,7 @@ public interface IConnectionConf {
    * 
    * @return A non-null non-empty map.
    */
-  public Map<String, String> getAttributes();
+  public ControlAttributes getAttributes();
   
   /**
    * Returns the name for the connection for identification by the end-user.
@@ -32,6 +31,13 @@ public interface IConnectionConf {
    * @return A non-null, possibly empty, string.
    */
   public String getConnectionName();
+  
+  /**
+   * Returns the connection time out.
+   * 
+   * @return A natural number.
+   */
+  public int getConnectionTimeout();
 
   /**
    * Returns the name of the machine to connect to.
@@ -39,6 +45,13 @@ public interface IConnectionConf {
    * @return A non-null, possibly empty, string.
    */
   public String getHostName();
+  
+  /**
+   * Returns the local address to connect back to.
+   * 
+   * @return A non-null, possibly empty, string.
+   */
+  public String getLocalAddress();
   
   /**
    * Returns the passphrase to use associated with a private key for login identification.
@@ -106,5 +119,12 @@ public interface IConnectionConf {
    * passphrase.
    */
   public boolean isPasswordBasedAuthentication();
+  
+  /**
+   * Returns if yes or no we should use port forwarding feature.
+   * 
+   * @return True if we should, false otherwise.
+   */
+  public boolean shouldUsePortForwarding();
 
 }
