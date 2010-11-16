@@ -50,9 +50,9 @@
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.core" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.core" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/branches/small_scale_debugger/x10dt.ui.launch.cpp" 
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.cpp" />
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/branches/small_scale_debugger/x10dt.ui.launch.cpp.rms" 
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp.rms" 
     	        revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.cpp.rms" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.java" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.java" />
