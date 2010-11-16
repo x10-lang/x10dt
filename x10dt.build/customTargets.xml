@@ -90,6 +90,72 @@
   <!-- Steps to do before the repositories are being processed -->
   <!-- ===================================================================== -->
   <target name="preProcessRepos">
+<!--  	<unzip dest="${repoBaseLocation}/ptp" src="${ptp.update.loc}"/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.core" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.core;unpack=false,org.eclipse.ptp.debug.core;unpack=false,org.eclipse.ptp.debug.ui;unpack=false,org.eclipse.ptp.rm.core;unpack=false,org.eclipse.ptp.rm.ui;unpack=false,org.eclipse.ptp.launch;unpack=false,org.eclipse.ptp.ui;unpack=false,org.eclipse.ptp.help;unpack=false,org.eclipse.ptp.proxy.protocol;unpack=false,org.eclipse.ptp;unpack=false,org.eclipse.ptp.rm.proxy.core;unpack=false,org.eclipse.ptp.rm.generic.core;unpack=false,org.eclipse.ptp.rm.generic.ui;unpack=false,org.eclipse.ptp.remote.core;unpack=false,org.eclipse.ptp.remote.ui;unpack=false,org.eclipse.ptp.utils.core;unpack=false,org.eclipse.ptp.utils.ui;unpack=false,org.eclipse.ptp.services.core;unpack=false,org.eclipse.ptp.services.ui;unpack=false" 
+  		includeLaunchers="false"
+    />
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.external" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.aix.ppc;unpack=false,org.eclipse.ptp.linux.ppc;unpack=false,org.eclipse.ptp.linux.x86;unpack=false,org.eclipse.ptp.linux.x86_64;unpack=false,org.eclipse.ptp.macosx.ppc;unpack=false,org.eclipse.ptp.proxy;unpack=false,org.eclipse.ptp.utils;unpack=false,org.eclipse.ptp.macosx.x86;unpack=false,org.eclipse.ptp.debug.sdm;unpack=false,org.eclipse.ptp.rm.ibm.ll.proxy;unpack=false,org.eclipse.ptp.rm.ibm.pe.proxy;unpack=false,org.eclipse.ptp.rm.slurm.proxy;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.remote" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.remote.core;unpack=false,org.eclipse.ptp.remote.ui;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.remote.remotetools" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.remote.remotetools.core;unpack=false,org.eclipse.ptp.remote.remotetools.ui;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.remotetools" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.remotetools.core;unpack=false,org.eclipse.ptp.remotetools.environment.core;unpack=false,org.eclipse.ptp.remotetools.environment.generichost;unpack=false,org.eclipse.ptp.remotetools.environment.launcher;unpack=false,org.eclipse.ptp.remotetools.environment.ui;unpack=false,org.eclipse.ptp.remotetools.preferences;unpack=false,org.eclipse.ptp.remotetools.utils;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.rm.ibm.ll" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.rm.ibm.ll.core;unpack=false,org.eclipse.ptp.rm.ibm.ll.ui;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.rm.ibm.pe" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.rm.ibm.pe.core;unpack=false,org.eclipse.ptp.rm.ibm.pe.ui;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.rm.mpich2" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.rm.mpi.mpich2.core;unpack=false,org.eclipse.ptp.rm.mpi.mpich2.ui;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.rm.openmpi" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.rm.mpi.openmpi.core;unpack=false,org.eclipse.ptp.rm.mpi.openmpi.ui;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.services" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.services.core;unpack=false,org.eclipse.ptp.services.ui;unpack=false" 
+  	    includeLaunchers="false"
+  	/>
+    <eclipse.generateFeature featureId="org.eclipse.ptp.utils" buildDirectory="${repoBaseLocation}/ptp"
+  		baseLocation="${repoBaseLocation}/ptp" verify="false"
+  		pluginList="org.eclipse.ptp.utils.core;unpack=false,org.eclipse.ptp.utils.ui;unpack=false,org.eclipse.ptp.utils.file.core;unpack=false,org.eclipse.ptp.utils.extensionpoints.core;unpack=false" 
+  		includeLaunchers="false"
+    />
+  	<eclipse.generateFeature featureId="org.eclipse.ptp.debug.sdm" buildDirectory="${repoBaseLocation}/ptp"
+  	    baseLocation="${repoBaseLocation}/ptp" verify="false"
+  	    pluginList="org.eclipse.ptp.debug.sdm.core;unpack=false,org.eclipse.ptp.debug.sdm.ui;unpack=false" 
+  	    includeLaunchers="false"
+    />
+  	<p2.publish.featuresAndBundles
+  	          metadataRepository="file:${repoBaseLocation}/ptp"
+  	          artifactRepository="file:${repoBaseLocation}/ptp"
+  	          source="${repoBaseLocation}/ptp"/> -->
+  	  	
     <p2.mirror destination="file:${repoBaseLocation}/mirror">
       <source file="${cdt.update.loc}"/>
       <source file="${ptp.update.loc}"/>
@@ -107,6 +173,7 @@
       <iu id="org.eclipse.ptp.rm.openmpi.feature.group" />
       <iu id="org.eclipse.ptp.services.feature.group" />
       <iu id="org.eclipse.ptp.utils.feature.group" />
+      <iu id="org.eclipse.ptp.debug.sdm.feature.group" />
 
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
@@ -114,6 +181,15 @@
 
       <slicingOptions followStrict="true" includeOptional="false"/>
     </p2.mirror>
+  	
+    <unzip dest="${build.folder}/dependencies">
+      <patternset>
+        <include name="utils_core.jar"/>
+      </patternset>
+      <fileset dir="${repoBaseLocation}/mirror/plugins">
+        <include name="org.eclipse.ptp.utils.core_*.jar"/>
+      </fileset>
+   </unzip>
   </target>
 
   <!-- ===================================================================== -->
