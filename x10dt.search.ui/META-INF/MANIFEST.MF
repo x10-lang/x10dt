@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Search UI
-Bundle-SymbolicName: x10dt.search.ui
+Bundle-SymbolicName: x10dt.search.ui;singleton:=true
 Bundle-Version: 2.1.0.qualifier
 Bundle-Activator: x10dt.search.ui.UISearchPlugin
 Require-Bundle: org.eclipse.core.resources,
@@ -19,7 +19,8 @@ Require-Bundle: org.eclipse.core.resources,
  x10dt.search.core,
  org.eclipse.ui.editors;bundle-version="3.5.0",
  x10.compiler;bundle-version="2.1.0",
- org.eclipse.imp.java.hosted;bundle-version="0.2.1"
+ org.eclipse.imp.java.hosted;bundle-version="0.2.1",
+ com.ibm.icu;bundle-version="4.2.1"
 Bundle-ActivationPolicy: lazy
 Export-Package: x10dt.search.ui,
  x10dt.search.ui.actions,
