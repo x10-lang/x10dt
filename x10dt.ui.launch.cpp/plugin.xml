@@ -78,7 +78,7 @@
       <launchConfigurationType
             delegate="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
             id="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
-            modes="run,debug"
+            modes="run"
             name="%launch.config.cpp.name"
             sourceLocatorId="x10dt.ui.cpp.launch.SourceLocator"
             sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">
@@ -95,11 +95,11 @@
                mode="run"
                perspective="org.eclipse.ptp.ui.PTPRunPerspective">
          </launchMode>
-         <launchMode
+<!--         <launchMode
                description="%parallelLaunch.debug"
                mode="debug"
                perspective="org.eclipse.ptp.debug.ui.PTPDebugPerspective">
-         </launchMode>
+         </launchMode> -->
       </launchConfigurationTabGroup>
    </extension>
    <extension
@@ -159,7 +159,7 @@
             icon="icons/obj/parallel_run.gif"
             id="x10dt.ui.launch.cpp.x10.app"
             label="%run.as.x10app"
-            modes="run,debug">
+            modes="run">
          <contextualLaunch>
             <enablement>
                <with
@@ -205,10 +205,10 @@
                description="%run.as.description"
                mode="run">
          </description>
-         <description
+<!--         <description
                description="%debug.as.description"
                mode="debug">
-         </description>
+         </description> -->
       </shortcut>
    </extension>
    <extension
@@ -226,7 +226,7 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+X C">
       </key>
-      <key
+<!--      <key
             commandId="x10dt.ui.launch.cpp.x10.app.debug"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
@@ -238,7 +238,7 @@
             platform="carbon"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+M4+D C">
-      </key>
+      </key> -->
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -247,11 +247,11 @@
             id="x10dt.ui.launch.cpp.x10.app.run"
             name="%run.app.command">
       </command>
-      <command
+<!--      <command
             categoryId="org.eclipse.debug.ui.category.run"
             id="x10dt.ui.launch.cpp.x10.app.debug"
             name="%debug.app.command">
-      </command>
+      </command> -->
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">
