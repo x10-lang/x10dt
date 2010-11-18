@@ -426,9 +426,9 @@
             id="imp.rulerActions">
          <action
                label="SelectRulerAction"
-               class="x10dt.ui.editor.actions.X10SelectRulerAction"
+               class="org.eclipse.imp.actions.SelectRulerAction"
                actionID="RulerClick"
-               id="x10dt.ui.editor.actions.X10SelectRulerAction">
+               id="org.eclipse.imp.editor.internal.SelectRulerMenuAction">
          </action>
          <action
              label="Not Used"
