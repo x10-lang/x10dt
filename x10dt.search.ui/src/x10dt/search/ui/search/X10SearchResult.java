@@ -1,7 +1,5 @@
 package x10dt.search.ui.search;
 
-import java.util.Set;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.search.ui.ISearchQuery;
