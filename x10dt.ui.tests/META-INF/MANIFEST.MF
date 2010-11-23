@@ -16,5 +16,5 @@ Require-Bundle: org.apache.log4j;bundle-version="1.2.13",
  org.hamcrest;bundle-version="1.1.0",
  org.junit4;bundle-version="4.5.0",
  x10dt.tests.services;bundle-version="2.0.6"
-Bundle-ClassPath: ui.jar,
- .
+Bundle-ClassPath: ui.jar,.
+Eclipse-RegisterBuddy: org.apache.log4j
