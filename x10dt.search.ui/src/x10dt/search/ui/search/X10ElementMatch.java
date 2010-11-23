@@ -3,7 +3,9 @@ package x10dt.search.ui.search;
 import org.eclipse.search.ui.text.Match;
 
 /**
- * A search match with additional java-specific info.
+ *  A search match for X10 elements.
+ * @author mvaziri
+ *
  */
 public class X10ElementMatch extends Match {
 	private final boolean fIsWriteAccess;

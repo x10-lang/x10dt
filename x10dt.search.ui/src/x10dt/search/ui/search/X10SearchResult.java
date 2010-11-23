@@ -22,7 +22,7 @@ public class X10SearchResult extends AbstractTextSearchResult implements IEditor
 	 * @see org.eclipse.search.ui.ISearchResult#getImageDescriptor()
 	 */
 	public ImageDescriptor getImageDescriptor() {
-		return fQuery.getImageDescriptor();
+		return null;
 	}
 
 	/* (non-Javadoc)

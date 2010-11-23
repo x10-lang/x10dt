@@ -1,9 +1,14 @@
 package x10dt.search.ui.search;
 
+
+import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
+import org.eclipse.search.ui.text.Match;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PartInitException;
 
 
 
@@ -14,6 +19,7 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 	
 	// --- Maximum number of elements that will be shown in the result page.
 	private static final int DEFAULT_ELEMENT_LIMIT = 1000;
+	
 	
 	public X10SearchResultPage(){
 		super(AbstractTextSearchViewPage.FLAG_LAYOUT_FLAT);
@@ -43,6 +49,7 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 		viewer.setUseHashlookup(true);
 		//fSortingLabelProvider= new SortingLabelProvider(this);
 		//viewer.setLabelProvider(new DecoratingJavaLabelProvider(fSortingLabelProvider, false));
+		viewer.setLabelProvider(new X10SearchLabelProvider());
 		fContentProvider=new X10SearchTableContentProvider(this);
 		viewer.setContentProvider(fContentProvider);
 		//viewer.setComparator(new DecoratorIgnoringViewerSorter(fSortingLabelProvider));
@@ -54,8 +61,13 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 		return super.getViewer();
 	}
 	
-	public void setElementLimit(Integer elementLimit) {
-		super.setElementLimit(elementLimit);
+	public void showMatch(Match match, int offset, int length, boolean activate) throws PartInitException {
+		if (activate){
+			IEditorPart editor = EditorUtility.openInEditor(match.getElement());
+			EditorUtility.revealInEditor(editor, match.getOffset(), match.getLength());
+		}
 	}
+	
+	
 
 }

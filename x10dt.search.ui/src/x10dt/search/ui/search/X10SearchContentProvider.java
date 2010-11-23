@@ -5,6 +5,7 @@ import org.eclipse.jface.viewers.Viewer;
 
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 
+
 public abstract class X10SearchContentProvider implements IStructuredContentProvider {
 	protected final Object[] EMPTY_ARR= new Object[0];
 

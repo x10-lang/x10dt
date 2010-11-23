@@ -54,7 +54,7 @@ public class X10SearchQuery implements ISearchQuery {
 			System.err.println(e);
 		}
 		String message= Messages.format(SearchMessages.JavaSearchQuery_status_ok_message, String.valueOf(textResult.getMatchCount())); //TODO: FIXME
-		return new Status(IStatus.OK, JavaPlugin.getPluginId(), 0, message, null);
+		return new Status(IStatus.OK, JavaPlugin.getPluginId(), 0, message, null); //TODO: FIXME
 	}
 
 	public void acceptSearchResult(ITypeInfo result, X10SearchResult search){
@@ -69,20 +69,13 @@ public class X10SearchQuery implements ISearchQuery {
 	}
 
 	public String getResultLabel(int nMatches) {
-		return nMatches + " found."; //TODO - add this string to messages
+		return nMatches + " matches found."; //TODO - add this string to messages
 	}
 
 	private int getMaskedLimitTo() {
 		return fPatternData.getLimitTo() & ~(IJavaSearchConstants.IGNORE_RETURN_TYPE | IJavaSearchConstants.IGNORE_DECLARING_TYPE);
 	}
 
-	ImageDescriptor getImageDescriptor() { //TODO - FIXME
-		int limitTo= getMaskedLimitTo();
-		if (limitTo == IJavaSearchConstants.IMPLEMENTORS || limitTo == IJavaSearchConstants.DECLARATIONS)
-			return JavaPluginImages.DESC_OBJS_SEARCH_DECL;
-		else
-			return JavaPluginImages.DESC_OBJS_SEARCH_REF;
-	}
 
 	public boolean canRerun() {
 		return true;

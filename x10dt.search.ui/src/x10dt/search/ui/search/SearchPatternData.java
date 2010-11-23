@@ -6,6 +6,11 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
+/**
+ * This class encapsulates the data gathered from the search page UI.
+ * @author mvaziri
+ *
+ */
 public class SearchPatternData {
 	// search for
 	public final static int TYPE= 0;

@@ -13,6 +13,7 @@ public class X10SearchTableContentProvider extends X10SearchContentProvider {
 	public X10SearchTableContentProvider(X10SearchResultPage page) {
 		super(page);
 	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Object[] getElements(Object inputElement) {
 		if (inputElement instanceof AbstractTextSearchResult) {
 			Set filteredElements= new HashSet();
@@ -31,6 +32,7 @@ public class X10SearchTableContentProvider extends X10SearchContentProvider {
 		return EMPTY_ARR;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void elementsChanged(Object[] updatedElements) {
 		if (getSearchResult() == null)
 			return;
@@ -61,7 +63,6 @@ public class X10SearchTableContentProvider extends X10SearchContentProvider {
 		}
 
 		viewer.add(added.toArray());
-		//viewer.update(updated.toArray(), new String[] { SearchLabelProvider.PROPERTY_MATCH_COUNT });
 		viewer.remove(removed.toArray());
 	}
 
