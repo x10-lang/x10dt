@@ -125,6 +125,7 @@ public class OutlineTests extends X10DTTestBase{
         if(verbose){
         	SWTBotPreferences.PLAYBACK_DELAY = 0;
         }
+        log.info("Closing welcome view");
         SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
         topLevelBot.perspectiveByLabel("X10").activate();
         createJavaBackEndProject(PROJECT_NAME, false);
@@ -144,6 +145,7 @@ public class OutlineTests extends X10DTTestBase{
     }
 // WaitForParser
    public static void WaitForParser() throws Exception {
+	   log.info("Waiting for parser");
 	   topLevelBot.waitUntil(new DefaultCondition() {
 
 		   public boolean test() throws Exception {
@@ -151,6 +153,7 @@ public class OutlineTests extends X10DTTestBase{
 		   }
 
 		   public String getFailureMessage() {
+			   log.debug("Waiting for parser failed");
 		   return "Some Failure Message";
 		   }
 
@@ -171,9 +174,7 @@ public class OutlineTests extends X10DTTestBase{
     @Test
     public void test1() throws Exception {
     	
-	    	if (verbose) {
-	    		System.out.println("Currently Testing: " + CLASS_NAME_1 + " Class");
-	    	}
+	    	log.info("Currently Testing: " + CLASS_NAME_1 + " Class");
 	    	createProject(CLASS_NAME_1,CLASS_SRCFILE_NAME_1);
 	    	
 	        runTest("data/"+CLASS_SRCFILE_NAME_1); //$NON-NLS-1$
@@ -182,11 +183,11 @@ public class OutlineTests extends X10DTTestBase{
     @Test
     public void test2() throws Exception{
   
-	    	if (verbose) {
-	    		System.out.println("Currently Testing: " + CLASS_NAME_2 + " Class");
-	    	}
+	    	log.info("Currently Testing: " + CLASS_NAME_2 + " Class");
+	    	
 	    	createProject(CLASS_NAME_2,CLASS_SRCFILE_NAME_2);
 	    	
+	    	log.info("Running "+ "data/" + CLASS_SRCFILE_NAME_2);
 	        runTest("data/" + CLASS_SRCFILE_NAME_2); //$NON-NLS-1$
     }
 
@@ -265,7 +266,7 @@ public class OutlineTests extends X10DTTestBase{
 	    		System.out.println("Currently Testing: " + CLASS_NAME_9 + "Class");
 	    	}*/
       	log.debug("Currently Testing: " + CLASS_NAME_9 + "Class");
-    	log.info("It starts here muah! ");
+    	
 	    	createProject(CLASS_NAME_9,CLASS_SRCFILE_NAME_9);
 	    	
 	        runTest("data/"+CLASS_SRCFILE_NAME_9); //$NON-NLS-1$
