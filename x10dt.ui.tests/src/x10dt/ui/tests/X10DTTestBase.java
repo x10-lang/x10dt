@@ -13,6 +13,8 @@ package x10dt.ui.tests;
 
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.SWTBot;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -29,7 +31,7 @@ public class X10DTTestBase {
      */
     public static SWTWorkbenchBot topLevelBot;
 
-    public static void createJavaBackEndProject(String projName, boolean withHello) {
+    public static void createJavaBackEndProject(String projName, boolean withHello) throws Exception {
         topLevelBot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM).menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
 
         SWTBotShell newProjShell= topLevelBot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
@@ -55,6 +57,19 @@ public class X10DTTestBase {
             newX10ProjBot.radioInGroup(WizardConstants.NEW_X10_PROJECT_NO_SAMPLE_SOURCE_RADIO, WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
         }
         newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
+        
+    /*   //"Open Associated Perspective" shell Error Checking
+        try{
+        	SWTBotShell shell = topLevelBot.shell(WizardConstants.OPEN_ASSOCIATED_PERSPECTIVE_DIALOG_TITLE);
+        	shell.activate();
+        	topLevelBot.button(WizardConstants.YES_BUTTON).click();
+        	topLevelBot.waitUntil(Conditions.shellCloses(shell), 1500);
+        }catch(WidgetNotFoundException e){
+        	//TODO:Write message to Console
+        	System.out.println(WizardConstants.OPEN_ASSOCIATED_PERSPECTIVE_DIALOG_TITLE + " DOES NOT EXIST");
+        }*/
+//        SWTBotPreferences.TIMEOUT = 120000;
         topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
+  //      SWTBotPreferences.TIMEOUT = 5000;
     }
 }

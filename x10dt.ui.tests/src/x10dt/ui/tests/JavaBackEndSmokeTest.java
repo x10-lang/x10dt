@@ -67,7 +67,7 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
     }
 
     @Test
-    public void basicLaunchTest() {
+    public void basicLaunchTest() throws Exception {
         createJavaBackEndProject(PROJECT_NAME, true);
 
         topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));

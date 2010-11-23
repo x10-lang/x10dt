@@ -22,9 +22,12 @@ import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.parser.IModelListener;
+import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -45,6 +48,7 @@ import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -67,13 +71,44 @@ import x10dt.ui.tests.utils.EditorMatcher;
 public class SyntaxColoringTests extends X10DTTestBase {
     private static final String PROJECT_NAME= "ColoringProject";
 
-    private static final String CLASS_NAME= "MyClass";
+    private static final String CLASS_NAME_1 = "HelloWorld";
+    private static final String CLASS_NAME_2 = "FRASimpleDist";
+    private static final String CLASS_NAME_3 = "FSSimpleDist";
+    private static final String CLASS_NAME_4 = "GCSpheres";
+    private static final String CLASS_NAME_5 = "Histogram";
+    private static final String CLASS_NAME_6 = "MontyPi";
+    private static final String CLASS_NAME_7 = "NQueensDist";
+    private static final String CLASS_NAME_8 = "NQueensPar";
+    private static final String CLASS_NAME_9 = "StructSpheres";
 
-    private static final String CLASS_SRCFILE_NAME= CLASS_NAME + ".x10";
+    private static final String CLASS_SRCFILE_NAME_1 = CLASS_NAME_1 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_2 = CLASS_NAME_2 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_3 = CLASS_NAME_3 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_4 = CLASS_NAME_4 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_5 = CLASS_NAME_5 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_6 = CLASS_NAME_6 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_7 = CLASS_NAME_7 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_8 = CLASS_NAME_8 + ".x10";
+    private static final String CLASS_SRCFILE_NAME_9 = CLASS_NAME_9 + ".x10";
+    
+    private boolean updated = false;
+
+
+    private class MyListener implements IModelListener {
+     	
+         public AnalysisRequired getAnalysisRequired() {
+             return AnalysisRequired.NONE; // Even if it doesn't scan, it's ok - this posts the error annotations!
+         }
+         
+         public void update(IParseController parseController, IProgressMonitor monitor) {
+         	System.out.println("We're inside the listener");
+         	updated = true;
+         }
+     }
 
     private static final String lineSep = System.getProperty("line.separator");
 
-    private static final boolean verbose= false;
+    private static final boolean verbose= true;
 
     /**
      * The bot for the editor used to exercise syntax coloring
@@ -99,8 +134,9 @@ public class SyntaxColoringTests extends X10DTTestBase {
         topLevelBot= new SWTWorkbenchBot();
         SWTBotPreferences.TIMEOUT= 15000; // Long timeout needed for first project creation
         SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
+        topLevelBot.perspectiveByLabel("X10").activate();
 
-        createJavaBackEndProject(PROJECT_NAME, false);
+       /* createJavaBackEndProject(PROJECT_NAME, false);
 
         fDefaultTextAttribute= UIThreadRunnable.syncExec(new Result<TextAttribute>() {
             public TextAttribute run() {
@@ -112,7 +148,23 @@ public class SyntaxColoringTests extends X10DTTestBase {
 
         topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));
 
-        fSrcEditor= topLevelBot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor();
+        fSrcEditor= topLevelBot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor(); */
+    }
+    
+    public void createProject(String projName, String className, String classFilename) throws Exception{
+    	createJavaBackEndProject(projName, false);
+    	
+    	fDefaultTextAttribute = UIThreadRunnable.syncExec(new Result<TextAttribute>() {
+    		public TextAttribute run() {
+    			return new TextAttribute(Display.getDefault().getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);
+    		}
+    	});
+    	topLevelBot.shells()[0].activate(); //HACK - make sure the main window's shell is active, in case we ran after other tests
+    	ProjectUtils.createClass(topLevelBot, className);
+    	
+    	topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(classFilename)));
+    	
+    	fSrcEditor = topLevelBot.editorByTitle(classFilename).toTextEditor();
     }
 
     @AfterClass
@@ -122,8 +174,12 @@ public class SyntaxColoringTests extends X10DTTestBase {
 
 //    @ColoringTests(files="data/*.x10")
     @Test
-    public void testHello() {
-        runTest("data/Hello.x10");
+    public void testHello() throws Exception{
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_1 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "1",CLASS_NAME_1, CLASS_SRCFILE_NAME_1);
+        runTest("data/" + CLASS_SRCFILE_NAME_1);
     }
 
 //    @Test
@@ -132,47 +188,85 @@ public class SyntaxColoringTests extends X10DTTestBase {
 //    }
 
     @Test
-    public void test2() {
-        runTest("data/FRASimpleDist.x10");
+    public void test2() throws Exception{
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_2 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "2",CLASS_NAME_2, CLASS_SRCFILE_NAME_2);
+        runTest("data/" + CLASS_SRCFILE_NAME_2);
     }
 
     @Test
-    public void test3() {
-        runTest("data/FSSimpleDist.x10");
+    public void test3() throws Exception {
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_3 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "3",CLASS_NAME_3, CLASS_SRCFILE_NAME_3);
+        runTest("data/" + CLASS_SRCFILE_NAME_3);
     }
 
     @Test
-    public void test4() {
-        runTest("data/GCSpheres.x10");
+    public void test4() throws Exception {
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_4 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "4",CLASS_NAME_4, CLASS_SRCFILE_NAME_4);
+        runTest("data/" + CLASS_SRCFILE_NAME_4);
     }
 
     @Test
-    public void test5() {
-        runTest("data/Histogram.x10");
+    public void test5() throws Exception{
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_5 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "5",CLASS_NAME_5, CLASS_SRCFILE_NAME_5);
+        runTest("data/" + CLASS_SRCFILE_NAME_5);
     }
 
     @Test
-    public void test6() {
-        runTest("data/MontyPi.x10");
+    public void test6() throws Exception{
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_6 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "6",CLASS_NAME_6, CLASS_SRCFILE_NAME_6);
+        runTest("data/" + CLASS_SRCFILE_NAME_6);
     }
 
     @Test
-    public void test7() {
-        runTest("data/NQueensDist.x10");
+    public void test7() throws Exception {
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_7 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "7",CLASS_NAME_7, CLASS_SRCFILE_NAME_7);
+        runTest("data/" + CLASS_SRCFILE_NAME_7);
     }
 
     @Test
-    public void test8() {
-        runTest("data/NQueensPar.x10");
+    public void test8() throws Exception{
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_8 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "8",CLASS_NAME_8, CLASS_SRCFILE_NAME_8);
+        runTest("data/" + CLASS_SRCFILE_NAME_8);
     }
 
     @Test
-    public void test9() {
-        runTest("data/StructSpheres.x10");
+    public void test9() throws Exception{
+    	if(verbose){
+    		System.out.println("TESTING: " + CLASS_NAME_9 + " CLASS");
+    	}
+    	createProject(PROJECT_NAME + "9",CLASS_NAME_9, CLASS_SRCFILE_NAME_9);
+        runTest("data/" + CLASS_SRCFILE_NAME_9);
     }
 
     private void runTest(String srcPath) {
         getTestSource(fSrcEditor, srcPath);
+        
+        while( updated == false) {
+      	  int x =2/2;
+      	 }
+       //  do nothing
+          	
         verifyColoring(fSrcEditor);
     }
 
@@ -184,13 +278,18 @@ public class SyntaxColoringTests extends X10DTTestBase {
             final InputStream resStream= FileLocator.openStream(bundle, new Path(resURL.getPath()), false);
             final String contents= StreamUtils.readStreamContents(resStream);
             
+            final IEditorPart editorPart= srcEditor.getReference().getEditor(false);
+            final UniversalEditor univEditor= (UniversalEditor) editorPart;
+           univEditor.addModelListener(new MyListener());
+
             srcEditor.setText(contents);
-            topLevelBot.sleep(7000); // give parser a chance to catch up...
+            System.out.println("Waiting for parser...");
+            
         } catch (final IOException e) {
             junit.framework.Assert.fail(e.getMessage());
         }
     }
-
+    
     @SuppressWarnings("unused")
     private void deleteSourceRange(final SWTBotEclipseEditor srcEditor, final int line, final int column, final int length) {
         srcEditor.selectRange(line, column, length);
@@ -220,21 +319,68 @@ public class SyntaxColoringTests extends X10DTTestBase {
 
         if (verbose) {
             System.out.println("Doc: " + doc.get());
+            System.out.println();
         }
 
+        if(verbose){
+        	System.out.println("VERIFYING COMMENTS: DARK RED, ITALIC");
+        }
         verifyColoringOf(findComments(pc), colorer.commentAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING DOCUMENT COMMENTS: BLUE ITALIC");
+        }
         verifyColoringOf(findDocComments(pc), colorer.docCommentAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING KEYWORDS: DARK MAGENTA, BOLD");
+        }
         verifyColoringOf(findKeywords(pc), colorer.getKeywordAttribute(), doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING STRING LITERALS: DARK BLUE, BOLD");
+        }
         verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_StringLiteral), colorer.characterAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING CHARACTER LITERALS: DARK BLUE, BOLD");
+        }
         verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_CharacterLiteral), colorer.characterAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING IDENTIFIERS: BLACK, NORMAL");
+        }
         verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IDENTIFIER), colorer.identifierAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING INTEGER LITERALS: DARK YELLOW, BOLD");
+        }
         verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IntegerLiteral), colorer.numberAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING LONG LITERALS: DARK YELLOW, BOLD");
+        }
         verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_LongLiteral), colorer.numberAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING FLOATING POINT LITERALS:");
+        }
         verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_FloatingPointLiteral), colorer.numberAttribute, doc, editor);
+        
+        if(verbose){
+        	System.out.println("VERIFYING DOUBLE LITERALS:");
+        }
         verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_DoubleLiteral), colorer.numberAttribute, doc, editor);
 
         // check that other ranges are styled using the default font/color
+        if(verbose){
+        	System.out.println("VERIFYING OTHER REGIONS:");
+        }
         verifyOtherRegions(doc, editor);
+        
+        if(verbose){
+        	System.out.println("FINISHED TESTCASE");
+        }
     }
 
     private void verifyOtherRegions(final IDocument doc, final SWTBotEclipseEditor editor) {
@@ -505,8 +651,9 @@ public class SyntaxColoringTests extends X10DTTestBase {
         SWTBotUtils.resetWorkbench(topLevelBot);
     }
 
-    @AfterClass
-    public static void sleep() {
-        topLevelBot.sleep(2000);
-    }
+    @After
+    public void after() throws Exception{
+    	SWTBotUtils.closeAllEditors(topLevelBot);
+    	SWTBotUtils.closeAllShells(topLevelBot);
+     }
 }
