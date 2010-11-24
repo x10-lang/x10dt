@@ -5,25 +5,6 @@
          point="org.eclipse.search.searchPages">
       <page
       		showScopeSection="true"	
-            class="x10dt.search.ui.globalSearch.X10SearchPage"
-            id="x10dt.search.ui.globalSearch.X10SearchPage"
-            label="X10 Search">
-      </page>
-   </extension>
-   <extension
-    	id="X10SearchResultPage"
-        point="org.eclipse.search.searchResultViewPages">
-		<viewPage
-			id="x10dt.search.ui.globalSearch.X10SearchResultPage"
-			searchResultClass="x10dt.search.ui.globalSearch.X10SearchResult"
-			class="x10dt.search.ui.globalSearch.X10SearchResultPage">
-		</viewPage>
-   </extension>
-   
-   <extension
-         point="org.eclipse.search.searchPages">
-      <page
-      		showScopeSection="true"	
             class="x10dt.search.ui.search.X10SearchPage"
             id="x10dt.search.ui.search.X10SearchPage"
             label="X10 Search Prime">

@@ -22,6 +22,7 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 	
 	
 	public X10SearchResultPage(){
+		// --- We support a flat layout for now, a tree configuration will be added when we have support for X10 elements.
 		super(AbstractTextSearchViewPage.FLAG_LAYOUT_FLAT);
 		setElementLimit(new Integer(DEFAULT_ELEMENT_LIMIT));
 	}
@@ -47,13 +48,9 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 	@Override
 	protected void configureTableViewer(TableViewer viewer) {
 		viewer.setUseHashlookup(true);
-		//fSortingLabelProvider= new SortingLabelProvider(this);
-		//viewer.setLabelProvider(new DecoratingJavaLabelProvider(fSortingLabelProvider, false));
 		viewer.setLabelProvider(new X10SearchLabelProvider());
 		fContentProvider=new X10SearchTableContentProvider(this);
 		viewer.setContentProvider(fContentProvider);
-		//viewer.setComparator(new DecoratorIgnoringViewerSorter(fSortingLabelProvider));
-		//setSortOrder(fCurrentSortO
 	}
 	
 	protected StructuredViewer getViewer() {

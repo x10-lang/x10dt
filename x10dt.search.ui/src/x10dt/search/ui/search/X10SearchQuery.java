@@ -10,16 +10,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.internal.corext.util.Messages;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
-import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 
 import x10dt.search.core.engine.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.ui.Messages;
+import x10dt.search.ui.UISearchPlugin;
 
 public class X10SearchQuery implements ISearchQuery {
 
@@ -38,7 +36,7 @@ public class X10SearchQuery implements ISearchQuery {
 		textResult.removeAll();
 		int totalTicks = 1000;
 		String stringPattern = fPatternData.getPattern();
-		monitor.beginTask(Messages.format(SearchMessages.JavaSearchQuery_task_label, stringPattern), totalTicks); //TODO: FIXME
+		monitor.beginTask(NLS.bind(Messages.X10SearchQuery_task_label, stringPattern), totalTicks); 
 		IProgressMonitor mainSearchPM= new SubProgressMonitor(monitor, totalTicks);
 		try {
 			for (IProject project: ResourcesPlugin.getWorkspace().getRoot().getProjects()){
@@ -53,8 +51,8 @@ public class X10SearchQuery implements ISearchQuery {
 			//TODO: FIXME
 			System.err.println(e);
 		}
-		String message= Messages.format(SearchMessages.JavaSearchQuery_status_ok_message, String.valueOf(textResult.getMatchCount())); //TODO: FIXME
-		return new Status(IStatus.OK, JavaPlugin.getPluginId(), 0, message, null); //TODO: FIXME
+		String message= NLS.bind(Messages.X10SearchQuery_status_ok_message, String.valueOf(textResult.getMatchCount())); 
+		return new Status(IStatus.OK, UISearchPlugin.PLUGIN_ID, 0, message, null); 
 	}
 
 	public void acceptSearchResult(ITypeInfo result, X10SearchResult search){
@@ -65,17 +63,12 @@ public class X10SearchQuery implements ISearchQuery {
 	}
 
 	public String getLabel() {
-		return SearchMessages.JavaSearchQuery_label;
+		return Messages.X10SearchQuery_label;
 	}
 
 	public String getResultLabel(int nMatches) {
-		return nMatches + " matches found."; //TODO - add this string to messages
+		return NLS.bind(Messages.X10SearchQuery_status_ok_message, nMatches);
 	}
-
-	private int getMaskedLimitTo() {
-		return fPatternData.getLimitTo() & ~(IJavaSearchConstants.IGNORE_RETURN_TYPE | IJavaSearchConstants.IGNORE_DECLARING_TYPE);
-	}
-
 
 	public boolean canRerun() {
 		return true;

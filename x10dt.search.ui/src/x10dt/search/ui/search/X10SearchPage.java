@@ -1,24 +1,26 @@
 package x10dt.search.ui.search;
 
+import static x10dt.search.ui.search.SearchPatternData.ALL_OCCURRENCES;
+import static x10dt.search.ui.search.SearchPatternData.CONSTRUCTOR;
+import static x10dt.search.ui.search.SearchPatternData.DECLARATIONS;
+import static x10dt.search.ui.search.SearchPatternData.FIELD;
+import static x10dt.search.ui.search.SearchPatternData.IMPLEMENTORS;
+import static x10dt.search.ui.search.SearchPatternData.METHOD;
+import static x10dt.search.ui.search.SearchPatternData.PACKAGE;
+import static x10dt.search.ui.search.SearchPatternData.READ_ACCESSES;
+import static x10dt.search.ui.search.SearchPatternData.REFERENCES;
+import static x10dt.search.ui.search.SearchPatternData.SPECIFIC_REFERENCES;
+import static x10dt.search.ui.search.SearchPatternData.TYPE;
+import static x10dt.search.ui.search.SearchPatternData.WRITE_ACCESSES;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
-import org.eclipse.jdt.internal.ui.dialogs.TextFieldNavigationHandler;
 import org.eclipse.jdt.internal.ui.util.SWTUtil;
-import org.eclipse.jdt.ui.search.ElementQuerySpecification;
-import org.eclipse.jdt.ui.search.PatternQuerySpecification;
-import org.eclipse.jdt.ui.search.QuerySpecification;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.NewSearchUI;
@@ -35,10 +37,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.IWorkingSetManager;
-import org.eclipse.ui.PlatformUI;
-import static x10dt.search.ui.search.SearchPatternData.*;
+
+import x10dt.search.ui.Messages;
+import x10dt.search.ui.typeHierarchy.TextFieldNavigationHandler;
 
 /**
  * The X10SearchPage presents the search UI page to the user.
@@ -193,15 +194,15 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 	
 	private Control createSearchFor(Composite parent) {
 		Group result= new Group(parent, SWT.NONE);
-		result.setText(SearchMessages.SearchPage_searchFor_label);
+		result.setText(Messages.SearchPage_searchFor_label);
 		result.setLayout(new GridLayout(2, true));
 
 		fSearchFor= new Button[] {
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_type, TYPE, true),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_method, METHOD, false),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_package, PACKAGE, false),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_constructor, CONSTRUCTOR, false),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_field, FIELD, false)
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_type, TYPE, true),
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_method, METHOD, false),
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_package, PACKAGE, false),
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_constructor, CONSTRUCTOR, false),
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_field, FIELD, false)
 		};
 
 		// Fill with dummy radio buttons
@@ -214,7 +215,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 
 	private Control createLimitTo(Composite parent) {
 		fLimitToGroup= new Group(parent, SWT.NONE);
-		fLimitToGroup.setText(SearchMessages.SearchPage_limitTo_label);
+		fLimitToGroup.setText(Messages.SearchPage_limitTo_label);
 		fLimitToGroup.setLayout(new GridLayout(2, false));
 
 		fillLimitToGroup(TYPE, ALL_OCCURRENCES);
@@ -231,7 +232,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 
 		// Pattern text + info
 		Label label= new Label(result, SWT.LEFT);
-		label.setText(SearchMessages.SearchPage_expression_label);
+		label.setText(Messages.SearchPage_expression_label);
 		label.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 2, 1));
 
 		// Pattern combo
@@ -257,7 +258,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 
 		// Ignore case checkbox
 		fCaseSensitive= new Button(result, SWT.CHECK);
-		fCaseSensitive.setText(SearchMessages.SearchPage_expression_caseSensitive);
+		fCaseSensitive.setText(Messages.SearchPage_expression_caseSensitive);
 		fCaseSensitive.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				fIsCaseSensitive= fCaseSensitive.getSelection();
@@ -292,7 +293,8 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 			return false;
 		}
 		// --- TODO: Need a different check here for deciding if pattern is valid.
-		return SearchPattern.createPattern(getPattern(), getSearchFor(), getLimitTo(), SearchPattern.R_EXACT_MATCH) != null;
+		//return SearchPattern.createPattern(getPattern(), getSearchFor(), getLimitTo(), SearchPattern.R_EXACT_MATCH) != null;
+		return true;
 	}
 	
 	private String getPattern() {
@@ -377,17 +379,17 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		}
 
 		ArrayList<Button> buttons= new ArrayList<Button>();
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_allOccurrences, ALL_OCCURRENCES, limitTo == ALL_OCCURRENCES));
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_declarations, DECLARATIONS, limitTo == DECLARATIONS));
+		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_allOccurrences, ALL_OCCURRENCES, limitTo == ALL_OCCURRENCES));
+		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_declarations, DECLARATIONS, limitTo == DECLARATIONS));
 
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_references, REFERENCES, limitTo == REFERENCES));
+		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_references, REFERENCES, limitTo == REFERENCES));
 		if (searchFor == TYPE) {
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_implementors, IMPLEMENTORS, limitTo == IMPLEMENTORS));
+			buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_implementors, IMPLEMENTORS, limitTo == IMPLEMENTORS));
 		}
 
 		if (searchFor == FIELD) {
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_readReferences, READ_ACCESSES, limitTo == READ_ACCESSES));
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_writeReferences, WRITE_ACCESSES, limitTo == WRITE_ACCESSES));
+			buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_readReferences, READ_ACCESSES, limitTo == READ_ACCESSES));
+			buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_writeReferences, WRITE_ACCESSES, limitTo == WRITE_ACCESSES));
 		}
 
 		fLimitTo= buttons.toArray(new Button[buttons.size()]);
