@@ -16,14 +16,15 @@ public class Data {
 	
 	public static String Hi = "import pac.Howdy;" + "\n" +
 								  "public class Hi extends Howdy {" + "\n"
-	  								+ "public global def meth(){}" + "\n"
+	  								+ "public def meth(){}" + "\n"
 	  								+ "}";
 	
 	// --- Data for DependencyTests
 	
 	public static String pakpac = "pak.pac";
-	
+
 	public static String DependencyTestsProject = "DependencyTestsProject";
+	public static String MiscTestsProject = "MiscTestsProject";
 	
 	public static String Hello = "public class Hello extends A { \n"
 							+"public static def main(args:Rail[String]) {\n"
@@ -58,32 +59,32 @@ public class Data {
 	
 	public static String A = "import pac.B;\n"
 							+ "public class A extends B{\n"
-							+	"public global def methA():C{return new C();}\n"
+							+	"public def methA():C{return new C();}\n"
 							+ "}";
 
 
 	public static String B =  "package pac;\n" 
 							+ "public class B {\n"
-							+	"public global def methB(){}\n"
+							+	"public def methB(){}\n"
 							+ "}";
 	
 	
 	public static String C = "import pak.pac.D;\n"
 							+ "public class C {\n"
-							+	"public global def methC():D{return new D();}\n"
+							+	"public def methC():D{return new D();}\n"
 							+ "}";
 	
 	public static String D =  "package pak.pac;\n" 
 							+ "public class D {\n"
 							+ 	"public var f: int;\n"
-							+	"public global def methD(){}\n"
+							+	"public def methD(){}\n"
 							+ "}";
 	
 	public static String D1 =  "package pak.pac;\n" 
 		+ "public class D {\n"
 		+ 	"public var f: int;\n"
-		+   "public global val d = new F();\n"
-		+	"public global def methD(){}\n"
+		+   "public val d = new F();\n"
+		+	"public def methD(){}\n"
 		+ "}";
 	
 	
@@ -92,6 +93,6 @@ public class Data {
 	
 	public static String F = "package pak.pac;\n"
 							+ "public class F {\n"
-							+ "public global val f = 0;\n"		
+							+ "public val f = 0;\n"		
 							+ "}";
 }
