@@ -65,6 +65,5 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 		}
 	}
 	
-	
 
 }

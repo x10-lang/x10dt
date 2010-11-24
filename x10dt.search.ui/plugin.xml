@@ -7,7 +7,7 @@
       		showScopeSection="true"	
             class="x10dt.search.ui.search.X10SearchPage"
             id="x10dt.search.ui.search.X10SearchPage"
-            label="X10 Search Prime">
+            label="X10 Search">
       </page>
    </extension>
     <extension

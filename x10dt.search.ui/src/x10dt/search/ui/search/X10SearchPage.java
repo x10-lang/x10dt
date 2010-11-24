@@ -18,9 +18,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.util.SWTUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.NewSearchUI;
@@ -78,12 +80,21 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 	// --- First time search page is opened
 	private boolean fFirstTime= true;
 	
+	private IDialogSettings fDialogSettings;
+	
+	private static final int HISTORY_SIZE= 12;
+	private final static String STORE_CASE_SENSITIVE= "CASE_SENSITIVE"; //$NON-NLS-1$
+	private final static String PAGE_NAME= "X10SearchPage"; //$NON-NLS-1$
+	private final static String STORE_HISTORY= "HISTORY"; //$NON-NLS-1$
+	private final static String STORE_HISTORY_SIZE= "HISTORY_SIZE"; //$NON-NLS-1$
+	
 	public X10SearchPage(){
 		fPreviousSearchPatterns = new ArrayList<SearchPatternData>();
 	}
 	
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
+		readConfiguration();
 		
 		Composite result= new Composite(parent, SWT.NONE);
 
@@ -145,6 +156,11 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		super.setVisible(visible);
 	}
 	
+	public void dispose() {
+		writeConfiguration();
+		super.dispose();
+	}
+
 	// --- Private methods
 	
 	private boolean performNewSearch() {
@@ -414,6 +430,49 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button.setSelection(isSelected);
 		return button;
+	}
+	
+	private IDialogSettings getDialogSettings() {
+		if (fDialogSettings == null) {
+			fDialogSettings= JavaPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
+		}
+		return fDialogSettings;
+	}
+	
+	private void readConfiguration() {
+		IDialogSettings s= getDialogSettings();
+		fIsCaseSensitive= s.getBoolean(STORE_CASE_SENSITIVE);
+
+		try {
+			int historySize= s.getInt(STORE_HISTORY_SIZE);
+			for (int i= 0; i < historySize; i++) {
+				IDialogSettings histSettings= s.getSection(STORE_HISTORY + i);
+				if (histSettings != null) {
+					SearchPatternData data= SearchPatternData.create(histSettings);
+					if (data != null) {
+						fPreviousSearchPatterns.add(data);
+					}
+				}
+			}
+		} catch (NumberFormatException e) {
+			// ignore
+		}
+	}
+	
+	/**
+	 * Stores the current configuration in the dialog store.
+	 */
+	private void writeConfiguration() {
+		IDialogSettings s= getDialogSettings();
+		s.put(STORE_CASE_SENSITIVE, fIsCaseSensitive);
+
+		int historySize= Math.min(fPreviousSearchPatterns.size(), HISTORY_SIZE);
+		s.put(STORE_HISTORY_SIZE, historySize);
+		for (int i= 0; i < historySize; i++) {
+			IDialogSettings histSettings= s.addNewSection(STORE_HISTORY + i);
+			SearchPatternData data= ((SearchPatternData) fPreviousSearchPatterns.get(i));
+			data.store(histSettings);
+		}
 	}
 	
 	protected final void performLimitToSelectionChanged(Button button) {
