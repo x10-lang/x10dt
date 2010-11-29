@@ -7,7 +7,6 @@
  *******************************************************************************/
 package x10dt.core.utils;
 
-import java.io.File;
 import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
@@ -106,7 +105,7 @@ public final class X10BundleUtils {
    * @return True if it is defined only at deployment time, false otherwise.
    */
   public static boolean isDeployedX10Runtime(final String x10RuntimePath) {
-    final String lastSegment = x10RuntimePath.substring(x10RuntimePath.lastIndexOf(File.separatorChar) + 1);
+    final String lastSegment = x10RuntimePath.substring(x10RuntimePath.lastIndexOf('/') + 1);
     return lastSegment.contains(X10_RUNTIME_BUNDLE_ID);
   }
 
