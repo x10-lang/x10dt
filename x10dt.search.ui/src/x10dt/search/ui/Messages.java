@@ -109,7 +109,7 @@ public class Messages extends NLS {
 	public static String OpenTypeHierarchyUtil_selectionDialog_message;
 
 	public static String StatusBarUpdater_num_elements_selected;
-
+	
 	public static String SearchPage_searchFor_label;
 	public static String SearchPage_searchFor_type;
 	public static String SearchPage_searchIn_label;
@@ -135,6 +135,15 @@ public class Messages extends NLS {
 	public static String X10SearchQuery_task_label;
 	public static String X10SearchQuery_label;
 	public static String X10SearchQuery_status_ok_message;
+	
+	public static String OpenTypeInHierarchyAction_label;
+	public static String OpenTypeInHierarchyAction_description;
+	public static String OpenTypeInHierarchyAction_tooltip;
+	public static String OpenTypeInHierarchyAction_dialogMessage;
+	public static String OpenTypeInHierarchyAction_dialogTitle;
+	
+
+
 	// --- Private code
 
 	private Messages() {

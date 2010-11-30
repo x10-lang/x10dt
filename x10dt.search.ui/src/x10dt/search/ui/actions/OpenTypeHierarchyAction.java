@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.actions.SelectionDispatchAction;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.jdt.internal.ui.actions.ActionUtil;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -104,6 +103,7 @@ public class OpenTypeHierarchyAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction.
 	 */
 	public void selectionChanged(ITextSelection selection) {
+		String umm = "";
 	}
 
 	/* (non-Javadoc)

@@ -177,6 +177,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
+            sequence="M1+M2+H"
+            contextId="x10dt.ui.x10PerspectiveScope"
+            commandId="x10dt.ui.navigate.OpenTypeInHierarchy"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
             sequence="M1+T"
             contextId="x10dt.ui.x10EditorScope"
             commandId="x10dt.ui.navigate.OpenHierarchy"
@@ -190,14 +196,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
 -->
-<!--
       <key
             sequence="F4"
-            contextId="x10dt.ui.x10EditorScope"
+            contextId="x10dt.ui.x10PerspectiveScope"
             commandId="x10dt.ui.navigate.OpenTypeHierarchy"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
--->
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -221,6 +225,12 @@
             id="x10dt.ui.navigate.OpenType">
       </command>
       <command
+            name="%ActionDefinition.openTypeInHierarchy.name"
+            description="%ActionDefinition.openTypeInHierarchy.description"
+            categoryId="org.eclipse.ui.category.navigate"
+            id="x10dt.ui.navigate.OpenTypeInHierarchy">
+      </command>
+      <command
             name="%ActionDefinition.open.hierarchy.name"
             description="%ActionDefinition.open.hierarchy.description"
             categoryId="org.eclipse.ui.category.navigate"
@@ -233,14 +243,12 @@
             categoryId="org.eclipse.ui.category.navigate"
             id="x10dt.ui.navigate.OpenTypeWarning">
       </command>
-<!--
       <command
             name="%ActionDefinition.openTypeHierarchy.name"
             description="%ActionDefinition.openTypeHierarchy.description"
             categoryId="org.eclipse.ui.category.navigate"
             id="x10dt.ui.navigate.OpenTypeHierarchy">
       </command>
--->
    </extension>
    <extension
          point="org.eclipse.imp.runtime.outliner">
@@ -528,17 +536,15 @@
             description="%X10ActionSet.description"
             visible="false"
             id="x10dt.ui.typeActionSet">
-<!--
          <action
                definitionId="x10dt.ui.navigate.OpenTypeInHierarchy"
                label="%OpenTypeInHierarchyAction.label"
                helpContextId="x10dt.ui.open_type_in_hierarchy_action"
                tooltip="%OpenTypeInHierarchyAction.tooltip"
-               class="x10dt.ui.actions.OpenTypeInHierarchyAction"
+               class="x10dt.search.ui.actions.OpenTypeInHierarchyAction"
                menubarPath="navigate/open.ext2"
                id="openTypeInHierarchy">
          </action>
--->
          <action
                id="openType"
                toolbarPath="org.eclipse.search.searchActionSet/Search"
@@ -556,7 +562,6 @@
                definitionId="x10dt.ui.navigate.OpenTypeWarning"
                label="%OpenTypeAction.label">
          </action>
-<!--
          <action
                definitionId="x10dt.ui.navigate.OpenTypeHierarchy"
                label="%OpenTypeHierarchyAction.label"
@@ -564,7 +569,6 @@
                menubarPath="navigate/open.ext"
                id="openTypeHierarchy">
          </action>
--->
       </actionSet>
    </extension>
    <extension
@@ -595,7 +599,6 @@
             name="X10 AST Info"
             restorable="true">
       </view>
-<!--
       <view
             name="%hierarchyViewName"
             icon="icons/class_hi.gif"
@@ -603,7 +606,6 @@
             class="x10dt.search.ui.typeHierarchy.TypeHierarchyViewPart"
             id="x10dt.ui.TypeHierarchy">
       </view>
--->
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">

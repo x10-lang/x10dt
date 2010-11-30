@@ -540,7 +540,7 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 			}
 			
 		} catch (Exception e) {
-			//throw new CoreException(new Status(IStatus.ERROR, UISearchPlugin.PLUGIN_ID, e.getMessage(), e));
+			throw new CoreException(new Status(IStatus.ERROR, UISearchPlugin.PLUGIN_ID, e.getMessage(), e));
 		} finally {
 			typeSearchFilter.setMatchEverythingMode(false);
 		}
