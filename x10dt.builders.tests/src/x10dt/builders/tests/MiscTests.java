@@ -1,6 +1,7 @@
 package x10dt.builders.tests;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
@@ -10,6 +11,7 @@ import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.ui.internal.views.markers.ExtendedMarkersView;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -19,12 +21,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import x10dt.builders.data.Data;
-import x10dt.builders.data.timeout;
+import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.PerspectiveUtils;
 import x10dt.tests.services.swbot.utils.ProblemsViewUtils;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
+import x10dt.tests.services.swbot.utils.SWTBotUtils;
 
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class MiscTests {
 
@@ -33,13 +37,13 @@ public class MiscTests {
 		@BeforeClass
 		public static void beforeClass() throws Exception {
 			bot = new SWTWorkbenchBot();
-			bot.viewByTitle("Welcome").close();
-			SWTBotPreferences.TIMEOUT= timeout.ONE_MINUTE; // Long timeout needed for first project creation
+			SWTBotUtils.closeWelcomeViewIfNeeded(bot);
+			SWTBotPreferences.TIMEOUT= Timeout.ONE_MINUTE; // Long timeout needed for first project creation
 		}  
 		
 		@Before
 		public void before() throws Exception {
-			SWTBotPreferences.TIMEOUT = timeout.ONE_MINUTE;
+			SWTBotPreferences.TIMEOUT = Timeout.ONE_MINUTE;
 			setUp(Data.MiscTestsProject);
 		}
 		
@@ -55,17 +59,39 @@ public class MiscTests {
 			SWTBotEclipseEditor srcEditor = bot.editorByTitle("Hi.x10").toTextEditor();
 			srcEditor.setText(Data.Hi);
 			srcEditor.save();
-			SWTBotPreferences.TIMEOUT = timeout.ONE_MINUTE;
+			SWTBotPreferences.TIMEOUT = Timeout.ONE_MINUTE;
 			Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorMessages(bot);
 			Assert.assertTrue("Compiling Hi should yield 3 errors: " + errors.length, errors.length == 3);
 			ProjectUtils.createPackage(bot, Data.MiscTestsProject, "src", Data.pac);
 			ProjectUtils.createClass(bot, "Howdy");
 			Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+			waitForProblemsView();
 			errors = ProblemsViewUtils.getErrorMessages(bot);
 			Assert.assertTrue("All compilation errors should have been cleared: " + errors.length, errors.length == 0);
 		}
 		
+		
+		/** 
+		 * This method waits for the "Problems" view to finish so that the information read
+		 * from it is accurate when checking for errors during the tests.
+		 * @throws Exception
+		 */
+
+		private void waitForProblemsView() throws Exception {
+			final ExtendedMarkersView view = (ExtendedMarkersView) bot.viewByTitle("Problems").getViewReference().getView(true); //$NON-NLS-1$			
+			if (Platform.getBundle("org.eclipse.core.runtime").getHeaders().get("Bundle-Version").toString().startsWith("3.6"))
+				{
+				// For Eclipse v.3.6.x
+				Job.getJobManager().join(view.MARKERSVIEW_UPDATE_JOB_FAMILY, null);				
+				}
+			else
+				{
+				// For other versions of Eclipse
+				bot.sleep(Timeout.FIVE_SECONDS);
+				}
+		}
 		/**
 		 * This method creates the test project.
 		 * @throws Exception
@@ -113,7 +139,12 @@ public class MiscTests {
 			}
 	 
 		@AfterClass
-		public static void sleep() {
+		public static void sleep() {			
+			try
+			{
+				bot.closeAllEditors();
+				bot.closeAllShells();
+			} catch (Exception e) {}
 		}
 	 
 }
