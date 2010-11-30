@@ -155,6 +155,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
 
+      fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
