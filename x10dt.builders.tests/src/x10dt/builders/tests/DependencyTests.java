@@ -1,11 +1,14 @@
 package x10dt.builders.tests;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
+import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
@@ -17,26 +20,44 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+
 import x10dt.builders.data.Data;
+import x10dt.core.utils.Timeout;
+import x10dt.builders.tests.utils.EditorMatcher;
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.PerspectiveUtils;
 import x10dt.tests.services.swbot.utils.ProblemsViewUtils;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
+import x10dt.tests.services.swbot.utils.SWTBotUtils;
 
+import org.eclipse.ui.internal.views.markers.ExtendedMarkersView;
+
+
+@SuppressWarnings("restriction")
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class DependencyTests {
 
-		private static SWTWorkbenchBot	bot;
-	 
+	private static SWTWorkbenchBot	bot;
+
+	/**
+	 * This method creates the new SWTWorkbenchBot at the start of the class and closes the "Welcome" tab
+	 * @throws Exception
+	 */
 		@BeforeClass
 		public static void beforeClass() throws Exception {
 			bot = new SWTWorkbenchBot();
-			bot.viewByTitle("Welcome").close();
+			SWTBotUtils.closeWelcomeViewIfNeeded(bot);
 		}  
 		
+		/**
+		 * This method runs before each test and calls the method that sets up the 
+		 * DependencyTests project
+		 * @throws Exception
+		 */
 		@Before
 		public void before() throws Exception {
-			setUp(Data.DependencyTestsProject);
+			SWTBotPreferences.TIMEOUT = Timeout.ONE_MINUTE;
+			setUp(Data.DependencyTestsProject);		
 		}
 		
 		/**
@@ -62,6 +83,7 @@ public class DependencyTests {
 			ProjectUtils.createPackage(bot, project, "src", Data.pakpac);
 			createClass("D", Data.D);
 			waitForBuildToFinish();
+			waitForProblemsView();
 		}
 		
 		/**
@@ -80,25 +102,57 @@ public class DependencyTests {
 		    bot.button(WizardConstants.OK_BUTTON).click();
 		}
 		
-	 
+	 /**
+	  * This method creates a class with the name specified and the text specified in the 
+	  * class body
+	  * @param name
+	  * @param text
+	  */
 		private void createClass(String name, String text){
 			ProjectUtils.createClass(bot, name);
 			SWTBotEclipseEditor srcEditor = bot.editorByTitle(name + ".x10").toTextEditor();
 			srcEditor.setText(text);
 			srcEditor.save();
+			bot.shells()[0].activate();
+			bot.waitUntil(Conditions.waitForEditor(new EditorMatcher(name + ".x10")));
 		}
 		
+		/**
+		 * This method waits for a build to finish before continuing
+		 * @throws Exception
+		 */
 		private void waitForBuildToFinish() throws Exception {
 			Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-			bot.sleep(2000); // --- For good measure ;-)
 		}
 		
+		/** 
+		 * This method waits for the "Problems" view to finish so that the information read
+		 * from it is accurate when checking for errors during the tests.
+		 * @throws Exception
+		 */
+		private void waitForProblemsView() throws Exception {
+			final ExtendedMarkersView view = (ExtendedMarkersView) bot.viewByTitle("Problems").getViewReference().getView(true); //$NON-NLS-1$			
+			if (Platform.getBundle("org.eclipse.core.runtime").getHeaders().get("Bundle-Version").toString().startsWith("3.6"))
+				{
+				// For Eclipse v.3.6.x
+				Job.getJobManager().join(view.MARKERSVIEW_UPDATE_JOB_FAMILY, null);				
+				}
+			else
+				{
+				// For other versions of Eclipse
+				bot.sleep(Timeout.FIVE_SECONDS);
+				}
+		}
+		
+		/**
+		 * Test number 1 just verifies that the initial setup has no errors
+		 * @throws Exception
+		 */
 		@Test
 		public void depTest1() throws Exception {
+			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorMessages(bot);
-			if (errors.length != 0)
-				Assert.assertTrue("There should have been no compilation errors: " + errors.length, false);
-			
+			Assert.assertTrue("Number of compilation errors should be 0:  " + errors.length, errors.length == 0);
 		}
 		
 		/**
@@ -111,12 +165,9 @@ public class DependencyTests {
 			srcEditor.insertText(2, 23, "A");
 			srcEditor.save();
 			waitForBuildToFinish();
+			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorResources(bot);
-			if (errors.length != 1){
-				Assert.assertTrue("Number of compilation errors is incorrect: " + errors.length, false);
-			}
-			assertError(errors, "Hello");
-			
+			Assert.assertTrue("Number of compilation errors should be 3:  " + errors.length, errors.length == 3);
 		}
 		
 		/**
@@ -129,12 +180,9 @@ public class DependencyTests {
 			srcEditor.insertText(2, 23, "B");
 			srcEditor.save();
 			waitForBuildToFinish();
+			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorResources(bot);
-			if (errors.length != 1){
-				Assert.assertTrue("Number of compilation errors is incorrect: " + errors.length, false);
-			}
-			assertError(errors, "Hello");
-			
+			Assert.assertTrue("Number of compilation errors should be 4:  " + errors.length, errors.length == 4);
 		}
 		
 		/**
@@ -153,6 +201,8 @@ public class DependencyTests {
 			SWTBotTreeItem CItem = srcItem.getNode("C.x10");
 			CItem.select();
 			deleteSelection();
+			waitForBuildToFinish();
+			waitForProblemsView();
 		    String[] errors = ProblemsViewUtils.getErrorResources(bot);
 		    assertError(errors, "Hello");
 		}
@@ -169,6 +219,7 @@ public class DependencyTests {
 			srcEditor.insertText(2, 12, "1");
 			srcEditor.save();
 			waitForBuildToFinish();
+			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorResources(bot);
 			assertError(errors, "Hello");
 		}
@@ -191,6 +242,7 @@ public class DependencyTests {
 			srcEditor.save();
 			srcItem.getNode("E.x10").select();
 			deleteSelection();
+			waitForProblemsView();
 		    String[] errors = ProblemsViewUtils.getErrorResources(bot);
 		    assertError(errors, "Hello");
 		}
@@ -220,6 +272,7 @@ public class DependencyTests {
 			waitForBuildToFinish();
 			pakpacItem.getNode("F.x10").select();
 			deleteSelection();
+			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorResources(bot);
 		    assertError(errors, "Hello");
 		}
@@ -251,6 +304,7 @@ public class DependencyTests {
 			FEditor.insertText(2,20,"1");
 			FEditor.save();
 			waitForBuildToFinish();
+			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorResources(bot);
 		    assertError(errors, "Hello");
 		}
@@ -269,10 +323,10 @@ public class DependencyTests {
 		    	if (error.contains(file)) 
 		    		fine = true;
 		    }
-		    if (!fine)
-		    	Assert.assertTrue("No compilation error reported on file Hello.x10:" + errors.length, false);
+		    Assert.assertTrue("There should be compilation errors on the file Hello.x10:  " + errors.length, fine);
 		}
-	 
+
+
 		/**
 		 * Deletes selected file.
 		 */
@@ -281,18 +335,32 @@ public class DependencyTests {
 			SWTBotShell deleteShell= bot.shell(WizardConstants.DELETE_CONFIRMATION_SHELL);
 		    deleteShell.activate();
 		    bot.button(WizardConstants.OK_BUTTON).click();
-		    waitForBuildToFinish();
+		    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
 		}
 		
+		/**
+		 * This method cleans up the project after each test is run and verifies that everything is closed
+		 * @throws Exception
+		 */
 		@After
 		public void after() throws Exception {
 			cleanUp(Data.DependencyTestsProject);
-			bot.sleep(2000);
+			bot.closeAllEditors();
+			bot.closeAllShells();
+			Assert.assertTrue("X10 Eclipse editors should all be closed.", bot.editors().isEmpty());
+			Assert.assertTrue("X10 Eclipse shells should all be closed except main shell.", bot.shells().length == 1);
 		}
 	 
+		/**
+		 * This method tries to close anything that's still open after the last test is run.
+		 */
 		@AfterClass
 		public static void sleep() {
-			bot.sleep(2000);
+			try
+			{
+				bot.closeAllEditors();
+				bot.closeAllShells();
+			} catch (Exception e) {}
 		}
 		
 	 
