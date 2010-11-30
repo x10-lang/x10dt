@@ -2,21 +2,30 @@ package x10dt.search.ui.globalSearch;
 
 import java.util.HashMap;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Item;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.Tree;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IAdaptable;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.internal.corext.util.Messages;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.internal.ui.JavaPluginImages;
+import org.eclipse.jdt.internal.ui.actions.CopyQualifiedNameAction;
+import org.eclipse.jdt.internal.ui.dnd.EditorInputTransferDragAdapter;
+import org.eclipse.jdt.internal.ui.dnd.JdtViewerDragAdapter;
+import org.eclipse.jdt.internal.ui.dnd.ResourceTransferDragAdapter;
+import org.eclipse.jdt.internal.ui.packageview.SelectionTransferDragAdapter;
+import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
+import org.eclipse.jdt.internal.ui.viewsupport.DecoratingJavaLabelProvider;
+import org.eclipse.jdt.internal.ui.viewsupport.ProblemTableViewer;
+import org.eclipse.jdt.internal.ui.viewsupport.ProblemTreeViewer;
+import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
+import org.eclipse.jdt.ui.search.IMatchPresentation;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
@@ -31,10 +40,23 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
-
+import org.eclipse.search.ui.IContextMenuConstants;
+import org.eclipse.search.ui.ISearchResultViewPart;
+import org.eclipse.search.ui.NewSearchUI;
+import org.eclipse.search.ui.text.AbstractTextSearchResult;
+import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
+import org.eclipse.search.ui.text.Match;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Item;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.dialogs.PreferencesUtil;
@@ -42,39 +64,8 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.part.ResourceTransfer;
-import org.eclipse.ui.views.navigator.LocalSelectionTransfer;
-
 import org.eclipse.ui.texteditor.ITextEditor;
-
-import org.eclipse.search.ui.IContextMenuConstants;
-import org.eclipse.search.ui.ISearchResultViewPart;
-import org.eclipse.search.ui.NewSearchUI;
-import org.eclipse.search.ui.text.AbstractTextSearchResult;
-import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
-import org.eclipse.search.ui.text.Match;
-
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMember;
-
-import org.eclipse.jdt.internal.corext.util.Messages;
-
-import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jdt.ui.actions.SelectionDispatchAction;
-import org.eclipse.jdt.ui.search.IMatchPresentation;
-
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
-import org.eclipse.jdt.internal.ui.actions.CopyQualifiedNameAction;
-import org.eclipse.jdt.internal.ui.dnd.EditorInputTransferDragAdapter;
-import org.eclipse.jdt.internal.ui.dnd.JdtViewerDragAdapter;
-import org.eclipse.jdt.internal.ui.dnd.ResourceTransferDragAdapter;
-import org.eclipse.jdt.internal.ui.packageview.SelectionTransferDragAdapter;
-import org.eclipse.jdt.internal.ui.util.ExceptionHandler;
-import org.eclipse.jdt.internal.ui.viewsupport.DecoratingJavaLabelProvider;
-import org.eclipse.jdt.internal.ui.viewsupport.ProblemTableViewer;
-import org.eclipse.jdt.internal.ui.viewsupport.ProblemTreeViewer;
+import org.eclipse.ui.views.navigator.LocalSelectionTransfer;
 
 
 public class X10SearchResultPage extends AbstractTextSearchViewPage implements IAdaptable {
@@ -141,7 +132,7 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage implements I
 
 	private int fCurrentGrouping;
 
-	private static final String[] SHOW_IN_TARGETS= new String[] { JavaUI.ID_PACKAGES , JavaPlugin.ID_RES_NAV };
+	private static final String[] SHOW_IN_TARGETS= new String[] { JavaUI.ID_PACKAGES , IPageLayout.ID_RES_NAV };
 	public static final IShowInTargetList SHOW_IN_TARGET_LIST= new IShowInTargetList() {
 		public String[] getShowInTargetIds() {
 			return SHOW_IN_TARGETS;
