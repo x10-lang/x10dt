@@ -26,50 +26,42 @@ import x10dt.tests.services.swbot.constants.WizardConstants;
  * @author rfuhrer@watson.ibm.com
  */
 public class X10DTTestBase {
-    /**
-     * The top-level "bot" for the entire workbench.
-     */
-    public static SWTWorkbenchBot topLevelBot;
+  /**
+   * The top-level "bot" for the entire workbench.
+   */
+  public static SWTWorkbenchBot topLevelBot;
 
-    public static void createJavaBackEndProject(String projName, boolean withHello) throws Exception {
-        topLevelBot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM).menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
+  public static void createJavaBackEndProject(String projName, boolean withHello) throws Exception {
+    topLevelBot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM)
+    .menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
 
-        SWTBotShell newProjShell= topLevelBot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
+    SWTBotShell newProjShell = topLevelBot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
 
-        newProjShell.activate();
+    newProjShell.activate();
 
-        SWTBot newProjBot= newProjShell.bot();
-        SWTBotTreeItem x10ProjItems= newProjBot.tree().expandNode(WizardConstants.X10_FOLDER);
+    SWTBot newProjBot = newProjShell.bot();
+    SWTBotTreeItem x10ProjItems = newProjBot.tree().expandNode(WizardConstants.X10_FOLDER);
 
-        x10ProjItems.select(WizardConstants.X10_PROJECT_JAVA_BACKEND);
+    x10ProjItems.select(WizardConstants.X10_PROJECT_JAVA_BACKEND);
 
-        SWTBotButton nextBut= newProjBot.button(WizardConstants.NEXT_BUTTON);
+    SWTBotButton nextBut = newProjBot.button(WizardConstants.NEXT_BUTTON);
 
-        nextBut.click();
+    nextBut.click();
 
-        SWTBotShell newX10ProjShell= topLevelBot.shell(WizardConstants.X10_PROJECT_SHELL_JAVA_BACKEND);
-        SWTBot newX10ProjBot= newX10ProjShell.bot();
+    SWTBotShell newX10ProjShell = topLevelBot.shell(WizardConstants.X10_PROJECT_SHELL_JAVA_BACKEND);
+    SWTBot newX10ProjBot = newX10ProjShell.bot();
 
-        newX10ProjBot.textWithLabel(WizardConstants.NEW_JAVA_PROJECT_NAME_FIELD).setText(projName);
-        if (withHello) {
-            newX10ProjBot.radioInGroup(WizardConstants.NEW_X10_PROJECT_HELLO_SOURCE_RADIO, WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
-        } else {
-            newX10ProjBot.radioInGroup(WizardConstants.NEW_X10_PROJECT_NO_SAMPLE_SOURCE_RADIO, WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
-        }
-        newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
-        
-    /*   //"Open Associated Perspective" shell Error Checking
-        try{
-        	SWTBotShell shell = topLevelBot.shell(WizardConstants.OPEN_ASSOCIATED_PERSPECTIVE_DIALOG_TITLE);
-        	shell.activate();
-        	topLevelBot.button(WizardConstants.YES_BUTTON).click();
-        	topLevelBot.waitUntil(Conditions.shellCloses(shell), 1500);
-        }catch(WidgetNotFoundException e){
-        	//TODO:Write message to Console
-        	System.out.println(WizardConstants.OPEN_ASSOCIATED_PERSPECTIVE_DIALOG_TITLE + " DOES NOT EXIST");
-        }*/
-//        SWTBotPreferences.TIMEOUT = 120000;
-        topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
-  //      SWTBotPreferences.TIMEOUT = 5000;
+    newX10ProjBot.textWithLabel(WizardConstants.NEW_JAVA_PROJECT_NAME_FIELD).setText(projName);
+    if (withHello) {
+      newX10ProjBot.radioInGroup(WizardConstants.NEW_X10_PROJECT_HELLO_SOURCE_RADIO,
+                                 WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
+    } else {
+      newX10ProjBot.radioInGroup(WizardConstants.NEW_X10_PROJECT_NO_SAMPLE_SOURCE_RADIO,
+                                 WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
     }
+    newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
+
+    topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
+
+  }
 }

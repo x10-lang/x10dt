@@ -19,6 +19,7 @@ import x10dt.ui.editor.QuickOutlineTests;
 
 /**
  * JUnit suite containing all the SWTBot-based tests for x10dt.ui
+ * 
  * @author rfuhrer@watson.ibm.com
  */
 @RunWith(Suite.class)

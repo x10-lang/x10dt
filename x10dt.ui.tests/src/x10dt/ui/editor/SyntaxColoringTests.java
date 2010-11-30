@@ -45,6 +45,7 @@ import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
+import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -61,6 +62,7 @@ import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.editor.X10TokenColorer;
 import x10dt.ui.parser.ParseController;
 import x10dt.ui.tests.X10DTTestBase;
+import x10dt.ui.editor.Timeout;
 import x10dt.ui.tests.utils.EditorMatcher;
 
 /**
@@ -69,591 +71,531 @@ import x10dt.ui.tests.utils.EditorMatcher;
 // @RunWith(ColoringTestRunner.class)
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class SyntaxColoringTests extends X10DTTestBase {
-    private static final String PROJECT_NAME= "ColoringProject";
+  private static final String PROJECT_NAME = "ColoringProject";
 
-    private static final String CLASS_NAME_1 = "HelloWorld";
-    private static final String CLASS_NAME_2 = "FRASimpleDist";
-    private static final String CLASS_NAME_3 = "FSSimpleDist";
-    private static final String CLASS_NAME_4 = "GCSpheres";
-    private static final String CLASS_NAME_5 = "Histogram";
-    private static final String CLASS_NAME_6 = "MontyPi";
-    private static final String CLASS_NAME_7 = "NQueensDist";
-    private static final String CLASS_NAME_8 = "NQueensPar";
-    private static final String CLASS_NAME_9 = "StructSpheres";
+  private static final String CLASS_NAME_1 = "HelloWorld";
 
-    private static final String CLASS_SRCFILE_NAME_1 = CLASS_NAME_1 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_2 = CLASS_NAME_2 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_3 = CLASS_NAME_3 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_4 = CLASS_NAME_4 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_5 = CLASS_NAME_5 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_6 = CLASS_NAME_6 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_7 = CLASS_NAME_7 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_8 = CLASS_NAME_8 + ".x10";
-    private static final String CLASS_SRCFILE_NAME_9 = CLASS_NAME_9 + ".x10";
-    
-    private boolean updated = false;
+  private static final String CLASS_NAME_2 = "FRASimpleDist";
 
+  private static final String CLASS_NAME_3 = "FSSimpleDist";
 
-    private class MyListener implements IModelListener {
-     	
-         public AnalysisRequired getAnalysisRequired() {
-             return AnalysisRequired.NONE; // Even if it doesn't scan, it's ok - this posts the error annotations!
-         }
-         
-         public void update(IParseController parseController, IProgressMonitor monitor) {
-         	System.out.println("We're inside the listener");
-         	updated = true;
-         }
-     }
+  private static final String CLASS_NAME_4 = "GCSpheres";
 
-    private static final String lineSep = System.getProperty("line.separator");
+  private static final String CLASS_NAME_5 = "Histogram";
 
-    private static final boolean verbose= true;
+  private static final String CLASS_NAME_6 = "MontyPi";
 
-    /**
-     * The bot for the editor used to exercise syntax coloring
-     */
-    protected static SWTBotEclipseEditor fSrcEditor;
+  private static final String CLASS_NAME_7 = "NQueensDist";
 
-    /**
-     * The text attribute used for any text that isn't given a special styling by
-     * the syntax colorer.
-     */
-    private static TextAttribute fDefaultTextAttribute;
+  private static final String CLASS_NAME_8 = "NQueensPar";
 
-    /**
-     * The list of text regions for the current editor buffer that aren't contained
-     * by any string, comment, keyword, or anything else that requires special coloring.
-     * These regions should all be styled with the fDefaultTextAttribute.
-     */
-    private List<Region> fOtherRegions;
+  private static final String CLASS_NAME_9 = "StructSpheres";
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        SWTBotPreferences.KEYBOARD_STRATEGY= "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy";
-        topLevelBot= new SWTWorkbenchBot();
-        SWTBotPreferences.TIMEOUT= 15000; // Long timeout needed for first project creation
-        SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
-        topLevelBot.perspectiveByLabel("X10").activate();
+  private static final String CLASS_SRCFILE_NAME_1 = CLASS_NAME_1 + ".x10";
 
-       /* createJavaBackEndProject(PROJECT_NAME, false);
+  private static final String CLASS_SRCFILE_NAME_2 = CLASS_NAME_2 + ".x10";
 
-        fDefaultTextAttribute= UIThreadRunnable.syncExec(new Result<TextAttribute>() {
-            public TextAttribute run() {
-                return new TextAttribute(Display.getDefault().getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);
-            }
-        });
-        topLevelBot.shells()[0].activate(); // HACK - make sure the main window's shell is active, in case we ran after other tests
-        ProjectUtils.createClass(topLevelBot, CLASS_NAME);
+  private static final String CLASS_SRCFILE_NAME_3 = CLASS_NAME_3 + ".x10";
 
-        topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));
+  private static final String CLASS_SRCFILE_NAME_4 = CLASS_NAME_4 + ".x10";
 
-        fSrcEditor= topLevelBot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor(); */
-    }
-    
-    public void createProject(String projName, String className, String classFilename) throws Exception{
-    	createJavaBackEndProject(projName, false);
-    	
-    	fDefaultTextAttribute = UIThreadRunnable.syncExec(new Result<TextAttribute>() {
-    		public TextAttribute run() {
-    			return new TextAttribute(Display.getDefault().getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);
-    		}
-    	});
-    	topLevelBot.shells()[0].activate(); //HACK - make sure the main window's shell is active, in case we ran after other tests
-    	ProjectUtils.createClass(topLevelBot, className);
-    	
-    	topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(classFilename)));
-    	
-    	fSrcEditor = topLevelBot.editorByTitle(classFilename).toTextEditor();
+  private static final String CLASS_SRCFILE_NAME_5 = CLASS_NAME_5 + ".x10";
+
+  private static final String CLASS_SRCFILE_NAME_6 = CLASS_NAME_6 + ".x10";
+
+  private static final String CLASS_SRCFILE_NAME_7 = CLASS_NAME_7 + ".x10";
+
+  private static final String CLASS_SRCFILE_NAME_8 = CLASS_NAME_8 + ".x10";
+
+  private static final String CLASS_SRCFILE_NAME_9 = CLASS_NAME_9 + ".x10";
+
+  private static boolean updated = false;
+
+  /**
+   * MyListener class has a variable called updated which turns to true when the parser finishes adding the test source to the
+   * editor
+   * 
+   * @author oriolad
+   * 
+   */
+  private class MyListener implements IModelListener {
+
+    public AnalysisRequired getAnalysisRequired() {
+      return AnalysisRequired.NONE; // Even if it doesn't scan, it's ok - this posts the error annotations!
     }
 
-    @AfterClass
-    public static void afterClass() throws Exception {
-        SWTBotUtils.saveAllDirtyEditors(topLevelBot);
+    public void update(IParseController parseController, IProgressMonitor monitor) {
+      updated = true;
     }
+  }
 
-//    @ColoringTests(files="data/*.x10")
-    @Test
-    public void testHello() throws Exception{
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_1 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "1",CLASS_NAME_1, CLASS_SRCFILE_NAME_1);
-        runTest("data/" + CLASS_SRCFILE_NAME_1);
+  private static final String lineSep = System.getProperty("line.separator");
+
+  /**
+   * The bot for the editor used to exercise syntax coloring
+   */
+  protected static SWTBotEclipseEditor fSrcEditor;
+
+  /**
+   * The text attribute used for any text that isn't given a special styling by the syntax colorer.
+   */
+  private static TextAttribute fDefaultTextAttribute;
+
+  /**
+   * The list of text regions for the current editor buffer that aren't contained by any string, comment, keyword, or anything
+   * else that requires special coloring. These regions should all be styled with the fDefaultTextAttribute.
+   */
+  private List<Region> fOtherRegions;
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy";
+    topLevelBot = new SWTWorkbenchBot();
+    SWTBotPreferences.TIMEOUT = 15000; // Long timeout needed for first project creation
+    SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
+
+    topLevelBot.perspectiveByLabel("X10").activate(); // Change perspective to X10
+
+    // Creates a Java Back-end project
+    createJavaBackEndProject(PROJECT_NAME, false);
+    topLevelBot.shells()[0].activate();
+  }
+
+  public void setupTest(String className, String classFilename) throws Exception {
+
+    fDefaultTextAttribute = UIThreadRunnable.syncExec(new Result<TextAttribute>() {
+      public TextAttribute run() {
+        return new TextAttribute(Display.getDefault().getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);
+      }
+    });
+
+    ProjectUtils.createClass(topLevelBot, className);
+    topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(classFilename)));
+    fSrcEditor = topLevelBot.editorByTitle(classFilename).toTextEditor();
+  }
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+    SWTBotUtils.saveAllDirtyEditors(topLevelBot);
+    // Among other things, the following makes sure that the workbench (and therefore the test)
+    // shuts down cleanly, even if there are "dirty" open editors. Without it, the test might
+    // hang waiting for someone to dismiss the "Foo has been modified. Save changes?" dialog.
+    SWTBotUtils.resetWorkbench(topLevelBot);
+  }
+
+  @After
+  public void after() throws Exception {
+    SWTBotUtils.closeAllEditors(topLevelBot);
+    SWTBotUtils.closeAllShells(topLevelBot);
+  }
+
+  @Test
+  public void test1() throws Exception {
+    setupTest(CLASS_NAME_1, CLASS_SRCFILE_NAME_1);
+    runTest("data/" + CLASS_SRCFILE_NAME_1);
+  }
+
+  @Test
+  public void test2() throws Exception {
+    setupTest(CLASS_NAME_2, CLASS_SRCFILE_NAME_2);
+    runTest("data/" + CLASS_SRCFILE_NAME_2);
+  }
+
+  @Test
+  public void test3() throws Exception {
+    setupTest(CLASS_NAME_3, CLASS_SRCFILE_NAME_3);
+    runTest("data/" + CLASS_SRCFILE_NAME_3);
+  }
+
+  @Test
+  public void test4() throws Exception {
+    setupTest(CLASS_NAME_4, CLASS_SRCFILE_NAME_4);
+    runTest("data/" + CLASS_SRCFILE_NAME_4);
+  }
+
+  @Test
+  public void test5() throws Exception {
+    setupTest(CLASS_NAME_5, CLASS_SRCFILE_NAME_5);
+    runTest("data/" + CLASS_SRCFILE_NAME_5);
+  }
+
+  @Test
+  public void test6() throws Exception {
+    setupTest(CLASS_NAME_6, CLASS_SRCFILE_NAME_6);
+    runTest("data/" + CLASS_SRCFILE_NAME_6);
+  }
+
+  @Test
+  public void test7() throws Exception {
+    setupTest(CLASS_NAME_7, CLASS_SRCFILE_NAME_7);
+    runTest("data/" + CLASS_SRCFILE_NAME_7);
+  }
+
+  @Test
+  public void test8() throws Exception {
+    setupTest(CLASS_NAME_8, CLASS_SRCFILE_NAME_8);
+    runTest("data/" + CLASS_SRCFILE_NAME_8);
+  }
+
+  @Test
+  public void test9() throws Exception {
+    setupTest(CLASS_NAME_9, CLASS_SRCFILE_NAME_9);
+    runTest("data/" + CLASS_SRCFILE_NAME_9);
+  }
+
+  private void runTest(String srcPath) throws Exception {
+    getTestSource(fSrcEditor, srcPath);
+    WaitForParser();
+    verifyColoring(fSrcEditor);
+    updated = false; // reset updated variable
+  }
+
+  public static void WaitForParser() throws Exception {
+
+    topLevelBot.waitUntil(new DefaultCondition() {
+
+      public boolean test() throws Exception {
+        return updated == true;
+      }
+
+      public String getFailureMessage() {
+        return "Waiting for parser failed.";
+      }
+
+    }, Timeout.SIXTY_SECONDS);
+  }
+
+  private void getTestSource(final SWTBotEclipseEditor srcEditor, final String resPath) {
+    final Bundle bundle = Platform.getBundle("x10dt.ui.tests");
+    final URL resURL = bundle.getEntry(resPath);
+    junit.framework.Assert.assertNotNull("Unable to find test source: " + resPath, resURL);
+    try {
+      final InputStream resStream = FileLocator.openStream(bundle, new Path(resURL.getPath()), false);
+      final String contents = StreamUtils.readStreamContents(resStream);
+
+      final IEditorPart editorPart = srcEditor.getReference().getEditor(false);
+      final UniversalEditor univEditor = (UniversalEditor) editorPart;
+      univEditor.addModelListener(new MyListener());
+
+      srcEditor.setText(contents);
+
+    } catch (final IOException e) {
+      junit.framework.Assert.fail(e.getMessage());
     }
+  }
 
-//    @Test
-//    public void testKMeansSPMD() {
-//        runTest("data/KMeansSPMD.x10");
-//    }
+  @SuppressWarnings("unused")
+  private void deleteSourceRange(final SWTBotEclipseEditor srcEditor, final int line, final int column, final int length) {
+    srcEditor.selectRange(line, column, length);
+    srcEditor.insertText("");
+  }
 
-    @Test
-    public void test2() throws Exception{
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_2 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "2",CLASS_NAME_2, CLASS_SRCFILE_NAME_2);
-        runTest("data/" + CLASS_SRCFILE_NAME_2);
+  @SuppressWarnings("unused")
+  private void mutateSource(final SWTBotEclipseEditor srcEditor) {
+    srcEditor.selectRange(5, 0, 0);
+    srcEditor.insertText("        // a comment" + lineSep);
+  }
+
+  private void verifyColoring(final SWTBotEclipseEditor editor) {
+    final IEditorPart editorPart = editor.getReference().getEditor(false);
+    final IEditorInput input = editorPart.getEditorInput();
+    final IDocument doc = ((AbstractTextEditor) editorPart).getDocumentProvider().getDocument(input);
+    final X10TokenColorer colorer = UIThreadRunnable.syncExec(new Result<X10TokenColorer>() {
+      public X10TokenColorer run() {
+        return new X10TokenColorer();
+      }
+    });
+    final UniversalEditor univEditor = (UniversalEditor) editorPart;
+    final ParseController pc = (ParseController) univEditor.getParseController();
+
+    fOtherRegions = new LinkedList<Region>();
+    fOtherRegions.add(new Region(0, doc.getLength()));
+
+    verifyColoringOf(findComments(pc), colorer.commentAttribute, doc, editor);
+
+    verifyColoringOf(findDocComments(pc), colorer.docCommentAttribute, doc, editor);
+
+    verifyColoringOf(findKeywords(pc), colorer.getKeywordAttribute(), doc, editor);
+
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_StringLiteral), colorer.characterAttribute, doc, editor);
+
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_CharacterLiteral), colorer.characterAttribute, doc, editor);
+
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IDENTIFIER), colorer.identifierAttribute, doc, editor);
+
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IntegerLiteral), colorer.numberAttribute, doc, editor);
+
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_LongLiteral), colorer.numberAttribute, doc, editor);
+
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_FloatingPointLiteral), colorer.numberAttribute, doc, editor);
+
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_DoubleLiteral), colorer.numberAttribute, doc, editor);
+
+    // check that other ranges are styled using the default font/color
+    verifyOtherRegions(doc, editor);
+
+  }
+
+  private void verifyOtherRegions(final IDocument doc, final SWTBotEclipseEditor editor) {
+    doVerifyColoring(fOtherRegions, fDefaultTextAttribute, doc, editor);
+  }
+
+  private void verifyColoringOf(final List<Region> regions, final TextAttribute attrib, final IDocument doc,
+                                final SWTBotEclipseEditor editor) {
+    removeFromOtherRegions(regions);
+    doVerifyColoring(regions, attrib, doc, editor);
+  }
+
+  private void removeFromOtherRegions(final List<Region> regions) {
+    if (regions.size() == 0) {
+      return;
     }
+    for (final Region r : regions) {
+      final List<Region> result = new LinkedList<Region>();
+      final Iterator<Region> otherIter = fOtherRegions.iterator();
+      Region otherRegion = otherIter.next();
 
-    @Test
-    public void test3() throws Exception {
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_3 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "3",CLASS_NAME_3, CLASS_SRCFILE_NAME_3);
-        runTest("data/" + CLASS_SRCFILE_NAME_3);
+      // copy over old regions that are wholly BEFORE the region 'r'
+      while (otherRegion.getOffset() + otherRegion.getLength() < r.getOffset()) {
+        result.add(otherRegion);
+        if (!otherIter.hasNext()) {
+          otherRegion = null;
+          break;
+        }
+        otherRegion = otherIter.next();
+      }
+      // >>> HERE: either otherIter ran dry, or otherRegion now overlaps region 'r'
+
+      if (otherRegion != null) {
+        int remainOff = r.getOffset();
+        int remainEnd = remainOff + r.getLength();
+        do {
+          int otherOff = otherRegion.getOffset();
+          int otherEnd = otherOff + otherRegion.getLength() - 1;
+          if (otherOff < remainOff) {
+            // Need to keep the beginning of 'otherRegion'
+            final Region newReg = new Region(otherOff, remainOff - otherOff);
+            result.add(newReg);
+          }
+          // >>> HERE: remainOff <= otherRegion.getOffset() <<<
+          // Determine whether there's anything left of the right-hand end of otherRegion
+          int rightOff = remainEnd;
+          int rightEnd = Math.max(remainEnd, otherEnd);
+          if (rightEnd >= rightOff) {
+            result.add(new Region(rightOff, rightEnd - rightOff + 1));
+          }
+          // we've taken care of this otherRegion, advance to the next
+          if (!otherIter.hasNext()) {
+            otherRegion = null;
+            break;
+          }
+          otherRegion = otherIter.next();
+        } while (otherRegion.getOffset() + otherRegion.getLength() < r.getOffset() + r.getLength());
+      }
+      // >>> HERE: either otherIter ran dry, or otherRegion DOESN'T overlap region 'r'
+
+      if (otherRegion != null) {
+        // copy over old regions that are wholly AFTER the region 'r'
+        while (otherRegion.getOffset() > r.getOffset() + r.getLength()) {
+          result.add(otherRegion);
+          if (!otherIter.hasNext()) {
+            break;
+          }
+          otherRegion = otherIter.next();
+        }
+      }
+      fOtherRegions = result;
     }
+  }
 
-    @Test
-    public void test4() throws Exception {
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_4 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "4",CLASS_NAME_4, CLASS_SRCFILE_NAME_4);
-        runTest("data/" + CLASS_SRCFILE_NAME_4);
+  private void dumpRegions(final List<Region> regions) {
+    for (Region r : regions) {
+      System.out.print(toString(r));
     }
+  }
 
-    @Test
-    public void test5() throws Exception{
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_5 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "5",CLASS_NAME_5, CLASS_SRCFILE_NAME_5);
-        runTest("data/" + CLASS_SRCFILE_NAME_5);
-    }
+  private void doVerifyColoring(final List<Region> regions, final TextAttribute attrib, final IDocument doc,
+                                final SWTBotEclipseEditor editor) {
+    for (final Region r : regions) {
 
-    @Test
-    public void test6() throws Exception{
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_6 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "6",CLASS_NAME_6, CLASS_SRCFILE_NAME_6);
-        runTest("data/" + CLASS_SRCFILE_NAME_6);
-    }
+      final int offset = r.getOffset();
+      final int length = r.getLength();
 
-    @Test
-    public void test7() throws Exception {
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_7 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "7",CLASS_NAME_7, CLASS_SRCFILE_NAME_7);
-        runTest("data/" + CLASS_SRCFILE_NAME_7);
-    }
+      for (int pos = offset; pos < offset + length; pos++) {
+        if (pos < 0 || pos >= doc.getLength()) {
+          continue;
+        }
 
-    @Test
-    public void test8() throws Exception{
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_8 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "8",CLASS_NAME_8, CLASS_SRCFILE_NAME_8);
-        runTest("data/" + CLASS_SRCFILE_NAME_8);
-    }
-
-    @Test
-    public void test9() throws Exception{
-    	if(verbose){
-    		System.out.println("TESTING: " + CLASS_NAME_9 + " CLASS");
-    	}
-    	createProject(PROJECT_NAME + "9",CLASS_NAME_9, CLASS_SRCFILE_NAME_9);
-        runTest("data/" + CLASS_SRCFILE_NAME_9);
-    }
-
-    private void runTest(String srcPath) {
-        getTestSource(fSrcEditor, srcPath);
-        
-        while( updated == false) {
-      	  int x =2/2;
-      	 }
-       //  do nothing
-          	
-        verifyColoring(fSrcEditor);
-    }
-
-    private void getTestSource(final SWTBotEclipseEditor srcEditor, final String resPath) {
-        final Bundle bundle= Platform.getBundle("x10dt.ui.tests");
-        final URL resURL= bundle.getEntry(resPath);
-        junit.framework.Assert.assertNotNull("Unable to find test source: " + resPath, resURL);
         try {
-            final InputStream resStream= FileLocator.openStream(bundle, new Path(resURL.getPath()), false);
-            final String contents= StreamUtils.readStreamContents(resStream);
-            
-            final IEditorPart editorPart= srcEditor.getReference().getEditor(false);
-            final UniversalEditor univEditor= (UniversalEditor) editorPart;
-           univEditor.addModelListener(new MyListener());
+          final int line = doc.getLineOfOffset(pos);
+          final int column = pos - doc.getLineOffset(line);
+          final StyleRange sr = editor.getStyle(line, column);
 
-            srcEditor.setText(contents);
-            System.out.println("Waiting for parser...");
-            
-        } catch (final IOException e) {
-            junit.framework.Assert.fail(e.getMessage());
-        }
-    }
-    
-    @SuppressWarnings("unused")
-    private void deleteSourceRange(final SWTBotEclipseEditor srcEditor, final int line, final int column, final int length) {
-        srcEditor.selectRange(line, column, length);
-        srcEditor.insertText("");
-    }
-
-    @SuppressWarnings("unused")
-    private void mutateSource(final SWTBotEclipseEditor srcEditor) {
-        srcEditor.selectRange(5, 0, 0);
-        srcEditor.insertText("        // a comment" + lineSep);
-    }
-
-    private void verifyColoring(final SWTBotEclipseEditor editor) {
-        final IEditorPart editorPart= editor.getReference().getEditor(false);
-        final IEditorInput input= editorPart.getEditorInput();
-        final IDocument doc= ((AbstractTextEditor) editorPart).getDocumentProvider().getDocument(input);
-        final X10TokenColorer colorer= UIThreadRunnable.syncExec(new Result<X10TokenColorer>() {
-            public X10TokenColorer run() {
-                return new X10TokenColorer();
+          if (attrib != fDefaultTextAttribute) { // but it seems nothing actually explicitly uses fDefaultTextAttribute
+                                                 // anyway...
+            junit.framework.Assert.assertNotNull("Default style found for text that needs a style at position " +
+                                                 getPosString(pos, doc) + ", character '" + doc.get(pos, 1) + "'", sr);
+            checkFontStyle(attrib.getStyle(), sr.fontStyle, pos, doc);
+            checkFontColor(attrib.getForeground().getRGB(), sr.foreground, pos, doc);
+          } else {
+            if (sr != null) {
+              junit.framework.Assert.assertNull("Default color expected at position " + getPosString(pos, doc) +
+                                                ", character '" + doc.get(pos, 1) + "'", sr.foreground);
             }
-        });
-        final UniversalEditor univEditor= (UniversalEditor) editorPart;
-        final ParseController pc= (ParseController) univEditor.getParseController();
-
-        fOtherRegions= new LinkedList<Region>();
-        fOtherRegions.add(new Region(0, doc.getLength()));
-
-        if (verbose) {
-            System.out.println("Doc: " + doc.get());
-            System.out.println();
-        }
-
-        if(verbose){
-        	System.out.println("VERIFYING COMMENTS: DARK RED, ITALIC");
-        }
-        verifyColoringOf(findComments(pc), colorer.commentAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING DOCUMENT COMMENTS: BLUE ITALIC");
-        }
-        verifyColoringOf(findDocComments(pc), colorer.docCommentAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING KEYWORDS: DARK MAGENTA, BOLD");
-        }
-        verifyColoringOf(findKeywords(pc), colorer.getKeywordAttribute(), doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING STRING LITERALS: DARK BLUE, BOLD");
-        }
-        verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_StringLiteral), colorer.characterAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING CHARACTER LITERALS: DARK BLUE, BOLD");
-        }
-        verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_CharacterLiteral), colorer.characterAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING IDENTIFIERS: BLACK, NORMAL");
-        }
-        verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IDENTIFIER), colorer.identifierAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING INTEGER LITERALS: DARK YELLOW, BOLD");
-        }
-        verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IntegerLiteral), colorer.numberAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING LONG LITERALS: DARK YELLOW, BOLD");
-        }
-        verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_LongLiteral), colorer.numberAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING FLOATING POINT LITERALS:");
-        }
-        verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_FloatingPointLiteral), colorer.numberAttribute, doc, editor);
-        
-        if(verbose){
-        	System.out.println("VERIFYING DOUBLE LITERALS:");
-        }
-        verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_DoubleLiteral), colorer.numberAttribute, doc, editor);
-
-        // check that other ranges are styled using the default font/color
-        if(verbose){
-        	System.out.println("VERIFYING OTHER REGIONS:");
-        }
-        verifyOtherRegions(doc, editor);
-        
-        if(verbose){
-        	System.out.println("FINISHED TESTCASE");
-        }
-    }
-
-    private void verifyOtherRegions(final IDocument doc, final SWTBotEclipseEditor editor) {
-        doVerifyColoring(fOtherRegions, fDefaultTextAttribute, doc, editor);
-    }
-
-    private void verifyColoringOf(final List<Region> regions, final TextAttribute attrib, final IDocument doc, final SWTBotEclipseEditor editor) {
-        removeFromOtherRegions(regions);
-        doVerifyColoring(regions, attrib, doc, editor);
-    }
-
-    private void removeFromOtherRegions(final List<Region> regions) {
-        if (regions.size() == 0) { return; }
-        if (verbose) {
-            System.out.print("removeFromOtherRegions(");
-            dumpRegions(regions);
-            System.out.println(")");
-            System.out.print("  Current 'other' regions: ");
-            dumpRegions(fOtherRegions);
-            System.out.println();
-        }
-        for(final Region r: regions) {
-            final List<Region> result= new LinkedList<Region>();
-            final Iterator<Region> otherIter= fOtherRegions.iterator();
-            Region otherRegion= otherIter.next();
-
-            if (verbose) {
-                System.out.println("Removing region " + toString(r));
-            }
-
-            // copy over old regions that are wholly BEFORE the region 'r'
-            while (otherRegion.getOffset() + otherRegion.getLength() < r.getOffset()) {
-                result.add(otherRegion);
-                if (!otherIter.hasNext()) { otherRegion= null; break; }
-                otherRegion= otherIter.next();
-            }
-            // >>> HERE: either otherIter ran dry, or otherRegion now overlaps region 'r'
-
-            if (otherRegion != null) {
-                int remainOff= r.getOffset();
-                int remainEnd= remainOff + r.getLength();
-                do {
-                    int otherOff= otherRegion.getOffset();
-                    int otherEnd= otherOff + otherRegion.getLength() - 1;
-                    if (otherOff < remainOff) {
-                        // Need to keep the beginning of 'otherRegion'
-                        final Region newReg= new Region(otherOff, remainOff - otherOff);
-                        result.add(newReg);
-                    }
-                    // >>> HERE: remainOff <= otherRegion.getOffset() <<<
-                    // Determine whether there's anything left of the right-hand end of otherRegion
-                    int rightOff= remainEnd;
-                    int rightEnd= Math.max(remainEnd, otherEnd);
-                    if (rightEnd >= rightOff) {
-                        result.add(new Region(rightOff, rightEnd - rightOff + 1));
-                    }
-                    // we've taken care of this otherRegion, advance to the next
-                    if (!otherIter.hasNext()) { otherRegion= null; break; }
-                    otherRegion= otherIter.next();
-                } while (otherRegion.getOffset() + otherRegion.getLength() < r.getOffset() + r.getLength());
-            }
-            // >>> HERE: either otherIter ran dry, or otherRegion DOESN'T overlap region 'r'
-
-            if (otherRegion != null) {
-                // copy over old regions that are wholly AFTER the region 'r'
-                while (otherRegion.getOffset() > r.getOffset() + r.getLength()) {
-                    result.add(otherRegion);
-                    if (!otherIter.hasNext()) { break; }
-                    otherRegion= otherIter.next();
-                }
-            }
-            fOtherRegions= result;
-            if (verbose) {
-                System.out.print("  *** New 'other' regions: ");
-                for(Region oth: fOtherRegions) {
-                    System.out.print(toString(oth));
-                }
-                System.out.println();
-            }
-        }
-        if (verbose) {
-            System.out.println("done");
-        }
-    }
-
-    private void dumpRegions(final List<Region> regions) {
-        for(Region r: regions) {
-            System.out.print(toString(r));
-        }
-    }
-
-    private void doVerifyColoring(final List<Region> regions, final TextAttribute attrib, final IDocument doc, final SWTBotEclipseEditor editor) {
-        for(final Region r: regions) {
-            if (verbose) {
-                try {
-                    System.out.println("Verifying region " + toString(r) + ": '" + doc.get(r.getOffset(), r.getLength()) + "'");
-                } catch (final BadLocationException e1) {
-                }
-            }
-            final int offset= r.getOffset();
-            final int length= r.getLength();
-
-            for(int pos= offset; pos < offset + length; pos++) {
-                if (pos < 0 || pos >= doc.getLength()) { continue; }
-
-                try {
-                    final int line= doc.getLineOfOffset(pos);
-                    final int column= pos - doc.getLineOffset(line);
-                    final StyleRange sr= editor.getStyle(line, column);
-
-                    if (attrib != fDefaultTextAttribute) { // but it seems nothing actually explicitly uses fDefaultTextAttribute anyway...
-                        junit.framework.Assert.assertNotNull("Default style found for text that needs a style at position " + getPosString(pos, doc) + ", character '" + doc.get(pos, 1) + "'", sr);
-                        checkFontStyle(attrib.getStyle(), sr.fontStyle, pos, doc);
-                        checkFontColor(attrib.getForeground().getRGB(), sr.foreground, pos, doc);
-                    } else {
-                        if (sr != null) {
-                            junit.framework.Assert.assertNull("Default color expected at position " + getPosString(pos, doc) + ", character '" + doc.get(pos, 1) + "'", sr.foreground);
-                        }
-                    }
-                } catch (final BadLocationException e) {
-                    junit.framework.Assert.fail(e.getMessage());
-                }
-            }
-        }
-    }
-
-    private void checkFontColor(final RGB expectedRGB, final Color actualColor, final int pos, final IDocument doc) {
-        try {
-            final char ch= doc.getChar(pos);
-            final String posStr= getPosString(pos, doc);
-
-            junit.framework.Assert.assertEquals("Font color mismatch at position " + posStr + ", character '" + ch + "'", expectedRGB, actualColor.getRGB());
+          }
         } catch (final BadLocationException e) {
-            junit.framework.Assert.fail(e.getMessage());
+          junit.framework.Assert.fail(e.getMessage());
         }
+      }
     }
+  }
 
-    private String toString(Region r) {
-        return "<" + r.getOffset() + ":" + (r.getOffset() + r.getLength() - 1) + "> ";
+  private void checkFontColor(final RGB expectedRGB, final Color actualColor, final int pos, final IDocument doc) {
+    try {
+      final char ch = doc.getChar(pos);
+      final String posStr = getPosString(pos, doc);
+
+      junit.framework.Assert.assertEquals("Font color mismatch at position " + posStr + ", character '" + ch + "'",
+                                          expectedRGB, actualColor.getRGB());
+    } catch (final BadLocationException e) {
+      junit.framework.Assert.fail(e.getMessage());
     }
+  }
 
-    private String getPosString(final int pos, final IDocument doc) {
-        try {
-            final int line= doc.getLineOfOffset(pos);
-            final int col= pos - doc.getLineOffset(line);
+  private String toString(Region r) {
+    return "<" + r.getOffset() + ":" + (r.getOffset() + r.getLength() - 1) + "> ";
+  }
 
-            return "<offset = " + pos + ", line = " + line + ", col = " + col + ">";
-        } catch (final BadLocationException e) {
-            junit.framework.Assert.fail(e.getMessage());
-            return ""; // not reached
-        }
+  private String getPosString(final int pos, final IDocument doc) {
+    try {
+      final int line = doc.getLineOfOffset(pos);
+      final int col = pos - doc.getLineOffset(line);
+
+      return "<offset = " + pos + ", line = " + line + ", col = " + col + ">";
+    } catch (final BadLocationException e) {
+      junit.framework.Assert.fail(e.getMessage());
+      return ""; // not reached
     }
+  }
 
-    private void checkFontStyle(final int expected, final int actual, final int pos, final IDocument doc) {
-        if (expected == actual) return;
+  private void checkFontStyle(final int expected, final int actual, final int pos, final IDocument doc) {
+    if (expected == actual)
+      return;
 
-        try {
-            final String expectedStr= buildStyleDescriptor(expected);
-            final String actualStr= buildStyleDescriptor(actual);
-            final char ch= doc.getChar(pos);
-            final String posStr= getPosString(pos, doc);
+    try {
+      final String expectedStr = buildStyleDescriptor(expected);
+      final String actualStr = buildStyleDescriptor(actual);
+      final char ch = doc.getChar(pos);
+      final String posStr = getPosString(pos, doc);
 
-            junit.framework.Assert.fail("Font style at position " + posStr + ", character '" + ch + "' doesn't match: expected " + expectedStr + ", got " + actualStr);
-        } catch (final BadLocationException e) {
-            junit.framework.Assert.fail(e.getMessage());
-        }
+      junit.framework.Assert.fail("Font style at position " + posStr + ", character '" + ch + "' doesn't match: expected " +
+                                  expectedStr + ", got " + actualStr);
+    } catch (final BadLocationException e) {
+      junit.framework.Assert.fail(e.getMessage());
     }
+  }
 
-    private String buildStyleDescriptor(int style) {
-        if (style == SWT.NORMAL) return "normal";
-        final int mask= SWT.BOLD | SWT.ITALIC;
-        final StringBuilder sb= new StringBuilder();
+  private String buildStyleDescriptor(int style) {
+    if (style == SWT.NORMAL)
+      return "normal";
+    final int mask = SWT.BOLD | SWT.ITALIC;
+    final StringBuilder sb = new StringBuilder();
 
-        while ((style & mask) != 0) {
-            if (sb.length() > 0) {
-                sb.append("+");
-            }
-            if ((style & SWT.BOLD) != 0) {
-                style= style ^ SWT.BOLD;
-                sb.append("bold");
-            } else if ((style & SWT.ITALIC) != 0) {
-                style= style ^ SWT.ITALIC;
-                sb.append("italic");
-            }
-        }
-        return sb.toString();
+    while ((style & mask) != 0) {
+      if (sb.length() > 0) {
+        sb.append("+");
+      }
+      if ((style & SWT.BOLD) != 0) {
+        style = style ^ SWT.BOLD;
+        sb.append("bold");
+      } else if ((style & SWT.ITALIC) != 0) {
+        style = style ^ SWT.ITALIC;
+        sb.append("italic");
+      }
     }
+    return sb.toString();
+  }
 
-    private List<Region> findDocComments(final ParseController pc) {
-        // get all the adjuncts from the token stream and record their extents
-        final List<Region> result= new LinkedList<Region>();
-        final IPrsStream ps= pc.getParseStream();
-        final List<IToken> adjuncts= ps.getAdjuncts();
+  private List<Region> findDocComments(final ParseController pc) {
+    // get all the adjuncts from the token stream and record their extents
+    final List<Region> result = new LinkedList<Region>();
+    final IPrsStream ps = pc.getParseStream();
+    final List<IToken> adjuncts = ps.getAdjuncts();
 
-        for(final IToken adjunct: adjuncts) {
-            final String adjStr= adjunct.toString();
-            if (adjStr.startsWith("/**")) {
-                final int offset= adjunct.getStartOffset();
-                final int length= adjunct.getEndOffset() - offset + 1;
-                final Region r= new Region(offset, length);
+    for (final IToken adjunct : adjuncts) {
+      final String adjStr = adjunct.toString();
+      if (adjStr.startsWith("/**")) {
+        final int offset = adjunct.getStartOffset();
+        final int length = adjunct.getEndOffset() - offset + 1;
+        final Region r = new Region(offset, length);
 
-                result.add(r);
-            }
-        }
-        return result;
+        result.add(r);
+      }
     }
+    return result;
+  }
 
-    private List<Region> findComments(final ParseController pc) {
-        // get all the adjuncts from the token stream and record their extents
-        final List<Region> result= new LinkedList<Region>();
-        final IPrsStream ps= pc.getParseStream();
-        final List<IToken> adjuncts= ps.getAdjuncts();
+  private List<Region> findComments(final ParseController pc) {
+    // get all the adjuncts from the token stream and record their extents
+    final List<Region> result = new LinkedList<Region>();
+    final IPrsStream ps = pc.getParseStream();
+    final List<IToken> adjuncts = ps.getAdjuncts();
 
-        for(final IToken adjunct: adjuncts) {
-            final String adjStr= adjunct.toString();
-            if (adjStr.startsWith("//") || adjStr.startsWith("/*") && !adjStr.startsWith("/**")) {
-                final int offset= adjunct.getStartOffset();
-                final int length= adjunct.getEndOffset() - offset + 1;
-                final Region r= new Region(offset, length);
+    for (final IToken adjunct : adjuncts) {
+      final String adjStr = adjunct.toString();
+      if (adjStr.startsWith("//") || adjStr.startsWith("/*") && !adjStr.startsWith("/**")) {
+        final int offset = adjunct.getStartOffset();
+        final int length = adjunct.getEndOffset() - offset + 1;
+        final Region r = new Region(offset, length);
 
-                result.add(r);
-            }
-        }
-        return result;
+        result.add(r);
+      }
     }
+    return result;
+  }
 
-    private List<Region> findKeywords(final ParseController pc) {
-        final List<Region> result= new LinkedList<Region>();
-        // get all the keywords from the token stream and record their extents
-        final IPrsStream ps= pc.getParseStream();
-        final List<IToken> tokens= ps.getTokens();
+  private List<Region> findKeywords(final ParseController pc) {
+    final List<Region> result = new LinkedList<Region>();
+    // get all the keywords from the token stream and record their extents
+    final IPrsStream ps = pc.getParseStream();
+    final List<IToken> tokens = ps.getTokens();
 
-        for(final IToken token: tokens) {
-            if (pc.isKeyword(token.getKind())) {
-                final int offset= token.getStartOffset();
-                final int length= token.getEndOffset() - offset + 1;
-                final Region r= new Region(offset, length);
+    for (final IToken token : tokens) {
+      if (pc.isKeyword(token.getKind())) {
+        final int offset = token.getStartOffset();
+        final int length = token.getEndOffset() - offset + 1;
+        final Region r = new Region(offset, length);
 
-                result.add(r);
-            }
-        }
-        return result;
+        result.add(r);
+      }
     }
+    return result;
+  }
 
-    private List<Region> findTokensOfKind(final ParseController pc, final int kind) {
-        final List<Region> result= new LinkedList<Region>();
-        // get all the string literals from the token stream and record their extents
-        final IPrsStream ps= pc.getParseStream();
-        final List<IToken> tokens= ps.getTokens();
+  private List<Region> findTokensOfKind(final ParseController pc, final int kind) {
+    final List<Region> result = new LinkedList<Region>();
+    // get all the string literals from the token stream and record their extents
+    final IPrsStream ps = pc.getParseStream();
+    final List<IToken> tokens = ps.getTokens();
 
-        for(final IToken token: tokens) {
-            if (token.getKind() == kind) {
-                final int offset= token.getStartOffset();
-                final int length= token.getEndOffset() - offset + 1;
-                final Region r= new Region(offset, length);
+    for (final IToken token : tokens) {
+      if (token.getKind() == kind) {
+        final int offset = token.getStartOffset();
+        final int length = token.getEndOffset() - offset + 1;
+        final Region r = new Region(offset, length);
 
-                result.add(r);
-            }
-        }
-        return result;
+        result.add(r);
+      }
     }
+    return result;
+  }
 
-    @AfterClass
-    public static void cleanup() {
-        // Among other things, the following makes sure that the workbench (and therefore the test)
-        // shuts down cleanly, even if there are "dirty" open editors. Without it, the test might
-        // hang waiting for someone to dismiss the "Foo has been modified. Save changes?" dialog.
-        SWTBotUtils.resetWorkbench(topLevelBot);
-    }
+  @AfterClass
+  public static void cleanup() {
+    // Among other things, the following makes sure that the workbench (and therefore the test)
+    // shuts down cleanly, even if there are "dirty" open editors. Without it, the test might
+    // hang waiting for someone to dismiss the "Foo has been modified. Save changes?" dialog.
+    SWTBotUtils.resetWorkbench(topLevelBot);
+  }
 
-    @After
-    public void after() throws Exception{
-    	SWTBotUtils.closeAllEditors(topLevelBot);
-    	SWTBotUtils.closeAllShells(topLevelBot);
-     }
 }

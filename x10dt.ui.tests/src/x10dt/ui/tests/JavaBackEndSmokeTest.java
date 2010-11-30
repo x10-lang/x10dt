@@ -43,102 +43,102 @@ import x10dt.ui.tests.utils.EditorMatcher;
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class JavaBackEndSmokeTest extends X10DTTestBase {
-    public static final String JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD= "Name:";
+  public static final String JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD = "Name:";
 
-    private static final String CLASS_NAME= "Hello"; //$NON-NLS-1$
+  private static final String CLASS_NAME = "Hello"; //$NON-NLS-1$
 
-    private static final String CLASS_SRCFILE_NAME= CLASS_NAME + ".x10"; //$NON-NLS-1$
+  private static final String CLASS_SRCFILE_NAME = CLASS_NAME + ".x10"; //$NON-NLS-1$
 
-    private static final String PROJECT_NAME= "TestProject"; //$NON-NLS-1$
+  private static final String PROJECT_NAME = "TestProject"; //$NON-NLS-1$
 
-    private final static String LINE_MARKER= "public static def main("; //$NON-NLS-1$
+  private final static String LINE_MARKER = "public static def main("; //$NON-NLS-1$
 
-    /**
-     * The bot for the editor created for the "Hello, World" sample class.
-     */
-    protected SWTBotEclipseEditor fSrcEditor;
+  /**
+   * The bot for the editor created for the "Hello, World" sample class.
+   */
+  protected SWTBotEclipseEditor fSrcEditor;
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        SWTBotPreferences.KEYBOARD_STRATEGY= "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
-        topLevelBot= new SWTWorkbenchBot();
-        SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
-        // SWTBotPreferences.TIMEOUT = 10000;
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
+    topLevelBot = new SWTWorkbenchBot();
+    SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
+    topLevelBot.perspectiveByLabel("X10").activate();
+  }
+
+  @Test
+  public void basicLaunchTest() throws Exception {
+    createJavaBackEndProject(PROJECT_NAME, true);
+
+    topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));
+
+    fSrcEditor = topLevelBot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor();
+
+    String launchName = PROJECT_NAME;
+
+    createAndRunJavaBackEndLaunchConfig(launchName, PROJECT_NAME, CLASS_NAME);
+
+    checkConsoleOutput("Hello, world!"); //$NON-NLS-1$
+
+    modifySrcText();
+    launchRunModeLaunchConfig("1 " + launchName);
+    checkConsoleOutput("Huh?\n" + "Hello, world!"); //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  private void modifySrcText() {
+    List<String> lines = fSrcEditor.getLines();
+    for (int i = 0; i < lines.size(); i++) {
+      if (lines.get(i).contains(LINE_MARKER)) {
+        fSrcEditor.insertText(i + 1, 0, "    Console.OUT.println(\"Huh?\");\n"); //$NON-NLS-1$
+        break;
+      }
     }
+    fSrcEditor.save();
+  }
 
-    @Test
-    public void basicLaunchTest() throws Exception {
-        createJavaBackEndProject(PROJECT_NAME, true);
+  private void launchRunModeLaunchConfig(String launchMenuItemName) {
+    SWTBotMenu runMenu = topLevelBot.menu(LaunchConstants.RUN_MENU);
+    SWTBotMenu helloLaunch = runMenu.menu(launchMenuItemName); //$NON-NLS-1$
 
-        topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));
+    helloLaunch.click();
+  }
 
-        fSrcEditor= topLevelBot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor();
+  public static void createAndRunJavaBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) {
+    SWTBotMenu runMenu = topLevelBot.menu(LaunchConstants.RUN_MENU);
+    SWTBotMenu runConfigs = runMenu.menu(LaunchConstants.RUN_CONFS_MENU_ITEM);
 
-        String launchName= PROJECT_NAME;
+    runConfigs.click();
+    topLevelBot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
 
-        createAndRunJavaBackEndLaunchConfig(launchName, PROJECT_NAME, CLASS_NAME);
+    SWTBotShell configsShell = topLevelBot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
 
-        checkConsoleOutput("Hello, world!"); //$NON-NLS-1$
+    configsShell.activate();
+    SWTBot configsBot = configsShell.bot();
 
-        modifySrcText();
-        launchRunModeLaunchConfig("1 " + launchName);
-        checkConsoleOutput("Huh?\n" + "Hello, world!"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
+    SWTBotTreeItem x10AppItem = configsBot.tree().getTreeItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_TYPE);
+    x10AppItem.doubleClick();
 
-    private void modifySrcText() {
-        List<String> lines= fSrcEditor.getLines();
-        for(int i=0; i < lines.size(); i++) {
-            if (lines.get(i).contains(LINE_MARKER)) {
-                fSrcEditor.insertText(i+1, 0, "    Console.OUT.println(\"Huh?\");\n"); //$NON-NLS-1$
-                break;
-            }
-        }
-        fSrcEditor.save();
-    }
+    SWTBotText launchNameText = configsBot.textWithLabel(JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD);
+    launchNameText.setText(launchName);
 
-    private void launchRunModeLaunchConfig(String launchMenuItemName) {
-        SWTBotMenu runMenu= topLevelBot.menu(LaunchConstants.RUN_MENU);
-        SWTBotMenu helloLaunch= runMenu.menu(launchMenuItemName); //$NON-NLS-1$
+    SWTBotCTabItem mainTab = configsBot.cTabItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB);
 
-        helloLaunch.click();
-    }
+    mainTab.activate();
+    configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_PROJECT, 0).setText(projectName);
+    configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS, 0).setText(mainTypeName);
 
-    public static void createAndRunJavaBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) {
-        SWTBotMenu runMenu= topLevelBot.menu(LaunchConstants.RUN_MENU);
-        SWTBotMenu runConfigs= runMenu.menu(LaunchConstants.RUN_CONFS_MENU_ITEM);
+    configsBot.button(LaunchConstants.RUN_BUTTON).click();
+  }
 
-        runConfigs.click();
-        topLevelBot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
+  public static void checkConsoleOutput(String contents) {
+    // look for the Console view, and check the output
+    final Matcher<IViewReference> withPartName = WidgetMatcherFactory.withPartName(ViewConstants.CONSOLE_VIEW_NAME);
+    final WaitForView waitForConsole = Conditions.waitForView(withPartName);
 
-        SWTBotShell configsShell= topLevelBot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
+    topLevelBot.waitUntil(waitForConsole);
 
-        configsShell.activate();
-        SWTBot configsBot= configsShell.bot();
+    SWTBotView consoleView = new SWTBotView(waitForConsole.get(0), topLevelBot);
 
-        SWTBotTreeItem x10AppItem= configsBot.tree().getTreeItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_TYPE);
-        x10AppItem.doubleClick();
-
-        SWTBotText launchNameText= configsBot.textWithLabel(JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD);
-        launchNameText.setText(launchName);
-
-        SWTBotCTabItem mainTab= configsBot.cTabItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB);
-
-        mainTab.activate();
-        configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_PROJECT, 0).setText(projectName);
-        configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS, 0).setText(mainTypeName);
-
-        configsBot.button(LaunchConstants.RUN_BUTTON).click();
-    }
-
-    public static void checkConsoleOutput(String contents) {
-        // look for the Console view, and check the output
-        final Matcher<IViewReference> withPartName= WidgetMatcherFactory.withPartName(ViewConstants.CONSOLE_VIEW_NAME);
-        final WaitForView waitForConsole= Conditions.waitForView(withPartName);
-
-        topLevelBot.waitUntil(waitForConsole);
-
-        SWTBotView consoleView= new SWTBotView(waitForConsole.get(0), topLevelBot);
-
-        consoleView.bot().styledText().getText().equals(contents);
-    }
+    consoleView.bot().styledText().getText().equals(contents);
+  }
 }

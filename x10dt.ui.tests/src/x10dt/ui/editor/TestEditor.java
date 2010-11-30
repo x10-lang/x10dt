@@ -20,53 +20,54 @@ import org.eclipse.ui.texteditor.DocumentProviderRegistry;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 
 public class TestEditor {
-	public IParseController parseController;
-	public IDocumentProvider docProvider;
-	public IDocument document;
-	FileEditorInput input;
-	Language language;
+  public IParseController parseController;
 
-	public TestEditor(IFile file) throws CoreException {
-		input = new FileEditorInput(file);
-		docProvider = DocumentProviderRegistry.getDefault()
-				.getDocumentProvider(input);
-		docProvider.connect(input);
+  public IDocumentProvider docProvider;
 
-		document = docProvider.getDocument(input);
-		language = LanguageRegistry.findLanguage(input, docProvider);
+  public IDocument document;
 
-		parseController = ServiceFactory.getInstance().getParseController(
-				language);
-		parseController.initialize(file.getProjectRelativePath(), EditorUtility
-				.getSourceProject(input), new NullMessageHandler());
-	}
+  FileEditorInput input;
 
-	public Object getAst() {
-		if (parseController.getCurrentAst() == null) {
-			parseController.parse(document.get(), new NullProgressMonitor());
-		}
+  Language language;
 
-		return parseController.getCurrentAst();
-	}
+  public TestEditor(IFile file) throws CoreException {
+    input = new FileEditorInput(file);
+    docProvider = DocumentProviderRegistry.getDefault().getDocumentProvider(input);
+    docProvider.connect(input);
 
-	public int getOffset(int line, int col) throws BadLocationException {
-		return document.getLineInformation(line).getOffset() + col;
-	}
+    document = docProvider.getDocument(input);
+    language = LanguageRegistry.findLanguage(input, docProvider);
 
-	public Point getLocation(int offset) throws BadLocationException {
-		int row = document.getLineOfOffset(offset);
-		int linePos = document.getLineOffset(row);
-		int col = offset - document.getLineOffset(row);
-		String line = document.get(linePos, col);
+    parseController = ServiceFactory.getInstance().getParseController(language);
+    parseController.initialize(file.getProjectRelativePath(), EditorUtility.getSourceProject(input), new NullMessageHandler());
+  }
 
-		Pattern p = Pattern.compile("\\t");
-		Matcher m = p.matcher(line);
-		int numTabs = 0;
-		while (m.find()) {
-			numTabs++;
-		}
+  public Object getAst() {
+    if (parseController.getCurrentAst() == null) {
+      parseController.parse(document.get(), new NullProgressMonitor());
+    }
 
-		col += 3 * numTabs;
-		return new Point(row + 1, col + 1);
-	}
+    return parseController.getCurrentAst();
+  }
+
+  public int getOffset(int line, int col) throws BadLocationException {
+    return document.getLineInformation(line).getOffset() + col;
+  }
+
+  public Point getLocation(int offset) throws BadLocationException {
+    int row = document.getLineOfOffset(offset);
+    int linePos = document.getLineOffset(row);
+    int col = offset - document.getLineOffset(row);
+    String line = document.get(linePos, col);
+
+    Pattern p = Pattern.compile("\\t");
+    Matcher m = p.matcher(line);
+    int numTabs = 0;
+    while (m.find()) {
+      numTabs++;
+    }
+
+    col += 3 * numTabs;
+    return new Point(row + 1, col + 1);
+  }
 }
