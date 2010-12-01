@@ -29,6 +29,8 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.ui.IViewReference;
 import org.hamcrest.Matcher;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -65,7 +67,17 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
   }
+  @After
+  public void after() throws Exception {
+    SWTBotUtils.closeAllEditors(topLevelBot);
+    SWTBotUtils.closeAllShells(topLevelBot);
+  }
 
+  @AfterClass
+  public static void afterClass() throws Exception {
+    SWTBotUtils.saveAllDirtyEditors(topLevelBot);
+  }
+  
   @Test
   public void basicLaunchTest() throws Exception {
     createJavaBackEndProject(PROJECT_NAME, true);
