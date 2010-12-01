@@ -38,12 +38,12 @@ public class MiscTests {
 		public static void beforeClass() throws Exception {
 			bot = new SWTWorkbenchBot();
 			SWTBotUtils.closeWelcomeViewIfNeeded(bot);
-			SWTBotPreferences.TIMEOUT= Timeout.ONE_MINUTE; // Long timeout needed for first project creation
+			SWTBotPreferences.TIMEOUT= Timeout.SIXTY_SECONDS; // Long timeout needed for first project creation
 		}  
 		
 		@Before
 		public void before() throws Exception {
-			SWTBotPreferences.TIMEOUT = Timeout.ONE_MINUTE;
+			SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
 			setUp(Data.MiscTestsProject);
 		}
 		
@@ -59,7 +59,7 @@ public class MiscTests {
 			SWTBotEclipseEditor srcEditor = bot.editorByTitle("Hi.x10").toTextEditor();
 			srcEditor.setText(Data.Hi);
 			srcEditor.save();
-			SWTBotPreferences.TIMEOUT = Timeout.ONE_MINUTE;
+			SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
 			Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
 			waitForProblemsView();
 			String[] errors = ProblemsViewUtils.getErrorMessages(bot);
