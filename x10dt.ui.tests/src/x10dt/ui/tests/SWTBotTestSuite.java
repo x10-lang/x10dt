@@ -25,7 +25,6 @@ import x10dt.ui.editor.SyntaxColoringTests;
  * @author rfuhrer@watson.ibm.com
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ JavaBackEndSmokeTest.class, QuickOutlineTests.class, OutlineTests.class, ContentAssistTests.class,
-                      SyntaxColoringTests.class })
+@Suite.SuiteClasses({QuickOutlineTests.class,SyntaxColoringTests.class,JavaBackEndSmokeTest.class,ContentAssistTests.class,OutlineTests.class })
 public final class SWTBotTestSuite {
 }
