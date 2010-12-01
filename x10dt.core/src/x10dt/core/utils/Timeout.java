@@ -1,23 +1,15 @@
 package x10dt.core.utils;
 
-/****************************
- * IBM Confidential
- * Licensed Materials - Property of IBM
- *
- * IBM Rational Developer for Power Systems Software
- * IBM Rational Team Concert for Power Systems Software
- *
- * (C) Copyright IBM Corporation 2010.
- *
- * The source code for this program is not published or otherwise divested of its trade secrets, 
- * irrespective of what has been deposited with the U.S. Copyright Office.
- */
-
-/**
+/*******************************************************************************
+ * Copyright (c) 2010 IBM Corporation. All rights reserved. This program and the accompanying materials are made available
+ * under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * 
  * Timeout class that has constants for all timeout values that are multiplied by a multiplier. The multiplier can be changed
  * by changing the java system property "com.ibm.etools.swtbot.multiplier", so slower machines or slower connections can change
  * all timeout values by changing the system property.
- */
+ *******************************************************************************/
 public class Timeout {
 
   public static String MULTIPLIER_KEY = "com.ibm.etools.swtbot.multiplier";
