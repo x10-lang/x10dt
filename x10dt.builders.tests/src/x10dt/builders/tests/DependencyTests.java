@@ -56,7 +56,7 @@ public class DependencyTests {
 		 */
 		@Before
 		public void before() throws Exception {
-			SWTBotPreferences.TIMEOUT = Timeout.ONE_MINUTE;
+			SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
 			setUp(Data.DependencyTestsProject);		
 		}
 		
