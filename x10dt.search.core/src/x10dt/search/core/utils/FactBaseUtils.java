@@ -50,8 +50,11 @@ public final class FactBaseUtils {
     final ScheduledFuture<ISet> future = executorService.schedule(new Callable<ISet>() {
 
       public ISet call() throws InterruptedException {
-        while (! IndexManager.isAvailable() && ! monitor.isCanceled())
-          ;
+        while (! IndexManager.isAvailable() && ! monitor.isCanceled()) {
+          synchronized (this) {
+            wait(500);
+          }
+        }
         if (monitor.isCanceled()) {
           throw new InterruptedException();
         }

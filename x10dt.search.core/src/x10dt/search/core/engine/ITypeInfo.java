@@ -8,6 +8,7 @@
 package x10dt.search.core.engine;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
@@ -42,5 +43,12 @@ public interface ITypeInfo extends IBasicTypeInfo {
    * @return A natural number.
    */
   public int getX10FlagsCode();
+  
+  /**
+   * Returns the enclosing source entity for this type.
+   * 
+   * @return A non-null object instance.
+   */
+  public ICompilationUnit getCompilationUnit();
 
 }

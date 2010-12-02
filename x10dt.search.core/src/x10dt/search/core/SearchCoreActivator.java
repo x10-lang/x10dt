@@ -1,8 +1,14 @@
 package x10dt.search.core;
 
+import static x10dt.ui.launch.core.LaunchCore.X10_CPP_PRJ_NATURE_ID;
+import static x10dt.ui.launch.core.LaunchCore.X10_PRJ_JAVA_NATURE_ID;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -22,13 +28,17 @@ import org.eclipse.imp.pdb.facts.db.IFactKey;
 import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.indexing.IndexManager;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
 
+import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.search.core.pdb.SearchDBTypes;
 import x10dt.search.core.pdb.X10FactTypeNames;
-import x10dt.ui.launch.core.LaunchCore;
 
 /**
  * Main class being notified of the plugin life cycle.
@@ -49,7 +59,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
     for (final IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
       try {
         if (project.isAccessible()) {
-          if (project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) || project.hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID)) {
+          if (project.hasNature(X10_CPP_PRJ_NATURE_ID) || project.hasNature(X10_PRJ_JAVA_NATURE_ID)) {
             final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
             IndexManager.keepFactUpdated(key);
           }
@@ -72,29 +82,76 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
         switch (resourceDelta.getKind()) {
           case IResourceDelta.ADDED: {
             final ExecutorService executorService = Executors.newSingleThreadExecutor();
-            executorService.submit(new Callable<Void>() {
+            final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
+            final Future<Void> future = executorService.submit(new Callable<Void>() {
 
               public Void call() {
+                IndexManager.lock();
                 while (! project.isOpen()) {
                   try {
                     synchronized (this) {
                       wait(200);
                     }
                   } catch (InterruptedException except) {
-                    // Simply forgets.
+                    IndexManager.unlock();
+                    return null;
                   }
                 }
+                try {
+                  final IJavaProject javaProject = JavaCore.create(project);
+                  while (! hasRightNature() || ! hasX10Container(javaProject)) {
+                    try {
+                      synchronized (this) {
+                        wait(200);
+                      }
+                    } catch (InterruptedException except) {
+                      IndexManager.unlock();
+                      return null;
+                    }
+                  }
+                } catch (Exception except) {
+                  log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectStatusError, project.getName()), except);
+                  IndexManager.unlock();
+                  return null;
+                }
+                
                 try {
                   final Type hierarchyType = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeHierarchy);
                   final IFactKey key = new FactKey(hierarchyType, new ProjectContext(ModelFactory.open(project)));
                   IndexManager.keepFactUpdated(key);
                 } catch (ModelException except) {
                   log(IStatus.ERROR, NLS.bind(Messages.SCA_ProjectNonExistent, project.getName()), except);
+                } finally {
+                  IndexManager.unlock();
                 }
+                
                 return null;
               }
               
+              private boolean hasRightNature() throws CoreException {
+                return project.hasNature(X10_CPP_PRJ_NATURE_ID) || project.hasNature(X10_PRJ_JAVA_NATURE_ID);
+              }
+              
+              private boolean hasX10Container(final IJavaProject javaProject) throws JavaModelException {
+                for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
+                  if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(cpEntry.getPath().toString())) {
+                    return true;
+                  }
+                }
+                return false;
+              }
+              
             });
+            
+            scheduledExecutor.schedule(new Runnable() {
+              
+              public void run() {
+                future.cancel(true);
+                executorService.shutdownNow();
+              }
+              
+            }, 2, TimeUnit.SECONDS);
+            
             break;
           }
             

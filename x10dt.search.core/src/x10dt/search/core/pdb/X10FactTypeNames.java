@@ -54,7 +54,7 @@ public final class X10FactTypeNames {
   // --- Outputs
   
   /**
-   * Fact type name identifying all X10 types as a set of X10 type name (see {@link #X10_TypeName}).
+   * Fact type name identifying all X10 types as a set of X10 type name (see {@link #X10_Type}).
    */
   public static final String X10_AllTypes = "x10.all.types"; //$NON-NLS-1$
   

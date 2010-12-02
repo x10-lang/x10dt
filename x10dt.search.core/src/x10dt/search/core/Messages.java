@@ -29,6 +29,8 @@ public class Messages extends NLS {
 
   public static String SCA_ProjectNonExistent;
 
+  public static String SCA_ProjectStatusError;
+
   public static String TH_BuildTHJobName;
 
   public static String TH_BuildTHTaskName;
@@ -56,6 +58,8 @@ public class Messages extends NLS {
   public static String XFG_JarReadingError;
 
   public static String XFG_ResourceAccessError;
+
+  public static String XS_ProjectExistenceError;
   
   // --- Private code
 

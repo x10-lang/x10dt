@@ -7,20 +7,22 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
-import java.net.URI;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.imp.model.ICompilationUnit;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
+
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
 
 
 final class TypeInfo implements ITypeInfo {
@@ -33,6 +35,39 @@ final class TypeInfo implements ITypeInfo {
     this.fLocation = location;
     this.fX10FlagsCode = x10FlagsCode;
     this.fTypeName = typeName;
+    
+    final IFile[] files = ResourcesPlugin.getWorkspace().getRoot().findFilesForLocationURI(this.fLocation.getURI());
+    if (files.length == 0) {
+      this.fCompilationUnit = null;
+    } else {
+      int counter = 0;
+      for (int i = 0; i < files.length; ++i) {
+        try {
+          files[i].refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
+        } catch (CoreException except) {
+          // Let's simply forget in such case.
+        }
+        if (files[i].exists()) {
+          ++counter;
+        } else {
+          files[i] = null;
+        }
+      }
+      if (counter == 1) {
+        for (final IFile file : files) {
+          if (file != null) {
+            try {
+              this.fCompilationUnit = ModelFactory.open(file, ModelFactory.open(file.getProject()));
+            } catch (ModelException except) {
+              // This should never occur since we already have tested the file existence.
+            }
+            break;
+          }
+        }
+      } else {
+        this.fCompilationUnit = null;
+      }
+    }
   }
   
   // --- IBasicTypeInfo's interface methods implementation
@@ -44,37 +79,19 @@ final class TypeInfo implements ITypeInfo {
   // --- ITypeInfo's interface methods implementation
   
   public boolean exists(final IProgressMonitor monitor) {
-    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-    final URI uri = this.fLocation.getURI();
-    if ("jar".equals(uri.getScheme())) { //$NON-NLS-1$
+    if (this.fCompilationUnit == null) {
       try {
-        return X10SearchEngine.getX10RuntimeTypeInfo(this.fTypeName, monitor) != null;
+        return X10SearchEngine.getTypeInfo(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), this.fTypeName, 
+                                           monitor).length > 0;
       } catch (Exception except) {
-        // Let's forget about it, since probably it is not good news about the type existence.
         return false;
       }
     } else {
-      final IFile[] files = root.findFilesForLocationURI(this.fLocation.getURI());
-      if (files.length == 0) {
-        return false;
-      } else {
-        monitor.beginTask(null, files.length);
-        for (final IFile file : files) {
-          try {
-            file.refreshLocal(IResource.DEPTH_ZERO, new NullProgressMonitor());
-          } catch (CoreException except) {
-            // Let's simply forget in such case.
-          }
-          if (file.exists()) {
-            try {
-              if (X10SearchEngine.getTypeInfo(file.getProject(), this.fTypeName, new SubProgressMonitor(monitor, 1)) != null) {
-                return true;
-              }
-            } catch (Exception except) {
-              // Let's forget about it, since probably it is not good news about the type existence.
-            }
-          }
-        }
+      final IFile file = this.fCompilationUnit.getFile();
+      try {
+        return X10SearchEngine.getTypeInfo(SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, file), this.fTypeName, 
+                                           monitor).length > 0;
+      } catch (Exception except) {
         return false;
       }
     }
@@ -86,6 +103,10 @@ final class TypeInfo implements ITypeInfo {
 
   public int getX10FlagsCode() {
     return this.fX10FlagsCode;
+  }
+  
+  public ICompilationUnit getCompilationUnit() {
+    return this.fCompilationUnit;
   }
   
   // --- Overridden methods
@@ -117,5 +138,7 @@ final class TypeInfo implements ITypeInfo {
   private final int fX10FlagsCode;
   
   private final String fTypeName;
+  
+  private ICompilationUnit fCompilationUnit;
 
 }
