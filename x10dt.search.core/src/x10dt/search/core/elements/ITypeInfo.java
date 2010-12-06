@@ -5,21 +5,13 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.search.core.engine;
+package x10dt.search.core.elements;
+
 
 /**
- * Provides the most basic information for a type, which is its name. Needed when no other information is available for 
- * a type. In most other cases, {@link ITypeInfo} should be accessible.
+ * Provides type information for a type name coming from the search index database.
  * 
  * @author egeay
  */
-public interface IBasicTypeInfo {
-  
-  /**
-   * Returns the type name represented.
-   * 
-   * @return A non-null string.
-   */
-  public String getName();
-
+public interface ITypeInfo extends IMemberInfo {
 }

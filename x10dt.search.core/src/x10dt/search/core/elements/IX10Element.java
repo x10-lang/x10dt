@@ -5,20 +5,18 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.search.core.engine;
+package x10dt.search.core.elements;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.model.ICompilationUnit;
+import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-import x10dt.search.core.pdb.X10FlagsEncoder.X10;
-
 /**
- * Provides type information for a type name coming from the search index database.
+ * Common services for all X10 elements provided by the X10 indexer.
  * 
  * @author egeay
  */
-public interface ITypeInfo extends IBasicTypeInfo {
+public interface IX10Element {
   
   /**
    * Indicates if the underlying type still exists in the indexing database.
@@ -31,24 +29,15 @@ public interface ITypeInfo extends IBasicTypeInfo {
   /**
    * Returns the location of the type declaration.
    * 
-   * @return A non-null location.
+   * @return The location or <b>null</b> if there is none.
    */
   public ISourceLocation getLocation();
   
   /**
-   * Returns a code identifying uniquely the list of flags relevant for the type.
+   * Returns the source entity enclosing or representing the particular X10 element.
    * 
-   * <p>Look at {@link X10} to test the existence of some particular flags.
-   * 
-   * @return A natural number.
+   * @return A <b>possibly null</b> object instance if we not could access the source entity.
    */
-  public int getX10FlagsCode();
-  
-  /**
-   * Returns the enclosing source entity for this type.
-   * 
-   * @return A non-null object instance.
-   */
-  public ICompilationUnit getCompilationUnit();
+  public ISourceEntity getSourceEntity();
 
 }

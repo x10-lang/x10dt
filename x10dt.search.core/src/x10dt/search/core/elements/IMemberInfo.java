@@ -5,42 +5,41 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.search.core.engine;
+package x10dt.search.core.elements;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-
-import x10dt.search.core.pdb.X10FlagsEncoder.X10;
+import org.eclipse.imp.model.ICompilationUnit;
 
 /**
- * Provides field information for a given type coming from the search index database.
+ * Provides information for a given member coming from the search index database.
  * 
  * @author egeay
  */
-public interface IFieldInfo {
+public interface IMemberInfo extends IX10Element {
   
   /**
-   * Returns the field type information.
+   * Returns the enclosing compilation unit entity for this type.
    * 
-   * @return A non-null type information.
+   * @return A <b>possibly null</b> object instance if we not could access the enclosing entity.
    */
-  public IBasicTypeInfo getFieldTypeInfo();
+  public ICompilationUnit getCompilationUnit();
   
   /**
-   * Returns the location of the field declaration.
-   * 
-   * @return A non-null location.
+   * Returns the type in which this member is declared, or <b>null</b> if this member is not declared in a type 
+   * (for example, a top-level type).
+   *
+   * @return The type in which this member is declared, or <b>null</b> if there is none.
    */
-  public ISourceLocation getLocation();
+  public ITypeInfo getDeclaringType();
   
   /**
-   * Returns the field name represented.
+   * Returns the member name represented.
    * 
    * @return A non-null string.
    */
   public String getName();
   
   /**
-   * Returns a code identifying uniquely the list of flags relevant for the field.
+   * Returns a code identifying uniquely the list of flags relevant for the member.
    * 
    * <p>Look at {@link X10} to test the existence of some particular flags.
    * 

@@ -19,7 +19,6 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.model.IPathEntry;
@@ -38,6 +37,9 @@ import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 
+import x10dt.search.core.elements.IFieldInfo;
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
@@ -61,35 +63,17 @@ public final class X10SearchEngine {
    * <p>Note that there is no refresh action at this point. If one wants an updated version of it, a new one needs to be
    * created.
    * 
-   * @param project The project to consider.
+   * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeName The type name to use for the type hierarchy.
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null instance of {@link ITypeHierarchy}.
    * @throws ModelException Occurs if the project does not exist.
    * @throws InterruptedException Occurs if the operation gets canceled.
    */
-  public static ITypeHierarchy createTypeHierarchy(final IProject project, final String typeName,
+  public static ITypeHierarchy createTypeHierarchy(final IX10SearchScope searchScope, final String typeName,
                                                    final IProgressMonitor monitor) throws ModelException, 
                                                                                           InterruptedException {
-    return new TypeHierarchy(project, typeName, monitor);
-  }
-  
-  /**
-   * Creates a type hierarchy for the given type name accessible from the X10 runtime.
-   * 
-   * <p>Note that there is no refresh action at this point. If one wants an updated version of it, a new one needs to be
-   * created.
-   * 
-   * @param typeName The type name to use for the type hierarchy.
-   * @param monitor The monitor to use to report progress or cancel the operation.
-   * @return A non-null instance of {@link ITypeHierarchy}.
-   * @throws ModelException Occurs if the project does not exist.
-   * @throws InterruptedException Occurs if the operation gets canceled.
-   */
-  public static ITypeHierarchy createTypeHierarchy(final String typeName, 
-                                                   final IProgressMonitor monitor) throws ModelException, 
-                                                                                          InterruptedException {
-    return new TypeHierarchy(typeName, monitor);
+    return new TypeHierarchy(searchScope, typeName, monitor);
   }
   
   /**
@@ -201,20 +185,22 @@ public final class X10SearchEngine {
   // --- Private code
   
   private static IFieldInfo createFieldInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
+                                            final ITypeInfo declaringTypeInfo,
                                             final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
     final String fieldTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
-    IBasicTypeInfo fieldTypeInfo = findTypeInfo(factBase, context, fieldTypeName, monitor);
+    ITypeInfo fieldTypeInfo = findTypeInfo(factBase, context, fieldTypeName, monitor);
     if (fieldTypeInfo == null) {
       fieldTypeInfo = new UnknownTypeInfo(fieldTypeName);
     }
     return new FieldInfo(((IString) tuple.get(1)).getValue(), fieldTypeInfo, (ISourceLocation) tuple.get(0), 
-                         ((IInteger) tuple.get(3)).intValue());
+                         ((IInteger) tuple.get(3)).intValue(), declaringTypeInfo);
   }
   
   private static IMethodInfo createMethodInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
+                                              final ITypeInfo declaringTypeInfo,
                                               final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
     final String returnTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
-    IBasicTypeInfo returnTypeInfo;
+    ITypeInfo returnTypeInfo;
     if (VoidTypeInfo.VOID_TYPE_NAME.equals(returnTypeName)) {
       returnTypeInfo = new VoidTypeInfo();
     } else {
@@ -224,7 +210,7 @@ public final class X10SearchEngine {
       returnTypeInfo = new UnknownTypeInfo(returnTypeName);
     }
     final IList parameters = (IList) tuple.get(3);
-    final IBasicTypeInfo[] paramInfos = new IBasicTypeInfo[parameters.length()];
+    final ITypeInfo[] paramInfos = new ITypeInfo[parameters.length()];
     int i = -1;
     for (final IValue paramValue : parameters) {
       final String paramTypeName = getBaseTypeName(((IString) paramValue).getValue());
@@ -234,7 +220,7 @@ public final class X10SearchEngine {
       }
     }
     return new MethodInfo(((IString) tuple.get(1)).getValue(), returnTypeInfo, paramInfos, (ISourceLocation) tuple.get(0), 
-                          ((IInteger) tuple.get(4)).intValue());
+                          ((IInteger) tuple.get(4)).intValue(), declaringTypeInfo);
   }
   
   private static boolean collectFieldInfo(final Collection<IFieldInfo> fieldInfos, final FactBase factBase, 
@@ -246,11 +232,12 @@ public final class X10SearchEngine {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
         if (((IString) tuple.get(0)).getValue().equals(typeName)) {
+          final ITypeInfo typeInfo = findTypeInfo(factBase, context, typeName, scopeTypeName, monitor);
           final IList list = (IList) tuple.get(1);
           for (final IValue listElement : list) {
             final ITuple fieldTuple = (ITuple) listElement;
             if (filter.accepts(((IString) fieldTuple.get(1)).getValue())) {
-              fieldInfos.add(createFieldInfo(fieldTuple, factBase, context, monitor));
+              fieldInfos.add(createFieldInfo(fieldTuple, factBase, context, typeInfo, monitor));
             }
           }
           return true;
@@ -269,11 +256,12 @@ public final class X10SearchEngine {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
         if (((IString) tuple.get(0)).getValue().equals(typeName)) {
+          final ITypeInfo typeInfo = findTypeInfo(factBase, context, typeName, scopeTypeName, monitor);
           final IList list = (IList) tuple.get(1);
           for (final IValue listElement : list) {
             final ITuple methodTuple = (ITuple) listElement;
             if (filter.accepts(((IString) methodTuple.get(1)).getValue())) {
-              methodInfos.add(createMethodInfo(methodTuple, factBase, context, monitor));
+              methodInfos.add(createMethodInfo(methodTuple, factBase, context, typeInfo, monitor));
             }
           }
           return true;
@@ -295,7 +283,14 @@ public final class X10SearchEngine {
         final ISourceLocation sourceLoc = (ISourceLocation) tuple.get(1);
         final int x10FlagsCode = ((IInteger) tuple.get(2)).intValue();
         if (filter.accepts(name) && ((scopeTypeName == RUNTIME) || searchScope.contains(sourceLoc.getURI().toString()))) {
-          typeInfos.add(new TypeInfo(name, sourceLoc, x10FlagsCode));
+          final ITypeInfo declaringType;
+          if (tuple.arity() < 4) {
+            declaringType = null;
+          } else {
+            final IString declaringTypeName = (IString) tuple.get(3);
+            declaringType = findTypeInfo(factBase, context, declaringTypeName.getValue(), scopeTypeName, monitor);
+          }
+          typeInfos.add(new TypeInfo(name, sourceLoc, x10FlagsCode, declaringType));
         }
       }
     }
@@ -472,7 +467,14 @@ public final class X10SearchEngine {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
         if (((IString) tuple.get(0)).getValue().equals(typeName)) {
-          return new TypeInfo(tuple);
+          final ITypeInfo declaringType;
+          if (tuple.arity() < 4) {
+            declaringType = null;
+          } else {
+            final IString declaringTypeName = (IString) tuple.get(3);
+            declaringType = findTypeInfo(factBase, context, declaringTypeName.getValue(), scopeTypeName, monitor);
+          }
+          return new TypeInfo(tuple, declaringType);
         }
       }
     }

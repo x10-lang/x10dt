@@ -7,53 +7,55 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
+import x10dt.search.core.elements.IFieldInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
-final class FieldInfo implements IFieldInfo {
+
+final class FieldInfo extends AbstractMemberInfo implements IFieldInfo {
   
-  FieldInfo(final String fieldName, final IBasicTypeInfo fieldType, final ISourceLocation location, final int x10FlagsCode) {
-    this.fLocation = location;
-    this.fX10FlagsCode = x10FlagsCode;
-    this.fFieldName = fieldName;
+  FieldInfo(final String fieldName, final ITypeInfo fieldType, final ISourceLocation location, final int x10FlagsCode,
+            final ITypeInfo declaringType) {
+    super(location, fieldName, x10FlagsCode, declaringType);
     this.fFieldType = fieldType;
   }
-
-  // --- Interface methods implementation
   
-  public IBasicTypeInfo getFieldTypeInfo() {
+  // --- IX10Element's interface methods implementation
+  
+  public boolean exists(final IProgressMonitor monitor) {
+    return true;
+  }
+
+  // --- IFieldInfo's interface methods implementation
+  
+  public ITypeInfo getFieldTypeInfo() {
     return this.fFieldType;
-  }
-  
-  public ISourceLocation getLocation() {
-    return this.fLocation;
-  }
-  
-  public String getName() {
-    return this.fFieldName;
-  }
-
-  public int getX10FlagsCode() {
-    return this.fX10FlagsCode;
   }
   
   // --- Overridden methods
   
+  public boolean equals(final Object rhs) {
+    if ((rhs == null) || ! (rhs instanceof IFieldInfo)) {
+      return false;
+    }
+    final IFieldInfo rhsObj = (IFieldInfo) rhs;
+    return super.equals(rhsObj) && this.fFieldType.equals(rhsObj.getFieldTypeInfo());
+  }
+  
+  public int hashCode() {
+    return super.hashCode() + this.fFieldType.hashCode();
+  }
+  
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("Name: ").append(this.fFieldName).append("\nType: ").append(this.fFieldType.getName()) //$NON-NLS-1$ //$NON-NLS-2$
-      .append("\nLocation: ").append(this.fLocation).append("\nFlags code: ").append(this.fX10FlagsCode); //$NON-NLS-1$ //$NON-NLS-2$
+    sb.append(super.toString()).append("\nField Type: ").append(this.fFieldType.getName()); //$NON-NLS-1$
     return sb.toString();
   }
   
   // --- Private code
   
-  private final ISourceLocation fLocation;
+  private final ITypeInfo fFieldType;
   
-  private final int fX10FlagsCode;
-  
-  private final String fFieldName;
-  
-  private final IBasicTypeInfo fFieldType;
-
 }

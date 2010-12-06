@@ -15,6 +15,7 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeHierarchy;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.osgi.util.NLS;
 
@@ -23,6 +24,7 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 import polyglot.visit.NodeVisitor;
@@ -40,15 +42,27 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
       final ClassDef classDef = classDecl.classDef();
       final ClassType classType = classDef.asType();
       final IValue typeNameValue = createTypeName(classType.fullName().toString());
-      insertValue(X10_AllTypes, getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
-                                                        createModifiersCodeValue(classType.flags())));
+      final ITuple tuple;
+      if (classDef.outer() == null) {
+        tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
+                                        createModifiersCodeValue(classType.flags()));
+      } else {
+        final IValue outerTypeNameValue = createTypeName(classDef.outer().get().asType().fullName().toString());
+        tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
+                                        createModifiersCodeValue(classType.flags()), outerTypeNameValue);
+      }
+      insertValue(X10_AllTypes, tuple);
       
       final List<MethodDef> methodDefs = classDef.methods();
-      final IValue[] methods = new IValue[methodDefs.size()];
+      final List<ConstructorDef> constructorDefs = classDef.constructors();
+      final IValue[] methods = new IValue[methodDefs.size() + constructorDefs.size()];
       int i = -1;
       for (final MethodDef methodDef : methodDefs) {
         methods[++i] = createMethodValue(methodDef);
-      }      
+      }
+      for (final ConstructorDef constructorDef : constructorDefs) {
+        methods[++i] = createConstructorValue(constructorDef);
+      }
       insertValue(X10_AllMethods, getValueFactory().tuple(typeNameValue, getValueFactory().list(methods)));
       
       final List<FieldDef> fieldDefs = classDef.fields();
@@ -60,7 +74,6 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
       insertValue(X10_AllFields, getValueFactory().tuple(typeNameValue, getValueFactory().list(fields)));
       
       final TypeNode superTypeNode = classDecl.superClass();
-      
       final ClassType superClass;
       if (superTypeNode == null) {
         superClass = null;

@@ -5,54 +5,35 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.search.core.engine;
+package x10dt.search.core.elements;
 
-import org.eclipse.imp.pdb.facts.ISourceLocation;
-
-import x10dt.search.core.pdb.X10FlagsEncoder.X10;
 
 /**
- * Provides method information for a given type coming from the search index database.
+ * Provides method information for a given method coming from the search index database.
  * 
  * @author egeay
  */
-public interface IMethodInfo {
-  
-  /**
-   * Returns the location of the field declaration.
-   * 
-   * @return A non-null location.
-   */
-  public ISourceLocation getLocation();
-  
-  /**
-   * Returns the field name represented.
-   * 
-   * @return A non-null string.
-   */
-  public String getName();
-  
+public interface IMethodInfo extends IMemberInfo {
+    
   /**
    * Returns the method parameters type information.
    * 
    * @return A non-null, but possibly empty, array of type info.
    */
-  public IBasicTypeInfo[] getParameters();
+  public ITypeInfo[] getParameters();
   
   /**
    * Returns the method return type information. This may not have location information in case of X10 void type.
    * 
    * @return A non-null type information.
    */
-  public IBasicTypeInfo getReturnType();
+  public ITypeInfo getReturnType();
   
   /**
-   * Returns a code identifying uniquely the list of flags relevant for the field.
+   * Indicates if the current method is a constructor or not.
    * 
-   * <p>Look at {@link X10} to test the existence of some particular flags.
-   * 
-   * @return A natural number.
+   * @return True if it is a constructor, false otherwise.
    */
-  public int getX10FlagsCode();
-
+  public boolean isConstructor();
+  
 }

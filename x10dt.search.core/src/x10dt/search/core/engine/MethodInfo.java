@@ -7,65 +7,73 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import java.util.Arrays;
+
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
-final class MethodInfo implements IMethodInfo {
+
+final class MethodInfo extends AbstractMemberInfo implements IMethodInfo {
   
-  MethodInfo(final String name, final IBasicTypeInfo returnType, final IBasicTypeInfo[] parameterTypes, 
-             final ISourceLocation location, final int x10FlagsCode) {
-    this.fName = name;
+  MethodInfo(final String name, final ITypeInfo returnType, final ITypeInfo[] parameterTypes, 
+             final ISourceLocation location, final int x10FlagsCode, final ITypeInfo declaringType) {
+    super(location, name, x10FlagsCode, declaringType);
     this.fReturnType = returnType;
     this.fParameterTypes = parameterTypes;
-    this.fLocation = location;
-    this.fX10FlagsCode = x10FlagsCode;
   }
   
-  // --- Interface methods implementation
-
-  public ISourceLocation getLocation() {
-    return this.fLocation;
+  // --- IX10Element's interface methods implementation
+  
+  public boolean exists(final IProgressMonitor monitor) {
+    return true;
   }
-
-  public String getName() {
-    return this.fName;
-  }
-
-  public IBasicTypeInfo[] getParameters() {
+    
+  // --- IMethodInfo's interface methods implementation
+  
+  public ITypeInfo[] getParameters() {
     return this.fParameterTypes;
   }
 
-  public IBasicTypeInfo getReturnType() {
+  public ITypeInfo getReturnType() {
     return this.fReturnType;
   }
-
-  public int getX10FlagsCode() {
-    return this.fX10FlagsCode;
+  
+  public boolean isConstructor() {
+    return "this".equals(getName()); //$NON-NLS-1$
   }
   
   // --- Overridden methods
   
+  public boolean equals(final Object rhs) {
+    if ((rhs == null) || ! (rhs instanceof IMethodInfo)) {
+      return false;
+    }
+    final IMethodInfo rhsObj = (IMethodInfo) rhs;
+    return super.equals(rhsObj) && this.fReturnType.equals(rhsObj.getReturnType()) &&
+           Arrays.equals(this.fParameterTypes, rhsObj.getParameters());
+  }
+  
+  public int hashCode() {
+    return super.hashCode() + this.fReturnType.hashCode() + Arrays.hashCode(this.fParameterTypes);
+  }
+  
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("Name: ").append(this.fName).append("\nReturn type: ").append(this.fReturnType.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+    sb.append(super.toString()).append("\nReturn type: ").append(this.fReturnType.getName()); //$NON-NLS-1$
     int i = 0;
-    for (final IBasicTypeInfo paramType : this.fParameterTypes) {
+    for (final ITypeInfo paramType : this.fParameterTypes) {
       sb.append("\nParam ").append(i).append(": ").append(paramType.getName()); //$NON-NLS-1$ //$NON-NLS-2$
     }
-    sb.append("\nLocation: ").append(this.fLocation).append("\nFlags code: ").append(this.fX10FlagsCode); //$NON-NLS-1$ //$NON-NLS-2$
     return sb.toString();
   }
   
   // --- Fields
   
-  private final String fName;
+  private final ITypeInfo fReturnType;
   
-  private final IBasicTypeInfo fReturnType;
-  
-  private final IBasicTypeInfo[] fParameterTypes;
-  
-  private final ISourceLocation fLocation;
-  
-  private final int fX10FlagsCode;
+  private final ITypeInfo[] fParameterTypes;
 
 }
