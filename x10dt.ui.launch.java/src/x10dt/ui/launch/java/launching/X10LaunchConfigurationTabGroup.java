@@ -15,7 +15,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt.ui.launching;
+package x10dt.ui.launch.java.launching;
 
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.CommonTab;
@@ -26,7 +26,7 @@ import org.eclipse.debug.ui.sourcelookup.SourceLookupTab;
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaArgumentsTab;
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaClasspathTab;
 import org.eclipse.jdt.debug.ui.launchConfigurations.JavaJRETab;
-import org.eclipse.jdt.debug.ui.launchConfigurations.JavaMainTab;
+
 
 public class X10LaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup {
 

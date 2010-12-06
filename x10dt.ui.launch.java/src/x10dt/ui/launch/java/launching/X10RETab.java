@@ -15,7 +15,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt.ui.launching;
+package x10dt.ui.launch.java.launching;
 
 import java.io.File;
 import java.net.URL;

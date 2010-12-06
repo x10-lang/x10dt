@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui.launching;
+package x10dt.ui.launch.java.launching;
 
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
@@ -27,6 +27,7 @@ import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.LaunchCore;
+import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
 /**
  * Implements the launch shortcut for Java back-end.

@@ -15,7 +15,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt.ui.cheatsheet.actions;
+package x10dt.ui.launch.java.actions;
 
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.wizard.WizardDialog;
@@ -24,7 +24,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.cheatsheets.ICheatSheetAction;
 import org.eclipse.ui.cheatsheets.ICheatSheetManager;
 
-import x10dt.ui.wizards.X10ProjectWizard;
+import x10dt.ui.launch.java.wizards.X10ProjectWizard;
 
 public class NewX10ProjectAction extends Action implements ICheatSheetAction {
     public NewX10ProjectAction() {

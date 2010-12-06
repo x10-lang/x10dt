@@ -1,4 +1,4 @@
-package x10dt.ui.launching;
+package x10dt.ui.launch.java.launching;
 
 import java.lang.reflect.InvocationTargetException;
 

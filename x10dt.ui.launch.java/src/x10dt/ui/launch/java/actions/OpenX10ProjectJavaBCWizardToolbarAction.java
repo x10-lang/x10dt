@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                  *
  * http://www.eclipse.org/legal/epl-v10.html                                 *
  *****************************************************************************/
-package x10dt.ui.perspective.actions;
+package x10dt.ui.launch.java.actions;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -13,7 +13,8 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import x10dt.ui.wizards.X10ProjectWizard;
+import x10dt.ui.launch.java.wizards.X10ProjectWizard;
+import x10dt.ui.perspective.actions.AbstractWizardToolbarAction;
 
 public final class OpenX10ProjectJavaBCWizardToolbarAction extends AbstractWizardToolbarAction 
                                                            implements IWorkbenchWindowActionDelegate {

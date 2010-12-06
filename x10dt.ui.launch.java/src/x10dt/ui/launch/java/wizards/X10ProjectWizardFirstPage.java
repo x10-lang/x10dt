@@ -15,7 +15,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt.ui.wizards;
+package x10dt.ui.launch.java.wizards;
 
 import java.util.Observable;
 import java.util.Observer;

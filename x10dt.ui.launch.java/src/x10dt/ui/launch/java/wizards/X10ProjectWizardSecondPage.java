@@ -18,7 +18,7 @@
 /*
  * Created on Feb 6, 2006
  */
-package x10dt.ui.wizards;
+package x10dt.ui.launch.java.wizards;
 
 import java.io.InputStream;
 import java.util.Arrays;

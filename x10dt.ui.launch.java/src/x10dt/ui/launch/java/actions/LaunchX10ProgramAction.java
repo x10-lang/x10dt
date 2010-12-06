@@ -15,7 +15,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt.ui.cheatsheet.actions;
+package x10dt.ui.launch.java.actions;
 
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.jface.action.Action;
@@ -24,20 +24,20 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.cheatsheets.ICheatSheetAction;
 import org.eclipse.ui.cheatsheets.ICheatSheetManager;
 
-import x10dt.ui.launching.X10JavaLaunchShortcut;
+import x10dt.ui.launch.java.launching.X10JavaLaunchShortcut;
 
-public class DebugX10ProgramAction extends Action implements ICheatSheetAction {
-    public DebugX10ProgramAction() {
-	this("Debug an X10 program");
+public class LaunchX10ProgramAction extends Action implements ICheatSheetAction {
+    public LaunchX10ProgramAction() {
+	this("Launch an X10 program");
     }
 
-    public DebugX10ProgramAction(String text) {
+    public LaunchX10ProgramAction(String text) {
 	super(text, null);
     }
 
     public void run(String[] params, ICheatSheetManager manager) {
 	IEditorPart editorPart= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
 
-	new X10JavaLaunchShortcut().launch(editorPart, ILaunchManager.DEBUG_MODE);
+	new X10JavaLaunchShortcut().launch(editorPart, ILaunchManager.RUN_MODE);
     }
 }

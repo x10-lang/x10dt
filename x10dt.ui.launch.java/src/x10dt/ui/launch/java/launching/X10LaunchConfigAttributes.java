@@ -15,7 +15,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt.ui.launching;
+package x10dt.ui.launch.java.launching;
 
 /**
  * These are keys to be used in accessing attributes of X10 launch configurations
