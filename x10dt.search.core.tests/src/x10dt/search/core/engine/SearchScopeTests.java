@@ -9,7 +9,9 @@ package x10dt.search.core.engine;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static x10dt.search.core.utils.TestUtils.assertLocation;
+import static x10dt.search.core.utils.TestUtils.assertPath;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -18,6 +20,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.junit.Test;
 
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
@@ -39,6 +42,8 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
     assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertPath(PROJECT_TEST, HELLOWORLD_LOC, helloTypeInfo[0].getCompilationUnit().getPath());
+    assertNull(helloTypeInfo[0].getDeclaringType());
   }
   
   @Test public void searchInLibRuntimeScope() throws Exception {

@@ -7,14 +7,19 @@
  *******************************************************************************/
 package x10dt.search.core.engine;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.*;
 import static x10dt.search.core.utils.TestUtils.assertLocation;
+import static x10dt.search.core.utils.TestUtils.assertPath;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.junit.Test;
 
+import x10dt.search.core.elements.IFieldInfo;
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
@@ -36,6 +41,8 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
     assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertPath(PROJECT_NAME, HELLOWORLD_LOC, helloTypeInfo[0].getCompilationUnit().getPath());
+    assertNull(helloTypeInfo[0].getDeclaringType());
 
     final ITypeInfo[] hashMapInfo = X10SearchEngine.getTypeInfo(scope, "x10.util.HashMap", new NullProgressMonitor());
     assertEquals(1, hashMapInfo.length);
@@ -53,6 +60,8 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     assertEquals(1, mainMethods[0].getParameters().length);
     assertEquals(ARRAY_TYPE, mainMethods[0].getParameters()[0].getName());
     assertEquals(VOID_TYPE, mainMethods[0].getReturnType().getName());
+    assertPath(PROJECT_NAME, HELLOWORLD_LOC, mainMethods[0].getCompilationUnit().getPath());
+    assertEquals(HELLOWORLD_CLASS, mainMethods[0].getDeclaringType().getName());
     
     final IFieldInfo[] fields = X10SearchEngine.getAllMatchingFieldInfo(scope, HELLOWORLD_CLASS, ".*", false, 
                                                                         new NullProgressMonitor());
