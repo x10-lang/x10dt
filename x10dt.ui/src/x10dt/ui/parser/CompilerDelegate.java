@@ -56,7 +56,7 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import x10.errors.X10ErrorInfo;
 import x10.parser.X10Lexer;
-import x10.parser.X10Parser;
+import x10.parser.X10SemanticRules;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
 import x10dt.core.preferences.generated.X10Constants;
@@ -171,7 +171,7 @@ public class CompilerDelegate {
     public ExtensionInfo getExtInfo() { return fExtInfo; }
 
     public X10Lexer getLexerFor(Source src) { return fExtInfo.getLexerFor(src); }
-    public X10Parser getParserFor(Source src) { return fExtInfo.getParserFor(src); }
+    public X10SemanticRules getParserFor(Source src) { return fExtInfo.getParserFor(src); }
     public SourceFile getASTFor(Source src) { return (SourceFile) fExtInfo.getASTFor(src); }
     public Job getJobFor(Source src) { return fExtInfo.getJobFor(src); }
 

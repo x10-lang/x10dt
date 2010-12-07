@@ -8,7 +8,6 @@
 package x10dt.search.core.pdb;
 
 import polyglot.types.Flags;
-import x10.types.X10Flags;
 
 /**
  * Responsible for encoding relevant X10 flags for search indexing with a simple integer.
@@ -63,46 +62,21 @@ public final class X10FlagsEncoder {
      * <code>abstract</code>.
      */
     ABSTRACT(1 << 7),
-    
-    /**
-     * <code>extern</code>.
-     */
-    EXTERN(1 << 8),
-    
+        
     /**
      * <code>atomic</code>.
      */
-    ATOMIC(1 << 9),
-    
-    /**
-     * <code>global</code>.
-     */
-    GLOBAL(1 << 10),
-    
-    /**
-     * <code>pinned</code>.
-     */
-    PINNED(1 << 11),
-    
-    /**
-     * <code>safe</code>.
-     */
-    SAFE(1 << 12),
-    
-    /**
-     * <code>nonblocking</code>.
-     */
-    NONBLOCKING(1 << 13),
-    
-    /**
-     * <code>sequential</code>.
-     */
-    SEQUENTIAL(1 << 14),
-    
+    ATOMIC(1 << 8),
+        
     /**
      * <code>property</code>.
      */
-    PROPERTY(1 << 15);
+    PROPERTY(1 << 9),
+    
+    /**
+     * <code>clocked</code>.
+     */
+    CLOCKED(1 << 10);
     
     // --- Public services
     
@@ -156,32 +130,11 @@ public final class X10FlagsEncoder {
     if (flags.isAbstract()) {
       code |= X10.ABSTRACT.getCode();
     }
-    if (flags instanceof X10Flags) {
-      final X10Flags x10Flags = (X10Flags) flags;
-      if (x10Flags.isExtern()) {
-        code |= X10.EXTERN.getCode();
-      }
-      if (x10Flags.isAtomic()) {
-        code |= X10.ATOMIC.getCode();
-      }
-      if (x10Flags.isGlobal()) {
-        code |= X10.GLOBAL.getCode();
-      }
-      if (x10Flags.isPinned()) {
-        code |= X10.PINNED.getCode();
-      }
-      if (x10Flags.isSafe()) {
-        code |= X10.SAFE.getCode();
-      }
-      if (x10Flags.isNonBlocking()) {
-        code |= X10.NONBLOCKING.getCode();
-      }
-      if (x10Flags.isSequential()) {
-        code |= X10.SEQUENTIAL.getCode();
-      }
-      if (x10Flags.isProperty()) {
-        code |= X10.PROPERTY.getCode();
-      }
+    if (flags.isAtomic()) {
+      code |= X10.ATOMIC.getCode();
+    }
+    if (flags.isProperty()) {
+      code |= X10.PROPERTY.getCode();
     }
     this.fCodeRep = code;
   }

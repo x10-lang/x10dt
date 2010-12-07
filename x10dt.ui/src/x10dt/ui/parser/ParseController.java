@@ -46,7 +46,7 @@ import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
 import polyglot.util.ErrorInfo;
 import x10.parser.X10Lexer;
-import x10.parser.X10Parser;
+import x10.parser.X10SemanticRules;
 import x10.visit.InstanceInvariantChecker;
 import x10.visit.PositionInvariantChecker;
 import x10dt.core.X10DTCorePlugin;
@@ -148,7 +148,7 @@ public class ParseController extends SimpleLPGParseController {
         	// services, like syntax highlighting and the outline view's contents.
 
             if (source != null && fCompiler != null) {
-            	final X10Parser parser= fCompiler.getParserFor(source);
+            	final X10SemanticRules parser= fCompiler.getParserFor(source);
             	final X10Lexer lexer= fCompiler.getLexerFor(source);
             	fParseStream = parser.getIPrsStream();
             	fLexStream = lexer.getILexStream();

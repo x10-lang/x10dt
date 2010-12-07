@@ -40,6 +40,7 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.Source;
 import polyglot.types.ClassType;
 import polyglot.types.MethodDef;
+import polyglot.types.TypeSystem;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
@@ -47,7 +48,6 @@ import polyglot.visit.NodeVisitor;
 import x10.X10CompilerOptions;
 import x10.ast.X10MethodDecl;
 import x10.types.X10ClassType;
-import x10.types.X10TypeSystem;
 import x10dt.core.builder.StreamSource;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.Messages;
@@ -263,7 +263,7 @@ public final class X10Utils {
           return null;
         }
         final X10ClassType classType = (X10ClassType) methodDef.asInstance().container();
-        final X10TypeSystem typeSystem = (X10TypeSystem) classType.typeSystem();
+        final TypeSystem typeSystem = (TypeSystem) classType.typeSystem();
         if (methodDecl.name().toString().equals(MAIN_METHOD_NAME) && methodDecl.flags().flags().isPublic() &&
             methodDecl.flags().flags().isStatic() && methodDecl.returnType().type().isVoid() &&
             (methodDecl.formals().size() == 1) && 

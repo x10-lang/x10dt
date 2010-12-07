@@ -4,7 +4,6 @@
 package x10dt.refactoring.effects;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.Binary;
@@ -26,19 +25,18 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.StringLit;
 import polyglot.ast.Unary;
-import x10.ast.SettableAssign;
-import x10.types.X10TypeMixin;
-import x10.types.X10TypeSystem;
-import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
+import x10.ast.SettableAssign;
 import x10.constraint.XName;
 import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.X10TypeMixin;
 
 public class TermCreator {
         private static Map<Unary.Operator,XName> sUnaryOpMap= new HashMap<Unary.Operator,XName>();
@@ -121,7 +119,7 @@ public class TermCreator {
                 } else if (old instanceof Local) {
                     Local local = (Local) old;
                     Type localType= local.type();
-                    X10TypeSystem ts= (X10TypeSystem) localType.typeSystem();
+                    TypeSystem ts= (TypeSystem) localType.typeSystem();
                     Type t = X10TypeMixin.baseType(local.type());
                     /* XArray no longer exists
                     if (t.isArray() || t.isClass() && ts.descendsFrom(t.toClass().def(), ts.Array().toClass().def())) {

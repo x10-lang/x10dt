@@ -158,7 +158,7 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 //								ret = factory.Eval(null, call);
 //							}
 							
-							ret = factory.Return(null, X10TypeMixin.getZeroVal(mi.returnType(), null, new ContextVisitor(null, mi.typeSystem(), factory)));
+							ret = factory.Return(null, X10TypeMixin.getZeroVal(returnType, null, new ContextVisitor(null, mi.typeSystem(), factory)));
 							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub\n"));
 				        }
 						

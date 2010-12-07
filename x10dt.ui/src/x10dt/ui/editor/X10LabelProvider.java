@@ -59,7 +59,7 @@ import x10.ast.Future;
 import x10.ast.Next;
 import x10.ast.TypeDecl_c;
 import x10.ast.X10Loop;
-import x10.parser.X10Parser.JPGPosition;
+import x10.parser.X10SemanticRules.JPGPosition;
 import x10dt.ui.X10DTUIPlugin;
 
 /**
