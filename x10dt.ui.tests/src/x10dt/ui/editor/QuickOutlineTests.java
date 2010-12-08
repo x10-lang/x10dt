@@ -11,7 +11,9 @@
 
 package x10dt.ui.editor;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.parser.IParseController;
@@ -19,6 +21,7 @@ import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes;
@@ -26,6 +29,7 @@ import org.eclipse.swtbot.swt.finder.utils.Position;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.ui.IEditorPart;
 import org.junit.After;
@@ -62,7 +66,7 @@ public class QuickOutlineTests extends X10DTTestBase {
   public static void beforeClass() throws Exception {
     SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy";
     topLevelBot = new SWTWorkbenchBot();
-    SWTBotPreferences.TIMEOUT = 15000; // TODO remove this ?
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // TODO remove this ?
 
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
@@ -79,8 +83,8 @@ public class QuickOutlineTests extends X10DTTestBase {
   @AfterClass
   public static void afterClass() throws Exception {
     SWTBotUtils.saveAllDirtyEditors(topLevelBot);
-  }
-
+    SWTBotUtils.resetWorkbench(topLevelBot);
+	}
   private class MyListener implements IModelListener {
 
     public AnalysisRequired getAnalysisRequired() {
@@ -114,6 +118,8 @@ public class QuickOutlineTests extends X10DTTestBase {
     fSrcEditor.insertText(2, 0, "public static def foo() { }\n");
 
     WaitForParser();
+    fSrcEditor.save();
+    waitForBuildToFinish();
 
     SWTBot outlineBot = invokeQuickOutline(topLevelBot);// TODO
 
@@ -155,7 +161,9 @@ public class QuickOutlineTests extends X10DTTestBase {
 
     // a better way of determining when the AST has been updated
     WaitForParser();
-
+    fSrcEditor.save();
+    waitForBuildToFinish();
+    
     SWTBot outlineBot = invokeQuickOutline(topLevelBot);
 
     SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
@@ -173,7 +181,13 @@ public class QuickOutlineTests extends X10DTTestBase {
     junit.framework.Assert.assertEquals("Cursor positioned at incorrect column after quick outline item selection", 1,
                                         cursorPos.column);
   }
-
+	/**
+	 * This method waits for a build to finish before continuing
+	 * @throws Exception
+	 */
+	private void waitForBuildToFinish() throws Exception {
+		Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+	}
   private SWTBot invokeQuickOutline(SWTBot bot) throws Exception {
 
     fSrcEditor.pressShortcut(Keystrokes.CTRL, KeyStroke.getInstance("o"));
