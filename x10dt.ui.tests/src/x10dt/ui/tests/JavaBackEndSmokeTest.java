@@ -35,6 +35,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.ViewConstants;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
@@ -66,6 +67,7 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
     topLevelBot = new SWTWorkbenchBot();
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
   }
   @After
   public void after() throws Exception {
