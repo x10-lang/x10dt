@@ -121,7 +121,7 @@ public class OutlineTests extends X10DTTestBase {
 
     SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
-    SWTBotPreferences.TIMEOUT = 15000; // Long timeout needed for first project creation//TODO-- need to remove this ?
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // Long timeout needed for first project creation//TODO-- need to remove this ?
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
     createJavaBackEndProject(PROJECT_NAME, false);
@@ -153,6 +153,7 @@ public class OutlineTests extends X10DTTestBase {
   @AfterClass
   public static void afterClass() throws Exception {
     SWTBotUtils.saveAllDirtyEditors(topLevelBot);
+    SWTBotUtils.resetWorkbench(topLevelBot);
   }
 
   @After
