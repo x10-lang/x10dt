@@ -17,10 +17,12 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.parser.IParseController;
@@ -120,7 +122,7 @@ public class ContentAssistTests extends X10DTTestBase {
   public static void beforeClass() throws Exception {
     SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
-    SWTBotPreferences.TIMEOUT = 15000; // Long timeout needed for first project creation//TODO need it ?
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS ; // Long timeout needed for first project creation//TODO need it ?
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
   }
@@ -138,7 +140,8 @@ public class ContentAssistTests extends X10DTTestBase {
   @AfterClass
   public static void afterClass() throws Exception {
     SWTBotUtils.saveAllDirtyEditors(topLevelBot);
-  }
+    SWTBotUtils.resetWorkbench(topLevelBot);
+	}
 
   @After
   public void after() throws Exception {
@@ -159,7 +162,8 @@ public class ContentAssistTests extends X10DTTestBase {
   public void test1() throws Exception {
     createProject(PROJECT_NAME + "1", CLASS_NAME_1, CLASS_SRCFILE_NAME_1);
     getTestSource(fSrcEditor, "data/" + CLASS_SRCFILE_NAME_1, CLASS_NAME_1); //$NON-NLS-1$
-
+fSrcEditor.save();
+waitForBuildToFinish();
     waitForParser();
     runStatementContextTest("statement", TEST1);
   }
@@ -169,12 +173,19 @@ public class ContentAssistTests extends X10DTTestBase {
 
     createProject(PROJECT_NAME + "2", CLASS_NAME_2, CLASS_SRCFILE_NAME_2);
     getTestSource(fSrcEditor, "data/" + CLASS_SRCFILE_NAME_2, CLASS_NAME_2); //$NON-NLS-1$
-
+fSrcEditor.save();
+waitForBuildToFinish();
     waitForParser();
     runStatementContextTest("member", TEST2);
 
   }
-
+	/**
+	 * This method waits for a build to finish before continuing
+	 * @throws Exception
+	 */
+	private void waitForBuildToFinish() throws Exception {
+		Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+	}
   public void waitForParser() throws Exception {
     topLevelBot.waitUntil(new DefaultCondition() {
 
@@ -186,7 +197,7 @@ public class ContentAssistTests extends X10DTTestBase {
         return "Some Failure Message";
       }
 
-    }, Timeout.TWENTY_SECONDS);
+    }, Timeout.SIXTY_SECONDS);
   }
 
   private void runStatementContextTest(String type, String[][] expectedProposals) {
@@ -205,10 +216,14 @@ public class ContentAssistTests extends X10DTTestBase {
       List<String> proposals = fSrcEditor.getAutoCompleteProposals("");
       junit.framework.Assert.assertNotNull("The proposals result is null", proposals);
       junit.framework.Assert.assertTrue("There are no proposals", proposals.size() > 0);
-
+      
+      boolean temp_state = true;
       for (String proposal : expectedProposals[index]) {
+    	  temp_state = containsMatchingProposal(proposals, proposal);
+
         junit.framework.Assert.assertTrue("Expected " + contextName + " proposal is missing: " + proposal + " at location " +
-                                          toString(lp), containsMatchingProposal(proposals, proposal));
+                                          toString(lp), temp_state);
+
 
       }
 
