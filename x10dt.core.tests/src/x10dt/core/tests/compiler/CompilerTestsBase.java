@@ -57,11 +57,9 @@ import x10.types.X10TypeMixin;
  *
  */
 public class CompilerTestsBase {
-
+	
     protected static String[] STATIC_CALLS = {"-STATIC_CALLS=true", "-CHECK_INVARIANTS"};
     protected static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false", "-CHECK_INVARIANTS"};
-
-    private static String COMPILER_GENERATED = "Compiler Generated";
 
     private static String OUTPUT_DIR = "output";
 
@@ -299,10 +297,10 @@ public class CompilerTestsBase {
 						if (!position.isCompilerGenerated() && !position.file().startsWith(File.separator)) 
 							Assert.assertFalse("AST: position.file() returned a string that was not in the original sources:" + n, true);
 				 		
-						if (position.isCompilerGenerated()){
-							if (position.endOffset() - position.offset() != 0) // --- Non-zero extent
-								Assert.assertFalse("AST: position extent is non-zero", true);
-						}
+//						if (position.isCompilerGenerated()){
+//							if (position.endOffset() - position.offset() != 0) // --- Non-zero extent
+//								Assert.assertFalse("AST: position extent is non-zero", true);
+//						}
 						
                          if (n instanceof TypeNode) {
 
