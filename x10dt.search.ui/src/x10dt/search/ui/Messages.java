@@ -142,7 +142,12 @@ public class Messages extends NLS {
 	public static String OpenTypeInHierarchyAction_dialogMessage;
 	public static String OpenTypeInHierarchyAction_dialogTitle;
 	
-
+	public static String X10ElementLabels_comma_string;
+	public static String X10ElementLabels_concat_string;
+	public static String X10ElementLabels_declseparator_string;
+	public static String X10ElementLabels_anonym_type;
+	public static String X10ElementLabels_anonym;
+	public static String X10ElementLabels_default_package;
 
 	// --- Private code
 

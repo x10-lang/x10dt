@@ -67,7 +67,7 @@ import org.eclipse.ui.commands.IKeySequenceBinding;
 import org.eclipse.ui.commands.Priority;
 import org.eclipse.ui.keys.KeySequence;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
 

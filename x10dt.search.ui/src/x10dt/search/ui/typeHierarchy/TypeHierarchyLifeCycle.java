@@ -18,14 +18,15 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
-import x10dt.search.core.engine.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
 
 
 /**
@@ -35,18 +36,16 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 
 	private boolean fHierarchyRefreshNeeded;
 	private ITypeHierarchy fHierarchy;
-	private ITypeInfo fInputElement;
+	private IMemberInfo fInputElement;
 	private boolean fIsSuperTypesOnly;
-	private UniversalEditor editor;
-
+	
 	private List fChangeListeners;
 
-	public TypeHierarchyLifeCycle(UniversalEditor editor) {
-		this(editor, false);
+	public TypeHierarchyLifeCycle() {
+		this(false);
 	}
 
-	public TypeHierarchyLifeCycle(UniversalEditor editor, boolean isSuperTypesOnly) {
-		this.editor = editor;
+	public TypeHierarchyLifeCycle(boolean isSuperTypesOnly) {
 		fHierarchy= null;
 		fInputElement= null;
 		fIsSuperTypesOnly= isSuperTypesOnly;
@@ -57,7 +56,7 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 		return fHierarchy;
 	}
 
-	public ITypeInfo getInputElement() {
+	public IMemberInfo getInputElement() {
 		return fInputElement;
 	}
 
@@ -88,7 +87,7 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 		}
 	}
 
-	public void ensureRefreshedTypeHierarchy(final ITypeInfo element, IRunnableContext context) throws InvocationTargetException, InterruptedException {
+	public void ensureRefreshedTypeHierarchy(final IMemberInfo element, IRunnableContext context) throws InvocationTargetException, InterruptedException {
 		if (element == null|| !element.exists(new NullProgressMonitor())) {
 			freeHierarchy();
 			return;
@@ -114,34 +113,17 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 		}
 	}
 
-	private ITypeHierarchy createTypeHierarchy(ITypeInfo element, IProgressMonitor pm) throws Exception {
-//		if (element.getElementType() == ITypeInfo.TYPE) {
-			ISourceProject sp = null;
-			if(editor != null)
-			{
-				sp = editor.getParseController().getProject();
+	private ITypeHierarchy createTypeHierarchy(IMemberInfo element, IProgressMonitor pm) throws Exception {
+		if (element instanceof ITypeInfo) {
+			if (fIsSuperTypesOnly) {
+				ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), element.getName(), pm);
+				return X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL),h.getSuperClass(element.getName()).getName(), pm);
+			} else {
+				return X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL),element.getName(), pm);
 			}
-			
-			if(sp == null)
-			{
-				if (fIsSuperTypesOnly) {
-					ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(element.getName(), pm);
-					return X10SearchEngine.createTypeHierarchy(h.getSuperClass(element.getName()).getName(), pm);
-				} else {
-					return X10SearchEngine.createTypeHierarchy(element.getName(), pm);
-				}
-			}
-			
-			else
-			{
-				if (fIsSuperTypesOnly) {
-					ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(sp.getRawProject(), element.getName(), pm);
-					return X10SearchEngine.createTypeHierarchy(sp.getRawProject(), h.getSuperClass(element.getName()).getName(), pm);
-				} else {
-					return X10SearchEngine.createTypeHierarchy(sp.getRawProject(), element.getName(), pm);
-				}
-			}
-//		} else {
+		}
+		return null;
+//		else {
 //			IRegion region= new Region();
 //			if (element instanceof ISourceProject) {
 //				// for projects only add the contained source folders
@@ -169,7 +151,7 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 	}
 
 
-	public synchronized void doHierarchyRefresh(ITypeInfo element, IProgressMonitor pm) throws Exception {
+	public synchronized void doHierarchyRefresh(IMemberInfo element, IProgressMonitor pm) throws Exception {
 		boolean hierachyCreationNeeded= (fHierarchy == null || !element.equals(fInputElement));
 		// to ensure the order of the two listeners always remove / add listeners on operations
 		// on type hierarchies
@@ -274,10 +256,6 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 		if (getHierarchy().contains(type.getName())) {
 			changedTypes.add(type);
 		}
-	}
-
-	public void setEditor(UniversalEditor editor) {
-		this.editor = editor;
 	}
 
 //	private void processChildrenDelta(IJavaElementDelta delta, ArrayList changedTypes) {

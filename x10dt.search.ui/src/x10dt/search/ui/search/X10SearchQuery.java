@@ -14,8 +14,11 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.engine.scope.IX10SearchScope;
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 
@@ -41,7 +44,8 @@ public class X10SearchQuery implements ISearchQuery {
 		try {
 			for (IProject project: ResourcesPlugin.getWorkspace().getRoot().getProjects()){
 				if (fPatternData.getSearchFor() == SearchPatternData.TYPE && fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
-					ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(project, stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
+				  final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
+					ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(scope, stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
 					for(ITypeInfo info: results){
 						acceptSearchResult(info, textResult);
 					}

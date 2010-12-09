@@ -13,10 +13,7 @@ package x10dt.search.ui.typeHierarchy;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
-
-import org.eclipse.jdt.core.IType;
 
 /**
  * The class provides API to extend type selection dialogs like the

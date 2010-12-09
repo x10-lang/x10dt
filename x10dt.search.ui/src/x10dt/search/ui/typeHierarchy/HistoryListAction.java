@@ -29,7 +29,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
 
@@ -41,7 +42,7 @@ public class HistoryListAction extends Action {
 		private IStatus fHistoryStatus;
 		private ITypeInfo fResult;
 
-		private HistoryListDialog(Shell shell, ITypeInfo[] elements) {
+		private HistoryListDialog(Shell shell, IMemberInfo[] elements) {
 			super(shell);
 			setTitle(TypeHierarchyMessages.HistoryListDialog_title);
 
@@ -164,7 +165,7 @@ public class HistoryListAction extends Action {
 	 * @see IAction#run()
 	 */
 	public void run() {
-		ITypeInfo[] historyEntries= fView.getHistoryEntries();
+		IMemberInfo[] historyEntries= fView.getHistoryEntries();
 		HistoryListDialog dialog= new HistoryListDialog(UISearchPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getShell(), historyEntries);
 		if (dialog.open() == Window.OK) {
 			fView.setHistoryEntries(dialog.getRemaining());

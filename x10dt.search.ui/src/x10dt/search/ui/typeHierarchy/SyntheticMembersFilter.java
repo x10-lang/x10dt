@@ -22,7 +22,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
 public class SyntheticMembersFilter extends ViewerFilter {
 	public boolean select(Viewer viewer, Object parent, Object element) {
 //		if (!(element instanceof IMember))
-//			return true;
+			return true;
 //		IMember member= (IMember)element;
 //		if (!(member.isBinary()))
 //			return true;
@@ -31,6 +31,6 @@ public class SyntheticMembersFilter extends ViewerFilter {
 //		} catch (JavaModelException e) {
 //			return true;
 //		}
-		return false;
+//		return false;
 	}
 }

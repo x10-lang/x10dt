@@ -23,7 +23,7 @@ import org.eclipse.jface.text.information.IInformationProviderExtension;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
 /**
  * Provides a Java element to be displayed in by an information presenter.

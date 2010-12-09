@@ -21,9 +21,7 @@ import org.eclipse.core.commands.CommandManager;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.commands.contexts.ContextManager;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.text.JavaWordIterator;
-import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.bindings.BindingManager;
 import org.eclipse.jface.bindings.Scheme;
 import org.eclipse.jface.bindings.TriggerSequence;
@@ -50,6 +48,8 @@ import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.keys.IBindingService;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 
+import x10dt.search.ui.UISearchPlugin;
+
 /**
  * Support for camelCase-aware sub-word navigation in dialog fields.
  */
@@ -71,8 +71,8 @@ public class TextFieldNavigationHandler {
 	}
 
 	private static boolean isSubWordNavigationEnabled() {
-		IPreferenceStore preferenceStore= JavaPlugin.getDefault().getCombinedPreferenceStore();
-		return preferenceStore.getBoolean(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION);
+		IPreferenceStore preferenceStore= UISearchPlugin.getDefault().getPreferenceStore();
+		return preferenceStore.getBoolean(X10Constants.EDITOR_SUB_WORD_NAVIGATION);
 	}
 
 	private abstract static class WorkaroundNavigable extends Navigable {
@@ -366,7 +366,7 @@ public class TextFieldNavigationHandler {
 									localSchemeCopy.define(scheme.getName(), scheme.getDescription(), scheme.getParentId());
 								}
 							} catch (final NotDefinedException e) {
-								JavaPlugin.log(e);
+								UISearchPlugin.log(e);
 							}
 						}
 						localBindingManager.setLocale(bindingService.getLocale());
@@ -378,7 +378,7 @@ public class TextFieldNavigationHandler {
 							if (activeScheme != null)
 								localBindingManager.setActiveScheme(activeScheme);
 						} catch (NotDefinedException e) {
-							JavaPlugin.log(e);
+							UISearchPlugin.log(e);
 						}
 
 						fSubmissions.add(new Submission(getKeyBindings(localBindingManager, commandService, ITextEditorActionDefinitionIds.SELECT_WORD_NEXT)) {

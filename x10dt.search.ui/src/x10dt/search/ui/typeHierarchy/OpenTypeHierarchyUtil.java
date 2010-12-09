@@ -12,14 +12,13 @@ package x10dt.search.ui.typeHierarchy;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.WorkbenchException;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.actions.EditorActionDefinitionIds;
@@ -30,18 +29,18 @@ public class OpenTypeHierarchyUtil {
 	private OpenTypeHierarchyUtil() {
 	}
 
-	public static TypeHierarchyViewPart open(UniversalEditor editor, ITypeInfo element, IWorkbenchWindow window) {
-		ITypeInfo[] candidates= getCandidates(element);
+	public static TypeHierarchyViewPart open(ITypeInfo element, IWorkbenchWindow window) {
+		IMemberInfo[] candidates= getCandidates(element);
 		if (candidates != null) {
-			return open(editor, candidates, window);
+			return open(candidates, window);
 		}
 		return null;
 	}
 
-	public static TypeHierarchyViewPart open(UniversalEditor editor, ITypeInfo[] candidates, IWorkbenchWindow window) {
+	public static TypeHierarchyViewPart open(IMemberInfo[] candidates, IWorkbenchWindow window) {
 		Assert.isTrue(candidates != null && candidates.length != 0);
 
-		ITypeInfo input= null;
+		IMemberInfo input= null;
 		if (candidates.length > 1) {
 			String title= Messages.OpenTypeHierarchyUtil_selectionDialog_title;
 			String message= Messages.OpenTypeHierarchyUtil_selectionDialog_message;
@@ -56,7 +55,7 @@ public class OpenTypeHierarchyUtil {
 			if (X10Constants.OPEN_TYPE_HIERARCHY_IN_PERSPECTIVE.equals(UISearchPlugin.getDefault().getPreferenceStore().getString(EditorActionDefinitionIds.OPEN_TYPE_HIERARCHY))) {
 				return openInPerspective(window, input);
 			} else {
-				return openInViewPart(editor, window, input);
+				return openInViewPart(window, input);
 			}
 
 		} catch (Exception e) {
@@ -73,7 +72,7 @@ public class OpenTypeHierarchyUtil {
 		return null;
 	}
 
-	private static TypeHierarchyViewPart openInViewPart(UniversalEditor editor, IWorkbenchWindow window, ITypeInfo input) {
+	private static TypeHierarchyViewPart openInViewPart(IWorkbenchWindow window, IMemberInfo input) {
 		IWorkbenchPage page= window.getActivePage();
 		try {
 			TypeHierarchyViewPart result= (TypeHierarchyViewPart) page.findView(X10Constants.ID_TYPE_HIERARCHY);
@@ -81,7 +80,6 @@ public class OpenTypeHierarchyUtil {
 				result.clearNeededRefresh(); // avoid refresh of old hierarchy on 'becomes visible'
 			}
 			result= (TypeHierarchyViewPart) page.showView(X10Constants.ID_TYPE_HIERARCHY);
-			result.setEditor(editor);
 			result.setInputElement(input);
 			return result;
 		} catch (CoreException e) {
@@ -92,19 +90,19 @@ public class OpenTypeHierarchyUtil {
 		return null;
 	}
 
-	private static TypeHierarchyViewPart openInPerspective(IWorkbenchWindow window, ITypeInfo input) throws WorkbenchException, Exception {
-		IWorkbench workbench= JavaPlugin.getDefault().getWorkbench();
+	private static TypeHierarchyViewPart openInPerspective(IWorkbenchWindow window, IMemberInfo input) throws WorkbenchException, Exception {
+		IWorkbench workbench= UISearchPlugin.getDefault().getWorkbench();
 		// The problem is that the input element can be a working copy. So we first convert it to the original element if
 		// it exists.
-		ITypeInfo perspectiveInput= input;
+		IMemberInfo perspectiveInput= input;
 
-//		if (input instanceof IMember) {
-//			if (input.getElementType() != ITypeInfo.TYPE) {
-//				perspectiveInput= ((IMember)input).getDeclaringType();
-//			} else {
-//				perspectiveInput= input;
-//			}
-//		}
+		if (input instanceof IMemberInfo) {
+			if (!(input instanceof ITypeInfo)) {
+				perspectiveInput= ((IMemberInfo)input).getDeclaringType();
+			} else {
+				perspectiveInput= input;
+			}
+		}
 		;
 		IWorkbenchPage page= workbench.showPerspective(X10Constants.ID_HIERARCHYPERSPECTIVE, window, SearchUtils.getResource(perspectiveInput));
 
@@ -114,11 +112,11 @@ public class OpenTypeHierarchyUtil {
 		}
 		part= (TypeHierarchyViewPart) page.showView(X10Constants.ID_TYPE_HIERARCHY);
 		part.setInputElement(input);
-//		if (input instanceof IMember) {
-//			if (page.getEditorReferences().length == 0) {
-//				JavaUI.openInEditor(input, false, false); // only open when the perspecive has been created
-//			}
-//		}
+		if (input instanceof IMemberInfo) {
+			if (page.getEditorReferences().length == 0) {
+				SearchUtils.openEditor(input);
+			}
+		}
 		return part;
 	}
 
@@ -128,12 +126,14 @@ public class OpenTypeHierarchyUtil {
 	 * @param input input
 	 * @return the possible candidates
 	 */
-	public static ITypeInfo[] getCandidates(Object input) {
-		if (!(input instanceof ITypeInfo)) {
+	public static IMemberInfo[] getCandidates(Object input) {
+		if (!(input instanceof IMemberInfo)) {
 			return null;
 		}
 		
-		return new ITypeInfo[] { (ITypeInfo) input };
+		return new IMemberInfo[] { (IMemberInfo)input };
+		
+		
 //		try {
 //			ITypeInfo elem= (ITypeInfo) input;
 //			switch (elem.getElementType()) {

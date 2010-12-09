@@ -13,7 +13,6 @@ package x10dt.search.ui.typeHierarchy;
 
 import org.eclipse.imp.editor.ProblemsLabelDecorator;
 import org.eclipse.imp.language.Language;
-import org.eclipse.jdt.internal.ui.packageview.HierarchicalDecorationContext;
 import org.eclipse.jface.viewers.DecorationContext;
 import org.eclipse.ui.PlatformUI;
 
@@ -61,11 +60,11 @@ public class DecoratingLabelProvider extends ColoringLabelProvider {
 	 * @param enable If set, packages are presented in flat mode.
 	 */
 	public void setFlatPackageMode(boolean enable) {
-		if (enable) {
+//		if (enable) {
 			setDecorationContext(DecorationContext.DEFAULT_CONTEXT);
-		} else {
-			setDecorationContext(HierarchicalDecorationContext.getContext());
-		}
+//		} else {
+//			setDecorationContext(HierarchicalDecorationContext.getContext());
+//		}
 	}
 
 }

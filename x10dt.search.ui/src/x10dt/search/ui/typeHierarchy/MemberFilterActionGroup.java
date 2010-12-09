@@ -14,7 +14,6 @@ package x10dt.search.ui.typeHierarchy;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -114,7 +113,7 @@ public class MemberFilterActionGroup extends ActionGroup {
 		fViewerId= viewerId;
 		fInViewMenu= inViewMenu;
 
-		IPreferenceStore store= PreferenceConstants.getPreferenceStore();
+		IPreferenceStore store= UISearchPlugin.getDefault().getPreferenceStore();
 		fFilter= new MemberFilter();
 
 		String title, helpContext = "";

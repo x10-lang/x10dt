@@ -12,9 +12,7 @@ package x10dt.search.ui.typeHierarchy;
 
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.language.LanguageRegistry;
-import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -26,7 +24,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.IWorkbenchPartSite;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
 
 public abstract class TypeHierarchyViewer extends ProblemTreeViewer {
@@ -48,9 +47,9 @@ public abstract class TypeHierarchyViewer extends ProblemTreeViewer {
 
 	public void setQualifiedTypeName(boolean on) {
 		if (on) {
-			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() | JavaElementLabels.T_POST_QUALIFIED);
+			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() | X10ElementLabels.T_POST_QUALIFIED);
 		} else {
-			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() & ~JavaElementLabels.T_POST_QUALIFIED);
+			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() & ~X10ElementLabels.T_POST_QUALIFIED);
 		}
 		refresh();
 	}
@@ -79,16 +78,16 @@ public abstract class TypeHierarchyViewer extends ProblemTreeViewer {
 	public void contributeToContextMenu(IMenuManager menu) {
 	}
 
-//	/**
-//	 * Set the member filter
-//	 * @param memberFilter the member filters to set
-//	 */
-//	public void setMemberFilter(IMember[] memberFilter) {
-//		TypeHierarchyContentProvider contentProvider= getHierarchyContentProvider();
-//		if (contentProvider != null) {
-//			contentProvider.setMemberFilter(memberFilter);
-//		}
-//	}
+	/**
+	 * Set the member filter
+	 * @param memberFilter the member filters to set
+	 */
+	public void setMemberFilter(IMemberInfo[] memberFilter) {
+		TypeHierarchyContentProvider contentProvider= getHierarchyContentProvider();
+		if (contentProvider != null) {
+			contentProvider.setMemberFilter(memberFilter);
+		}
+	}
 
 	/**
 	 * Returns if method filtering is enabled.
@@ -97,7 +96,7 @@ public abstract class TypeHierarchyViewer extends ProblemTreeViewer {
 	public boolean isMethodFiltering() {
 		TypeHierarchyContentProvider contentProvider= getHierarchyContentProvider();
 		if (contentProvider != null) {
-//			return contentProvider.getMemberFilter() != null;
+			return contentProvider.getMemberFilter() != null;
 		}
 		return false;
 	}

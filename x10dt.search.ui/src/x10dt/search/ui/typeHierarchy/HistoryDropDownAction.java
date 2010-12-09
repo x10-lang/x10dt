@@ -19,7 +19,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
 
 public class HistoryDropDownAction extends Action implements IMenuCreator {
@@ -70,7 +71,7 @@ public class HistoryDropDownAction extends Action implements IMenuCreator {
 			fMenu.dispose();
 		}
 		fMenu= new Menu(parent);
-		ITypeInfo[] elements= fHierarchyView.getHistoryEntries();
+		IMemberInfo[] elements= fHierarchyView.getHistoryEntries();
 		addEntries(fMenu, elements);
 		new MenuItem(fMenu, SWT.SEPARATOR);
 		addActionToMenu(fMenu, new HistoryListAction(fHierarchyView));
@@ -78,7 +79,7 @@ public class HistoryDropDownAction extends Action implements IMenuCreator {
 		return fMenu;
 	}
 
-	private boolean addEntries(Menu menu, ITypeInfo[] elements) {
+	private boolean addEntries(Menu menu, IMemberInfo[] elements) {
 		boolean checked= false;
 
 		int min= Math.min(elements.length, RESULTS_IN_DROP_DOWN);

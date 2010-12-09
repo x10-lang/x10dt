@@ -12,32 +12,75 @@ package x10dt.search.ui.typeHierarchy;
 
 
 import java.net.URI;
-import java.util.StringTokenizer;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.EditorUtility;
-import org.eclipse.jdt.core.Flags;
+import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.jface.text.Region;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.SearchPattern;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IFieldInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.engine.scope.IX10SearchScope;
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
+import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 
 
 
 public class SearchUtils {
+	
+	public static class Flags
+	{
+		static boolean isPublic(int flags)
+		{
+			return SearchUtils.hasFlag(X10.PUBLIC, flags);
+		}
+		
+		static boolean isProtected(int flags)
+		{
+			return SearchUtils.hasFlag(X10.PROTECTED, flags);
+		}
+		
+		static boolean isPrivate(int flags)
+		{
+			return SearchUtils.hasFlag(X10.PRIVATE, flags);
+		}
+		
+		static boolean isAbstract(int flags)
+		{
+			return SearchUtils.hasFlag(X10.ABSTRACT, flags);
+		}
+		
+		static boolean isFinal(int flags)
+		{
+			return SearchUtils.hasFlag(X10.FINAL, flags);
+		}
+		
+		static boolean isStatic(int flags)
+		{
+			return SearchUtils.hasFlag(X10.STATIC, flags);
+		}
+		
+		static boolean isInterface(int flags)
+		{
+			return SearchUtils.hasFlag(X10.INTERFACE, flags);
+		}
+	}
 
 //	/**
 //	 * @param match the search match
@@ -155,6 +198,14 @@ public class SearchUtils {
 		return null;
 	}
 	
+	public static String getElementName(IMemberInfo info) {
+		if(info instanceof ITypeInfo)
+		{
+			return getElementName((ITypeInfo)info);
+		}
+		return info.getName();
+	}
+	
 	public static String getElementName(ITypeInfo info) {
 		return info.getName().substring(info.getName().lastIndexOf(".") + 1);
 	}
@@ -171,20 +222,46 @@ public class SearchUtils {
 		return info.getName().replaceAll("\\.", new String(new char[]{qualifier}));
 	}
 	
-	public static IPath getPath(ITypeInfo info)
+	public static IPath getPath(IMemberInfo info)
 	{
 		return new Path(info.getLocation().getURI().getSchemeSpecificPart());
 	}
 
+	public static String getHandleIdentifier(IMemberInfo info) {
+		if(info instanceof ITypeInfo)
+		{
+			getHandleIdentifier((ITypeInfo)info);
+		}
+		
+		else if(info instanceof IMethodInfo)
+		{
+			getHandleIdentifier((ITypeInfo)info);
+		}
+		
+		else if(info instanceof IFieldInfo)
+		{
+			getHandleIdentifier((ITypeInfo)info);
+		}
+		return null;
+	}
+	
 	public static String getHandleIdentifier(ITypeInfo info) {
-		return info.getName() + "," +  getPath(info).toPortableString();
+		return "TypeInfo:" + info.getName() + "," +  getPath(info).toPortableString();
+	}
+	
+	public static String getHandleIdentifier(IMethodInfo info) {
+		return "MethodInfo:" + info.getName();// + "," +  getPath(info).toPortableString();
+	}
+	
+	public static String getHandleIdentifier(IFieldInfo info) {
+		return "FieldInfo:" + info.getName();// + "," +  getPath(info).toPortableString();
 	}
 
 	public static String getPackageName(ITypeInfo info) {
 		return getTypeContainerName(info);
 	}
 	
-	public static IResource getResource(ITypeInfo info) {
+	public static IResource getResource(IMemberInfo info) {
 		try {
 			IPath path = getPath(info);
 			return ResourcesPlugin.getWorkspace().getRoot().findMember(path);
@@ -205,11 +282,16 @@ public class SearchUtils {
 		return null;
 	}
 
+	public static boolean isDefaultPackage(String name)
+	{
+		return name.equals(Messages.X10ElementLabels_default_package);
+	}
+	
 	public static String getTypeContainerName(ITypeInfo info) {
 		try {
 			return info.getName().substring(0, info.getName().lastIndexOf("."));
 		} catch (Exception e) {
-			return "default";
+			return Messages.X10ElementLabels_default_package;
 		}
 	}
 
@@ -226,7 +308,9 @@ public class SearchUtils {
 		try {
 			String[] tokens = handle.split(",");
 			IResource res = getResource(new URI(tokens[1]));
-			return X10SearchEngine.getTypeInfo(res.getProject(), tokens[0], new NullProgressMonitor());
+			final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, res);
+			final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, tokens[0], new NullProgressMonitor());
+			return (typeInfo.length != 1) ? null : typeInfo[0];
 		} catch (Exception e) {
 			return null;
 		}
@@ -241,12 +325,65 @@ public class SearchUtils {
 		return (modifiers & flag.getCode()) != 0;
 	}
 	
-	public static void openEditor(ITypeInfo ti) throws CoreException
+	private static ITypeInfo getOuterTypeInfo(IMemberInfo member)
 	{
-		IResource res = SearchUtils.getResource(ti);
+		ITypeInfo dt = member.getDeclaringType();
+		if(dt == null)
+		{
+			if(member instanceof ITypeInfo)
+			{
+				dt = (ITypeInfo)member;
+			}
+		}
+		
+		return dt;
+	}
+	
+	/**
+     * Tests if a given input element is currently shown in an editor
+     * 
+     * @return the IEditorPart if shown, null if element is not open in an editor
+     */
+	public static IEditorPart isOpenInEditor(Object inputElement) {
+		if (inputElement instanceof IMemberInfo) {
+			IMemberInfo mi = (IMemberInfo)inputElement;
+			ITypeInfo dt = getOuterTypeInfo((IMemberInfo)inputElement);
+			IResource res = SearchUtils.getResource(dt);
+			if(res != null)
+			{
+				EditorUtility.isOpenInEditor(inputElement);
+			}
+			
+			else
+			{
+				URI uri = mi.getLocation().getURI();
+				String scheme = uri.getSchemeSpecificPart();
+				if(uri.getScheme().equals("jar"))
+				{
+//					scheme = scheme.substring(0, scheme.lastIndexOf(":"));
+					scheme = scheme.replace("file:", "");
+				}
+				
+				IPath path = new Path(scheme);
+				return EditorUtility.isOpenInEditor(path);
+			}
+		}
+
+		return EditorUtility.isOpenInEditor(inputElement);
+	}
+	
+	public static void openEditor(IEditorPart part, IMemberInfo ti)
+	{
+		EditorUtility.revealInEditor(part, new Region(ti.getLocation().getOffset(), 0));
+	}
+	
+	public static void openEditor(IMemberInfo ti) throws CoreException
+	{
+		ITypeInfo dt = getOuterTypeInfo(ti);
+		IResource res = SearchUtils.getResource(dt);
 		if(res != null)
 		{
-			IEditorPart part= EditorUtility.openInEditor(res, true);
+			IEditorPart part= EditorUtility.openInEditor(res);
 			EditorUtility.revealInEditor(part, new Region(ti.getLocation().getOffset(), 0));
 		}
 		
@@ -262,18 +399,23 @@ public class SearchUtils {
 			
 			IPath path = new Path(scheme);
 			IEditorPart part= EditorUtility.openInEditor(path);
-			EditorUtility.revealInEditor(part, new Region(ti.getLocation().getOffset(), ti.getLocation().getLength()));
+			EditorUtility.revealInEditor(part, new Region(ti.getLocation().getOffset(), 0));
 		}
 	}
 	
 	public static ITypeInfo getType(IProject project, String type)
 	{
 		try {
+		  final IX10SearchScope scope;
 			if(project == null)
 			{
-				return X10SearchEngine.getX10RuntimeTypeInfo(type, new NullProgressMonitor());
+				scope = SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL);
+			} else
+			{
+			  scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
 			}
-			return X10SearchEngine.getTypeInfo(project, type, new NullProgressMonitor());
+			final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, type, new NullProgressMonitor());
+			return (typeInfo.length != 1) ? null : typeInfo[0];
 		} catch (Exception e) {
 			UISearchPlugin.log(e);
 		}
@@ -281,30 +423,49 @@ public class SearchUtils {
 		return null;
 	}
 	
-	public static int getJavaFlags(int flags)
+	public static IMethodInfo[] getMethods(ITypeInfo type)
 	{
-		int javaFlags = 0;
-		
-		if(SearchUtils.hasFlag(X10.INTERFACE, flags))
-		{
-			javaFlags |= Flags.AccInterface;
+		try {
+			IResource res = getResource(type);
+			IX10SearchScope scope = null;
+			if (res == null) {
+				scope = SearchScopeFactory
+						.createWorkspaceScope(X10SearchScope.ALL);
+			}
+
+			else {
+				scope = SearchScopeFactory.createSelectiveScope(
+						X10SearchScope.ALL, res);
+			}
+
+			return X10SearchEngine.getAllMatchingMethodInfo(scope,
+					type.getName(), getTypeRegex(""), false,
+					new NullProgressMonitor());
+		} catch (Exception e) {
+			return new IMethodInfo[0];
 		}
-		
-		if(SearchUtils.hasFlag(X10.PUBLIC, flags))
-		{
-			javaFlags |= Flags.AccPublic;
+	}
+	
+	public static IFieldInfo[] getFields(ITypeInfo type)
+	{
+		try {
+			IResource res = getResource(type);
+			IX10SearchScope scope = null;
+			if (res == null) {
+				scope = SearchScopeFactory
+						.createWorkspaceScope(X10SearchScope.ALL);
+			}
+
+			else {
+				scope = SearchScopeFactory.createSelectiveScope(
+						X10SearchScope.ALL, res);
+			}
+
+			return X10SearchEngine.getAllMatchingFieldInfo(scope,
+					type.getName(), getTypeRegex(""), false,
+					new NullProgressMonitor());
+		} catch (Exception e) {
+			return new IFieldInfo[0];
 		}
-		
-		if(SearchUtils.hasFlag(X10.PROTECTED, flags))
-		{
-			javaFlags |= Flags.AccProtected;
-		}
-		
-		if(SearchUtils.hasFlag(X10.PRIVATE, flags))
-		{
-			javaFlags |= Flags.AccPrivate;
-		}
-		
-		return javaFlags;
 	}
 }

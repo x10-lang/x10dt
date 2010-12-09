@@ -17,6 +17,7 @@ import org.eclipse.imp.editor.StringMatcher;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
 /**
@@ -40,13 +41,13 @@ public class TypeFilter implements IPropertyChangeListener {
 		return getDefault().filter(ModelUtil.concatenateName(packageName, typeName));
 	}
 
-//	public static boolean isFiltered(IType type) {
-//		TypeFilter typeFilter = getDefault();
-//		if (typeFilter.hasFilters()) {
-//			return typeFilter.filter(type.getFullyQualifiedName('.'));
-//		}
-//		return false;
-//	}
+	public static boolean isFiltered(ITypeInfo type) {
+		TypeFilter typeFilter = getDefault();
+		if (typeFilter.hasFilters()) {
+			return typeFilter.filter(type.getName());
+		}
+		return false;
+	}
 
 	public static boolean isFiltered(TypeNameMatch match) {
 		return getDefault().filter(match.getFullyQualifiedName());

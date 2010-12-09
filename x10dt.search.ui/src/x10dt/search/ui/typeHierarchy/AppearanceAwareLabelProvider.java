@@ -11,8 +11,6 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
-import org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider;
-import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -30,20 +28,20 @@ import x10dt.search.ui.UISearchPlugin;
  */
 public class AppearanceAwareLabelProvider extends X10LabelProvider implements IPropertyChangeListener, IPropertyListener {
 
-	public final static long DEFAULT_TEXTFLAGS= JavaElementLabels.ROOT_VARIABLE | JavaElementLabels.T_TYPE_PARAMETERS | JavaElementLabels.M_PARAMETER_TYPES |
-		JavaElementLabels.M_APP_TYPE_PARAMETERS | JavaElementLabels.M_APP_RETURNTYPE  | JavaElementLabels.REFERENCED_ROOT_POST_QUALIFIED;
-	public final static int DEFAULT_IMAGEFLAGS= JavaElementImageProvider.OVERLAY_ICONS;
+	public final static long DEFAULT_TEXTFLAGS= X10ElementLabels.ROOT_VARIABLE | X10ElementLabels.T_TYPE_PARAMETERS | X10ElementLabels.M_PARAMETER_TYPES |
+		X10ElementLabels.M_APP_TYPE_PARAMETERS | X10ElementLabels.M_APP_RETURNTYPE  | X10ElementLabels.REFERENCED_ROOT_POST_QUALIFIED;
+	public final static int DEFAULT_IMAGEFLAGS= X10ElementImageProvider.OVERLAY_ICONS;
 	
 	private long fTextFlagMask;
 	private int fImageFlagMask;
 
 	/**
 	 * Constructor for AppearanceAwareLabelProvider.
-	 * @param textFlags Flags defined in <code>JavaElementLabels</code>.
+	 * @param textFlags Flags defined in <code>X10ElementLabels</code>.
 	 * @param imageFlags Flags defined in <code>JavaElementImageProvider</code>.
 	 */
 	public AppearanceAwareLabelProvider(long textFlags, int imageFlags) {
-		super();
+		super(textFlags, imageFlags);
 		initMasks();
 		UISearchPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(this);
 		PlatformUI.getWorkbench().getEditorRegistry().addPropertyListener(this);
@@ -60,16 +58,16 @@ public class AppearanceAwareLabelProvider extends X10LabelProvider implements IP
 		IPreferenceStore store= UISearchPlugin.getDefault().getPreferenceStore();
 		fTextFlagMask= -1;
 		if (!store.getBoolean(X10Constants.APPEARANCE_METHOD_RETURNTYPE)) {
-			fTextFlagMask ^= JavaElementLabels.M_APP_RETURNTYPE;
+			fTextFlagMask ^= X10ElementLabels.M_APP_RETURNTYPE;
 		}
 		if (!store.getBoolean(X10Constants.APPEARANCE_METHOD_TYPEPARAMETERS)) {
-			fTextFlagMask ^= JavaElementLabels.M_APP_TYPE_PARAMETERS;
+			fTextFlagMask ^= X10ElementLabels.M_APP_TYPE_PARAMETERS;
 		}
 		if (!store.getBoolean(X10Constants.APPEARANCE_COMPRESS_PACKAGE_NAMES)) {
-			fTextFlagMask ^= JavaElementLabels.P_COMPRESSED;
+			fTextFlagMask ^= X10ElementLabels.P_COMPRESSED;
 		}
 		if (!store.getBoolean(X10Constants.APPEARANCE_CATEGORY)) {
-			fTextFlagMask ^= JavaElementLabels.ALL_CATEGORY;
+			fTextFlagMask ^= X10ElementLabels.ALL_CATEGORY;
 		}
 
 		fImageFlagMask= -1;

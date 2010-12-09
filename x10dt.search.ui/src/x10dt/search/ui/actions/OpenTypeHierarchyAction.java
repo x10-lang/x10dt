@@ -25,7 +25,8 @@ import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchSite;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.typeHierarchy.ActionMessages;
 import x10dt.search.ui.typeHierarchy.OpenTypeHierarchyUtil;
@@ -103,7 +104,6 @@ public class OpenTypeHierarchyAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction.
 	 */
 	public void selectionChanged(ITextSelection selection) {
-		String umm = "";
 	}
 
 	/* (non-Javadoc)
@@ -118,7 +118,7 @@ public class OpenTypeHierarchyAction extends SelectionDispatchAction {
 			return false;
 		Object input= selection.getFirstElement();
 
-		return input instanceof ITypeInfo;
+		return input instanceof IMemberInfo;
 
 //		if (input instanceof LogicalPackage)
 //			return true;
@@ -159,7 +159,7 @@ public class OpenTypeHierarchyAction extends SelectionDispatchAction {
 				return;
 			List candidates= new ArrayList(elements.length);
 			for (int i= 0; i < elements.length; i++) {
-				ITypeInfo[] resolvedElements= OpenTypeHierarchyUtil.getCandidates(elements[i]);
+				IMemberInfo[] resolvedElements= OpenTypeHierarchyUtil.getCandidates(elements[i]);
 				if (resolvedElements != null)
 					candidates.addAll(Arrays.asList(resolvedElements));
 			}
@@ -214,7 +214,7 @@ public class OpenTypeHierarchyAction extends SelectionDispatchAction {
 			getShell().getDisplay().beep();
 			return;
 		}
-		OpenTypeHierarchyUtil.open(fEditor, elements, getSite().getWorkbenchWindow());
+		OpenTypeHierarchyUtil.open(elements, getSite().getWorkbenchWindow());
 	}
 
 	private static String getDialogTitle() {

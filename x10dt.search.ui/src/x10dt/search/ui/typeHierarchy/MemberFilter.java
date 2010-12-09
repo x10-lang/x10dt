@@ -14,6 +14,11 @@ package x10dt.search.ui.typeHierarchy;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 
+import x10dt.search.core.elements.IFieldInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.core.pdb.X10FlagsEncoder.X10;
+
 
 
 /**
@@ -58,55 +63,53 @@ public class MemberFilter extends ViewerFilter {
 	 */
 	public boolean select(Viewer viewer, Object parentElement, Object element) {
 		try {
-//			if (element instanceof IMember) {
-//				IMember member= (IMember) element;
-//				int memberType= member.getElementType();
-//
-//				if (hasFilter(FILTER_FIELDS) && memberType == ISourceEntity.FIELD) {
-//					return false;
-//				}
-//
-//				if (hasFilter(FILTER_LOCALTYPES) && memberType == ISourceEntity.TYPE && isLocalType((IType) member)) {
-//					return false;
-//				}
-//
-//				if (member.getElementName().startsWith("<")) { // filter out <clinit> //$NON-NLS-1$
-//					return false;
-//				}
-//				int flags= member.getFlags();
-//				if (hasFilter(FILTER_STATIC) && (Flags.isStatic(flags) || isFieldInInterfaceOrAnnotation(member)) && memberType != ISourceEntity.TYPE) {
-//					return false;
-//				}
-//				if (hasFilter(FILTER_NONPUBLIC) && !Flags.isPublic(flags) && !isMemberInInterfaceOrAnnotation(member) && !isTopLevelType(member) && !isEnumConstant(member)) {
-//					return false;
-//				}
-//			}
+			if (element instanceof IMemberInfo) {
+				IMemberInfo member= (IMemberInfo) element;
+				
+				if (hasFilter(FILTER_FIELDS) && (member instanceof IFieldInfo)) {
+					return false;
+				}
+
+				if (hasFilter(FILTER_LOCALTYPES) && isLocalType(member)) {
+					return false;
+				}
+
+				if (member.getName().startsWith("<")) { // filter out <clinit> //$NON-NLS-1$
+					return false;
+				}
+				int flags= member.getX10FlagsCode();
+				if (hasFilter(FILTER_STATIC) && (SearchUtils.hasFlag(X10.STATIC, flags) || isFieldInInterface(member)) && !(member instanceof ITypeInfo)) {
+					return false;
+				}
+				if (hasFilter(FILTER_NONPUBLIC) && !SearchUtils.hasFlag(X10.PUBLIC, flags) && !isMemberInInterface(member) && !isTopLevelType(member) /*&& !isEnumConstant(member)*/) {
+					return false;
+				}
+			}
 		} catch (Exception e) {
 			// ignore
 		}
 		return true;
 	}
 
-//	private boolean isLocalType(IType type) {
-//		ISourceEntity parent= type.getParent();
-//		return parent instanceof IMember && !(parent instanceof IType);
-//	}
-//
-//	private boolean isMemberInInterfaceOrAnnotation(IMember member) throws Exception {
-//		IType parent= member.getDeclaringType();
-//		return parent != null && JavaModelUtil.isInterfaceOrAnnotation(parent);
-//	}
-//
-//	private boolean isFieldInInterfaceOrAnnotation(IMember member) throws Exception {
-//		return (member.getElementType() == ISourceEntity.FIELD) && JavaModelUtil.isInterfaceOrAnnotation(member.getDeclaringType());
-//	}
-//
-//	private boolean isTopLevelType(IMember member) {
-//		IType parent= member.getDeclaringType();
-//		return parent == null;
-//	}
-//
-//	private boolean isEnumConstant(IMember member) throws Exception {
-//		return (member.getElementType() == ISourceEntity.FIELD) && ((IField)member).isEnumConstant();
+	private boolean isLocalType(IMemberInfo member) {
+		return member.getDeclaringType() != null;
+	}
+
+	private boolean isMemberInInterface(IMemberInfo member) throws Exception {
+		ITypeInfo parent= member.getDeclaringType();
+		return parent != null && ModelUtil.isInterface(parent);
+	}
+
+	private boolean isFieldInInterface(IMemberInfo member) throws Exception {
+		return (member instanceof IFieldInfo) && ModelUtil.isInterface(member.getDeclaringType());
+	}
+
+	private boolean isTopLevelType(IMemberInfo member) {
+		ITypeInfo parent= member.getDeclaringType();
+		return parent == null;
+	}
+
+//	private boolean isEnumConstant(IMemberInfo member) throws Exception {
+//		return (member instanceof IFieldInfo) && ((IFieldInfo)member).isEnumConstant();
 //	}
 }

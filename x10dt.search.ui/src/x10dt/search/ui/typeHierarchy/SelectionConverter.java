@@ -15,17 +15,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
-import org.eclipse.imp.services.IReferenceResolver;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -41,9 +36,8 @@ import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
-import polyglot.types.Def;
-import x10dt.search.core.engine.ITypeInfo;
-import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
 
@@ -392,7 +386,7 @@ public class SelectionConverter {
 	 * @param message the message of the selection dialog
 	 * @return returns the selected element or <code>null</code> if the dialog has been cancelled
 	 */
-	public static ITypeInfo selectJavaElement(ITypeInfo[] elements, Shell shell, String title, String message) {
+	public static IMemberInfo selectJavaElement(IMemberInfo[] elements, Shell shell, String title, String message) {
 		int nResults= elements.length;
 		if (nResults == 0)
 			return null;

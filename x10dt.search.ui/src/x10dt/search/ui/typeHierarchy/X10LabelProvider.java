@@ -28,21 +28,20 @@ import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
-import org.eclipse.jdt.internal.ui.viewsupport.JavaElementImageProvider;
-import org.eclipse.jdt.ui.JavaElementLabels;
+import org.eclipse.jdt.internal.ui.viewsupport.StorageLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.SafeRunnable;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 
-import x10dt.search.core.engine.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
 /**
@@ -54,23 +53,25 @@ import x10dt.search.ui.UISearchPlugin;
  * bookkeeping.
  * @author Beth Tibbitts
  */
-public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyledLabelProvider {
+public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyledLabelProvider, IColorProvider {
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
     
     private ArrayList fLabelDecorators;
-    protected JavaElementImageProvider fImageLabelProvider;
+    protected X10ElementImageProvider fImageLabelProvider;
+    protected StorageLabelProvider fStorageLabelProvider;
     
     private int fImageFlags;
 	private long fTextFlags;
 	
     public X10LabelProvider()
     {
-    	this(JavaElementLabels.ALL_DEFAULT, JavaElementImageProvider.OVERLAY_ICONS);
+    	this(X10ElementLabels.ALL_DEFAULT, X10ElementImageProvider.OVERLAY_ICONS);
     }
     
     public X10LabelProvider(long textFlags, int imageFlags)
     {
-    	fImageLabelProvider= new JavaElementImageProvider();
+    	fImageLabelProvider= new X10ElementImageProvider();
+    	fStorageLabelProvider= new StorageLabelProvider();
     	fImageFlags= imageFlags;
 		fTextFlags= textFlags;
     }
@@ -80,39 +81,39 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
 
     //================== PORT1.7 Images moved here from Outliner
     
-    public static Image _DESC_ELCL_VIEW_MENU = JavaPluginImages.DESC_ELCL_VIEW_MENU.createImage();
+    public static Image _DESC_ELCL_VIEW_MENU = X10PluginImages.DESC_ELCL_VIEW_MENU.createImage();
 
     /** Images for the default, private, protected, and public versions of fields */
-    public static Image _DESC_FIELD_DEFAULT = JavaPluginImages.DESC_FIELD_DEFAULT.createImage();
-    public static Image _DESC_FIELD_PRIVATE = JavaPluginImages.DESC_FIELD_PRIVATE.createImage();
-    public static Image _DESC_FIELD_PROTECTED = JavaPluginImages.DESC_FIELD_PROTECTED.createImage();
-    public static Image _DESC_FIELD_PUBLIC = JavaPluginImages.DESC_FIELD_PUBLIC.createImage();
+    public static Image _DESC_FIELD_DEFAULT = X10PluginImages.DESC_FIELD_DEFAULT.createImage();
+    public static Image _DESC_FIELD_PRIVATE = X10PluginImages.DESC_FIELD_PRIVATE.createImage();
+    public static Image _DESC_FIELD_PROTECTED = X10PluginImages.DESC_FIELD_PROTECTED.createImage();
+    public static Image _DESC_FIELD_PUBLIC = X10PluginImages.DESC_FIELD_PUBLIC.createImage();
 
     /** Images for the default, private, protected, and public versions of miscellaneous objects */
-    public static Image _DESC_MISC_DEFAULT = JavaPluginImages.DESC_MISC_DEFAULT.createImage();
-    public static Image _DESC_MISC_PRIVATE = JavaPluginImages.DESC_MISC_PRIVATE.createImage();
-    public static Image _DESC_MISC_PROTECTED = JavaPluginImages.DESC_MISC_PROTECTED.createImage();
-    public static Image _DESC_MISC_PUBLIC = JavaPluginImages.DESC_MISC_PUBLIC.createImage();
+    public static Image _DESC_MISC_DEFAULT = X10PluginImages.DESC_MISC_DEFAULT.createImage();
+    public static Image _DESC_MISC_PRIVATE = X10PluginImages.DESC_MISC_PRIVATE.createImage();
+    public static Image _DESC_MISC_PROTECTED = X10PluginImages.DESC_MISC_PROTECTED.createImage();
+    public static Image _DESC_MISC_PUBLIC = X10PluginImages.DESC_MISC_PUBLIC.createImage();
 
-    public static Image _DESC_OBJS_CFILECLASS = JavaPluginImages.DESC_OBJS_CFILECLASS.createImage();
-    public static Image _DESC_OBJS_CFILEINT = JavaPluginImages.DESC_OBJS_CFILEINT.createImage();
+    public static Image _DESC_OBJS_CFILECLASS = X10PluginImages.DESC_OBJS_CFILECLASS.createImage();
+    public static Image _DESC_OBJS_CFILEINT = X10PluginImages.DESC_OBJS_CFILEINT.createImage();
 
     /** Images for the default, private, protected, and public versions of objects */
-    public static Image _DESC_OBJS_INNER_CLASS_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_DEFAULT = X10PluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_PRIVATE = X10PluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_PROTECTED = X10PluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_PUBLIC = X10PluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage();
 
 
     /** Images for the default, private, protected, and public versions of Interfaces */
-    public static Image _DESC_OBJS_INNER_INTERFACE_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_DEFAULT = X10PluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_PRIVATE = X10PluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_PROTECTED = X10PluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_PUBLIC = X10PluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage();
 
 
 
-    public static Image _DESC_OBJS_PACKDECL = JavaPluginImages.DESC_OBJS_PACKDECL.createImage();
+    public static Image _DESC_OBJS_PACKDECL = X10PluginImages.DESC_OBJS_PACKDECL.createImage();
     
     
     public static Image[] FIELD_DESCS= {
@@ -128,7 +129,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     	X10LabelProvider._DESC_OBJS_INNER_INTERFACE_DEFAULT, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PRIVATE, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PROTECTED, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PUBLIC
         };
     
-    public static final ImageDescriptor DESC_OVR_FOCUS= JavaPluginImages.DESC_OVR_FOCUS;
+    public static final ImageDescriptor DESC_OVR_FOCUS= X10PluginImages.DESC_OVR_FOCUS;
 	
     
     //===================
@@ -186,7 +187,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
             return getErrorTicksFromMarkers(res);
         }
 
-        Image result= fImageLabelProvider.getImageLabel(o, 0);
+        Image result= fImageLabelProvider.getImageLabel(o, fImageFlags);
         return decorateImage(result, o);
     }
 
@@ -238,14 +239,6 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
         }
     }
 
-    public String getText(Object element) {
-		if (element instanceof ITypeInfo) {
-			return SearchUtils.getElementName((ITypeInfo) element);
-		}
-    	
-        return "???";
-    }
-
     private String filter(String name) {
         return name.replaceAll("\n", "").replaceAll("\\{amb\\}", "");
     }
@@ -277,29 +270,26 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
         fListeners.remove(listener);
     }
 
-	public StyledString getStyledText(Object element) {
-		return new StyledString(getText(element));
-	}
 	
-//	public String getText(Object element) {
-//		String result= JavaElementLabels.getTextLabel(element, evaluateTextFlags(element));
-//		if (result.length() == 0 && (element instanceof IStorage)) {
-//			result= fStorageLabelProvider.getText(element);
-//		}
-//		return decorateText(result, element);
-//	}
+	public String getText(Object element) {
+		String result= X10ElementLabels.getTextLabel(element, fTextFlags);
+		if (result.length() == 0 && (element instanceof IStorage)) {
+			result= fStorageLabelProvider.getText(element);
+		}
+		return decorateText(result, element);
+	}
 
-//	public StyledString getStyledText(Object element) {
-//		StyledString string= JavaElementLabels.getStyledTextLabel(element, (evaluateTextFlags(element) | JavaElementLabels.COLORIZE));
-//		if (string.length() == 0 && (element instanceof IStorage)) {
-//			string= new StyledString(fStorageLabelProvider.getText(element));
-//		}
-//		String decorated= decorateText(string.getString(), element);
-//		if (decorated != null) {
-//			return StyledCellLabelProvider.styleDecoratedString(decorated, StyledString.DECORATIONS_STYLER, string);
-//		}
-//		return string;
-//	}
+	public StyledString getStyledText(Object element) {
+		StyledString string= X10ElementLabels.getStyledTextLabel(element, (fTextFlags | X10ElementLabels.COLORIZE));
+		if (string.length() == 0 && (element instanceof IStorage)) {
+			string= new StyledString(fStorageLabelProvider.getText(element));
+		}
+		String decorated= decorateText(string.getString(), element);
+		if (decorated != null) {
+			return StyledCellLabelProvider.styleDecoratedString(decorated, StyledString.DECORATIONS_STYLER, string);
+		}
+		return string;
+	}
 	
 	protected Image decorateImage(Image image, Object element) {
 		if (fLabelDecorators != null && image != null) {
@@ -374,4 +364,18 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
             });
         }
     }
+    
+    /* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
+	 */
+	public Color getForeground(Object element) {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
+	 */
+	public Color getBackground(Object element) {
+		return null;
+	}
 }

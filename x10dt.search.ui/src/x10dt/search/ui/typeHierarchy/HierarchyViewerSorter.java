@@ -11,8 +11,8 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
-import x10dt.search.core.engine.ITypeInfo;
 
 
 /**

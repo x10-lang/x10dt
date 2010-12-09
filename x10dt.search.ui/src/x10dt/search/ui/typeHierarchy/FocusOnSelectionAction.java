@@ -17,7 +17,7 @@ import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
 
 /**

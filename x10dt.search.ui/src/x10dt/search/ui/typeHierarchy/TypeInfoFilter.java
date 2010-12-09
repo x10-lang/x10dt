@@ -11,17 +11,16 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
-import org.eclipse.imp.editor.StringMatcher;
 import org.eclipse.ui.dialogs.SearchPattern;
 
-import static x10dt.search.core.pdb.X10FactTypeNames.APPLICATION;
+import x10dt.search.core.engine.scope.IX10SearchScope;
 
 
 public class TypeInfoFilter {
 
 	private final String fText;
-	private final String fSearchScope;
-	private final boolean fIsWorkspaceScope;
+	private final IX10SearchScope fSearchScope;
+	//private final boolean fIsWorkspaceScope;
 	private final int fElementKind;
 	private final ITypeInfoFilterExtension fFilterExtension;
 	private final TypeInfoRequestorAdapter fAdapter= new TypeInfoRequestorAdapter();
@@ -31,10 +30,10 @@ public class TypeInfoFilter {
 
 	//private static final int TYPE_MODIFIERS= Flags.AccEnum | Flags.AccAnnotation | Flags.AccInterface;
 
-	public TypeInfoFilter(String text, String scope, int elementKind, ITypeInfoFilterExtension extension) {
+	public TypeInfoFilter(String text, IX10SearchScope scope, int elementKind, ITypeInfoFilterExtension extension) {
 		fText= text;
 		fSearchScope= scope;
-		fIsWorkspaceScope= fSearchScope.equals(APPLICATION);
+		//fIsWorkspaceScope= fSearchScope.equals(APPLICATION);
 		fElementKind= elementKind;
 		fFilterExtension= extension;
 
@@ -130,7 +129,7 @@ public class TypeInfoFilter {
 		return fElementKind;
 	}
 
-	public String getSearchScope() {
+	public IX10SearchScope getSearchScope() {
 		return fSearchScope;
 	}
 

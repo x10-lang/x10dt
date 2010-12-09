@@ -17,7 +17,6 @@ import java.text.MessageFormat;
 import org.eclipse.imp.editor.ProblemsLabelDecorator;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ICompilationUnit;
-import org.eclipse.jdt.ui.JavaElementLabels;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -33,7 +32,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.keys.KeySequence;
 import org.eclipse.ui.keys.SWTKeySupport;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.actions.EditorActionDefinitionIds;
 import x10dt.search.ui.typeHierarchy.SuperTypeHierarchyViewer.SuperTypeHierarchyContentProvider;
@@ -119,7 +118,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 			}
 		});
 
-		fLifeCycle= new TypeHierarchyLifeCycle(editor, false);
+		fLifeCycle= new TypeHierarchyLifeCycle(false);
 
 		treeViewer.setComparator(new HierarchyViewerSorter(fLifeCycle));
 		treeViewer.setAutoExpandLevel(AbstractTreeViewer.ALL_LEVELS);
@@ -131,7 +130,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 			}
 		});
 
-		fLabelProvider.setTextFlags(JavaElementLabels.ALL_DEFAULT | JavaElementLabels.T_POST_QUALIFIED);
+		fLabelProvider.setTextFlags(X10ElementLabels.ALL_DEFAULT | X10ElementLabels.T_POST_QUALIFIED);
 		fLabelProvider.addLabelDecorator(new ProblemsLabelDecorator(editor.getLanguage()));
 		treeViewer.setLabelProvider(new ColoringLabelProvider(fLabelProvider));
 
@@ -340,11 +339,11 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 
 	private String getHeaderLabel(ITypeInfo input) {
 //		if (input instanceof IMethod) {
-//			String[] args= { JavaElementLabels.getElementLabel(input.getParent(), JavaElementLabels.ALL_DEFAULT), JavaElementLabels.getElementLabel(input, JavaElementLabels.ALL_DEFAULT) };
+//			String[] args= { X10ElementLabels.getElementLabel(input.getParent(), X10ElementLabels.ALL_DEFAULT), X10ElementLabels.getElementLabel(input, X10ElementLabels.ALL_DEFAULT) };
 //			return Messages.format(TypeHierarchyMessages.HierarchyInformationControl_methodhierarchy_label, args);
 //		} else 
 		if (input != null) {
-//			String arg= JavaElementLabels.getElementLabel(IJavaElement.TYPE, JavaElementLabels.DEFAULT_QUALIFIED);
+//			String arg= X10ElementLabels.getElementLabel(IJavaElement.TYPE, X10ElementLabels.DEFAULT_QUALIFIED);
 			String arg= SearchUtils.getElementName(input);
 			return MessageFormat.format(TypeHierarchyMessages.HierarchyInformationControl_hierarchy_label, arg);
 		} else {

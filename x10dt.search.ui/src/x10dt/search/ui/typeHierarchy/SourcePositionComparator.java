@@ -14,6 +14,9 @@ package x10dt.search.ui.typeHierarchy;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
+
 /**
  *  Viewer sorter which sorts the Java elements like
  *  they appear in the source.
@@ -31,20 +34,20 @@ public class SourcePositionComparator extends ViewerComparator {
 //			return 0;
 //		if (!(e2 instanceof ISourceReference))
 //			return 0;
-//
+
 //		IJavaElement parent1= ((IJavaElement)e1).getParent();
 //		if (parent1 == null || !parent1.equals(((IJavaElement)e2).getParent())) {
-//				IType t1= getOutermostDeclaringType(e1);
+//				ITypeInfo t1= getOutermostDeclaringType(e1);
 //				if (t1 == null)
 //					return 0;
 //
-//				IType t2= getOutermostDeclaringType(e2);
+//				ITypeInfo t2= getOutermostDeclaringType(e2);
 //				try {
 //					if (!t1.equals(t2)) {
 //						if (t2 == null)
 //							return 0;
 //
-//						if (Flags.isPublic(t1.getFlags()) && Flags.isPublic(t2.getFlags()))
+//						if (SearchUtils.hasFlag(X10.PUBLIC, t1.getX10FlagsCode()) && SearchUtils.hasFlag(X10.PUBLIC, t2.getX10FlagsCode()))
 //							return 0;
 //
 //						if (!t1.getPackageFragment().equals(t2.getPackageFragment()))
@@ -64,7 +67,7 @@ public class SourcePositionComparator extends ViewerComparator {
 //								return 0;
 //						}
 //					}
-//				} catch (JavaModelException e3) {
+//				} catch (ModelException e3) {
 //					return 0;
 //				}
 //		}
@@ -77,29 +80,29 @@ public class SourcePositionComparator extends ViewerComparator {
 //
 //			return sr1.getOffset() - sr2.getOffset();
 //
-//		} catch (JavaModelException e) {
+//		} catch (ModelException e) {
 //			return 0;
 //		}
 	}
-//
-//	private IType getOutermostDeclaringType(Object element) {
-//		if (!(element instanceof IMember))
-//			return null;
-//
-//		IType declaringType;
-//		if (element instanceof IType)
-//			declaringType= (IType)element;
-//		else {
-//			declaringType= ((IMember)element).getDeclaringType();
-//			if (declaringType == null)
-//				return null;
-//		}
-//
-//		IType declaringTypeDeclaringType= declaringType.getDeclaringType();
-//		while (declaringTypeDeclaringType != null) {
-//			declaringType= declaringTypeDeclaringType;
-//			declaringTypeDeclaringType= declaringType.getDeclaringType();
-//		}
-//		return declaringType;
-//	}
+
+	private ITypeInfo getOutermostDeclaringType(Object element) {
+		if (!(element instanceof IMemberInfo))
+			return null;
+
+		ITypeInfo declaringType;
+		if (element instanceof ITypeInfo)
+			declaringType= (ITypeInfo)element;
+		else {
+			declaringType= ((IMemberInfo)element).getDeclaringType();
+			if (declaringType == null)
+				return null;
+		}
+
+		ITypeInfo declaringTypeDeclaringType= declaringType.getDeclaringType();
+		while (declaringTypeDeclaringType != null) {
+			declaringType= declaringTypeDeclaringType;
+			declaringTypeDeclaringType= declaringType.getDeclaringType();
+		}
+		return declaringType;
+	}
 }

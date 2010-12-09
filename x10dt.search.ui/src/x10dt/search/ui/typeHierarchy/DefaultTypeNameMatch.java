@@ -11,7 +11,7 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
 /**
  * Java Search concrete class for a type name match.

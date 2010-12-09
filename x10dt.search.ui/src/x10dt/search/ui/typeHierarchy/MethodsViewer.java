@@ -14,13 +14,9 @@ package x10dt.search.ui.typeHierarchy;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.ScrollBar;
-import org.eclipse.swt.widgets.Table;
-
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;
@@ -28,10 +24,16 @@ import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
-
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchPartSite;
 
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
 
@@ -82,11 +84,11 @@ public class MethodsViewer extends ProblemTableViewer {
 		MethodsContentProvider cprovider= (MethodsContentProvider) getContentProvider();
 		cprovider.showInheritedMethods(on);
 		fShowInheritedMembersAction.setChecked(on);
-//		if (on) {
-//			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() | JavaElementLabels.ALL_POST_QUALIFIED);
-//		} else {
-//			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() & ~JavaElementLabels.ALL_POST_QUALIFIED);
-//		}
+		if (on) {
+			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() | X10ElementLabels.ALL_POST_QUALIFIED);
+		} else {
+			fLabelProvider.setTextFlags(fLabelProvider.getTextFlags() & ~X10ElementLabels.ALL_POST_QUALIFIED);
+		}
 		if (on) {
 			sortByDefiningTypeNoRedraw(false);
 		}
@@ -254,15 +256,15 @@ public class MethodsViewer extends ProblemTableViewer {
 				Object[] currElements= getFilteredChildren(getInput());
 				for (int i= 0; i < oldSelections.size(); i++) {
 					Object curr= oldSelections.get(i);
-//					if (curr instanceof IMethod && !newSelections.contains(curr)) {
-//						IMethod method= (IMethod) curr;
-//						if (method.exists()) {
-//							IMethod similar= findSimilarMethod(method, currElements);
-//							if (similar != null) {
-//								newSelectionElements.add(similar);
-//							}
-//						}
-//					}
+					if (curr instanceof IMethodInfo && !newSelections.contains(curr)) {
+						IMethodInfo method= (IMethodInfo) curr;
+						if (method.exists(new NullProgressMonitor())) {
+							IMethodInfo similar= findSimilarMethod(method, currElements);
+							if (similar != null) {
+								newSelectionElements.add(similar);
+							}
+						}
+					}
 				}
 				if (!newSelectionElements.isEmpty()) {
 					newSelection= new StructuredSelection(newSelectionElements);
@@ -277,17 +279,17 @@ public class MethodsViewer extends ProblemTableViewer {
 		updateSelection(newSelection);
 	}
 
-//	private IMethod findSimilarMethod(IMethod meth, Object[] elements) throws JavaModelException {
-//		String name= meth.getElementName();
-//		String[] paramTypes= meth.getParameterTypes();
-//		boolean isConstructor= meth.isConstructor();
-//
-//		for (int i= 0; i < elements.length; i++) {
-//			Object curr= elements[i];
-//			if (curr instanceof IMethod && JavaModelUtil.isSameMethodSignature(name, paramTypes, isConstructor, (IMethod) curr)) {
-//				return (IMethod) curr;
-//			}
-//		}
-//		return null;
-//	}
+	private IMethodInfo findSimilarMethod(IMethodInfo meth, Object[] elements) throws ModelException {
+		String name= meth.getName();
+		ITypeInfo[] paramTypes= meth.getParameters();
+		boolean isConstructor= meth.isConstructor();
+
+		for (int i= 0; i < elements.length; i++) {
+			Object curr= elements[i];
+			if (curr instanceof IMethodInfo && ModelUtil.isSameMethodSignature(name, paramTypes, isConstructor, (IMethodInfo) curr)) {
+				return (IMethodInfo) curr;
+			}
+		}
+		return null;
+	}
 }

@@ -21,7 +21,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.dialogs.OpenTypeSelectionDialog;
@@ -58,7 +58,7 @@ public class OpenTypeInHierarchyAction extends Action implements IWorkbenchWindo
 			IEditorPart part = fWindow.getActivePage().getActiveEditor();
 			if(part instanceof UniversalEditor)
 			{
-				OpenTypeHierarchyUtil.open((UniversalEditor)part, new ITypeInfo[] { type }, fWindow);
+				OpenTypeHierarchyUtil.open(new ITypeInfo[] { type }, fWindow);
 			}
 		}
 	}

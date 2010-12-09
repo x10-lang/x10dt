@@ -13,11 +13,11 @@ package x10dt.search.ui.typeHierarchy;
 
 import java.util.List;
 
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.swt.widgets.Composite;
 
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
-import x10dt.search.core.engine.ITypeInfo;
 
 
 /**
@@ -72,7 +72,7 @@ public class SuperTypeHierarchyViewer extends TypeHierarchyViewer {
 			}
 		}
 
-		protected ITypeInfo getParentType(ITypeInfo type) {
+		protected IMemberInfo getParentType(IMemberInfo type) {
 			// cant handle
 			return null;
 		}

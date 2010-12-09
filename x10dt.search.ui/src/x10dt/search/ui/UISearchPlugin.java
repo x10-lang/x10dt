@@ -5,11 +5,18 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.runtime.ImageDescriptorRegistry;
+import org.eclipse.jface.action.GroupMarker;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.search.ui.IContextMenuConstants;
+import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import x10dt.search.ui.typeHierarchy.TypeFilter;
+import x10dt.search.ui.typeHierarchy.X10Constants;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -28,6 +35,8 @@ public class UISearchPlugin extends AbstractUIPlugin {
 	public static ImageDescriptor OPENTYPE_DESC;
 
 	private TypeFilter fTypeFilter;
+	
+	private ImageDescriptorRegistry fImageDescriptorRegistry;
 
 	/**
 	 * The constructor
@@ -45,6 +54,7 @@ public class UISearchPlugin extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
+		X10Constants.initializeDefaultValues(getPreferenceStore());
 	}
 
 	/*
@@ -71,6 +81,14 @@ public class UISearchPlugin extends AbstractUIPlugin {
 	 */
 	public static UISearchPlugin getDefault() {
 		return plugin;
+	}
+	
+	public static void log(IStatus status) {
+		getDefault().getLog().log(status);
+	}
+	
+	public static void logErrorMessage(String message) {
+		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, message, null));
 	}
 
 	public static void log(Exception e) {
@@ -106,5 +124,37 @@ public class UISearchPlugin extends AbstractUIPlugin {
 			fTypeFilter = new TypeFilter();
 		return fTypeFilter;
 	}
+	
+	public static ImageDescriptorRegistry getImageDescriptorRegistry() {
+		return getDefault().internalGetImageDescriptorRegistry();
+	}
 
+	private synchronized ImageDescriptorRegistry internalGetImageDescriptorRegistry() {
+		if (fImageDescriptorRegistry == null)
+			fImageDescriptorRegistry= new ImageDescriptorRegistry();
+		return fImageDescriptorRegistry;
+	}
+	
+	/**
+	 * Creates the Java plug-in's standard groups for view context menus.
+	 *
+	 * @param menu the menu manager to be populated
+	 */
+	public static void createStandardGroups(IMenuManager menu) {
+		if (!menu.isEmpty())
+			return;
+
+		menu.add(new Separator(IContextMenuConstants.GROUP_NEW));
+		menu.add(new GroupMarker(IContextMenuConstants.GROUP_GOTO));
+		menu.add(new Separator(IContextMenuConstants.GROUP_OPEN));
+		menu.add(new GroupMarker(IContextMenuConstants.GROUP_SHOW));
+		menu.add(new Separator(ICommonMenuConstants.GROUP_EDIT));
+		menu.add(new Separator(IContextMenuConstants.GROUP_REORGANIZE));
+		menu.add(new Separator(IContextMenuConstants.GROUP_GENERATE));
+		menu.add(new Separator(IContextMenuConstants.GROUP_SEARCH));
+		menu.add(new Separator(IContextMenuConstants.GROUP_BUILD));
+		menu.add(new Separator(IContextMenuConstants.GROUP_ADDITIONS));
+		menu.add(new Separator(IContextMenuConstants.GROUP_VIEWER_SETUP));
+		menu.add(new Separator(IContextMenuConstants.GROUP_PROPERTIES));
+	}
 }

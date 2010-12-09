@@ -11,9 +11,14 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.internal.ui.preferences.MembersOrderPreferenceCache;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -21,7 +26,11 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.ui.model.IWorkbenchAdapter;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IFieldInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.ui.typeHierarchy.SearchUtils.Flags;
 
 
 
@@ -60,47 +69,59 @@ public class TypeComparator extends ViewerComparator {
 	private static final int JAVAELEMENTS= 50;
 	private static final int OTHERS= 51;
 
-//	private MembersOrderPreferenceCache fMemberOrderCache;
+	private MembersOrderPreferenceCache fMemberOrderCache;
 
 	/**
 	 * Constructor.
 	 */
 	public TypeComparator() {
 		super(null); // delay initialization of collator
-//		fMemberOrderCache= JavaPlugin.getDefault().getMemberOrderPreferenceCache();
+		fMemberOrderCache= JavaPlugin.getDefault().getMemberOrderPreferenceCache();
 	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ViewerComparator#category(java.lang.Object)
 	 */
 	public int category(Object element) {
-//		if (element instanceof IJavaElement) {
-//			try {
-//				IJavaElement je= (IJavaElement) element;
-//
+		if (element instanceof IMemberInfo) {
+				if(element instanceof IMethodInfo)
+				{
+					IMethodInfo method= (IMethodInfo) element;
+					if (method.isConstructor()) {
+						return getMemberCategory(MembersOrderPreferenceCache.CONSTRUCTORS_INDEX);
+					}
+					int flags= method.getX10FlagsCode();
+					if (Flags.isStatic(flags))
+						return getMemberCategory(MembersOrderPreferenceCache.STATIC_METHODS_INDEX);
+					else
+						return getMemberCategory(MembersOrderPreferenceCache.METHOD_INDEX);
+				}
+				
+				if(element instanceof IFieldInfo)
+				{
+					int flags= ((IFieldInfo) element).getX10FlagsCode();
+//					if (Flags.isEnum(flags)) {
+//						return getMemberCategory(MembersOrderPreferenceCache.ENUM_CONSTANTS_INDEX);
+//					}
+					if (Flags.isStatic(flags))
+						return getMemberCategory(MembersOrderPreferenceCache.STATIC_FIELDS_INDEX);
+					else
+						return getMemberCategory(MembersOrderPreferenceCache.FIELDS_INDEX);
+				}
+				
+				if(element instanceof ITypeInfo)
+				{
+					return getMemberCategory(MembersOrderPreferenceCache.TYPE_INDEX);
+				}
+				
 //				switch (je.getElementType()) {
 //					case IJavaElement.METHOD:
 //						{
-//							IMethod method= (IMethod) je;
-//							if (method.isConstructor()) {
-//								return getMemberCategory(MembersOrderPreferenceCache.CONSTRUCTORS_INDEX);
-//							}
-//							int flags= method.getFlags();
-//							if (Flags.isStatic(flags))
-//								return getMemberCategory(MembersOrderPreferenceCache.STATIC_METHODS_INDEX);
-//							else
-//								return getMemberCategory(MembersOrderPreferenceCache.METHOD_INDEX);
+//							
 //						}
 //					case IJavaElement.FIELD :
 //						{
-//							int flags= ((IField) je).getFlags();
-//							if (Flags.isEnum(flags)) {
-//								return getMemberCategory(MembersOrderPreferenceCache.ENUM_CONSTANTS_INDEX);
-//							}
-//							if (Flags.isStatic(flags))
-//								return getMemberCategory(MembersOrderPreferenceCache.STATIC_FIELDS_INDEX);
-//							else
-//								return getMemberCategory(MembersOrderPreferenceCache.FIELDS_INDEX);
+//							
 //						}
 //					case IJavaElement.INITIALIZER :
 //						{
@@ -111,7 +132,7 @@ public class TypeComparator extends ViewerComparator {
 //								return getMemberCategory(MembersOrderPreferenceCache.INIT_INDEX);
 //						}
 //					case IJavaElement.TYPE :
-//						return getMemberCategory(MembersOrderPreferenceCache.TYPE_INDEX);
+//						
 //					case IJavaElement.PACKAGE_DECLARATION :
 //						return PACKAGE_DECL;
 //					case IJavaElement.IMPORT_CONTAINER :
@@ -129,19 +150,17 @@ public class TypeComparator extends ViewerComparator {
 //					case IJavaElement.COMPILATION_UNIT :
 //						return COMPILATIONUNITS;
 //				}
-//
-//			} catch (JavaModelException e) {
-//				if (!e.isDoesNotExist())
-//					JavaPlugin.log(e);
-//			}
-//			return JAVAELEMENTS;
-//		} else if (element instanceof IFile) {
-//			return RESOURCES;
-//		} else if (element instanceof IProject) {
-//			return PROJECTS;
-//		} else if (element instanceof IContainer) {
-//			return RESOURCEFOLDERS;
-//		} else if (element instanceof IJarEntryResource) {
+
+			
+			return JAVAELEMENTS;
+		} else if (element instanceof IFile) {
+			return RESOURCES;
+		} else if (element instanceof IProject) {
+			return PROJECTS;
+		} else if (element instanceof IContainer) {
+			return RESOURCEFOLDERS;
+		} 
+//		else if (element instanceof IJarEntryResource) {
 //			if (((IJarEntryResource) element).isFile()) {
 //				return RESOURCES;
 //			}
@@ -152,10 +171,10 @@ public class TypeComparator extends ViewerComparator {
 		return OTHERS;
 	}
 
-//	private int getMemberCategory(int kind) {
-//		int offset= fMemberOrderCache.getCategoryIndex(kind);
-//		return offset + MEMBERSOFFSET;
-//	}
+	private int getMemberCategory(int kind) {
+		int offset= fMemberOrderCache.getCategoryIndex(kind);
+		return offset + MEMBERSOFFSET;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jface.viewers.ViewerComparator#compare(org.eclipse.jface.viewers.Viewer, java.lang.Object, java.lang.Object)
@@ -176,7 +195,7 @@ public class TypeComparator extends ViewerComparator {
 //			} else if (root2 == null) {
 //				return -1;
 //			}
-//			// check if not same to avoid expensive class path access
+			// check if not same to avoid expensive class path access
 //			if (!root1.getPath().equals(root2.getPath())) {
 //				int p1= getClassPathIndex(root1);
 //				int p2= getClassPathIndex(root2);
@@ -199,56 +218,55 @@ public class TypeComparator extends ViewerComparator {
 		}
 		// only java elements from this point
 
-//		if (e1 instanceof IMember) {
-//			if (fMemberOrderCache.isSortByVisibility()) {
-//				try {
-//					int flags1= JdtFlags.getVisibilityCode((IMember) e1);
-//					int flags2= JdtFlags.getVisibilityCode((IMember) e2);
-//					int vis= fMemberOrderCache.getVisibilityIndex(flags1) - fMemberOrderCache.getVisibilityIndex(flags2);
-//					if (vis != 0) {
-//						return vis;
-//					}
-//				} catch (JavaModelException ignore) {
-//				}
-//			}
-//		}
+		if (e1 instanceof IMemberInfo) {
+			if (fMemberOrderCache.isSortByVisibility()) {
+				int flags1= ((IMemberInfo) e1).getX10FlagsCode();
+				int flags2= ((IMemberInfo) e2).getX10FlagsCode();
+				int vis= fMemberOrderCache.getVisibilityIndex(flags1) - fMemberOrderCache.getVisibilityIndex(flags2);
+				if (vis != 0) {
+					return vis;
+				}
+			}
+		}
 
 		String name1= getElementName(e1);
 		String name2= getElementName(e2);
 
-		if (e1 instanceof ITypeInfo) { // handle anonymous types
-			if (name1.length() == 0) {
-				if (name2.length() == 0) {
+//		if (e1 instanceof ITypeInfo) { // handle anonymous types
+//			if (name1.length() == 0) {
+//				if (name2.length() == 0) {
 //					try {
-//						return getComparator().compare(((IType) e1).getSuperclassName(), ((IType) e2).getSuperclassName());
+//						ITypeHierarchy h1 = X10SearchEngine.createTypeHierarchy(null, ((ITypeInfo) e1).getName(), new NullProgressMonitor());
+//						ITypeHierarchy h2 = X10SearchEngine.createTypeHierarchy(null, ((ITypeInfo) e2).getName(), new NullProgressMonitor());
+//						return getComparator().compare(h1.getSuperClass(e1), h2.getSuperclass(e2));
 //					} catch (Exception e) {
 //						return 0;
 //					}
-				} else {
-					return 1;
-				}
-			} else if (name2.length() == 0) {
-				return -1;
-			}
-		}
+//				} else {
+//					return 1;
+//				}
+//			} else if (name2.length() == 0) {
+//				return -1;
+//			}
+//		}
 
 		int cmp= getComparator().compare(name1, name2);
 		if (cmp != 0) {
 			return cmp;
 		}
 
-//		if (e1 instanceof IMethod) {
-//			String[] params1= ((IMethod) e1).getParameterTypes();
-//			String[] params2= ((IMethod) e2).getParameterTypes();
-//			int len= Math.min(params1.length, params2.length);
-//			for (int i = 0; i < len; i++) {
-//				cmp= getComparator().compare(Signature.toString(params1[i]), Signature.toString(params2[i]));
-//				if (cmp != 0) {
-//					return cmp;
-//				}
-//			}
-//			return params1.length - params2.length;
-//		}
+		if (e1 instanceof IMethodInfo) {
+			ITypeInfo[] params1= ((IMethodInfo) e1).getParameters();
+			ITypeInfo[] params2= ((IMethodInfo) e2).getParameters();
+			int len= Math.min(params1.length, params2.length);
+			for (int i = 0; i < len; i++) {
+				cmp= getComparator().compare(params1[i].getName(), params2[i].getName());
+				if (cmp != 0) {
+					return cmp;
+				}
+			}
+			return params1.length - params2.length;
+		}
 		return 0;
 	}
 
@@ -297,13 +315,13 @@ public class TypeComparator extends ViewerComparator {
 //					return i;
 //				}
 //			}
-//		} catch (JavaModelException e) {
+//		} catch (ModelException e) {
 //		}
 //
 //		return Integer.MAX_VALUE;
 //	}
 
-//	private boolean needsClasspathComparision(Object e1, int cat1, Object e2, int cat2) {
+	private boolean needsClasspathComparision(Object e1, int cat1, Object e2, int cat2) {
 //		if ((cat1 == PACKAGEFRAGMENTROOTS && cat2 == PACKAGEFRAGMENTROOTS) ||
 //			(cat1 == PACKAGEFRAGMENT &&
 //				((IPackageFragment)e1).getParent().getResource() instanceof IProject &&
@@ -314,8 +332,8 @@ public class TypeComparator extends ViewerComparator {
 //			IJavaProject p1= getJavaProject(e1);
 //			return p1 != null && p1.equals(getJavaProject(e2));
 //		}
-//		return false;
-//	}
+		return false;
+	}
 //
 //	private IJavaProject getJavaProject(Object element) {
 //		if (element instanceof IJavaElement) {
@@ -327,9 +345,10 @@ public class TypeComparator extends ViewerComparator {
 //	}
 
 	private String getElementName(Object element) {
-//		if (element instanceof IJavaElement) {
-//			return ((IJavaElement)element).getElementName();
-//		} else if (element instanceof PackageFragmentRootContainer) {
+		if (element instanceof IMemberInfo) {
+			return ((IMemberInfo)element).getName();
+		} 
+//		else if (element instanceof PackageFragmentRootContainer) {
 //			return ((PackageFragmentRootContainer)element).getLabel();
 //		} else {
 			return element.toString();

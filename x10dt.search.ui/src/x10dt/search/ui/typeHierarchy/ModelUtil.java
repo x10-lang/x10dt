@@ -12,24 +12,13 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 
-import org.eclipse.core.runtime.Assert;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.SubProgressMonitor;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IStorage;
-
-import org.eclipse.text.edits.TextEdit;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.core.engine.ITypeHierarchy;
+import x10dt.search.core.pdb.X10FlagsEncoder.X10;
 
 /**
  * Utility methods for the Java Model.
@@ -294,36 +283,36 @@ public final class ModelUtil {
 //	}
 //
 //
-//	/**
-//	 * Tests if a method equals to the given signature.
-//	 * Parameter types are only compared by the simple name, no resolving for
-//	 * the fully qualified type name is done. Constructors are only compared by
-//	 * parameters, not the name.
-//	 * @param name Name of the method
-//	 * @param paramTypes The type signatures of the parameters e.g. <code>{"QString;","I"}</code>
-//	 * @param isConstructor Specifies if the method is a constructor
-//	 * @param curr the method
-//	 * @return Returns <code>true</code> if the method has the given name and parameter types and constructor state.
-//	 * @throws JavaModelException thrown when the method can not be accessed
-//	 */
-//	public static boolean isSameMethodSignature(String name, String[] paramTypes, boolean isConstructor, IMethod curr) throws JavaModelException {
-//		if (isConstructor || name.equals(curr.getElementName())) {
-//			if (isConstructor == curr.isConstructor()) {
-//				String[] currParamTypes= curr.getParameterTypes();
-//				if (paramTypes.length == currParamTypes.length) {
-//					for (int i= 0; i < paramTypes.length; i++) {
-//						String t1= Signature.getSimpleName(Signature.toString(paramTypes[i]));
-//						String t2= Signature.getSimpleName(Signature.toString(currParamTypes[i]));
-//						if (!t1.equals(t2)) {
-//							return false;
-//						}
-//					}
-//					return true;
-//				}
-//			}
-//		}
-//		return false;
-//	}
+	/**
+	 * Tests if a method equals to the given signature.
+	 * Parameter types are only compared by the simple name, no resolving for
+	 * the fully qualified type name is done. Constructors are only compared by
+	 * parameters, not the name.
+	 * @param name Name of the method
+	 * @param paramTypes The type signatures of the parameters e.g. <code>{"QString;","I"}</code>
+	 * @param isConstructor Specifies if the method is a constructor
+	 * @param curr the method
+	 * @return Returns <code>true</code> if the method has the given name and parameter types and constructor state.
+	 * @throws JavaModelException thrown when the method can not be accessed
+	 */
+	public static boolean isSameMethodSignature(String name, ITypeInfo[] paramTypes, boolean isConstructor, IMethodInfo curr) throws ModelException {
+		if (isConstructor || name.equals(curr.getName())) {
+			if (isConstructor == curr.isConstructor()) {
+				ITypeInfo[] currParamTypes= curr.getParameters();
+				if (paramTypes.length == currParamTypes.length) {
+					for (int i= 0; i < paramTypes.length; i++) {
+						String t1= paramTypes[i].getName();
+						String t2= currParamTypes[i].getName();
+						if (!t1.equals(t2)) {
+							return false;
+						}
+					}
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 //
 //	/**
 //	 * Tests if two <code>IPackageFragment</code>s represent the same logical java package.
@@ -361,14 +350,14 @@ public final class ModelUtil {
 //		return field.getTypeSignature().equals(Signature.SIG_BOOLEAN);
 //	}
 //
-//	/**
-//	 * @param type the type to test
-//	 * @return <code>true</code> iff the type is an interface or an annotation
-//	 * @throws JavaModelException thrown when the field can not be accessed
-//	 */
-//	public static boolean isInterfaceOrAnnotation(IType type) throws JavaModelException {
-//		return type.isInterface();
-//	}
+	/**
+	 * @param type the type to test
+	 * @return <code>true</code> iff the type is an interface or an annotation
+	 * @throws JavaModelException thrown when the field can not be accessed
+	 */
+	public static boolean isInterface(IMemberInfo type) throws ModelException {
+		return SearchUtils.hasFlag(X10.INTERFACE, type.getX10FlagsCode());
+	}
 //
 //	/**
 //	 * Resolves a type name in the context of the declaring type.
@@ -458,23 +447,23 @@ public final class ModelUtil {
 //		}
 //	}
 //
-//	public static boolean isSuperType(ITypeHierarchy hierarchy, IType possibleSuperType, IType type) {
-//		// filed bug 112635 to add this method to ITypeHierarchy
-//		IType superClass= hierarchy.getSuperclass(type);
-//		if (superClass != null && (possibleSuperType.equals(superClass) || isSuperType(hierarchy, possibleSuperType, superClass))) {
-//			return true;
-//		}
-//		if (Flags.isInterface(hierarchy.getCachedFlags(possibleSuperType))) {
-//			IType[] superInterfaces= hierarchy.getSuperInterfaces(type);
-//			for (int i= 0; i < superInterfaces.length; i++) {
-//				IType curr= superInterfaces[i];
-//				if (possibleSuperType.equals(curr) || isSuperType(hierarchy, possibleSuperType, curr)) {
-//					return true;
-//				}
-//			}
-//		}
-//		return false;
-//	}
+	public static boolean isSuperType(ITypeHierarchy hierarchy, ITypeInfo possibleSuperType, ITypeInfo type) {
+		// filed bug 112635 to add this method to ITypeHierarchy
+		ITypeInfo superClass= hierarchy.getSuperClass(type.getName());
+		if (superClass != null && (possibleSuperType.equals(superClass) || isSuperType(hierarchy, possibleSuperType, superClass))) {
+			return true;
+		}
+		if (SearchUtils.hasFlag(X10.INTERFACE, possibleSuperType.getX10FlagsCode())) {
+			ITypeInfo[] superInterfaces= hierarchy.getAllSuperInterfaces(type.getName());
+			for (int i= 0; i < superInterfaces.length; i++) {
+				ITypeInfo curr= superInterfaces[i];
+				if (possibleSuperType.equals(curr) || isSuperType(hierarchy, possibleSuperType, curr)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 //
 //	public static boolean isExcludedPath(IPath resourcePath, IPath[] exclusionPatterns) {
 //		char[] path = resourcePath.toString().toCharArray();

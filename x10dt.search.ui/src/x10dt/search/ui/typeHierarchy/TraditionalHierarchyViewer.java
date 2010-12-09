@@ -11,22 +11,14 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.model.ModelFactory.ModelException;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.swt.widgets.Composite;
 
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
-import x10dt.search.core.engine.ITypeInfo;
-import x10dt.search.core.engine.X10SearchEngine;
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
-import x10dt.search.ui.UISearchPlugin;
 
 
 /**
@@ -172,7 +164,7 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 			}
 		}
 
-		protected ITypeInfo getParentType(ITypeInfo type) {
+		protected IMemberInfo getParentType(IMemberInfo type) {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
 				return hierarchy.getSuperClass(type.getName());

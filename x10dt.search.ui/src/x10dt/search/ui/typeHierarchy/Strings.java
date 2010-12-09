@@ -580,4 +580,40 @@ public class Strings {
 	public static String removeMnemonicIndicator(String string) {
 		return LegacyActionTools.removeMnemonics(string);
 	}
+	
+	private static final String JAVA_ELEMENT_DELIMITERS= TextProcessor.getDefaultDelimiters() + "<>(),?{} "; //$NON-NLS-1$
+
+	/**
+	 * Adds special marks so that that the given styled Java element label is readable in a BiDi
+	 * environment.
+	 * 
+	 * @param styledString the styled string
+	 * @return the processed styled string
+	 * @since 3.6
+	 */
+	public static StyledString markJavaElementLabelLTR(StyledString styledString) {
+		if (!USE_TEXT_PROCESSOR)
+			return styledString;
+
+		String inputString= styledString.getString();
+		String string= TextProcessor.process(inputString, JAVA_ELEMENT_DELIMITERS);
+		if (string != inputString)
+			insertMarks(styledString, inputString, string);
+		return styledString;
+	}
+	
+	/**
+	 * Adds special marks so that that the given Java element label is readable in a BiDi
+	 * environment.
+	 * 
+	 * @param string the string
+	 * @return the processed styled string
+	 * @since 3.6
+	 */
+	public static String markJavaElementLabelLTR(String string) {
+		if (!USE_TEXT_PROCESSOR)
+			return string;
+
+		return TextProcessor.process(string, JAVA_ELEMENT_DELIMITERS);
+	}
 }

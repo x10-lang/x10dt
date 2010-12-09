@@ -14,8 +14,8 @@ package x10dt.search.ui.typeHierarchy;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
 
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
-import x10dt.search.core.engine.ITypeInfo;
 
 
 /**

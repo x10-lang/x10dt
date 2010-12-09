@@ -14,10 +14,14 @@ package x10dt.search.ui.typeHierarchy;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Color;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.core.engine.ITypeHierarchy;
 
 /**
  * Label provider for the hierarchy method viewers.
@@ -37,7 +41,7 @@ public class MethodsLabelProvider extends AppearanceAwareLabelProvider {
 		fColorRegistryListener= new IPropertyChangeListener() {
 			public void propertyChange(PropertyChangeEvent event) {
 				if (event.getProperty().equals(ColoredViewersManager.INHERITED_COLOR_NAME)) {
-//					fireLabelProviderChanged(new LabelProviderChangedEvent(MethodsLabelProvider.this, null));
+					fireLabelProviderChanged(new LabelProviderChangedEvent(MethodsLabelProvider.this, null));
 				}
 			}
 		};
@@ -54,27 +58,24 @@ public class MethodsLabelProvider extends AppearanceAwareLabelProvider {
 
 
 	private ITypeInfo getDefiningType(Object element) throws Exception {
-//		int kind= ((ISourceEntity) element).getElementType();
-//
-//		if (kind != ISourceEntity.METHOD && kind != ISourceEntity.FIELD && kind != ISourceEntity.INITIALIZER) {
-//			return null;
-//		}
-//		IType declaringType= ((IMember) element).getDeclaringType();
-//		if (kind != ISourceEntity.METHOD) {
-//			return declaringType;
-//		}
-//		ITypeHierarchy hierarchy= fHierarchy.getHierarchy();
-//		if (hierarchy == null) {
-//			return declaringType;
-//		}
-//		IMethod method= (IMethod) element;
-//		MethodOverrideTester tester= new MethodOverrideTester(declaringType, hierarchy);
-//		IMethod res= tester.findDeclaringMethod(method, true);
-//		if (res == null || method.equals(res)) {
-//			return declaringType;
-//		}
-//		return res.getDeclaringType();
-		return null;
+		if (!(element instanceof IMemberInfo)) {
+			return null;
+		}
+		ITypeInfo declaringType= ((IMemberInfo) element).getDeclaringType();
+		if (!(element instanceof IMethodInfo)) {
+			return declaringType;
+		}
+		ITypeHierarchy hierarchy= fHierarchy.getHierarchy();
+		if (hierarchy == null) {
+			return declaringType;
+		}
+		IMethodInfo method= (IMethodInfo) element;
+		MethodOverrideTester tester= new MethodOverrideTester(declaringType, hierarchy);
+		IMethodInfo res= tester.findDeclaringMethod(method, true);
+		if (res == null || method.equals(res)) {
+			return declaringType;
+		}
+		return res.getDeclaringType();
 	}
 
 	/* (non-Javadoc)
@@ -122,14 +123,14 @@ public class MethodsLabelProvider extends AppearanceAwareLabelProvider {
 	 * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
 	 */
 	public Color getForeground(Object element) {
-//		if (fMethodsViewer.isShowInheritedMethods() && element instanceof IMethod) {
-//			IMethod curr= (IMethod) element;
-//			IMember declaringType= curr.getDeclaringType();
-//
-//			if (!declaringType.equals(fMethodsViewer.getInput())) {
-//				return JFaceResources.getColorRegistry().get(ColoredViewersManager.INHERITED_COLOR_NAME);
-//			}
-//		}
+		if (fMethodsViewer.isShowInheritedMethods() && element instanceof IMethodInfo) {
+			IMethodInfo curr= (IMethodInfo) element;
+			IMemberInfo declaringType= curr.getDeclaringType();
+
+			if (!declaringType.equals(fMethodsViewer.getInput())) {
+				return JFaceResources.getColorRegistry().get(ColoredViewersManager.INHERITED_COLOR_NAME);
+			}
+		}
 		return null;
 	}
 
