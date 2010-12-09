@@ -97,6 +97,25 @@ public final class X10SearchEngine {
   }
   
   /**
+   * Returns all the field information that matches the Java regular expression identifying a potential set of field names
+   * independently of the declaring type.
+   * 
+   * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
+   * @param fieldNameRegEx The regular expression identifying the field names to search for.
+   * @param isCaseSensitive Indicates if the pattern matching is case sensitive or not.
+   * @param monitor The monitor to use to report progress or cancel the operation.
+   * @return A non-null, but possibly empty (if no match was found), array of field information.
+   * @throws InterruptedException Occurs if the operation gets canceled.
+   * @throws ExecutionException Occurs if the search threw an exception.
+   */
+  public static IFieldInfo[] getAllMatchingFieldInfo(final IX10SearchScope searchScope, 
+                                                     final String fieldNameRegEx, final boolean isCaseSensitive,
+                                                     final IProgressMonitor monitor) throws InterruptedException, 
+                                                                                            ExecutionException {
+    return getFieldInfo(searchScope, null, new PatternFilter(fieldNameRegEx, isCaseSensitive), monitor);
+  }
+  
+  /**
    * Returns all the method information that matches the Java regular expression identifying a potential set of method names
    * for a given type.
    * 
@@ -114,6 +133,25 @@ public final class X10SearchEngine {
                                                        final IProgressMonitor monitor) throws InterruptedException, 
                                                                                               ExecutionException {
     return getMethodInfos(searchScope, typeName, new PatternFilter(methodNameRegEx, isCaseSensitive), monitor);
+  }
+  
+  /**
+   * Returns all the method information that matches the Java regular expression identifying a potential set of method names
+   * independently of the declaring type.
+   * 
+   * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
+   * @param methodNameRegEx The regular expression identifying the method names to search for.
+   * @param isCaseSensitive Indicates if the pattern matching is case sensitive or not.
+   * @param monitor The monitor to use to report progress or cancel the operation.
+   * @return A non-null, but possibly empty (if no match was found), array of method information.
+   * @throws InterruptedException Occurs if the operation gets canceled.
+   * @throws ExecutionException Occurs if the search threw an exception.
+   */
+  public static IMethodInfo[] getAllMatchingMethodInfo(final IX10SearchScope searchScope, 
+                                                       final String methodNameRegEx, final boolean isCaseSensitive,
+                                                       final IProgressMonitor monitor) throws InterruptedException, 
+                                                                                              ExecutionException {
+    return getMethodInfos(searchScope, null, new PatternFilter(methodNameRegEx, isCaseSensitive), monitor);
   }
   
   /**
@@ -231,8 +269,9 @@ public final class X10SearchEngine {
     if (allTypesValue != null) {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
-        if (((IString) tuple.get(0)).getValue().equals(typeName)) {
-          final ITypeInfo typeInfo = findTypeInfo(factBase, context, typeName, scopeTypeName, monitor);
+        if ((typeName == null) || ((IString) tuple.get(0)).getValue().equals(typeName)) {
+          final String realTypeName = (typeName == null) ? ((IString) tuple.get(0)).getValue() : typeName;
+          final ITypeInfo typeInfo = findTypeInfo(factBase, context, realTypeName, scopeTypeName, monitor);
           final IList list = (IList) tuple.get(1);
           for (final IValue listElement : list) {
             final ITuple fieldTuple = (ITuple) listElement;
@@ -255,8 +294,9 @@ public final class X10SearchEngine {
     if (allTypesValue != null) {
       for (final IValue value : allTypesValue) {
         final ITuple tuple = (ITuple) value;
-        if (((IString) tuple.get(0)).getValue().equals(typeName)) {
-          final ITypeInfo typeInfo = findTypeInfo(factBase, context, typeName, scopeTypeName, monitor);
+        if ((typeName == null) || ((IString) tuple.get(0)).getValue().equals(typeName)) {
+          final String realTypeName = (typeName == null) ? ((IString) tuple.get(0)).getValue() : typeName;
+          final ITypeInfo typeInfo = findTypeInfo(factBase, context, realTypeName, scopeTypeName, monitor);
           final IList list = (IList) tuple.get(1);
           for (final IValue listElement : list) {
             final ITuple methodTuple = (ITuple) listElement;
