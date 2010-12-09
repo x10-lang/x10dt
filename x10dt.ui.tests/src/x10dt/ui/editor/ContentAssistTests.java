@@ -48,6 +48,7 @@ import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
+import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.parser.ParseController;
@@ -70,34 +71,34 @@ public class ContentAssistTests extends X10DTTestBase {
   private static final String CLASS_SRCFILE_NAME_2 = CLASS_NAME_2 + ".x10";
 
   private static final String[] STATEMENT1 = { "var - mutable variable/field declaration",
-                                              "val - immutable variable/field declaration",
-                                              "static val - immutable static field declaration",
-                                              "property - property declaration", "main method - main method",
-                                              "def - method declaration", "this - constructor declaration",
-                                              "class - class declaration", "struct - struct declaration",
-                                              "dependent type - class declaration with property" };
+                                               "val - immutable variable/field declaration",
+                                               "static val - immutable static field declaration",
+                                               "property - property declaration", "main method - main method",
+                                               "def - method declaration", "this - constructor declaration",
+                                               "class - class declaration", "struct - struct declaration",
+  "dependent type - class declaration with property" };
 
   private static final String[] STATEMENT2 = { "array new - array instantiation", "dist array new - dist array instantiation",
-                                              "dist array access - remote array access", "async - async statement",
-                                              "at - at statement", "ateach - ateach statement", "atomic - atomic statement",
-                                              "clocked - clocked statement", "constraint - constrained type definition",
-                                              "finish - finish statement", "function - function definition",
-                                              "instanceof - instanceof in a conditional", "printing - printing to console",
-                                              "type - type definition", "val - immutable variable/field declaration",
-                                              "var - mutable variable/field declaration", "when - when statement" };
+                                               "dist array access - remote array access", "async - async statement",
+                                               "at - at statement", "ateach - ateach statement", "atomic - atomic statement",
+                                               "clocked - clocked statement", "constraint - constrained type definition",
+                                               "finish - finish statement", "function - function definition",
+                                               "instanceof - instanceof in a conditional", "printing - printing to console",
+                                               "type - type definition", "val - immutable variable/field declaration",
+                                               "var - mutable variable/field declaration", "when - when statement" };
 
   private static final String[] STATEMENT3 = { "result" };
 
   private static final String[] STATEMENT4 = { "at - at expression", "as - coercion",
-                                              "region 1-D - 1-dimensional region creation",
-                                              "region 2-D - 2-dimensional region creation" };
+                                               "region 1-D - 1-dimensional region creation",
+  "region 2-D - 2-dimensional region creation" };
 
   private static final String[][] TEST1 = { STATEMENT1, STATEMENT1 };
 
   private static final String[][] TEST2 = { STATEMENT1, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2,
-                                           STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2,
-                                           STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT3,
-                                           STATEMENT2, STATEMENT2, STATEMENT2 };
+                                            STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2,
+                                            STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT3,
+                                            STATEMENT2, STATEMENT2, STATEMENT2 };
 
   private boolean updated = false;
 
@@ -122,13 +123,13 @@ public class ContentAssistTests extends X10DTTestBase {
   public static void beforeClass() throws Exception {
     SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
-    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS ; // Long timeout needed for first project creation//TODO need it ?
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // Long timeout needed for first project creation//TODO need it ?
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
   }
 
   private static void createProject(final String projName, final String className, final String classFilename)
-                                                                                                              throws Exception {
+  throws Exception {
     createJavaBackEndProject(projName, false);
     topLevelBot.shells()[0].activate();
     ProjectUtils.createClass(topLevelBot, className);
@@ -141,7 +142,7 @@ public class ContentAssistTests extends X10DTTestBase {
   public static void afterClass() throws Exception {
     SWTBotUtils.saveAllDirtyEditors(topLevelBot);
     SWTBotUtils.resetWorkbench(topLevelBot);
-	}
+  }
 
   @After
   public void after() throws Exception {
@@ -162,8 +163,8 @@ public class ContentAssistTests extends X10DTTestBase {
   public void test1() throws Exception {
     createProject(PROJECT_NAME + "1", CLASS_NAME_1, CLASS_SRCFILE_NAME_1);
     getTestSource(fSrcEditor, "data/" + CLASS_SRCFILE_NAME_1, CLASS_NAME_1); //$NON-NLS-1$
-fSrcEditor.save();
-waitForBuildToFinish();
+    fSrcEditor.save();
+    waitForBuildToFinish();
     waitForParser();
     runStatementContextTest("statement", TEST1);
   }
@@ -173,19 +174,22 @@ waitForBuildToFinish();
 
     createProject(PROJECT_NAME + "2", CLASS_NAME_2, CLASS_SRCFILE_NAME_2);
     getTestSource(fSrcEditor, "data/" + CLASS_SRCFILE_NAME_2, CLASS_NAME_2); //$NON-NLS-1$
-fSrcEditor.save();
-waitForBuildToFinish();
+    fSrcEditor.save();
+    waitForBuildToFinish();
     waitForParser();
     runStatementContextTest("member", TEST2);
 
   }
-	/**
-	 * This method waits for a build to finish before continuing
-	 * @throws Exception
-	 */
-	private void waitForBuildToFinish() throws Exception {
-		Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-	}
+
+  /**
+   * This method waits for a build to finish before continuing
+   * 
+   * @throws Exception
+   */
+  private void waitForBuildToFinish() throws Exception {
+    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+  }
+
   public void waitForParser() throws Exception {
     topLevelBot.waitUntil(new DefaultCondition() {
 
@@ -216,14 +220,13 @@ waitForBuildToFinish();
       List<String> proposals = fSrcEditor.getAutoCompleteProposals("");
       junit.framework.Assert.assertNotNull("The proposals result is null", proposals);
       junit.framework.Assert.assertTrue("There are no proposals", proposals.size() > 0);
-      
+
       boolean temp_state = true;
       for (String proposal : expectedProposals[index]) {
-    	  temp_state = containsMatchingProposal(proposals, proposal);
+        temp_state = containsMatchingProposal(proposals, proposal);
 
         junit.framework.Assert.assertTrue("Expected " + contextName + " proposal is missing: " + proposal + " at location " +
                                           toString(lp), temp_state);
-
 
       }
 

@@ -52,9 +52,9 @@ public class IndentationTests {
   @Parameters
   public static Collection<Object[]> testParams() {
     return Arrays.asList(new Object[][] { { true, 4 }, // spaces-for-tabs, indent width 4
-                                         { false, 4 }, // NO spaces-for-tabs, indent width 4
-                                         { true, 3 }, // spaces-for-tabs, indent width 3
-                                         { false, 3 } // NO spaces-for-tabs, indent width 3
+                                          { false, 4 }, // NO spaces-for-tabs, indent width 4
+                                          { true, 3 }, // spaces-for-tabs, indent width 3
+                                          { false, 3 } // NO spaces-for-tabs, indent width 3
     });
   }
 
@@ -205,7 +205,7 @@ public class IndentationTests {
     String expSpc3 = "   public def foo() = true; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
@@ -217,7 +217,7 @@ public class IndentationTests {
     String expSpc3 = "   public def foo() = true; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
@@ -247,111 +247,111 @@ public class IndentationTests {
   @Test
   public void stmt1a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "  Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n"
-                 + "}";
+    + "}";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt1b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n"
-                 + "                 Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "}";
+    + "                 Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "}";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt1c() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\"); // <<<\n"
-                 + "    }\n" + "}";
+    + "    }\n" + "}";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt1d() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "\n"
-                 + "        Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "}";
+    + "        Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "}";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt1e() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "            \n"
-                 + "        Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "}";
+    + "        Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "}";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt2a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "    Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
+    + "    Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
     String expTab4 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expTab3 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expSpc3 = "        Console.OUT.println(\"Hey\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt2b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "             Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
+    + "             Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
     String expTab4 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expTab3 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expSpc3 = "        Console.OUT.println(\"Hey\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt2c() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
+    + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
     String expTab4 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expTab3 = "        Console.OUT.println(\"Hey\"); // <<<\n";
     String expSpc3 = "        Console.OUT.println(\"Hey\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void stmt3a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "           Console.OUT.println(\"Hi\");\n"
-                 + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
+    + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
     String exp = "           Console.OUT.println(\"Hey\"); // <<<\n";
 
     indentTestHelper(org, exp);
@@ -360,7 +360,7 @@ public class IndentationTests {
   @Test
   public void stmt4a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n" + "\n"
-                 + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
+    + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
     String exp = "        Console.OUT.println(\"Hey\"); // <<<\n";
 
     indentTestHelper(org, exp);
@@ -369,7 +369,7 @@ public class IndentationTests {
   @Test
   public void stmt4b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n" + "    \n"
-                 + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
+    + "        Console.OUT.println(\"Hey\"); // <<<\n" + "    }\n" + "}";
     String exp = "        Console.OUT.println(\"Hey\"); // <<<\n";
 
     indentTestHelper(org, exp);
@@ -378,64 +378,64 @@ public class IndentationTests {
   @Test
   public void forBody1a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
-                 + "     val x = elt * elt; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
+    + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
+    + "     val x = elt * elt; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
     String expTab4 = "        	val x = elt * elt; // <<<\n";
     String expSpc4 = "            val x = elt * elt; // <<<\n";
     String expTab3 = "           val x = elt * elt; // <<<\n";
     String expSpc3 = "           val x = elt * elt; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void forBody1b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
-                 + "               val x = elt * elt; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
+    + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
+    + "               val x = elt * elt; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
     String expTab4 = "        	val x = elt * elt; // <<<\n";
     String expSpc4 = "            val x = elt * elt; // <<<\n";
     String expTab3 = "           val x = elt * elt; // <<<\n";
     String expSpc3 = "           val x = elt * elt; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void forBody1c() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
-                 + "            val x = elt * elt; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
+    + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
+    + "            val x = elt * elt; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
     String expTab4 = "        	val x = elt * elt; // <<<\n";
     String expSpc4 = "            val x = elt * elt; // <<<\n";
     String expTab3 = "           val x = elt * elt; // <<<\n";
     String expSpc3 = "           val x = elt * elt; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void forBody2a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
-                 + "               val x = elt * elt;\n" + "     val y = 1; // <<<\n" + "        }\n" + "    }\n" + "}";
+    + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
+    + "               val x = elt * elt;\n" + "     val y = 1; // <<<\n" + "        }\n" + "    }\n" + "}";
     String expTab4 = "               val y = 1; // <<<\n";
     String expSpc4 = "               val y = 1; // <<<\n";
     String expTab3 = "               val y = 1; // <<<\n";
     String expSpc3 = "               val y = 1; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void forBody2b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
-                 + "               val x = elt * elt;\n" + "     val y = 1; // <<<\n" + "        }\n" + "    }\n" + "}";
+    + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
+    + "               val x = elt * elt;\n" + "     val y = 1; // <<<\n" + "        }\n" + "    }\n" + "}";
     String exp = "               val y = 1; // <<<\n";
 
     indentTestHelper(org, exp);
@@ -444,9 +444,9 @@ public class IndentationTests {
   @Test
   public void forBody2c() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
-                 + "               val x = elt * elt;\n" + "               val y = 1; // <<<\n" + "        }\n" + "    }\n"
-                 + "}";
+    + "        val a = Array.make[int](10, ((i): Point) => i);\n" + "        for(elt: int in a) {\n"
+    + "               val x = elt * elt;\n" + "               val y = 1; // <<<\n" + "        }\n" + "    }\n"
+    + "}";
     String exp = "               val y = 1; // <<<\n";
 
     indentTestHelper(org, exp);
@@ -455,49 +455,49 @@ public class IndentationTests {
   @Test
   public void asyncBody1a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        async {\n" + "     val x = 0; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
+    + "        async {\n" + "     val x = 0; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n" + "}";
     String expTab4 = "        	val x = 0; // <<<\n";
     String expSpc4 = "            val x = 0; // <<<\n";
     String expTab3 = "           val x = 0; // <<<\n";
     String expSpc3 = "           val x = 0; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void asyncBody1b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        async {\n" + "                  val x = 0; // <<<\n" + "     val y = 1;\n" + "        }\n"
-                 + "    }\n" + "}";
+    + "        async {\n" + "                  val x = 0; // <<<\n" + "     val y = 1;\n" + "        }\n"
+    + "    }\n" + "}";
     String expTab4 = "        	val x = 0; // <<<\n";
     String expSpc4 = "            val x = 0; // <<<\n";
     String expTab3 = "           val x = 0; // <<<\n";
     String expSpc3 = "           val x = 0; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void asyncBody1c() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        async {\n" + "            val x = 0; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n"
-                 + "}";
+    + "        async {\n" + "            val x = 0; // <<<\n" + "     val y = 1;\n" + "        }\n" + "    }\n"
+    + "}";
     String expTab4 = "        	val x = 0; // <<<\n";
     String expSpc4 = "            val x = 0; // <<<\n";
     String expTab3 = "           val x = 0; // <<<\n";
     String expSpc3 = "           val x = 0; // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void asyncBody2a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        async {\n" + "            val x = 0;\n" + "     val y = 1; // <<<\n" + "        }\n" + "    }\n"
-                 + "}";
+    + "        async {\n" + "            val x = 0;\n" + "     val y = 1; // <<<\n" + "        }\n" + "    }\n"
+    + "}";
     String exp = "            val y = 1; // <<<\n";
 
     indentTestHelper(org, exp);
@@ -506,8 +506,8 @@ public class IndentationTests {
   @Test
   public void asyncBody2b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        async {\n" + "            val x = 0;\n" + "                 val y = 1; // <<<\n" + "        }\n"
-                 + "    }\n" + "}";
+    + "        async {\n" + "            val x = 0;\n" + "                 val y = 1; // <<<\n" + "        }\n"
+    + "    }\n" + "}";
     String exp = "            val y = 1; // <<<\n";
 
     indentTestHelper(org, exp);
@@ -516,8 +516,8 @@ public class IndentationTests {
   @Test
   public void asyncBody2c() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        async {\n" + "            val x = 0;\n" + "            val y = 1; // <<<\n" + "        }\n"
-                 + "    }\n" + "}";
+    + "        async {\n" + "            val x = 0;\n" + "            val y = 1; // <<<\n" + "        }\n"
+    + "    }\n" + "}";
     String exp = "            val y = 1; // <<<\n";
 
     indentTestHelper(org, exp);
@@ -526,7 +526,7 @@ public class IndentationTests {
   @Test
   public void closeBrkt1() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        Console.OUT.println(\"Hey\");\n" + "  } // <<<\n" + "}";
+    + "        Console.OUT.println(\"Hey\");\n" + "  } // <<<\n" + "}";
     String exp = "    } // <<<\n";
 
     indentTestHelper(org, exp);
@@ -535,7 +535,7 @@ public class IndentationTests {
   @Test
   public void closeBrkt2() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  } // <<<";
+    + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  } // <<<";
     String exp = "} // <<<";
 
     indentTestHelper(org, exp);
@@ -544,86 +544,86 @@ public class IndentationTests {
   @Test
   public void comment1() {
     String org = "public class Bar {\n" + "    public def foo() = { // say something funny\n"
-                 + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
+    + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void comment2() {
     String org = "public class Bar {\n" + "    public def foo() = { // say something { funny }\n"
-                 + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
+    + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void comment3() {
     String org = "public class Bar {\n" + "    public def foo() = { // say something { not so funny\n"
-                 + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
+    + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void comment4() {
     String org = "public class Bar {\n" + "    public def foo() = { // say something not so funny }\n"
-                 + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
+    + "  Console.OUT.println(\"Hi\"); // <<<\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n" + "  }";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void comment5a() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "  // bletch\n"
-                 + "  Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "  }";
+    + "  Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "  }";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void comment5b() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "      // bletch\n"
-                 + "  Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "  }";
+    + "  Console.OUT.println(\"Hi\"); // <<<\n" + "    }\n" + "  }";
     String expTab4 = "    	Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc4 = "        Console.OUT.println(\"Hi\"); // <<<\n";
     String expTab3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
     String expSpc3 = "       Console.OUT.println(\"Hi\"); // <<<\n";
 
     indentTestHelper(org, (fIndentWidthArg == 4) ? (fSpacesForTabsArg ? expSpc4 : expTab4) : (fSpacesForTabsArg ? expSpc3
-                                                                                                               : expTab3));
+                                                                                                                : expTab3));
   }
 
   @Test
   public void blockComment1() {
     String org = "public class Bar {\n" + "    public def foo() = {\n" + "        Console.OUT.println(\"Hi\");\n"
-                 + "        /**\n" + "  * // <<<\n" + "         */\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n"
-                 + "  }";
+    + "        /**\n" + "  * // <<<\n" + "         */\n" + "        Console.OUT.println(\"Hey\");\n" + "    }\n"
+    + "  }";
     String exp = "         * // <<<\n";
 
     indentTestHelper(org, exp);

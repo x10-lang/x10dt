@@ -53,6 +53,7 @@ import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.parser.ParseController;
 import x10dt.ui.tests.X10DTTestBase;
 import x10dt.ui.tests.utils.EditorMatcher;
+import x10dt.core.utils.Timeout;
 
 /**
  * @author rfuhrer@watson.ibm.com
@@ -121,7 +122,8 @@ public class OutlineTests extends X10DTTestBase {
 
     SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
-    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // Long timeout needed for first project creation//TODO-- need to remove this ?
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // Long timeout needed for first project creation//TODO-- need to remove
+    // this ?
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
     createJavaBackEndProject(PROJECT_NAME, false);

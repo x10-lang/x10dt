@@ -63,7 +63,7 @@ public class X10DocProviderTest_Parameterized {
 
     this.file = file;
     editor = new TestEditor(file);
-    editor.getAst(); 
+    editor.getAst();
 
     hh = new HoverHelper(editor.language);
   }
@@ -77,8 +77,6 @@ public class X10DocProviderTest_Parameterized {
   public static void tearDownAfterClass() throws Exception {
   }
 
-
-
   @Parameters
   public static Collection<Object[]> params() throws Exception {
     project = ProjectUtils.copyProjectIntoWorkspace(X10DTUIPlugin.getInstance().getBundle(), new Path("data/X10DocProvider"));
@@ -90,10 +88,9 @@ public class X10DocProviderTest_Parameterized {
     folder.accept(new IResourceVisitor() {
       public boolean visit(IResource resource) throws CoreException {
         if (resource instanceof IFile) {
-          System.out.println("RESOURCE IS: " + resource.toString());
-          if(!resource.toString().contains(".svn/")) {
+          if (!resource.toString().contains(".svn/")) {
             list.add(new Object[] { resource });
-            System.out.println("RESOURCE added is : " + resource.toString());
+
           }
 
           return false;
@@ -107,28 +104,22 @@ public class X10DocProviderTest_Parameterized {
     return list;
   }
 
-
-
   @Test
   public void testGetDocumentation() throws Exception {
 
     File actual = new File(project.getFile(new Path("actual").append(file.getProjectRelativePath().removeFirstSegments(1))
-                                           .removeFileExtension().addFileExtension("txt")).getLocation()
-                                           .toPortableString());
-    System.out.println("actual"+actual);
-
+                                                             .removeFileExtension().addFileExtension("txt")).getLocation()
+                                  .toPortableString());
 
     actual.getParentFile().mkdirs();
 
     FileChannel fchan = new FileOutputStream(actual).getChannel();
     BufferedWriter bf = new BufferedWriter(Channels.newWriter(fchan, "UTF-8"));
-    System.out.println("bf" + bf);
 
     try {
       for (int offset = 0; offset < editor.document.getLength(); offset++) {
-        System.out.println("editor.document.getLength() ="+ editor.document.getLength());
+
         Point loc = editor.getLocation(offset);
-        System.out.println("loc ="+ loc);
 
         Shell shell = new Shell();
 
@@ -137,31 +128,26 @@ public class X10DocProviderTest_Parameterized {
         model.connect(editor.document);
         viewer.setDocument(editor.document, model);
         String doc = hh.getHoverHelpAt(editor.parseController, viewer, offset);
-        System.out.print("doc -"+doc);
 
         if (doc != null && doc.length() > 0) {
           loc = editor.getLocation(offset);
-          System.out.println("i m here");
           bf.write("" + loc.x + "," + loc.y + ": ");
           bf.write(doc);
           bf.newLine();
         }
-      } 
+      }
 
     } finally {
       bf.close();
       fchan.close();
     }
     File expected = new File(project.getFile(new Path("expected").append(file.getProjectRelativePath().removeFirstSegments(1))
-                                             .removeFileExtension().addFileExtension("txt")).getLocation()
-                                             .toPortableString());
+                                                                 .removeFileExtension().addFileExtension("txt")).getLocation()
+                                    .toPortableString());
 
     Assert.assertTrue("The data file containing the expected results for " + file.getLocation() +
                       " does not exist.  If you just added this file to the test suite be sure to verify the contents of " +
                       actual.getPath() + " and copy it into the expected folder in the test suite.", expected.exists());
-    System.out.println("Actual =" + actual);
-    System.out.println("Expected =" + expected);
-
     int result = FileUtils.compareLinesOf(actual, expected);
     Assert.assertTrue("Actual differs from expected at line " + result, result == -1);
 

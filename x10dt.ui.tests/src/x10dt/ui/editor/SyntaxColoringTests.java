@@ -43,15 +43,11 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -63,13 +59,12 @@ import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 
 import x10.parser.X10Parsersym;
-import x10dt.tests.services.swbot.constants.WizardConstants;
+import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.editor.X10TokenColorer;
 import x10dt.ui.parser.ParseController;
 import x10dt.ui.tests.X10DTTestBase;
-import x10dt.ui.editor.Timeout;
 import x10dt.ui.tests.utils.EditorMatcher;
 
 /**
@@ -178,10 +173,10 @@ public class SyntaxColoringTests extends X10DTTestBase {
 
     ProjectUtils.createClass(topLevelBot, className);
 
-	SWTBotEclipseEditor srcEditor = topLevelBot.editorByTitle(classFilename).toTextEditor();
-	srcEditor.save();
-	SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
-	Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+    SWTBotEclipseEditor srcEditor = topLevelBot.editorByTitle(classFilename).toTextEditor();
+    srcEditor.save();
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
+    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
     topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(classFilename)));
     fSrcEditor = topLevelBot.editorByTitle(classFilename).toTextEditor();
   }
@@ -193,7 +188,8 @@ public class SyntaxColoringTests extends X10DTTestBase {
     // shuts down cleanly, even if there are "dirty" open editors. Without it, the test might
     // hang waiting for someone to dismiss the "Foo has been modified. Save changes?" dialog.
     SWTBotUtils.resetWorkbench(topLevelBot);
-	}
+  }
+
   @After
   public void after() throws Exception {
     SWTBotUtils.closeAllEditors(topLevelBot);
@@ -262,13 +258,16 @@ public class SyntaxColoringTests extends X10DTTestBase {
     verifyColoring(fSrcEditor);
     updated = false; // reset updated variable
   }
-	/**
-	 * This method waits for a build to finish before continuing
-	 * @throws Exception
-	 */
-	private void waitForBuildToFinish() throws Exception {
-		Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-	}
+
+  /**
+   * This method waits for a build to finish before continuing
+   * 
+   * @throws Exception
+   */
+  private void waitForBuildToFinish() throws Exception {
+    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+  }
+
   public static void WaitForParser() throws Exception {
 
     topLevelBot.waitUntil(new DefaultCondition() {
@@ -427,11 +426,9 @@ public class SyntaxColoringTests extends X10DTTestBase {
     }
   }
 
-  /*private void dumpRegions(final List<Region> regions) {
-    for (Region r : regions) {
-      System.out.print(toString(r));
-    }
-  }*/
+  /*
+   * private void dumpRegions(final List<Region> regions) { for (Region r : regions) { System.out.print(toString(r)); } }
+   */
 
   private void doVerifyColoring(final List<Region> regions, final TextAttribute attrib, final IDocument doc,
                                 final SWTBotEclipseEditor editor) {
@@ -451,7 +448,7 @@ public class SyntaxColoringTests extends X10DTTestBase {
           final StyleRange sr = editor.getStyle(line, column);
 
           if (attrib != fDefaultTextAttribute) { // but it seems nothing actually explicitly uses fDefaultTextAttribute
-                                                 // anyway...
+            // anyway...
             junit.framework.Assert.assertNotNull("Default style found for text that needs a style at position " +
                                                  getPosString(pos, doc) + ", character '" + doc.get(pos, 1) + "'", sr);
             checkFontStyle(attrib.getStyle(), sr.fontStyle, pos, doc);
@@ -481,9 +478,9 @@ public class SyntaxColoringTests extends X10DTTestBase {
     }
   }
 
-  /*private String toString(Region r) {
-    return "<" + r.getOffset() + ":" + (r.getOffset() + r.getLength() - 1) + "> ";
-  }*/
+  /*
+   * private String toString(Region r) { return "<" + r.getOffset() + ":" + (r.getOffset() + r.getLength() - 1) + "> "; }
+   */
 
   private String getPosString(final int pos, final IDocument doc) {
     try {

@@ -21,7 +21,6 @@ import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes;
@@ -29,7 +28,6 @@ import org.eclipse.swtbot.swt.finder.utils.Position;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.ui.IEditorPart;
 import org.junit.After;
@@ -43,6 +41,7 @@ import x10dt.tests.services.swbot.utils.ProjectUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.tests.X10DTTestBase;
 import x10dt.ui.tests.utils.EditorMatcher;
+import x10dt.core.utils.Timeout;
 
 /**
  * @author rfuhrer@watson.ibm.com
@@ -84,7 +83,8 @@ public class QuickOutlineTests extends X10DTTestBase {
   public static void afterClass() throws Exception {
     SWTBotUtils.saveAllDirtyEditors(topLevelBot);
     SWTBotUtils.resetWorkbench(topLevelBot);
-	}
+  }
+
   private class MyListener implements IModelListener {
 
     public AnalysisRequired getAnalysisRequired() {
@@ -163,7 +163,7 @@ public class QuickOutlineTests extends X10DTTestBase {
     WaitForParser();
     fSrcEditor.save();
     waitForBuildToFinish();
-    
+
     SWTBot outlineBot = invokeQuickOutline(topLevelBot);
 
     SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
@@ -181,13 +181,16 @@ public class QuickOutlineTests extends X10DTTestBase {
     junit.framework.Assert.assertEquals("Cursor positioned at incorrect column after quick outline item selection", 1,
                                         cursorPos.column);
   }
-	/**
-	 * This method waits for a build to finish before continuing
-	 * @throws Exception
-	 */
-	private void waitForBuildToFinish() throws Exception {
-		Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-	}
+
+  /**
+   * This method waits for a build to finish before continuing
+   * 
+   * @throws Exception
+   */
+  private void waitForBuildToFinish() throws Exception {
+    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+  }
+
   private SWTBot invokeQuickOutline(SWTBot bot) throws Exception {
 
     fSrcEditor.pressShortcut(Keystrokes.CTRL, KeyStroke.getInstance("o"));
