@@ -28,13 +28,6 @@
          unpack="false"/>
 
    <plugin
-         id="com.ibm.wala.cast.x10"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.ibm.wala.core"
          download-size="0"
          install-size="0"
