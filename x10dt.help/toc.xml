@@ -59,23 +59,13 @@
 	<topic label="StructSpheres" href="html/samples/StructSpheres.html">StructSpheres</topic>
 	<topic label="GCSpheres" href="html/samples/GCSpheres.html">GCSpheres</topic>
 </topic> 
-<!--
-<topic label="Programmers Guide">
-	<topic label="Preface" href="html/pguide/preface.html"/>
-	<topic label="A Whirlwind Tour of X10" href="html/pguide/tour.html">
-		<topic label="Hello" href="html/pguide/hello.html"/> 
-		<topic label="Two CPUs Are Better Than One" href="html/pguide/2cpus.html"/> 
-		<topic label="A Thousand CPUs Are Better Than Tw0" href="html/pguide/1kcpus.html"/> 
-	</topic>
-	<topic label="A First Look At X10's Types" href="html/pguide/types.html">
-		<topic label="What's In An .x10 File" href="html/pguide/file.html"/> 
-		<topic label="What's In A Class" href="html/pguide/class.html"/> 
-		<topic label="Interfaces: More Abstract Than Abstract" href="html/pguide/interfaces.html"/> 
-		<topic label="Giving Up Inheritance To Get Efficiency" href="html/pguide/inheritance.html"/> 
-	</topic>
-	<topic label="The Standard Library" href="html/pguide/library.html"/>
+
+<topic label="An Introduction to Programming With X10">
+	<topic label="Preface" href="html/pguide/fp.html"/>
+	<topic label="A Whirlwind Tour of X10" href="html/pguide/ch1.html"/>
+	<topic label="A First Look At X10's Types" href="html/pguide/ch2.html"/>
+	<topic label="A Potpourri of Types" href="html/pguide/ch3.html"/>
 </topic> 
--->
 
 <topic label="X10 Language Reference" href="html/langref/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
