@@ -260,7 +260,6 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
         Configuration.ONLY_TYPE_CHECKING = false;
         Configuration.NO_CHECKS = false;
         Configuration.FLATTEN_EXPRESSIONS = false;
-        Configuration.INLINE_SMALL_METHODS = false;
         Configuration.WALA = false;
         Configuration.FINISH_ASYNCS = false;
         for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
@@ -277,10 +276,6 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
       Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
       Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
       Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
-      Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
-      Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
-      Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
-      Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
     }
 
 }
