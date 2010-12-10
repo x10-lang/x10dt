@@ -14,15 +14,23 @@ import static x10dt.search.ui.search.SearchPatternData.TYPE;
 import static x10dt.search.ui.search.SearchPatternData.WRITE_ACCESSES;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.util.SWTUtil;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.NewSearchUI;
@@ -176,12 +184,37 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		if (match != null) {
 			fPreviousSearchPatterns.remove(match);
 		}
+		IResource[] resources = null;
+		ISelection selection = getContainer().getSelection();
+		if (selection != null && selection instanceof IStructuredSelection){
+			Object[] sel = ((IStructuredSelection) selection).toArray();
+			Collection<IResource> pns = new ArrayList<IResource>();
+			for(int i = 0; i < sel.length; i++){
+				try {
+					if (sel[i] instanceof JavaProject){
+						pns.add(((JavaProject) sel[i]).getProject());
+					} else if (sel[i] instanceof PackageFragmentRoot){
+						IResource res = ((PackageFragmentRoot)sel[i]).getCorrespondingResource();
+						pns.add(res);
+					} else if (sel[i] instanceof PackageFragment){
+						IResource res = ((PackageFragment)sel[i]).getCorrespondingResource();
+						pns.add(res);
+					}
+				} catch(JavaModelException e){
+					//TODO: Fixme
+					System.err.println(e);
+				}
+			}
+			resources = pns.toArray(new IResource[0]);
+		}
+		
 		match= new SearchPatternData(
 				getSearchFor(),
 				getLimitTo(),
 				pattern,
 				fCaseSensitive.getSelection(),
 				getContainer().getSelectedScope(),
+				resources,
 				getContainer().getSelectedWorkingSets()
 		);
 
@@ -216,8 +249,8 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		fSearchFor= new Button[] {
 			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_type, TYPE, true),
 			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_method, METHOD, false),
-			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_package, PACKAGE, false),
-			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_constructor, CONSTRUCTOR, false),
+			//createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_package, PACKAGE, false),
+			//createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_constructor, CONSTRUCTOR, false),
 			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_field, FIELD, false)
 		};
 
@@ -396,16 +429,25 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 
 		ArrayList<Button> buttons= new ArrayList<Button>();
 		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_allOccurrences, ALL_OCCURRENCES, limitTo == ALL_OCCURRENCES));
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_declarations, DECLARATIONS, limitTo == DECLARATIONS));
-
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_references, REFERENCES, limitTo == REFERENCES));
+		Button declarations = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_declarations, DECLARATIONS, limitTo == DECLARATIONS);
+		declarations.setEnabled(false);
+		buttons.add(declarations);
+		Button references = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_references, REFERENCES, limitTo == REFERENCES);
+		references.setEnabled(false);
+		buttons.add(references);
 		if (searchFor == TYPE) {
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_implementors, IMPLEMENTORS, limitTo == IMPLEMENTORS));
+			Button implementors = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_implementors, IMPLEMENTORS, limitTo == IMPLEMENTORS);
+			implementors.setEnabled(false);
+			buttons.add(implementors);
 		}
 
 		if (searchFor == FIELD) {
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_readReferences, READ_ACCESSES, limitTo == READ_ACCESSES));
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_writeReferences, WRITE_ACCESSES, limitTo == WRITE_ACCESSES));
+			Button read_access = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_readReferences, READ_ACCESSES, limitTo == READ_ACCESSES);
+			read_access.setEnabled(false);
+			buttons.add(read_access);
+			Button write_access = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_writeReferences, WRITE_ACCESSES, limitTo == WRITE_ACCESSES);
+			write_access.setEnabled(false);
+			buttons.add(write_access);
 		}
 
 		fLimitTo= buttons.toArray(new Button[buttons.size()]);

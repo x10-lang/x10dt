@@ -3,7 +3,6 @@ package x10dt.search.ui.search;
 import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -14,11 +13,9 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 
+import x10dt.search.core.elements.IMemberInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
-import x10dt.search.core.engine.scope.IX10SearchScope;
-import x10dt.search.core.engine.scope.SearchScopeFactory;
-import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 
@@ -42,27 +39,36 @@ public class X10SearchQuery implements ISearchQuery {
 		monitor.beginTask(NLS.bind(Messages.X10SearchQuery_task_label, stringPattern), totalTicks); 
 		IProgressMonitor mainSearchPM= new SubProgressMonitor(monitor, totalTicks);
 		try {
-			for (IProject project: ResourcesPlugin.getWorkspace().getRoot().getProjects()){
-				if (fPatternData.getSearchFor() == SearchPatternData.TYPE && fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
-				  final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
-					ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(scope, stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
-					for(ITypeInfo info: results){
-						acceptSearchResult(info, textResult);
-					}
+			
+			if (fPatternData.getSearchFor() == SearchPatternData.TYPE 
+					&& fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
+				ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
+				for(ITypeInfo info: results){
+					acceptSearchResult(info, textResult);
 				}
+			} else if (fPatternData.getSearchFor() == SearchPatternData.METHOD 
+					&& fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
+				IMemberInfo[] results = X10SearchEngine.getAllMatchingMethodInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
+				for (IMemberInfo r: results){
+					acceptSearchResult(r, textResult);
+				}
+			} else if (fPatternData.getSearchFor() == SearchPatternData.FIELD
+					&& fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
+					IMemberInfo[] results = X10SearchEngine.getAllMatchingFieldInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
+					for (IMemberInfo r: results){
+						acceptSearchResult(r, textResult);
+					}
 			}
 		} catch(Exception e){
 			//TODO: FIXME
 			System.err.println(e);
 		}
-		String message= NLS.bind(Messages.X10SearchQuery_status_ok_message, String.valueOf(textResult.getMatchCount())); 
+		String message= NLS.bind(Messages.X10SearchQuery_status_ok_message, fPatternData.getPatternLabel(), String.valueOf(textResult.getMatchCount())); 
 		return new Status(IStatus.OK, UISearchPlugin.PLUGIN_ID, 0, message, null); 
 	}
 
-	public void acceptSearchResult(ITypeInfo result, X10SearchResult search){
-		URI loc = result.getLocation().getURI();
-		IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(loc.getPath()).makeRelativeTo(ResourcesPlugin.getWorkspace().getRoot().getLocation()));
-		search.addMatch(new X10ElementMatch(file, result.getLocation().getOffset(), result.getLocation().getLength(), false, false));
+	public void acceptSearchResult(IMemberInfo result, X10SearchResult search){
+		search.addMatch(new X10ElementMatch(result, result.getLocation().getOffset(), result.getLocation().getLength(), false, false));
 		
 	}
 
@@ -71,7 +77,7 @@ public class X10SearchQuery implements ISearchQuery {
 	}
 
 	public String getResultLabel(int nMatches) {
-		return NLS.bind(Messages.X10SearchQuery_status_ok_message, nMatches);
+		return NLS.bind(Messages.X10SearchQuery_status_ok_message, fPatternData.getPatternLabel(), nMatches);
 	}
 
 	public boolean canRerun() {
