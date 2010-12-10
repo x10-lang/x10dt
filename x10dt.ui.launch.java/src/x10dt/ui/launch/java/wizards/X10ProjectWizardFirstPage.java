@@ -126,6 +126,10 @@ public class X10ProjectWizardFirstPage extends NewProjectWizardFirstPage {
 
     super.createControl(local);
 
+    getLayoutGroup().getSrcBinRadio().setSelection(true);
+    getLayoutGroup().getStdRadio().setSelection(false);
+    getLayoutGroup().getStdRadio().setEnabled(false);
+
     final Composite composite = new Composite(local, SWT.NULL);
     composite.setFont(parent.getFont());
     composite.setLayout(initGridLayout(new GridLayout(1, false), true));
