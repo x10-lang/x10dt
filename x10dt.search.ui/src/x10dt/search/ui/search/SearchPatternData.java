@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.search.ui.ISearchPageContainer;
@@ -66,6 +67,18 @@ public class SearchPatternData {
 		if ((scope == ISearchPageContainer.SELECTED_PROJECTS_SCOPE ||
 				scope == ISearchPageContainer.SELECTION_SCOPE) && resources != null){
 			X10Scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, resources);
+		} else if (scope == ISearchPageContainer.WORKING_SET_SCOPE && workingSets != null) {
+			Collection<IResource> res = new ArrayList<IResource>();
+			for(IWorkingSet ws: workingSets){
+				IAdaptable[] elements = ws.getElements();
+				for(IAdaptable ia: elements){
+					IResource resource = (IResource) ia.getAdapter(IResource.class);
+					if (resource != null){
+						res.add(resource);
+					}
+				}
+			}
+			X10Scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, res.toArray(new IResource[0]));
 		} else {
 			X10Scope = SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL);
 		}
