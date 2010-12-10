@@ -244,7 +244,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
 
   public void start(final BundleContext bundleContext) throws Exception {
     super.start(bundleContext);
-    IndexManager.initializeAndSchedule(2000);
+//  IndexManager.initializeAndSchedule(2000);
     ResourcesPlugin.getWorkspace().addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
     fPlugin = this;
   }
