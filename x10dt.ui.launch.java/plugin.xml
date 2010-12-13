@@ -96,7 +96,7 @@
       <launchConfigurationType
             delegate="x10dt.ui.launch.java.launching.X10LaunchConfigurationDelegate"
             id="x10dt.ui.launch.java.launching.X10LaunchConfigurationType"
-            modes="run,debug"
+            modes="run"
             name="X10 Application (Java back-end)"
             public="true"
             sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
@@ -122,11 +122,13 @@
                mode="run"
                perspective="x10dt.ui.perspective">
          </launchMode>
+<!--
          <launchMode
                description="%debug.launch.mode.descr"
                mode="debug"
                perspective="x10dt.ui.perspective">
          </launchMode>
+-->
       </launchConfigurationTabGroup>
    </extension>
    <extension
@@ -134,7 +136,7 @@
       <shortcut
             label="X10 Application (Java back-end)"
             icon="icons/x10_application.gif"
-            modes="run,debug"
+            modes="run"
             class="x10dt.ui.launch.java.launching.X10JavaLaunchShortcut"
             id="x10dt.ui.launch.java.launching.x10LaunchShortcut">
          <contextualLaunch>
@@ -228,5 +230,53 @@
                id="x10dt.ui.ui.launch.wizards.NewX10Project">
          </newWizardShortcut>rdShortcut>
       </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.run"
+            contextId="org.eclipse.ui.contexts.window"
+            sequence="M2+M3+X X"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.run"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+X X">
+      </key>
+<!--
+      <key
+            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M2+M3+D X">
+      </key>
+      <key
+            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
+            contextId="org.eclipse.ui.contexts.window"
+            platform="carbon"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+M3+M4+D X">
+      </key>
+-->
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            name="Run X10 Application (Java Back-End)"
+            description="Run the selected main type as an X10 application"
+            categoryId="org.eclipse.debug.ui.category.run"
+            id="x10dt.ui.launch.java.launching.x10LaunchShortcut.run">
+      </command>
+<!--
+      <command
+            name="Debug X10 Application (Java Back-End)"
+            description="Run the selected main type as an X10 application"
+            categoryId="org.eclipse.debug.ui.category.run"
+            id="x10dt.ui.launching.x10LaunchShortcut.debug">
+      </command>
+-->
    </extension>
 </plugin>

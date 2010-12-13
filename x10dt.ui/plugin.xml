@@ -53,32 +53,6 @@
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.run"
-            contextId="org.eclipse.ui.contexts.window"
-            sequence="M2+M3+X X"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.run"
-            contextId="org.eclipse.ui.contexts.window"
-            platform="carbon"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+X X">
-      </key>
-      <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M2+M3+D X">
-      </key>
-      <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
-            contextId="org.eclipse.ui.contexts.window"
-            platform="carbon"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+M4+D X">
-      </key>
-      <key
             sequence="M1+M2+T"
             contextId="x10dt.ui.x10PerspectiveScope"
             commandId="x10dt.ui.navigate.OpenType"
@@ -96,14 +70,6 @@
             commandId="x10dt.ui.navigate.OpenHierarchy"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
-<!--
-      <key
-            sequence="M1+M2+T"
-            contextId="x10dt.ui.x10PerspectiveScope"
-            commandId="x10dt.ui.navigate.OpenTypeWarning"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
--->
       <key
             sequence="F4"
             contextId="x10dt.ui.x10PerspectiveScope"
@@ -113,18 +79,6 @@
    </extension>
    <extension
          point="org.eclipse.ui.commands">
-      <command
-            name="Run X10 Application (Java Back-End)"
-            description="Run the selected main type as an X10 application"
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="x10dt.ui.launching.x10LaunchShortcut.run">
-      </command>
-      <command
-            name="Debug X10 Application (Java Back-End)"
-            description="Run the selected main type as an X10 application"
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="x10dt.ui.launching.x10LaunchShortcut.debug">
-      </command>
 <!-- navigate -->
       <command
             name="%ActionDefinition.openType.name"
