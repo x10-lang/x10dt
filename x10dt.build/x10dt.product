@@ -37,7 +37,6 @@
    <features>
       <feature id="x10dt.feature"/>
       <feature id="org.eclipse.cvs"/>
- <!--     <feature id="org.eclipse.team.svn"/> -->
       <feature id="org.eclipse.equinox.p2.user.ui"/>
       <feature id="org.eclipse.help"/>
       <feature id="org.eclipse.jdt"/>

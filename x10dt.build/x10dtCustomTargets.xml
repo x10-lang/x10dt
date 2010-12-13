@@ -94,6 +94,9 @@
       <source file="${cdt.update.loc}"/>
       <source file="${ptp.update.loc}"/>
       <source file="${imp.update.loc}"/>
+      <source>
+        <repository location="${wala.update.loc}" />
+      </source>
       <iu id="org.eclipse.cdt.feature.group" />
 
       <iu id="org.eclipse.ptp.core.feature.group" />
@@ -112,6 +115,8 @@
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
       <iu id="org.eclipse.imp.analysis.feature.group" />
+      
+      <iu id="wala.feature.feature.group"/>
 
       <slicingOptions followStrict="true" includeOptional="false"/>
     </p2.mirror>

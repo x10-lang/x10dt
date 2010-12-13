@@ -15,10 +15,14 @@
     <fileset dir="${build.folder}/dependencies/repos/mirror/plugins" includes="lpg.runtime_*.jar" />
     <fileset dir="${build.folder}/dependencies/repos/mirror/plugins" includes="lpg.runtime.java_*.jar" />
   </path>
+  <path id="wala.path.ref">
+    <fileset dir="${wala.update.loc}/plugins" includes="com.ibm.wala*.jar"/>
+  </path>
   <property name="x10.compiler.dist" value="${repoBaseLocation}/compiler/plugins"/>
   <!-- For building with build files in X10 plugins -->
   <property name="eclipse.target.platform" value="../../eclipse" />
   <property name="x10.compiler.extra.build.path" value="${toString:lpg.path.ref}" />
+  <property name="x10.wala.extra.build.path" value="${toString:wala.path.ref}" />
 
   <target name="x10-checkouts-existence">
     <condition property="are-plugins-present">
@@ -27,6 +31,7 @@
         <available file="${x10.build.loc}/x10.constraints" type="dir" />
         <available file="${x10.build.loc}/x10.compiler" type="dir" />
         <available file="${x10.build.loc}/x10.runtime" type="dir" />
+        <available file="${x10.build.loc}/x10.wala" type="dir" />
         <available file="${x10.build.loc}/x10dt.update" type="dir" />
         <available file="${x10.build.loc}/x10dt.feature" type="dir" />
         <available file="${x10.build.loc}/x10.dist.host" type="dir" />
@@ -44,6 +49,8 @@
                 destPath="${x10.build.loc}/x10.constraints" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.runtime" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.runtime" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.wala" revision="${x10.revision}" 
+                destPath="${x10.build.loc}/x10.wala" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.dist" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.dist" />
 
@@ -96,6 +103,14 @@
         <resourcecount when="greater" count="0">
           <restrict>
             <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+            <fileset dir="${x10.build.loc}/x10.wala">
+              <include name="x10.wala_*.jar" />
+            </fileset>
+          </restrict>
+        </resourcecount>
+        <resourcecount when="greater" count="0">
+          <restrict>
+            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
             <fileset dir="${x10.build.loc}/x10.dist.host">
               <include name="x10.dist.host_*.jar" />
             </fileset>
@@ -108,6 +123,8 @@
   <target name="build" depends="check-build-required" unless="x10.dist.available">
     <echo message="Build with tag ${x10.tag}"/>
 
+    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="math-jar" />
+
     <ant antfile="${x10.build.loc}/x10.constraints/exportPlugin.xml" dir="${x10.build.loc}/x10.constraints" target="build.jars"/>
     <ant antfile="${x10.build.loc}/x10.common/exportPlugin.xml" dir="${x10.build.loc}/x10.common" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.compiler/exportPlugin.xml" dir="${x10.build.loc}/x10.compiler" target="build.jars">
@@ -115,6 +132,10 @@
     </ant>
     <antcall target="prepare.x10.dist" />
     <ant antfile="${x10.build.loc}/x10.runtime/exportPlugin.xml" dir="${x10.build.loc}/x10.runtime" target="build.jars" />
+    <ant antfile="${x10.build.loc}/x10.wala/exportPlugin.xml" dir="${x10.build.loc}/x10.wala" target="build.jars">
+      <property name="extra.build.path" value="${x10.wala.extra.build.path}" />
+      <property name="plugin.src.path" value="src"/>
+    </ant>
 
     <ant antfile="${x10.build.loc}/x10.dist.host/exportPlugin.xml" dir="${x10.build.loc}/x10.dist.host" target="build.jars" />
   </target>
@@ -127,18 +148,6 @@
 
   <target name="transfer-x10-release" if="x10.release.based">
     <property name="dist.file" value="${x10.release.build.base}/${x10.tarballs.release.tag}/x10-${x10.tarballs.release.tag}_${os}.tgz" />
-<!--    <fail message="Could not find ${dist.file}">
-      <condition>
-        <resourcecount when="greater" count="0">
-          <restrict>
-            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
-            <fileset dir="${x10.release.build.base}/${x10.tarballs.release.tag}">
-              <include name="x10-${x10.tarballs.release.tag}_${os}.tgz" />
-            </fileset>
-          </restrict>
-        </resourcecount>
-      </condition>
-    </fail> -->
     <untar src="${dist.file}" dest="/tmp/x10-${zip.release.tag}_${os}" compression="gzip" />
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
     <svn username="anonymous">
@@ -220,6 +229,7 @@
       <fileset dir="${x10.build.loc}/x10.common" includes="x10.common_*.jar" />
       <fileset dir="${x10.build.loc}/x10.compiler" includes="x10.compiler_*.jar" />
       <fileset dir="${x10.build.loc}/x10.runtime" includes="x10.runtime_*.jar" />
+      <fileset dir="${x10.build.loc}/x10.wala" includes="x10.wala_*.jar" />
       <fileset dir="${x10.build.loc}/x10.dist.host" includes="x10.dist.host_*.jar" />
     </copy>
     <antcall target="transfer-tools-branch-release">
