@@ -64,6 +64,6 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   
   // --- Fields
   
-  private static final String LAUNCH_CONF_TYPE = "x10dt.ui.launching.X10LaunchConfigurationType"; //$NON-NLS-1$
+  private static final String LAUNCH_CONF_TYPE = "x10dt.ui.launch.java.launching.X10LaunchConfigurationType"; //$NON-NLS-1$
   
 }
