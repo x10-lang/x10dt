@@ -534,6 +534,8 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 				requestor.acceptTypeNameMatch(match);
 			}
 			
+		} catch(InterruptedException e) {
+			// ignore -- search cancelled
 		} catch (Exception e) {
 			throw new CoreException(new Status(IStatus.ERROR, UISearchPlugin.PLUGIN_ID, e.getMessage(), e));
 		} finally {
