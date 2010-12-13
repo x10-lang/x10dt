@@ -62,25 +62,76 @@ and type-tags of numeric literals - 0xbabe = 0XBABE.)
 <b>Keywords&nbsp;&nbsp;</b>
 
 X10 uses the following keywords:
-<pre>
-abstract       false          offers         transient      
-as             final          operator       true           
-assert         finally        package        try            
-async          finish         private        var            
-ateach         for            property       when           
-break          goto           protected      while          
-case           if             public         at (*)         
-catch          implements     return         atomic (*)     
-class          import         self           await (*)      
-continue       in             static         clocked (*)    
-def            instanceof     struct         here (*)       
-default        interface      super          next (*)       
-do             native         switch         offer (*)      
-else           new            this           resume (*)     
-extends        null           throw          type (*)       
-</pre>
-Keywords marked with a <b>(*)</b> are <em>soft</em> keywords, which may also be
-used as identifiers.  The other keywords may not be used as identifiers.
+<table>
+<tr><td align="left"><b>abstract</b></td>
+    <td><b>as</b></td>
+    <td><b>assert</b></td></tr>
+<tr><td align="left"><b>async</b></td>
+    <td><b>at</b></td>
+    <td><b>ateach</b></td></tr>
+<tr><td align="left"><i>atomic</i></td>
+    <td><b>break</b></td>
+    <td><b>case</b></td></tr>
+<tr><td align="left"><b>catch</b></td>
+    <td><b>class</b></td>
+    <td><b>clocked</b></td></tr>
+<tr><td align="left"><b>continue</b></td>
+    <td><b>def</b></td>
+    <td><b>default</b></td></tr>
+<tr><td align="left"><b>do</b></td>
+    <td><b>else</b></td>
+    <td><b>extends</b></td></tr>
+<tr><td align="left"><b>false</b></td>
+    <td><b>final</b></td>
+    <td><b>finally</b></td></tr>
+<tr><td align="left"><b>finish</b></td>
+    <td><b>for</b></td>
+    <td><b>goto</b></td></tr>
+<tr><td align="left"><b>haszero</b></td>
+    <td><i>here</i></td>
+    <td><b>if</b></td></tr>
+<tr><td align="left"><b>implements</b></td>
+    <td><b>import</b></td>
+    <td><b>in</b></td></tr>
+<tr><td align="left"><b>instanceof</b></td>
+    <td><b>interface</b></td>
+    <td><b>native</b></td></tr>
+<tr><td align="left"><b>new</b></td>
+    <td><i>next</i>/td>
+    <td><b>null</b></td></tr>
+<tr><td align="left"><i>offer</i></td>
+    <td><b>offers</b></td>
+    <td><b>operator</b></td></tr>
+<tr><td align="left"><b>package</b></td>
+    <td><b>private</b></td>
+    <td><b>property</b></td></tr>
+<tr><td align="left"><b>protected</b></td>
+    <td><b>public</b></td>
+    <td><i>resume</i></td></tr>
+<tr><td align="left"><b>return</b></td>
+    <td><b>self</b></td>
+    <td><b>static</b></td></tr>
+<tr><td align="left"><b>struct</b></td>
+    <td><b>super</b></td>
+    <td><b>switch</b></td></tr>
+<tr><td align="left"><b>this</b></td>
+    <td><b>throw</b></td>
+    <td><b>transient</b></td></tr>
+<tr><td align="left"><b>true</b></td>
+    <td><b>try</b></td>
+    <td><b>type</b></td></tr>
+<tr><td align="left"><b>val</b></td>
+    <td><b>var</b></td>
+    <td><b>void</b></td></tr>
+<tr><td align="left"><b>when</b></td> 
+    <td><b>while</b>
+</td></tr></table>
+
+
+<div class="p"><!----></div>
+Keywords in <em>italics</em> are <em>soft</em> keywords, which may also be
+used as identifiers.  The other keywords, in <b>bold</b>, are <em>hard</em>
+keywords and  may not be used as identifiers.
 
 <div class="p"><!----></div>
 Note that the primitive types are not considered keywords.
@@ -155,7 +206,7 @@ f = b x</td></tr></table></td></tr></table>
 </li>
 
 <li> <b>Long</b> literals have the form si<tt>l</tt> or
-      si<tt>L</tt>. <em>E.g.</em>, <b>1234567890L</b>  and <b>0xBAGEL</b> are <b>Long</b> literals.
+      si<tt>L</tt>. <em>E.g.</em>, <b>1234567890L</b>  and <b>0xBABEL</b> are <b>Long</b> literals.
 <div class="p"><!----></div>
 </li>
 

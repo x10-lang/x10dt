@@ -39,6 +39,9 @@ with care.
 </em>
 
 <div class="p"><!----></div>
+The <em>PlaceExp</em> must be an expression of type <b>Place</b> or some subtype.
+
+<div class="p"><!----></div>
 An activity executing statement <b>at (q) S</b> at a place <b>p</b>
 evaluates <b>q</b> at <b>p</b> and then moves to <b>q</b> to execute
 <b>S</b> as follows. Note that the value obtained by evaluating <b>q</b>
@@ -65,7 +68,7 @@ it is deserialized into an exception <b>E1</b> and <b>at (e) S</b>
 throws <b>E1</b>.
 
 <div class="p"><!----></div>
-Since <b>at(e) S</b> is a synchronous constructs usual control-flow
+Since <b>at(e) S</b> is a synchronous construct, usual control-flow
 constructs such as <b>break</b>, <b>continue</b>, <b>return</b> and 
 <b>throw</b> are permitted in <b>S</b>.  All concurrency related
 constructs - <b>async</b>, <b>finish</b>, <b>atomic</b>, <b>when</b> are
@@ -129,7 +132,8 @@ activity to execute <b>S</b>), and,
 (3) <b>async at(p) async S</b>. 
 
 <div class="p"><!----></div>
-As a consequence of this, <b>S</b> may contain constructs which only make sense
+Since <b>at(p) S</b> does not start a new activity, 
+<b>S</b> may contain constructs which only make sense
 within a single activity.  
 For example, 
 <pre>
@@ -153,7 +157,7 @@ to place <b>p</b>, before executing <b>S</b> there. The only things that are not
 copied are values only reachable through <b>GlobalRef</b>s and <b>transient</b>
 fields.    If <b>x</b> is a
 variable name referring to some object <b>ob</b> outside of <b>S</b>, then the
-same variable name <b>x</b> refers to a deep copy <b>ob&#8242;</b> of <b>ob</b>
+same variable name <b>x</b> refers to a deep copy of <b>ob</b>
 inside of <b>S</b>.  In this way the body <b>S</b> is in a separate block with
 different variable bindings.
 
@@ -338,8 +342,7 @@ place.
 
 <div class="p"><!----></div>
 The starting place has local <b>var</b>s <b>r</b> and <b>s</b>, which will hold
-the roots.  (They are initialized to 0+0i because of
-&#167;.) 
+the roots. 
 The computation at the math processor evaluates the roots of the equation.
 These roots are bound to math processor local <b>val</b> variables <b>rr</b> and
 <b>ss</b>.  An inner place-shifting <b>at(h)</b> moves the computation back to

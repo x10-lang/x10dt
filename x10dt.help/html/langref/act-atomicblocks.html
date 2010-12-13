@@ -50,9 +50,9 @@ no method calls on <b>r</b> are active.
 If the <b>add</b> method on <b>Redund</b> (which adds an element to the list) 
 were defined as: 
 <pre>
-def add(x:T) { // Incorrect
-  this.list.add(x);
-  this.size = this.size + 1;
+def add(x:T) { //Incorrect
+		this.list.add(x);
+		this.size = this.size + 1;
 }
 </pre>
 Then two activities simultaneously adding elements to the same <b>r</b> could break the
@@ -79,8 +79,10 @@ Doing so forbids that sequence of events; the <b>atomic</b> block cannot be
 stopped partway.  
 <pre>
 def add(x:T) { 
+	atomic {
   this.list.add(x);
-  atomic { this.size = this.size + 1; }
+   this.size = this.size + 1; 
+	}
 }
 </pre>
 
@@ -240,7 +242,7 @@ behaviorally identical to <b>atomic S</b>: it never suspends.
 
 <div class="p"><!----></div>
 The body <b>S</b> of <b>when(b)S</b> is subject to the same restrictions that
-the body of <b>await S</b> is.  The guard is subject to the same restrictions
+the body of <b>atomic S</b> is.  The guard is subject to the same restrictions
 as well.  Furthermore, guards should not have side effects.
 
 <div class="p"><!----></div>
