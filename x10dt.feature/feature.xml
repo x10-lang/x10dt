@@ -81,6 +81,10 @@
       <import plugin="org.eclipse.imp.pdb"/>
       <import plugin="org.eclipse.imp.pdb.values"/>
       <import feature="org.eclipse.cdt"/>
+      <import plugin="com.ibm.wala.cast"/>
+      <import plugin="com.ibm.wala.cast.java"/>
+      <import plugin="com.ibm.wala.core"/>
+      <import plugin="com.ibm.wala.shrike"/>
    </requires>
 
    <plugin
@@ -239,6 +243,13 @@
 
    <plugin
          id="x10dt.ui.launch.cpp.rms"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.wala"
          download-size="0"
          install-size="0"
          version="0.0.0"
