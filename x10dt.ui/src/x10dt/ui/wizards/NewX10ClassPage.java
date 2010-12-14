@@ -11,9 +11,9 @@
 
 package x10dt.ui.wizards;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,11 +23,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
@@ -265,6 +269,18 @@ public class NewX10ClassPage extends NewTypeWizardPage {
       String pkgName = pkgFrag.getElementName();
       IPackageFragmentRoot root = this.getPackageFragmentRoot();
 
+      if (!root.exists()) {
+          IJavaProject javaProject= getJavaProject();
+          IClasspathEntry newEntry= JavaCore.newSourceEntry(new Path(getPackageFragmentRootText()).makeAbsolute());
+          IClasspathEntry[] entries= javaProject.getRawClasspath();
+          IClasspathEntry[] newEntries= new IClasspathEntry[entries.length + 1];
+
+          System.arraycopy(entries, 0, newEntries, 0, entries.length);
+          newEntries[entries.length]= newEntry;
+          javaProject.setRawClasspath(newEntries, new NullProgressMonitor());
+
+          root= (IPackageFragmentRoot) JavaCore.create(javaProject.getProject().getWorkspace().getRoot().getFolder(newEntry.getPath()));
+      }
       pkgFrag = root.createPackageFragment(pkgName, true, null);
     }
     IResource resource = pkgFrag.getCorrespondingResource();
@@ -340,7 +356,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     }
     buff.append("}");
 
-    return new StringBufferInputStream(buff.toString());
+    return new ByteArrayInputStream(buff.toString().getBytes());
   }
 
   /**
