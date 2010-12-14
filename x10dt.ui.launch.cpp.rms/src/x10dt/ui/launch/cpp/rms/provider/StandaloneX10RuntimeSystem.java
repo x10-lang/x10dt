@@ -48,7 +48,7 @@ final class StandaloneX10RuntimeSystem extends AbstractX10RuntimeSystem implemen
     
     protected void completeEnvironmentVariables(final Map<String, String> envMap) {
       final Integer procs = getAttrManager().getAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition()).getValue();
-      envMap.put("X10RT_STANDALONE_NUMPLACES", String.valueOf(procs)); //$NON-NLS-1$
+      envMap.put("X10_NPLACES", String.valueOf(procs)); //$NON-NLS-1$
     }
 
   }

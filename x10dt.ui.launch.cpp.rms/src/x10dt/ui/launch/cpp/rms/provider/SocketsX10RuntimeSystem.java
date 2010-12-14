@@ -67,7 +67,7 @@ final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements 
     
     protected void completeEnvironmentVariables(final Map<String, String> envMap) {
       final Integer procs = getAttrManager().getAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition()).getValue();
-      envMap.put("X10LAUNCHER_NPROCS", String.valueOf(procs)); //$NON-NLS-1$
+      envMap.put("X10_NPLACES", String.valueOf(procs)); //$NON-NLS-1$
       final String hostFile = getAttrManager().getAttribute(LaunchAttributes.getHostFileAttr()).getValue();
       if (hostFile.length() == 0) {
         final List<String> hostList = getAttrManager().getAttribute(LaunchAttributes.getHostListAttr()).getValue();
@@ -81,9 +81,9 @@ final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements 
           }
           sb.append(hostName);
         }
-        envMap.put("X10LAUNCHER_HOSTLIST", sb.toString()); //$NON-NLS-1$
+        envMap.put("X10_HOSTLIST", sb.toString()); //$NON-NLS-1$
       } else {
-        envMap.put("X10LAUNCHER_HOSTFILE", hostFile); //$NON-NLS-1$
+        envMap.put("X10_HOSTFILE", hostFile); //$NON-NLS-1$
       }
     }
 
