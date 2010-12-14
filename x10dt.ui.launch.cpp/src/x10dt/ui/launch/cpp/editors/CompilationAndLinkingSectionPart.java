@@ -335,7 +335,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     
     this.fDebugBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_UseMPILibForDebugger, SWT.CHECK);
     this.fDebugBt.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE, 1, 3));
-    this.fDebugBt.setSelection(true);
+    this.fDebugBt.setSelection(false);
     final String serviceTypeId = getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId();
     this.fDebugBt.setEnabled(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId));
     
