@@ -31,7 +31,9 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.java.hosted.wizards.NewProjectWizardSecondPage;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -41,6 +43,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 
 import x10dt.core.utils.X10DTCoreConstants;
+import x10dt.ui.launch.java.Activator;
+import x10dt.ui.launch.java.Messages;
 import x10dt.ui.launch.java.nature.X10ProjectNature;
 import x10dt.ui.utils.WizardUtils;
 
@@ -59,6 +63,32 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     return Arrays.asList(JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID)));
   }
 
+  /**
+   * The purpose of this override is to add an extra check on the classpath,
+   * to make sure that it has an explicit source folder entry. Unfortunately,
+   * there does not appear to be enough API exposed on the base class to implement
+   * this check in the normal manner.
+   */
+  protected void updateStatus(IStatus status) {
+    if (status.isOK()) {
+      if (!checkClasspath()) {
+        super.updateStatus(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.X10ProjectWizardSecondPage_noSourceEntry));
+        return;
+      }
+    }
+    super.updateStatus(status);
+  }
+
+  private boolean checkClasspath() {
+    IClasspathEntry[] cpEntries= getRawClassPath();
+    for(IClasspathEntry entry: cpEntries) {
+        if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            return true;
+        }
+    }
+    return false;
+  }
+
   @Override
   public void performFinish(IProgressMonitor monitor) throws CoreException, InterruptedException {
     final X10ProjectWizardFirstPage firstPage = (X10ProjectWizardFirstPage) this.getPreviousPage();
@@ -70,13 +100,13 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     if (firstPage.isGenHello()) {
       ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
         public void run(IProgressMonitor monitor) throws CoreException {
-          IFile newFile = project.getFile("src/Hello.x10");
-          IFolder srcFolder = project.getFolder("src");
+          IFile newFile = project.getFile("src/Hello.x10"); //$NON-NLS-1$
+          IFolder srcFolder = project.getFolder("src"); //$NON-NLS-1$
           IJavaProject javaProject = JavaCore.create(project);
           IPackageFragmentRoot pkgFragRoot = javaProject.getPackageFragmentRoot(srcFolder);
-          IPackageFragment pkgFrag = pkgFragRoot.getPackageFragment("");
+          IPackageFragment pkgFrag = pkgFragRoot.getPackageFragment(""); //$NON-NLS-1$
 
-          InputStream sourceInputStream = WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello");
+          InputStream sourceInputStream = WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello"); //$NON-NLS-1$
           newFile.create(sourceInputStream, true, monitor);
 
           ((X10ProjectWizard) X10ProjectWizardSecondPage.this.getWizard()).selectAndReveal(newFile);
