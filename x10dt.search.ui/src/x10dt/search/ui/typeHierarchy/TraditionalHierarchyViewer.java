@@ -144,7 +144,7 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 						}
 					}
 				} else {
-					boolean isHierarchyOnType= (type.getName().equals(hierarchy.getType()));
+					boolean isHierarchyOnType= (type.equals(hierarchy.getType()));
 					boolean isClass= !SearchUtils.hasFlag(X10.INTERFACE, type.getX10FlagsCode());
 					if (isClass || isHierarchyOnType) {
 						for (int i= 0; i < types.length; i++) {
