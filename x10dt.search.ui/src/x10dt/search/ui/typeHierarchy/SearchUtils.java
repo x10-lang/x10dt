@@ -264,7 +264,7 @@ public class SearchUtils {
 	public static IResource getResource(IMemberInfo info) {
 		try {
 			IPath path = getPath(info);
-			return ResourcesPlugin.getWorkspace().getRoot().findMember(path);
+			return ResourcesPlugin.getWorkspace().getRoot().findMember(path.makeRelativeTo(ResourcesPlugin.getWorkspace().getRoot().getLocation()));
 		} catch (Exception e) {
 			//ignore
 		}
@@ -325,7 +325,7 @@ public class SearchUtils {
 		return (modifiers & flag.getCode()) != 0;
 	}
 	
-	private static ITypeInfo getOuterTypeInfo(IMemberInfo member)
+	public static ITypeInfo getOuterTypeInfo(IMemberInfo member)
 	{
 		ITypeInfo dt = member.getDeclaringType();
 		if(dt == null)
