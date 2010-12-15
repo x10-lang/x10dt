@@ -340,7 +340,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
         buff.append("     * Main method " + "\n");
         buff.append("     */\n");
       }
-      buff.append("    public static def main(args: Array[String]): void {\n");
+      buff.append("    public static def main(args: Array[String]) {\n");
       buff.append("        // TODO auto-generated stub\n");
       buff.append("    }\n");
     }
