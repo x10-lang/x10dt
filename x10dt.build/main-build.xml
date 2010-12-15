@@ -34,6 +34,7 @@
     <propertyref name="build.loc"/>
     <propertyref name="buildLabel"/>
     <propertyref name="no.jars.signing"/>
+    <propertyref name="x10.tag"/>
   </propertyset>
 
   <!--- Building tasks -->
