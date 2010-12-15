@@ -79,7 +79,7 @@ public class X10ProjectWizard extends Wizard implements INewWizard, IExecutableE
     };
     try {
       ISchedulingRule rule = null;
-      Job job = Platform.getJobManager().currentJob();
+      Job job = Job.getJobManager().currentJob();
       if (job != null)
         rule = job.getRule();
       IRunnableWithProgress runnable = null;
