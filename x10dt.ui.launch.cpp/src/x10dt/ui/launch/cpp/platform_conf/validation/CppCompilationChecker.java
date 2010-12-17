@@ -26,6 +26,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -47,6 +48,7 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
+import x10cpp.visit.MessagePassingCodeGenerator;
 import x10dt.core.builder.StreamSource;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.utils.CollectionUtils;
@@ -54,6 +56,7 @@ import x10dt.ui.launch.core.utils.FileUtils;
 import x10dt.ui.launch.core.utils.IFilter;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.X10BuilderUtils;
+import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.X10CppBuilder;
 import x10dt.ui.launch.cpp.utils.PTPUtils;
@@ -173,6 +176,13 @@ final class CppCompilationChecker implements ICppCompilationChecker {
     try {
       compiler.compile(Arrays.<Source> asList(new StreamSource(sourceInputStream, testFilePath.getAbsolutePath())));
 
+      final Collection<String> ccFiles = CollectionUtils.filter(compiler.outputFiles(), new CCFileFilter());
+      if (!ccFiles.isEmpty()) {
+        // Need to add the main method stub to the generated source file
+        String ccFileName= ccFiles.iterator().next();
+        addMainMethodStub(new File(testFilePath.getParentFile().getAbsolutePath() + File.separator + ccFileName));
+      }
+
       final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
       if (!isLocal) {
         monitor.subTask(LaunchMessages.APCC_TransferringFiles);
@@ -210,6 +220,19 @@ final class CppCompilationChecker implements ICppCompilationChecker {
     }
   }
   
+  private void addMainMethodStub(File file) {
+    try {
+      FileOutputStream fos= new FileOutputStream(file, true);
+      String stubSource= MessagePassingCodeGenerator.createMainStub("Hello"); //$NON-NLS-1$
+
+      fos.write(stubSource.getBytes());
+      fos.flush();
+      fos.close();
+    } catch (IOException e) {
+      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CppCompilationChecker_errorAppendingMainMethodStub, e);
+    }
+  }
+
   private File createTestFile(final String uniqueDirName, final SubMonitor monitor) throws Exception {
     final String dirPath = String.format(PATH_SEP_STRFORMAT, System.getProperty(TMPDIR_JAVA_ENV_VAR), uniqueDirName);
     final String testFilePath = String.format(PATH_SEP_STRFORMAT, dirPath, TEST_FILENAME);

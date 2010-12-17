@@ -188,6 +188,8 @@ public class LaunchMessages extends NLS {
   public static String CCVC_WrongIBMVersionRequirement;
 
   public static String CCVC_WrongLinuxPPCVersionRequirement;
+
+public static String CppCompilationChecker_errorAppendingMainMethodStub;
   
   public static String CSP_ConnTimeout;
 
