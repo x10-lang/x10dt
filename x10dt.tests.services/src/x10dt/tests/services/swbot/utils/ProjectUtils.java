@@ -153,19 +153,26 @@ public final class ProjectUtils {
   }
  
   public static SWTBotShell createClass(SWTWorkbenchBot bot, String name) {
+      return createClass(bot, name, false);
+  }
+
+  public static SWTBotShell createClass(SWTWorkbenchBot bot, String name, boolean withMainMethod) {
     // Shouldn't the following use the X10 folder/category to qualify the "Class" menu item???
     bot.menu(FILE_MENU).menu(NEW_MENU_ITEM).menu(NEW_OTHER_MENU).click();
 
-    SWTBotShell otherShell= bot.shell(NEW_OTHER_SHELL);
+    SWTBotShell wizShell= bot.shell(NEW_OTHER_SHELL);
 
-    otherShell.activate();
+    wizShell.activate();
 
-    SWTBot otherBot= otherShell.bot();
-
-    SWTBotTree wizardTree= otherBot.tree();
+    SWTBot wizBot= wizShell.bot();
+    SWTBotTree wizardTree= wizBot.tree();
 
     wizardTree.expandNode(X10_FOLDER).select(NEW_X10_CLASS_WIZARD);
-    otherBot.button(NEXT_BUTTON).click();
+    wizBot.button(NEXT_BUTTON).click();
+
+    if (withMainMethod) {
+        wizBot.buttonInGroup("Which method stubs would you like to create?", 0).click();
+    }
 
     SWTBotShell newClassShell= bot.shell(NEW_X10_CLASS_SHELL);
 
