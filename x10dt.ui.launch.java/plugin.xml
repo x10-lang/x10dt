@@ -96,7 +96,7 @@
       <launchConfigurationType
             delegate="x10dt.ui.launch.java.launching.X10LaunchConfigurationDelegate"
             id="x10dt.ui.launch.java.launching.X10LaunchConfigurationType"
-            modes="run"
+            modes="run,debug"
             name="X10 Application (Java back-end)"
             public="true"
             sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
@@ -134,7 +134,7 @@
       <shortcut
             label="X10 Application (Java back-end)"
             icon="icons/x10_application.gif"
-            modes="run"
+            modes="run,debug"
             class="x10dt.ui.launch.java.launching.X10JavaLaunchShortcut"
             id="x10dt.ui.launch.java.launching.x10LaunchShortcut">
          <contextualLaunch>
@@ -245,13 +245,13 @@
             sequence="M1+M3+X X">
       </key>
       <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.debug"
             contextId="org.eclipse.ui.contexts.window"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M2+M3+D X">
       </key>
       <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
+            commandId="x10dt.ui.launch.java.launching.x10LaunchShortcut.debug"
             contextId="org.eclipse.ui.contexts.window"
             platform="carbon"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
@@ -270,7 +270,7 @@
             name="Debug X10 Application (Java Back-End)"
             description="Run the selected main type as an X10 application"
             categoryId="org.eclipse.debug.ui.category.run"
-            id="x10dt.ui.launching.x10LaunchShortcut.debug">
+            id="x10dt.ui.launch.java.launching.x10LaunchShortcut.debug">
       </command>
    </extension>
 </plugin>
