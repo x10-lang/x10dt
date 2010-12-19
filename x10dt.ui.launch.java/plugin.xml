@@ -122,13 +122,11 @@
                mode="run"
                perspective="x10dt.ui.perspective">
          </launchMode>
-<!--
          <launchMode
                description="%debug.launch.mode.descr"
                mode="debug"
                perspective="x10dt.ui.perspective">
          </launchMode>
--->
       </launchConfigurationTabGroup>
    </extension>
    <extension
@@ -246,7 +244,6 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+X X">
       </key>
-<!--
       <key
             commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
             contextId="org.eclipse.ui.contexts.window"
@@ -260,7 +257,6 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="M1+M3+M4+D X">
       </key>
--->
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -270,13 +266,11 @@
             categoryId="org.eclipse.debug.ui.category.run"
             id="x10dt.ui.launch.java.launching.x10LaunchShortcut.run">
       </command>
-<!--
       <command
             name="Debug X10 Application (Java Back-End)"
             description="Run the selected main type as an X10 application"
             categoryId="org.eclipse.debug.ui.category.run"
             id="x10dt.ui.launching.x10LaunchShortcut.debug">
       </command>
--->
    </extension>
 </plugin>
