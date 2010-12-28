@@ -13,6 +13,7 @@ import org.junit.runners.Suite;
 import x10dt.core.tests.compiler.CompilerTests;
 import x10dt.core.tests.compiler.CompletenessCompilerTests;
 import x10dt.core.tests.compiler.DataParamCompilerTests;
+import x10dt.core.tests.compiler.X10TestsParamCompilerTests;
 
 /**
  * All command-line JUnit test cases for this plugin.
@@ -20,6 +21,6 @@ import x10dt.core.tests.compiler.DataParamCompilerTests;
  * @author egeay
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ CompilerTests.class, CompletenessCompilerTests.class, DataParamCompilerTests.class })
+@Suite.SuiteClasses({ CompilerTests.class, CompletenessCompilerTests.class, DataParamCompilerTests.class, X10TestsParamCompilerTests.class })
 public final class JUnitTestSuite {
 }
