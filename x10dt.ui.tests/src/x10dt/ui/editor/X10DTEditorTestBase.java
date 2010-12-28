@@ -61,7 +61,7 @@ public class X10DTEditorTestBase extends X10DTTestBase {
             return "Some Failure Message";
           }
     
-        }, Timeout.SIXTY_SECONDS);
+        });
     }
 
     public static void BeforeClass() {

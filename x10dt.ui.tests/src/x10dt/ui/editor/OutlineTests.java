@@ -62,7 +62,7 @@ import x10dt.core.utils.Timeout;
 public class OutlineTests extends X10DTTestBase {
   private static final String PROJECT_NAME = "OutlineProject";
 
-  private static final String CLASS_NAME_1 = "Hello";
+  private static final String CLASS_NAME_1 = "Hello1";
 
   private static final String CLASS_NAME_2 = "KMeansSPMD";
 

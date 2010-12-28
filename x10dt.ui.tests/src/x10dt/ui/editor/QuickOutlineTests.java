@@ -17,6 +17,7 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.bindings.keys.KeyStroke;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.SWTBot;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes;
 import org.eclipse.swtbot.swt.finder.utils.Position;
@@ -38,16 +39,17 @@ import x10dt.ui.tests.utils.EditorMatcher;
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class QuickOutlineTests extends X10DTEditorTestBase {
+	static int testID = 0;
   private static final String PROJECT_NAME = "TestOutline";
 
-  private static final String CLASS_NAME = "Hello";
+  private static final String CLASS_NAME = "Hello1";
 
   private static final String SRC_FILE_NAME = CLASS_NAME + ".x10";
 
   @BeforeClass
   public static void beforeClass() throws Exception {
     X10DTEditorTestBase.BeforeClass();
-    createJavaBackEndProject(PROJECT_NAME, false);
+    //createJavaBackEndProject(PROJECT_NAME, false);
     topLevelBot.shells()[0].activate();
   }
 
@@ -61,8 +63,17 @@ public class QuickOutlineTests extends X10DTEditorTestBase {
       X10DTEditorTestBase.AfterClass();
   }
 
+  //@Test
+  public void test() throws Exception {
+	  for (int i = 0; i < 50; i++){
+		  test1();
+		  after();
+	  }
+  }
+  
   @Test
   public void test1() throws Exception {
+	createJavaBackEndProject(PROJECT_NAME + testID++, false);  
     ProjectUtils.createClass(topLevelBot, CLASS_NAME);
     topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(SRC_FILE_NAME)));
 
@@ -87,14 +98,24 @@ public class QuickOutlineTests extends X10DTEditorTestBase {
     fSrcEditor.save();
     waitForBuildToFinish(); // WHY???
 
-    SWTBot outlineBot = invokeQuickOutline(topLevelBot);// TODO
+    try {
+    	SWTBot outlineBot = invokeQuickOutline(topLevelBot);// TODO
 
-    SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
-    SWTBotTreeItem mainItem = classItem.getNode("main(x10.array.Array[x10.lang.String])");
+    	SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
+    	SWTBotTreeItem mainItem = classItem.getNode("main(x10.array.Array[x10.lang.String])");
 
-    classItem.getNode("foo()");
-    mainItem.doubleClick();
+    	classItem.getNode("foo()");
+    	mainItem.doubleClick();
+    } catch (WidgetNotFoundException e){
+    	SWTBot outlineBot = invokeQuickOutline(topLevelBot);// TODO
 
+    	SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
+    	SWTBotTreeItem mainItem = classItem.getNode("main(x10.array.Array[x10.lang.String])");
+
+    	classItem.getNode("foo()");
+    	mainItem.doubleClick();
+    }
+    
     Position cursorPos = fSrcEditor.cursorPosition();
 
     junit.framework.Assert.assertEquals("Cursor positioned at incorrect line after quick outline item selection", 1,
@@ -116,15 +137,27 @@ public class QuickOutlineTests extends X10DTEditorTestBase {
     fSrcEditor.save();
     waitForBuildToFinish(); // WHY???
 
-    SWTBot outlineBot = invokeQuickOutline(topLevelBot);
+    try {
+    	SWTBot outlineBot = invokeQuickOutline(topLevelBot);
 
-    SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
+    	SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
 
-    classItem.getNode("bar()");
+    	classItem.getNode("bar()");
 
-    SWTBotTreeItem bletchItem = classItem.getNode("bletch()");
+    	SWTBotTreeItem bletchItem = classItem.getNode("bletch()");
 
-    bletchItem.doubleClick();
+    	bletchItem.doubleClick();
+    } catch (WidgetNotFoundException e){
+    	SWTBot outlineBot = invokeQuickOutline(topLevelBot); //OK to repeat because this resets the focus to editor.
+
+    	SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
+
+    	classItem.getNode("bar()");
+
+    	SWTBotTreeItem bletchItem = classItem.getNode("bletch()");
+
+    	bletchItem.doubleClick();
+    }
 
     Position cursorPos = fSrcEditor.cursorPosition();
 
@@ -144,11 +177,23 @@ public class QuickOutlineTests extends X10DTEditorTestBase {
   }
 
   private SWTBot invokeQuickOutline(SWTBot bot) throws Exception {
-
-    fSrcEditor.pressShortcut(Keystrokes.CTRL, KeyStroke.getInstance("o"));
-
-    SWTBotShell outlineShell = topLevelBot.shell(WizardConstants.QUICK_OUTLINE_SHELL); // TODO Fix this
-
+	fSrcEditor.setFocus(); //Needed to make this method repeatable.
+	if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0){  
+		fSrcEditor.pressShortcut(Keystrokes.COMMAND, KeyStroke.getInstance("o"));
+	} else {
+		fSrcEditor.pressShortcut(Keystrokes.CTRL, KeyStroke.getInstance("o"));
+	}
+	SWTBotShell outlineShell = null;
+	try {
+		outlineShell = topLevelBot.shell(WizardConstants.QUICK_OUTLINE_SHELL); // TODO Fix this
+	} catch (WidgetNotFoundException e){
+    	if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0){  
+    		fSrcEditor.pressShortcut(Keystrokes.COMMAND, KeyStroke.getInstance("o"));
+    	} else {
+    		fSrcEditor.pressShortcut(Keystrokes.CTRL, KeyStroke.getInstance("o"));
+    	}
+    	outlineShell = topLevelBot.shell(WizardConstants.QUICK_OUTLINE_SHELL);
+    }
     outlineShell.activate();
 
     return outlineShell.bot();
