@@ -1707,8 +1707,10 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				// System.out.println(loop2);
 
 				finishedLoop1.prettyPrint(loopWriter);
-				loopWriter.append('\n');
-				loop2.prettyPrint(loopWriter);
+				if (nonEmptyBody(loop2.body())) {
+					loopWriter.append('\n');
+					loop2.prettyPrint(loopWriter);
+				}
 
 			}
 		}
@@ -1724,6 +1726,22 @@ public class ExtractAsyncRefactoring extends Refactoring {
 				loopWriter.toString()));
 
 		return tfc;
+	}
+
+	/**
+	 * Determines if a the body of a loop is non-empty.
+	 * 
+	 * @param body
+	 *            the body to check
+	 * @return true, if the body is non-empty; false, otherwise
+	 */
+	private static boolean nonEmptyBody(Stmt body) {
+		if (body instanceof Block) {
+			Block bBody = (Block) body;
+			return bBody.statements().size() > 0;
+		} else {
+			return true;
+		}
 	}
 
 	/**
@@ -1830,8 +1848,12 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			for (Stmt s : fDelta) {
 				for (Stmt s_prime : delta) {
 					if (s != s_prime) {
-						if (!Collections.disjoint(fPhi.get(s), fPhi
-								.get(s_prime))) {
+						Set<Expr> sSet = fPhi.get(s);
+						Set<Expr> s_primeSet = fPhi.get(s_prime);
+						if (sSet != null
+								&& s_primeSet != null
+								&& !Collections.disjoint(fPhi.get(s), fPhi
+										.get(s_prime))) {
 							delta.add(s);
 							break;
 						}
