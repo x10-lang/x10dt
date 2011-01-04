@@ -123,8 +123,8 @@
 		<topic label="Methods" href="html/langref/cla-methods.html"/>
 <!--
 		<topic label="Instance Initialization" href="html/langref/cla-instanceinit.html"/>
-		<topic label="Constructors" href="html/langref/cla-constructors.html"/>
 -->
+		<topic label="Constructors" href="html/langref/cla-constructors.html"/>
 		<topic label="Static initialization" href="html/langref/cla-staticinit.html"/>
 		<topic label="User-Defined Operators" href="html/langref/cla-userdefinedops.html"/> 
 		<topic label="Class Guards and Invariants" href="html/langref/cla-guards.html"/>
@@ -196,7 +196,8 @@
 		<topic label="Assert statement" href="html/langref/sta-assert.html"/>
 		<topic label="Exceptions in X10" href="html/langref/sta-exceptions.html"/>
 		<topic label="Throw statement" href="html/langref/sta-throw.html"/> 
-		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/>  
+		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/>
+		<topic label="Assert statement" href="html/langref/sta-assert.html"/>  
 	</topic>
 	<topic label="Places" href="html/langref/places.html"> 
 		<topic label="The Structure of Places" href="html/langref/pla-structure.html"/> 
