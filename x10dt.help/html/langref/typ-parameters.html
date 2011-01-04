@@ -94,6 +94,19 @@ class NonGeneric {
 static or final; the Java back end can accomodate generic instance methods as well. </em>
 
 <div class="p"><!----></div>
+Unlike other kinds of variables, type parameters may <em>not</em> be shadowed.  
+If name <b>X</b> is in scope as a type, <b>X</b> may not be rebound as a type
+variable.  
+For example, neither <b>class B</b> nor <b>class C[B]</b> are allowed in the
+following code, because they both shadow the type variable <b>B</b>.
+<pre>
+class A[B] {
+  // ILLEGAL: class B{} 
+  // ILLEGAL: class C[B]{} 
+}
+</pre>
+
+<div class="p"><!----></div>
      <h3><a name="tth_sEc2.1">
 2.1</a>&nbsp;&nbsp;Variance of Type Parameters</h3>
 

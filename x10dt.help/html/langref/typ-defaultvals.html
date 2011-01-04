@@ -79,6 +79,41 @@ matter; the only candidate for its default value, as for any subtype of
 <b>Int</b>, is 0. <b>y</b> must be initialized before it is used.
 
 <div class="p"><!----></div>
+The predicate <b>T haszero</b> tells if the type <b>T</b> has a default value.
+<b>haszero</b> may be used in constraints. 
+
+<div class="p"><!----></div>
+The following code defines a sort of cell holding a single value of type
+<b>T</b>. The cell is initially empty - that is, has <b>T</b>'s zero value -
+but may be filled later. 
+<pre>
+class Cell0[T]{T haszero} {
+  public var contents : T;
+  public def put(t:T) { contents = t; }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+The built-in type <b>Zero</b> has the method <b>get[T]()</b> which
+returns the default value of type <b>T</b>.  
+
+<div class="p"><!----></div>
+A variant <b>Cell1[T]</b> which can be initialized with a value of an arbitrary
+type
+<b>T</b>, or, if <b>T</b> has a default value, can be created with the default
+value, is given below.  Note that <b>T haszero</b> is a constraint on one of
+the constructors, not the whole type:  
+<pre>
+class Cell1[T] {
+  public var contents: T;
+  def this(t:T) { contents = t; }
+  def this(){T haszero} { contents = Zero.get[T](); }
+  public def put(t:T) {contents = t;}
+}
+</pre>
+
+<div class="p"><!----></div>
 
 </body>
 </html>

@@ -25,19 +25,18 @@
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">LabeledStatement    ::= Id <b>:</b> LoopStatement </td></tr>
-<tr><td align="right">
- LoopStatement    ::= ForStatement </td></tr>
-<tr><td align="right">
-    &#124; WhileStatement</td></tr>
-<tr><td align="right">&#124; DoStatement</td></tr>
-<tr><td align="right">&#124; AtEachStatement</td></tr>
-<tr><td align="right"></td></tr></table>
+<tr><td align="right">LabeledStatement    ::= Id <b>:</b> Statement </td></tr>
+</table>
 </em>
 
 <div class="p"><!----></div>
-Loop statements (<b>for</b>, <b>while</b>, <b>do</b>, <b>ateach</b>) may be labeled. The label may be used as the target of a break
-or continue statement. The scope of a label is the statement labeled.
+Statements may be labeled. The label may be used to describe the target of a
+<b>break</b> statement appearing within a substatement (which, when executed,
+ends the labeled statement) , or, in the case of a loop, a <b>continue</b> as
+well (which, when executed, proceeds to the next iteration of the loop). The
+scope of a label is the statement labeled.
+
+<div class="p"><!----></div>
 <pre>
 lbl : for ([i] in 1..10) {
    for ([j] in i..10) {  
@@ -46,6 +45,24 @@ lbl : for ([i] in 1..10) {
       if (a(i,j) == a(j,i)) break lbl;
    }
 }
+</pre>
+
+<div class="p"><!----></div>
+In particular, a block statement may be labeled: <b> L:S</b>.  This allows
+the use of <b>break L</b> within <b>S</b> to leave <b>S</b>, which can, if
+carefully used, avoid deeply-nested <b>if</b>s: 
+
+<div class="p"><!----></div>
+<pre>
+multiphase: {
+  if (!exists(filename)) break multiphase;
+  phase1(filename);
+  if (!suitable_for_phase_2(filename)) break multiphase;
+  phase2(filename);
+  if (!suitable_for_phase_3(filename)) break multiphase;
+  phase3(filename);
+}
+// Now the file has been phased as much as possible
 </pre>
 
 <div class="p"><!----></div>
