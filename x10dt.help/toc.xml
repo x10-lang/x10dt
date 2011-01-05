@@ -131,6 +131,7 @@
 		<topic label="Method Resolution" href="html/langref/cla-methodres.html"/>
 		<topic label="Static Nested Classes" href="html/langref/cla-staticnested.html"/>
 		<topic label="Inner Classes" href="html/langref/cla-inner.html"/>
+		<topic label="Local Classes" href="html/langref/cla-local.html"/>
 		<topic label="Anonymous Classes" href="html/langref/cla-anonymous.html"/>		
 	</topic>
 	<topic label="Structs" href="html/langref/structs.html"> 
@@ -193,11 +194,11 @@
 		<topic label="Do-while statement" href="html/langref/sta-dowhile.html"/>  
 		<topic label="For statement" href="html/langref/sta-for.html"/>
 		<topic label="Return statement" href="html/langref/sta-return.html"/>
-		<topic label="Assert statement" href="html/langref/sta-assert.html"/>
+		<topic label="Assert statement" href="html/langref/sta-assertst.html"/>
 		<topic label="Exceptions in X10" href="html/langref/sta-exceptions.html"/>
 		<topic label="Throw statement" href="html/langref/sta-throw.html"/> 
 		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/>
-		<topic label="Assert statement" href="html/langref/sta-assert.html"/>  
+		<topic label="Assert" href="html/langref/sta-assert.html"/>  
 	</topic>
 	<topic label="Places" href="html/langref/places.html"> 
 		<topic label="The Structure of Places" href="html/langref/pla-structure.html"/> 
@@ -216,7 +217,8 @@
 		<topic label="At expressions" href="html/langref/act-atexpr.html"/>
 		<topic label="Shared variables" href="html/langref/act-sharedvars.html"/> 
 -->			
-		<topic label="Atomic blocks" href="html/langref/act-atomicblocks.html"/> 
+		<topic label="Atomic blocks" href="html/langref/act-atomicblocks.html"/>
+		<topic label="Use of Atomic Blocks" href="html/langref/act-useofatomicblocks.html"/> 
 	</topic>
 	<topic label="Clocks" href="html/langref/clocks.html"> 
 		<topic label="Clock operations" href="html/langref/clockops.html"/> 
@@ -249,6 +251,7 @@
 		<topic label="External Java Code" href="html/langref/ext-javacode.html"/> 
 		<topic label="External C++ Code" href="html/langref/ext-cppcode.html"/>
 	</topic>
+	<topic label="Definite Assignment" href="html/langref/definiteassignment.html"/>
 	<topic label="Grammar" href="html/langref/grammar.html"/>
 	<topic label="References" href="html/langref/refs.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>
