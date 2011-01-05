@@ -141,16 +141,17 @@ This requires the following grammar: <br />
 <em>  
 <table>
 
-<tr><td align="right">MethodDecl    ::= MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 When X10 attempts to typecheck a binary operator expression like <b>P+Q</b>, it

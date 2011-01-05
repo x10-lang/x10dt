@@ -343,7 +343,30 @@ X10 has the following operator,  type constructor, and miscellaneous symbols.  (
 </pre>
 
 <div class="p"><!----></div>
+The precedence of the binary operators is as follows.  Earlier rows of the
+table have higher precedence than later rows, binding more tightly.  
+For example, <b>a+b*c&lt;d</b> parses as <b>(a+(b*c))&lt;d</b>.
 
+<div class="p"><!----></div>
+
+<table>
+<tr><td align="left"><b>? :</b> </td></tr>
+<tr><td align="left"><b>&#124;&#124;</b> </td></tr>
+<tr><td align="left"><b>&amp;&amp;</b> </td></tr>
+<tr><td align="left"><b>&#124;</b> </td></tr>
+<tr><td align="left"><b>^</b> </td></tr>
+<tr><td align="left"><b>&amp;</b> </td></tr>
+<tr><td align="left"><b>in</b> </td></tr>
+<tr><td align="left"><b>==    </b>   <b>!=</b> </td></tr>
+<tr><td align="left"><b>instanceof</b> </td></tr>
+<tr><td align="left"><b>&#62;     </b> <b>&#62;=    </b> <b>&lt;    </b> <b>&lt;=</b> </td></tr>
+<tr><td align="left"><b>&lt;&lt;    </b> <b>&#62;&#62;    </b> <b>&#62;&#62;&#62;   </b> <b>-&#62;</b> </td></tr>
+<tr><td align="left"><b>+</b> <b>     -</b> </td></tr>
+<tr><td align="left"><b>*     </b>  <b>/     </b>  <b>%</b> </td></tr>
+<tr><td align="left"><b>..</b></td></tr></table>
+
+
+<div class="p"><!----></div>
  <h2><a name="tth_sEc1">
 1</a>&nbsp;&nbsp;Grammatical Notation</h2>
 
@@ -352,8 +375,6 @@ In this manual, ordinary BNF notation is used to specify grammatical
 constructions, with a few minor extensions. 
 Grammatical rules look like this: <br />
 
-  :
-  |
   
   
   
@@ -361,10 +382,10 @@ Grammatical rules look like this: <br />
   
 <table>
 
-<tr><td width="150">Adj ::= Adv<sup>?</sup>&nbsp;<b>happy</b></td></tr>
-<tr><td width="150">&#124; Adv<sup>?</sup>&nbsp;<b>sad</b></td></tr>
-<tr><td width="150">Adv ::= <b>very</b></td></tr>
-<tr><td width="150">&#124; Adv Adv 
+<tr><td align="right">Adj ::= Adv<sup>?</sup>&nbsp;<b>happy</b></td></tr>
+<tr><td align="right">&#124; Adv<sup>?</sup>&nbsp;<b>sad</b></td></tr>
+<tr><td align="right">Adv ::= <b>very</b></td></tr>
+<tr><td align="right">&#124; Adv Adv 
 </td></tr></table>
 </em>
 
@@ -381,18 +402,55 @@ and symbols of the language itself.  In X10, the terminals are the words
 described in this chapter.
 
 <div class="p"><!----></div>
-A single grammatical rule has the form  A \mathrel::= X<sub>1</sub> X<sub>2</sub> ... X<sub>n</sub> ,
+A single grammatical rule has the form  A :: = X<sub>1</sub> X<sub>2</sub> ... X<sub>n</sub> ,
 where the X<sub>i</sub>'s are either terminals or nonterminals.  This indicates that
 the non-terminal A could be an instance of X<sub>1</sub>, followed by an instance of
 X<sub>2</sub>, ..., followed by an instance of X<sub>n</sub>.  Multiple rules for the same
 A are allowed, giving several possible phrasings of A's.  For brevity,
 two rules with the same left-hand side are written with the left-hand side
 appearing once, and the right-hand sides 
-separated by .  In the Adj example, there are two rules for Adv,  and.  So, an adverb could be very, or (by threeuses of the rule) very very, or, one or more verys.  The notation  indicates an optional .  This is an ordinarynon-terminal, defined by the rules:  :  |          A::=  &#124; AThe first rule says that  can amount to nothing; the second, that it canamount to an .  This concept shows up so often that it is worth having aseparate notation for it.  In the Adj example, an adjective phrase may bepreceded by an optional adverb. Thus, it may be happy, or very happy, or very very sad, etc. 
-<br><br>
-Footnotes:
-<a name="tthFtNtAAB"></a>Except that      literals like 1       which match both  and  are counted as      integers, not Double; Doubles require a decimal      point, an exponent, or the d marker.      
-<br /><br />
+separated by </td><td width="150">
+amp;&#124;.  
+
+<div class="p"><!----></div>
+In the <em>Adj</em> example, there are two rules for <i>Adv</i>, 
+Adv :: = very and
+Adv :: = Adv&#195;dv.  So, an adverb could be <b>very</b>, or (by three
+uses of the rule) <b>very very</b>, or, one or more <b>very</b>s.  
+
+<div class="p"><!----></div>
+The notation A<sup>?</sup> indicates an optional A.  This is an ordinary
+non-terminal, defined by the rules:<br />
+
+  
+<em>
+  
+<table>
+
+<tr><td align="right">A<sup>?</sup>&nbsp;::=  </td></tr>
+<tr><td align="right">&#124; A
+</td></tr></table>
+</em>
+The first rule says that A<sup>?</sup> can amount to nothing; the second, that it can
+amount to an A.  This concept shows up so often that it is worth having a
+separate notation for it.  In the <em>Adj</em> example, an adjective phrase may be
+preceded by an optional adverb. Thus, it may be <b>happy</b>, or 
+<b>very happy</b>, or <b>very very sad</b>, etc. 
+
+<div class="p"><!----></div>
+</li>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Except that
+
+
+      literals like <b>1</b> 
+      which match both i and f are counted as
+      integers, not <b>Double</b>; <b>Double</b>s require a decimal
+      point, an exponent, or the <b>d</b> marker.
+      
+<br /><br /><hr />
       
 </body>
 </html>

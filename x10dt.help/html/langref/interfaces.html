@@ -65,34 +65,23 @@ implement the interface may be stored in the variable.
 </a> 
 <em>
 <table>
-<tr><td align="right">NormalInterfaceDecl    ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
-<tr><td align="right">
- TypeParamsWithVariance    ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
-<tr><td align="right">
- Properties    ::= <b>(</b> PropertyList <b>)</b> </td></tr>
-<tr><td align="right">
- PropertyList    ::= Property </td></tr>
-<tr><td align="right">
-    &#124; PropertyList <b>,</b> Property</td></tr>
-<tr><td align="right">Property    ::= Annotations<sup>?</sup>&nbsp;Id ResultType </td></tr>
-<tr><td align="right">
- WhereClause    ::= DepParams </td></tr>
-<tr><td align="right">
- ExtendsInterfaces    ::= <b>extends</b> Type </td></tr>
-<tr><td align="right">
-    &#124; ExtendsInterfaces <b>,</b> Type</td></tr>
-<tr><td align="right">InterfaceBody    ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- InterfaceMemberDecls    ::= InterfaceMemberDecl </td></tr>
-<tr><td align="right">
-    &#124; InterfaceMemberDecls InterfaceMemberDecl</td></tr>
-<tr><td align="right">InterfaceMemberDecl    ::= MethodDecl </td></tr>
-<tr><td align="right">
-    &#124; PropertyMethodDecl</td></tr>
-<tr><td align="right">&#124; FieldDecl</td></tr>
-<tr><td align="right">&#124; ClassDecl</td></tr>
-<tr><td align="right">&#124; InterfaceDecl</td></tr>
-<tr><td align="right">&#124; TypeDefDecl</td></tr>
+
+<tr><td align="right">NormalInterfaceDecl ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">TypeParamsWithVariance ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
+<tr><td align="right">Properties ::= <b>(</b> PropertyList <b>)</b> </td></tr>
+<tr><td align="right">PropertyList ::= Property </td></tr>
+<tr><td align="right">&#124; PropertyList <b>,</b> Property </td></tr>
+<tr><td align="right">WhereClause ::= DepParams </td></tr>
+<tr><td align="right">ExtendsInterfaces ::= <b>extends</b> Type </td></tr>
+<tr><td align="right">&#124; ExtendsInterfaces <b>,</b> Type </td></tr>
+<tr><td align="right">InterfaceBody ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">InterfaceMemberDecl ::= MethodDecl </td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl </td></tr>
+<tr><td align="right">&#124; FieldDecl </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; InterfaceDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

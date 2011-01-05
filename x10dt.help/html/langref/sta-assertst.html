@@ -13,29 +13,48 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-<title>Return statement</title>
+<title>Assert statement</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc13">
-13</a>&nbsp;&nbsp;Return statement</h2>
-<a name="ReturnStatement">
-</a>
+ <h2><a name="tth_sEc14">
+14</a>&nbsp;&nbsp;Assert statement</h2> 
 
 
 <div class="p"><!----></div>
-<em>  
+
+  
+  
+<em>
 <table>
 
-<tr><td align="right">ReturnStatement ::= <b>return</b> Exp<sup>?</sup>&nbsp;<b>;</b> </td></tr>
+<tr><td align="right">AssertStatement ::= <b>assert</b> Exp <b>;</b> </td></tr>
+<tr><td align="right">&#124; <b>assert</b> Exp  <b>:</b> Exp  <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Methods and closures may return values using a return statement.
-If the method's return type is expliclty declared <b>void</b>,
-the method must return without a value; otherwise, it must return
-a value of the appropriate type.
+The statement <b>assert E</b> checks that the Boolean expression <b>E</b>
+evaluates to true, and, if not, throws an <b>x10.lang.Error</b>  exception.  
+The annotated assertion <b>assert E : F;</b> checks <b>E</b>, and, if it is
+false, throws an <b>x10.lang.Error</b> exception with <b>F</b>'s value attached
+to it. 
+
+<div class="p"><!----></div>
+For example, 
+<pre>
+class Example {
+  public static def main(argv:Array[String](1)) {
+    val a = 1;
+    assert a != 1 : "Changed my mind about a";
+  }
+}
+</pre>
+
+compiles properly, but prints a stack trace starting with 
+<pre>
+x10.lang.Error: Changed my mind about a
+</pre>
 
 <div class="p"><!----></div>
 

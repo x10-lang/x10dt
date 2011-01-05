@@ -53,12 +53,33 @@ if <b>p</b> does not lie in the underlying region.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.1">
-4.1</a>&nbsp;&nbsp;Operations returning distributions</h3>
+4.1</a>&nbsp;&nbsp;<tt>PlaceGroup</tt>s</h3>
+
+<div class="p"><!----></div>
+A <b>PlaceGroup</b> represents an ordered set of <b>Place</b>s.
+<b>PlaceGroup</b>s exist for performance and scaleability: they are more
+efficient, in certain critical places, than general collections of
+<b>Place</b>. <b>PlaceGroup</b> implements <b>Sequence[Place]</b>, and thus
+provides familiar operations - <b>pg.size()</b> for the number of places,
+<b>pg.iterator()</b> to iterate over them, etc.  
+
+<div class="p"><!----></div>
+<b>PlaceGroup</b> is an abstract class.  The concrete class
+<b>SparsePlaceGroup</b> is intended for a small group of places: 
+in particular, 
+<b>new SparsePlaceGroup(somePlace)</b> is a good <b>PlaceGroup</b> containing
+one place.  
+<b>new SparsePlaceGroup(seqPlaces)</b>
+constructs a sparse place group from a sorted sequence of places.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Operations returning distributions</h3>
 
 
 <div class="p"><!----></div>
-Let <b>R</b> be a region, <b>Q</b> a Sequence of places {<b>p1</b>, ...,
-<b>pk</b>} (enumerated in canonical order), and <b>P</b> a place.
+Let <b>R</b> be a region, <b>Q</b> 
+a <b>PlaceGroup</b>, and <b>P</b> a place.
 
 <div class="p"><!----></div>
 

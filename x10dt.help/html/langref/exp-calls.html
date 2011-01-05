@@ -37,15 +37,17 @@
 <div class="p"><!----></div>
 <em>
 <table>
-<tr><td align="right">MethodInvocation    ::= MethodName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">
-    &#124; Primary <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">&#124; <b>super</b> <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">&#124; Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">ArgumentList    ::= Exp </td></tr>
-<tr><td align="right">
-    &#124; ArgumentList <b>,</b> Exp</td></tr>
+
+<tr><td align="right">MethodInvocation ::= MethodPrimaryPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; MethodSuperPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; MethodClassNameSuperPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; MethodName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">ArgumentList ::= Exp </td></tr>
+<tr><td align="right">&#124; ArgumentList <b>,</b> Exp </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

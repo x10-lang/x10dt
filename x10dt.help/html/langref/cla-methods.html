@@ -44,28 +44,32 @@ rights.
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">MethMods    ::= Mods<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">
-    &#124; MethMods <b>property</b> </td></tr>
-<tr><td align="right">&#124; MethMods Mod</td></tr>
-<tr><td align="right">MethodDecl    ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">
- TypeParams    ::= <b>[</b> TypeParamList <b>]</b> </td></tr>
-<tr><td align="right">
- FormalParams    ::= <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">
- FormalParamList    ::= FormalParam </td></tr>
-<tr><td align="right">
-    &#124; FormalParamList <b>,</b> FormalParam</td></tr>
-<tr><td align="right">HasResultType    ::= <b>:</b> Type </td></tr>
-<tr><td align="right">
-    &#124; <b>&lt;:</b> Type</td></tr>
-<tr><td align="right">MethodBody    ::= <b>=</b> LastExp <b>;</b> </td></tr>
-<tr><td align="right">
-    &#124; <b>=</b> Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b></td></tr>
-<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;Block</td></tr>
-<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block</td></tr>
-<tr><td align="right">&#124; <b>;</b></td></tr>
+
+<tr><td align="right">MethMods ::= Mods<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; MethMods <b>property</b>  </td></tr>
+<tr><td align="right">&#124; MethMods Mod </td></tr>
+<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">TypeParams ::= <b>[</b> TypeParamList <b>]</b> </td></tr>
+<tr><td align="right">FormalParams ::= <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">FormalParamList ::= FormalParam </td></tr>
+<tr><td align="right">&#124; FormalParamList <b>,</b> FormalParam </td></tr>
+<tr><td align="right">HasResultType ::= <b>:</b> Type </td></tr>
+<tr><td align="right">&#124; <b>&lt;:</b> Type </td></tr>
+<tr><td align="right">MethodBody ::= <b>=</b> LastExp <b>;</b> </td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b> </td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;Block </td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

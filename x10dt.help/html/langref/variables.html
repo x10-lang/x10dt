@@ -122,6 +122,11 @@ variable declaration does not include either <b>var</b> or <b>val</b>, it is
 considered <b>val</b>. 
 
 <div class="p"><!----></div>
+A variable-even a <b>val</b> - can be declared in one statement, and then
+initialized later on.  It must be initialized before it can be used
+(&#167;).  
+
+<div class="p"><!----></div>
 The following example illustrates many of the variations on variable
 declaration:
 <pre>
@@ -131,6 +136,8 @@ val c = 0;                     // Type inferred
 var d : Int = 0;               // Full 'var' syntax
 var e : Int;                   // Not initialized
 var f : Int{self != 100} = 0;  // Constrained type
+val g : Int;                   // Init. deferred
+if (a &#62; b) g = 1; else g = 2;  // Init. done here.
 </pre>
 
 <div class="p"><!----></div>

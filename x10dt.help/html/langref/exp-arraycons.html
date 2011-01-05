@@ -27,13 +27,24 @@
 <div class="p"><!----></div>
 <em>
 <table>
-<tr><td align="right">Primary    ::= <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b></td></tr>
-<tr><td align="right">
- ClassInstCreationExp    ::=<b>new</b> TypeName <b>[</b> Type <b>]</b> <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b></td></tr>
-<tr><td align="right">
 
-<div class="p"><!----></div>
-</td></tr></table>
+<tr><td align="right">Primary ::= <b>here</b> </td></tr>
+<tr><td align="right">&#124; <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b> </td></tr>
+<tr><td align="right">&#124; Literal </td></tr>
+<tr><td align="right">&#124; <b>self</b> </td></tr>
+<tr><td align="right">&#124; <b>this</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>this</b> </td></tr>
+<tr><td align="right">&#124; <b>(</b> Exp <b>)</b> </td></tr>
+<tr><td align="right">&#124; ClassInstCreationExp </td></tr>
+<tr><td align="right">&#124; FieldAccess </td></tr>
+<tr><td align="right">&#124; MethodInvocation </td></tr>
+<tr><td align="right">&#124; MethodSelection </td></tr>
+<tr><td align="right">&#124; OperatorFunction </td></tr>
+<tr><td align="right">ClassInstCreationExp ::= <b>new</b> TypeName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>new</b> TypeName <b>[</b> Type <b>]</b> <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b> </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 X10 includes short syntactic forms for constructing one-dimensional arrays.
 The shortest form is to enclose some expressions in brackets: 

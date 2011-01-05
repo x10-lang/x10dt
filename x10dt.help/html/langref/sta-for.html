@@ -24,22 +24,17 @@
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">ForStatement    ::= BasicForStatement </td></tr>
-<tr><td align="right">
-    &#124; EnhancedForStatement</td></tr>
-<tr><td align="right">BasicForStatement    ::= <b>for</b> <b>(</b> ForInit<sup>?</sup>&nbsp;<b>;</b> Exp<sup>?</sup>&nbsp;<b>;</b> ForUpdate<sup>?</sup>&nbsp;<b>)</b> Statement </td></tr>
-<tr><td align="right">
- ForInit    ::= StatementExpList </td></tr>
-<tr><td align="right">
-    &#124; LocalVariableDecl</td></tr>
-<tr><td align="right">ForUpdate    ::= StatementExpList </td></tr>
-<tr><td align="right">
- StatementExpList    ::= StatementExp </td></tr>
-<tr><td align="right">
-    &#124; StatementExpList <b>,</b> StatementExp</td></tr>
-<tr><td align="right">EnhancedForStatement    ::= <b>for</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> Statement </td></tr>
-<tr><td align="right">
-    &#124; <b>for</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+
+<tr><td align="right">ForStatement ::= BasicForStatement </td></tr>
+<tr><td align="right">&#124; EnhancedForStatement </td></tr>
+<tr><td align="right">BasicForStatement ::= <b>for</b> <b>(</b> ForInit<sup>?</sup>&nbsp;<b>;</b> Exp<sup>?</sup>&nbsp;<b>;</b> ForUpdate<sup>?</sup>&nbsp;<b>)</b> Statement </td></tr>
+<tr><td align="right">ForInit ::= StatementExpList </td></tr>
+<tr><td align="right">&#124; LocalVariableDecl </td></tr>
+<tr><td align="right">ForUpdate ::= StatementExpList </td></tr>
+<tr><td align="right">StatementExpList ::= StatementExp </td></tr>
+<tr><td align="right">&#124; StatementExpList <b>,</b> StatementExp </td></tr>
+<tr><td align="right">EnhancedForStatement ::= <b>for</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right">&#124; <b>for</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -111,6 +106,10 @@ A number of library classes implement <b>Iterable</b>, and thus can be iterated
 over.  For example, iterating over a <b>Region</b> iterates the <b>Point</b>s in
 the region, and iterating over a <b>DistArray</b> iterates over the
 <b>Point</b>s at which the distributed array is defined.
+
+<div class="p"><!----></div>
+Iteration variables have the <b>for</b> statement as scope.  They shadow other
+variables of the same names.
 
 <div class="p"><!----></div>
 

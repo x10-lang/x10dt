@@ -28,10 +28,13 @@
 <div class="p"><!----></div>
 <em>
 <table>
-<tr><td align="right">ConditionalExp    ::= 
-     ConditionalOrExp <b>?</b> Exp <b>:</b> ConditionalExp</td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">ConditionalExp ::= ConditionalOrExp </td></tr>
+<tr><td align="right">&#124; ClosureExp </td></tr>
+<tr><td align="right">&#124; AtExp </td></tr>
+<tr><td align="right">&#124; FinishExp </td></tr>
+<tr><td align="right">&#124; ConditionalOrExp <b>?</b> Exp <b>:</b> ConditionalExp </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>

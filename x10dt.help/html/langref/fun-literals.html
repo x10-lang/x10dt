@@ -31,24 +31,18 @@ X10 provides first-class, typed functions, including
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">ClosureExp    ::= FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> ClosureBody </td></tr>
-<tr><td align="right">
- FormalParams    ::= <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">
- WhereClause    ::= DepParams </td></tr>
-<tr><td align="right">
- DepParams    ::= <b>{</b> ExistentialList<sup>?</sup>&nbsp;Conjunction<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- ExistentialList    ::= FormalParam </td></tr>
-<tr><td align="right">
-    &#124; ExistentialList <b>;</b> FormalParam</td></tr>
-<tr><td align="right">HasResultType    ::= <b>:</b> Type </td></tr>
-<tr><td align="right">
-    &#124; <b>&lt;:</b> Type</td></tr>
-<tr><td align="right">ClosureBody    ::= ConditionalExp </td></tr>
-<tr><td align="right">
-    &#124; Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b></td></tr>
-<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block</td></tr>
+
+<tr><td align="right">ClosureExp ::= FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> ClosureBody </td></tr>
+<tr><td align="right">FormalParams ::= <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">WhereClause ::= DepParams </td></tr>
+<tr><td align="right">DepParams ::= <b>{</b> ExistentialList<sup>?</sup>&nbsp;Conjunction<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">ExistentialList ::= FormalParam </td></tr>
+<tr><td align="right">&#124; ExistentialList <b>;</b> FormalParam </td></tr>
+<tr><td align="right">HasResultType ::= <b>:</b> Type </td></tr>
+<tr><td align="right">&#124; <b>&lt;:</b> Type </td></tr>
+<tr><td align="right">ClosureBody ::= ConditionalExp </td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b> </td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

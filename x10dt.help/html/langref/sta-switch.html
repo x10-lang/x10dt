@@ -24,23 +24,16 @@
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">SwitchStatement    ::= <b>switch</b> <b>(</b> Exp <b>)</b> SwitchBlock </td></tr>
-<tr><td align="right">
 
-<div class="p"><!----></div>
- SwitchBlock    ::= <b>{</b> SwitchBlockStatementGroups<sup>?</sup>&nbsp;SwitchLabels<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- SwitchBlockStatementGroups    ::= SwitchBlockStatementGroup </td></tr>
-<tr><td align="right">
-    &#124; SwitchBlockStatementGroups SwitchBlockStatementGroup</td></tr>
-<tr><td align="right">SwitchBlockStatementGroup    ::= SwitchLabels BlockStatements </td></tr>
-<tr><td align="right">
- SwitchLabels    ::= SwitchLabel </td></tr>
-<tr><td align="right">
-    &#124; SwitchLabels SwitchLabel</td></tr>
-<tr><td align="right">SwitchLabel    ::= <b>case</b> ConstantExp <b>:</b> </td></tr>
-<tr><td align="right">
-    &#124; <b>default</b> <b>:</b></td></tr>
+<tr><td align="right">SwitchStatement ::= <b>switch</b> <b>(</b> Exp <b>)</b> SwitchBlock </td></tr>
+<tr><td align="right">SwitchBlock ::= <b>{</b> SwitchBlockStatementGroups<sup>?</sup>&nbsp;SwitchLabels<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">SwitchBlockStatementGroups ::= SwitchBlockStatementGroup </td></tr>
+<tr><td align="right">&#124; SwitchBlockStatementGroups SwitchBlockStatementGroup </td></tr>
+<tr><td align="right">SwitchBlockStatementGroup ::= SwitchLabels BlockStatements </td></tr>
+<tr><td align="right">SwitchLabels ::= SwitchLabel </td></tr>
+<tr><td align="right">&#124; SwitchLabels SwitchLabel </td></tr>
+<tr><td align="right">SwitchLabel ::= <b>case</b> ConstantExp <b>:</b> </td></tr>
+<tr><td align="right">&#124; <b>default</b> <b>:</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

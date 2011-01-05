@@ -50,6 +50,22 @@ named <b>T</b> at that point: neither a  <b>T</b> declared in <b>pack.age</b>,
 nor a <b>inst.ant.T</b> imported from some other package.
 
 <div class="p"><!----></div>
+The declaration <b>import E.n;</b>, appearing in file f of a package named
+<b>P</b>, shadows the following types named <b>n</b> when they appear in f: 
+
+<ul>
+<li> Top-level types named <b>n</b> appearing in other files of <b>P</b>, and
+<div class="p"><!----></div>
+</li>
+
+<li> Types named <b>n</b> imported by automatic imports
+      (&#167;) in f.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+
+<div class="p"><!----></div>
      <h3><a name="tth_sEc2.2">
 2.2</a>&nbsp;&nbsp;Automatic Import</h3>
 
@@ -58,7 +74,8 @@ The automatic import <b>import pack.age.*;</b>, loosely, imports all the public
 members of <b>pack.age</b>.  In fact, it does so somewhat carefully, avoiding
 certain errors that could occur if it were done naively.  Types defined in the
 current package, and those imported by single-type imports, shadow those
-imported by automatic imports.  
+imported by automatic imports.   Names automatically imported never shadow any
+other names.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.3">
