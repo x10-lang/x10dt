@@ -62,7 +62,9 @@ public final class FactBaseUtils {
       }
 
     }, 0, TimeUnit.SECONDS);
-    return future.get();
+    final ISet result = future.get();
+    executorService.shutdown();
+    return result;
   }
   
   /**
