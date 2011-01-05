@@ -35,7 +35,7 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
   // --- Test cases
 
   @Test public void testHelloWholeWorldTypeInfo() throws Exception {
-    final IProject project = createProjectFromX10Dist(PROJECT_NAME, "samples/HelloWholeWorld.x10", EProjectBackEnd.JAVA);
+    final IProject project = createProjectFromX10Dist(PROJECT_NAME, "samples/HelloWholeWorld.x10", EProjectBackEnd.CPP);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
     final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
@@ -74,11 +74,16 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     
     final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, HELLOWORLD_CLASS, ".*", false, 
                                                                            new NullProgressMonitor());
-    assertEquals(1, methods.length);
+    assertEquals(2, methods.length);
+    
     assertLocation(methods[0].getLocation(), HELLOWORLD_LOC, 19, 23);
+    assertEquals("main", methods[0].getName());
     assertEquals(1, methods[0].getParameters().length);
     assertEquals(ARRAY_TYPE, methods[0].getParameters()[0].getName());
     assertEquals(VOID_TYPE, methods[0].getReturnType().getName());
+    
+    assertEquals("this", methods[1].getName());
+    assertEquals(0, methods[1].getParameters().length);
   }
   
   @Test public void testHelloWholeWorldMethods2() throws Exception {
@@ -143,6 +148,6 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
   
   private static final String ARRAY_TYPE = "x10.array.Array";
   
-  private static final String VOID_TYPE = "x10.lang.Void";
+  private static final String VOID_TYPE = "void";
 
 }

@@ -101,7 +101,7 @@ public final class TypeHierarchyTests extends AbstractIndexerTestBase {
   
   // --- Fields
   
-  private static final String PROJECT_TEST = "test";
+  private static final String PROJECT_TEST = "typeHierarchy";
   
   private static final String HELLOWORLD_CLASS = "HelloWholeWorld";
   

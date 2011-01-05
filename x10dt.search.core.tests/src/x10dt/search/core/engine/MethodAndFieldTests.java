@@ -84,7 +84,7 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
   
   // --- Fields
   
-  private static final String PROJECT_NAME = "test";
+  private static final String PROJECT_NAME = "methodAndField";
   
   private static final String INTEGRATE_CLASS = "IntegrateTutorial";
   
