@@ -7,8 +7,6 @@
  *******************************************************************************/
 package x10dt.search.core.utils;
 
-import java.util.concurrent.ExecutionException;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.db.FactBase;
@@ -37,10 +35,9 @@ public final class FactBaseUtils {
    * @param monitor The progress monitor that can be used for cancellation.
    * @return May returns <b>null</b> if there are no correspondence in the database.
    * @throws InterruptedException Occurs if the search thread got interrupted.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static ISet getFactBaseSetValue(final FactBase factBase, final Type type, final IFactContext context, 
-                                         final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                         final IProgressMonitor monitor) throws InterruptedException {
     final ISet[] result = new ISet[1];
     final InterruptedException[] exception = new InterruptedException[1];
     final Runnable runnable = new Runnable() {
@@ -83,11 +80,10 @@ public final class FactBaseUtils {
    * @param monitor The progress monitor that can be used for cancellation.
    * @return May returns <b>null</b> if there are no correspondence in the database.
    * @throws InterruptedException Occurs if the search thread got interrupted.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static ISet getFactBaseSetValue(final FactBase factBase, final IFactContext context, final String parametricTypeName,
-                                         final String scopeTypeName,
-                                         final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                         final String scopeTypeName, 
+                                         final IProgressMonitor monitor) throws InterruptedException {
     return getFactBaseSetValue(factBase, SearchDBTypes.getInstance().getType(parametricTypeName, scopeTypeName), context, 
                                monitor);
   }

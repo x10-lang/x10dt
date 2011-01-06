@@ -87,12 +87,10 @@ public final class X10SearchEngine {
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of field information.
    * @throws InterruptedException Occurs if the operation gets canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IFieldInfo[] getAllMatchingFieldInfo(final IX10SearchScope searchScope, final String typeName, 
                                                      final String fieldNameRegEx, final boolean isCaseSensitive,
-                                                     final IProgressMonitor monitor) throws InterruptedException, 
-                                                                                            ExecutionException {
+                                                     final IProgressMonitor monitor) throws InterruptedException {
     return getFieldInfo(searchScope, typeName, new PatternFilter(fieldNameRegEx, isCaseSensitive), monitor);
   }
   
@@ -106,12 +104,10 @@ public final class X10SearchEngine {
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of field information.
    * @throws InterruptedException Occurs if the operation gets canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IFieldInfo[] getAllMatchingFieldInfo(final IX10SearchScope searchScope, 
                                                      final String fieldNameRegEx, final boolean isCaseSensitive,
-                                                     final IProgressMonitor monitor) throws InterruptedException, 
-                                                                                            ExecutionException {
+                                                     final IProgressMonitor monitor) throws InterruptedException {
     return getFieldInfo(searchScope, null, new PatternFilter(fieldNameRegEx, isCaseSensitive), monitor);
   }
   
@@ -126,12 +122,10 @@ public final class X10SearchEngine {
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of method information.
    * @throws InterruptedException Occurs if the operation gets canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IMethodInfo[] getAllMatchingMethodInfo(final IX10SearchScope searchScope, final String typeName, 
                                                        final String methodNameRegEx, final boolean isCaseSensitive,
-                                                       final IProgressMonitor monitor) throws InterruptedException, 
-                                                                                              ExecutionException {
+                                                       final IProgressMonitor monitor) throws InterruptedException {
     return getMethodInfos(searchScope, typeName, new PatternFilter(methodNameRegEx, isCaseSensitive), monitor);
   }
   
@@ -145,12 +139,10 @@ public final class X10SearchEngine {
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of method information.
    * @throws InterruptedException Occurs if the operation gets canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IMethodInfo[] getAllMatchingMethodInfo(final IX10SearchScope searchScope, 
                                                        final String methodNameRegEx, final boolean isCaseSensitive,
-                                                       final IProgressMonitor monitor) throws InterruptedException, 
-                                                                                              ExecutionException {
+                                                       final IProgressMonitor monitor) throws InterruptedException {
     return getMethodInfos(searchScope, null, new PatternFilter(methodNameRegEx, isCaseSensitive), monitor);
   }
   
@@ -163,12 +155,10 @@ public final class X10SearchEngine {
    * @param monitor The monitor to use to report progress or cancel the operation.
    * @return A non-null, but possibly empty (if no match was found), array of type information.
    * @throws InterruptedException Occurs if the operation gets canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static ITypeInfo[] getAllMatchingTypeInfo(final IX10SearchScope searchScope, final String typeNameRegEx,
                                                    final boolean isCaseSensitive,
-                                                   final IProgressMonitor monitor) throws InterruptedException, 
-                                                                                          ExecutionException {
+                                                   final IProgressMonitor monitor) throws InterruptedException {
     return getTypeInfo(searchScope, new TypePatternFilter(typeNameRegEx, isCaseSensitive), monitor);
   }
   
@@ -181,10 +171,9 @@ public final class X10SearchEngine {
    * @param monitor The progress monitor to use to report progress or cancel the operation. Can be <b>null</b>.
    * @return A non-null {@link IFieldInfo} if it is found, otherwise <b>null</b>.
    * @throws InterruptedException Occurs if the operation get canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IFieldInfo getFieldInfo(final IX10SearchScope searchScope, final String typeName, final String fieldName,
-                                        final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                        final IProgressMonitor monitor) throws InterruptedException {
     final IFieldInfo[] fieldInfos = getFieldInfo(searchScope, typeName, new EqualsFilter(fieldName), monitor);
     return (fieldInfos.length == 0) ? null : fieldInfos[0];
   }
@@ -198,10 +187,9 @@ public final class X10SearchEngine {
    * @param monitor The progress monitor to use to report progress or cancel the operation. Can be <b>null</b>.
    * @return A non-null, but possibly empty (if no match was found), array of method information.
    * @throws InterruptedException Occurs if the operation get canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static IMethodInfo[] getMethodInfos(final IX10SearchScope searchScope, final String typeName, final String methodName,
-                                             final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                             final IProgressMonitor monitor) throws InterruptedException {
     return getMethodInfos(searchScope, typeName, new EqualsFilter(methodName), monitor);
   }
   
@@ -224,7 +212,7 @@ public final class X10SearchEngine {
   
   private static IFieldInfo createFieldInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
                                             final ITypeInfo declaringTypeInfo,
-                                            final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                            final IProgressMonitor monitor) throws InterruptedException {
     final String fieldTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
     ITypeInfo fieldTypeInfo = findTypeInfo(factBase, context, fieldTypeName, monitor);
     if (fieldTypeInfo == null) {
@@ -236,7 +224,7 @@ public final class X10SearchEngine {
   
   private static IMethodInfo createMethodInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
                                               final ITypeInfo declaringTypeInfo,
-                                              final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                              final IProgressMonitor monitor) throws InterruptedException {
     final String returnTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
     ITypeInfo returnTypeInfo;
     if (VoidTypeInfo.VOID_TYPE_NAME.equals(returnTypeName)) {
@@ -264,7 +252,7 @@ public final class X10SearchEngine {
   private static boolean collectFieldInfo(final Collection<IFieldInfo> fieldInfos, final FactBase factBase, 
                                           final IFactContext context, final String typeName, final String scopeTypeName, 
                                           final IFilter<String> filter,  
-                                          final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                          final IProgressMonitor monitor) throws InterruptedException {
     final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllFields, scopeTypeName, monitor);
     if (allTypesValue != null) {
       for (final IValue value : allTypesValue) {
@@ -289,7 +277,7 @@ public final class X10SearchEngine {
   private static boolean collectMethodInfo(final Collection<IMethodInfo> methodInfos, final FactBase factBase, 
                                            final IFactContext context, final String typeName, 
                                            final String scopeTypeName, final IFilter<String> filter,
-                                           final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                           final IProgressMonitor monitor) throws InterruptedException {
     final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, scopeTypeName, monitor);
     if (allTypesValue != null) {
       for (final IValue value : allTypesValue) {
@@ -314,7 +302,7 @@ public final class X10SearchEngine {
   private static void collectTypeInfo(final Collection<ITypeInfo> typeInfos, final FactBase factBase, 
                                       final IFactContext context, final IFilter<String> filter, 
                                       final String scopeTypeName, final IX10SearchScope searchScope, 
-                                      final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                      final IProgressMonitor monitor) throws InterruptedException {
     final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllTypes, scopeTypeName, monitor);
     if (allTypesValue != null) {
       for (final IValue value : allTypesValue) {
@@ -351,7 +339,7 @@ public final class X10SearchEngine {
   
   private static IFieldInfo[] getFieldInfo(final IX10SearchScope searchScope, final String typeName, 
                                            final IFilter<String> filter, 
-                                           final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                           final IProgressMonitor monitor) throws InterruptedException {
     final FactBase factBase = FactBase.getInstance();    
     final SubMonitor subMonitor = SubMonitor.convert(monitor);
     final Collection<IFieldInfo> fieldInfos = new ArrayList<IFieldInfo>();
@@ -390,7 +378,7 @@ public final class X10SearchEngine {
   
   private static IMethodInfo[] getMethodInfos(final IX10SearchScope searchScope, final String typeName, 
                                               final IFilter<String> filter, 
-                                              final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                              final IProgressMonitor monitor) throws InterruptedException {
     final FactBase factBase = FactBase.getInstance();    
     final SubMonitor subMonitor = SubMonitor.convert(monitor);
     final Collection<IMethodInfo> methodInfos = new ArrayList<IMethodInfo>();
@@ -428,7 +416,7 @@ public final class X10SearchEngine {
   }
   
   private static ITypeInfo[] getTypeInfo(final IX10SearchScope searchScope, final IFilter<String> filter,
-                                         final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                         final IProgressMonitor monitor) throws InterruptedException {
     final FactBase factBase = FactBase.getInstance();
     
     final SubMonitor subMonitor = SubMonitor.convert(monitor);
@@ -467,7 +455,7 @@ public final class X10SearchEngine {
   }
   
   private static ITypeInfo findTypeInfo(final FactBase factBase, final IFactContext context, final String typeName,
-                                        final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                        final IProgressMonitor monitor) throws InterruptedException {
     ITypeInfo typeInfo = findTypeInfo(factBase, context, typeName, APPLICATION, monitor);
     if (typeInfo != null) {
       return typeInfo;
@@ -490,7 +478,7 @@ public final class X10SearchEngine {
   
   private static ITypeInfo findTypeInfo(final FactBase factBase, final IFactContext context, final String typeName,
                                         final ISourceProject sourceProject,
-                                        final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                        final IProgressMonitor monitor) throws InterruptedException {
     for (final IPathEntry pathEntry : sourceProject.getBuildPath()) {
       if (pathEntry.getEntryType() == PathEntryType.PROJECT) {
         //TODO To implement once Adam has committed his code.
@@ -501,7 +489,7 @@ public final class X10SearchEngine {
   
   private static ITypeInfo findTypeInfo(final FactBase factBase, final IFactContext context, final String typeName,
                                         final String scopeTypeName, 
-                                        final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                        final IProgressMonitor monitor) throws InterruptedException {
     final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllTypes, scopeTypeName, monitor);
     if (allTypesValue != null) {
       for (final IValue value : allTypesValue) {
