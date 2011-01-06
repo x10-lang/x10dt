@@ -201,7 +201,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
-                                final EValidationStatus validationStatus, final boolean newCurrent) {
+                                final EValidationStatus validationStatus, final boolean shouldDeriveInfo) {
     getHeaderForm().getMessageManager().removeMessage(this.fConnKey);
     if (this.fValidateAction.isEnabled()) {
       this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);

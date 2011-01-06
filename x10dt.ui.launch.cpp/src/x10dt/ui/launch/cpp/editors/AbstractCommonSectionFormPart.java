@@ -180,18 +180,19 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     if (targetOpHelper != null) {
       final IFormControlChecker checker = FormCheckerFactory.createValidPathControlChecker(targetOpHelper, this.fFormPage, 
                                                                                            text, controlInfo);
-      String fieldContents= text.getText().trim();
-      String path = (pathSuffix != null && pathSuffix.length() > 0) ? fieldContents + File.separator + pathSuffix : fieldContents;
-      String remotePath= targetOpHelper.getTargetSystemPath(path);
+      final String fieldContents = text.getText().trim();
+      final String path = (pathSuffix != null && pathSuffix.length() > 0) ? fieldContents + File.separator + pathSuffix : fieldContents;
+      final String remotePath = targetOpHelper.getTargetSystemPath(path);
 
       return checker.validate(remotePath);
     }
     return false;
   }
 
-  protected final boolean handleFolderAndChildValidation(Text text, String folderChild, String folderMsgLabel, String childMsgLabel) {
-    if (!handlePathValidation(text, folderMsgLabel)) {
-        return false;
+  protected final boolean handleFolderAndChildValidation(final Text text, final String folderChild, 
+                                                         final String folderMsgLabel, final String childMsgLabel) {
+    if (! handlePathValidation(text, folderMsgLabel)) {
+      return false;
     }
     return handlePathValidation(text, folderChild, childMsgLabel);
   }

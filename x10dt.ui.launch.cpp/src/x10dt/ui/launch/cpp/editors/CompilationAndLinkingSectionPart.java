@@ -71,12 +71,12 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
-                                final EValidationStatus validationStatus, final boolean newCurrent) {
+                                final EValidationStatus validationStatus, final boolean shouldDeriveInfo) {
     final boolean shouldEnable = isLocal || validationStatus == EValidationStatus.VALID;
     this.fCompilerBrowseBt.setEnabled(shouldEnable);
     this.fArchiverBrowseBt.setEnabled(shouldEnable);
     this.fLinkerBrowseBt.setEnabled(shouldEnable);
-    if (shouldEnable && newCurrent) {
+    if (shouldEnable && shouldDeriveInfo) {
       selectOsAndArchitecture();
       checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
     }
