@@ -170,13 +170,14 @@ public final class ProjectUtils {
     wizardTree.expandNode(X10_FOLDER).select(NEW_X10_CLASS_WIZARD);
     wizBot.button(NEXT_BUTTON).click();
 
-    if (withMainMethod) {
-        wizBot.buttonInGroup("Which method stubs would you like to create?", 0).click();
-    }
-
     SWTBotShell newClassShell= bot.shell(NEW_X10_CLASS_SHELL);
 
     newClassShell.activate();
+
+    if (withMainMethod) {
+        wizBot.checkBox("public static def main(args: Array[String])").click();
+    }
+
     bot.textWithLabel(NEW_X10_CLASS_NAME_FIELD).setText(name);
 
     bot.button(FINISH_BUTTON).click();
