@@ -185,8 +185,9 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         } else {
           context.addToSourcePath(wsRoot.getLocation().append(pathEntry.getPath()).toFile());
         }
-        final IFolder srcFolder = wsRoot.getFolder(pathEntry.getPath());
-        processSourceFolder(context, srcFolder, wsRoot, contextResource);
+        if (pathEntry.getPath().segmentCount() > 1) {
+          processSourceFolder(context, wsRoot.getFolder(pathEntry.getPath()), wsRoot, contextResource);
+        }
         break;
 
       case IClasspathEntry.CPE_LIBRARY:

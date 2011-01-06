@@ -121,7 +121,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   // --- Abstract methods implementation
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
 	final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
     messageConsole.clearConsole();
@@ -155,7 +155,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
 
-      fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
+      this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
@@ -392,10 +392,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
           if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-        	IFolder folder = root.getFolder(cpEntry.getPath());
-        	if (folder.exists()){
-        		root.getFolder(cpEntry.getPath()).accept(visitor);
-        	}
+            if (cpEntry.getPath().segmentCount() > 1) {
+              final IFolder folder = root.getFolder(cpEntry.getPath());
+              if (folder.exists()){
+                folder.accept(visitor);
+              }
+            }
           }
         }
       }
@@ -537,20 +539,22 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  try {
 		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		boolean hasNoSourceTypeEntries = true;
-		IClasspathEntry[] entries = fProjectWrapper.getResolvedClasspath(true);
+		IClasspathEntry[] entries = this.fProjectWrapper.getResolvedClasspath(true);
 		for(int i = 0; i< entries.length; i++){
 			if (entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE){
 				hasNoSourceTypeEntries = false;
-				IPath path = entries[i].getPath();
-				final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(path).getLocationURI());
-		        if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
-		        	CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NonExistentSRCFolder, path.lastSegment()),
-                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
-		        }
-		       if (fileStore.childNames(EFS.NONE, null).length == 0){ // --- Empty source directory
-		    	   CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_EmptySRCFolder, path.lastSegment()),
-                           IMarker.SEVERITY_WARNING, IMarker.PRIORITY_HIGH);
-		       }
+				final IPath path = entries[i].getPath();
+				if (path.segmentCount() > 1) {
+          final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(path).getLocationURI());
+          if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
+            CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NonExistentSRCFolder, path.lastSegment()),
+                                               IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+          }
+          if (fileStore.childNames(EFS.NONE, null).length == 0) { // --- Empty source directory
+            CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_EmptySRCFolder, path.lastSegment()),
+                                               IMarker.SEVERITY_WARNING, IMarker.PRIORITY_HIGH);
+          }
+				}
 			}
 		}
 		if (hasNoSourceTypeEntries) { // --- Project has no source entry
