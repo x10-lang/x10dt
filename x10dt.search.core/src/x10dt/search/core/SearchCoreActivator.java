@@ -81,9 +81,8 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
         final IProject project = resourceDelta.getResource().getProject();
         switch (resourceDelta.getKind()) {
           case IResourceDelta.ADDED: {
-            final ExecutorService executorService = Executors.newSingleThreadExecutor();
-            final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(1);
-            final Future<Void> future = executorService.submit(new Callable<Void>() {
+            final ScheduledExecutorService scheduledExecutor = Executors.newScheduledThreadPool(2);
+            final Future<Void> future = scheduledExecutor.submit(new Callable<Void>() {
 
               public Void call() {
                 IndexManager.lock();
@@ -147,7 +146,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
               
               public void run() {
                 future.cancel(true);
-                executorService.shutdownNow();
+                scheduledExecutor.shutdown();
               }
               
             }, 2, TimeUnit.SECONDS);

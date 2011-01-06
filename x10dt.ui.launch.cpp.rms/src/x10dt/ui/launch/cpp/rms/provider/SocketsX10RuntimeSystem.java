@@ -18,6 +18,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.CoreException;
@@ -145,12 +146,14 @@ final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements 
 
       });
 
-      Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
+      final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+      scheduledExecutor.schedule(new Runnable() {
 
         public void run() {
-          if (!process.isCompleted()) {
+          if (! process.isCompleted()) {
             process.destroy();
           }
+          scheduledExecutor.shutdown();
         }
 
       }, 3, TimeUnit.SECONDS);
@@ -183,6 +186,7 @@ final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements 
       } finally {
         stderrExecService.cancel(true);
         process.destroy();
+        executorService.shutdown();
         this.fMainMonitor.worked(1);
       }
       this.fMainMonitor.done();
