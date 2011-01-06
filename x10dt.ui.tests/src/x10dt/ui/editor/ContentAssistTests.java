@@ -17,15 +17,10 @@ import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.parser.IModelListener;
-import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -33,7 +28,6 @@ import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -52,14 +46,12 @@ import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.parser.ParseController;
-import x10dt.ui.tests.X10DTTestBase;
 import x10dt.ui.tests.utils.EditorMatcher;
 
 /**
  * @author rfuhrer@watson.ibm.com
- * 
  */
-public class ContentAssistTests extends X10DTTestBase {
+public class ContentAssistTests extends X10DTEditorTestBase {
   private static final String PROJECT_NAME = "ContentAssistProject"; //$NON-NLS-1$
 
   private static final String CLASS_NAME_1 = "HelloWorld"; //$NON-NLS-1$
@@ -99,20 +91,6 @@ public class ContentAssistTests extends X10DTTestBase {
                                             STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2,
                                             STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT2, STATEMENT3,
                                             STATEMENT2, STATEMENT2, STATEMENT2 };
-
-  private boolean updated = false;
-
-  private class MyListener implements IModelListener {
-
-    public AnalysisRequired getAnalysisRequired() {
-      return AnalysisRequired.NONE;
-    }
-
-    public void update(IParseController parseController, IProgressMonitor monitor) {
-
-      updated = true;
-    }
-  }
 
   /**
    * The bot for the editor used to exercise the outline view
@@ -179,29 +157,6 @@ public class ContentAssistTests extends X10DTTestBase {
     waitForParser();
     runStatementContextTest("member", TEST2);
 
-  }
-
-  /**
-   * This method waits for a build to finish before continuing
-   * 
-   * @throws Exception
-   */
-  private void waitForBuildToFinish() throws Exception {
-    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-  }
-
-  public void waitForParser() throws Exception {
-    topLevelBot.waitUntil(new DefaultCondition() {
-
-      public boolean test() throws Exception {
-        return updated == true;
-      }
-
-      public String getFailureMessage() {
-        return "Some Failure Message";
-      }
-
-    }, Timeout.SIXTY_SECONDS);
   }
 
   private void runStatementContextTest(String type, String[][] expectedProposals) {
@@ -308,7 +263,7 @@ public class ContentAssistTests extends X10DTTestBase {
 
       final IEditorPart editorPart = srcEditor.getReference().getEditor(false);
       final UniversalEditor univEditor = (UniversalEditor) editorPart;
-      univEditor.addModelListener(new MyListener());
+      univEditor.addModelListener(fUpdateListener);
 
       srcEditor.setText(contents);
     } catch (final IOException e) {

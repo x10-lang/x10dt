@@ -23,13 +23,10 @@ import lpg.runtime.IToken;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.parser.IModelListener;
-import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -47,7 +44,6 @@ import org.eclipse.swtbot.swt.finder.finders.UIThreadRunnable;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.results.Result;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
-import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.texteditor.AbstractTextEditor;
@@ -62,9 +58,7 @@ import x10.parser.X10Parsersym;
 import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
-import x10dt.ui.editor.X10TokenColorer;
 import x10dt.ui.parser.ParseController;
-import x10dt.ui.tests.X10DTTestBase;
 import x10dt.ui.tests.utils.EditorMatcher;
 
 /**
@@ -72,7 +66,7 @@ import x10dt.ui.tests.utils.EditorMatcher;
  */
 // @RunWith(ColoringTestRunner.class)
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class SyntaxColoringTests extends X10DTTestBase {
+public class SyntaxColoringTests extends X10DTEditorTestBase {
   private static final String PROJECT_NAME = "ColoringProject";
 
   private static final String CLASS_NAME_1 = "HelloWorld";
@@ -110,26 +104,6 @@ public class SyntaxColoringTests extends X10DTTestBase {
   private static final String CLASS_SRCFILE_NAME_8 = CLASS_NAME_8 + ".x10";
 
   private static final String CLASS_SRCFILE_NAME_9 = CLASS_NAME_9 + ".x10";
-
-  private static boolean updated = false;
-
-  /**
-   * MyListener class has a variable called updated which turns to true when the parser finishes adding the test source to the
-   * editor
-   * 
-   * @author oriolad
-   * 
-   */
-  private class MyListener implements IModelListener {
-
-    public AnalysisRequired getAnalysisRequired() {
-      return AnalysisRequired.NONE; // Even if it doesn't scan, it's ok - this posts the error annotations!
-    }
-
-    public void update(IParseController parseController, IProgressMonitor monitor) {
-      updated = true;
-    }
-  }
 
   private static final String lineSep = System.getProperty("line.separator");
 
@@ -252,35 +226,11 @@ public class SyntaxColoringTests extends X10DTTestBase {
 
   private void runTest(String srcPath) throws Exception {
     getTestSource(fSrcEditor, srcPath);
-    WaitForParser();
+    waitForParser();
     fSrcEditor.save();
     waitForBuildToFinish();
     verifyColoring(fSrcEditor);
-    updated = false; // reset updated variable
-  }
-
-  /**
-   * This method waits for a build to finish before continuing
-   * 
-   * @throws Exception
-   */
-  private void waitForBuildToFinish() throws Exception {
-    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
-  }
-
-  public static void WaitForParser() throws Exception {
-
-    topLevelBot.waitUntil(new DefaultCondition() {
-
-      public boolean test() throws Exception {
-        return updated == true;
-      }
-
-      public String getFailureMessage() {
-        return "Waiting for parser failed.";
-      }
-
-    }, Timeout.SIXTY_SECONDS);
+    fUpdateListener.reset();
   }
 
   private void getTestSource(final SWTBotEclipseEditor srcEditor, final String resPath) {
@@ -293,7 +243,7 @@ public class SyntaxColoringTests extends X10DTTestBase {
 
       final IEditorPart editorPart = srcEditor.getReference().getEditor(false);
       final UniversalEditor univEditor = (UniversalEditor) editorPart;
-      univEditor.addModelListener(new MyListener());
+      univEditor.addModelListener(fUpdateListener);
 
       srcEditor.setText(contents);
 
