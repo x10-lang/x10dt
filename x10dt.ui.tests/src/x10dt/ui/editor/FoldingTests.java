@@ -5,8 +5,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Iterator;
 
-import junit.framework.TestFailure;
-
 import lpg.runtime.ILexStream;
 
 import org.eclipse.imp.editor.UniversalEditor;
@@ -59,7 +57,7 @@ public class FoldingTests extends X10DTEditorTestBase {
 
     @Test
     public void test1() throws Exception {
-        ProjectUtils.createClass(topLevelBot, CLASS_NAME, true);
+        ProjectUtils.createClass(topLevelBot, CLASS_NAME, PROJECT_NAME + "/src", true);
         topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(SRC_FILE_NAME)));
 
         fSrcEditor = topLevelBot.activeEditor().toTextEditor();
@@ -68,16 +66,15 @@ public class FoldingTests extends X10DTEditorTestBase {
         final IEditorPart editorPart = fSrcEditor.getReference().getEditor(false);
         final UniversalEditor univEditor = (UniversalEditor) editorPart;
 
-        fUpdateListener= new UpdateListener();
         univEditor.addModelListener(fUpdateListener);
 
         waitForParser();
 
-        IAnnotationModel annModel = univEditor.getDocumentProvider().getAnnotationModel(univEditor.getEditorInput());
+        IAnnotationModel annModel = (IAnnotationModel) univEditor.getAdapter(IAnnotationModel.class);
         Node root= (Node) univEditor.getParseController().getCurrentAst();
 
         checkFoldable(findMethod("main", root), annModel, univEditor);
-        checkFoldable(findMethod("this", root), annModel, univEditor);
+//      checkFoldable(findMethod("this", root), annModel, univEditor);
     }
 
     private void checkFoldable(Node node, IAnnotationModel annModel, UniversalEditor univEditor) {
@@ -97,16 +94,16 @@ public class FoldingTests extends X10DTEditorTestBase {
 
     private void checkFoldable(int startLine, int endLine, IAnnotationModel annModel, IDocument doc) {
         boolean found= false;
-        for(Iterator<Annotation> iter= annModel.getAnnotationIterator(); iter.hasNext(); ) {
+        for(Iterator<Annotation> iter= annModel.getAnnotationIterator(); iter.hasNext() && !found; ) {
             Annotation a= iter.next();
             Position p= annModel.getPosition(a);
 
             if (ProjectionAnnotation.TYPE.equals(a.getType())) {
                 try {
-                    int foldRegionStartLine= doc.getLineOfOffset(p.offset);
-                    int foldRegionEndLine= doc.getLineOfOffset(p.offset + p.length - 1);
+                    int foldRegionStartLine= doc.getLineOfOffset(p.offset) + 1;
+                    int foldRegionEndLine= doc.getLineOfOffset(p.offset + p.length - 1) + 1;
 
-                    if (startLine == foldRegionStartLine && endLine == foldRegionEndLine) {
+                    if (startLine == foldRegionStartLine && (endLine + 1) == foldRegionEndLine) {
                         found= true;
                     }
                 } catch (BadLocationException e) {
