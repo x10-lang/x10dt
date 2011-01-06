@@ -333,7 +333,7 @@ final class TypeHierarchy implements ITypeHierarchy {
           addToMap(this.fTypeToSuperInterfaces, typeName, parentType);
           addToMap(this.fTypeToSubInterfaces, parentTypeName, type);
         } else {
-          if ((X10.INTERFACE.getCode() & type.getX10FlagsCode()) != 0) {
+          if ((X10.INTERFACE.getCode() & parentType.getX10FlagsCode()) != 0) {
             addToMap(this.fTypeToSuperInterfaces, typeName, parentType);
             addToMap(this.fTypeToSubClasses, parentTypeName, type);
           } else {
