@@ -11,10 +11,10 @@
 
 package x10dt.ui.tests;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.swt.finder.SWTBot;
-import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
-import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
@@ -30,6 +30,15 @@ public class X10DTTestBase {
    * The top-level "bot" for the entire workbench.
    */
   public static SWTWorkbenchBot topLevelBot;
+
+  /**
+   * This method waits for a build to finish before continuing
+   * 
+   * @throws Exception
+   */
+  public static void waitForBuildToFinish() throws Exception {
+    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+  }
 
   public static void createJavaBackEndProject(String projName, boolean withHello) throws Exception {
     topLevelBot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM)
