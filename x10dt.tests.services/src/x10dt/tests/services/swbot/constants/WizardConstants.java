@@ -69,6 +69,8 @@ public final class WizardConstants {
 
   public static final String NEW_X10_CLASS_SHELL = ""; // Should be "New X10 Class", but isn't //$NON-NLS-1$
 
+  public static final String NEW_X10_CLASS_SOURCE_FIELD= "Source folder:"; //$NON-NLS-1$
+
   public static final String NEW_X10_CLASS_NAME_FIELD= "Name:"; //$NON-NLS-1$
 
   public static final String NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP= "Sample source"; //$NON-NLS-1$

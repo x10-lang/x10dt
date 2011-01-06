@@ -8,25 +8,7 @@
 package x10dt.tests.services.swbot.utils;
 
 import static x10dt.tests.services.swbot.constants.PlatformConfConstants.PLATFORM_CONF_FILE_PATH;
-import static x10dt.tests.services.swbot.constants.WizardConstants.FILE_MENU;
-import static x10dt.tests.services.swbot.constants.WizardConstants.FINISH_BUTTON;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_CPP_PROJECT_NAME;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_JAVA_PROJECT_NAME_FIELD;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_MENU_ITEM;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_OTHER_MENU;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_OTHER_SHELL;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_PROJECT_DIALOG_TITLE;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_X10_CLASS_NAME_FIELD;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_X10_CLASS_SHELL;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEW_X10_CLASS_WIZARD;
-import static x10dt.tests.services.swbot.constants.WizardConstants.NEXT_BUTTON;
-import static x10dt.tests.services.swbot.constants.WizardConstants.OPEN_ASSOCIATED_PERSPECTIVE_DIALOG_TITLE;
-import static x10dt.tests.services.swbot.constants.WizardConstants.PROJECTS_SUB_MENU_ITEM;
-import static x10dt.tests.services.swbot.constants.WizardConstants.X10_FOLDER;
-import static x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_CPP_BACKEND;
-import static x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_JAVA_BACKEND;
-import static x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_SHELL_JAVA_BACKEND;
-import static x10dt.tests.services.swbot.constants.WizardConstants.YES_BUTTON;
+import static x10dt.tests.services.swbot.constants.WizardConstants.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,10 +135,10 @@ public final class ProjectUtils {
   }
  
   public static SWTBotShell createClass(SWTWorkbenchBot bot, String name) {
-      return createClass(bot, name, false);
+      return createClass(bot, name, null, false);
   }
 
-  public static SWTBotShell createClass(SWTWorkbenchBot bot, String name, boolean withMainMethod) {
+  public static SWTBotShell createClass(SWTWorkbenchBot bot, String className, String srcFolder, boolean withMainMethod) {
     // Shouldn't the following use the X10 folder/category to qualify the "Class" menu item???
     bot.menu(FILE_MENU).menu(NEW_MENU_ITEM).menu(NEW_OTHER_MENU).click();
 
@@ -178,7 +160,11 @@ public final class ProjectUtils {
         wizBot.checkBox("public static def main(args: Array[String])").click();
     }
 
-    bot.textWithLabel(NEW_X10_CLASS_NAME_FIELD).setText(name);
+    if (srcFolder != null) {
+        bot.textWithLabel(NEW_X10_CLASS_SOURCE_FIELD).setText(srcFolder);
+    }
+
+    bot.textWithLabel(NEW_X10_CLASS_NAME_FIELD).setText(className);
 
     bot.button(FINISH_BUTTON).click();
 
