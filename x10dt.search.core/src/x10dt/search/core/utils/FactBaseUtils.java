@@ -7,12 +7,7 @@
  *******************************************************************************/
 package x10dt.search.core.utils;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -46,25 +41,34 @@ public final class FactBaseUtils {
    */
   public static ISet getFactBaseSetValue(final FactBase factBase, final Type type, final IFactContext context, 
                                          final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
-    final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    final ScheduledFuture<ISet> future = executorService.schedule(new Callable<ISet>() {
-
-      public ISet call() throws InterruptedException {
-        while (! IndexManager.isAvailable() && ! monitor.isCanceled()) {
-          synchronized (this) {
-            wait(500);
+    final ISet[] result = new ISet[1];
+    final InterruptedException[] exception = new InterruptedException[1];
+    final Runnable runnable = new Runnable() {
+      
+      public void run() {
+        try {
+          while (! IndexManager.isAvailable() && ! monitor.isCanceled()) {
+            synchronized (this) {
+              wait(500);
+            }
           }
+          if (monitor.isCanceled()) {
+            throw new InterruptedException();
+          }
+          result[0] = (ISet) factBase.queryFact(new FactKey(type, context));
+        } catch (InterruptedException except) {
+          exception[0] = except;
         }
-        if (monitor.isCanceled()) {
-          throw new InterruptedException();
-        }
-        return (ISet) factBase.queryFact(new FactKey(type, context));
       }
-
-    }, 0, TimeUnit.SECONDS);
-    final ISet result = future.get();
-    executorService.shutdown();
-    return result;
+      
+    };
+    final Thread thread = new Thread(runnable);
+    thread.start();
+    thread.join();
+    if (exception[0] != null) {
+      throw exception[0];
+    }
+    return result[0];
   }
   
   /**
