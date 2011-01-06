@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
+import java.io.File;
 import java.util.Collection;
 
 import org.eclipse.imp.utils.Pair;
@@ -158,18 +159,41 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     checker.validate(text.getText().trim());
   }
   
-  protected final void handleLocalPathValidation(final Text text, final String controlInfo) {
-    final IFormControlChecker checker = FormCheckerFactory.createLocalPathControlChecker(this.fFormPage, text, controlInfo);
-    checker.validate(text.getText().trim());
+  protected final boolean handleLocalPathValidation(final Text text, final String controlInfo) {
+      return handleLocalPathValidation(text, null, controlInfo);
   }
 
-  protected final void handlePathValidation(final Text text, final String controlInfo) {
+  protected final boolean handleLocalPathValidation(final Text text, final String pathSuffix, final String controlInfo) {
+    final IFormControlChecker checker = FormCheckerFactory.createLocalPathControlChecker(this.fFormPage, text, controlInfo);
+    String fieldContents= text.getText().trim();
+    String path = (pathSuffix != null && pathSuffix.length() > 0) ? fieldContents + File.separator + pathSuffix : fieldContents;
+
+    return checker.validate(path);
+  }
+
+  protected final boolean handlePathValidation(final Text text, final String controlInfo) {
+    return handlePathValidation(text, null, controlInfo);
+  }
+
+  protected final boolean handlePathValidation(final Text text, final String pathSuffix, final String controlInfo) {
     final ITargetOpHelper targetOpHelper = createTargetOpHelper();
     if (targetOpHelper != null) {
       final IFormControlChecker checker = FormCheckerFactory.createValidPathControlChecker(targetOpHelper, this.fFormPage, 
                                                                                            text, controlInfo);
-      checker.validate(text.getText().trim());
+      String fieldContents= text.getText().trim();
+      String path = (pathSuffix != null && pathSuffix.length() > 0) ? fieldContents + File.separator + pathSuffix : fieldContents;
+      String remotePath= targetOpHelper.getTargetSystemPath(path);
+
+      return checker.validate(remotePath);
     }
+    return false;
+  }
+
+  protected final boolean handleFolderAndChildValidation(Text text, String folderChild, String folderMsgLabel, String childMsgLabel) {
+    if (!handlePathValidation(text, folderMsgLabel)) {
+        return false;
+    }
+    return handlePathValidation(text, folderChild, childMsgLabel);
   }
 
   protected final void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {

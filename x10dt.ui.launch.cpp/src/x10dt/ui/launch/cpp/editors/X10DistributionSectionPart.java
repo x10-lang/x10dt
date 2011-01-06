@@ -221,7 +221,8 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
         getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
           
           public void run() {
-            handlePathValidation(X10DistributionSectionPart.this.fX10DistLocText, LaunchMessages.XPCP_X10DistLabel);
+            handleFolderAndChildValidation(X10DistributionSectionPart.this.fX10DistLocText, INCLUDE_X10RT_PATH,
+                                           LaunchMessages.XPCP_X10DistLabel, LaunchMessages.XPCP_X10DistRootIncludeLabel);
           }
           
         });
@@ -242,8 +243,9 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
 
     });
   }
-  
+
   // --- Fields
+  private static final String INCLUDE_X10RT_PATH= "include/x10rt.h"; //$NON-NLS-1$
 
   private Text fX10DistLocText;
   

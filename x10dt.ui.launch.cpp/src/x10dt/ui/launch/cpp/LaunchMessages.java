@@ -507,6 +507,8 @@ public static String CppCompilationChecker_errorAppendingMainMethodStub;
 
   public static String XPCP_X10DistLabel;
 
+  public static String XPCP_X10DistRootIncludeLabel;
+
   public static String XPCP_X10DistribSection;
 
   public static String XPCP_X10DistribSectionDescr;
