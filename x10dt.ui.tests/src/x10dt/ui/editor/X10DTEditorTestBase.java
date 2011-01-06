@@ -48,7 +48,7 @@ public class X10DTEditorTestBase extends X10DTTestBase {
        * The bot for the editor used to test the quick outline view.
        */
     protected SWTBotEclipseEditor fSrcEditor;
-    protected UpdateListener fUpdateListener;
+    protected UpdateListener fUpdateListener = new UpdateListener();
 
     protected void waitForParser() throws Exception {
         topLevelBot.waitUntil(new DefaultCondition() {
