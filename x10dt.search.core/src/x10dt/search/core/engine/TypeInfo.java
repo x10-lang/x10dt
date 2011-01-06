@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 
 import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
 
@@ -33,21 +34,17 @@ final class TypeInfo extends AbstractMemberInfo implements ITypeInfo {
   // --- ITypeInfo's interface methods implementation
   
   public boolean exists(final IProgressMonitor monitor) {
+    final IX10SearchScope scope;
     if (getCompilationUnit() == null) {
-      try {
-        return X10SearchEngine.getTypeInfo(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), getName(), 
-                                           monitor).length > 0;
-      } catch (Exception except) {
-        return false;
-      }
+      scope = SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL);
     } else {
       final IFile file = getCompilationUnit().getFile();
-      try {
-        return X10SearchEngine.getTypeInfo(SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, file), getName(), 
-                                           monitor).length > 0;
-      } catch (Exception except) {
-        return false;
-      }
+      scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, file);
+    }
+    try {
+      return X10SearchEngine.getTypeInfo(scope, getName(), monitor).length > 0;
+    } catch (Exception except) {
+      return false;
     }
   }
 
