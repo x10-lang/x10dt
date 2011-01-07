@@ -244,7 +244,7 @@ public class ExtractVarsVisitor extends NodeVisitor {
 		if (n instanceof Formal) {
 			Formal nformal = (Formal) n;
 			Local nlocal = nf.Local(nformal.position(), nformal.id());
-			nlocal.localInstance(nformal.localInstance());
+			nlocal = nlocal.localInstance(nformal.localInstance());
 			evCol.add(nlocal);
 			evTypeMap.put(nlocal, VarUseType.LVAL | VarUseType.DECL
 					| ((par instanceof X10Loop) ? VarUseType.LOOP_VAR : 0));
@@ -258,7 +258,7 @@ public class ExtractVarsVisitor extends NodeVisitor {
 								.column()
 								+ ndecl.id().id().length() - 1);
 				Local nlocal = nf.Local(npos, ndecl.id());
-				nlocal.localInstance(ndecl.localInstance());
+				nlocal = nlocal.localInstance(ndecl.localInstance());
 				evCol.add(nlocal);
 				evTypeMap.put(nlocal, VarUseType.LVAL | VarUseType.DECL);
 			}
@@ -377,7 +377,7 @@ public class ExtractVarsVisitor extends NodeVisitor {
 	}
 
 	/**
-	 * Fixes derefence information for Variables by counting from the base
+	 * Fixes dereference information for Variables by counting from the base
 	 * dereferenced Variable up to the ultimate Variable.
 	 */
 	@Override

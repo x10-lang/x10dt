@@ -1,4 +1,3 @@
-
 package x10.refactorings;
 
 import polyglot.ast.Expr;
@@ -7,13 +6,13 @@ import polyglot.types.VarInstance;
 import com.ibm.wala.ipa.callgraph.propagation.PointerKey;
 
 /**
- * A class that allows for association of a WALA pointer key and a Polyglot variable instance
- * with the expression from which the variable originates.
+ * A class that allows for association of a WALA pointer key and a Polyglot
+ * variable instance with the expression from which the variable originates.
  * 
  * @author sm053
- *
+ * 
  */
-class VarWithFirstUse {
+class VarWithFirstUse implements VarKey {
 	private VarInstance fVarInstance;
 
 	private Expr fFirstUseExpr;
@@ -23,9 +22,12 @@ class VarWithFirstUse {
 	/**
 	 * Constructs a VarWithFirstUse object given all of its components.
 	 * 
-	 * @param vi the variable instance
-	 * @param firstUse the expression where the variable is first used
-	 * @param ptrKeyOfFirstUse the pointer key initially associated with the instance
+	 * @param vi
+	 *            the variable instance
+	 * @param firstUse
+	 *            the expression where the variable is first used
+	 * @param ptrKeyOfFirstUse
+	 *            the pointer key initially associated with the instance
 	 */
 	public VarWithFirstUse(VarInstance vi, Expr firstUse,
 			PointerKey ptrKeyOfFirstUse) {
@@ -60,8 +62,10 @@ class VarWithFirstUse {
 	public PointerKey getPtrKeyOfFirstUse() {
 		return fPtrKeyOfFirstUse;
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object o) {
@@ -70,27 +74,31 @@ class VarWithFirstUse {
 		} else {
 			VarWithFirstUse vo = (VarWithFirstUse) o;
 			if (vo.getVarInstance() == null) {
-				return (this.fVarInstance == null) 
-					&& vo.getFirstUse().equals(this.fFirstUseExpr);
+				return (this.fVarInstance == null)
+						&& vo.getFirstUse().equals(this.fFirstUseExpr);
 			} else {
 				return vo.getVarInstance().equals(this.fVarInstance);
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates a useful debugging string for a VarWithFirstUse
 	 * 
 	 * @return a debug string representation
 	 */
 	public String debug() {
-		return "{{"+fVarInstance+","+fFirstUseExpr+","+fPtrKeyOfFirstUse+"}}";
+		return "{{" + fVarInstance + "," + fFirstUseExpr + ","
+				+ fPtrKeyOfFirstUse + "}}";
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return ExtractAsyncRefactoring.debugOutput?debug():fFirstUseExpr.toString();
+		return ExtractAsyncRefactoring.debugOutput ? debug() : fFirstUseExpr
+				.toString();
 	}
 }
