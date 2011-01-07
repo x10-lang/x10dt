@@ -18,8 +18,8 @@ public class X10SearchLabelProvider extends X10LabelProvider {
 	public String getText(Object element) {
 		if (element instanceof IMemberInfo){
 			IPath base = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-			String path = SearchUtils.getPath((IMemberInfo)element).makeRelativeTo(base).toOSString();
-			return super.getText(element) + "     (" + path + ")";
+			String path = SearchUtils.getPath((IMemberInfo)element).makeRelativeTo(base).segment(0);
+			return super.getText(element) + " - " + path;
 		}
 		return super.getText(element);
 	}
