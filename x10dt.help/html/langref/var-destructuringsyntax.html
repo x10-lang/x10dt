@@ -24,8 +24,17 @@
 X10 permits a <em>destructuring</em> syntax for local variable
 declarations with explicit initializers,  and for formal parameters, of type <b>Point</b>, &#167;.
 (Future versions of X10 may allow destructuring of other types as well.) 
-A point is a sequence of r  &#8805; 0 <b>Int</b>-valued coordinates.  
+A point is a sequence of zero or more <b>Int</b>-valued coordinates.  
 It is often useful to get at the coordinates directly, in variables. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;" declares n
+<b>Int</b> variables, bound to the first n components of the <b>Point</b> value of
+<b>e</b>; it is an error if <b>e</b> is not a <b>Point</b> with at least n components.
+The syntax "val p[a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;"  is similar, but also
+declares the variable <b>p</b> as "Point".  
 
 <div class="p"><!----></div>
 The following code makes an anonymous point with one coordinate <b>11</b>, and
@@ -47,12 +56,6 @@ for ([i] in 1..100) sum += i;
 
 The brackets in <b>[i]</b> introduce destructuring, making X10 treat <b>i</b>
 as an <b>Int</b>; without them, it would be a <b>Point</b>.  
-
-<div class="p"><!----></div>
-In general, a pattern of the form "[i<sub>1</sub>,&#8230;,i<sub>n</sub>]" matches a
-point with n coordinates, binding &#239;<sub>j</sub>" to coordinate j.  
-A pattern of the form "p[i<sub>1</sub>,&#8230;,i<sub>n</sub>]" does the same,  but
-also binds <b>p</b> to the point.
 
 <div class="p"><!----></div>
 

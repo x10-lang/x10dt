@@ -60,7 +60,7 @@ cases the
 return type <b>T</b> is also optional and defaults to the type of the
 body. If a formal <b>xi</b> does not occur in any
 <b>Tj</b>, {c}, <b>T</b> or {e}, the declaration <b>xi:Ti</b> may
-be replaced by just <b>Ti</b>: <b>(Int)=&#62;7</b> is the integer function returning
+be replaced by just <b>Ti</b>. <em>E.g.</em>,  <b>(Int)=&#62;7</b> is the integer function returning
 7 for all inputs.
 
 <div class="p"><!----></div>
@@ -69,6 +69,14 @@ be replaced by just <b>Ti</b>: <b>(Int)=&#62;7</b> is the integer function retur
 constrain the actual parameters with which it may be invoked.
 The guard may refer to the type parameters, formal parameters,
 and any <b>val</b>s in scope at the function expression.
+
+<div class="p"><!----></div>
+<pre>
+    val n = 3;
+    val f : (x:Int){x != n} =&#62; Int  
+          = (x:Int){x != n} =&#62; (12/(n-x));
+    Console.OUT.println("f(5)=" + f(5));    
+</pre>
 
 <div class="p"><!----></div>
 The body of the function is evaluated when the function is
@@ -81,7 +89,7 @@ have a terminating expression.
 If the return type is omitted, it is inferred, as described in
 &#167;.
 It is a static error if the return type cannot be inferred.  <em>E.g.</em>,
-<b>(Int)=&#62;null</b> is not well-defined; X10 does not know which type of
+<b>(Int)=&#62;null</b> is not well-specified; X10 does not know which type of
 <b>null</b> is intended.  
 But <b>(Int):Array[Double](1) =&#62; null</b> is legal.
 
@@ -121,7 +129,7 @@ may access many, though not all, sorts of variables from outer scopes.
 Specifically, they can access: 
 
 <ul>
-<li> All fields of the enclosing object and class;
+<li> All fields of the enclosing object(s) and class(es);
 <div class="p"><!----></div>
 </li>
 
@@ -143,7 +151,7 @@ enclosing class.  <b>this</b> refers to the instance of the immediately
 enclosing class, as usual.
 
 <div class="p"><!----></div>
-For example, the following is legal.  
+<em>E.g.</em> The following is legal.  
 However, the commented-out line would not be legal.
 Note that <b>a</b> is not a local <b>var</b> variable. It is a field of
 <b>this</b>. A reference to <b>a</b> is simply short for <b>this.a</b>, which is

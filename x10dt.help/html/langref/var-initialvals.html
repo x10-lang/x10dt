@@ -28,22 +28,36 @@
 Every assignment, binding, or initialization to a variable of type <b>T{c}</b>
 must be an instance of type <b>T</b> satisfying the constraint <b>{c}</b>.
 Variables must be given a value before they are used. This may be done by
-initialization, which is the only way for immutable (<b>val</b>) variables and
-one option for mutable (<b>var</b>) ones: 
+initialization - giving a variable a value as part
+of its declaration. 
 
 <div class="p"><!----></div>
+<em>e.g.</em> These variables are all initialized: 
 <pre>
   val immut : Int = 3;
   var mutab : Int = immut;
   val use = immut + mutab;
 </pre>
-Or, for mutable variables, it may be done by a later assignment.  
+Or, a variable may be given a value by an assignment.  <b>var</b> variables may
+be assigned to repeatedly.  <b>val</b> variables may only be assigned once; the
+compiler will ensure that they are assigned before they are used.
 
 <div class="p"><!----></div>
+<em>e.g.</em> The variables in the following example are given their initial values by
+assignment.  Note that they could not be used before those assignments,
+nor could <b>immu</b> be assigned repeatedly.
+<div class="p"><!----></div>
 <pre>
-  var muta2 : Int;
-  muta2 = 4;
-  val use = muta2 * 10;
+  var muta : Int;
+  // ERROR: println(muta);
+  muta = 4;
+  val use2A = muta * 10;
+  val immu : Int;
+  // ERROR: println(immu);
+  if (cointoss())   {immu = 1;}
+  else              {immu = use2A;}
+  val use2B = immu * 10;
+  // ERROR: immu = 5;
 </pre>
 
 <div class="p"><!----></div>
@@ -61,7 +75,7 @@ corresponding argument value provided by the invoker of the method. An
 exception-handling parameter is initialized to the object thrown by
 the exception. A local variable must be explicitly given a value by
 initialization or assignment, in a way that the compiler can verify
-using the rules for definite assignment [,&#167;&#126;16].
+using the rules for definite assignment &#167;.
 
 <div class="p"><!----></div>
 

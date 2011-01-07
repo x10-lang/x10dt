@@ -36,7 +36,7 @@ inferred from the initializer type (&#167;).
 <div class="p"><!----></div>
 The variable declaration <b>val x:T=e;</b> confirms that <b>e</b>'s value is of
 type <b>T</b>, and then introduces the variable <b>x</b> with type <b>T</b>.  For
-example, consider a class Tub with a property <b>p</b>.
+example, consider a class <b>Tub</b> with a property <b>p</b>.
 <pre>
 class Tub(p:Int){
   def this(pp:Int):Tub{self.p==pp} {property(pp);}
@@ -59,26 +59,15 @@ something of the intent of the variable.  However, including types in
 documentation type declaration</em>, written <b>val t &lt;: T = e</b>.  This 
 has the same effect as <b>val t = e</b>, giving <b>t</b> the full type inferred
 from <b>e</b>; but it also confirms statically that that type is at least
-<b>T</b>.  For example, the following gives <b>t</b> the type <b>Tub{self.p==3}</b> as
-desired: 
-<pre>
-   val t &lt;: Tub = new Tub(3);
-</pre>
-
-However, replacing <b>Tub</b> by <b>Int</b> would result in a compilation error. 
+<b>T</b>.  
 
 <div class="p"><!----></div>
-Variables do not need to be initialized at the time of definition - not even
-<b>val</b>s. They must be initialized by the time of use, and <b>val</b>s may
-only be assigned to once. The X10 compiler performs static checks guaranteeing
-this restriction. The following is correct, albeit obtuse: 
+The following gives <b>t</b> the type <b>Tub{self.p==3}</b> as
+desired.  However, a similar declaration with an inappropriate type will fail
+to compile.
 <pre>
-static def main(r: Array[String](1)):void {
-  val a : Int;
-  a = r.size;
-  val b : String;
-  if (a == 5) b = "five?"; else b = "" + a + " args"; 
-  // ... 
+   val t &lt;: Tub = new Tub(3);
+   // ERROR: val u &lt;: Int = new Tub(3);
 </pre>
 
 <div class="p"><!----></div>

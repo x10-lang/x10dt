@@ -24,18 +24,16 @@ Chapter 7 </a><br />Interfaces</h1>
 
 <div class="p"><!----></div>
 An interface specifies signatures for public methods, properties,
-<b>static val</b>s, and an invariant. It may extend several interfaces, giving
-X10 a large fraction of the power of multiple inheritance at a tiny fraction
-of the cost.
+<b>static val</b>s, and an invariant. 
 
 <div class="p"><!----></div>
 The following puny example illustrates all these features: 
 <pre>
-interface Pushable(text:String, prio:Int) {
+interface Pushable(text:String, prio:Int){prio != 0} {
   def push(): void;
   static val MAX_PRIO = 100;
 }
-class MessageButton(text:String, prio:Int) 
+class MessageButton(text:String, prio:Int){
   implements Pushable{self.prio==Pushable.MAX_PRIO} {
   public def push() { 
     x10.io.Console.OUT.println(text + " pushed");
@@ -43,7 +41,8 @@ class MessageButton(text:String, prio:Int)
 }
 </pre>
 
-<b>Pushable</b> defines two properties, a method, and a static value.  
+<b>Pushable</b> defines two properties, a method, and a static value.  It also
+establishes an invariant, that <b>prio != 0</b>. 
 <b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
 <em>viz</em>&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
 defines the <b>push()</b> method given in the interface, as a <b>public</b>
@@ -56,9 +55,47 @@ requires.
 
 <div class="p"><!----></div>
 A variable may be declared to be of interface type.  Such a variable has all
-the fields and methods declared (directly or indirectly) by the interface;
-nothing else is statically available.  Values of a concrete type which
+the properties and methods declared (directly or indirectly) by the interface;
+nothing else is statically available.  Values of any concrete type which
 implement the interface may be stored in the variable.  
+
+<div class="p"><!----></div>
+The following code puts two quite different objects into the variable
+<b>star</b>, both of which satisfy the interface <b>Star</b>.
+<pre>
+interface Star { def rise():void; }
+class AlphaCentauri implements Star {
+   public def rise() {}
+}
+class ElvisPresley implements Star {
+   public def rise() {}
+}
+class Example {
+   static def example() {
+      var star : Star;
+      star = new AlphaCentauri();
+      star.rise();
+      star = new ElvisPresley();
+      star.rise();
+   }
+}
+</pre>
+
+An interface may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+<div class="p"><!----></div>
+<pre>
+interface Star{}
+interface Dog{}
+class Sirius implements Dog, Star{}
+class Lassie implements Dog, Star{}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Interface Syntax</h2>  
 
 <div class="p"><!----></div>
 <a name="DepType:Interface">
@@ -98,7 +135,7 @@ Each interface implicitly defines a nullary getter method
 another definition of a method <b>p()</b>. 
 
 <div class="p"><!----></div>
-A class <b>C</b> is said to implement an interface <b>I</b> if
+A class <b>C</b>  implements an interface <b>I</b> if
 
 <ul>
 <li> <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
@@ -118,8 +155,11 @@ A class <b>C</b> is said to implement an interface <b>I</b> if
 </ul>
 
 <div class="p"><!----></div>
-Note that, by definition of <i>inv</i>(&#183;) (see &#167;, <b>C</b>'s class invariant <i>inv</i>(<b>C</b>) implies
-<i>inv</i>(<b>I</b>).
+If <b>C</b> implements <b>I</b>, then the class invariant
+(&#167;) for <b>C</b>,   <i>inv</i>(<b>C</b>), implies
+the class invariant for <b>I</b>, <i>inv</i>(<b>I</b>).  That is, if the
+interface <b>I</b> specifies some requirement, then every class <b>C</b> that
+implements it satisfies that requirement.
 
 <div class="p"><!----></div>
 
