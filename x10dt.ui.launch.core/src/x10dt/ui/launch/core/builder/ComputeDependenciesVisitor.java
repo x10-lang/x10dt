@@ -286,8 +286,10 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 		if (!types.contains(classType))
 			types.add(classType);
 
-		for (Type param : classType.typeArguments())
-			extractAllClassTypes(param, types);
+		if (classType.typeArguments() != null) {
+		    for (Type param : classType.typeArguments())
+		        extractAllClassTypes(param, types);
+		}
 	}
 	
 	private void superTypes(ClassType type, List<ClassType> types){
