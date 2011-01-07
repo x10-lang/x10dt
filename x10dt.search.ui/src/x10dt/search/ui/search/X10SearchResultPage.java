@@ -59,7 +59,7 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 	@Override
 	protected void configureTableViewer(TableViewer viewer) {
 		viewer.setUseHashlookup(true);
-		X10LabelProvider lp = new X10LabelProvider();
+		X10LabelProvider lp = new X10SearchLabelProvider();
 		lp.setTextFlags(X10ElementLabels.ALL_POST_QUALIFIED);
 		viewer.setLabelProvider(lp);
 		fContentProvider=new X10SearchTableContentProvider(this);
