@@ -49,10 +49,12 @@ import polyglot.ast.Block_c;
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.CompoundStmt;
+import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Local;
+import polyglot.ast.LocalDecl;
 import polyglot.ast.Loop;
 import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
@@ -81,6 +83,7 @@ import polyglot.types.VarInstance;
 import polyglot.visit.NodeVisitor;
 import x10.refactorings.utils.ExtractAsyncStaticTools;
 import x10.refactorings.utils.ExtractVarsVisitor;
+import x10.refactorings.utils.Function;
 import x10.refactorings.utils.NodePathComputer;
 import x10.refactorings.utils.NodeTypeFindingVisitor;
 import x10.refactorings.utils.PolyglotUtils;
@@ -135,10 +138,8 @@ import com.ibm.wala.ssa.SSAGetInstruction;
 import com.ibm.wala.ssa.SSAGotoInstruction;
 import com.ibm.wala.ssa.SSAInstruction;
 import com.ibm.wala.ssa.SSASwitchInstruction;
-import com.ibm.wala.types.ClassLoaderReference;
 import com.ibm.wala.types.FieldReference;
 import com.ibm.wala.types.MethodReference;
-import com.ibm.wala.types.Selector;
 import com.ibm.wala.types.TypeName;
 import com.ibm.wala.util.CancelException;
 import com.ibm.wala.util.debug.Assertions;
@@ -229,7 +230,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	 * Maps lvalues onto a boolean that identifies whether the lvalue is a
 	 * loop-carried dependency
 	 */
-	private Map<Expr, Boolean> fRho;
+	private Map<VarWithFirstUse, Boolean> fRho;
 
 	/**
 	 * The set of statements bearing loop-carried dependencies.
@@ -383,11 +384,11 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 			// calculateInfoFlow(loop, aliasInfo); // saves phi and rho in
 			// fields
-			calculateInfoFlow(loop, pointerInfo); // saves phi and rho in fields
+			calculateInfoFlow(loop, aliasInfo); // saves phi and rho in fields
 			calculateLoopCarriedStatements(loop, inductionVars); // saves
 			// delta in
 			// a field
-			randomlyGenerateLoopCarriedStatements(loop, inductionVars);
+			// randomlyGenerateLoopCarriedStatements(loop, inductionVars);
 
 			if (!preconditionsHold(loop, fPivot, fNodeMethod))
 				return RefactoringStatus
@@ -713,14 +714,231 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	}
 
 	/**
+	 * DummyVar is a token for use in calculating the information flow of a
+	 * loop. It represents a variable actually used in the loop and, if added to
+	 * the info flow set of the variable upon its first update, exposes a
+	 * loop-carried dependency.
+	 */
+	private class DummyVar implements VarKey {
+
+		VarWithFirstUse var;
+
+		DummyVar(VarWithFirstUse v) {
+			var = v;
+		}
+
+		public VarWithFirstUse getVar() {
+			return var;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof DummyVar) {
+				DummyVar other = (DummyVar) o;
+				return var.equals(other.var);
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return var.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return "Dummy[" + var + "]";
+		}
+	}
+
+	/**
+	 * A representation of the VarKeys associated with an assignment or
+	 * declaration statement for use in determining the information flow of a
+	 * loop.
+	 * 
+	 * @author sm053
+	 * 
+	 */
+	private class StmtKeys {
+		private Stmt stmt;
+		private VarWithFirstUse lvalkey;
+		private Collection<VarKey> rvalkeys;
+
+		public StmtKeys(Stmt stmt, VarWithFirstUse lvalkey,
+				Collection<VarKey> rvalkeys) {
+			this.stmt = stmt;
+			this.lvalkey = lvalkey;
+			this.rvalkeys = rvalkeys;
+		}
+
+		public Stmt getStmt() {
+			return stmt;
+		}
+
+		public VarWithFirstUse getLvalKey() {
+			return lvalkey;
+		}
+
+		public Collection<VarKey> getRvalKeys() {
+			return rvalkeys;
+		}
+	}
+
+	/**
 	 * Analyzes the given loop and sets fPhi and fRho accordingly.
 	 * 
 	 * @param loop
 	 */
 	private void calculateInfoFlow(Stmt loop,
-			Map<VarWithFirstUse, Collection<InstanceKey>> aliasInfo) {
+			final Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo) {
+		// Since fPhi and fRho are instance fields, changing them in this
+		// method is visible outside of the method.
 		fPhi = new HashMap<Stmt, Set<Expr>>();
-		fRho = new HashMap<Expr, Boolean>();
+		fRho = new HashMap<VarWithFirstUse, Boolean>();
+
+		// Used to track info flow changes
+		Map<Stmt, Set<VarKey>> internal_phi = new HashMap<Stmt, Set<VarKey>>();
+		Map<VarKey, Set<VarKey>> psi = new HashMap<VarKey, Set<VarKey>>();
+
+		// for V : lvalue \in l
+		for (VarWithFirstUse v : aliasInfo.keySet()) {
+			// \psi(V) = \sigma(V) + \gamma_V
+			psi.put(v, new HashSet<VarKey>());
+			psi.get(v).addAll(aliasInfo.get(v));
+			psi.get(v).add(new DummyVar(v));
+
+			// \rho(V) = false
+			fRho.put(v, Boolean.FALSE);
+		}
+
+		// extract the updates from the loop body (assuming single level)
+		Collection<Stmt> assignStmts = new ArrayList<Stmt>();
+
+		if (loop instanceof X10Loop) {
+			X10Loop xloop = (X10Loop) loop;
+			if (xloop.body() instanceof Block) {
+				Block xloop_body = (Block) xloop.body();
+				for (Object stmt : xloop_body.statements()) {
+					if (stmt instanceof Eval) {
+						Eval eval_stmt = (Eval) stmt;
+						if (eval_stmt.expr() instanceof Assign) {
+							assignStmts.add(eval_stmt);
+							internal_phi.put(eval_stmt, new HashSet<VarKey>());
+						}
+					} else if (stmt instanceof LocalDecl) {
+						assignStmts.add((LocalDecl) stmt);
+						internal_phi.put((LocalDecl) stmt,
+								new HashSet<VarKey>());
+					}
+				}
+			}
+		}
+
+		X10NodeFactory nf = (X10NodeFactory) ((ParseController) ed
+				.getParseController()).getCompilerDelegate().getExtensionInfo()
+				.nodeFactory();
+		boolean changed = true;
+
+		// translate a statement from variables into varkeys
+		List<StmtKeys> stmtKeys = new LinkedList<StmtKeys>();
+		for (Stmt stmt : assignStmts) {
+			Expr lval = null;
+			Expr rexpr = null;
+
+			if (stmt instanceof Eval) {
+				Assign assignment = (Assign) ((Eval) stmt).expr();
+
+				// extract the key associated with X
+				lval = assignment.left();
+				rexpr = assignment.right();
+			} else {
+				LocalDecl ld = (LocalDecl) stmt;
+				lval = nf.Local(ld.id().position(), ld.id());
+				lval = ((Local) lval).localInstance(ld.localInstance());
+				rexpr = ld.init();
+			}
+
+			VarWithFirstUse lvalkey = null;
+			if (lval instanceof Variable)
+				lvalkey = getVarWithFirstUse(aliasInfo.keySet(),
+						(Variable) lval);
+			else
+				// there's something funny going on! quit!
+				ThrowableStatus
+						.createFatalErrorStatus("A non-lvalue was found on the left hand side of an assignment. Refactoring aborted!");
+
+			// extract the keys associated with the E_i
+			ExtractVarsVisitor rval_visitor = new ExtractVarsVisitor(nf);
+			rexpr.visit(rval_visitor);
+			Collection<Variable> rvals = rval_visitor.getVars();
+			Collection<VarKey> rvalkeys = ExtractAsyncStaticTools.map(rvals,
+					new Function<Variable, VarKey>() {
+						public VarKey eval(Variable v) {
+							return getVarWithFirstUse(aliasInfo.keySet(), v);
+						}
+					});
+			stmtKeys.add(new StmtKeys(stmt, lvalkey, rvalkeys));
+		}
+
+		// calculate first update map
+		Map<VarKey, Stmt> firstUpdates = new HashMap<VarKey, Stmt>();
+		for (StmtKeys stmtKey : stmtKeys) {
+			if (!firstUpdates.containsKey(stmtKey.getLvalKey())) {
+				firstUpdates.put(stmtKey.getLvalKey(), stmtKey.getStmt());
+			}
+		}
+
+		// while \phi changes
+		while (changed) {
+			changed = false;
+
+			// for S : \{ X = E_1 op \ldots op E_k \} \in l
+			for (StmtKeys stmtKey : stmtKeys) {
+
+				// \phi(S) = \Cup_{i \in [1,k]} \psi(E_i)
+				Set<VarKey> new_phi_stmt = new HashSet<VarKey>();
+				for (VarKey rvalkey : stmtKey.getRvalKeys()) {
+					new_phi_stmt.addAll(psi.get(rvalkey));
+				}
+
+				// determine if there were any changes in calculating \phi(S)
+				// since
+				// previous iteration
+				new_phi_stmt.removeAll(internal_phi.get(stmtKey.getStmt()));
+				changed |= !new_phi_stmt.isEmpty();
+
+				// if (\gamma_V \in \phi(S)) \wedge firstUpdate (X, l))
+				// \rho(V) = true
+				if (new_phi_stmt.contains(new DummyVar(stmtKey.getLvalKey()))) {
+					if (stmtKey.getStmt().equals(
+							firstUpdates.get(stmtKey.getLvalKey())))
+						fRho.put(stmtKey.getLvalKey(), Boolean.TRUE);
+				}
+
+				// commit changes to \phi(S)
+				internal_phi.get(stmtKey.getStmt()).addAll(new_phi_stmt);
+
+				// \psi(X) = \psi(X) \Cup \phi(S)
+				psi.get(stmtKey.getLvalKey()).addAll(
+						internal_phi.get(stmtKey.getStmt()));
+			}
+		}
+
+		// remove abstract locations from \phi and convert \gamma_V into V
+		for (Map.Entry<Stmt, Set<VarKey>> entry : internal_phi.entrySet()) {
+			Set<Expr> infoExprs = (Set<Expr>) ExtractAsyncStaticTools.map(entry
+					.getValue(), new Function<VarKey, Expr>() {
+				public Expr eval(VarKey v) {
+					if (v instanceof DummyVar) {
+						return ((DummyVar) v).getVar().getFirstUse();
+					} else {
+						return null;
+					}
+				}
+			});
+			infoExprs.remove(null);
+			fPhi.put(entry.getKey(), infoExprs);
+		}
 	}
 
 	/**
@@ -732,6 +950,48 @@ public class ExtractAsyncRefactoring extends Refactoring {
 	private void calculateLoopCarriedStatements(Stmt loop,
 			Set<VarDecl> inductionVars) {
 		fDelta = new HashSet<Stmt>();
+
+		if (loop instanceof X10Loop) {
+			X10Loop xloop = (X10Loop) loop;
+			X10NodeFactory nf = (X10NodeFactory) ((ParseController) ed
+					.getParseController()).getCompilerDelegate()
+					.getExtensionInfo().nodeFactory();
+			if (xloop.body() instanceof Block) {
+				Block xloop_body = (Block) xloop.body();
+				mainloop: for (Object stmt : xloop_body.statements()) {
+					Stmt castStmt = (Stmt) stmt;
+					ExtractVarsVisitor varVisitor = new ExtractVarsVisitor(nf);
+					castStmt.visit(varVisitor);
+					Collection<Variable> vars = varVisitor.getVars();
+					for (Variable var : vars) {
+						VarWithFirstUse varTrans = getVarWithFirstUse(fRho
+								.keySet(), var);
+						if (fRho.get(varTrans)) {
+							fDelta.add(castStmt);
+							continue mainloop;
+						}
+					}
+
+					if (castStmt instanceof Eval) {
+						Eval evalStmt = (Eval) castStmt;
+						if (evalStmt.expr() instanceof Assign) {
+							Assign assignment = (Assign) evalStmt.expr();
+							if (assignment.left() instanceof Local) {
+								Local updateVar = (Local) assignment.left();
+								for (VarDecl var : inductionVars) {
+									if (var.localInstance().equals(
+											updateVar.localInstance())) {
+										fDelta.add(castStmt);
+										continue mainloop;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -1440,7 +1700,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		populateScope(sources, libs);
 
-		ProcedureCollectorVisitor procedureCollection = new ProcedureCollectorVisitor();
+		ProcedureCollectorVisitor procedureCollection = new ProcedureCollectorVisitor(
+				fEngine);
 
 		((Node) ed.getParseController().getCurrentAst())
 				.visit(procedureCollection);
@@ -1778,6 +2039,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		if (formal instanceof Formal) {
 			Local lFormal = (nf
 					.Local(formal.position(), ((Formal) formal).id()));
+			lFormal = lFormal.localInstance(((Formal) formal).localInstance());
 			b1Vars.add((Variable) lFormal);
 		} else if (formal instanceof Variable) {
 			b1Vars.add((Variable) formal);
@@ -1853,7 +2115,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 						if (sSet != null
 								&& s_primeSet != null
 								&& !Collections.disjoint(fPhi.get(s), fPhi
-										.get(s_prime))) {
+										.get(s_prime)) && !delta.contains(s)) {
 							delta.add(s);
 							break;
 						}
@@ -1911,75 +2173,6 @@ public class ExtractAsyncRefactoring extends Refactoring {
 							.referenceForMethod(proc), cha);
 				}
 			};
-		}
-	}
-
-	/**
-	 * A Polyglot visitor that determines all of the procedure declarations in
-	 * the AST.
-	 * 
-	 * @author Shane Markstrum
-	 * @author Robert Fuhrer
-	 */
-	class ProcedureCollectorVisitor extends polyglot.visit.NodeVisitor {
-
-		ArrayList<ProcedureInstance> procs;
-
-		ArrayList<ProcedureDecl> procDecls;
-
-		public ProcedureCollectorVisitor() {
-			super();
-			procs = new ArrayList<ProcedureInstance>(10);
-			procDecls = new ArrayList<ProcedureDecl>(10);
-		}
-
-		public Node leave(Node old, Node n, NodeVisitor v) {
-			if (n instanceof ProcedureDecl
-					&& !((ProcedureDecl) n).flags().isPrivate()) {
-				procs.add(((ProcedureDecl) n).procedureInstance());
-				procDecls.add((ProcedureDecl) n);
-			}
-			return n;
-		}
-
-		public ProcedureInstance[] getProcs() {
-			ProcedureInstance[] processedProcs = new ProcedureInstance[procs
-					.toArray().length];
-			int j = 0;
-			for (Iterator<ProcedureInstance> i = procs.iterator(); i.hasNext();) {
-				processedProcs[j++] = i.next();
-			}
-			return processedProcs;
-		}
-
-		public ProcedureDecl[] getProcDecls() {
-			ProcedureDecl[] processedProcs = new ProcedureDecl[procDecls
-					.toArray().length];
-			int j = 0;
-			for (Iterator<ProcedureDecl> i = procDecls.iterator(); i.hasNext();) {
-				processedProcs[j++] = i.next();
-			}
-			return processedProcs;
-		}
-
-		public List<MethodReference> getProcRefs(ClassLoaderReference cLoader) {
-			ArrayList<MethodReference> procRefs = new ArrayList<MethodReference>(
-					10);
-			for (Iterator<ProcedureInstance> i = procs.iterator(); i.hasNext();) {
-				procRefs.add(fEngine.getTranslatorExtension()
-						.getIdentityMapper().getMethodRef(i.next()));
-			}
-			return procRefs;
-		}
-
-		public List<Selector> getProcSelectors(ClassLoaderReference cLoader) {
-			ArrayList<Selector> procSels = new ArrayList<Selector>(10);
-			for (Iterator<ProcedureInstance> i = procs.iterator(); i.hasNext();) {
-				procSels.add(fEngine.getTranslatorExtension()
-						.getIdentityMapper().getMethodRef(i.next())
-						.getSelector());
-			}
-			return procSels;
 		}
 	}
 
