@@ -47,7 +47,6 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
       case LAPI:
         return "-DTRANSPORT=lapi"; //$NON-NLS-1$
       case MPI:
-        return "-DTRANSPORT=sockets"; //$NON-NLS-1$
       case SOCKETS:
       case STANDALONE:
         return ""; //$NON-NLS-1$
