@@ -18,14 +18,14 @@
 
   <target name="wala-checkouts" depends="wala-checkouts-existence" unless="are-plugins-present">
     <svn username="anonymous">
-      <checkout url="https://wala.svn.sourceforge.net/svnroot/wala/${wala.tag}/com.ibm.wala.shrike" 
+      <checkout url="http://wala.svn.sf.net/svnroot/wala/${wala.tag}/com.ibm.wala.shrike" 
                 revision="${wala.revision}" destPath="${build.folder}/com.ibm.wala.shrike" />
-      <checkout url="https://wala.svn.sourceforge.net/svnroot/wala/${wala.tag}/com.ibm.wala.core" 
+      <checkout url="http://wala.svn.sf.net/svnroot/wala/${wala.tag}/com.ibm.wala.core" 
     	        revision="${wala.revision}" destPath="${build.folder}/com.ibm.wala.core" />
-      <checkout url="https://wala.svn.sourceforge.net/svnroot/wala/${wala.tag}/com.ibm.wala.cast" 
+      <checkout url="http://wala.svn.sf.net/svnroot/wala/${wala.tag}/com.ibm.wala.cast" 
     	        revision="${wala.revision}" destPath="${build.folder}/com.ibm.wala.cast" />
-      <checkout url="https://wala.svn.sourceforge.net/svnroot/wala/${wala.tag}/com.ibm.wala.cast.java" 
-    		    revision="${wala.revision}" destPath="${build.folder}/com.ibm.wala.cast.java" />
+      <checkout url="http://wala.svn.sf.net/svnroot/wala/${wala.tag}/com.ibm.wala.cast.java" 
+    		revision="${wala.revision}" destPath="${build.folder}/com.ibm.wala.cast.java" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/wala.feature" 
                 revision="${x10dt.revision}" destPath="${build.folder}/wala.feature" />
     </svn>
