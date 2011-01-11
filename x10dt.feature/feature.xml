@@ -85,7 +85,6 @@
       <import plugin="com.ibm.wala.cast.java"/>
       <import plugin="com.ibm.wala.core"/>
       <import plugin="com.ibm.wala.shrike"/>
-      <import feature="org.eclipse.sdk" version="3.6" match="greaterOrEqual"/>
    </requires>
 
    <plugin
