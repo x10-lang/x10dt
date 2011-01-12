@@ -36,23 +36,23 @@ import polyglot.ast.Receiver;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Job;
-import polyglot.types.ArrayType;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.MethodInstance;
+import polyglot.types.JavaArrayType;
 import polyglot.types.ParsedClassType;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
 import x10.types.ClosureType_c;
+import x10.types.MethodInstance;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.utils.ProjectUtils;
@@ -78,11 +78,11 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 
     private void recordTypeDependency(Type type) {
         if (type.isArray()) {
-            ArrayType arrayType= (ArrayType) type;
+            JavaArrayType arrayType= (JavaArrayType) type;
             type= arrayType.base();
         }
         if (type.isClass()) {
-            ClassType classType= (ClassType) X10TypeMixin.baseType(type);
+            ClassType classType= (ClassType) Types.baseType(type);
             
             if (!isBinary(classType) && !fFromType.typeEquals(classType,this.context)) { 
                 fDependencyInfo.addDependency(fFromType, type);
@@ -282,7 +282,7 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
          	extractAllClassTypes(closure.returnType(), types);
          	return;
 		}
-		X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(type);
+		X10ClassType classType = (X10ClassType) Types.baseType(type);
 		if (!types.contains(classType))
 			types.add(classType);
 
@@ -295,14 +295,14 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 	private void superTypes(ClassType type, List<ClassType> types){
 		Type parentClass = type.superClass();
 		if (parentClass != null){
-			X10ClassType classType = (X10ClassType) X10TypeMixin.baseType(parentClass);
+			X10ClassType classType = (X10ClassType) Types.baseType(parentClass);
 			if (!types.contains(classType)){
 				types.add(classType);
 				superTypes(classType, types);
 			}
 		}
 		for(Type inter: type.interfaces()){
-			X10ClassType interc = (X10ClassType) X10TypeMixin.baseType(inter);
+			X10ClassType interc = (X10ClassType) Types.baseType(inter);
 			if (!types.contains(interc)){
 				types.add(interc);
 				superTypes(interc, types);

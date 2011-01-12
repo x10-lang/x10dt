@@ -65,7 +65,7 @@ public final class X10CppBuilder extends AbstractX10Builder {
           final X10CPPCompilerOptions options, final boolean withMainMethod) {
 	  super.buildOptions(classPath, sourcePath, localOutputDir, options, withMainMethod);
 	  options.post_compiler = null;
-	  x10cpp.Configuration.MAIN_CLASS = (withMainMethod) ? null : Constants.EMPTY_STR;
+	  options.x10_config.MAIN_CLASS = (withMainMethod) ? null : Constants.EMPTY_STR;
   }
   
  

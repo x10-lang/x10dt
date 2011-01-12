@@ -44,8 +44,8 @@ public final class X10PlatformConfFactory {
    * @param serviceProvider The service provider to consider.
    * @return A non-null implementation of {@link IX10PlatformConf}.
    */
-  public static IX10PlatformConf createFromProvider(final IServiceProvider serviceProvider) {
-    return new X10PlatformConf(serviceProvider);
+  public static IX10PlatformConf createFromProvider(final IServiceProvider serviceProvider, IFile confFile) {
+    return new X10PlatformConf(serviceProvider, confFile);
   }
   
   /**

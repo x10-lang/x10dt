@@ -35,9 +35,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
-import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.AbstractErrorQueue;
@@ -46,10 +44,9 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
-import x10.errors.X10ErrorInfo;
 import x10.types.ClosureType_c;
+import x10.types.MethodInstance;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 
 /**
  * This class provides some base functionality for compilation
@@ -278,7 +275,7 @@ public class CompilerTestsBase {
     }
 
     private boolean invariantViolation(ErrorInfo e) {
-        if (e.getErrorKind() == X10ErrorInfo.INVARIANT_VIOLATION_KIND)
+        if (e.getErrorKind() == ErrorInfo.INVARIANT_VIOLATION_KIND)
             return true;
         return false;
     }
@@ -543,7 +540,7 @@ public class CompilerTestsBase {
         filterClasses(classes, container_type.memberClasses(), prefix, emptyPrefixMatches);
 
         for(int i= 0; i < container_type.interfaces().size(); i++) {
-            ClassType interf= ((ReferenceType) container_type.interfaces().get(i)).toClass();
+            ClassType interf= ((ObjectType) container_type.interfaces().get(i)).toClass();
             filterClasses(classes, interf.memberClasses(), prefix, emptyPrefixMatches);
         }
         getClassCandidates(container_type.superClass(), classes, prefix, emptyPrefixMatches);//PORT1.7 superType)_->superClass()
@@ -568,7 +565,7 @@ public class CompilerTestsBase {
     }
 
     private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
-        for(ReferenceType r: in_classes) {
+        for(ObjectType r: in_classes) {
             ClassType c= r.toClass();
             String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
             if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix)) {

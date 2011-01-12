@@ -34,7 +34,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
-import polyglot.types.MethodInstance;
+import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.SimpleCodeWriter;
@@ -42,8 +42,8 @@ import polyglot.visit.ContextVisitor;
 import x10.ExtensionInfo;
 import x10.ast.X10NodeFactory_c;
 import x10.extension.X10Ext;
+import x10.types.MethodInstance;
 import x10.types.X10MethodDef;
-import x10.types.X10TypeMixin;
 import x10dt.core.utils.HierarchyUtils;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.parser.PolyglotNodeLocator;
@@ -158,7 +158,7 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 //								ret = factory.Eval(null, call);
 //							}
 							
-							ret = factory.Return(null, X10TypeMixin.getZeroVal(returnType, null, new ContextVisitor(null, mi.typeSystem(), factory)));
+							ret = factory.Return(null, Types.getZeroVal(returnType, null, new ContextVisitor(null, mi.typeSystem(), factory)));
 							ret = ret.ext(((X10Ext)ret.ext()).comment("// TODO: auto-generated method stub\n"));
 				        }
 						

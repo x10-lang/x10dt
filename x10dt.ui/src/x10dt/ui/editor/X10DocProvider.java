@@ -42,21 +42,20 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ContainerType;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.Named;
 import polyglot.types.ObjectType;
 import polyglot.types.ProcedureInstance;
-import polyglot.types.ReferenceType;
-import polyglot.types.StructType;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.util.Position;
 import x10.types.ConstrainedType;
+import x10.types.MethodInstance;
 import x10dt.ui.parser.PolyglotNodeLocator;
 
 /**
@@ -164,7 +163,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	}
 	
 	private String getSignature(FieldInstance fi) {
-		ReferenceType ownerType = fi.container().toReference();
+		ObjectType ownerType = fi.container().toReference();
 		if (ownerType.isClass()) {
 			ClassType ownerClass = (ClassType) ownerType;
 			String ownerName = ownerClass.fullName().toString();
@@ -226,7 +225,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	
 	private String getHelpForEntity(ConstructorInstance ci, IParseController parseController, Node root) {
 		String name="(name)";
-		StructType rt = ci.container();
+		ContainerType rt = ci.container();
 
 		if (rt instanceof Named) {
 			Named named = (Named) rt;
@@ -261,7 +260,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		MethodInstance mi= mdef.asInstance();
 		String name="";
 			 
-		StructType rt = mi.container();
+		ContainerType rt = mi.container();
 		if(rt instanceof ClassType) {
 			ClassType ct = (ClassType) rt;
 			name= ct.fullName().toString();// includes package info
@@ -359,7 +358,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * @return
 	 */
 	private String getSignature(MethodInstance mi, MethodDecl md) {	
-		StructType type1 = mi.container();
+		ContainerType type1 = mi.container();
 
 		// We assume this is an ObjectType since we are dealing with Methods
 		assert(type1 instanceof ObjectType);

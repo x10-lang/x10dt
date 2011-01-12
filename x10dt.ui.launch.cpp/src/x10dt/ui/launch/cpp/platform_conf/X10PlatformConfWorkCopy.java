@@ -189,27 +189,28 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     final boolean is64Arch = (this.fCppCompilationConf.fBitsArchitecture == EBitsArchitecture.E64Arch);
     final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
     final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
+    final IProject project = getConfFile().getProject();
     
     final IDefaultCPPCommands defaultCPPCommands;
     switch (this.fCppCompilationConf.fTargetOS) {
       case AIX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                          transport);
         break;
       case LINUX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                            transport);
         break;
       case MAC:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                          transport);
         break;
       case WINDOWS:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                             transport);
         break;
       default:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
+        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, 
                                                                                 this.fCppCompilationConf.fArchitecture,
                                                                                 transport);
     }

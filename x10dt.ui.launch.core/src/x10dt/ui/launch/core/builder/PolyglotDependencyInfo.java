@@ -26,8 +26,8 @@ import org.eclipse.imp.builder.DependencyInfo;
 
 import polyglot.types.ClassType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.types.X10TypeMixin;
 
 /**
  * A compilation unit-level dependency tracking manager that speaks in terms of Polyglot Type objects.
@@ -42,7 +42,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     protected String typeToPath(Type type) {
     	ClassType classType = null;
     	if (type.isClass()){
-    		classType= (ClassType) X10TypeMixin.baseType(type);
+    		classType= (ClassType) Types.baseType(type);
     	} else {
     		return null;
     	}

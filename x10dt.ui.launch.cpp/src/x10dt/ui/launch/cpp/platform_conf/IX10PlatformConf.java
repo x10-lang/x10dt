@@ -10,6 +10,8 @@ package x10dt.ui.launch.cpp.platform_conf;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.eclipse.core.resources.IFile;
+
 /**
  * Defines the model for X10 Platform Configuration.
  * 
@@ -26,10 +28,19 @@ import java.io.Writer;
  * 
  * <p>One can get implementation(s) of that interface via {@link X10PlatformConfFactory} factory method(s).
  * 
+ * For now, there is a constraint that each platform configuration model object (i.e. an
+ * IX10PlatformConf) is always associated with a configuration file.
  * @author egeay
  */
-public interface IX10PlatformConf {  
-  
+public interface IX10PlatformConf {
+  /**
+   * Returns the configuration file with which this X10 platform configuration is associated.
+   * For now, there is a constraint that each platform configuration model object (i.e. an
+   * IX10PlatformConf) is always associated with a configuration file.
+   * @return a non-null object
+   */
+  public IFile getConfFile();
+
   /**
    * Creates a working copy of the current X10 platform configuration. Such copy is mutable while the current configuration 
    * is not.

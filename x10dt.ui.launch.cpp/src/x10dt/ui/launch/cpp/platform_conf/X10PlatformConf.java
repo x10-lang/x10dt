@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -54,13 +55,14 @@ import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 class X10PlatformConf implements IX10PlatformConf {
   
-  X10PlatformConf(final IFile file) {
+  X10PlatformConf(final IFile confFile) {
     this.fConnectionConf = new ConnectionConfiguration();
     this.fCppCompilationConf = new CppCompilationConfiguration();
     this.fCommInterfaceFact = new CommInterfaceFactory();
+    this.fConfFile = confFile;
     try {
-			if (isNonEmpty(file)) {
-			  load(file, new BufferedReader(new InputStreamReader(file.getContents())));
+			if (isNonEmpty(confFile)) {
+			  load(confFile, new BufferedReader(new InputStreamReader(confFile.getContents())));
 			} else {
 			  this.fId = UUID.randomUUID().toString();
 			}
@@ -71,20 +73,30 @@ class X10PlatformConf implements IX10PlatformConf {
 		}
   }
   
-  X10PlatformConf(final IServiceProvider serviceProvider) {
+  X10PlatformConf(final IServiceProvider serviceProvider, IFile confFile) {
     final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) serviceProvider;
     this.fConnectionConf = new ConnectionConfiguration(rmConf);
     this.fCppCompilationConf = new CppCompilationConfiguration();
     this.fCommInterfaceFact = new CommInterfaceFactory(rmConf);
+    this.fConfFile = confFile;
+    // RMF One could pull the C++ compile/link cmds, X10 distrib loc, etc. from the conf file, but
+    // then those settings might not be applicable to the host identified by the IServiceProvider.
+    // Instead, we just re-init that part of the configuration and let the user fix them as needed.
+    // But it might be nicer to not re-initialize, on the chance that the settings really do work
+    // for the host given by the IServiceProvider. Hmmm...
     initLocalCppCompilationCommands();
     initLocalX10DistribLocation();
     this.fDescription = rmConf.getDescription();
     this.fName = rmConf.getName();
     this.fId = UUID.randomUUID().toString();
   }
-  
+
   // --- Interface methods implementation
-  
+
+  public final IFile getConfFile() {
+      return fConfFile;
+  }
+
   public final IX10PlatformConfWorkCopy createWorkingCopy() {
     return new X10PlatformConfWorkCopy(this);
   }
@@ -258,27 +270,29 @@ class X10PlatformConf implements IX10PlatformConf {
     
     final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
     final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
-    
+    final IProject project = fConfFile.getProject();
+
     final IDefaultCPPCommands defaultCPPCommands;
+
     switch (this.fCppCompilationConf.fTargetOS) {
       case AIX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                          transport);
         break;
       case LINUX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                            transport);
         break;
       case MAC:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                          transport);
         break;
       case WINDOWS:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, this.fCppCompilationConf.fArchitecture,
+        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
                                                                             transport);
         break;
       default:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, 
+        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, 
                                                                                 this.fCppCompilationConf.fArchitecture,
                                                                                 transport);
     }
@@ -316,6 +330,7 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fConnectionConf = new ConnectionConfiguration(source.fConnectionConf);
     this.fCommInterfaceFact = new CommInterfaceFactory(source.fCommInterfaceFact);
     this.fCppCompilationConf = new CppCompilationConfiguration(source.fCppCompilationConf);
+    this.fConfFile = source.fConfFile;
   }
   
   private String getTextDataValue(final IMemento memento, final String tag) {
@@ -585,7 +600,9 @@ class X10PlatformConf implements IX10PlatformConf {
   String fDescription;
   
   String fId;
-    
+
+  final IFile fConfFile;
+
   final ConnectionConfiguration fConnectionConf;
   
   final CppCompilationConfiguration fCppCompilationConf;

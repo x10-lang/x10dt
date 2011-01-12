@@ -29,6 +29,7 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Qualifier;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.SettableAssign;
 import x10.constraint.XName;
@@ -36,7 +37,6 @@ import x10.constraint.XNameWrapper;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
-import x10.types.X10TypeMixin;
 
 public class TermCreator {
         private static Map<Unary.Operator,XName> sUnaryOpMap= new HashMap<Unary.Operator,XName>();
@@ -120,7 +120,7 @@ public class TermCreator {
                     Local local = (Local) old;
                     Type localType= local.type();
                     TypeSystem ts= (TypeSystem) localType.typeSystem();
-                    Type t = X10TypeMixin.baseType(local.type());
+                    Type t = Types.baseType(local.type());
                     /* XArray no longer exists
                     if (t.isArray() || t.isClass() && ts.descendsFrom(t.toClass().def(), ts.Array().toClass().def())) {
                         fTermMap.put(old, XTerms.makeArray(new XVarDefWrapper(local)));

@@ -32,8 +32,8 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalInstance;
-import polyglot.types.MethodInstance;
 import polyglot.visit.NodeVisitor;
+import x10.types.MethodInstance;
 import x10dt.ui.parser.PolyglotNodeLocator;
 
 public class X10ReferenceResolver implements IReferenceResolver, ILanguageService {

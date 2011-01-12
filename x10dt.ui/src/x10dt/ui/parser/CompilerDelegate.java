@@ -47,14 +47,13 @@ import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
-import polyglot.main.Options;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.CodedErrorInfo;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
-import x10.errors.X10ErrorInfo;
+import x10.X10CompilerOptions;
 import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
 import x10dt.core.X10DTCorePlugin;
@@ -165,7 +164,7 @@ public class CompilerDelegate {
 	}
 
     protected boolean isValidationMsg(ErrorInfo error) {
-    	return (error.getErrorKind() == X10ErrorInfo.INVARIANT_VIOLATION_KIND);
+    	return (error.getErrorKind() == ErrorInfo.INVARIANT_VIOLATION_KIND);
     }
 
     public ExtensionInfo getExtInfo() { return fExtInfo; }
@@ -326,12 +325,12 @@ public class CompilerDelegate {
     }
 
     private void buildOptions(ExtensionInfo extInfo) {
-        Options opts = extInfo.getOptions();
+        X10CompilerOptions opts = extInfo.getOptions();
 
         try {
             List<IPath> projectSrcLoc = getProjectSrcPath();
             String projectSrcPath = pathListToPathString(projectSrcLoc);
-            x10.Configuration.CHECK_INVARIANTS= (fViolationHandler != null);
+            opts.x10_config.CHECK_INVARIANTS= (fViolationHandler != null);
             opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", "-commandlineonly",
                     "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
             }, new HashSet<String>());

@@ -57,6 +57,7 @@ import polyglot.main.Options;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
 import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
 import x10dt.core.preferences.generated.X10Constants;
@@ -454,53 +455,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,
                                                       false /* withMainMethod */, monitor);
-    
-        // print cmd line to console
-		final IPreferencesService prefService = X10DTCorePlugin.getInstance()
-				.getPreferencesService();
-		if (prefService
-				.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
-			final MessageConsole console = UIUtils.findOrCreateX10Console();
-			final MessageConsoleStream consoleStream = console
-					.newMessageStream();
-			try {
-				consoleStream.write(getOptions(extInfo.getOptions()));
-				String[][] opts = Configuration.options(); // --- The shape of
-															// this data
-															// structure is an
-															// array of:
-				// --- (option,type,description,value) for each field in
-				// Configuration.
-				String result = "";
-				for (int j = 0; j < opts.length; j++) {
-					if (opts[j][1].equals("boolean")) {
-						if (opts[j][3].equals("true")) {
-							result += " -" + opts[j][0] + " ";
-						}
-					}
-					if (opts[j][1].equals("String")) {
-						if (!opts[j][3].equals("null")
-								&& !opts[j][3].equals("")) {
-							result += " -" + opts[j][0] + "=" + opts[j][3]
-									+ " ";
-						}
-					}
-				}
-				consoleStream.write(result);
-				for (IFile f : sourcesToCompile) {
-					consoleStream.write("\"");
-					consoleStream.write(X10BuilderUtils.getTargetSystemPath(f
-							.getLocation().toPortableString()));
-					consoleStream.write("\" ");
-				}
-				consoleStream.write("\n");
-				console.activate();
-			} catch (IOException except) {
-				LaunchCore.log(IStatus.ERROR, Messages.AXB_EchoIOException,
-						except);
-			}
-		}
-    
+
+    echoCommandLineToConsole(sourcesToCompile, extInfo);
+
     final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(this.fProjectWrapper, 1000000, extInfo.compilerName()));
     Globals.initialize(compiler);
     try {
@@ -532,6 +489,52 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       return Collections.emptyList();
     } finally {
       Globals.initialize(null);
+    }
+  }
+
+  // Constants that describe the role of each slot in the 2D array that Configuration.options() returns.
+  private static final int OPTION_NAME = 0;
+  private static final int OPTION_TYPE = 1;
+  private static final int OPTION_DESCRIPTION = 2;
+  private static final int OPTION_VALUE = 3;
+
+  private void echoCommandLineToConsole(final Collection<IFile> sourcesToCompile, final ExtensionInfo extInfo) {
+    final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
+
+    if (prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
+    	final MessageConsole console = UIUtils.findOrCreateX10Console();
+    	final MessageConsoleStream consoleStream = console.newMessageStream();
+    	try {
+    		X10CompilerOptions options= extInfo.getOptions();
+    		String[][] opts = options.x10_config.options(); // --- The shape of this data structure is an array of:
+    		// --- (option,type,description,value) for each field in Configuration.
+
+    		consoleStream.write(getOptions(options));
+
+    		String result = "";
+    		for (int j = 0; j < opts.length; j++) {
+    			if (opts[j][OPTION_TYPE].equals("boolean")) {
+    				if (opts[j][OPTION_VALUE].equals("true")) {
+    					result += " -" + opts[j][OPTION_NAME] + " ";
+    				}
+    			}
+    			if (opts[j][OPTION_TYPE].equals("String")) {
+    				if (!opts[j][OPTION_VALUE].equals("null") && !opts[j][OPTION_VALUE].equals("")) {
+    					result += " -" + opts[j][OPTION_NAME] + "=" + opts[j][OPTION_VALUE] + " ";
+    				}
+    			}
+    		}
+    		consoleStream.write(result);
+    		for (IFile f : sourcesToCompile) {
+    			consoleStream.write("\"");
+    			consoleStream.write(X10BuilderUtils.getTargetSystemPath(f.getLocation().toPortableString()));
+    			consoleStream.write("\" ");
+    		}
+    		consoleStream.write("\n");
+    		console.activate();
+    	} catch (IOException except) {
+    		LaunchCore.log(IStatus.ERROR, Messages.AXB_EchoIOException, except);
+    	}
     }
   }
 

@@ -5,8 +5,8 @@ import java.util.Set;
 
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
-import polyglot.types.MethodInstance;
 import polyglot.types.Type;
+import x10.types.MethodInstance;
 
 public class HierarchyUtils {
 	public static Set<ClassType> getSuperClasses(ClassType startingClass)

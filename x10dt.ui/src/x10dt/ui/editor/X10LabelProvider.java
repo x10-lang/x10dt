@@ -36,9 +36,9 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.swt.graphics.Image;
 
 import polyglot.ast.Call;
@@ -55,7 +55,6 @@ import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
 import x10.ast.Finish;
-import x10.ast.Future;
 import x10.ast.Next;
 import x10.ast.TypeDecl_c;
 import x10.ast.X10Loop;
@@ -219,7 +218,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
             return getImageFromQualifiers(pd.flags().flags(), MISC_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
         
         } else if (node instanceof Async || node instanceof AtEach ||
-                node instanceof Future || node instanceof Finish || node instanceof Atomic ||
+                /*node instanceof Future ||*/ node instanceof Finish || node instanceof Atomic ||
                 node instanceof Next) {
             return _DESC_MISC_DEFAULT;
         
@@ -332,9 +331,9 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
             return "atomic {" + sourceText(at.body()) + "}";
         } else if (node instanceof Finish) {
             return "finish";
-        } else if (node instanceof Future) {
-            Future f= (Future) node;
-            return "future " + f.body();
+//      } else if (node instanceof Future) {
+//          Future f= (Future) node;
+//          return "future " + f.body();
         } else if (node instanceof Next) {
             return "next";
         } else if (node instanceof X10Loop) {
@@ -344,7 +343,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
             return filter(text);
         } else if (node instanceof Call) {
             Call call = (Call) node;
-            if (call.name().equals("force") && call.arguments().size() == 0) {
+            if (call.name().toString().equals("force") && call.arguments().size() == 0) {
                 return "force()";
             }
             String temp = node.getClass().getName()+": "+node.toString();//PORT1.7 what is this thing? find out later

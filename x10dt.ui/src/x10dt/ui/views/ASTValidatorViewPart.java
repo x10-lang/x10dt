@@ -39,7 +39,6 @@ import org.eclipse.ui.part.ViewPart;
 import polyglot.ast.Node;
 import polyglot.util.ErrorInfo;
 import polyglot.util.Position;
-import x10.errors.X10ErrorInfo;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.parser.ParseController;
@@ -123,7 +122,7 @@ public class ASTValidatorViewPart extends ViewPart {
 
 		public void consumeAST(Node root) {
 			if (root == null) {
-				fViolations.add(new ErrorInfo(X10ErrorInfo.INVARIANT_VIOLATION_KIND, "Null AST", Position.COMPILER_GENERATED));
+				fViolations.add(new ErrorInfo(ErrorInfo.INVARIANT_VIOLATION_KIND, "Null AST", Position.COMPILER_GENERATED));
 			}
 			refreshListView();
 		}

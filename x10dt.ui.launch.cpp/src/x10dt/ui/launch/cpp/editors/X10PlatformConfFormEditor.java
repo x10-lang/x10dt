@@ -379,8 +379,10 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   void setNewPlatformConfState(final String name, final IServiceProvider serviceProvider) {
     final IX10PlatformConfWorkCopy configuration = this.fX10PlatformConfs.get(name);
+    final IFile confFile = ((IFileEditorInput) getEditorInput()).getFile();
+
     if (configuration == null) {
-      final IX10PlatformConf platformConf = X10PlatformConfFactory.createFromProvider(serviceProvider);
+      final IX10PlatformConf platformConf = X10PlatformConfFactory.createFromProvider(serviceProvider, confFile);
       final IX10PlatformConfWorkCopy workCopy = platformConf.createWorkingCopy();
       
       workCopy.setName(name);

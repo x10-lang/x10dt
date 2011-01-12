@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-
 import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
@@ -25,15 +24,16 @@ import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.Unary;
+import polyglot.ast.Unary.Operator;
 import polyglot.ast.VarDecl;
 import polyglot.ast.While;
-import polyglot.ast.Unary.Operator;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.MethodInstance;
+import polyglot.types.ContainerType;
+import polyglot.types.Flags;
 import polyglot.types.ProcedureInstance;
-import polyglot.types.StructType;
 import polyglot.types.Type;
+import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.AtStmt;
@@ -52,12 +52,11 @@ import x10.effects.constraints.Effects;
 import x10.effects.constraints.FieldLocs;
 import x10.effects.constraints.LocalLocs;
 import x10.effects.constraints.Locs;
+import x10.types.MethodInstance;
 import x10.types.X10FieldInstance;
-import x10.types.X10Flags;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
-import x10.types.X10TypeMixin;
 import x10dt.refactoring.X10DTRefactoringPlugin;
 import x10dt.refactoring.analysis.ReachingDefsVisitor.ValueMap;
 
@@ -93,7 +92,7 @@ public class EffectsVisitor extends NodeVisitor {
             X10Formal xFormal= (X10Formal) formal;
 //          X10LocalDef xDef= (X10LocalDef) xFormal.localDef();
             Type xType= xFormal.type().type();
-            XConstraint xc= X10TypeMixin.xclause(xType);
+            XConstraint xc= Types.xclause(xType);
             if (xc != null) {
                 result= conjunction(result, xc);
             }
@@ -250,7 +249,7 @@ public class EffectsVisitor extends NodeVisitor {
         X10LocalInstance li= (X10LocalInstance) l.localInstance();
         Expr rhs= la.right();
 
-        if (((X10Flags) li.flags()).isValue()) {
+        if (((Flags) li.flags()).isValue()) {
             Effect rhsEff= fEffects.get(rhs);
 //            Effect writeEff= Effects.makeEffect(Effects.FUN);
 //            writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
@@ -271,7 +270,7 @@ public class EffectsVisitor extends NodeVisitor {
         Receiver target= fa.target();
         Expr rhs= fa.right();
 
-        if (((X10Flags) fi.flags()).isValue()) {
+        if (((Flags) fi.flags()).isValue()) {
             Effect rhsEff= fEffects.get(rhs);
             Effect writeEff= Effects.makeEffect(Effects.FUN);
             writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target), new XVarDefWrapper(fi.def())));
@@ -385,7 +384,7 @@ public class EffectsVisitor extends NodeVisitor {
 
     private Effect computeEffect(Call call) throws XFailure {
         MethodInstance methodInstance= call.methodInstance();
-        StructType methodOwner= methodInstance.container();
+        ContainerType methodOwner= methodInstance.container();
         Receiver target = call.target();
         List<Expr> args = call.arguments();
         Effect result= null;
@@ -483,7 +482,7 @@ public class EffectsVisitor extends NodeVisitor {
         Effect result= effect;
         for(LocalDecl ld: decls) {
             XVarDefWrapper localName = new XVarDefWrapper(ld.localDef());
-            if (((X10Flags) ld.flags().flags()).isValue()) {
+            if (((Flags) ld.flags().flags()).isValue()) {
                 Expr init= ld.init();
                 XTerm initTerm= createTermForExpr(init);
                 result= result.exists(XTerms.makeLocal(localName), initTerm);
