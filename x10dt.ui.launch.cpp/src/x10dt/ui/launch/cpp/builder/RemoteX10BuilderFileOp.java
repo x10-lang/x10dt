@@ -31,6 +31,7 @@ import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.ICountableIterable;
 import x10dt.ui.launch.core.utils.ProjectUtils;
+import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -55,7 +56,7 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
       monitor.subTask(Messages.CPPB_TransferTaskName);
       copyGeneratedFiles(fileStore, files, monitor);
     } catch (CoreException except) {
-      CoreResourceUtils.addBuildMarkerTo(getProject(), Messages.RXBFO_TransferFailureMsg, IMarker.SEVERITY_ERROR, 
+      CoreResourceUtils.addBuildMarkerTo(getProject(), LaunchMessages.RXBFO_TransferFailureMsg, IMarker.SEVERITY_ERROR, 
                                          IMarker.PRIORITY_HIGH);
       throw except;
     }

@@ -189,6 +189,8 @@ public class LaunchMessages extends NLS {
 
   public static String CCVC_WrongLinuxPPCVersionRequirement;
 
+  public static String CPPB_TransferTaskName;
+
 public static String CppCompilationChecker_errorAppendingMainMethodStub;
   
   public static String CSP_ConnTimeout;
@@ -400,6 +402,8 @@ public static String CppCompilationChecker_errorAppendingMainMethodStub;
   public static String RMCP_ValidateRemoteConn;
 
   public static String RMCP_ValidateRemoteConnBt;
+
+  public static String RXBFO_TransferFailureMsg;
 
   public static String XCB_ConfigurationError;
 
