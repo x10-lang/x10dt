@@ -18,6 +18,7 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,6 +28,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
+import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.ICountableIterable;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
@@ -48,9 +50,15 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
   // --- Interface methods implementation
 
   public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
-    final IFileStore fileStore = getTargetOpHelper().getStore(getWorkspaceDir());
-    monitor.subTask(Messages.CPPB_TransferTaskName);
-    copyGeneratedFiles(fileStore, files, monitor);
+    try {
+      final IFileStore fileStore = getTargetOpHelper().getStore(getWorkspaceDir());
+      monitor.subTask(Messages.CPPB_TransferTaskName);
+      copyGeneratedFiles(fileStore, files, monitor);
+    } catch (CoreException except) {
+      CoreResourceUtils.addBuildMarkerTo(getProject(), Messages.RXBFO_TransferFailureMsg, IMarker.SEVERITY_ERROR, 
+                                         IMarker.PRIORITY_HIGH);
+      throw except;
+    }
   }
   
   // --- Overridden methods
@@ -74,8 +82,10 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
       final String ccFilePath = file.getAbsolutePath();
       addCppFile(ccFilePath, copyGeneratedFile(destDir, localFileSystem, ccFilePath));
       copyGeneratedFile(destDir, localFileSystem, ccFilePath.replace(CC_EXT, H_EXT));
-      copyGeneratedFile(destDir, localFileSystem, ccFilePath.replace(CC_EXT, INC_EXT));
-      
+      final File incFile = new File(ccFilePath.replace(CC_EXT, INC_EXT));
+      if (incFile.exists()) {
+        copyGeneratedFile(destDir, localFileSystem, incFile.getAbsolutePath());
+      }
       monitor.worked(1);
     }
   }
