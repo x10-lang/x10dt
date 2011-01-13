@@ -13,15 +13,22 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Interfaces Specifying Properties</title>
+	<title>Generic Interfaces</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc2">
-1</a>&nbsp;&nbsp;Interfaces Specifying Properties</h2>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Generic Interfaces</h2>
 
 <div class="p"><!----></div>
-Interfaces may specify properties.  
+Interfaces, like classes and structs, can have type parameters.  
+The discussion of generics in &#167; applies to interfaces,
+without modification.
+
+<div class="p"><!----></div>
+<pre>
+interface ListOfFuns[T,U] extends x10.util.List[(T)=&#62;U] {}
+</pre>
 
 <div class="p"><!----></div>
 

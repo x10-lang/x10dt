@@ -13,15 +13,18 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Interfaces Specifying Properties</title>
+	<title>Access to Members</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc2">
-1</a>&nbsp;&nbsp;Interfaces Specifying Properties</h2>
+ <h2><a name="tth_sEc1">
+2</a>&nbsp;&nbsp;Access to Members</h2>
 
-<div class="p"><!----></div>
-Interfaces may specify properties.  
+All interface members are <b>public</b>, whether or not they are declared
+public.  There is little purpose to non-public methods of an interface; they
+would specify that implementing classes and structs have methods that cannot
+be seen.
+
 
 <div class="p"><!----></div>
 

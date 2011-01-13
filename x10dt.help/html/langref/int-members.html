@@ -13,15 +13,30 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Interfaces Specifying Properties</title>
+	<title>Members of an Interface</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc2">
-1</a>&nbsp;&nbsp;Interfaces Specifying Properties</h2>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Members of an Interface</h2>
 
 <div class="p"><!----></div>
-Interfaces may specify properties.  
+The members of an interface <b>I</b> are the union of the following sets: 
+
+<ol type="1">
+<li> All of the members appearing in <b>I</b>'s declaration;
+<div class="p"><!----></div>
+</li>
+
+<li> All the members of its direct super-interfaces, except those which are
+      hidden (&#167;) by <b>I</b>
+<div class="p"><!----></div>
+</li>
+
+<li> The members of <b>Any</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
 
 <div class="p"><!----></div>
 

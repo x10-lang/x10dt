@@ -79,7 +79,8 @@ So, a typical <b>M</b> might look like
 given method call means <b>M</b> or not, so we ignore it for this section.
 
 <div class="p"><!----></div>
-
+All that matters about a method definition, for the purposes of method
+resolution, is:
 <ol type="1">
 <li> The method name <b>m</b>;
 <div class="p"><!----></div>
@@ -129,7 +130,7 @@ All that matters about an invocation <b>I</b> is:
 </li>
 
 <li> The generic type parameters "G&#8242;<sub>1</sub>,&#8230;, G&#8242;<sub>g</sub>".  If there
-      are no generic type parameters, x=0.
+      are no generic type parameters, g=0.
 <div class="p"><!----></div>
 </li>
 
@@ -171,7 +172,7 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 </li>
 
 <li> The actual parameter types must be subtypes of the formal
-            parameter types:  "T&#8242;<sub>i</sub> &lt;: Ti<sub>i</sub>" for each <em>i</em>.
+            parameter types:  "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>" for each <em>i</em>.
 <div class="p"><!----></div>
 </li>
 
