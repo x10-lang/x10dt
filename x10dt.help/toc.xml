@@ -96,6 +96,7 @@
 		<topic label="Common ancestors of types" href="html/langref/typ-commonancestors.html"/>
 		<topic label="Fundamental types" href="html/langref/typ-fundamental.html"/> 
 		<topic label="Type inference" href="html/langref/typ-inference.html"/>
+		<topic label="Type dependencies" href="html/langref/typ-dependencies.html"/>
 	</topic>
 	<topic label="Variables" href="html/langref/variables.html">
 		<topic label="Immutable variables" href="html/langref/var-final.html"/>
@@ -111,7 +112,12 @@
     	<topic label="Conventions on Type Names" href="html/langref/nam-conventions.html"/>
 	</topic>
 	<topic label="Interfaces" href="html/langref/interfaces.html">
+		<topic label="Interface Syntax" href="html/langref/int-syntax.html"/>
+		<topic label="Access to Members" href="html/langref/int-access.html"/>
 		<topic label="Field Definitions" href="html/langref/int-fielddefs.html"/>
+		<topic label="Generic Interfaces" href="html/langref/int-generic.html"/>
+		<topic label="Interface Inheritance" href="html/langref/int-inheritance.html"/>
+		<topic label="Members of an Interface" href="html/langref/int-members.html"/>
 <!--
 		<topic label="Interfaces Specifying Properties" href="html/langref/int-props.html"/>
 -->
