@@ -36,13 +36,13 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
   // --- Test cases
 
   @Test public void searchInAppScope() throws Exception {
-    final IProject project = createProjectFromX10Dist(PROJECT_TEST, "samples/HelloWholeWorld.x10", EProjectBackEnd.JAVA);
+    final IProject project = createProjectFromX10Dist(PROJECT_TEST, "samples/MontyPi.x10", EProjectBackEnd.JAVA);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.APPLICATION, project);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
-    assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
-    assertPath(PROJECT_TEST, HELLOWORLD_LOC, helloTypeInfo[0].getCompilationUnit().getPath());
+    assertLocation(helloTypeInfo[0].getLocation(), MONTYPI_LOC, 21, 41);
+    assertPath(PROJECT_TEST, MONTYPI_LOC, helloTypeInfo[0].getCompilationUnit().getPath());
     assertNull(helloTypeInfo[0].getDeclaringType());
   }
   
@@ -51,7 +51,7 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.LIBRARY | X10SearchScope.RUNTIME, 
                                                                           project);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(0, helloTypeInfo.length);
   }
   
@@ -64,9 +64,9 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     assertEquals(1, kMeansTypeInfo.length);
     assertLocation(kMeansTypeInfo[0].getLocation(), KMEANS_LOC, 22, 145);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
-    assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertLocation(helloTypeInfo[0].getLocation(), MONTYPI_LOC, 21, 41);
   }
   
   @Test public void searchWithInvalidFileSelected() throws Exception {
@@ -81,14 +81,14 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     assertEquals(1, kMeansTypeInfo.length);
     assertLocation(kMeansTypeInfo[0].getLocation(), KMEANS_LOC, 22, 145);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(0, helloTypeInfo.length);
   }
   
   @Test public void searchWithValidFilesSelected() throws Exception {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_TEST);
     final IProject project2 = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_TEST2);
-    final IFile helloFile = project.getFile(new Path(HELLOWORLD_LOC));
+    final IFile helloFile = project.getFile(new Path(MONTYPI_LOC));
     final IFile kMeansFile = project2.getFile(new Path(KMEANS_LOC));
     
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, helloFile, kMeansFile);
@@ -97,20 +97,20 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     assertEquals(1, kMeansTypeInfo.length);
     assertLocation(kMeansTypeInfo[0].getLocation(), KMEANS_LOC, 22, 145);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
-    assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertLocation(helloTypeInfo[0].getLocation(), MONTYPI_LOC, 21, 41);
   }
   
   @Test public void searchWithFileAndAllMask() throws Exception {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_TEST);
-    final IFile helloFile = project.getFile(new Path(HELLOWORLD_LOC));
+    final IFile helloFile = project.getFile(new Path(MONTYPI_LOC));
     
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, helloFile);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
-    assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertLocation(helloTypeInfo[0].getLocation(), MONTYPI_LOC, 21, 41);
     
     final ITypeInfo[] hashMapInfo = X10SearchEngine.getTypeInfo(scope, HASHMAP_TYPE, new NullProgressMonitor());
     assertEquals(1, hashMapInfo.length);
@@ -119,13 +119,13 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
   
   @Test public void searchWithFileAndAppMask() throws Exception {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_TEST);
-    final IFile helloFile = project.getFile(new Path(HELLOWORLD_LOC));
+    final IFile helloFile = project.getFile(new Path(MONTYPI_LOC));
     
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.APPLICATION, helloFile);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
-    assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertLocation(helloTypeInfo[0].getLocation(), MONTYPI_LOC, 21, 41);
     
     final ITypeInfo[] hashMapInfo = X10SearchEngine.getTypeInfo(scope, HASHMAP_TYPE, new NullProgressMonitor());
     assertEquals(0, hashMapInfo.length);
@@ -138,9 +138,9 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     assertEquals(1, kMeansTypeInfo.length);
     assertLocation(kMeansTypeInfo[0].getLocation(), KMEANS_LOC, 22, 145);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
-    assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertLocation(helloTypeInfo[0].getLocation(), MONTYPI_LOC, 21, 41);
     
     final ITypeInfo[] hashMapInfo = X10SearchEngine.getTypeInfo(scope, HASHMAP_TYPE, new NullProgressMonitor());
     assertEquals(1, hashMapInfo.length);
@@ -154,9 +154,9 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     assertEquals(1, kMeansTypeInfo.length);
     assertLocation(kMeansTypeInfo[0].getLocation(), KMEANS_LOC, 22, 145);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(1, helloTypeInfo.length);
-    assertLocation(helloTypeInfo[0].getLocation(), HELLOWORLD_LOC, 18, 24);
+    assertLocation(helloTypeInfo[0].getLocation(), MONTYPI_LOC, 21, 41);
     
     final ITypeInfo[] hashMapInfo = X10SearchEngine.getTypeInfo(scope, HASHMAP_TYPE, new NullProgressMonitor());
     assertEquals(0, hashMapInfo.length);
@@ -168,7 +168,7 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
     final ITypeInfo[] kMeansTypeInfo = X10SearchEngine.getTypeInfo(scope, KMEANS_CLASS, new NullProgressMonitor());
     assertEquals(0, kMeansTypeInfo.length);
     
-    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    final ITypeInfo[] helloTypeInfo = X10SearchEngine.getTypeInfo(scope, MONTYPI_CLASS, new NullProgressMonitor());
     assertEquals(0, helloTypeInfo.length);
     
     final ITypeInfo[] hashMapInfo = X10SearchEngine.getTypeInfo(scope, HASHMAP_TYPE, new NullProgressMonitor());
@@ -178,13 +178,13 @@ public final class SearchScopeTests extends AbstractIndexerTestBase {
   
   // --- Fields
   
-  private static final String PROJECT_TEST = "test";
+  private static final String PROJECT_TEST = "searchScopeTest";
   
-  private static final String PROJECT_TEST2 = "test2";
+  private static final String PROJECT_TEST2 = "searchScopeTest2";
   
-  private static final String HELLOWORLD_CLASS = "HelloWholeWorld";
+  private static final String MONTYPI_CLASS = "MontyPi";
   
-  private static final String HELLOWORLD_LOC = "src/HelloWholeWorld.x10";
+  private static final String MONTYPI_LOC = "src/MontyPi.x10";
   
   private static final String KMEANS_CLASS = "KMeans";
   

@@ -34,11 +34,11 @@ public final class TypeHierarchyTests extends AbstractIndexerTestBase {
   // --- Test cases
   
   @Test public void helloWholeWorldWithAllMask() throws Exception {
-    final IProject project = createProjectFromX10Dist(PROJECT_TEST, "samples/HelloWholeWorld.x10", EProjectBackEnd.JAVA);
+    final IProject project = createProjectFromX10Dist(PROJECT_TEST, "samples/Histogram.x10", EProjectBackEnd.JAVA);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
     final IProgressMonitor monitor = new NullProgressMonitor();
-    final ITypeHierarchy typeHierarchy = X10SearchEngine.createTypeHierarchy(scope, HELLOWORLD_CLASS, monitor);
+    final ITypeHierarchy typeHierarchy = X10SearchEngine.createTypeHierarchy(scope, HISTOGRAM_CLASS, monitor);
     
     final ITypeInfo[] allInterfaces = typeHierarchy.getAllInterfaces();
     assertEquals(1, allInterfaces.length);
@@ -47,27 +47,27 @@ public final class TypeHierarchyTests extends AbstractIndexerTestBase {
     final ITypeInfo[] allClasses = typeHierarchy.getAllClasses();
     assertEquals(2, allClasses.length);
     assertHasElement(allClasses, OBJECT_CLASS, new GetNameFunc());
-    assertHasElement(allClasses, HELLOWORLD_CLASS, new GetNameFunc());
+    assertHasElement(allClasses, HISTOGRAM_CLASS, new GetNameFunc());
     
-    final ITypeInfo[] allSubTypes = typeHierarchy.getAllSubTypes(HELLOWORLD_CLASS);
+    final ITypeInfo[] allSubTypes = typeHierarchy.getAllSubTypes(HISTOGRAM_CLASS);
     assertEquals(0, allSubTypes.length);
     
-    final ITypeInfo[] allSuperTypes = typeHierarchy.getAllSuperTypes(HELLOWORLD_CLASS);
+    final ITypeInfo[] allSuperTypes = typeHierarchy.getAllSuperTypes(HISTOGRAM_CLASS);
     assertEquals(2, allSuperTypes.length);
     assertHasElement(allSuperTypes, OBJECT_CLASS, new GetNameFunc());
     assertHasElement(allSuperTypes, ANY_INTERFACE, new GetNameFunc());
     
-    final ITypeInfo[] superTypes = typeHierarchy.getSuperTypes(HELLOWORLD_CLASS);
+    final ITypeInfo[] superTypes = typeHierarchy.getSuperTypes(HISTOGRAM_CLASS);
     assertEquals(1, superTypes.length);
     assertHasElement(superTypes, OBJECT_CLASS, new GetNameFunc());
     
-    final ITypeInfo superClass = typeHierarchy.getSuperClass(HELLOWORLD_CLASS);
+    final ITypeInfo superClass = typeHierarchy.getSuperClass(HISTOGRAM_CLASS);
     assertEquals(OBJECT_CLASS, superClass.getName());
     
-    final ITypeInfo[] interfaces = typeHierarchy.getInterfaces(HELLOWORLD_CLASS);
+    final ITypeInfo[] interfaces = typeHierarchy.getInterfaces(HISTOGRAM_CLASS);
     assertEquals(0, interfaces.length);
     
-    final ITypeInfo[] allSuperInterfaces = typeHierarchy.getAllSuperInterfaces(HELLOWORLD_CLASS);
+    final ITypeInfo[] allSuperInterfaces = typeHierarchy.getAllSuperInterfaces(HISTOGRAM_CLASS);
     assertEquals(1, allSuperInterfaces.length);
     assertHasElement(allSuperInterfaces, ANY_INTERFACE, new GetNameFunc());
   }
@@ -77,25 +77,25 @@ public final class TypeHierarchyTests extends AbstractIndexerTestBase {
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.APPLICATION, project);
     
     final IProgressMonitor monitor = new NullProgressMonitor();
-    final ITypeHierarchy typeHierarchy = X10SearchEngine.createTypeHierarchy(scope, HELLOWORLD_CLASS, monitor);
+    final ITypeHierarchy typeHierarchy = X10SearchEngine.createTypeHierarchy(scope, HISTOGRAM_CLASS, monitor);
     
     final ITypeInfo[] allInterfaces = typeHierarchy.getAllInterfaces();
     assertEquals(0, allInterfaces.length);
     
     final ITypeInfo[] allClasses = typeHierarchy.getAllClasses();
     assertEquals(1, allClasses.length);
-    assertHasElement(allClasses, HELLOWORLD_CLASS, new GetNameFunc());
+    assertHasElement(allClasses, HISTOGRAM_CLASS, new GetNameFunc());
     
-    final ITypeInfo[] allSubTypes = typeHierarchy.getAllSubTypes(HELLOWORLD_CLASS);
+    final ITypeInfo[] allSubTypes = typeHierarchy.getAllSubTypes(HISTOGRAM_CLASS);
     assertEquals(0, allSubTypes.length);
     
-    final ITypeInfo[] allSuperTypes = typeHierarchy.getAllSuperTypes(HELLOWORLD_CLASS);
+    final ITypeInfo[] allSuperTypes = typeHierarchy.getAllSuperTypes(HISTOGRAM_CLASS);
     assertEquals(0, allSuperTypes.length);
     
-    final ITypeInfo superClass = typeHierarchy.getSuperClass(HELLOWORLD_CLASS);
+    final ITypeInfo superClass = typeHierarchy.getSuperClass(HISTOGRAM_CLASS);
     assertNull(superClass);
     
-    final ITypeInfo[] allSuperInterfaces = typeHierarchy.getAllSuperTypes(HELLOWORLD_CLASS);
+    final ITypeInfo[] allSuperInterfaces = typeHierarchy.getAllSuperTypes(HISTOGRAM_CLASS);
     assertEquals(0, allSuperInterfaces.length);
   }
   
@@ -103,7 +103,7 @@ public final class TypeHierarchyTests extends AbstractIndexerTestBase {
   
   private static final String PROJECT_TEST = "typeHierarchy";
   
-  private static final String HELLOWORLD_CLASS = "HelloWholeWorld";
+  private static final String HISTOGRAM_CLASS = "Histogram";
   
   private static final String OBJECT_CLASS = "x10.lang.Object";
   
