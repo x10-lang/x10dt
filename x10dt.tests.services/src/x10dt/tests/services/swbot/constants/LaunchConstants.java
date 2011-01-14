@@ -29,6 +29,8 @@ public final class LaunchConstants {
   
   // --- Java back-end specific
   
+  public static final String JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD = "Name:"; //$NON-NLS-1$
+
   // --- C++ back-end specific
   
   public static final String NEW_CPP_LAUNCH_CONFIG = "X10 Application (C++ back-end)"; //$NON-NLS-1$

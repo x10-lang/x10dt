@@ -49,6 +49,8 @@ public final class WizardConstants {
   
   public static final String IMPORT_MENU_ITEM = "Import..."; //$NON-NLS-1$
   
+  public static final String IMPORT_DIALOG_TITLE = "Import"; //$NON-NLS-1$
+  
   public static final String IMPORT_ARCHIVE_DIALOG_TITLE = "Import"; //$NON-NLS-1$
   
   public static final String GENERAL_FOLDER = "General"; //$NON-NLS-1$
@@ -79,7 +81,7 @@ public final class WizardConstants {
   
   public static final String X10_PROJECT_SHELL_JAVA_BACKEND = "New X10 Project (Java back-end)"; //$NON-NLS-1$
   
-  public static final String NEW_JAVA_PROJECT_NAME_FIELD = "Name:"; //$NON-NLS-1$
+  public static final String X10_PROJECT_JAVA_BACKEND_NAME_FIELD = "Name:"; //$NON-NLS-1$
   
   public static final String NEW_X10_PACKAGE_MENU_ITEM = "X10 Package"; //$NON-NLS-1$
 
@@ -118,8 +120,15 @@ public final class WizardConstants {
   
   public static final String OPEN_ITEM = "Open"; //$NON-NLS-1$
   
-
+  public static final String OPEN_X10_TYPE_ITEM = "Open X10 Type..."; //$NON-NLS-1$
  
+  public static final String OPEN_X10_TYPE_DIALOG_TITLE = "Open X10 Type"; //$NON-NLS-1$
+  
+  public static final String X10_TYPE_SEARCH_PATTERN = "Enter type name prefix or pattern (*, ?, or camel case):"; //$NON-NLS-1$
+  
+  public static final String X10_TYPE_SEARCH_LISTBOX = "Matching items:"; //$NON-NLS-1$
+
+  
   // --- Constants for project and file deletion
   
   public static final String DELETE_MENU_ITEM = "Delete"; //$NON-NLS-1$

@@ -104,7 +104,7 @@ public final class ProjectUtils {
 
     SWTBotShell x10ProjShell= bot.shell(X10_PROJECT_SHELL_JAVA_BACKEND);
 
-    bot.textWithLabel(NEW_JAVA_PROJECT_NAME_FIELD).setText(projectName);
+    bot.textWithLabel(X10_PROJECT_JAVA_BACKEND_NAME_FIELD).setText(projectName);
 
     bot.button(FINISH_BUTTON).click();
     bot.waitUntil(Conditions.shellCloses(x10ProjShell));
