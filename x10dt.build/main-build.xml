@@ -463,6 +463,11 @@
       <param name="action.message" value="Run X10DT UI Tests..." />
     </antcall>
     <antcall target="run-tests">
+      <param name="plugin-name" value="x10dt.search.core.tests" />
+      <param name="activityId" value="test-x10dt-search-core" />
+      <param name="action.message" value="Run X10DT Search Core Tests..." />
+    </antcall>
+    <antcall target="run-tests">
       <param name="plugin-name" value="x10dt.ui.launch.cpp.tests" />
       <param name="activityId" value="test-x10dt-launch-cpp" />
       <param name="action.message" value="Run X10DT UI Launch C++ Tests..." />
