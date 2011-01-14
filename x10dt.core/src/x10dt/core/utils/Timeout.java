@@ -26,9 +26,9 @@ public class Timeout {
 
   public static long TWENTY_FIVE_SECONDS = 25000 * MULTIPLIER;
 
-  public static long THIRY_SECONDS = 30000 * MULTIPLIER;
+  public static long THIRTY_SECONDS = 30000 * MULTIPLIER;
 
-  public static long THIRY_FIVE_SECONDS = 35000 * MULTIPLIER;
+  public static long THIRTY_FIVE_SECONDS = 35000 * MULTIPLIER;
 
   public static long FOURTY_SECONDS = 40000 * MULTIPLIER;
 
