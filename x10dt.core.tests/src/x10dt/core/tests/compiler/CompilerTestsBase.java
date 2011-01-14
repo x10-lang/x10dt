@@ -59,6 +59,8 @@ public class CompilerTestsBase {
     protected static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false", "-CHECK_INVARIANTS"};
 
     private static String OUTPUT_DIR = "output";
+    
+    private static String SEVERE_MODE = "severe";
 
     public boolean compile(File[] files, String[] options,
             final Collection<ErrorInfo> errors, String sourcepath) throws Exception {
@@ -153,9 +155,11 @@ public class CompilerTestsBase {
         for(ErrorInfo error: errors) {
             Assert.assertFalse("INVARIANT: "+getTestId(sources, options) + error.getMessage(), invariantViolation(error));
             Assert.assertFalse("INTERNAL ERROR: "+getTestId(sources, options) + error.getMessage(), internalError(error));
-            Assert.assertFalse("WELL-FORMEDNESS: "+getTestId(sources, options) + error.getMessage(), notWellFormed(error));
+            if (notSevereMode())
+            	Assert.assertFalse("WELL-FORMEDNESS: "+getTestId(sources, options) + error.getMessage(), notWellFormed(error));
         }
-        Assert.assertFalse("DUPLICATE: "+getTestId(sources, options), duplicateErrors(errors));
+        if (notSevereMode())
+        	Assert.assertFalse("DUPLICATE: "+getTestId(sources, options), duplicateErrors(errors));
 
         // --- Now we null out Globals and query the ASTs.
         Globals.initialize(null);
@@ -577,5 +581,9 @@ public class CompilerTestsBase {
         if (!emptyPrefixMatches)
             return !prefix.equals("");
         return true;
+    }
+    
+    private boolean notSevereMode(){
+    	return !System.getProperty("mode").equals(SEVERE_MODE);
     }
 }
