@@ -115,6 +115,8 @@
         <repository location="file:${x10dtBuildDirectory}/buildRepo" />
       </source>
     </p2.mirror>
+<!-- Don't remove the CDT artifacts from the update site repository - this is really
+     the only version we're sure will work with the X10DT at this point.
     <p2.remove.iu>
       <repository location="file:${orquesta.update.site.loc}" />
       <iu id="org.eclipse.cdt.platform.feature.group" />
@@ -135,6 +137,7 @@
         <include name="org.eclipse.cdt*/**" />
       </fileset>
     </delete>
+ -->
     <java jar="${toString:launcher.path.ref}" fork="true" failonerror="true">
       <arg value="-application" />
       <arg value="org.eclipse.equinox.p2.publisher.CategoryPublisher" />
