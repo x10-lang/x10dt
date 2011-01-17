@@ -63,7 +63,8 @@ public final class LocalAndRemoteLaunchTest {
   }
   
   @AfterClass @SuppressWarnings("all") public static void sleep() {
-    bot.sleep(2000);
+    SWTBotUtils.saveAllDirtyEditors(bot);
+    SWTBotUtils.resetWorkbench(bot);
   }
   
   // --- Test cases
