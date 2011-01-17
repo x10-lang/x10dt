@@ -141,8 +141,15 @@
   </target>
 
   <target name="check-transfer-required">
-    <condition property="transfer.available">
-      <available file="${x10.compiler.dist}" type="dir" />
+    <condition property="transfer.required">
+      <and>
+        <not>
+          <isset property="omit.x10.fragments" />
+        </not>
+        <not>
+          <available file="${x10.compiler.dist}" type="dir" />
+        </not>
+      </and>
     </condition>
   </target>
 
@@ -222,16 +229,7 @@
     <echo message="${file.replaced}" file="${x10.compiler.dist}/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
   </target>
 
-  <target name="transfer-all" depends="check-transfer-required" unless="transfer.available">
-    <mkdir dir="${x10.compiler.dist}" />
-    <copy todir="${x10.compiler.dist}">
-      <fileset dir="${x10.build.loc}/x10.constraints" includes="x10.constraints_*.jar" />
-      <fileset dir="${x10.build.loc}/x10.common" includes="x10.common_*.jar" />
-      <fileset dir="${x10.build.loc}/x10.compiler" includes="x10.compiler_*.jar" />
-      <fileset dir="${x10.build.loc}/x10.runtime" includes="x10.runtime_*.jar" />
-      <fileset dir="${x10.build.loc}/x10.wala" includes="x10.wala_*.jar" />
-      <fileset dir="${x10.build.loc}/x10.dist.host" includes="x10.dist.host_*.jar" />
-    </copy>
+  <target name="transfer-all" depends="check-transfer-required" if="transfer.required">
     <antcall target="transfer-tools-branch-release">
       <param name="os" value="linux_x86" />
       <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
@@ -274,6 +272,18 @@
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="compiler-jar" />
   </target>
 
+  <target name="transfer-x10-core">
+    <mkdir dir="${x10.compiler.dist}" />
+    <copy todir="${x10.compiler.dist}">
+      <fileset dir="${x10.build.loc}/x10.constraints" includes="x10.constraints_*.jar" />
+      <fileset dir="${x10.build.loc}/x10.common" includes="x10.common_*.jar" />
+      <fileset dir="${x10.build.loc}/x10.compiler" includes="x10.compiler_*.jar" />
+      <fileset dir="${x10.build.loc}/x10.runtime" includes="x10.runtime_*.jar" />
+      <fileset dir="${x10.build.loc}/x10.wala" includes="x10.wala_*.jar" />
+      <fileset dir="${x10.build.loc}/x10.dist.host" includes="x10.dist.host_*.jar" />
+    </copy>
+  </target>
+
   <target name="main">
     <antcall target="x10-checkouts" />
     <antcall target="build" />
@@ -290,6 +300,7 @@
         </resourcecount>
       </condition>
     </fail>
+    <antcall target="transfer-x10-core"/>
     <antcall target="transfer-all" />
   </target>
 
