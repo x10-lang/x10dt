@@ -16,21 +16,21 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 
 public class EditorMatcher extends BaseMatcher<IEditorReference> {
-    private final String fEditorName;
+  private final String fEditorName;
 
-    public EditorMatcher(String editorName) {
-        fEditorName = editorName;
-    }
+  public EditorMatcher(String editorName) {
+    fEditorName = editorName;
+  }
 
-    public void describeTo(Description description) {
-        description.appendText("EditorMatcher(name == " + fEditorName + ")");
-    }
+  public void describeTo(Description description) {
+    description.appendText("EditorMatcher(name == " + fEditorName + ")");
+  }
 
-    public boolean matches(Object item) {
-        if (item instanceof IEditorReference) {
-            IEditorReference er= (IEditorReference) item;
-            return er.getName().equals(fEditorName);
-        }
-        return false;
+  public boolean matches(Object item) {
+    if (item instanceof IEditorReference) {
+      IEditorReference er = (IEditorReference) item;
+      return er.getName().equals(fEditorName);
     }
+    return false;
+  }
 }

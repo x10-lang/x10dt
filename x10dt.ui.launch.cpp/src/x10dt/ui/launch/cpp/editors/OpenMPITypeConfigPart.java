@@ -165,8 +165,9 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
                                                         prefix + PREFS_PERIODIC_MONITOR_CMD));
     super.fPeriodicTimeSpinner.setSelection(Preferences.getInt(OpenMPIPlugin.getUniqueIdentifier(),
                                                                prefix + PREFS_PERIODIC_MONITOR_TIME));
-    super.fInstallLocText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(),
-                                                        prefix + PREFS_REMOTE_INSTALL_PATH));
+    // RMF 30 Nov 2010 - Don't change the install location just b/c the user specified another MPI version
+//    super.fInstallLocText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(),
+//                                                        prefix + PREFS_REMOTE_INSTALL_PATH));
   }
   
   // --- Fields

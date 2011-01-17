@@ -16,7 +16,7 @@ import java.text.MessageFormat;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
 
 
 /**
@@ -25,9 +25,9 @@ import x10dt.search.core.engine.ITypeInfo;
 public class HistoryAction extends Action {
 
 	private TypeHierarchyViewPart fViewPart;
-	private ITypeInfo fElement;
+	private IMemberInfo fElement;
 
-	public HistoryAction(TypeHierarchyViewPart viewPart, ITypeInfo element) {
+	public HistoryAction(TypeHierarchyViewPart viewPart, IMemberInfo element) {
         super("", AS_RADIO_BUTTON); //$NON-NLS-1$
 		fViewPart= viewPart;
 		fElement= element;
@@ -41,7 +41,7 @@ public class HistoryAction extends Action {
 //		PlatformUI.getWorkbench().getHelpSystem().setHelp(this, IJavaHelpContextIds.HISTORY_ACTION);
 	}
 
-	private ImageDescriptor getImageDescriptor(ITypeInfo elem) {
+	private ImageDescriptor getImageDescriptor(IMemberInfo elem) {
 //		JavaElementImageProvider imageProvider= new JavaElementImageProvider();
 //		X10LabelProvider imageProvider= new X10LabelProvider();
 //		ImageDescriptor desc= imageProvider.getImage(elem);

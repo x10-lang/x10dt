@@ -64,10 +64,7 @@ page X10.Compiler {
 page X10.Compiler.Optimizations {
     fields {
         boolean Optimize            { defvalue false; }
-        boolean LoopOptimizations   { defvalue true; }
-        boolean InlineOptimizations { defvalue false; }
-        boolean ClosureInlining     { defvalue true; }
-        boolean WorkStealing        { tooltip "Enable code generation for the work-stealing scheduler"; defvalue false; }
+        boolean DisableChecking     { defvalue false; }
     }
 }
 

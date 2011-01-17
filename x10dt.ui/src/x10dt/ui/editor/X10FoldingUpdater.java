@@ -47,7 +47,12 @@ public class X10FoldingUpdater extends LPGFolderBase {
      * Returns the offset of the line containing the given offset
      */
     private int findLineStart(int offset) {
-    	int lineStart= fLexStream.getLineOffset(fLexStream.getLineNumberOfCharAt(offset) - 1) + 1;
+        // N.B. LPG reports a "line offset" as the offset of the line terminator
+        // preceding the line; hence the +1 in the following. The -1 is needed
+        // because of an asymmetry between getLineOffset() and getLineNumberOfCharAt():
+        // the former expects 0-based line numbers, while the latter produces 1-based
+        // line numbers. This will hopefully be fixed in LPG 2.0.21.
+    	int lineStart= fLexStream.getLineOffset(fLexStream.getLineNumberOfCharAt(offset)-1) + 1;
 		return lineStart;
 	}
 
@@ -58,11 +63,11 @@ public class X10FoldingUpdater extends LPGFolderBase {
     private int findNextLineStart(int offset) {
     	int lineNum= fLexStream.getLineNumberOfCharAt(offset);
 
-    	if (lineNum > fLexStream.getLineCount()) {
-    	    return fLexStream.getStreamLength()+1;
+    	if (lineNum >= fLexStream.getLineCount()) {
+    	    return fLexStream.getStreamLength();
     	}
 
-    	int lineStart= fLexStream.getLineOffset(lineNum);
+    	int lineStart= fLexStream.getLineOffset(lineNum) + 1;
 
 		return lineStart;
 	}

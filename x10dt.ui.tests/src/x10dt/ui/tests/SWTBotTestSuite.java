@@ -14,14 +14,17 @@ package x10dt.ui.tests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import x10dt.ui.editor.ContentAssistTests;
 import x10dt.ui.editor.OutlineTests;
 import x10dt.ui.editor.QuickOutlineTests;
+import x10dt.ui.editor.SyntaxColoringTests;
 
 /**
  * JUnit suite containing all the SWTBot-based tests for x10dt.ui
+ * 
  * @author rfuhrer@watson.ibm.com
  */
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ JavaBackEndSmokeTest.class, QuickOutlineTests.class, OutlineTests.class })
+@Suite.SuiteClasses({QuickOutlineTests.class,JavaBackEndSmokeTest.class,OutlineTests.class,SyntaxColoringTests.class,ContentAssistTests.class })
 public final class SWTBotTestSuite {
 }

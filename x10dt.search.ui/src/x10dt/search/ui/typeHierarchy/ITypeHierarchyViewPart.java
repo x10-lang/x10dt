@@ -12,10 +12,9 @@ package x10dt.search.ui.typeHierarchy;
 
 
 
-import org.eclipse.jdt.core.IType;
 import org.eclipse.ui.IViewPart;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
 
 
 /**
@@ -76,15 +75,6 @@ public interface ITypeHierarchyViewPart extends IViewPart {
 	public static final int HIERARCHY_MODE_SUBTYPES= 1;
 
 	/**
-	 * Sets the input element of this type hierarchy view to a type.
-	 *
-	 * @param type the input element of this type hierarchy view, or <code>null</code>
-	 *  to clear any input element
-	 * @deprecated use setInputElement instead
-	 */
-	public void setInput(ITypeInfo type);
-
-	/**
 	 * Sets the input element of this type hierarchy view. The following input types are possible
 	 * <code>IMember</code> (types, methods, fields..), <code>IPackageFragment</code>, <code>IPackageFragmentRoot</code>
 	 * and <code>IJavaProject</code>.
@@ -94,27 +84,17 @@ public interface ITypeHierarchyViewPart extends IViewPart {
 	 *
 	 * @since 2.0
 	 */
-	public void setInputElement(ITypeInfo element);
+	public void setInputElement(IMemberInfo element);
 
 	/**
 	 * Returns the input element of this type hierarchy view.
 	 *
 	 * @return the input element, or <code>null</code> if no input element is set
-	 * @see #setInput(IType)
-	 * @deprecated use getInputElement instead
-	 */
-	public ITypeInfo getInput();
-
-
-	/**
-	 * Returns the input element of this type hierarchy view.
-	 *
-	 * @return the input element, or <code>null</code> if no input element is set
-	 * @see #setInputElement(ITypeInfo)
+	 * @see #setInputElement(IMemberInfo)
 	 *
 	 * @since 2.0
 	 */
-	public ITypeInfo getInputElement();
+	public IMemberInfo getInputElement();
 
 	/**
 	 * Locks the the members view and shows the selected members in the hierarchy.

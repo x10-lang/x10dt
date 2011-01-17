@@ -191,7 +191,7 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
     // --- IPropertyChangeListener's interface methods implementation
     
     public void preferenceChange(final PreferenceChangeEvent event) {
-      updateX10ConfigurationFromPreferences();
+//    updateX10ConfigurationFromPreferences();
       final WorkspaceJob job = new WorkspaceJob("Clean workspace...") {
         
         public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
@@ -223,7 +223,7 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
     public void start(BundleContext context) throws Exception {
       super.start(context);
       
-      updateX10ConfigurationFromPreferences();
+//      updateX10ConfigurationFromPreferences();
 
       X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
                      .addPreferenceChangeListener(this);
@@ -249,38 +249,33 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
     
     // --- Private code
     
-    private void updateX10ConfigurationFromPreferences() {
-      final IPreferencesService prefService = getPreferencesService();
-      // Compiler prefs update
-      Configuration.DEBUG = true;
-      final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
-      if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
-        // First initialize to default values.
-        Configuration.CHECK_INVARIANTS = false;
-        Configuration.ONLY_TYPE_CHECKING = false;
-        Configuration.NO_CHECKS = false;
-        Configuration.FLATTEN_EXPRESSIONS = false;
-        Configuration.INLINE_SMALL_METHODS = false;
-        Configuration.WALA = false;
-        Configuration.FINISH_ASYNCS = false;
-        for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
-          try {
-            Configuration.parseArgument(opt);
-          } catch (OptionError except) {
-            logException(NLS.bind("Could not recognize or set option ''{0}''.", opt), except);
-          } catch (ConfigurationError except) {
-            logException(NLS.bind("Could not initialize option ''{0}''.", opt), except);
-          }
-        }
-      }
-      // Optimization prefs update
-      Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
-      Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
-      Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
-      Configuration.LOOP_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_LOOPOPTIMIZATIONS);
-      Configuration.INLINE_OPTIMIZATIONS = prefService.getBooleanPreference(X10Constants.P_INLINEOPTIMIZATIONS);
-      Configuration.CLOSURE_INLINING = prefService.getBooleanPreference(X10Constants.P_CLOSUREINLINING);
-      Configuration.WORK_STEALING = prefService.getBooleanPreference(X10Constants.P_WORKSTEALING);
-    }
+//    private void updateX10ConfigurationFromPreferences() {
+//      final IPreferencesService prefService = getPreferencesService();
+//      // Compiler prefs update
+//      Configuration.DEBUG = true;
+//      final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
+//      if ((additionalOptions != null) && (additionalOptions.length() > 0)) {
+//        // First initialize to default values.
+//        Configuration.CHECK_INVARIANTS = false;
+//        Configuration.ONLY_TYPE_CHECKING = false;
+//        Configuration.NO_CHECKS = false;
+//        Configuration.FLATTEN_EXPRESSIONS = false;
+//        Configuration.WALA = false;
+//        Configuration.FINISH_ASYNCS = false;
+//        for (final String opt : additionalOptions.split("\\s")) { ////$NON-NLS-1$
+//          try {
+//            Configuration.parseArgument(opt);
+//          } catch (OptionError except) {
+//            logException(NLS.bind("Could not recognize or set option ''{0}''.", opt), except);
+//          } catch (ConfigurationError except) {
+//            logException(NLS.bind("Could not initialize option ''{0}''.", opt), except);
+//          }
+//        }
+//      }
+//      // Optimization prefs update
+//      Configuration.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
+//      Configuration.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
+//      Configuration.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
+//    }
 
 }

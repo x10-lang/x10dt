@@ -10,8 +10,6 @@
  *******************************************************************************/
 package x10dt.search.ui.dialogs;
 
-import static x10dt.search.core.pdb.X10FactTypeNames.APPLICATION;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -35,8 +33,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.imp.editor.EditorUtility;
-import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
@@ -50,12 +46,12 @@ import org.eclipse.jface.resource.LocalResourceManager;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.LabelProviderChangedEvent;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.search.internal.ui.text.BasicElementLabels;
 import org.eclipse.swt.SWT;
@@ -68,7 +64,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkingSet;
@@ -79,8 +74,11 @@ import org.eclipse.ui.actions.WorkingSetFilterActionGroup;
 import org.eclipse.ui.dialogs.FilteredItemsSelectionDialog;
 import org.eclipse.ui.dialogs.ISelectionStatusValidator;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.engine.scope.IX10SearchScope;
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.typeHierarchy.DefaultTypeNameMatch;
@@ -132,7 +130,7 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 
 	private ShowContainerForDuplicatesAction fShowContainerForDuplicatesAction;
 
-	private String fSearchScope;
+	private IX10SearchScope fSearchScope;
 
 	private boolean fAllowScopeSwitching;
 
@@ -177,7 +175,7 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 	 *            Please note that the bitwise OR combination of the elementary
 	 *            constants is not supported.
 	 */
-	public FilteredTypesSelectionDialog(Shell parent, boolean multi, IRunnableContext context, String scope, int elementKinds) {
+	public FilteredTypesSelectionDialog(Shell parent, boolean multi, IRunnableContext context, IX10SearchScope scope, int elementKinds) {
 		this(parent, multi, context, scope, elementKinds, null);
 	}
 
@@ -209,14 +207,14 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 	 *            an extension of the standard type selection dialog; See
 	 *            {@link TypeSelectionExtension}
 	 */
-	public FilteredTypesSelectionDialog(Shell shell, boolean multi, IRunnableContext context, String scope, int elementKinds, TypeSelectionExtension extension) {
+	public FilteredTypesSelectionDialog(Shell shell, boolean multi, IRunnableContext context, IX10SearchScope scope, int elementKinds, TypeSelectionExtension extension) {
 		super(shell, multi);
 
 		setSelectionHistory(new TypeSelectionHistory());
 
 		if (scope == null) {
 			fAllowScopeSwitching= true;
-			scope= APPLICATION;
+			scope= SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL);
 		}
 
 		fElementKinds= elementKinds;
@@ -335,10 +333,10 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 			}
 			IWorkingSet ws= fFilterActionGroup.getWorkingSet();
 			if (ws == null || (ws.isAggregateWorkingSet() && ws.isEmpty())) {
-				setSearchScope(APPLICATION);
+				setSearchScope(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL));
 				setSubtitle(null);
 			} else {
-				//setSearchScope(JavaSearchScopeFactory.getInstance().createJavaSearchScope(ws, true));
+				//setSearchScope(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL, ws.getElements()));
 				setSubtitle(ws.getLabel());
 			}
 		}
@@ -368,10 +366,10 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 				public void propertyChange(PropertyChangeEvent event) {
 					IWorkingSet ws= (IWorkingSet) event.getNewValue();
 					if (ws == null || (ws.isAggregateWorkingSet() && ws.isEmpty())) {
-						setSearchScope(APPLICATION);
+						setSearchScope(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL));
 						setSubtitle(null);
 					} else {
-//						setSearchScope(JavaSearchScopeFactory.getInstance().createJavaSearchScope(ws, true));
+//						setSearchScope(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL, ws.getElements());
 						setSubtitle(ws.getLabel());
 					}
 
@@ -530,17 +528,16 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 		typeSearchFilter.setMatchEverythingMode(true);
 
 		try {
-			IEditorPart p = PlatformUI.getWorkbench().getWorkbenchWindows()[0].getActivePage().getActiveEditor();
-			ISourceProject sp = EditorUtility.getSourceProject(p.getEditorInput());
-			
-			for(ITypeInfo type : X10SearchEngine.getAllMatchingTypeInfo(sp.getRawProject(), SearchUtils.getTypeRegex(typePattern), false, progressMonitor))
+			for(ITypeInfo type : X10SearchEngine.getAllMatchingTypeInfo(typeSearchFilter.getSearchScope(), SearchUtils.getTypeRegex(typePattern), false, progressMonitor))
 			{
 				TypeNameMatch match = new DefaultTypeNameMatch(type, type.getX10FlagsCode());
 				requestor.acceptTypeNameMatch(match);
 			}
 			
+		} catch(InterruptedException e) {
+			// ignore -- search cancelled
 		} catch (Exception e) {
-			//throw new CoreException(new Status(IStatus.ERROR, UISearchPlugin.PLUGIN_ID, e.getMessage(), e));
+			throw new CoreException(new Status(IStatus.ERROR, UISearchPlugin.PLUGIN_ID, e.getMessage(), e));
 		} finally {
 			typeSearchFilter.setMatchEverythingMode(false);
 		}
@@ -593,7 +590,7 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 	 * @param scope
 	 *            the new scope
 	 */
-	private void setSearchScope(String scope) {
+	private void setSearchScope(IX10SearchScope scope) {
 		fSearchScope= scope;
 	}
 
@@ -1108,7 +1105,7 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 		private final TypeInfoFilter fTypeInfoFilter;
 
 
-		public TypeItemsFilter(String scope, int elementKind, ITypeInfoFilterExtension extension) {
+		public TypeItemsFilter(IX10SearchScope scope, int elementKind, ITypeInfoFilterExtension extension) {
 			/*
 			 * Horribly convoluted initialization:
 			 * FilteredItemsSelectionDialog.ItemsFilter#ItemsFilter(SearchPattern)
@@ -1156,7 +1153,7 @@ public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog i
 			return fTypeInfoFilter.getElementKind();
 		}
 
-		public String getSearchScope() {
+		public IX10SearchScope getSearchScope() {
 			return fTypeInfoFilter.getSearchScope();
 		}
 

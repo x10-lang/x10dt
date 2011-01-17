@@ -1,50 +1,35 @@
 package x10dt.search.ui.globalSearch;
 
-import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.PerformanceStats;
-import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
-
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.ResourcesPlugin;
-
-import org.eclipse.jface.resource.ImageDescriptor;
-
-import org.eclipse.search.ui.ISearchQuery;
-import org.eclipse.search.ui.ISearchResult;
-import org.eclipse.search.ui.NewSearchUI;
-import org.eclipse.search.ui.text.Match;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
-
 import org.eclipse.jdt.internal.corext.util.Messages;
 import org.eclipse.jdt.internal.corext.util.SearchUtils;
-
-import org.eclipse.jdt.ui.JavaElementLabels;
-import org.eclipse.jdt.ui.search.ElementQuerySpecification;
-import org.eclipse.jdt.ui.search.IMatchPresentation;
-import org.eclipse.jdt.ui.search.IQueryParticipant;
-import org.eclipse.jdt.ui.search.ISearchRequestor;
-import org.eclipse.jdt.ui.search.PatternQuerySpecification;
-import org.eclipse.jdt.ui.search.QuerySpecification;
-
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.viewsupport.BasicElementLabels;
+import org.eclipse.jdt.ui.JavaElementLabels;
+import org.eclipse.jdt.ui.search.ElementQuerySpecification;
+import org.eclipse.jdt.ui.search.PatternQuerySpecification;
+import org.eclipse.jdt.ui.search.QuerySpecification;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.search.ui.ISearchQuery;
+import org.eclipse.search.ui.ISearchResult;
+import org.eclipse.search.ui.NewSearchUI;
 
-import x10dt.search.core.engine.IMethodInfo;
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.engine.scope.IX10SearchScope;
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
 
 public class X10SearchQuery implements ISearchQuery {
 
@@ -148,7 +133,8 @@ public class X10SearchQuery implements ISearchQuery {
 			for (IPath p: paths){
 				IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(p.toOSString());
 				if (searchFor == IJavaSearchConstants.TYPE){
-					ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(project, stringPattern, isCaseSensitive , mainSearchPM);
+				  final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
+					ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(scope, stringPattern, isCaseSensitive , mainSearchPM);
 					for(ITypeInfo info: results){
 						collector.acceptSearchResult(info);
 					}

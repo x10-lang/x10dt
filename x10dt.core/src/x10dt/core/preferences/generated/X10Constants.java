@@ -25,10 +25,7 @@ public class X10Constants {
 	public static final String P_ECHOCOMPILEARGUMENTSTOCONSOLE = "EchoCompileArgumentsToConsole";
 	public static final String P_ADDITIONALCOMPILEROPTIONS = "AdditionalCompilerOptions";
 	public static final String P_OPTIMIZE = "Optimize";
-	public static final String P_LOOPOPTIMIZATIONS = "LoopOptimizations";
-	public static final String P_INLINEOPTIMIZATIONS = "InlineOptimizations";
-	public static final String P_CLOSUREINLINING = "ClosureInlining";
-	public static final String P_WORKSTEALING = "WorkStealing";
+	public static final String P_DISABLECHECKING = "DisableChecking";
 	public static final String P_DEFAULTRUNTIME = "DefaultRuntime";
 	public static final String P_NUMBEROFPLACES = "NumberOfPlaces";
 }

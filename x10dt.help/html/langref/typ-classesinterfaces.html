@@ -27,9 +27,13 @@
 1.1</a>&nbsp;&nbsp;Class types</h3>
 
 <div class="p"><!----></div>
-A <em>class declaration</em> (&#167;) introduces a <em>class type</em>
-containing all instances of the class.  The <b>Position</b> class below
-could describe the position of a slider control, for example.
+A <em>class declaration</em> (&#167;) declares a <em>class type</em>,
+giving its name, behavior, data, and relationships to other classes and
+interfaces. 
+
+<div class="p"><!----></div>
+The <b>Position</b> class below could describe the position of a slider
+control
 
 <div class="p"><!----></div>
 <pre>
@@ -41,14 +45,15 @@ class Position {
 </pre>
 
 <div class="p"><!----></div>
-Class instances, also called objects, are created via constructor calls. Class
+Class instances, also called objects, are created by constructor calls: 
+<b>new Position()</b>. Class
 instances have fields and methods, type members, and value properties bound at
 construction time. In addition, classes have static members: static <b>val</b> fields,
 methods, type definitions, and member classes and member interfaces.
 
 <div class="p"><!----></div>
-Classes may be <em>generic</em>, i.e. defined with one or more type
-parameters (&#167;).
+Classes may be <em>generic</em>, , defined with one or more type
+parameters (&#167;).  
 
 <div class="p"><!----></div>
 <pre>
@@ -125,6 +130,27 @@ interfaces cannot specify that implementing classes must provide
 static members or constructors.
 
 <div class="p"><!----></div>
+In the following interface, <b>PI</b> is a static field, 
+<b>Vec</b> a static type definition, 
+<b>Pair</b> a static member class.
+It can't insist that implementations provide a static method 
+like <b>meth</b>, or a nullary constructor.
+<pre>
+interface Stat {
+  static val PI = 3.14159; 
+  static type R = Double;
+  static class Pair(x:R, y:R) {}
+  // ERROR: static def meth():Int;
+  // ERROR: static def this();
+}
+class Example {
+  static def example() {
+     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
 An interface may extend multiple interfaces.  
 <pre>
 interface Named {
@@ -165,9 +191,16 @@ class KimThePoint implements Person {
 </a>
 
 <div class="p"><!----></div>
-Classes, interfaces, and structs may have <em>properties</em>, public
-<b>val</b> instance fields that can be used in types.
-For example, the
+Classes, interfaces, and structs may have <em>properties</em>, specified in
+parentheses after the type name. Properties are much like public <b>val</b>
+instance fields. They have certain restrictions on their use, however, which
+allows the compiler to understand them much better than other public <b>val</b>
+fields. In particular, they can be used in types.  <em>E.g.</em>, the number of elements
+in an array is a property of the array, and an X10 program can specify that
+two arrays have the same number of elements.
+
+<div class="p"><!----></div>
+The
 following code declares a class named <b>Coords</b> with properties
 <b>x</b> and <b>y</b> and a <b>move</b> method. The properties are bound
 using the <b>property</b> statement in the constructor.

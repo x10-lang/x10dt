@@ -24,8 +24,15 @@
 <div class="p"><!----></div>
 <em>
 <table>
-<tr><td align="right">RelationalExp    ::= RelationalExp <b>in</b> ShiftExp</td></tr>
-<tr><td align="right"></td></tr>
+
+<tr><td align="right">RelationalExp ::= RangeExp </td></tr>
+<tr><td align="right">&#124; SubtypeConstraint </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;=</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;=</b> RangeExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>instanceof</b> Type </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>in</b> ShiftExp </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

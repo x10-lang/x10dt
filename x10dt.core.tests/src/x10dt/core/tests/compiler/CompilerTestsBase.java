@@ -35,9 +35,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodDef;
-import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
-import polyglot.types.ReferenceType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.AbstractErrorQueue;
@@ -46,10 +44,9 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
-import x10.errors.X10ErrorInfo;
 import x10.types.ClosureType_c;
+import x10.types.MethodInstance;
 import x10.types.X10ClassType;
-import x10.types.X10TypeMixin;
 
 /**
  * This class provides some base functionality for compilation
@@ -57,13 +54,13 @@ import x10.types.X10TypeMixin;
  *
  */
 public class CompilerTestsBase {
-
+	
     protected static String[] STATIC_CALLS = {"-STATIC_CALLS=true", "-CHECK_INVARIANTS"};
     protected static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false", "-CHECK_INVARIANTS"};
 
-    private static String COMPILER_GENERATED = "Compiler Generated";
-
     private static String OUTPUT_DIR = "output";
+    
+    private static String SEVERE_MODE = "severe";
 
     public boolean compile(File[] files, String[] options,
             final Collection<ErrorInfo> errors, String sourcepath) throws Exception {
@@ -158,9 +155,11 @@ public class CompilerTestsBase {
         for(ErrorInfo error: errors) {
             Assert.assertFalse("INVARIANT: "+getTestId(sources, options) + error.getMessage(), invariantViolation(error));
             Assert.assertFalse("INTERNAL ERROR: "+getTestId(sources, options) + error.getMessage(), internalError(error));
-            Assert.assertFalse("WELL-FORMEDNESS: "+getTestId(sources, options) + error.getMessage(), notWellFormed(error));
+            if (notSevereMode())
+            	Assert.assertFalse("WELL-FORMEDNESS: "+getTestId(sources, options) + error.getMessage(), notWellFormed(error));
         }
-        Assert.assertFalse("DUPLICATE: "+getTestId(sources, options), duplicateErrors(errors));
+        if (notSevereMode())
+        	Assert.assertFalse("DUPLICATE: "+getTestId(sources, options), duplicateErrors(errors));
 
         // --- Now we null out Globals and query the ASTs.
         Globals.initialize(null);
@@ -280,7 +279,7 @@ public class CompilerTestsBase {
     }
 
     private boolean invariantViolation(ErrorInfo e) {
-        if (e.getErrorKind() == X10ErrorInfo.INVARIANT_VIOLATION_KIND)
+        if (e.getErrorKind() == ErrorInfo.INVARIANT_VIOLATION_KIND)
             return true;
         return false;
     }
@@ -299,12 +298,12 @@ public class CompilerTestsBase {
 						if (!position.isCompilerGenerated() && !position.file().startsWith(File.separator)) 
 							Assert.assertFalse("AST: position.file() returned a string that was not in the original sources:" + n, true);
 				 		
-						if (position.isCompilerGenerated()){
-							if (position.endOffset() - position.offset() != 0) // --- Non-zero extent
-								Assert.assertFalse("AST: position extent is non-zero", true);
-						}
+//						if (position.isCompilerGenerated()){
+//							if (position.endOffset() - position.offset() != 0) // --- Non-zero extent
+//								Assert.assertFalse("AST: position extent is non-zero", true);
+//						}
 						
-                         if (n instanceof TypeNode) {
+						if (n instanceof TypeNode) {
 
                             TypeNode typeNode = (TypeNode) n;
                             Type type = typeNode.type();
@@ -489,17 +488,17 @@ public class CompilerTestsBase {
         getMethodCandidates(container_type, methods, "", true);
         getClassCandidates((Type) container_type, classes,"", true);
 
-        for(FieldInstance field : fields) {
+        for (FieldInstance field : fields) {
             if (field.name() == null)
                 return true;
         }
 
-        for(MethodInstance method : methods) {
+        for (MethodInstance method : methods) {
             if (method.signature() == null)
                 return true;
         }
 
-        for(ClassType type : classes) {
+        for (ClassType type : classes) {
             if (!type.isAnonymous()) {
                 if (type.name() == null)
                     return true;
@@ -508,14 +507,14 @@ public class CompilerTestsBase {
         return false;
     }
 
-    private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix, boolean emptyPrefixMatches) {// PORT1.7 ReferenceType replaced with Type
+    private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix, boolean emptyPrefixMatches) {
         if (container_type == null)
             return;
 
         if (container_type instanceof ObjectType) {
             ObjectType oType = (ObjectType) container_type;
 
-            filterFields(fields, oType.fields(), prefix, emptyPrefixMatches); // PORT1.7 ReferenceType.fields()->ObjectType.fields()
+            filterFields(fields, oType.fields(), prefix, emptyPrefixMatches);
 
             for (int i = 0; i < oType.interfaces().size(); i++) {
                 ObjectType interf = (ObjectType) oType.interfaces().get(i);
@@ -526,13 +525,13 @@ public class CompilerTestsBase {
         }
     }
 
-    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix, boolean emptyPrefixMatches) {//PORT1.7 ReferenceType->ObjectType
+    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix, boolean emptyPrefixMatches) {
         if (container_type == null)
             return;
 
         filterMethods(methods, container_type.methods(), prefix, emptyPrefixMatches);
 
-        getMethodCandidates((ObjectType)container_type.superClass(), methods, prefix, emptyPrefixMatches);//PORT1.7 superType()->superClass()
+        getMethodCandidates((ObjectType)container_type.superClass(), methods, prefix, emptyPrefixMatches);
     }
 
     private void getClassCandidates(Type type, List<ClassType> classes, String prefix, boolean emptyPrefixMatches) {
@@ -544,16 +543,16 @@ public class CompilerTestsBase {
 
         filterClasses(classes, container_type.memberClasses(), prefix, emptyPrefixMatches);
 
-        for(int i= 0; i < container_type.interfaces().size(); i++) {
-            ClassType interf= ((ReferenceType) container_type.interfaces().get(i)).toClass();
+        for (int i= 0; i < container_type.interfaces().size(); i++) {
+            ClassType interf= container_type.interfaces().get(i).toClass();
             filterClasses(classes, interf.memberClasses(), prefix, emptyPrefixMatches);
         }
-        getClassCandidates(container_type.superClass(), classes, prefix, emptyPrefixMatches);//PORT1.7 superType)_->superClass()
+        getClassCandidates(container_type.superClass(), classes, prefix, emptyPrefixMatches);
     }
 
     private void filterFields(List<FieldInstance> fields, List<FieldInstance> in_fields, String prefix, boolean emptyPrefixMatches) {
-        for(FieldInstance f: in_fields) {
-            String name= f.name().toString(); // PORT1.7 was f.name()
+        for (FieldInstance f: in_fields) {
+            String name= f.name().toString();
             if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix))
                 fields.add(f);
 
@@ -562,17 +561,16 @@ public class CompilerTestsBase {
     }
 
     private void filterMethods(List<MethodInstance> methods, List<MethodInstance> in_methods, String prefix, boolean emptyPrefixMatches) {
-        for(MethodInstance m: in_methods) {
-            String name= m.name().toString();   // PORT 1.7
+        for (MethodInstance m: in_methods) {
+            String name= m.name().toString();
             if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix))
                 methods.add(m);
         }
     }
 
-    private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
-        for(ReferenceType r: in_classes) {
-            ClassType c= r.toClass();
-            String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
+    private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {
+        for (ClassType c: in_classes) {
+            String name= c.name().toString();
             if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix)) {
                 classes.add(c);
             }
@@ -583,5 +581,9 @@ public class CompilerTestsBase {
         if (!emptyPrefixMatches)
             return !prefix.equals("");
         return true;
+    }
+    
+    private boolean notSevereMode(){
+    	return !System.getProperty("mode").equals(SEVERE_MODE);
     }
 }

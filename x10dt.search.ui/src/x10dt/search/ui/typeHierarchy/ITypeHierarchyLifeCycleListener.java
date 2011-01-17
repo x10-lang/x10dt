@@ -11,7 +11,7 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
 
 
 /**
@@ -25,6 +25,6 @@ public interface ITypeHierarchyLifeCycleListener {
 	 * @param typeHierarchyProvider the type hierarchy that changed
 	 * @param changedTypes the types that changed or <code>null</code> if the full hierarchy changed
 	 */
-	void typeHierarchyChanged(TypeHierarchyLifeCycle typeHierarchyProvider, ITypeInfo[] changedTypes);
+	void typeHierarchyChanged(TypeHierarchyLifeCycle typeHierarchyProvider, IMemberInfo[] changedTypes);
 
 }

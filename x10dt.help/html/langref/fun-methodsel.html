@@ -27,17 +27,17 @@
 <div class="p"><!----></div>
 A method selector expression allows a method to be used as a
 first-class function, without writing a function expression for it.
-For example, consider a class <b>Span</b> defining ranges of integers.  
+Consider a class <b>Span</b> defining ranges of integers.    
 
 <div class="p"><!----></div>
 <pre>
 class Span(low:Int, high:Int) {
   def this(low:Int, high:Int) {property(low,high);}
   def between(n:Int) = low &lt;= n &amp;&amp; n &lt;= high;
-  def example() {
+  static def example() {
     val digit = new Span(0,9);
     val isDigit : (Int) =&#62; Boolean = digit.between.(Int);
-    if (isDigit(8)) Console.OUT.println("8 is!");
+    assert isDigit(8);
   }
 }
 </pre>
@@ -53,9 +53,11 @@ and nine.  It could also be written
 <div class="p"><!----></div>
 <em>
 <table>
-<tr><td align="right">MethodSelection    ::= Primary <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">
-    &#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b></td></tr>
+
+<tr><td align="right">MethodSelection ::= MethodName <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id <b>.</b> <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 

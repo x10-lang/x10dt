@@ -97,7 +97,7 @@ Arguments to be passed to your X10 application can be specified in the &quot;Arg
 &quot;Runtime arguments&quot; pane).<br/>
 <br/>
       </description>
-      <command serialization="x10dt.ui.launching.x10LaunchShortcut.run" confirm="false">
+      <command serialization="x10dt.ui.launch.java.launching.x10LaunchShortcut.run" confirm="false">
       </command>
    </item>
    <item title="Debugging your X10 program" dialog="true" skip="false">

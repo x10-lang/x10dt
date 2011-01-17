@@ -1,24 +1,36 @@
 package x10dt.search.ui.search;
 
+import static x10dt.search.ui.search.SearchPatternData.ALL_OCCURRENCES;
+import static x10dt.search.ui.search.SearchPatternData.CONSTRUCTOR;
+import static x10dt.search.ui.search.SearchPatternData.DECLARATIONS;
+import static x10dt.search.ui.search.SearchPatternData.FIELD;
+import static x10dt.search.ui.search.SearchPatternData.IMPLEMENTORS;
+import static x10dt.search.ui.search.SearchPatternData.METHOD;
+import static x10dt.search.ui.search.SearchPatternData.PACKAGE;
+import static x10dt.search.ui.search.SearchPatternData.READ_ACCESSES;
+import static x10dt.search.ui.search.SearchPatternData.REFERENCES;
+import static x10dt.search.ui.search.SearchPatternData.SPECIFIC_REFERENCES;
+import static x10dt.search.ui.search.SearchPatternData.TYPE;
+import static x10dt.search.ui.search.SearchPatternData.WRITE_ACCESSES;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.search.IJavaSearchConstants;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
-import org.eclipse.jdt.internal.ui.dialogs.TextFieldNavigationHandler;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.util.SWTUtil;
-import org.eclipse.jdt.ui.search.ElementQuerySpecification;
-import org.eclipse.jdt.ui.search.PatternQuerySpecification;
-import org.eclipse.jdt.ui.search.QuerySpecification;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.search.ui.ISearchPage;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.search.ui.NewSearchUI;
@@ -35,11 +47,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.IWorkingSetManager;
-import org.eclipse.ui.PlatformUI;
-import static x10dt.search.ui.search.SearchPatternData.*;
 
+import x10dt.search.ui.Messages;
+import x10dt.search.ui.typeHierarchy.TextFieldNavigationHandler;
+
+/**
+ * The X10SearchPage presents the search UI page to the user.
+ * @author mvaziri
+ *
+ */
 public class X10SearchPage extends DialogPage implements ISearchPage {
 
 	// --- The main pattern field.
@@ -52,7 +68,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 	private boolean fIsCaseSensitive;
 	
 	// --- Previously stored search patterns.
-	private final List fPreviousSearchPatterns;
+	private final List<SearchPatternData> fPreviousSearchPatterns;
 	
 	// --- Initial data for the search page.
 	private SearchPatternData fInitialData;
@@ -72,12 +88,21 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 	// --- First time search page is opened
 	private boolean fFirstTime= true;
 	
+	private IDialogSettings fDialogSettings;
+	
+	private static final int HISTORY_SIZE= 12;
+	private final static String STORE_CASE_SENSITIVE= "CASE_SENSITIVE"; //$NON-NLS-1$
+	private final static String PAGE_NAME= "X10SearchPage"; //$NON-NLS-1$
+	private final static String STORE_HISTORY= "HISTORY"; //$NON-NLS-1$
+	private final static String STORE_HISTORY_SIZE= "HISTORY_SIZE"; //$NON-NLS-1$
+	
 	public X10SearchPage(){
-		fPreviousSearchPatterns = new ArrayList();
+		fPreviousSearchPatterns = new ArrayList<SearchPatternData>();
 	}
 	
 	public void createControl(Composite parent) {
 		initializeDialogUnits(parent);
+		readConfiguration();
 		
 		Composite result= new Composite(parent, SWT.NONE);
 
@@ -139,6 +164,11 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		super.setVisible(visible);
 	}
 	
+	public void dispose() {
+		writeConfiguration();
+		super.dispose();
+	}
+
 	// --- Private methods
 	
 	private boolean performNewSearch() {
@@ -154,12 +184,37 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		if (match != null) {
 			fPreviousSearchPatterns.remove(match);
 		}
+		IResource[] resources = null;
+		ISelection selection = getContainer().getSelection();
+		if (selection != null && selection instanceof IStructuredSelection){
+			Object[] sel = ((IStructuredSelection) selection).toArray();
+			Collection<IResource> pns = new ArrayList<IResource>();
+			for(int i = 0; i < sel.length; i++){
+				try {
+					if (sel[i] instanceof JavaProject){
+						pns.add(((JavaProject) sel[i]).getProject());
+					} else if (sel[i] instanceof PackageFragmentRoot){
+						IResource res = ((PackageFragmentRoot)sel[i]).getCorrespondingResource();
+						pns.add(res);
+					} else if (sel[i] instanceof PackageFragment){
+						IResource res = ((PackageFragment)sel[i]).getCorrespondingResource();
+						pns.add(res);
+					}
+				} catch(JavaModelException e){
+					//TODO: Fixme
+					System.err.println(e);
+				}
+			}
+			resources = pns.toArray(new IResource[0]);
+		}
+		
 		match= new SearchPatternData(
 				getSearchFor(),
 				getLimitTo(),
 				pattern,
 				fCaseSensitive.getSelection(),
 				getContainer().getSelectedScope(),
+				resources,
 				getContainer().getSelectedWorkingSets()
 		);
 
@@ -168,8 +223,8 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 	}
 	
 	private SearchPatternData findInPrevious(String pattern) {
-		for (Iterator iter= fPreviousSearchPatterns.iterator(); iter.hasNext();) {
-			SearchPatternData element= (SearchPatternData) iter.next();
+		for (Iterator<SearchPatternData> iter= fPreviousSearchPatterns.iterator(); iter.hasNext();) {
+			SearchPatternData element= iter.next();
 			if (pattern.equals(element.getPattern())) {
 				return element;
 			}
@@ -182,21 +237,21 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		int patternCount= fPreviousSearchPatterns.size();
 		String [] patterns= new String[patternCount];
 		for (int i= 0; i < patternCount; i++)
-			patterns[i]= ((SearchPatternData) fPreviousSearchPatterns.get(i)).getPattern();
+			patterns[i]= fPreviousSearchPatterns.get(i).getPattern();
 		return patterns;
 	}
 	
 	private Control createSearchFor(Composite parent) {
 		Group result= new Group(parent, SWT.NONE);
-		result.setText(SearchMessages.SearchPage_searchFor_label);
+		result.setText(Messages.SearchPage_searchFor_label);
 		result.setLayout(new GridLayout(2, true));
 
 		fSearchFor= new Button[] {
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_type, TYPE, true),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_method, METHOD, false),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_package, PACKAGE, false),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_constructor, CONSTRUCTOR, false),
-			createButton(result, SWT.RADIO, SearchMessages.SearchPage_searchFor_field, FIELD, false)
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_type, TYPE, true),
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_method, METHOD, false),
+			//createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_package, PACKAGE, false),
+			//createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_constructor, CONSTRUCTOR, false),
+			createButton(result, SWT.RADIO, Messages.SearchPage_searchFor_field, FIELD, false)
 		};
 
 		// Fill with dummy radio buttons
@@ -209,7 +264,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 
 	private Control createLimitTo(Composite parent) {
 		fLimitToGroup= new Group(parent, SWT.NONE);
-		fLimitToGroup.setText(SearchMessages.SearchPage_limitTo_label);
+		fLimitToGroup.setText(Messages.SearchPage_limitTo_label);
 		fLimitToGroup.setLayout(new GridLayout(2, false));
 
 		fillLimitToGroup(TYPE, ALL_OCCURRENCES);
@@ -226,7 +281,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 
 		// Pattern text + info
 		Label label= new Label(result, SWT.LEFT);
-		label.setText(SearchMessages.SearchPage_expression_label);
+		label.setText(Messages.SearchPage_expression_label);
 		label.setLayoutData(new GridData(GridData.FILL, GridData.FILL, false, false, 2, 1));
 
 		// Pattern combo
@@ -252,7 +307,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 
 		// Ignore case checkbox
 		fCaseSensitive= new Button(result, SWT.CHECK);
-		fCaseSensitive.setText(SearchMessages.SearchPage_expression_caseSensitive);
+		fCaseSensitive.setText(Messages.SearchPage_expression_caseSensitive);
 		fCaseSensitive.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				fIsCaseSensitive= fCaseSensitive.getSelection();
@@ -287,7 +342,8 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 			return false;
 		}
 		// --- TODO: Need a different check here for deciding if pattern is valid.
-		return SearchPattern.createPattern(getPattern(), getSearchFor(), getLimitTo(), SearchPattern.R_EXACT_MATCH) != null;
+		//return SearchPattern.createPattern(getPattern(), getSearchFor(), getLimitTo(), SearchPattern.R_EXACT_MATCH) != null;
+		return true;
 	}
 	
 	private String getPattern() {
@@ -320,7 +376,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		if (selectionIndex < 0 || selectionIndex >= fPreviousSearchPatterns.size())
 			return;
 
-		SearchPatternData initialData= (SearchPatternData) fPreviousSearchPatterns.get(selectionIndex);
+		SearchPatternData initialData= fPreviousSearchPatterns.get(selectionIndex);
 
 		setSearchFor(initialData.getSearchFor());
 		setLimitTo(initialData.getSearchFor(), initialData.getLimitTo());
@@ -371,21 +427,30 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 			children[i].dispose();
 		}
 
-		ArrayList buttons= new ArrayList();
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_allOccurrences, ALL_OCCURRENCES, limitTo == ALL_OCCURRENCES));
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_declarations, DECLARATIONS, limitTo == DECLARATIONS));
-
-		buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_references, REFERENCES, limitTo == REFERENCES));
+		ArrayList<Button> buttons= new ArrayList<Button>();
+		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_allOccurrences, ALL_OCCURRENCES, limitTo == ALL_OCCURRENCES));
+		Button declarations = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_declarations, DECLARATIONS, limitTo == DECLARATIONS);
+		declarations.setEnabled(false);
+		buttons.add(declarations);
+		Button references = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_references, REFERENCES, limitTo == REFERENCES);
+		references.setEnabled(false);
+		buttons.add(references);
 		if (searchFor == TYPE) {
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_implementors, IMPLEMENTORS, limitTo == IMPLEMENTORS));
+			Button implementors = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_implementors, IMPLEMENTORS, limitTo == IMPLEMENTORS);
+			implementors.setEnabled(false);
+			buttons.add(implementors);
 		}
 
 		if (searchFor == FIELD) {
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_readReferences, READ_ACCESSES, limitTo == READ_ACCESSES));
-			buttons.add(createButton(fLimitToGroup, SWT.RADIO, SearchMessages.SearchPage_limitTo_writeReferences, WRITE_ACCESSES, limitTo == WRITE_ACCESSES));
+			Button read_access = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_readReferences, READ_ACCESSES, limitTo == READ_ACCESSES);
+			read_access.setEnabled(false);
+			buttons.add(read_access);
+			Button write_access = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_writeReferences, WRITE_ACCESSES, limitTo == WRITE_ACCESSES);
+			write_access.setEnabled(false);
+			buttons.add(write_access);
 		}
 
-		fLimitTo= (Button[]) buttons.toArray(new Button[buttons.size()]);
+		fLimitTo= buttons.toArray(new Button[buttons.size()]);
 
 		SelectionAdapter listener= new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
@@ -407,6 +472,49 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button.setSelection(isSelected);
 		return button;
+	}
+	
+	private IDialogSettings getDialogSettings() {
+		if (fDialogSettings == null) {
+			fDialogSettings= JavaPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
+		}
+		return fDialogSettings;
+	}
+	
+	private void readConfiguration() {
+		IDialogSettings s= getDialogSettings();
+		fIsCaseSensitive= s.getBoolean(STORE_CASE_SENSITIVE);
+
+		try {
+			int historySize= s.getInt(STORE_HISTORY_SIZE);
+			for (int i= 0; i < historySize; i++) {
+				IDialogSettings histSettings= s.getSection(STORE_HISTORY + i);
+				if (histSettings != null) {
+					SearchPatternData data= SearchPatternData.create(histSettings);
+					if (data != null) {
+						fPreviousSearchPatterns.add(data);
+					}
+				}
+			}
+		} catch (NumberFormatException e) {
+			// ignore
+		}
+	}
+	
+	/**
+	 * Stores the current configuration in the dialog store.
+	 */
+	private void writeConfiguration() {
+		IDialogSettings s= getDialogSettings();
+		s.put(STORE_CASE_SENSITIVE, fIsCaseSensitive);
+
+		int historySize= Math.min(fPreviousSearchPatterns.size(), HISTORY_SIZE);
+		s.put(STORE_HISTORY_SIZE, historySize);
+		for (int i= 0; i < historySize; i++) {
+			IDialogSettings histSettings= s.addNewSection(STORE_HISTORY + i);
+			SearchPatternData data= ((SearchPatternData) fPreviousSearchPatterns.get(i));
+			data.store(histSettings);
+		}
 	}
 	
 	protected final void performLimitToSelectionChanged(Button button) {

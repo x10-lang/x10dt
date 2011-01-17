@@ -27,8 +27,10 @@ computation is running, in the same way that <b>this</b> is always bound to the
 instance of the current class (for non-static code), or <b>self</b> is bound to
 the instance of the type currently being constrained.  
 <b>here</b> may denote different places in the same method body, due to
-place-shifting operations. In the following code, <b>here</b> has one value at
-<b>h0</b>, and a different one at <b>h1</b>. 
+place-shifting operations, just as <b>self</b> denotes 
+two different values in <b>List[Int{self!=0}]{self!=null}</b>. In the following
+code, <b>here</b> has one value at 
+<b>h0</b>, and a different one at <b>h1</b> (unless there is only one place).
 <pre>
 val h0 = here;
 at (here.next()) {

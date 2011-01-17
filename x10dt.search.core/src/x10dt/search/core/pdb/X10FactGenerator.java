@@ -89,75 +89,77 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
                      final IResource resource) throws AnalysisException {
     if (context instanceof ISourceEntityContext) {
       final ContextWrapper sourceContext = processResource(resource);
-            
-      final Set<Map.Entry<String, Collection<Source>>> entries = sourceContext.getSourceEntrySet();
-      if (entries.isEmpty()) {
-        final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
-        try {
-          typeManager.initWriter(factBase, context, resource);
-          typeManager.writeDataInFactBase(factBase, context);
-        } finally {
-          typeManager.clearWriter();
-        }
-      } else {
-        for (final Map.Entry<String, Collection<Source>> entry : entries) {
-          final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
-
-          final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
-
-          if (RUNTIME.equals(entry.getKey())) {
-            typeManager.loadIndexingFile(factBase, factContext);
-
-            final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
-            if ((value != null) && !value.isEmpty()) {
-              continue; // We build the type info for the runtime context only one time.
-            }
-          }
-          typeManager.initWriter(factBase, factContext, resource);
-
-          final FactWriterVisitor visitor = typeManager.createNodeVisitor();
-          visitor.setScopeType(entry.getKey());
+      if (sourceContext != null) {
+        final Set<Map.Entry<String, Collection<Source>>> entries = sourceContext.getSourceEntrySet();
+        if (entries.isEmpty()) {
+          final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
           try {
-            for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
-                                                                entry.getValue())) {
-              if (job.ast() != null) {
-                job.ast().visit(visitor);
+            typeManager.initWriter(factBase, context, resource);
+            typeManager.writeDataInFactBase(factBase, context);
+          } finally {
+            typeManager.clearWriter();
+          }
+        } else {
+          for (final Map.Entry<String, Collection<Source>> entry : entries) {
+            final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
+
+            final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
+
+            if (RUNTIME.equals(entry.getKey())) {
+              typeManager.loadIndexingFile(factBase, factContext);
+
+              final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
+              if ((value != null) && !value.isEmpty()) {
+                continue; // We build the type info for the runtime context only one time.
               }
             }
+            typeManager.initWriter(factBase, factContext, resource);
 
-            typeManager.writeDataInFactBase(factBase, factContext);
+            final FactWriterVisitor visitor = typeManager.createNodeVisitor();
+            visitor.setScopeType(entry.getKey());
+            try {
+              for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
+                                                                  entry.getValue())) {
+                if (job.ast() != null) {
+                  job.ast().visit(visitor);
+                }
+              }
 
-            if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
-              typeManager.createIndexingFile(factBase, factContext);
-            }
-            if (fFailedResources.contains(resource)) {
-              fFailedResources.remove(resource);
+              typeManager.writeDataInFactBase(factBase, factContext);
+
+              if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
+                typeManager.createIndexingFile(factBase, factContext);
+              }
+              if (fFailedResources.contains(resource)) {
+                fFailedResources.remove(resource);
+                if (fFailedResources.isEmpty()) {
+                  PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+                    public void run() {
+                      final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+                      MessageDialog.openInformation(shell, Messages.XFG_IndexStatusDialogTitle,
+                                                    Messages.XFG_IndexerStatusDialogMsg);
+                    }
+                  });
+                }
+              }
+            } catch (Throwable except) {
+              SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
+              final Throwable exception = except;
               if (fFailedResources.isEmpty()) {
+                fFailedResources.add(resource);
                 PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
                   public void run() {
                     final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                    MessageDialog.openInformation(shell, Messages.XFG_IndexStatusDialogTitle, 
-                                                  Messages.XFG_IndexerStatusDialogMsg);
+                    DialogsFactory.createErrorBuilder()
+                                  .setDetailedMessage(exception)
+                                  .createAndOpen(shell, Messages.XFG_IndexingProblemDialogTitle,
+                                                 NLS.bind(Messages.XFG_IndexingProblemDialogMsg, resource.getLocation()));
                   }
                 });
               }
+            } finally {
+              typeManager.clearWriter();
             }
-          } catch (Throwable except) {
-            SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
-            final Throwable exception = except;
-            if (fFailedResources.isEmpty()) {
-              fFailedResources.add(resource);
-              PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                public void run() {
-                  final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                  DialogsFactory.createErrorBuilder().setDetailedMessage(exception)
-                                .createAndOpen(shell, Messages.XFG_IndexingProblemDialogTitle, 
-                                               NLS.bind(Messages.XFG_IndexingProblemDialogMsg, resource.getLocation()));
-                }
-              });
-            }
-          } finally {
-            typeManager.clearWriter();
           }
         }
       }
@@ -183,14 +185,15 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         } else {
           context.addToSourcePath(wsRoot.getLocation().append(pathEntry.getPath()).toFile());
         }
-        final IFolder srcFolder = wsRoot.getFolder(pathEntry.getPath());
-        processSourceFolder(context, srcFolder, wsRoot, contextResource);
+        if (pathEntry.getPath().segmentCount() > 1) {
+          processSourceFolder(context, wsRoot.getFolder(pathEntry.getPath()), wsRoot, contextResource);
+        }
         break;
 
       case IClasspathEntry.CPE_LIBRARY:
         try {
           final IPackageFragmentRoot pkgRoot = javaProject.findPackageFragmentRoot(pathEntry.getPath());
-          if (pkgRoot != null) {
+          if ((pkgRoot != null) && pkgRoot.exists()) {
             final File localFile;
             if (pkgRoot.isExternal()) {
               localFile = pathEntry.getPath().toFile();
@@ -236,15 +239,19 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   }
   
   private ContextWrapper processResource(final IResource resource) throws AnalysisException {
-    final IJavaProject javaProject = JavaCore.create(resource.getProject());
-    final ContextWrapper context = new ContextWrapper();
-    final IWorkspaceRoot wsRoot = javaProject.getProject().getWorkspace().getRoot();
-    try {
-      processEntries(context, wsRoot, javaProject.getRawClasspath(), javaProject, resource, false);
-    } catch (CoreException except) {
-      throw new AnalysisException(NLS.bind(Messages.XFG_ResourceAccessError, resource.getFullPath()), except);
+    final IJavaProject javaProject = JavaCore.create(resource.getProject());  
+    if (javaProject.exists() && resource.exists()) {
+      final ContextWrapper context = new ContextWrapper();
+      final IWorkspaceRoot wsRoot = javaProject.getProject().getWorkspace().getRoot();
+      try {
+        processEntries(context, wsRoot, javaProject.getRawClasspath(), javaProject, resource, false);
+      } catch (CoreException except) {
+        throw new AnalysisException(NLS.bind(Messages.XFG_ResourceAccessError, resource.getFullPath()), except);
+      }
+      return context;
+    } else {
+      return null;
     }
-    return context;
   }
   
   private void processSourceFolder(final ContextWrapper context, final IFolder folder, final IWorkspaceRoot wsRoot,

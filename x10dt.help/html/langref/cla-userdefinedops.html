@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc6">
-6</a>&nbsp;&nbsp;User-Defined Operators</h2>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;User-Defined Operators</h2>
 
 
 
@@ -77,8 +77,8 @@ The operator-using code can be written in X10, though a few variations are
 necessary to handle such exotic cases as <b>1+X</b>.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.1">
-6.1</a>&nbsp;&nbsp;Binary Operators</h3>
+     <h3><a name="tth_sEc7.1">
+7.1</a>&nbsp;&nbsp;Binary Operators</h3>
 
 <div class="p"><!----></div>
 Defining the sum <b>P+Q</b> of two polynomials looks much like a method
@@ -141,16 +141,17 @@ This requires the following grammar: <br />
 <em>  
 <table>
 
-<tr><td align="right">MethodDecl    ::= MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
+<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 When X10 attempts to typecheck a binary operator expression like <b>P+Q</b>, it
@@ -173,8 +174,8 @@ attempt to convert both arguments.
 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.2">
-6.2</a>&nbsp;&nbsp;Unary Operators</h3>
+     <h3><a name="tth_sEc7.2">
+7.2</a>&nbsp;&nbsp;Unary Operators</h3>
 
 <div class="p"><!----></div>
 Unary operators are defined in a similar way, with <b>this</b> appearing in the
@@ -193,8 +194,8 @@ The rules for typechecking a unary operation are the same as for methods; the
 complexities of binary operations are not needed.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.3">
-6.3</a>&nbsp;&nbsp;Type Conversions</h3>
+     <h3><a name="tth_sEc7.3">
+7.3</a>&nbsp;&nbsp;Type Conversions</h3>
 
 
 <div class="p"><!----></div>
@@ -221,8 +222,8 @@ class Poly {
 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.4">
-6.4</a>&nbsp;&nbsp;Implicit Type Coercions</h3>
+     <h3><a name="tth_sEc7.4">
+7.4</a>&nbsp;&nbsp;Implicit Type Coercions</h3>
 
 
 <div class="p"><!----></div>
@@ -262,8 +263,8 @@ addition to add it to <b>x</b>.
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.5">
-6.5</a>&nbsp;&nbsp;<b>set</b> and <b>apply</b></h3>
+     <h3><a name="tth_sEc7.5">
+7.5</a>&nbsp;&nbsp;<b>set</b> and <b>apply</b></h3>
 
 
 

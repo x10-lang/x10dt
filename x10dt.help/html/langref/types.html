@@ -72,14 +72,14 @@ and method invocation is implemented by invoking a static function.
 
 <div class="p"><!----></div>
 Functions, called closures or lambda-expressions in other languages, are
-instances of <em>function types&#124;</em> (&#167;). 
-A function has zero or more <em>arguments</em> and a <em>body</em>, which is
-an expression that can reference these arguments and also other
+instances of <em>function types</em> (&#167;). 
+A function has zero or more <em>formal parameters</em> (or <em>arguments</em>) and a
+<em>body</em>, which is 
+an expression that can reference the formal parameters and also other
 variables in the surrounding block. For instance, <b>(x:Int)=&#62;x*y</b>
 is a unary integer function which multiplies its argument by the
 variable <b>y</b> from the surrounding block.  Functions may be freely
-copied from place to place and may be repeatedly applied to a set of
-arguments.
+copied from place to place and may be repeatedly applied. 
 
 <div class="p"><!----></div>
 These runtime entities are classified by <em>types</em>. Types are used in
@@ -97,7 +97,7 @@ mean "e is an element of type T".  For example, <b>1</b> has type
 has type <b>Any</b> (since all entitites have type <b>Any</b>), type
 <b>Int{self != 0}</b> (the type of nonzero integers), type
 <b>Int{self == 1}</b> (the type of integers which are equal to <b>1</b>, which
-contains only one element), etc. 
+contains only one element), and many others. 
 
 <div class="p"><!----></div>
 The basic relationship between types is <em>subtyping</em>: <b>T &lt;: U</b>
@@ -137,14 +137,19 @@ one-dimensional integer-valued arrays; it is an abbreviation for
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">Type   ::= FunctionType </td></tr>
-<tr><td align="right">&#124; ConstrainedType</td></tr>
-<tr><td align="right">FunctionType   ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
+
+<tr><td align="right">Type ::= FunctionType </td></tr>
+<tr><td align="right">&#124; ConstrainedType </td></tr>
+<tr><td align="right">FunctionType ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
+<tr><td align="right">ConstrainedType ::= NamedType </td></tr>
+<tr><td align="right">&#124; AnnotatedType </td></tr>
+<tr><td align="right">&#124; <b>(</b> Type <b>)</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The type <em>TypeName</em> refers to a defined type.  For example, 
+Types may be given by name. 
+For example,  
 <b>Int</b>
 is the type of 32-bit integers.
 Given a class declaration 

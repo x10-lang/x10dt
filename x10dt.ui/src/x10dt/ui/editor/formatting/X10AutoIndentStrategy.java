@@ -274,7 +274,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
 
             boolean endOfComment= false;
 
-            if (afterStartOfBlockComment(d, c.offset)) {
+            if (isAfterStartOfBlockComment(d, c.offset)) {
                 if (contentStart < d.getLength() && d.getChar(contentStart) == '*') {
                     contentStart++;
                     if (contentStart < d.getLength() && d.getChar(contentStart) == ' ') {
@@ -288,18 +288,13 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             c.length= Math.max(contentStart - c.offset, 0);
             int start= reg.getOffset();
             ITypedRegion region= TextUtilities.getPartition(d, fPartitioning, start, true);
+
             if (IX10Partitions.X10_DOC.equals(region.getType()))
                 start= d.getLineInformationOfOffset(region.getOffset()).getOffset();
 
             // process prefix for block comment lines
             if (c.offset > start
-                    && contentStart - 2 >= 0
-                    && (d.getChar(contentStart - 2) == '/' && d.getChar(contentStart - 1) == '*' ||
-                    	contentStart - 3 >= 0 && d.getChar(contentStart - 3) == '/' && d.getChar(contentStart - 2) == '*'
-                            && d.getChar(contentStart - 1) == '*')
-                    // also check that we're not in the middle of a block
-                    // comment (i.e., scan forward finds "*/" prior to "/*", or
-                    // maybe just next line starts with ^\w*\*
+                    && isJustAfterBlockCommentStart(d, contentStart)
                     && inUnendedBlockComment(d, contentStart)) {
                 buf.append(" * ");
                 buf.append(TextUtilities.getDefaultLineDelimiter(d));
@@ -310,25 +305,12 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
                 // characters before where we want it. If we set it to c.offset,
                 // it ends up 'where' characters after we want it. Huh?
                 c.caretOffset= c.offset;
-            } else if (afterStartOfBlockComment(d, c.offset)) {
+            } else if (isAfterStartOfBlockComment(d, c.offset)) {
                 // java indenter doesn't quite get correct indent if no
                 // non-white between comment-start-line and current position: it
                 // indents only until the initial "/" but should do one more position
                 int commentStartLine= firstLineOfBlockComment(d, c.offset);
                 if (commentStartLine >= 0 && commentStartLine < d.getNumberOfLines()) {
-//                    boolean foundNonWhite= false;
-//                    try {
-//                        int nextLineStart= d.getLineOffset(commentStartLine + 1);
-//                        for(int pos= nextLineStart; pos < c.offset; pos++) {
-//                            char ch= d.getChar(pos);
-//                            if (ch != ' ' && ch != '\t' && ch != '\n') {
-//                                foundNonWhite= true;
-//                                break;
-//                            }
-//                        }
-//                    } catch (BadLocationException e) {
-//                    } // If comment started on last line of file, want to put a space as well.
-//                    if (!foundNonWhite)
                 	buf.append(" ");
                 }
 
@@ -381,6 +363,10 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         }
     }
 
+    private boolean isJustAfterBlockCommentStart(IDocument d, int pos) throws BadLocationException {
+        return (pos >= 2 && "/*".equals(d.get(pos - 2, 2)) || pos >= 3 && "/**".equals(d.get(pos - 3, 3)));
+    }
+
     private char firstCharOfLine(IDocument d, int line) {
         try {
             int thisLineOffset= d.getLineOffset(line);
@@ -429,7 +415,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         return true;
     }
 
-    private boolean afterStartOfBlockComment(IDocument d, int offset) throws BadLocationException {
+    private boolean isAfterStartOfBlockComment(IDocument d, int offset) throws BadLocationException {
         int i= offset - 1;
         while (i > 0) {
             if (d.getChar(i - 1) == '*' && d.getChar(i) == '/') {
@@ -678,15 +664,6 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
     	}
     }
 
-//    /**
-//     * Installs a java partitioner with <code>document</code>.
-//     * 
-//     * @param document the document
-//     */
-//    private static void removeJavaStuff(Document document) {
-//        document.setDocumentPartitioner(IJavaPartitions.JAVA_PARTITIONING, null);
-//    }
-
     private void smartPaste(IDocument document, DocumentCommand command) {
         int newOffset= command.offset;
         int newLength= command.length;
@@ -700,77 +677,57 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
             if (refOffset == X10HeuristicScanner.NOT_FOUND)
                 return;
             int peerOffset= getPeerPosition(document, command);
+
             peerOffset= indenter.findReferencePosition(peerOffset);
             refOffset= Math.min(refOffset, peerOffset);
+
             // eat any WS before the insertion to the beginning of the line
-            int firstLine= 1; // don't format the first line per default, as it
-            // has other content before it
+            int firstLine= 1; // don't format the first line per default, as it has other content before it
             IRegion line= document.getLineInformationOfOffset(offset);
             String notSelected= document.get(line.getOffset(), offset - line.getOffset());
+
             if (notSelected.trim().length() == 0) {
                 newLength+= notSelected.length();
                 newOffset= line.getOffset();
                 firstLine= 0;
             }
-            // prefix: the part we need for formatting but won't paste
+
             IRegion refLine= document.getLineInformationOfOffset(refOffset);
+            /** prefix: the part we need for formatting but won't paste */
             String prefix= document.get(refLine.getOffset(), newOffset - refLine.getOffset());
-            // handle the indentation computation inside a temporary document
-            Document temp= new Document(prefix + newText);
-            DocumentRewriteSession session= temp.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
-            scanner= new X10HeuristicScanner(temp);
-            indenter= new X10Indenter(temp, scanner, fProject);
-//            installJavaStuff(temp);
-            // indent the first and second line
-            // compute the relative indentation difference from the second line
-            // (as the first might be partially selected) and use the value to
-            // indent all other lines.
-            boolean isIndentDetected= false;
-            StringBuffer addition= new StringBuffer();
-            int insertLength= 0;
+            /** handle the indentation computation inside a temporary document */
+            Document tempDoc= new Document(prefix + newText);
+            DocumentRewriteSession session= tempDoc.startRewriteSession(DocumentRewriteSessionType.STRICTLY_SEQUENTIAL);
+
+            scanner= new X10HeuristicScanner(tempDoc);
+            indenter= new X10Indenter(tempDoc, scanner, fProject);
+
             int first= document.computeNumberOfLines(prefix) + firstLine; // don't format first line
-            int lines= temp.getNumberOfLines();
-			int tabLength= getVisualTabLengthPreference();
-            boolean changed= false;
+            int lines= tempDoc.getNumberOfLines();
+
             for(int l= first; l < lines; l++) { // we don't change the number of lines while adding indents
-                IRegion r= temp.getLineInformation(l);
+                IRegion r= tempDoc.getLineInformation(l);
                 int lineOffset= r.getOffset();
                 int lineLength= r.getLength();
+
                 if (lineLength == 0) // don't modify empty lines
                     continue;
-                if (!isIndentDetected) {
-                    // indent the first pasted line
-                    String current= getCurrentIndent(temp, l);
-                    StringBuffer correct= indenter.computeIndentation(lineOffset);
-                    if (correct == null)
-                        return; // bail out
-                    insertLength= subtractIndent(correct, current, addition, tabLength);
-                    if (l != first && temp.get(lineOffset, lineLength).trim().length() != 0) {
-                        isIndentDetected= true;
-                        if (insertLength == 0) {
-                            // no adjustment needed, bail out
-                            if (firstLine == 0) {
-                                // but we still need to adjust the first line
-                                command.offset= newOffset;
-                                command.length= newLength;
-                                if (changed)
-                                    break; // still need to get the leading indent of the first line
-                            }
-                            return;
-                        }
-//                        removeJavaStuff(temp);
-                    } else {
-                        changed= insertLength != 0;
-                    }
-                }
-                // relatively indent all pasted lines
-                if (insertLength > 0)
-                    addIndent(temp, l, addition, tabLength);
-                else if (insertLength < 0)
-                    cutIndent(temp, l, -insertLength, tabLength);
+
+                // Replace the existing indentation with the desired indentation.
+                // Use the language-specific AutoEditStrategy, which requires a DocumentCommand.
+                DocumentCommand cmd= new DocumentCommand() { };
+                cmd.offset= lineOffset;
+                cmd.length= 0;
+                cmd.text= Character.toString('\t');
+                cmd.doit= true;
+                cmd.shiftsCaret= false;
+
+                customizeDocumentCommand(tempDoc, cmd);
+
+                tempDoc.replace(cmd.offset, cmd.length, cmd.text);
             }
-            temp.stopRewriteSession(session);
-            newText= temp.get(prefix.length(), temp.getLength() - prefix.length());
+            tempDoc.stopRewriteSession(session);
+            newText= tempDoc.get(prefix.length(), tempDoc.getLength() - prefix.length());
             command.offset= newOffset;
             command.length= newLength;
             command.text= newText;

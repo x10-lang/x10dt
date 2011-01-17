@@ -11,137 +11,161 @@
 
 package x10dt.ui.editor;
 
+import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.bindings.keys.KeyStroke;
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.jface.bindings.keys.ParseException;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.swt.finder.SWTBot;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.keyboard.Keystrokes;
 import org.eclipse.swtbot.swt.finder.utils.Position;
-import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.ui.IEditorPart;
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
-import x10dt.tests.services.swbot.utils.SWTBotUtils;
-import x10dt.ui.tests.X10DTTestBase;
 import x10dt.ui.tests.utils.EditorMatcher;
 
 /**
  * @author rfuhrer@watson.ibm.com
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class QuickOutlineTests extends X10DTTestBase {
-    /**
-     * The bot for the editor used to test the quick outline view.
-     */
-    protected SWTBotEclipseEditor fSrcEditor;
+public class QuickOutlineTests extends X10DTEditorTestBase {
+  private static int testID = 0;
 
-    private static final String PROJECT_NAME= "TestOutline"; // probably shouldn't conflict w/ projects used by other tests
-    private static final String CLASS_NAME= "Test";
-    private static final String SRC_FILE_NAME= CLASS_NAME + ".x10";
+  private static final String PROJECT_NAME = "TestOutline";
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        SWTBotPreferences.KEYBOARD_STRATEGY= "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
-        topLevelBot= new SWTWorkbenchBot();
-        SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
-//      SWTBotPreferences.TIMEOUT = 10000;
+  private static final String CLASS_NAME = "Hello1";
+
+  private static final String SRC_FILE_NAME = CLASS_NAME + ".x10";
+
+  private static final String MAIN_SIGNATURE= "main(Array[String])";
+
+  private static final String MAIN_SIGNATURE_ELABORATED= "main(x10.array.Array[x10.lang.String])";
+
+  @BeforeClass
+  public static void beforeClass() throws Exception {
+    X10DTEditorTestBase.BeforeClass();
+    //createJavaBackEndProject(PROJECT_NAME, false);
+    topLevelBot.shells()[0].activate();
+  }
+
+  @After
+  public void after() throws Exception {
+      afterTest();
+  }
+
+  @AfterClass
+  public static void afterClass() throws Exception {
+      X10DTEditorTestBase.AfterClass();
+  }
+
+  //@Test
+  public void test() throws Exception {
+	  for (int i = 0; i < 50; i++){
+		  test1();
+		  after();
+	  }
+  }
+  
+  @Test
+  public void test1() throws Exception {
+	String projName= PROJECT_NAME + testID++;
+
+	createJavaBackEndProject(projName, false);  
+    ProjectUtils.createClass(topLevelBot, CLASS_NAME, projName + "/src", false);
+    topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(SRC_FILE_NAME)));
+
+    fSrcEditor = topLevelBot.activeEditor().toTextEditor();
+    junit.framework.Assert.assertEquals(SRC_FILE_NAME, fSrcEditor.getTitle());
+
+    final IEditorPart editorPart = fSrcEditor.getReference().getEditor(false);
+    final UniversalEditor univEditor = (UniversalEditor) editorPart;
+
+    univEditor.addModelListener(fUpdateListener);
+
+    part1();
+    for(int i=0; i < 25; i++) {
+        part2(i);
     }
+  }
 
-    @Test
-    public void test1() throws Exception {
-        topLevelBot.shells()[0].activate(); // HACK - make sure the main window's shell is active, in case we ran after other tests 
+  private void part1() throws Exception {
+    insertMethodsAndNavigate(MAIN_SIGNATURE, MAIN_SIGNATURE_ELABORATED, "foo()", "foo()", 1);
+  }
 
-        ProjectUtils.createX10ProjectWithJavaBackEndFromTopMenu(topLevelBot, PROJECT_NAME);
-        ProjectUtils.createClass(topLevelBot, CLASS_NAME);
+  private void part2(int idx) throws Exception {
+    String method1Signature = "bar" + idx + "()";
+    String method2Signature = "bletch" + idx + "()";
+    int insertLine = 3 + 2 * idx;
 
-        topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(SRC_FILE_NAME)));
+    insertMethodsAndNavigate(method1Signature, method1Signature, method2Signature, method2Signature, insertLine);
+  }
 
-        fSrcEditor= topLevelBot.activeEditor().toTextEditor();
-        junit.framework.Assert.assertEquals(SRC_FILE_NAME, fSrcEditor.getTitle());
+  private void insertMethodsAndNavigate(String method1Signature, String method1ElaboratedSignature,
+                                        String method2Signature, String method2ElaboratedSignature, int insertLine) throws Exception {
+      fUpdateListener.reset();
 
-        part1();
-        part2();
+      fSrcEditor.setFocus();
+      fSrcEditor.insertText(insertLine,   0, "public static def " + method1Signature + " { }\n");
+      fSrcEditor.insertText(insertLine+1, 0, "public static def " + method2Signature + " { }\n");
 
-        if (fSrcEditor.isDirty()) {
-            fSrcEditor.save();
-        }
+      waitForParser();
+      fSrcEditor.navigateTo(0, 0); // Go to the beginning so that quick-outline navigation has to move the cursor
+
+      try {
+          SWTBot outlineBot = invokeQuickOutline(topLevelBot);
+          SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
+          SWTBotTreeItem meth2Item = classItem.getNode(method2ElaboratedSignature);
+
+          classItem.getNode(method1ElaboratedSignature);
+          meth2Item.doubleClick();
+      } catch (WidgetNotFoundException e) {
+          SWTBot outlineBot = invokeQuickOutline(topLevelBot); // OK to repeat because this resets the focus to editor.
+          SWTBotTreeItem classItem = outlineBot.tree().getTreeItem(CLASS_NAME);
+          SWTBotTreeItem meth2Item = classItem.getNode(method2ElaboratedSignature);
+
+          classItem.getNode(method1ElaboratedSignature);
+          meth2Item.doubleClick();
+      }
+
+      Position cursorPos = fSrcEditor.cursorPosition();
+
+      junit.framework.Assert.assertEquals("Cursor positioned at incorrect line after quick outline item selection",
+                                          insertLine + 1, cursorPos.line);
+      junit.framework.Assert.assertEquals("Cursor positioned at incorrect column after quick outline item selection",
+                                          1, cursorPos.column);
+  }
+
+  private SWTBot invokeQuickOutline(SWTBot bot) throws Exception {
+	fSrcEditor.setFocus(); // Needed to make this method repeatable.
+	submitQuickOutlineShortcut();
+
+	SWTBotShell outlineShell = null;
+
+	try {
+		outlineShell = topLevelBot.shell(WizardConstants.QUICK_OUTLINE_SHELL); // TODO Fix this
+	} catch (WidgetNotFoundException e) {
+    	submitQuickOutlineShortcut();
+    	outlineShell = topLevelBot.shell(WizardConstants.QUICK_OUTLINE_SHELL);
     }
+    outlineShell.activate();
 
-    private void part1() throws Exception {
-        fSrcEditor.insertText(1, 0, "public static def main(args: Rail[String]!) { }\n");
-        fSrcEditor.insertText(2, 0, "public static def foo() { }\n");
+    return outlineShell.bot();
+  }
 
-        // BUG Need to find a better way of determining when the AST has been updated
-        // Perhaps there should be an IMP API for this?
-        topLevelBot.sleep(3000);
-
-        SWTBot outlineBot= invokeQuickOutline(topLevelBot);
-
-        SWTBotTreeItem classItem= outlineBot.tree().getTreeItem(CLASS_NAME);
-        SWTBotTreeItem mainItem= classItem.getNode("main(x10.lang.Rail[x10.lang.String]{self.home==here})");
-
-        classItem.getNode("foo()");
-        mainItem.doubleClick();
-
-        Position cursorPos= fSrcEditor.cursorPosition();
-
-        junit.framework.Assert.assertEquals("Cursor positioned at incorrect line after quick outline item selection", 1, cursorPos.line);
-        junit.framework.Assert.assertEquals("Cursor positioned at incorrect column after quick outline item selection", 1, cursorPos.column);
-    }
-
-    private void part2() throws Exception {
-        fSrcEditor.insertText(3, 0, "public static def bar() { }\n");
-        fSrcEditor.insertText(4, 0, "public static def bletch() { }\n");
-
-        // BUG Need to find a better way of determining when the AST has been updated
-        // Perhaps there should be an IMP API for this?
-        topLevelBot.sleep(3000);
-
-        SWTBot outlineBot= invokeQuickOutline(topLevelBot);
-
-        SWTBotTreeItem classItem= outlineBot.tree().getTreeItem(CLASS_NAME);
-
-        classItem.getNode("bar()");
-
-        SWTBotTreeItem bletchItem= classItem.getNode("bletch()");
-
-        bletchItem.doubleClick();
-
-        Position cursorPos= fSrcEditor.cursorPosition();
-
-        junit.framework.Assert.assertEquals("Cursor positioned at incorrect line after quick outline item selection", 4, cursorPos.line);
-        junit.framework.Assert.assertEquals("Cursor positioned at incorrect column after quick outline item selection", 1, cursorPos.column);
-    }
-
-    private SWTBot invokeQuickOutline(SWTBot bot) throws Exception {
-        fSrcEditor.pressShortcut(Keystrokes.COMMAND, KeyStroke.getInstance("o"));
-
-        // ... or the following (invoking the command programmatically):
-//      UIThreadRunnable.syncExec(bot.getDisplay(), new VoidResult() {
-//          public void run() {
-//              try {
-//                  IWorkbenchPart part= srcEditor.getReference().getPart(false);
-//                  IHandlerService svc= (IHandlerService) part.getSite().getService(IHandlerService.class);
-//
-//                  svc.executeCommand(IJavaEditorActionDefinitionIds.SHOW_OUTLINE, null);
-//              } catch (ExecutionException e) {
-//              } catch (NotDefinedException e) {
-//              } catch (NotEnabledException e) {
-//              } catch (NotHandledException e) {
-//              }
-//          }
-//      });
-        SWTBotShell outlineShell= topLevelBot.shell(WizardConstants.QUICK_OUTLINE_SHELL);
-
-        outlineShell.activate();
-
-        return outlineShell.bot();
-    }
+  private void submitQuickOutlineShortcut() throws ParseException {
+    if (System.getProperty("os.name").toLowerCase().indexOf("mac") >= 0) {
+		fSrcEditor.pressShortcut(Keystrokes.COMMAND, KeyStroke.getInstance("o"));
+	} else {
+		fSrcEditor.pressShortcut(Keystrokes.CTRL, KeyStroke.getInstance("o"));
+	}
+  }
 }

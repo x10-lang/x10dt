@@ -32,10 +32,7 @@ public class X10Initializer extends PreferencesInitializer {
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE, false);
 		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_ADDITIONALCOMPILEROPTIONS, "");
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_OPTIMIZE, false);
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_LOOPOPTIMIZATIONS, true);
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INLINEOPTIMIZATIONS, false);
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_CLOSUREINLINING, true);
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_WORKSTEALING, false);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DISABLECHECKING, false);
 		service.setStringPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEFAULTRUNTIME, "");
 		service.setIntPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_NUMBEROFPLACES, 4);
 	}

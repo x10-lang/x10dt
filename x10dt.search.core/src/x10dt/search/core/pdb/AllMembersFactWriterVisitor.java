@@ -13,6 +13,7 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
 import polyglot.ast.ClassDecl;
@@ -33,7 +34,16 @@ final class AllMembersFactWriterVisitor extends FactWriterVisitor {
       final ClassDef classDef = ((ClassDecl) node).classDef();
       final ClassType classType = classDef.asType();
       final IValue typeNameValue = createTypeName(classType.fullName().toString());
-      insertValue(X10_AllTypes, getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position())));
+      final ITuple tuple;
+      if (classDef.outer() == null) {
+        tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
+                                        createModifiersCodeValue(classType.flags()));
+      } else {
+        final IValue outerTypeNameValue = createTypeName(classDef.outer().get().asType().fullName().toString());
+        tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
+                                        createModifiersCodeValue(classType.flags()), outerTypeNameValue);
+      }
+      insertValue(X10_AllTypes, tuple);
       
       final List<MethodDef> methodDefs = classDef.methods();
       final IValue[] methods = new IValue[methodDefs.size()];

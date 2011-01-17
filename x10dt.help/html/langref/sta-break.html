@@ -24,16 +24,16 @@
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">BreakStatement    ::= <b>break</b> Id<sup>?</sup>&nbsp;<b>;</b> </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">BreakStatement ::= <b>break</b> Id<sup>?</sup>&nbsp;<b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-An unlabeled break statement exits the currently enclosing loop or switch
+An unlabeled break statement exits the currently enclosing
 statement. An labeled break statement exits the enclosing loop or switch
 statement with the given label.
-It is illegal to break out of a loop not defined in the current
+It is illegal to break out of a statement not defined in the current
 method, constructor, initializer, or closure.  
 
 <div class="p"><!----></div>
@@ -43,8 +43,8 @@ array and breaks out of the loop when it is found:
 <div class="p"><!----></div>
 <pre>
 var found: Boolean = false;
-outer: for (var i: Int = 0; i &lt; a.length; i++)
-    for (var j: Int = 0; j &lt; a(i).length; j++)
+outer: for (var i: Int = 0; i &lt; a.size; i++)
+    for (var j: Int = 0; j &lt; a(i).size; j++)
         if (a(i)(j) == v) {
             found = true;
             break outer;

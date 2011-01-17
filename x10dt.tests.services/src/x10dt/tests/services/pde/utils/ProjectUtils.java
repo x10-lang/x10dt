@@ -24,7 +24,6 @@ import java.util.List;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -35,6 +34,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
+import org.osgi.framework.Bundle;
 
 import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.tests.services.TestsServicesActivator;
@@ -46,6 +46,54 @@ import x10dt.ui.launch.core.LaunchCore;
  * @author egeay
  */
 public final class ProjectUtils {
+  
+  /**
+   * Copies some file content into the project source folder root and adds it to the Eclipse project model. 
+   * 
+   * @param project The project name to use.
+   * @param bundle The bundle to consider for accessing the resources.
+   * @param bundleEntryPath The path to use for collecting the resources within the bundle.
+   * @throws CoreException Occurs if we could not create the project or some its structures.
+   * @throws URISyntaxException May occur when accessing the data folder location.
+   * @throws IOException Occurs if we could not copy the sources to the target destination.
+   */
+  public static void addFileToProject(final IProject project, final Bundle bundle, 
+                                      final String bundleEntryPath) throws URISyntaxException, IOException, CoreException {
+   final URL url = bundle.getEntry(bundleEntryPath);
+   assertNotNull(NLS.bind("Could not find ''{0}'' for bundle ''{1}''", bundleEntryPath, bundle.getSymbolicName()), url); //$NON-NLS-1$
+   final URL finalURL;
+   if (TestsServicesActivator.getContext() == null) {
+     finalURL = url;
+   } else {
+     finalURL = FileLocator.resolve(url);
+   }
+   final File dataFile = new File(finalURL.toURI());
+   final Collection<File> files = new ArrayList<File>();
+   if (dataFile.isDirectory()) {
+     for (final File file : dataFile.listFiles()) {
+       files.add(file);
+     }
+   } else {
+     files.add(dataFile);
+   }
+   final File srcFolder = new File(project.getLocation().toFile(), "src"); //$NON-NLS-1$
+   for (final File file : files) {
+     if (file.isFile()) {
+       final InputStream in = new FileInputStream(file);
+       final OutputStream out = new FileOutputStream(new File(srcFolder, file.getName()));
+       try {
+         byte[] buf = new byte[1024];
+         int len;
+         while ((len = in.read(buf)) > 0) {
+           out.write(buf, 0, len);
+         }
+       } finally {
+         in.close();
+         out.close();
+       }
+     }
+   }
+ }
   
   /**
    * Creates an X10 project with C++ back-end with the name provided.
@@ -63,18 +111,18 @@ public final class ProjectUtils {
    * directory.
    * 
    * @param name The project name to use.
-   * @param classLoader The class loader to use for accessing the data.
-   * @param data The data folder to consider for accessing the sources.
+   * @param bundle The bundle to consider for accessing the resources.
+   * @param bundleEntryPath The path to use for collecting the resources within the bundle.
    * @return A non-null {@link IProject} instance once it has been created and populated.
    * @throws CoreException Occurs if we could not create the project or some its structures.
    * @throws URISyntaxException May occur when accessing the data folder location.
    * @throws IOException Occurs if we could not copy the sources to the target destination.
    */
-  public static IProject createX10ProjectCppBackEnd(final String name, final ClassLoader classLoader,
-                                                    final String data) throws CoreException, URISyntaxException, IOException {
+  public static IProject createX10ProjectCppBackEnd(final String name, final Bundle bundle,
+                                                    final String bundleEntryPath) throws CoreException, URISyntaxException, 
+                                                                                         IOException {
     final IProject project = createX10Project(name, LaunchCore.X10_CPP_PRJ_NATURE_ID);
-    addDataToProject(project, classLoader, data);
-    project.refreshLocal(IResource.DEPTH_INFINITE, null);
+    addFileToProject(project, bundle, bundleEntryPath);
     return project;
   }
   
@@ -94,58 +142,22 @@ public final class ProjectUtils {
    * directory.
    * 
    * @param name The project name to use.
-   * @param classLoader The class loader to use for accessing the data.
-   * @param data The data folder to consider for accessing the sources.
+   * @param bundle The bundle to consider for accessing the resources.
+   * @param bundleEntryPath The path to use for collecting the resources within the bundle.
    * @return A non-null {@link IProject} instance once it has been created and populated.
    * @throws CoreException Occurs if we could not create the project or some its structures.
    * @throws URISyntaxException May occur when accessing the data folder location.
    * @throws IOException Occurs if we could not copy the sources to the target destination.
    */
-  public static IProject createX10ProjectJavaBackEnd(final String name, final ClassLoader classLoader, 
-                                                     final String data) throws CoreException, URISyntaxException, IOException {
+  public static IProject createX10ProjectJavaBackEnd(final String name, final Bundle bundle,
+                                                     final String bundleEntryPath) throws CoreException, URISyntaxException, 
+                                                                                          IOException {
     final IProject project = createX10Project(name, LaunchCore.X10_PRJ_JAVA_NATURE_ID);
-    addDataToProject(project, classLoader, data);
-    project.refreshLocal(IResource.DEPTH_INFINITE, null);
+    addFileToProject(project, bundle, bundleEntryPath);
     return project;
   }
   
   // --- Private code
-  
-  private static void addDataToProject(final IProject project, final ClassLoader classLoader, 
-                                       final String data) throws URISyntaxException, IOException {
-    final URL url = classLoader.getResource(data);
-    assertNotNull(NLS.bind("Could not find ''{0}'' with class loader transmitted.", data), url); //$NON-NLS-1$
-    final URL finalURL;
-    if (TestsServicesActivator.getContext() == null) {
-      finalURL = url;
-    } else {
-      finalURL = FileLocator.resolve(url);
-    }
-    final File dataFile = new File(finalURL.toURI());
-    final Collection<File> files = new ArrayList<File>();
-    if (dataFile.isDirectory()) {
-      for (final File file : dataFile.listFiles()) {
-        files.add(file);
-      }
-    } else {
-      files.add(dataFile);
-    }
-    final File srcFolder = new File(project.getLocation().toFile(), "src"); //$NON-NLS-1$
-    for (final File file : files) {
-      final InputStream in = new FileInputStream(file);
-      final OutputStream out = new FileOutputStream(new File(srcFolder, file.getName()));
-      try {
-        byte[] buf = new byte[1024];
-        int len;
-        while ((len = in.read(buf)) > 0) {
-          out.write(buf, 0, len);
-        }
-      } finally {
-        in.close();
-        out.close();
-      }
-    }
-  }
   
   private static IProject createX10Project(final String name, final String backEndNature) throws CoreException {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);

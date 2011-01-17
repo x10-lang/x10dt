@@ -9,6 +9,7 @@ package x10dt.ui.launch.cpp.editors;
 
 import java.util.Arrays;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -71,12 +72,12 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   // --- IConnectionTypeListener's interface methods implementation
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
-                                final EValidationStatus validationStatus, final boolean newCurrent) {
+                                final EValidationStatus validationStatus, final boolean shouldDeriveInfo) {
     final boolean shouldEnable = isLocal || validationStatus == EValidationStatus.VALID;
     this.fCompilerBrowseBt.setEnabled(shouldEnable);
     this.fArchiverBrowseBt.setEnabled(shouldEnable);
     this.fLinkerBrowseBt.setEnabled(shouldEnable);
-    if (shouldEnable && newCurrent) {
+    if (shouldEnable && shouldDeriveInfo) {
       selectOsAndArchitecture();
       checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
     }
@@ -335,7 +336,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     
     this.fDebugBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_UseMPILibForDebugger, SWT.CHECK);
     this.fDebugBt.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE, 1, 3));
-    this.fDebugBt.setSelection(true);
+    this.fDebugBt.setSelection(false);
     final String serviceTypeId = getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId();
     this.fDebugBt.setEnabled(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId));
     
@@ -540,23 +541,24 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     final boolean is64Arch = bitsArchBt.getSelection();
     final String serviceTypeId = getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId();
     final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, targetOS);
+    final IProject project = getPlatformConf().getConfFile().getProject();
     
     final IDefaultCPPCommands defaultCPPCommands;
     switch (targetOS) {
       case AIX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, architecture, transport);
         break;
       case LINUX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, architecture, transport);
         break;
       case MAC:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, architecture, transport);
         break;
       case WINDOWS:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, architecture, transport);
         break;
       default:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, architecture, transport);
     }
     compilerText.setText(defaultCPPCommands.getCompiler());
     compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());

@@ -82,6 +82,8 @@ public abstract class AbstractConvertX10ProjectAction implements IObjectActionDe
           newDescr.setNatureIds(natureIds);
 
           project.setDescription(newDescr, new NullProgressMonitor());
+          
+          converter.postProjectSetup(this.fShellProvider, project);
         } catch (CoreException except) {
           DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
                         .createAndOpen(this.fShellProvider, Messages.ACXPA_ConversionFailureTitle, 

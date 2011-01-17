@@ -18,7 +18,7 @@
 
 <body>
  <h1><a name="tth_chAp1">
-Chapter 3 </a><br />Lexical structure</h1>
+Chapter 3 </a><br />Lexical and Grammatical structure</h1>
 
 <div class="p"><!----></div>
 Lexically a program consists of a stream of white space, comments,
@@ -62,25 +62,76 @@ and type-tags of numeric literals - 0xbabe = 0XBABE.)
 <b>Keywords&nbsp;&nbsp;</b>
 
 X10 uses the following keywords:
-<pre>
-abstract       false          offers         transient      
-as             final          operator       true           
-assert         finally        package        try            
-async          finish         private        var            
-ateach         for            property       when           
-break          goto           protected      while          
-case           if             public         at (*)         
-catch          implements     return         atomic (*)     
-class          import         self           await (*)      
-continue       in             static         clocked (*)    
-def            instanceof     struct         here (*)       
-default        interface      super          next (*)       
-do             native         switch         offer (*)      
-else           new            this           resume (*)     
-extends        null           throw          type (*)       
-</pre>
-Keywords marked with a <b>(*)</b> are <em>soft</em> keywords, which may also be
-used as identifiers.  The other keywords may not be used as identifiers.
+<table>
+<tr><td align="left"><b>abstract</b></td>
+    <td><b>as</b></td>
+    <td><b>assert</b></td></tr>
+<tr><td align="left"><b>async</b></td>
+    <td><b>at</b></td>
+    <td><b>ateach</b></td></tr>
+<tr><td align="left"><i>atomic</i></td>
+    <td><b>break</b></td>
+    <td><b>case</b></td></tr>
+<tr><td align="left"><b>catch</b></td>
+    <td><b>class</b></td>
+    <td><b>clocked</b></td></tr>
+<tr><td align="left"><b>continue</b></td>
+    <td><b>def</b></td>
+    <td><b>default</b></td></tr>
+<tr><td align="left"><b>do</b></td>
+    <td><b>else</b></td>
+    <td><b>extends</b></td></tr>
+<tr><td align="left"><b>false</b></td>
+    <td><b>final</b></td>
+    <td><b>finally</b></td></tr>
+<tr><td align="left"><b>finish</b></td>
+    <td><b>for</b></td>
+    <td><b>goto</b></td></tr>
+<tr><td align="left"><b>haszero</b></td>
+    <td><i>here</i></td>
+    <td><b>if</b></td></tr>
+<tr><td align="left"><b>implements</b></td>
+    <td><b>import</b></td>
+    <td><b>in</b></td></tr>
+<tr><td align="left"><b>instanceof</b></td>
+    <td><b>interface</b></td>
+    <td><b>native</b></td></tr>
+<tr><td align="left"><b>new</b></td>
+    <td><i>next</i>/td>
+    <td><b>null</b></td></tr>
+<tr><td align="left"><i>offer</i></td>
+    <td><b>offers</b></td>
+    <td><b>operator</b></td></tr>
+<tr><td align="left"><b>package</b></td>
+    <td><b>private</b></td>
+    <td><b>property</b></td></tr>
+<tr><td align="left"><b>protected</b></td>
+    <td><b>public</b></td>
+    <td><i>resume</i></td></tr>
+<tr><td align="left"><b>return</b></td>
+    <td><b>self</b></td>
+    <td><b>static</b></td></tr>
+<tr><td align="left"><b>struct</b></td>
+    <td><b>super</b></td>
+    <td><b>switch</b></td></tr>
+<tr><td align="left"><b>this</b></td>
+    <td><b>throw</b></td>
+    <td><b>transient</b></td></tr>
+<tr><td align="left"><b>true</b></td>
+    <td><b>try</b></td>
+    <td><b>type</b></td></tr>
+<tr><td align="left"><b>val</b></td>
+    <td><b>var</b></td>
+    <td><b>void</b></td></tr>
+<tr><td align="left"><b>when</b></td> 
+    <td><b>while</b>
+</td></tr></table>
+
+
+<div class="p"><!----></div>
+Keywords in <em>italics</em> are <em>soft</em> keywords, which may also be
+used as identifiers.  The other keywords, in <b>bold</b>, are <em>hard</em>
+keywords and  may not be used as identifiers.
 
 <div class="p"><!----></div>
 Note that the primitive types are not considered keywords.
@@ -155,7 +206,7 @@ f = b x</td></tr></table></td></tr></table>
 </li>
 
 <li> <b>Long</b> literals have the form si<tt>l</tt> or
-      si<tt>L</tt>. <em>E.g.</em>, <b>1234567890L</b>  and <b>0xBAGEL</b> are <b>Long</b> literals.
+      si<tt>L</tt>. <em>E.g.</em>, <b>1234567890L</b>  and <b>0xBABEL</b> are <b>Long</b> literals.
 <div class="p"><!----></div>
 </li>
 
@@ -292,6 +343,99 @@ X10 has the following operator,  type constructor, and miscellaneous symbols.  (
 </pre>
 
 <div class="p"><!----></div>
+The precedence of the binary operators is as follows.  Earlier rows of the
+table have higher precedence than later rows, binding more tightly.  
+For example, <b>a+b*c&lt;d</b> parses as <b>(a+(b*c))&lt;d</b>.
+
+<div class="p"><!----></div>
+
+<table>
+<tr><td align="left"><b>? :</b> </td></tr>
+<tr><td align="left"><b>&#124;&#124;</b> </td></tr>
+<tr><td align="left"><b>&amp;&amp;</b> </td></tr>
+<tr><td align="left"><b>&#124;</b> </td></tr>
+<tr><td align="left"><b>^</b> </td></tr>
+<tr><td align="left"><b>&amp;</b> </td></tr>
+<tr><td align="left"><b>in</b> </td></tr>
+<tr><td align="left"><b>==    </b>   <b>!=</b> </td></tr>
+<tr><td align="left"><b>instanceof</b> </td></tr>
+<tr><td align="left"><b>&#62;     </b> <b>&#62;=    </b> <b>&lt;    </b> <b>&lt;=</b> </td></tr>
+<tr><td align="left"><b>&lt;&lt;    </b> <b>&#62;&#62;    </b> <b>&#62;&#62;&#62;   </b> <b>-&#62;</b> </td></tr>
+<tr><td align="left"><b>+</b> <b>     -</b> </td></tr>
+<tr><td align="left"><b>*     </b>  <b>/     </b>  <b>%</b> </td></tr>
+<tr><td align="left"><b>..</b></td></tr></table>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Grammatical Notation</h2>
+
+<div class="p"><!----></div>
+In this manual, ordinary BNF notation is used to specify grammatical
+constructions, with a few minor extensions. 
+Grammatical rules look like this: <br />
+
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">Adj ::= Adv<sup>?</sup>&nbsp;<b>happy</b></td></tr>
+<tr><td align="right">&#124; Adv<sup>?</sup>&nbsp;<b>sad</b></td></tr>
+<tr><td align="right">Adv ::= <b>very</b></td></tr>
+<tr><td align="right">&#124; Adv Adv 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+Terms in <em>italics</em> are called <b>non-terminals</b>.  They 
+represent kinds of phrases; for example, <em>ForStatement</em>
+() describes all <b>for</b> statements.  
+Equation numbers refer to the full X10 grammar, in &#167;.  
+The small example has two non-terminals, <em>Adv</em> and <em>Adj</em>.  
+
+<div class="p"><!----></div>
+Terms in <b>fixed-width font</b> are <b>terminals</b>.  They represent the words
+and symbols of the language itself.  In X10, the terminals are the words
+described in this chapter.
+
+<div class="p"><!----></div>
+A single grammatical rule has the form  A :: = X<sub>1</sub> X<sub>2</sub> ... X<sub>n</sub> ,
+where the X<sub>i</sub>'s are either terminals or nonterminals.  This indicates that
+the non-terminal A could be an instance of X<sub>1</sub>, followed by an instance of
+X<sub>2</sub>, ..., followed by an instance of X<sub>n</sub>.  Multiple rules for the same
+A are allowed, giving several possible phrasings of A's.  For brevity,
+two rules with the same left-hand side are written with the left-hand side
+appearing once, and the right-hand sides 
+separated by </td><td width="150">
+amp;&#124;.  
+
+<div class="p"><!----></div>
+In the <em>Adj</em> example, there are two rules for <i>Adv</i>, 
+Adv :: = very and
+Adv :: = Adv&#195;dv.  So, an adverb could be <b>very</b>, or (by three
+uses of the rule) <b>very very</b>, or, one or more <b>very</b>s.  
+
+<div class="p"><!----></div>
+The notation A<sup>?</sup> indicates an optional A.  This is an ordinary
+non-terminal, defined by the rules:<br />
+
+  
+<em>
+  
+<table>
+
+<tr><td align="right">A<sup>?</sup>&nbsp;::=  </td></tr>
+<tr><td align="right">&#124; A
+</td></tr></table>
+</em>
+The first rule says that A<sup>?</sup> can amount to nothing; the second, that it can
+amount to an A.  This concept shows up so often that it is worth having a
+separate notation for it.  In the <em>Adj</em> example, an adjective phrase may be
+preceded by an optional adverb. Thus, it may be <b>happy</b>, or 
+<b>very happy</b>, or <b>very very sad</b>, etc. 
 
 <div class="p"><!----></div>
 </li>
@@ -306,7 +450,7 @@ X10 has the following operator,  type constructor, and miscellaneous symbols.  (
       integers, not <b>Double</b>; <b>Double</b>s require a decimal
       point, an exponent, or the <b>d</b> marker.
       
-<br /><br />
+<br /><br /><hr />
       
 </body>
 </html>

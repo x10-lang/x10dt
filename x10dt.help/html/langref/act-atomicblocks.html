@@ -32,11 +32,10 @@ simultaneously by multiple activities running in the same place.
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">AtomicStatement    ::= <b>atomic</b> Statement </td></tr>
-<tr><td align="right">
- WhenStatement    ::= <b>when</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">AtomicStatement ::= <b>atomic</b> Statement </td></tr>
+<tr><td align="right">WhenStatement ::= <b>when</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -50,9 +49,9 @@ no method calls on <b>r</b> are active.
 If the <b>add</b> method on <b>Redund</b> (which adds an element to the list) 
 were defined as: 
 <pre>
-def add(x:T) { // Incorrect
-  this.list.add(x);
-  this.size = this.size + 1;
+def add(x:T) { //Incorrect
+		this.list.add(x);
+		this.size = this.size + 1;
 }
 </pre>
 Then two activities simultaneously adding elements to the same <b>r</b> could break the
@@ -79,8 +78,10 @@ Doing so forbids that sequence of events; the <b>atomic</b> block cannot be
 stopped partway.  
 <pre>
 def add(x:T) { 
+	atomic {
   this.list.add(x);
-  atomic { this.size = this.size + 1; }
+   this.size = this.size + 1; 
+	}
 }
 </pre>
 
@@ -89,9 +90,14 @@ def add(x:T) {
 7.1</a>&nbsp;&nbsp;Unconditional atomic blocks</h3>
 The simplest form of an atomic block is the <em>unconditional
 atomic block</em>: <b>atomic S</b>.
-It is executed by an activity as if in a single step
-during which all other concurrent activities in the same place are
-blocked. If execution of the statement may throw an exception, it is
+When <b>atomic S</b> is executing at some place <b>p</b>, no other activity at
+<b>p</b> may enter an atomic block.  
+So, other activities may continue, even at the same place, but code protected
+by atomic blocks is not subject to interference from other code in atomic
+blocks. 
+
+<div class="p"><!----></div>
+If execution of the statement may throw an exception, it is
 the programmer's responsibility to wrap the atomic block within a
 <b>try</b>/<b>finally</b> clause and include undo code in the finally
 clause. Thus the <b>atomic</b> statement only guarantees atomicity on
@@ -240,7 +246,7 @@ behaviorally identical to <b>atomic S</b>: it never suspends.
 
 <div class="p"><!----></div>
 The body <b>S</b> of <b>when(b)S</b> is subject to the same restrictions that
-the body of <b>await S</b> is.  The guard is subject to the same restrictions
+the body of <b>atomic S</b> is.  The guard is subject to the same restrictions
 as well.  Furthermore, guards should not have side effects.
 
 <div class="p"><!----></div>
@@ -282,18 +288,6 @@ class OneBuffer[T] {
 
 
 <div class="p"><!----></div>
-<hr /><h3>Footnotes:</h3>
-
-<div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Note
-  that depending on the state of the computation the activation path may
-  traverse activities that are running, blocked or terminated.
-<div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>In X10 v2.1 the <b>finish</b>
-statement is the only statement that marks its activity as a root
-activity. Future versions of the language may introduce more such
-statements.
-<br /><br />
 
 </body>
 </html>

@@ -14,6 +14,7 @@ import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.operation.IRunnableContext;
 import org.eclipse.swt.widgets.Shell;
 
+import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.typeHierarchy.TypeSelectionExtension;
 
@@ -24,11 +25,11 @@ public class OpenTypeSelectionDialog extends FilteredTypesSelectionDialog {
 
 	private static final String DIALOG_SETTINGS= "x10dt.ui.dialogs.OpenTypeSelectionDialog"; //$NON-NLS-1$
 
-	public OpenTypeSelectionDialog(Shell parent, boolean multi, IRunnableContext context, String scope, int elementKinds) {
+	public OpenTypeSelectionDialog(Shell parent, boolean multi, IRunnableContext context, IX10SearchScope scope, int elementKinds) {
 		this(parent, multi, context, scope, elementKinds, null);
 	}
 
-	public OpenTypeSelectionDialog(Shell parent, boolean multi, IRunnableContext context, String scope, int elementKinds, TypeSelectionExtension extension) {
+	public OpenTypeSelectionDialog(Shell parent, boolean multi, IRunnableContext context, IX10SearchScope scope, int elementKinds, TypeSelectionExtension extension) {
 		super(parent, multi, context, scope, elementKinds, extension);
 	}
 

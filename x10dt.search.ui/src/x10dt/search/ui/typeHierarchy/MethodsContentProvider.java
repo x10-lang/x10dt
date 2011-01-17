@@ -15,12 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.Viewer;
 
+import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
-import x10dt.search.core.engine.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
 
@@ -83,9 +85,15 @@ public class MethodsContentProvider implements IStructuredContentProvider /*,IWo
 	 * @see IStructuredContentProvider#getElements
 	 */
 	public Object[] getElements(Object element) {
-		if (element instanceof ITypeInfo) {
-			ITypeInfo type= (ITypeInfo)element;
-
+		if (element instanceof IMemberInfo) {
+			IMemberInfo member = (IMemberInfo)element;
+			ITypeInfo type = member.getDeclaringType();
+			
+			if(type == null && element instanceof ITypeInfo)
+			{
+				type = (ITypeInfo)element;
+			}
+			
 			List res= new ArrayList();
 			try {
 				ITypeHierarchy hierarchy= fHierarchyLifeCycle.getHierarchy();
@@ -95,18 +103,18 @@ public class MethodsContentProvider implements IStructuredContentProvider /*,IWo
 					// will show up in hierarchy order
 					for (int i= allSupertypes.length - 1; i >= 0; i--) {
 						ITypeInfo superType= allSupertypes[i];
-//						if (superType.exists()) {
-//							addAll(superType.getMethods(), res);
+						if (superType.exists(new NullProgressMonitor())) {
+							addAll(SearchUtils.getMethods(superType), res);
 //							addAll(superType.getInitializers(), res);
-//							addAll(superType.getFields(), res);
-//						}
+							addAll(SearchUtils.getFields(superType), res);
+						}
 					}
 				}
-//				if (type.exists()) {
-//					addAll(type.getMethods(), res);
+				if (type.exists(new NullProgressMonitor())) {
+					addAll(SearchUtils.getMethods(type), res);
 //					addAll(type.getInitializers(), res);
-//					addAll(type.getFields(), res);
-//				}
+					addAll(SearchUtils.getFields(type), res);
+				}
 			} catch (Exception e) {
 				UISearchPlugin.log(e);
 			}

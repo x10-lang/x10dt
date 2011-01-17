@@ -165,33 +165,164 @@ then the following compiles:
 </pre>
 
 <div class="p"><!----></div>
+      <h4><a name="tth_sEc11.3.1">
+11.3.1</a>&nbsp;&nbsp;Sketch of X10 Type Inference for Method Calls</h4>
+
+<div class="p"><!----></div>
+When the X10 compiler sees a method call 
+&#228;.m(b<sub>1</sub>, &#8230;,b<sub>n</sub>)", and attempts to infer type parameters to see if it could be use of a
+method "def m[X<sub>1</sub>, &#8230;, X<sub>t</sub>](y<sub>1</sub>: S<sub>1</sub>, &#8230;, y<sub>n</sub>:S<sub>n</sub>)", 
+it reasons as follows. 
+
+<div class="p"><!----></div>
+Suppose that "b<sub>i</sub>" has type "T<sub>i</sub>".  Then, X10 is seeking a
+set of type B bindings "X<sub>j</sub> = U<sub>j</sub>", for 1  &le; j  &le; t, such that 
+"T<sub>i</sub> &lt;: S<sup>*</sup><sub>i</sub>" for 1  &le; i  &le; n, where "S<sup>*</sup>" is
+<b>S</b> with each type variable "X<sub>j</sub>" replaced by the corresponding
+&#220;<sub>j</sub>".  If it can find such a B, it has a usable choice of type
+arguments and can do the type inference.  If it cannot find B, then it
+cannot do type inference.    (Note that X10's type inference algorithm is
+incomplete - there may <em>be</em> such a B that X10 cannot find.  If this
+occurs in your program, you will have to write down the type arguments
+explicitly.) 
+
+<div class="p"><!----></div>
+Let B<sub>0</sub> be the set { T<sub>i</sub> &lt;: S<sub>i</sub> </td><td width="150">
+&#124; 1 &le; i &le; n}.  Let
+B<sub>n+1</sub> be B<sub>n</sub> with one element F  &lt; : G or 
+F =  = G removed, and
+C(F  &lt; : G) 
+or C(F =  = G) (defined below) added.  Repeat this until 
+B<sub>n</sub> consists entirely of comparisons with type variables (<em>viz</em>, 
+"Y<sub>j</sub> == U", 
+"Y<sub>j</sub> &lt;: U", and
+"Y<sub>j</sub> :&#62; U"), 
+or until some n exceeds a predefined compiler limit. 
+
+<div class="p"><!----></div>
+The candidate inferred types may be read off of B<sub>n</sub>.  The guessed binding
+for "X<sub>j</sub>" is: 
+
+<ul>
+<li> If there is an equality "X<sub>j</sub>==W" in B<sub>n</sub>, then guess the
+      binding "X<sub>j</sub>=W".  Note that there may be several such
+      equalities with different choices of <b>W</b>, but, if the inference is
+      to work, all the choices of <b>W</b> must be equal types anyways.
+<div class="p"><!----></div>
+</li>
+
+<li> Otherwise, if there is one or more upper bounds 
+"X<sub>j</sub> &lt;: V<sub>k</sub>" in B<sub>n</sub>, guess the binding 
+"X<sub>j</sub> = V<sub>+</sub>", where 
+"V<sub>+</sub>" is the computed lower bound of all the "V<sub>k</sub>''s.
+<div class="p"><!----></div>
+</li>
+
+<li> Otherwise, if there is one or more lower bounds 
+"R<sub>k</sub> &lt;: X<sub>j</sub>", guess that
+"X<sub>j</sub> = R<sub>+</sub>", where 
+"R<sub>+</sub>" is the computed upper bound of all the "R<sub>k</sub>''s.
+<div class="p"><!----></div>
+</li>
+</ul>
+If this does not yield a binding for some variable "X<sub>j</sub>", then type
+inference fails.  Furthermore, if every variable "X<sub>j</sub>" is given a
+binding &#220;<sub>j</sub>", but the 
+bindings do not work - 
+that is, if 
+&#228;.m[U<sub>1</sub>, &#8230;, U<sub>t</sub>](b<sub>1</sub>, &#8230;,b<sub>n</sub>)"
+is not a call of 
+the original method 
+"def m[X<sub>1</sub>, &#8230;, X<sub>t</sub>](y<sub>1</sub>: S<sub>1</sub>, &#8230;, y<sub>n</sub>:S<sub>n</sub>)"
+- then type inference also fails.
+
+<div class="p"><!----></div>
+
+<b>Computation of the Replacement Elements&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+Given a type relation
+r of the form F  &lt; : G
+or F =  = G, we compute the set C(r) of
+replacement constraints.  There are a number of cases; we present only the
+interesting ones. 
+
+<div class="p"><!----></div>
+
+<ul>
+<li> If F has the form "F&#8242;{c}" 
+"C(r)" is defined to be
+ "F&#8242; == G" if r is an equality, or 
+ "F&#8242; &lt;: G" if r is a subtyping.
+That is, we erase type constraints.  
+Validity is not an issue at this point in the algorithm, as 
+we check at the end that the result is valid.
+However, in important cases, the replacement is valid, in the sense that the 
+solutions of B<sub>k+1</sub> are precisely the solutions of B<sub>k</sub>.
+Specifically, if the equation had the form "Z{c} == A", it could be
+solved by <b>Z==A</b> or by <b>Z = A{c}</b>.  By dropping constraints in this
+rule, we choose the former solution.
+<div class="p"><!----></div>
+</li>
+
+<li> Similarly, we drop constraints on G as well.
+<div class="p"><!----></div>
+</li>
+
+<li> If F has the form "K[F<sub>1</sub>, &#8230;, F<sub>k</sub>]"
+and 
+G
+has the form "K[G<sub>1</sub>, &#8230;, G<sub>k</sub>]", 
+then C(r) has one type relation comparing each parameter of 
+F with the corresponding one of G. 
+
+<div class="p"><!----></div>
+If r is a type equality F =  = G, then 
+C(r) = { F<sub>l</sub> == G<sub>l</sub> </td><td width="150">
+&#124; 1 &le; l &le; k.
+
+<div class="p"><!----></div>
+If r is a type comparison, and the l<sup>th</sup> type parameter of <b>K</b> is
+invariant (resp. covariant or contravariant), then 
+C(r) has F<sub>l</sub> =  = G<sub>l</sub>
+(resp F<sub>l</sub>  &lt; : G<sub>l</sub> or G<sub>l</sub>  &lt; : F<sub>l</sub> . 
+
+<div class="p"><!----></div>
+For example, the constraint "List[X] == List[Y]" produces the
+constraint <b>X==Y</b>, because <b>List</b> is nonvariant.  
+If <b>Contra[X]</b> is contravariant, 
+the constraint <b>Contra[X] &lt;: Contra[List[Y]]</b> 
+produces the constraint <b>List[Y] &lt;: X</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Other cases are fairly routine.  <em>E.g.</em>, if F is a <b>type</b>-defined
+      abbreviation, it is expanded.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Suppose we have: 
 <pre>
+import x10.util.*;
+class Cl[C1, +C2, -C3]{}
+class Example {
+  static def me[X1, X2](Cl[Int, X1, X2]) = 
+     new Cl[X1, X2, Point]();
+  static def example() {
+    val a = new Cl[Int, Boolean, String]();
+    val b : Cl[Boolean, String, Point] = me[Boolean, String](a);
+  }
+}
 </pre>
-<pre>
-</pre>
-<pre>
-</pre>
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 </li>
-<hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Currently inequalities
-      of the form <b>e &lt; f</b> are not supported.
-<div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We call them
-<b>Position</b> to avoid confusion with the built-in class <b>Point</b>. 
-Also, <b>Position</b> is a struct rather than a class so that the non-equality
-test <b>start != end</b> compares the coordinates.  If <b>Position</b> were a
-class, <b>start != end</b> would check for different <b>Position</b> objects,
-which might have the same coordinates.
-
-<div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Java, for one, suffers a number of
-  inconveniences because some built-in types like <b>int</b> and <b>char</b>
-  aren't subtypes of anything else.
-<br /><br />
 
 </body>
 </html>

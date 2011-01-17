@@ -28,19 +28,14 @@ functions: the <b>f(1)</b> may return <b>true</b> on one call and <b>false</b> o
 an immediately following call.
 
 <div class="p"><!----></div>
-It is a limitation of X10 v2.1 that functions do not support
-type arguments. This limitation may be removed in future versions of
-the language.
-
-<div class="p"><!----></div>
 A <em>function literal</em> <b>(x1:T1,..,xn:Tn){c}:T=&#62;e</b> creates a function of
 type<br /><b>(x1:T1,...,xn:Tn){c}=&#62;T</b> (&#167;).  For example, 
-<b>(x:Int) =&#62; x*x</b> is a function literal describing the squaring function on
+<b>(x:Int):Int =&#62; x*x</b> is a function literal describing the squaring function on
 integers.   
 <b>null</b> is also a function value.
 
 <div class="p"><!----></div>
-<em>Limitation</em> Function literals do not currently support guards. 
+<em>Limitation</em> X10 functions cannot have type arguments or constraints. 
 
 <div class="p"><!----></div>
 Function application is written <b>f(a,b,c)</b>, following common mathematical
@@ -61,8 +56,8 @@ val sq: (Int) =&#62; Int
 </pre>
 
 <div class="p"><!----></div>
-A function literal evaluates to a function entity &#981;. When &#981; is
-applied to a suitable list of actual parameters <b>a1</b>-<b>an</b>, it
+A function literal evaluates to a function entity <b>f</b>. When <b>f</b> is
+applied to a suitable list of actual parameters <b>a1</b> through <b>an</b>, it
 evaluates <b>e</b> with the formal parameters bound to the actual parameters.
 So, the following are equivalent, where <b>e</b> is an expression involving
 <b>x1</b> and <b>x2</b><a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
@@ -89,10 +84,10 @@ and
 }
 </pre>
 
-This doesn't quite work if the body is a statement rather than an expression.
+This equivalence does not hold if the body is a statement rather than an expression.
 A few language features are forbidden (<b>break</b> or <b>continue</b> of a loop
 that surrounds the function literal) or mean something different (<b>return</b>
-inside a function returns from the function). 
+inside a function returns from the function, not the surrounding block). 
 
 <div class="p"><!----></div>
 The <em>method selector expression</em> <b>e.m.(x1:T1,...,xn:Tn)</b> (&#167;)
@@ -106,6 +101,23 @@ definitions. Instances of such classes may be used as functions of the
 given type.  Indeed, an object may behave like any (fixed) number of
 functions, since the class it is an instance of may implement any
 (fixed) number of function types.
+
+Instances of the <b>Funny</b> class behave like two functions: 
+a constant function on Booleans, and a linear function on 
+pairs of <b>Int</b>s.  
+<pre>
+class Funny implements (Boolean) =&#62; Int, 
+                       (Int, Int) =&#62; Int
+{
+  public def apply(Boolean) = 1;
+  public def apply(x:Int, y:Int) = 10*x+y;
+  static def example() {
+    val f &lt;: Funny  = new Funny();
+    assert f(true) == 1; // (Boolean)=&#62;Int behavior
+    assert f(1,2) == 12; // (Int,Int)=&#62;Int behavior
+  }
+}
+</pre>
 
 <div class="p"><!----></div>
 

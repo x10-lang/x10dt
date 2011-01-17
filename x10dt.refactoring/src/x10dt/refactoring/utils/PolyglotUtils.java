@@ -11,11 +11,11 @@ import polyglot.ast.NamedVariable;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.ast.Variable;
-import polyglot.types.ArrayType;
 import polyglot.types.ClassType;
-import polyglot.types.MethodInstance;
-import polyglot.types.StructType;
+import polyglot.types.ContainerType;
+import polyglot.types.JavaArrayType;
 import polyglot.visit.NodeVisitor;
+import x10.types.MethodInstance;
 
 public abstract class PolyglotUtils {
 
@@ -92,7 +92,7 @@ public abstract class PolyglotUtils {
 
             @Override
             public NodeVisitor enter(Node parent, Node n) {
-                if (n instanceof Variable && ((Variable) n).type() instanceof ArrayType) {
+                if (n instanceof Variable && ((Variable) n).type() instanceof JavaArrayType) {
                     NamedVariable extractedName = PolyglotUtils.extractArrayName((Variable) n);
                     if (extractedName != null)
                         arrayName = extractedName;
@@ -126,7 +126,7 @@ public abstract class PolyglotUtils {
         if (e instanceof Call) {
             Call call = (Call) e;
             MethodInstance methodInstance= call.methodInstance();
-            StructType methodOwner= methodInstance.container();
+            ContainerType methodOwner= methodInstance.container();
 
             if (methodOwner instanceof ClassType) {
                 ClassType classType = (ClassType) methodOwner;

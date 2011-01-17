@@ -22,23 +22,48 @@
 <a name="FinalVariables">
 </a>
 
+<div class="p"><!----></div>
 
+  
+  <em>
+  
+<table>
 
+<tr><td align="right">LocalVariableDeclStatement ::= LocalVariableDecl <b>;</b> </td></tr>
+<tr><td align="right">LocalVariableDecl ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VariableDeclaratorsWithType </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 
 <div class="p"><!----></div>
-Immutable (<b>val</b>) variables can be given values (by initialization or assignment) at
-most once, and must be given values before they are used.  Usually this is
-achieved by declaring and initializing the variable in a single statement.
+An immutable (<b>val</b>) variable can be given a value (by initialization or
+assignment) at 
+most once, and must be given a value before it is used.  Usually this is
+achieved by declaring and initializing the variable in a single statement,
+such as <b>val x = 3</b>, with syntax 
+using the <em>VariableDeclarators</em> or 
+<em>VariableDeclaratorsWithType</em> alternatives.
+
+<div class="p"><!----></div>
+After these declarations, <b>a</b> and <b>b</b> cannot be assigned to further,
+or even redeclared: 
 <pre>
 val a : Int = 10;
 val b = (a+1)*(a-1);
+// NO: a = 11;  - vals cannot be assigned to.
+// NO: val a = 11; - no redeclaration.
 </pre>
-<b>a</b> and <b>b</b> cannot be assigned to further.
 
 <div class="p"><!----></div>
-In other cases, the declaration and assignment are separate.  One such
-case is how constructors give values to <b>val</b> fields of objects.  The
+In two special cases, the declaration and assignment are separate.  One 
+case is how constructors give values to <b>val</b> fields of objects.  In this
+case, production is taken, with the 
+<em>FormalDeclarators</em> option, such as  <b>var n:Int;</b>.  
+
+<div class="p"><!----></div>
+The
 <b>Example</b> class has an immutable field <b>n</b>, which is given different
 values depending on which constructor was called. <b>n</b> can't be given its
 value by initialization when it is declared, since it is not knowable which
@@ -52,9 +77,13 @@ class Example {
 </pre>
 
 <div class="p"><!----></div>
-Another common case of separating declaration and assignment is in function
-and method call.  The formal parameters are bound to the corresponding actual
-parameters, but the binding does not happen until the function is called.  In
+The other case of separating declaration and assignment is in function
+and method call, described in <em>formal-parameters</em>.  The formal
+parameters are bound to the corresponding actual 
+parameters, but the binding does not happen until the function is called.  
+
+<div class="p"><!----></div>
+In
 the code below, <b>x</b> is initialized to <b>3</b> in the first call and
 <b>4</b> in the second.
 <pre>

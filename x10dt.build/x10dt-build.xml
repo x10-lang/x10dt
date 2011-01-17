@@ -21,7 +21,7 @@
         <available file="${build.folder}/x10dt.ui" type="dir" />
         <available file="${build.folder}/x10dt.ui.launch.core" type="dir" />
         <available file="${build.folder}/x10dt.ui.launch.cpp" type="dir" />
-      	<available file="${build.folder}/x10dt.ui.launch.cpp.rms" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.cpp.rms" type="dir" />
         <available file="${build.folder}/x10dt.ui.launch.java" type="dir" />
         <available file="${build.folder}/x10.effects" type="dir" />
       </and>
@@ -141,11 +141,12 @@
       <arg value="-metadataRepository" />
       <arg value="file:${orquesta.update.site.loc}" />
       <arg value="-categoryDefinition" />
-      <arg value="file:${build.loc}/category.xml" />
+      <arg value="file:${build.loc}/x10dt-category.xml" />
       <arg value="-categoryQualifier" />
       <arg value="-compress" />
     </java>
-    <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" basedir="${orquesta.update.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
+    <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
+         basedir="${orquesta.update.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
   </target>
 
   <target name="main" depends="x10dt-checkouts">
@@ -168,6 +169,7 @@
           source="${base}/delta-pack/eclipse"/>
 
     <antcall target="pre-build" />
+    <property name="customTargets" location="x10dtCustomTargets.xml" />
     <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
     <antcall target="post-build" />
   </target>

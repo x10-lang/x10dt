@@ -1,5 +1,6 @@
 package x10dt.search.ui.typeHierarchy;
 
+import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 
@@ -95,6 +96,16 @@ public class X10Constants {
 	 */
 	public static final String OPEN_TYPE_HIERARCHY_IN_PERSPECTIVE= ID_HIERARCHYPERSPECTIVE; //$NON-NLS-1$
 
+	/**
+	 * A named preference that controls whether the 'sub-word navigation' feature is
+	 * enabled.
+	 * <p>
+	 * Value is of type <code>Boolean</code>.
+	 * </p>
+	 * @since 3.0
+	 */
+	public final static String EDITOR_SUB_WORD_NAVIGATION= "subWordNavigation"; //$NON-NLS-1$
+
 
 	public static void initializeDefaultValues(IPreferenceStore store) {
 		store.setDefault(APPEARANCE_COMPRESS_PACKAGE_NAMES, false);
@@ -102,5 +113,7 @@ public class X10Constants {
 		store.setDefault(APPEARANCE_METHOD_TYPEPARAMETERS, true);
 		store.setDefault(APPEARANCE_CATEGORY, true);
 		store.setDefault(APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW, ""); //$NON-NLS-1$
+		
+		store.setDefault(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION, true);
 	}
 }

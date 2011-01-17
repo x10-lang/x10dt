@@ -18,7 +18,7 @@ import x10dt.ui.launch.core.actions.AbstractConvertX10ProjectAction;
  */
 public final class ConvertToCppBackEndAction extends AbstractConvertX10ProjectAction implements IObjectActionDelegate {
   
-// --- Abstract methods implementation
+  // --- Abstract methods implementation
   
   protected String getTargetBackEndType() {
     return "c++"; //$NON-NLS-1$

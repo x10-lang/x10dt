@@ -101,7 +101,7 @@ public final class SearchDBTypes {
     final Type fieldName = typeFactory.aliasType(this.fTypeStore, X10_FieldName, typeFactory.stringType());
     final Type x10Type = typeFactory.aliasType(this.fTypeStore, X10_Type, 
                                                typeFactory.tupleType(typeName, typeFactory.sourceLocationType(),
-                                                                     typeFactory.integerType()));
+                                                                     typeFactory.integerType(), typeName));
     final Type x10Method = typeFactory.aliasType(this.fTypeStore, X10_Method, 
                                                  typeFactory.tupleType(typeFactory.sourceLocationType(), methodName, typeName,
                                                                        typeFactory.listType(typeName), 

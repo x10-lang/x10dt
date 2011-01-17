@@ -17,9 +17,12 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.HoverHelper;
+import org.eclipse.jface.text.source.AnnotationModel;
+import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -31,148 +34,122 @@ import org.junit.runners.Parameterized.Parameters;
 import x10dt.tests.services.swbot.utils.FileUtils;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
 import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.editor.X10DocProvider;
 
-@SuppressWarnings( { "unused" })
+@SuppressWarnings({ "unused" })
 @RunWith(Parameterized.class)
 public class X10DocProviderTest_Parameterized {
-	private static X10DocProvider dp;
-	private static String BOLD;
-	private static String UNBOLD;
-	private static String NEWLINE;
-	private static String PARA;
+  private static X10DocProvider dp;
 
-	private static IProject project;
-	private static TestEditor editor;
+  private static String BOLD;
 
-	private IFile file;
-	private HoverHelper hh;
+  private static String UNBOLD;
 
-	public X10DocProviderTest_Parameterized(IFile file) throws Exception {
-		super();
+  private static String NEWLINE;
 
-		this.file = file;
-		editor = new TestEditor(file);
-		editor.getAst();
+  private static String PARA;
 
-		hh = new HoverHelper(editor.language);
-	}
+  private static IProject project;
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+  private static TestEditor editor;
 
-	}
+  protected SWTBotEclipseEditor fSrcEditor;
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
+  private IFile file;
 
-	// private Object getTarget(TestEditor editor, int line, int col)
-	// throws BadLocationException {
-	// return getTarget(editor, editor.getOffset(line - 1, col));
-	// }
-	//
-	// private Object getTarget(TestEditor editor, int offset)
-	// throws BadLocationException {
-	// IReferenceResolver refResolver = ServiceFactory.getInstance()
-	// .getReferenceResolver(editor.language);
-	//
-	// ISourcePositionLocator nodeLocator = editor.parseController
-	// .getSourcePositionLocator();
-	//
-	// Object root = editor.getAst();
-	// Object selNode = nodeLocator.findNode(root, offset);
-	// Object target = (refResolver != null) ? refResolver.getLinkTarget(
-	// selNode, editor.parseController) : selNode;
-	// if (target == null)
-	// target = selNode;
-	//
-	// return target;
-	// }
+  private HoverHelper hh;
 
-	@Parameters
-	public static Collection<Object[]> params() throws Exception {
-		project = ProjectUtils.copyProjectIntoWorkspace(X10DTUIPlugin
-				.getInstance().getBundle(), new Path("data/X10DocProvider"));
+  public X10DocProviderTest_Parameterized(IFile file) throws Exception {
+    super();
 
-		IFolder folder = project.getFolder("src");
+    this.file = file;
+    editor = new TestEditor(file);
+    editor.getAst();
 
-		// ProjectUtils.copyFolderIntoContainer(X10DTUIPlugin.getInstance().getBundle(),
-		// folder, new Path("data/X10DocProvider"));
+    hh = new HoverHelper(editor.language);
+  }
 
-		final List<Object[]> list = new ArrayList<Object[]>();
+  @BeforeClass
+  public static void setUpBeforeClass() throws Exception {
 
-		folder.accept(new IResourceVisitor() {
-			public boolean visit(IResource resource) throws CoreException {
-				if (resource instanceof IFile) {
-					list.add(new Object[] { resource });
-					return false;
-				}
-				return true;
-			}
-		});
+  }
 
-		return list;
-	}
+  @AfterClass
+  public static void tearDownAfterClass() throws Exception {
+  }
 
-	@Test
-	public void testGetDocumentation() throws Exception {
-		File actual = new File(project.getFile(
-				new Path("actual").append(
-						file.getProjectRelativePath().removeFirstSegments(1))
-						.removeFileExtension().addFileExtension("txt"))
-				.getLocation().toPortableString());
+  @Parameters
+  public static Collection<Object[]> params() throws Exception {
+    project = ProjectUtils.copyProjectIntoWorkspace(X10DTUIPlugin.getInstance().getBundle(), new Path("data/X10DocProvider"));
 
-		actual.getParentFile().mkdirs();
+    IFolder folder = project.getFolder("src");
 
-		FileChannel fchan = new FileOutputStream(actual).getChannel();
-		BufferedWriter bf = new BufferedWriter(Channels.newWriter(fchan,
-				"UTF-8"));
-		try {
-			for (int offset = 0; offset < editor.document.getLength(); offset++) {
-				Point loc = editor.getLocation(offset);
+    final List<Object[]> list = new ArrayList<Object[]>();
 
-				Shell shell = new Shell();
-				SourceViewer viewer = new SourceViewer(shell, null, 0);
-				viewer.setDocument(editor.document);
-				String doc = hh.getHoverHelpAt(editor.parseController, viewer,
-						offset);
+    folder.accept(new IResourceVisitor() {
+      public boolean visit(IResource resource) throws CoreException {
+        if (resource instanceof IFile) {
+          if (!resource.toString().contains(".svn/")) {
+            list.add(new Object[] { resource });
 
-				if (doc != null && doc.length() > 0) {
-					loc = editor.getLocation(offset);
-					bf.write("" + loc.x + "," + loc.y + ": ");
-					bf.write(doc);
-					bf.newLine();
-				}
-			}
+          }
 
-		} finally {
-			bf.close();
-			fchan.close();
-		}
+          return false;
+        }
 
-		File expected = new File(project.getFile(
-				new Path("expected").append(
-						file.getProjectRelativePath().removeFirstSegments(1))
-						.removeFileExtension().addFileExtension("txt"))
-				.getLocation().toPortableString());
+        return true;
 
-		// expected won't exist on first run of test (e.g. when adding a new
-		// x10
-		// file to
-		// the suite)
-		Assert
-				.assertTrue(
-						"The data file containing the expected results for "
-								+ file.getLocation()
-								+ " does not exist.  If you just added this file to the test suite be sure to verify the contents of "
-								+ actual.getPath()
-								+ " and copy it into the expected folder in the test suite.",
-						expected.exists());
+      }
+    });
 
-		int result = FileUtils.compareLinesOf(actual, expected);
-		Assert.assertTrue("Actual differs from expected at line " + result,
-				result == -1);
+    return list;
+  }
 
-	}
+  @Test
+  public void testGetDocumentation() throws Exception {
+
+    File actual = new File(project.getFile(new Path("actual").append(file.getProjectRelativePath().removeFirstSegments(1))
+                                                             .removeFileExtension().addFileExtension("txt")).getLocation()
+                                  .toPortableString());
+
+    actual.getParentFile().mkdirs();
+
+    FileChannel fchan = new FileOutputStream(actual).getChannel();
+    BufferedWriter bf = new BufferedWriter(Channels.newWriter(fchan, "UTF-8"));
+
+    try {
+      for (int offset = 0; offset < editor.document.getLength(); offset++) {
+
+        Point loc = editor.getLocation(offset);
+
+        Shell shell = new Shell();
+
+        SourceViewer viewer = new SourceViewer(shell, null, 0);
+        IAnnotationModel model = new AnnotationModel();
+        model.connect(editor.document);
+        viewer.setDocument(editor.document, model);
+        String doc = hh.getHoverHelpAt(editor.parseController, viewer, offset);
+
+        if (doc != null && doc.length() > 0) {
+          loc = editor.getLocation(offset);
+          bf.write("" + loc.x + "," + loc.y + ": ");
+          bf.write(doc);
+          bf.newLine();
+        }
+      }
+
+    } finally {
+      bf.close();
+      fchan.close();
+    }
+    File expected = new File(project.getFile(new Path("expected").append(file.getProjectRelativePath().removeFirstSegments(1))
+                                                                 .removeFileExtension().addFileExtension("txt")).getLocation()
+                                    .toPortableString());
+
+    Assert.assertTrue("The data file containing the expected results for " + file.getLocation() +
+                      " does not exist.  If you just added this file to the test suite be sure to verify the contents of " +
+                      actual.getPath() + " and copy it into the expected folder in the test suite.", expected.exists());
+    int result = FileUtils.compareLinesOf(actual, expected);
+    Assert.assertTrue("Actual differs from expected at line " + result, result == -1);
+
+  }
 }

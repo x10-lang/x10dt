@@ -158,17 +158,37 @@ Let <b>f</b> be a function of type <b>(T,T)=&#62;T</b>.  Let
 Let <b>unit</b> be a value of type <b>T</b>.
 Then the
 operation <b>a.reduce(f, unit)</b> returns a value of type <b>T</b> obtained
-by performing <b>f</b> on all points in <b>a</b> in some unspecified order
-(perhaps in parallel).  In order to guarantee that the result is precisely
-determined, the  function <b>f</b> should be associative and
-commutative, and the value <b>unit</b> should satisfy
-<b>f(unit,x)</b> <b>==</b> <b>x</b> <b>==</b> <b>f(x,unit)</b>.
-For example, 
+by combining all the elements of <b>a</b> by use of  <b>f</b> in some unspecified order
+(perhaps in parallel).   
+The following code gives one method which 
+meets the definition of <b>reduce</b>,
+having a running total <b>r</b>, and accumulating each value <b>a(p)</b> into it
+using <b>f</b> in turn.  (This code is simply given as an example; <b>Array</b>
+has this operation defined already.)
+<pre>
+def oneWayToReduce[T](a:Array[T], f:(T,T)=>T, unit:T):T {
+  var r : T = unit;
+  for(p in a.region) r = f(r, a(p));
+  return r;
+}
+</pre>
+
+
+For example,  the following sums an array of integers.  <b>f</b> is addition,
+and <b>unit</b> is zero.
 <pre>
 val a = [1,2,3,4];
 val sum = a.reduce(Int.+, 0); 
 assert(sum == 10); // 10 == 1+2+3+4
 </pre>
+
+Other orders of evaluation, degrees of parallelism, and applications of
+<b>f(x,unit)</b> and <b>f(unit,x)</b>are also correct.
+In order to guarantee that the result is precisely
+determined, the  function <b>f</b> should be associative and
+commutative, and the value <b>unit</b> should satisfy
+<b>f(unit,x)</b> <b>==</b> <b>x</b> <b>==</b> <b>f(x,unit)</b>
+for all <b>x:T</b>.
 
 <div class="p"><!----></div>
 <b>DistArray</b>s have the same operation.

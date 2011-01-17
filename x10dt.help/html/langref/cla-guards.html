@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc7">
-7</a>&nbsp;&nbsp;Class Guards and Invariants</h2><a name="DepType:ClassGuard">
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Class Guards and Invariants</h2><a name="DepType:ClassGuard">
 </a>
 
 
@@ -101,8 +101,8 @@ objects <b>o</b> that may be stored in <b>v</b> are such that <b>o</b> satisfies
 <i>inv</i>(T[o/this])&#8743;c[o/self].
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.1">
-7.1</a>&nbsp;&nbsp;Invariants for <b>implements</b> and <b>extends</b> clauses</h3><a name="DepType:Implements">
+     <h3><a name="tth_sEc8.1">
+8.1</a>&nbsp;&nbsp;Invariants for <b>implements</b> and <b>extends</b> clauses</h3><a name="DepType:Implements">
 </a>
 <a name="DepType:Extends">
 </a>
@@ -134,8 +134,8 @@ must entail the invariant "<i>inv</i>(C)".
 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.2">
-7.2</a>&nbsp;&nbsp;Invariants and constructor definitions</h3>
+     <h3><a name="tth_sEc8.2">
+8.2</a>&nbsp;&nbsp;Invariants and constructor definitions</h3>
 
 
 
@@ -152,9 +152,9 @@ the form of a constrained type (the "return type" of the constructor):
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">CtorDecl    ::= Mods<sup>?</sup>&nbsp;<b>def</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;CtorBody </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">CtorDecl ::= Mods<sup>?</sup>&nbsp;<b>def</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;CtorBody </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -247,8 +247,8 @@ constructor, and the conjunction of static types of the argument must
 entail the constraint in the parameter list of the constructor.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.3">
-7.3</a>&nbsp;&nbsp;Object Initialization</h3>
+     <h3><a name="tth_sEc8.3">
+8.3</a>&nbsp;&nbsp;Object Initialization</h3>
 
 
 
@@ -347,6 +347,22 @@ possible order of events is the following:
 </ol>
 
 <div class="p"><!----></div>
+The <b>at</b> statement (&#167;) introduces the potential for
+escape as well. The following class prints an uninitialized value: 
+<pre>
+class Example {
+  val a: Int;
+  def this() { 
+    at(here.next()) {
+      // Recall that 'this' is a copy of 'this' outside 'at'.
+      Console.OUT.println("this.a = " + this.a);
+    }
+    this.a = 1;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
 X10 must protect against such possibilities.  The rules explaining how
 constructors can be written are somewhat intricate; they are designed to allow
 as much programming as possible without leading to potential problems.
@@ -354,8 +370,8 @@ Ultimately, they simply are elaborations of the fundamental principles that
 uninitialized fields must never be read, and <b>this</b> must never be leaked.  
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.4">
-7.4</a>&nbsp;&nbsp;Constructors and NonEscaping Methods</h3>
+     <h3><a name="tth_sEc8.4">
+8.4</a>&nbsp;&nbsp;Constructors and NonEscaping Methods</h3>
 
 <div class="p"><!----></div>
 In general, constructors must not be allowed to call methods with<b>this</b> as
@@ -407,8 +423,8 @@ be accomplished in two ways:
 </ol>
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc7.4.1">
-7.4.1</a>&nbsp;&nbsp;Non-Escaping Methods</h4>
+      <h4><a name="tth_sEc8.4.1">
+8.4.1</a>&nbsp;&nbsp;Non-Escaping Methods</h4>
 
 
 
@@ -500,8 +516,8 @@ final class C2 {
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.5">
-7.5</a>&nbsp;&nbsp;Fine Structure of Constructors</h3>
+     <h3><a name="tth_sEc8.5">
+8.5</a>&nbsp;&nbsp;Fine Structure of Constructors</h3>
 <a name="SFineStructCtors">
 </a>
 
@@ -571,8 +587,8 @@ unsurprising.  For example, properties of the current class can only be read
 in segment 3 or 4-naturally, because they are set at the end of segment 2.  
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc7.5.1">
-7.5.1</a>&nbsp;&nbsp;Initialization and Inner Classses</h4>
+      <h4><a name="tth_sEc8.5.1">
+8.5.1</a>&nbsp;&nbsp;Initialization and Inner Classses</h4>
 
 
 <div class="p"><!----></div>
@@ -596,28 +612,32 @@ class Outer {
 </pre>
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc7.5.2">
-7.5.2</a>&nbsp;&nbsp;Initialization and Closures</h4>
+      <h4><a name="tth_sEc8.5.2">
+8.5.2</a>&nbsp;&nbsp;Initialization and Closures</h4>
 
 
 <div class="p"><!----></div>
-Closures in constructors are valid if they were invoked (or inlined) at the
-place of creation. For example, <b>closure</b> below is acceptable because it
-only refers to fields defined at the point it was written.  <b>badClosure</b>
-would not be acceptable, because it refers to fields that were not defined at
-that point, although they were defined later.
+Closures in constructors may not refer to <b>this</b>.  They may not even refer
+to fields of <b>this</b> that have been initialized.   For example, the
+closure <b>bad1</b> is not allowed because it refers to <b>this</b>; <b>bad2</b>
+is not allowed because it mentions <b>a</b> - which is, of course, identical
+to <b>this.a</b>. 
+
+<div class="p"><!----></div>
 <pre>
 class C {
-  val a = 3;
-  val closure = () =&#62; a*10; // This is OK
-  //val badClosure = () =&#62; b*10; 
-  val b = 4;
+  val a:Int;
+  def this() {
+    this.a = 1;
+    // val bad1 = () =&#62; this; 
+    // val bad2 = () =&#62; a*10;
+  }
 }
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.6">
-7.6</a>&nbsp;&nbsp;Definite Initialization in Constructors</h3>
+     <h3><a name="tth_sEc8.6">
+8.6</a>&nbsp;&nbsp;Definite Initialization in Constructors</h3>
 
 <div class="p"><!----></div>
 An instance field <b>var x:T</b>, when <b>T</b> has a default value, need not be
@@ -669,8 +689,8 @@ the terminology of &#167;<a href="#SFineStructCtors">7.5</a>.
 </ol>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.7">
-7.7</a>&nbsp;&nbsp;Summary of Restrictions on Classes and Constructors</h3>
+     <h3><a name="tth_sEc8.7">
+8.7</a>&nbsp;&nbsp;Summary of Restrictions on Classes and Constructors</h3>
 
 <div class="p"><!----></div>
 The following table tells whether a given feature is (yes), is not (no) or is

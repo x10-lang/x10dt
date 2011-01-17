@@ -12,6 +12,7 @@ import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.texteditor.TextOperationAction;
 
 import x10dt.search.ui.Messages;
@@ -100,7 +101,7 @@ public class X10Editor extends UniversalEditor {
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(action,
 				IJavaHelpContextIds.OPEN_HIERARCHY_ACTION);
 
-//		ovg = new OpenViewActionGroup(this);
+		ovg = new OpenViewActionGroup(this);
 	}
 
 	@Override
@@ -113,11 +114,11 @@ public class X10Editor extends UniversalEditor {
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(
 				IContextMenuConstants.GROUP_SHOW));
 
-//		ActionContext context = new ActionContext(getSelectionProvider()
-//				.getSelection());
-//		ovg.setContext(context);
-//		ovg.fillContextMenu(menu);
-//		ovg.setContext(null);
+		ActionContext context = new ActionContext(getSelectionProvider()
+				.getSelection());
+		ovg.setContext(context);
+		ovg.fillContextMenu(menu);
+		ovg.setContext(null);
 	}
 
 	/*

@@ -14,14 +14,15 @@ package x10dt.ui.parser;
 import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.Monitor;
+
 import org.eclipse.imp.parser.IParser;
 
-import x10.parser.X10Parser;
+import x10.parser.X10SemanticRules;
 
 public class ParserDelegate implements IParser {
-    X10Parser myParser;
+    X10SemanticRules myParser;
 
-    ParserDelegate(X10Parser myParser) {
+    ParserDelegate(X10SemanticRules myParser) {
         this.myParser= myParser;
     }
 
@@ -35,22 +36,22 @@ public class ParserDelegate implements IParser {
     }
 
     public int numTokenKinds() {
-        return myParser.numTokenKinds();
+        return myParser.getX10Parser().numTokenKinds();
     }
 
     public int getEOFTokenKind() {
-        return myParser.getEOFTokenKind();
+        return myParser.getX10Parser().getEOFTokenKind();
     }
 
     public Object parser(Monitor monitor, int error_repair_count) {
-        return myParser.parser(monitor);
+        return myParser.getX10Parser().parser(monitor);
     }
 
     public String[] orderedTerminalSymbols() {
-        return myParser.orderedTerminalSymbols();
+        return myParser.getX10Parser().orderedTerminalSymbols();
     }
 
     public void reset(ILexStream lexStream) {
-        myParser.reset(lexStream);
+        myParser.getX10Parser().reset(lexStream);
     }
 }

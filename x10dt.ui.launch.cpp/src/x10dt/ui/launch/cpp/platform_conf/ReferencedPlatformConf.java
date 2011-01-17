@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.UUID;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.ui.XMLMemento;
 
 
@@ -22,6 +23,10 @@ final class ReferencedPlatformConf implements IX10PlatformConf {
   }
   
   // --- Interface methods implementation
+
+  public IFile getConfFile() {
+    return this.fSource.getConfFile();
+  }
 
   public IX10PlatformConfWorkCopy createWorkingCopy() {
     return new X10PlatformConfWorkCopy((X10PlatformConf) this.fSource);

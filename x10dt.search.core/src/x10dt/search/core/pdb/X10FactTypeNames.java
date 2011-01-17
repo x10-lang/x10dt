@@ -35,7 +35,8 @@ public final class X10FactTypeNames {
   public static final String X10_FieldName = "x10.fieldName"; //$NON-NLS-1$
   
   /**
-   * Fact type name identifying X10 type as a pair of ({@value #X10_TypeName}, {@link ISourceLocation}, int).
+   * Fact type name identifying X10 type as a tuple of ({@value #X10_TypeName}, {@link ISourceLocation}, int,
+   * [{@value #X10_TypeName}]).
    */
   public static final String X10_Type = "x10.type"; //$NON-NLS-1$
   
@@ -54,7 +55,7 @@ public final class X10FactTypeNames {
   // --- Outputs
   
   /**
-   * Fact type name identifying all X10 types as a set of X10 type name (see {@link #X10_TypeName}).
+   * Fact type name identifying all X10 types as a set of X10 type name (see {@link #X10_Type}).
    */
   public static final String X10_AllTypes = "x10.all.types"; //$NON-NLS-1$
   

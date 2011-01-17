@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.osgi.util.NLS;
 
+import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.MethodDef;
@@ -44,6 +45,9 @@ public class FactWriterVisitor extends NodeVisitor {
     this.fMethodName = SearchDBTypes.getInstance().getType(X10_MethodName);
     this.fFieldName = SearchDBTypes.getInstance().getType(X10_FieldName);
     this.fIntType = TypeFactory.getInstance().integerType();
+    
+    this.fVoidType = createTypeName("x10.lang.Void"); //$NON-NLS-1$
+    this.fThisMethodName = this.fMethodName.make(this.fValueFactory, "this"); //$NON-NLS-1$
   }
   
   // --- Public services
@@ -58,6 +62,17 @@ public class FactWriterVisitor extends NodeVisitor {
   }
   
   // --- Code for implementers
+  
+  protected final IValue createConstructorValue(final ConstructorDef methodDef) {
+    final List<Ref<? extends polyglot.types.Type>> formalTypes = methodDef.formalTypes();
+    final IValue[] args = new IValue[formalTypes.size()];
+    int i = -1;
+    for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
+      args[++i] = createTypeName(formalType.get().toString());
+    }
+    return getValueFactory().tuple(getSourceLocation(methodDef.position()), this.fThisMethodName, this.fVoidType,  
+                                   getValueFactory().list(args), createModifiersCodeValue(methodDef.flags()));
+  }
   
   protected final IValue createFieldValue(final FieldDef fieldDef) {
     return getValueFactory().tuple(getSourceLocation(fieldDef.position()), 
@@ -131,6 +146,10 @@ public class FactWriterVisitor extends NodeVisitor {
   private final Type fFieldName;
   
   private final Type fIntType;
+  
+  private final IValue fVoidType;
+  
+  private final IValue fThisMethodName;
   
   
   private String fScopeTypeName;

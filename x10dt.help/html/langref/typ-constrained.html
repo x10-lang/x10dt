@@ -166,7 +166,11 @@ Only the following forms of expression are allowed in constraints.
 </li>
 
 <li> Calls to property methods, where the receiver and arguments must be
-      value expressions acceptable in constraints.
+      value expressions acceptable in constraints;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>T haszero</b>, if <b>T</b> is any type expression.
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -276,14 +280,6 @@ For examples of constraints and entailment, see (&#167;)
      <h3><a name="tth_sEc4.2">
 4.2</a>&nbsp;&nbsp;Constraint solver: incompleteness and approximation</h3>
 
-
-
-
-<div class="p"><!----></div>
-The constraint solver assumes all built-in types have an infinite
-number of values. Therefore it does not realize that 
-<b>a != b &amp;&amp; a != c &amp;&amp; b != c</b> is not satisfiable when <b>a</b>, <b>b</b>, and
-<b>c</b> are <b>Boolean</b> (since the <b>Boolean</b> type has only two values). 
 
 <div class="p"><!----></div>
 The constraint solver is sound in that if it claims that <b>c</b> entails <b>d</b>

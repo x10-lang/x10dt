@@ -34,6 +34,7 @@
     <propertyref name="build.loc"/>
     <propertyref name="buildLabel"/>
     <propertyref name="no.jars.signing"/>
+    <propertyref name="x10.tag"/>
   </propertyset>
 
   <!--- Building tasks -->
@@ -462,6 +463,11 @@
       <param name="action.message" value="Run X10DT UI Tests..." />
     </antcall>
     <antcall target="run-tests">
+      <param name="plugin-name" value="x10dt.search.core.tests" />
+      <param name="activityId" value="test-x10dt-search-core" />
+      <param name="action.message" value="Run X10DT Search Core Tests..." />
+    </antcall>
+    <antcall target="run-tests">
       <param name="plugin-name" value="x10dt.ui.launch.cpp.tests" />
       <param name="activityId" value="test-x10dt-launch-cpp" />
       <param name="action.message" value="Run X10DT UI Launch C++ Tests..." />
@@ -488,7 +494,7 @@
       <param name="activityId" value="download-lpg" />
       <param name="xml.file" value="dependencies-repo.xml" />
     </antcall>
-
+    
     <antcall target="reportBuildActivity">
       <param name="activityId" value="build-x10-dist" />
       <param name="action.message" value="Build X10 distribution and X10DT fragments..." />

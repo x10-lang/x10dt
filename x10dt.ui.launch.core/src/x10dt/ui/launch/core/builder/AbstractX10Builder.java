@@ -57,6 +57,7 @@ import polyglot.main.Options;
 import polyglot.util.InternalCompilerError;
 import x10.Configuration;
 import x10.ExtensionInfo;
+import x10.X10CompilerOptions;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
 import x10dt.core.preferences.generated.X10Constants;
@@ -121,7 +122,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   // --- Abstract methods implementation
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
 	final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
     messageConsole.clearConsole();
@@ -155,6 +156,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
 
+      this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
@@ -391,10 +393,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
           if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-        	IFolder folder = root.getFolder(cpEntry.getPath());
-        	if (folder.exists()){
-        		root.getFolder(cpEntry.getPath()).accept(visitor);
-        	}
+            if (cpEntry.getPath().segmentCount() > 1) {
+              final IFolder folder = root.getFolder(cpEntry.getPath());
+              if (folder.exists()){
+                folder.accept(visitor);
+              }
+            }
           }
         }
       }
@@ -451,53 +455,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,
                                                       false /* withMainMethod */, monitor);
-    
-        // print cmd line to console
-		final IPreferencesService prefService = X10DTCorePlugin.getInstance()
-				.getPreferencesService();
-		if (prefService
-				.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
-			final MessageConsole console = UIUtils.findOrCreateX10Console();
-			final MessageConsoleStream consoleStream = console
-					.newMessageStream();
-			try {
-				consoleStream.write(getOptions(extInfo.getOptions()));
-				String[][] opts = Configuration.options(); // --- The shape of
-															// this data
-															// structure is an
-															// array of:
-				// --- (option,type,description,value) for each field in
-				// Configuration.
-				String result = "";
-				for (int j = 0; j < opts.length; j++) {
-					if (opts[j][1].equals("boolean")) {
-						if (opts[j][3].equals("true")) {
-							result += " -" + opts[j][0] + " ";
-						}
-					}
-					if (opts[j][1].equals("String")) {
-						if (!opts[j][3].equals("null")
-								&& !opts[j][3].equals("")) {
-							result += " -" + opts[j][0] + "=" + opts[j][3]
-									+ " ";
-						}
-					}
-				}
-				consoleStream.write(result);
-				for (IFile f : sourcesToCompile) {
-					consoleStream.write("\"");
-					consoleStream.write(X10BuilderUtils.getTargetSystemPath(f
-							.getLocation().toPortableString()));
-					consoleStream.write("\" ");
-				}
-				consoleStream.write("\n");
-				console.activate();
-			} catch (IOException except) {
-				LaunchCore.log(IStatus.ERROR, Messages.AXB_EchoIOException,
-						except);
-			}
-		}
-    
+
+    echoCommandLineToConsole(sourcesToCompile, extInfo);
+
     final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(this.fProjectWrapper, 1000000, extInfo.compilerName()));
     Globals.initialize(compiler);
     try {
@@ -532,24 +492,72 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
 
+  // Constants that describe the role of each slot in the 2D array that Configuration.options() returns.
+  private static final int OPTION_NAME = 0;
+  private static final int OPTION_TYPE = 1;
+  private static final int OPTION_DESCRIPTION = 2;
+  private static final int OPTION_VALUE = 3;
+
+  private void echoCommandLineToConsole(final Collection<IFile> sourcesToCompile, final ExtensionInfo extInfo) {
+    final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
+
+    if (prefService.getBooleanPreference(X10Constants.P_ECHOCOMPILEARGUMENTSTOCONSOLE)) {
+    	final MessageConsole console = UIUtils.findOrCreateX10Console();
+    	final MessageConsoleStream consoleStream = console.newMessageStream();
+    	try {
+    		X10CompilerOptions options= extInfo.getOptions();
+    		String[][] opts = options.x10_config.options(); // --- The shape of this data structure is an array of:
+    		// --- (option,type,description,value) for each field in Configuration.
+
+    		consoleStream.write(getOptions(options));
+
+    		String result = "";
+    		for (int j = 0; j < opts.length; j++) {
+    			if (opts[j][OPTION_TYPE].equals("boolean")) {
+    				if (opts[j][OPTION_VALUE].equals("true")) {
+    					result += " -" + opts[j][OPTION_NAME] + " ";
+    				}
+    			}
+    			if (opts[j][OPTION_TYPE].equals("String")) {
+    				if (!opts[j][OPTION_VALUE].equals("null") && !opts[j][OPTION_VALUE].equals("")) {
+    					result += " -" + opts[j][OPTION_NAME] + "=" + opts[j][OPTION_VALUE] + " ";
+    				}
+    			}
+    		}
+    		consoleStream.write(result);
+    		for (IFile f : sourcesToCompile) {
+    			consoleStream.write("\"");
+    			consoleStream.write(X10BuilderUtils.getTargetSystemPath(f.getLocation().toPortableString()));
+    			consoleStream.write("\" ");
+    		}
+    		consoleStream.write("\n");
+    		console.activate();
+    	} catch (IOException except) {
+    		LaunchCore.log(IStatus.ERROR, Messages.AXB_EchoIOException, except);
+    	}
+    }
+  }
+
   private void checkSrcFolders() throws CoreException {
 	  try {
 		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		boolean hasNoSourceTypeEntries = true;
-		IClasspathEntry[] entries = fProjectWrapper.getResolvedClasspath(true);
+		IClasspathEntry[] entries = this.fProjectWrapper.getResolvedClasspath(true);
 		for(int i = 0; i< entries.length; i++){
 			if (entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE){
 				hasNoSourceTypeEntries = false;
-				IPath path = entries[i].getPath();
-				final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(path).getLocationURI());
-		        if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
-		        	CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NonExistentSRCFolder, path.lastSegment()),
-                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
-		        }
-		       if (fileStore.childNames(EFS.NONE, null).length == 0){ // --- Empty source directory
-		    	   CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_EmptySRCFolder, path.lastSegment()),
-                           IMarker.SEVERITY_WARNING, IMarker.PRIORITY_HIGH);
-		       }
+				final IPath path = entries[i].getPath();
+				if (path.segmentCount() > 1) {
+          final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(path).getLocationURI());
+          if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
+            CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NonExistentSRCFolder, path.lastSegment()),
+                                               IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+          }
+          if (fileStore.childNames(EFS.NONE, null).length == 0) { // --- Empty source directory
+            CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_EmptySRCFolder, path.lastSegment()),
+                                               IMarker.SEVERITY_WARNING, IMarker.PRIORITY_HIGH);
+          }
+				}
 			}
 		}
 		if (hasNoSourceTypeEntries) { // --- Project has no source entry

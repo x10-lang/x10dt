@@ -31,7 +31,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.w3c.dom.Element;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.typeHierarchy.CorextMessages;
 import x10dt.search.ui.typeHierarchy.DefaultTypeNameMatch;

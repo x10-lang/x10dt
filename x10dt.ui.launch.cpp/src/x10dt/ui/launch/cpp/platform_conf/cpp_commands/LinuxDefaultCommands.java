@@ -7,14 +7,16 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
+import org.eclipse.core.resources.IProject;
+
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETransport;
 
 
 final class LinuxDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  LinuxDefaultCommands(final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
-    super(is64Arch, architecture, transport);
+  LinuxDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
+    super(project, is64Arch, architecture, transport);
   }
   
   // --- Interface methods implementation

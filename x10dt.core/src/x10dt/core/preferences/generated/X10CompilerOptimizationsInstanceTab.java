@@ -5,6 +5,7 @@ package x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -50,48 +51,15 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 		fields.add(Optimize);
 
 
-		BooleanFieldEditor LoopOptimizations = fPrefUtils.makeNewBooleanField(
+		BooleanFieldEditor DisableChecking = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
-			"instance", "LoopOptimizations", "Loop optimizations",
+			"instance", "DisableChecking", "Disable checking",
 			"",
 			parent,
 			true, true,
 			true, false,
 			false);
-		fields.add(LoopOptimizations);
-
-
-		BooleanFieldEditor InlineOptimizations = fPrefUtils.makeNewBooleanField(
-			page, this, fPrefService,
-			"instance", "InlineOptimizations", "Inline optimizations",
-			"",
-			parent,
-			true, true,
-			true, false,
-			false);
-		fields.add(InlineOptimizations);
-
-
-		BooleanFieldEditor ClosureInlining = fPrefUtils.makeNewBooleanField(
-			page, this, fPrefService,
-			"instance", "ClosureInlining", "Closure inlining",
-			"",
-			parent,
-			true, true,
-			true, false,
-			false);
-		fields.add(ClosureInlining);
-
-
-		BooleanFieldEditor WorkStealing = fPrefUtils.makeNewBooleanField(
-			page, this, fPrefService,
-			"instance", "WorkStealing", "Work stealing",
-			"Enable code generation for the work-stealing scheduler",
-			parent,
-			true, true,
-			true, false,
-			false);
-		fields.add(WorkStealing);
+		fields.add(DisableChecking);
 
 		return fields.toArray(new FieldEditor[fields.size()]);
 	}

@@ -29,6 +29,14 @@ public interface IBackEndX10ProjectConverter {
   public String getProjectNatureId();
   
   /**
+   * Called after the project description changes in order to allow some necessary post-processing.
+   * 
+   * @param shellProvider The shell provider that can be used for error reporting.
+   * @param project The project considered for back-end change.
+   */
+  public void postProjectSetup(final IShellProvider shellProvider, final IProject project);
+  
+  /**
    * Called before the project description changes in order to allow some necessary pre-processing.
    * 
    * @param shellProvider The shell provider that can be used for error reporting.

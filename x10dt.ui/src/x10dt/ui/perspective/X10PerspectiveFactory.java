@@ -26,13 +26,15 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.progress.IProgressConstants;
 
+import x10dt.search.ui.typeHierarchy.X10Constants;
+
 public class X10PerspectiveFactory implements IPerspectiveFactory {
   public void createInitialLayout(IPageLayout layout) {
     String editorArea = layout.getEditorArea();
     IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); //$NON-NLS-1$
 
     folder.addView(JavaUI.ID_PACKAGES);
-    folder.addView(JavaUI.ID_TYPE_HIERARCHY);
+    folder.addView(X10Constants.ID_TYPE_HIERARCHY);
     folder.addPlaceholder(IPageLayout.ID_RES_NAV);
 
     IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); //$NON-NLS-1$
@@ -53,7 +55,7 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
 
     // views - java
     layout.addShowViewShortcut(JavaUI.ID_PACKAGES);
-    layout.addShowViewShortcut(JavaUI.ID_TYPE_HIERARCHY);
+    layout.addShowViewShortcut(X10Constants.ID_TYPE_HIERARCHY);
     layout.addShowViewShortcut(JavaUI.ID_SOURCE_VIEW);
     layout.addShowViewShortcut(JavaUI.ID_JAVADOC_VIEW);
 

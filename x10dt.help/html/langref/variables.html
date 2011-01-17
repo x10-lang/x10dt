@@ -49,8 +49,7 @@ context. Variable bindings have these essential properties:
 </ul>
 
 <div class="p"><!----></div>
-X10 has many varieties of variables, used for a number of purposes. They will
-be described in more detail in this chapter.  
+X10 has many varieties of variables, used for a number of purposes.  
 
 <ul>
 <li> Class variables, also known as the static fields of a class, which hold
@@ -90,7 +89,8 @@ such as classes and methods, are not called variables.  However, all
 name-to-whatever bindings enjoy similar concepts of scope and visibility.  
 
 <div class="p"><!----></div>
-In the following example, <b>n</b> is an instance variable, and <b>nxt</b> is a
+In the following example, 
+<b>n</b> is an instance variable, and <b>nxt</b> is a
 local variable defined within the method <b>bump</b>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
 <pre>
 class Counter {
@@ -121,6 +121,13 @@ variable declaration does not include either <b>var</b> or <b>val</b>, it is
 considered <b>val</b>. 
 
 <div class="p"><!----></div>
+A variable-even a <b>val</b> - can be declared in one statement, and then
+initialized later on.  It must be initialized before it can be used
+(&#167;).  
+
+<div class="p"><!----></div>
+The following example illustrates many of the variations on variable
+declaration:
 <pre>
 val a : Int = 0;               // Full 'val' syntax
 b : Int = 0;                   // 'val' implied
@@ -128,6 +135,8 @@ val c = 0;                     // Type inferred
 var d : Int = 0;               // Full 'var' syntax
 var e : Int;                   // Not initialized
 var f : Int{self != 100} = 0;  // Constrained type
+val g : Int;                   // Init. deferred
+if (a &#62; b) g = 1; else g = 2;  // Init. done here.
 </pre>
 
 <div class="p"><!----></div>

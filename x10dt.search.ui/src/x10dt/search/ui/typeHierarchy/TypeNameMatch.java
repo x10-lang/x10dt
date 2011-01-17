@@ -11,12 +11,7 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMember;
-import org.eclipse.jdt.core.search.IJavaSearchScope;
-import org.eclipse.jdt.core.search.TypeNameRequestor;
-
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 
 
 

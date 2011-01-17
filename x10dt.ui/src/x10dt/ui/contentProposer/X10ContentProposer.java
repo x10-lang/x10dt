@@ -58,12 +58,11 @@ import polyglot.ast.Node;
 import polyglot.ast.Stmt;
 import polyglot.types.ClassType;
 import polyglot.types.FieldInstance;
-import polyglot.types.MethodInstance;
 import polyglot.types.ObjectType;
-import polyglot.types.ReferenceType;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parsersym;
+import x10.types.MethodInstance;
 import x10dt.ui.parser.ParseController;
 import x10dt.ui.parser.PolyglotNodeLocator;
 
@@ -125,7 +124,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 	}
 
 	private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
-        for(ReferenceType r: in_classes) {
+        for(ObjectType r: in_classes) {
             ClassType c= r.toClass();
             String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
             if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix)) {
@@ -171,7 +170,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         filterClasses(classes, container_type.memberClasses(), prefix, emptyPrefixMatches);
        
         for(int i= 0; i < container_type.interfaces().size(); i++) {
-            ClassType interf= ((ReferenceType) container_type.interfaces().get(i)).toClass();
+            ClassType interf= ((ObjectType) container_type.interfaces().get(i)).toClass();
             filterClasses(classes, interf.memberClasses(), prefix, emptyPrefixMatches);
         }
         getClassCandidates(container_type.superClass(), classes, prefix, emptyPrefixMatches);//PORT1.7 superType)_->superClass()

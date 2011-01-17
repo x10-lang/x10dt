@@ -1,11 +1,27 @@
 package x10dt.search.ui.search;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.search.ui.ISearchPageContainer;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.IWorkingSetManager;
 import org.eclipse.ui.PlatformUI;
 
+import x10dt.search.core.engine.scope.IX10SearchScope;
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
+
+/**
+ * This class encapsulates the data gathered from the search page UI.
+ * @author mvaziri
+ *
+ */
 public class SearchPatternData {
 	// search for
 	public final static int TYPE= 0;
@@ -29,20 +45,74 @@ public class SearchPatternData {
 	private final IWorkingSet[] workingSets;
 	private final boolean isCaseSensitive;
 	private final int scope;
+	private final IResource[] resources;
+	private final IX10SearchScope X10Scope;
 
-	public SearchPatternData(int searchFor, int limitTo, boolean isCaseSensitive, String pattern) {
-		this(searchFor, limitTo, pattern, isCaseSensitive,  ISearchPageContainer.WORKSPACE_SCOPE, null);
-	}
+//	public SearchPatternData(int searchFor, int limitTo, boolean isCaseSensitive, String pattern) {
+//		this(searchFor, limitTo, pattern, isCaseSensitive,  ISearchPageContainer.WORKSPACE_SCOPE, null);
+//	}
 
-	public SearchPatternData(int searchFor, int limitTo, String pattern, boolean isCaseSensitive, int scope, IWorkingSet[] workingSets) {
+	public SearchPatternData(int searchFor, int limitTo, String pattern, boolean isCaseSensitive, int scope, IResource[] resources, IWorkingSet[] workingSets) {
 		this.searchFor= searchFor;
 		this.limitTo= limitTo;
-		this.pattern = pattern.replace("?", ".?").replace("*", ".*");
+		if (invalid(pattern)){
+			this.pattern = pattern.replace("?", ".?").replace("*", ".*");
+		} else {
+			this.pattern = pattern;
+		}
 		this.isCaseSensitive= isCaseSensitive;
 		this.workingSets= workingSets;
 		this.scope= scope;
+		this.resources = resources;
+		if ((scope == ISearchPageContainer.SELECTED_PROJECTS_SCOPE ||
+				scope == ISearchPageContainer.SELECTION_SCOPE) && resources != null){
+			X10Scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, resources);
+		} else if (scope == ISearchPageContainer.WORKING_SET_SCOPE && workingSets != null) {
+			Collection<IResource> res = new ArrayList<IResource>();
+			for(IWorkingSet ws: workingSets){
+				IAdaptable[] elements = ws.getElements();
+				for(IAdaptable ia: elements){
+					IResource resource = (IResource) ia.getAdapter(IResource.class);
+					if (resource != null){
+						res.add(resource);
+					}
+				}
+			}
+			X10Scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, res.toArray(new IResource[0]));
+		} else {
+			X10Scope = SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL);
+		}
 	}
 
+	private boolean invalid(String pattern){
+		Collection<Integer> is = getAllIndeces(pattern, '*');
+		if (!check(pattern, is))
+			return true;
+		Collection<Integer> js = getAllIndeces(pattern, '?');
+		if (!check(pattern, js))
+			return true;
+		return false;
+	}
+	
+	private Collection<Integer> getAllIndeces(String pattern, char match){
+		Collection<Integer> res = new ArrayList<Integer>();
+		for(int i = 0; i < pattern.length(); i++){
+			if (pattern.charAt(i) == match){
+				res.add(i);
+			}
+		}
+		return res;
+	}
+	
+	private boolean check(String pattern, Collection<Integer> is){
+		for (int i: is){
+			if (i == 0 || (i > 0 && pattern.charAt(i-1) != '.')){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 	public boolean isCaseSensitive() {
 		return isCaseSensitive;
 	}
@@ -54,9 +124,17 @@ public class SearchPatternData {
 	public String getPattern() {
 		return pattern;
 	}
+	
+	public String getPatternLabel() {
+		return pattern.replaceAll("\\.\\*", "*").replaceAll("\\.\\?","?");
+	}
 
 	public int getScope() {
 		return scope;
+	}
+	
+	public IX10SearchScope getX10Scope() {
+		return X10Scope;
 	}
 
 	public int getSearchFor() {
@@ -73,6 +151,15 @@ public class SearchPatternData {
 		settings.put("pattern", pattern); //$NON-NLS-1$
 		settings.put("limitTo", limitTo); //$NON-NLS-1$
 		settings.put("isCaseSensitive", isCaseSensitive); //$NON-NLS-1$
+		if (resources != null){
+			String[] rs = new String[resources.length];
+			for(int i = 0; i < resources.length; i++){
+				rs[i] = resources[i].getFullPath().toOSString();
+			}
+			settings.put("resources", rs);
+		} else {
+			settings.put("resources", new String[0]);
+		}
 		if (workingSets != null) {
 			String[] wsIds= new String[workingSets.length];
 			for (int i= 0; i < workingSets.length; i++) {
@@ -95,7 +182,16 @@ public class SearchPatternData {
 			int limitTo= settings.getInt("limitTo"); //$NON-NLS-1$
 
 			boolean isCaseSensitive= settings.getBoolean("isCaseSensitive"); //$NON-NLS-1$
-
+			String[] rs = settings.getArray("resources");
+			IResource[] resources = null;
+			if (rs != null && rs.length > 0){
+				resources = new IResource[rs.length];
+				for(int i = 0; i < rs.length; i++){
+					resources[i] = ResourcesPlugin.getWorkspace().getRoot().findMember(new Path(rs[i]));
+				}
+			}
+			
+			
 			String[] wsIds= settings.getArray("workingSets"); //$NON-NLS-1$
 			IWorkingSet[] workingSets= null;
 			if (wsIds != null && wsIds.length > 0) {
@@ -109,7 +205,7 @@ public class SearchPatternData {
 				}
 			}
 			
-			return new SearchPatternData(searchFor, limitTo, pattern, isCaseSensitive, scope, workingSets);
+			return new SearchPatternData(searchFor, limitTo, pattern, isCaseSensitive, scope, resources, workingSets);
 		} catch (NumberFormatException e) {
 			return null;
 		}

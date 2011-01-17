@@ -26,98 +26,6 @@
       </tokenColorer>
    </extension>
    <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            delegate="x10dt.ui.launching.X10LaunchConfigurationDelegate"
-            id="x10dt.ui.launching.X10LaunchConfigurationType"
-            modes="run,debug"
-            name="X10 Application (Java back-end)"
-            public="true"
-            sourceLocatorId="org.eclipse.jdt.launching.sourceLocator.JavaSourceLookupDirector"
-            sourcePathComputerId="org.eclipse.jdt.launching.sourceLookup.javaSourcePathComputer">
-      </launchConfigurationType>
-   </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
-      <launchConfigurationTypeImage
-            icon="icons/x10_application.gif"
-            configTypeID="x10dt.ui.launching.X10LaunchConfigurationType"
-            id="x10dt.ui.launching.X10LaunchConfigurationTypeImage">
-      </launchConfigurationTypeImage>
-   </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
-      <launchConfigurationTabGroup
-            type="x10dt.ui.launching.X10LaunchConfigurationType"
-            class="x10dt.ui.launching.X10LaunchConfigurationTabGroup"
-            id="x10dt.ui.launching.X10LaunchConfigurationTabGroup">
-         <launchMode
-               description="%run.launch.mode.descr"
-               mode="run"
-               perspective="x10dt.ui.perspective">
-         </launchMode>
-         <launchMode
-               description="%debug.launch.mode.descr"
-               mode="debug"
-               perspective="x10dt.ui.perspective">
-         </launchMode>
-      </launchConfigurationTabGroup>
-   </extension>
-   <extension
-         point="org.eclipse.debug.ui.launchShortcuts">
-      <shortcut
-            label="X10 Application (Java back-end)"
-            icon="icons/x10_application.gif"
-            modes="run,debug"
-            class="x10dt.ui.launching.X10JavaLaunchShortcut"
-            id="x10dt.ui.launching.x10LaunchShortcut">
-         <contextualLaunch>
-            <enablement>
-               <with
-                     variable="selection">
-                  <count
-                        value="1">
-                  </count>
-                  <iterate>
-                     <and>
-                        <or>
-                           <instanceof
-                                 value="org.eclipse.jdt.core.IPackageFragment">
-                           </instanceof>
-                           <instanceof
-                                 value="org.eclipse.jdt.core.IPackageFragmentRoot">
-                           </instanceof>
-                           <instanceof
-                                 value="org.eclipse.jdt.core.IJavaProject">
-                           </instanceof>
-                           <adapt
-                                 type="org.eclipse.core.resources.IResource">
-                              <test
-                                    property="x10dt.ui.hasMain">
-                              </test>
-                           </adapt>
-                           <adapt
-                                 type="org.eclipse.ui.IFileEditorInput">
-                              <test
-                                    property="x10dt.ui.hasMain">
-                              </test>
-                           </adapt>
-                        </or>
-                        <test
-                              property="org.eclipse.debug.ui.projectNature"
-                              value="x10dt.ui.launch.java.x10nature">
-                        </test>
-                     </and>
-                  </iterate>
-               </with>
-            </enablement>
-         </contextualLaunch>
-         <configurationType
-               id="x10dt.ui.launching.X10LaunchConfigurationType">
-         </configurationType>
-      </shortcut>
-   </extension>
-   <extension
          point="org.eclipse.imp.runtime.autoEditStrategy">
       <autoEditStrategy
             class="x10dt.ui.editor.formatting.X10AutoIndentStrategy"
@@ -145,35 +53,15 @@
    <extension
          point="org.eclipse.ui.bindings">
       <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.run"
-            contextId="org.eclipse.ui.contexts.window"
-            sequence="M2+M3+X X"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
-      <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.run"
-            contextId="org.eclipse.ui.contexts.window"
-            platform="carbon"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+X X">
-      </key>
-      <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M2+M3+D X">
-      </key>
-      <key
-            commandId="x10dt.ui.launching.x10LaunchShortcut.debug"
-            contextId="org.eclipse.ui.contexts.window"
-            platform="carbon"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+M3+M4+D X">
-      </key>
-      <key
             sequence="M1+M2+T"
             contextId="x10dt.ui.x10PerspectiveScope"
             commandId="x10dt.ui.navigate.OpenType"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            sequence="M1+M2+H"
+            contextId="x10dt.ui.x10PerspectiveScope"
+            commandId="x10dt.ui.navigate.OpenTypeInHierarchy"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
       <key
@@ -182,43 +70,27 @@
             commandId="x10dt.ui.navigate.OpenHierarchy"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
-<!--
-      <key
-            sequence="M1+M2+T"
-            contextId="x10dt.ui.x10PerspectiveScope"
-            commandId="x10dt.ui.navigate.OpenTypeWarning"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
-      </key>
--->
-<!--
       <key
             sequence="F4"
-            contextId="x10dt.ui.x10EditorScope"
+            contextId="x10dt.ui.x10PerspectiveScope"
             commandId="x10dt.ui.navigate.OpenTypeHierarchy"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
--->
    </extension>
    <extension
          point="org.eclipse.ui.commands">
-      <command
-            name="Run X10 Application (Java Back-End)"
-            description="Run the selected main type as an X10 application"
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="x10dt.ui.launching.x10LaunchShortcut.run">
-      </command>
-      <command
-            name="Debug X10 Application (Java Back-End)"
-            description="Run the selected main type as an X10 application"
-            categoryId="org.eclipse.debug.ui.category.run"
-            id="x10dt.ui.launching.x10LaunchShortcut.debug">
-      </command>
 <!-- navigate -->
       <command
             name="%ActionDefinition.openType.name"
             description="%ActionDefinition.openType.description"
             categoryId="org.eclipse.ui.category.navigate"
             id="x10dt.ui.navigate.OpenType">
+      </command>
+      <command
+            name="%ActionDefinition.openTypeInHierarchy.name"
+            description="%ActionDefinition.openTypeInHierarchy.description"
+            categoryId="org.eclipse.ui.category.navigate"
+            id="x10dt.ui.navigate.OpenTypeInHierarchy">
       </command>
       <command
             name="%ActionDefinition.open.hierarchy.name"
@@ -233,14 +105,12 @@
             categoryId="org.eclipse.ui.category.navigate"
             id="x10dt.ui.navigate.OpenTypeWarning">
       </command>
-<!--
       <command
             name="%ActionDefinition.openTypeHierarchy.name"
             description="%ActionDefinition.openTypeHierarchy.description"
             categoryId="org.eclipse.ui.category.navigate"
             id="x10dt.ui.navigate.OpenTypeHierarchy">
       </command>
--->
    </extension>
    <extension
          point="org.eclipse.imp.runtime.outliner">
@@ -333,9 +203,6 @@
       </perspectiveExtension>
       <perspectiveExtension
             targetID="x10dt.ui.perspective">
-         <newWizardShortcut
-               id="x10dt.ui.wizards.NewX10Project">
-         </newWizardShortcut>
          <showInPart
                id="org.eclipse.imp.runtime.projectExplorerView">
          </showInPart>
@@ -510,15 +377,6 @@
                toolbarPath="Normal/X10Wizards"
                tooltip="%new.package.tooltip">
          </action>
-         <action
-               class="x10dt.ui.perspective.actions.OpenX10ProjectJavaBCWizardToolbarAction"
-               icon="icons/newx10prj_java.gif"
-               id="x10dt.ui.NewX10ProjectJavaToolbarAction"
-               label="%new.project.java.label"
-               style="push"
-               toolbarPath="Normal/X10Wizards"
-               tooltip="%new.project.java.tooltip">
-         </action>
       </actionSet>
       <!-- =========================================================================== -->
 <!-- Java and Coding Action Set (Adding the source, refactor and navigate menu)  -->
@@ -528,17 +386,15 @@
             description="%X10ActionSet.description"
             visible="false"
             id="x10dt.ui.typeActionSet">
-<!--
          <action
                definitionId="x10dt.ui.navigate.OpenTypeInHierarchy"
                label="%OpenTypeInHierarchyAction.label"
                helpContextId="x10dt.ui.open_type_in_hierarchy_action"
                tooltip="%OpenTypeInHierarchyAction.tooltip"
-               class="x10dt.ui.actions.OpenTypeInHierarchyAction"
+               class="x10dt.search.ui.actions.OpenTypeInHierarchyAction"
                menubarPath="navigate/open.ext2"
                id="openTypeInHierarchy">
          </action>
--->
          <action
                id="openType"
                toolbarPath="org.eclipse.search.searchActionSet/Search"
@@ -556,7 +412,6 @@
                definitionId="x10dt.ui.navigate.OpenTypeWarning"
                label="%OpenTypeAction.label">
          </action>
-<!--
          <action
                definitionId="x10dt.ui.navigate.OpenTypeHierarchy"
                label="%OpenTypeHierarchyAction.label"
@@ -564,7 +419,6 @@
                menubarPath="navigate/open.ext"
                id="openTypeHierarchy">
          </action>
--->
       </actionSet>
    </extension>
    <extension
@@ -595,7 +449,6 @@
             name="X10 AST Info"
             restorable="true">
       </view>
-<!--
       <view
             name="%hierarchyViewName"
             icon="icons/class_hi.gif"
@@ -603,7 +456,6 @@
             class="x10dt.search.ui.typeHierarchy.TypeHierarchyViewPart"
             id="x10dt.ui.TypeHierarchy">
       </view>
--->
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -637,17 +489,6 @@
             icon="icons/newpack_wiz.gif"
             id="x10dt.ui.wizards.NewX10PackageWizard"
             name="X10 Package">
-      </wizard>
-      <wizard
-            canFinishEarly="false"
-            category="x10dt.wizards.category"
-            class="x10dt.ui.wizards.X10ProjectWizard"
-            finalPerspective="x10dt.ui.perspective"
-            hasPages="true"
-            icon="icons/newproject.gif"
-            id="x10dt.ui.wizards.NewX10Project"
-            name="X10 Project (Java back-end)"
-            project="true">
       </wizard>
    </extension>
    <extension

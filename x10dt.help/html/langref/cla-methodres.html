@@ -17,8 +17,8 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc8">
-8</a>&nbsp;&nbsp;Method Resolution</h2>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Method Resolution</h2>
 
 
 <a name="sect:MethodResolution">
@@ -79,7 +79,8 @@ So, a typical <b>M</b> might look like
 given method call means <b>M</b> or not, so we ignore it for this section.
 
 <div class="p"><!----></div>
-
+All that matters about a method definition, for the purposes of method
+resolution, is:
 <ol type="1">
 <li> The method name <b>m</b>;
 <div class="p"><!----></div>
@@ -129,7 +130,7 @@ All that matters about an invocation <b>I</b> is:
 </li>
 
 <li> The generic type parameters "G&#8242;<sub>1</sub>,&#8230;, G&#8242;<sub>g</sub>".  If there
-      are no generic type parameters, x=0.
+      are no generic type parameters, g=0.
 <div class="p"><!----></div>
 </li>
 
@@ -171,7 +172,7 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 </li>
 
 <li> The actual parameter types must be subtypes of the formal
-            parameter types:  "T&#8242;<sub>i</sub> &lt;: Ti<sub>i</sub>" for each <em>i</em>.
+            parameter types:  "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>" for each <em>i</em>.
 <div class="p"><!----></div>
 </li>
 
@@ -244,6 +245,69 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 </ol>
 
 <div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Other Disambiguations</h3>
+
+<div class="p"><!----></div>
+It is possible to have a field of the same name as a method.
+Indeed, it is a common pattern to have private field and a public
+method of the same name to access it:
+
+<pre>
+class Xhaver {
+  private var x: Int = 0;
+  public def x() = x;
+  public def bumpX() { x ++; }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+However, this can lead to syntactic ambiguity in the case where the field
+<b>f</b> of object <b>a</b> is a
+function, array, list, or the like, and where <b>a</b> has a method also named
+<b>f</b>.  The term <b>a.f(b)</b> could either mean "call method <b>f</b> of <b>a</b> upon
+<b>b</b>", or "apply the function <b>a.f</b> to argument <b>b</b>".  
+
+<div class="p"><!----></div>
+<pre>
+class Ambig {
+  public val f : (Int)=&#62;Int =  (x:Int) =&#62; x*x;
+  public def f(y:int) = y+1;
+  public def example() {
+      val v = this.f(10);
+      // is v 100, or 11?
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+In the case where a syntactic form "E;.m(F<sub>1</sub>, &#8230;, F<sub>n</sub>)" could
+be resolved as either a method call, or the application of a field <b>E.m</b>
+to some arguments, it will be treated as a method call.  
+The application of <b>E.m</b> to some arguments can be specified by adding
+parentheses:  "(E.m)(F<sub>1</sub>, &#8230;, F<sub>n</sub>)".
+
+<div class="p"><!----></div>
+<pre>
+class Disambig {
+  public val f : (Int)=&#62;Int =  (x:Int) =&#62; x*x;
+  public def f(y:int) = y+1;
+  public def example() {
+      assert(  this.f(10)  == 11  );
+      assert( (this.f)(10) == 100 );
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>The
+      variable names are relevant because one formal can be mentioned in a
+      later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
 
 </body>
 </html>

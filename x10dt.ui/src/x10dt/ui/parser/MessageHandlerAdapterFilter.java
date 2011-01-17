@@ -5,7 +5,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.jdt.core.IJavaProject;
 
-import x10.parser.X10Parser;
+import x10.parser.X10SemanticRules.MessageHandler;
 import x10dt.core.builder.BuildPathUtils;
 
 public class MessageHandlerAdapterFilter implements lpg.runtime.IMessageHandler {
@@ -35,7 +35,7 @@ public class MessageHandlerAdapterFilter implements lpg.runtime.IMessageHandler 
 		int startCol = msgLocation[lpg.runtime.IMessageHandler.START_COLUMN_INDEX];
 		int endCol = msgLocation[lpg.runtime.IMessageHandler.END_COLUMN_INDEX];
 
-		String message = X10Parser.MessageHandler.getErrorMessageFor(errorCode,
+		String message = MessageHandler.getErrorMessageFor(errorCode,
 				errorInfo);
 
 		if (fFilePath.equals(new Path(filename)))

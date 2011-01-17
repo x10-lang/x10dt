@@ -26,16 +26,14 @@
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right">AtEachStatement    ::= <b>ateach</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> ClockedClause<sup>?</sup>&nbsp;Statement </td></tr>
-<tr><td align="right">
-    &#124; <b>ateach</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
-<tr><td align="right">LoopIndexDeclarator    ::= Id HasResultType<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">
-    &#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
+
+<tr><td align="right">AtEachStatement ::= <b>ateach</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> ClockedClause<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">&#124; <b>ateach</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right">LoopIndexDeclarator ::= Id HasResultType<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">LoopIndex    ::= Mods<sup>?</sup>&nbsp;LoopIndexDeclarator </td></tr>
-<tr><td align="right">
-    &#124; Mods<sup>?</sup>&nbsp;VarKeyword LoopIndexDeclarator</td></tr>
+<tr><td align="right">LoopIndex ::= Mods<sup>?</sup>&nbsp;LoopIndexDeclarator </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword LoopIndexDeclarator </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 In <b>ateach(p in D) S</b>, <b>D</b> must be either of type <b>Dist</b>

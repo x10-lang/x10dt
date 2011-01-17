@@ -31,7 +31,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.NewProjectAction;
 import org.eclipse.ui.dialogs.SelectionDialog;
 
-import x10dt.search.core.engine.ITypeInfo;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.dialogs.OpenTypeSelectionDialog;

@@ -59,23 +59,13 @@
 	<topic label="StructSpheres" href="html/samples/StructSpheres.html">StructSpheres</topic>
 	<topic label="GCSpheres" href="html/samples/GCSpheres.html">GCSpheres</topic>
 </topic> 
-<!--
-<topic label="Programmers Guide">
-	<topic label="Preface" href="html/pguide/preface.html"/>
-	<topic label="A Whirlwind Tour of X10" href="html/pguide/tour.html">
-		<topic label="Hello" href="html/pguide/hello.html"/> 
-		<topic label="Two CPUs Are Better Than One" href="html/pguide/2cpus.html"/> 
-		<topic label="A Thousand CPUs Are Better Than Tw0" href="html/pguide/1kcpus.html"/> 
-	</topic>
-	<topic label="A First Look At X10's Types" href="html/pguide/types.html">
-		<topic label="What's In An .x10 File" href="html/pguide/file.html"/> 
-		<topic label="What's In A Class" href="html/pguide/class.html"/> 
-		<topic label="Interfaces: More Abstract Than Abstract" href="html/pguide/interfaces.html"/> 
-		<topic label="Giving Up Inheritance To Get Efficiency" href="html/pguide/inheritance.html"/> 
-	</topic>
-	<topic label="The Standard Library" href="html/pguide/library.html"/>
+
+<topic label="An Introduction to Programming With X10">
+	<topic label="Preface" href="html/pguide/fp.html"/>
+	<topic label="A Whirlwind Tour of X10" href="html/pguide/ch1.html"/>
+	<topic label="A First Look At X10's Types" href="html/pguide/ch2.html"/>
+	<topic label="A Potpourri of Types" href="html/pguide/ch3.html"/>
 </topic> 
--->
 
 <topic label="X10 Language Reference" href="html/langref/toc.html">
 	<topic label="Summary"  href="html/langref/summary.html"/> 
@@ -106,6 +96,7 @@
 		<topic label="Common ancestors of types" href="html/langref/typ-commonancestors.html"/>
 		<topic label="Fundamental types" href="html/langref/typ-fundamental.html"/> 
 		<topic label="Type inference" href="html/langref/typ-inference.html"/>
+		<topic label="Type dependencies" href="html/langref/typ-dependencies.html"/>
 	</topic>
 	<topic label="Variables" href="html/langref/variables.html">
 		<topic label="Immutable variables" href="html/langref/var-final.html"/>
@@ -121,7 +112,12 @@
     	<topic label="Conventions on Type Names" href="html/langref/nam-conventions.html"/>
 	</topic>
 	<topic label="Interfaces" href="html/langref/interfaces.html">
+		<topic label="Interface Syntax" href="html/langref/int-syntax.html"/>
+		<topic label="Access to Members" href="html/langref/int-access.html"/>
 		<topic label="Field Definitions" href="html/langref/int-fielddefs.html"/>
+		<topic label="Generic Interfaces" href="html/langref/int-generic.html"/>
+		<topic label="Interface Inheritance" href="html/langref/int-inheritance.html"/>
+		<topic label="Members of an Interface" href="html/langref/int-members.html"/>
 <!--
 		<topic label="Interfaces Specifying Properties" href="html/langref/int-props.html"/>
 -->
@@ -133,14 +129,15 @@
 		<topic label="Methods" href="html/langref/cla-methods.html"/>
 <!--
 		<topic label="Instance Initialization" href="html/langref/cla-instanceinit.html"/>
-		<topic label="Constructors" href="html/langref/cla-constructors.html"/>
 -->
+		<topic label="Constructors" href="html/langref/cla-constructors.html"/>
 		<topic label="Static initialization" href="html/langref/cla-staticinit.html"/>
 		<topic label="User-Defined Operators" href="html/langref/cla-userdefinedops.html"/> 
 		<topic label="Class Guards and Invariants" href="html/langref/cla-guards.html"/>
 		<topic label="Method Resolution" href="html/langref/cla-methodres.html"/>
 		<topic label="Static Nested Classes" href="html/langref/cla-staticnested.html"/>
 		<topic label="Inner Classes" href="html/langref/cla-inner.html"/>
+		<topic label="Local Classes" href="html/langref/cla-local.html"/>
 		<topic label="Anonymous Classes" href="html/langref/cla-anonymous.html"/>		
 	</topic>
 	<topic label="Structs" href="html/langref/structs.html"> 
@@ -203,10 +200,11 @@
 		<topic label="Do-while statement" href="html/langref/sta-dowhile.html"/>  
 		<topic label="For statement" href="html/langref/sta-for.html"/>
 		<topic label="Return statement" href="html/langref/sta-return.html"/>
-		<topic label="Assert statement" href="html/langref/sta-assert.html"/>
+		<topic label="Assert statement" href="html/langref/sta-assertst.html"/>
 		<topic label="Exceptions in X10" href="html/langref/sta-exceptions.html"/>
 		<topic label="Throw statement" href="html/langref/sta-throw.html"/> 
-		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/>  
+		<topic label="Try-catch statement" href="html/langref/sta-trycatch.html"/>
+		<topic label="Assert" href="html/langref/sta-assert.html"/>  
 	</topic>
 	<topic label="Places" href="html/langref/places.html"> 
 		<topic label="The Structure of Places" href="html/langref/pla-structure.html"/> 
@@ -225,7 +223,8 @@
 		<topic label="At expressions" href="html/langref/act-atexpr.html"/>
 		<topic label="Shared variables" href="html/langref/act-sharedvars.html"/> 
 -->			
-		<topic label="Atomic blocks" href="html/langref/act-atomicblocks.html"/> 
+		<topic label="Atomic blocks" href="html/langref/act-atomicblocks.html"/>
+		<topic label="Use of Atomic Blocks" href="html/langref/act-useofatomicblocks.html"/> 
 	</topic>
 	<topic label="Clocks" href="html/langref/clocks.html"> 
 		<topic label="Clock operations" href="html/langref/clockops.html"/> 
@@ -258,6 +257,7 @@
 		<topic label="External Java Code" href="html/langref/ext-javacode.html"/> 
 		<topic label="External C++ Code" href="html/langref/ext-cppcode.html"/>
 	</topic>
+	<topic label="Definite Assignment" href="html/langref/definiteassignment.html"/>
 	<topic label="Grammar" href="html/langref/grammar.html"/>
 	<topic label="References" href="html/langref/refs.html"/>
 	<topic label="Changes" href="html/langref/changelog.html"/>

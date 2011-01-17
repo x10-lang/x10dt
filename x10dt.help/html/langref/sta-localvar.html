@@ -26,23 +26,15 @@
 <div class="p"><!----></div>
 <em> 
 <table>
-<tr><td align="right">LocalVariableDeclStatement    ::= LocalVariableDecl <b>;</b> </td></tr>
-<tr><td align="right">
- LocalVariableDecl    ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators </td></tr>
-<tr><td align="right">
-    &#124; Mods<sup>?</sup>&nbsp;VariableDeclaratorsWithType</td></tr>
-<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators</td></tr>
-<tr><td align="right">VariableDeclaratorsWithType    ::= VariableDeclaratorWithType </td></tr>
-<tr><td align="right">
-    &#124; VariableDeclaratorsWithType <b>,</b> VariableDeclaratorWithType</td></tr>
-<tr><td align="right">VariableDeclarators    ::= VariableDeclarator </td></tr>
-<tr><td align="right">
-    &#124; VariableDeclarators <b>,</b> VariableDeclarator</td></tr>
-<tr><td align="right">VariableInitializer    ::= Exp </td></tr>
-<tr><td align="right">
- FormalDeclarators    ::= FormalDeclarator </td></tr>
-<tr><td align="right">
-    &#124; FormalDeclarators <b>,</b> FormalDeclarator</td></tr>
+
+<tr><td align="right">LocalVariableDeclStatement ::= LocalVariableDecl <b>;</b> </td></tr>
+<tr><td align="right">VariableDeclaratorsWithType ::= VariableDeclaratorWithType </td></tr>
+<tr><td align="right">&#124; VariableDeclaratorsWithType <b>,</b> VariableDeclaratorWithType </td></tr>
+<tr><td align="right">VariableDeclarators ::= VariableDeclarator </td></tr>
+<tr><td align="right">&#124; VariableDeclarators <b>,</b> VariableDeclarator </td></tr>
+<tr><td align="right">VariableInitializer ::= Exp </td></tr>
+<tr><td align="right">FormalDeclarators ::= FormalDeclarator </td></tr>
+<tr><td align="right">&#124; FormalDeclarators <b>,</b> FormalDeclarator </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -51,7 +43,8 @@ Short-lived variables are introduced by local variables declarations, as
 described in &#167;5. Local variables may be declared only
 within a block statement (&#167;). The scope of a local variable
 declaration is the statement itself and the subsequent statements in the
-block.
+block.  Variables declared in such statements shadow variables of the same
+name declared elsewhere.
 <pre>
   if (a &#62; 1) {
      val b = a/2;
@@ -59,6 +52,45 @@ block.
      // b and c are defined here
   }
   // b and c are not defined here.
+</pre>
+
+<div class="p"><!----></div>
+A local variable of a given name, say <b>x</b>, cannot shadow another local
+variable or parameter named <b>x</b> unless there is an intervening method or
+closure declaration, or unless the inner <b>x</b> is declared inside an
+<b>async</b> or <b>at</b> statement and the outer variable is declared outside
+of that. 
+
+<div class="p"><!----></div>
+The following code illustrates both legal and illegal uses of shadowing.
+Note that a shadowed <em>field</em> name <b>x</b> can still be accessed 
+as <b>this.x</b>. 
+<pre>
+class Shadow{
+  var x : Int; 
+  def this(x:Int) { 
+     // Parameter can shadow field
+     this.x = x; 
+  }
+  def example(y:Int) {
+     val x = &#223;hadow field";
+     // ERROR: val y = &#223;hadow param";
+     val z = "local";
+     for (a in [1,2,3]) {
+        // ERROR: val x = "can't shadow";
+     }
+     async {
+        val x = &#223;hadow through async";
+     }        
+     at (here) {
+        val x = &#223;hadow through at";
+     }        
+     val f = () =&#62; { 
+       val x = &#223;hadow through closure";
+       x
+     };
+  }
+}
 </pre>
 
 <div class="p"><!----></div>

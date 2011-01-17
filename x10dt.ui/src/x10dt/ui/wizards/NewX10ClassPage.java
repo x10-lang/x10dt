@@ -11,9 +11,10 @@
 
 package x10dt.ui.wizards;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,12 +24,18 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
+import org.eclipse.jdt.internal.ui.wizards.NewWizardMessages;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogFieldGroup;
@@ -43,6 +50,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 
 import x10dt.core.X10DTCorePlugin;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.engine.scope.IX10SearchScope;
+import x10dt.search.core.engine.scope.SearchScopeFactory;
+import x10dt.search.core.engine.scope.X10SearchScope;
 
 /**
  * The "New X10 Class" wizard page allows setting the package for the new class as well as the class name.
@@ -265,6 +277,18 @@ public class NewX10ClassPage extends NewTypeWizardPage {
       String pkgName = pkgFrag.getElementName();
       IPackageFragmentRoot root = this.getPackageFragmentRoot();
 
+      if (!root.exists()) {
+          IJavaProject javaProject= getJavaProject();
+          IClasspathEntry newEntry= JavaCore.newSourceEntry(new Path(getPackageFragmentRootText()).makeAbsolute());
+          IClasspathEntry[] entries= javaProject.getRawClasspath();
+          IClasspathEntry[] newEntries= new IClasspathEntry[entries.length + 1];
+
+          System.arraycopy(entries, 0, newEntries, 0, entries.length);
+          newEntries[entries.length]= newEntry;
+          javaProject.setRawClasspath(newEntries, new NullProgressMonitor());
+
+          root= (IPackageFragmentRoot) JavaCore.create(javaProject.getProject().getWorkspace().getRoot().getFolder(newEntry.getPath()));
+      }
       pkgFrag = root.createPackageFragment(pkgName, true, null);
     }
     IResource resource = pkgFrag.getCorrespondingResource();
@@ -324,7 +348,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
         buff.append("     * Main method " + "\n");
         buff.append("     */\n");
       }
-      buff.append("    public static def main(args: Array[String]): void {\n");
+      buff.append("    public static def main(args: Array[String]) {\n");
       buff.append("        // TODO auto-generated stub\n");
       buff.append("    }\n");
     }
@@ -340,7 +364,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     }
     buff.append("}");
 
-    return new StringBufferInputStream(buff.toString());
+    return new ByteArrayInputStream(buff.toString().getBytes());
   }
 
   /**
@@ -370,5 +394,48 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     }
     return null;
   }
+  
+	/**
+	 * Hook method that gets called when the type name has changed. The method validates the
+	 * type name and returns the status of the validation.
+	 * <p>
+	 * Subclasses may extend this method to perform their own validation.
+	 * </p>
+	 *
+	 * @return the status of the validation
+	 */
+	protected IStatus typeNameChanged() {	
+		StatusInfo status= new StatusInfo();
+		try {
+			String type = getTypeName();
+			IPackageFragment pack= getPackageFragment();
+			IResource folder = pack.getCorrespondingResource();
+			IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, folder);
+			ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(scope, type, true, null);
+			if (typeExists(results, folder.getLocationURI().getPath())){ 
+				status.setError(NewWizardMessages.NewTypeWizardPage_error_TypeNameExists);
+				return status;
+			}
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return super.typeNameChanged();
+	}
+	
+	private boolean typeExists(ITypeInfo[] types, String path){
+		for(int i = 0; i < types.length; i++){
+			String typePath = types[i].getLocation().getURI().getPath();
+			int index = typePath.lastIndexOf(File.separator);
+			typePath = typePath.substring(0, index);
+			if (typePath.equals(path)){
+				return true;
+			}     
+		}
+		return false;
+	}
 
 }

@@ -109,7 +109,45 @@ public class Messages extends NLS {
 	public static String OpenTypeHierarchyUtil_selectionDialog_message;
 
 	public static String StatusBarUpdater_num_elements_selected;
+	
+	public static String SearchPage_searchFor_label;
+	public static String SearchPage_searchFor_type;
+	public static String SearchPage_searchIn_label;
+	public static String SearchPage_searchIn_XRX;
+	public static String SearchPage_searchFor_method;
+	public static String SearchPage_searchIn_sources;
+	public static String SearchPage_searchFor_field;
+	public static String SearchPage_searchFor_package;
+	public static String SearchPage_searchIn_projects;
+	public static String SearchPage_searchIn_libraries;
+	public static String SearchPage_searchFor_constructor;
 
+	public static String SearchPage_limitTo_label;
+	public static String SearchPage_limitTo_declarations;
+	public static String SearchPage_limitTo_implementors;
+	public static String SearchPage_limitTo_references;
+	public static String SearchPage_limitTo_allOccurrences;
+	public static String SearchPage_limitTo_readReferences;
+	public static String SearchPage_limitTo_writeReferences;
+	public static String SearchPage_expression_label;
+	public static String SearchPage_expression_caseSensitive;
+
+	public static String X10SearchQuery_task_label;
+	public static String X10SearchQuery_label;
+	public static String X10SearchQuery_status_ok_message;
+	
+	public static String OpenTypeInHierarchyAction_label;
+	public static String OpenTypeInHierarchyAction_description;
+	public static String OpenTypeInHierarchyAction_tooltip;
+	public static String OpenTypeInHierarchyAction_dialogMessage;
+	public static String OpenTypeInHierarchyAction_dialogTitle;
+	
+	public static String X10ElementLabels_comma_string;
+	public static String X10ElementLabels_concat_string;
+	public static String X10ElementLabels_declseparator_string;
+	public static String X10ElementLabels_anonym_type;
+	public static String X10ElementLabels_anonym;
+	public static String X10ElementLabels_default_package;
 
 	// --- Private code
 
