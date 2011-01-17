@@ -15,7 +15,7 @@
     </not>
   </condition>
 
-  <condition property="deploy.release">
+  <condition property="publish.release">
     <and>
       <isset property="release"/>
       <not>
@@ -24,6 +24,7 @@
     </and>
   </condition>
 
+  <!-- The set of properties sent to sub-Ant builds -->
   <propertyset id="properties-set">
     <propertyref name="release"/>
     <propertyref name="skipDirector"/>
@@ -145,10 +146,6 @@
 
   <target name="post-build-cleaning" unless="no-cleaning">
     <delete includeEmptyDirs="true">
-      <fileset dir="${x10dtBuildDirectory}">
-        <exclude name="buildRepo/**" />
-        <exclude name="${buildLabel}/**" />
-      </fileset>
       <fileset dir="${build.folder}" defaultexcludes="false">
         <include name="dependencies/**" />
         <include name="test*/**" />
@@ -157,10 +154,14 @@
         <include name="x10.effects*/**" />
         <include name="x10.tests/**" />
       </fileset>
+      <fileset dir="${x10dtBuildDirectory}">
+        <exclude name="buildRepo/**" />
+        <exclude name="${buildLabel}/**" />
+      </fileset>
     </delete>
   </target>
 
-  <target name="deploy-release" if="deploy.release">
+  <target name="publish-release" if="publish.release">
     <property name="target.folder" value="${releases.folder}/${buildLabel}"/>
     <mkdir dir="${target.folder}"/>
     <copy todir="${target.folder}">
@@ -204,7 +205,7 @@
     </delete>
   </target>
 
-  <target name="deploy-clean-release" depends="deploy-release,clean-build-label"/>
+  <target name="deploy-clean-release" depends="publish-release,clean-build-label"/>
 
   <!--- Testing tasks -->
 
@@ -429,7 +430,7 @@
     </antcall>
   </target>
 
-  <target name="run-all-tests" if="testing">
+  <target name="build-and-run-all-tests" if="testing">
     <antcall target="antRunner">
       <param name="action.message" value="Build Test Plugins..." />
       <param name="activityId" value="build-x10dt-tests" />
@@ -511,7 +512,7 @@
     <antcall target="publish-compilation-results"/>
     <antcall target="publish-update-site-link"/>
 
-    <antcall target="run-all-tests" />
+    <antcall target="build-and-run-all-tests" />
 
     <antcall target="post-build-cleaning"/>
 
