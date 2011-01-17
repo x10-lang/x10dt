@@ -20,13 +20,13 @@ public class X10DocProviderTest {
 	private static String PARA;
 
 	public static Object getPrivateField(Object o, String fieldName) throws Exception {
-	    Field f= o.getClass().getField(fieldName);
+	    Field f= o.getClass().getDeclaredField(fieldName);
 	    f.setAccessible(true);
 	    return f.get(o);
 	}
 
 	public static Object invokePrivate(Object o, String methodName, Class<?>[] formalTypes, Object[] actualParms) throws Exception {
-	    Method m= o.getClass().getMethod(methodName, formalTypes);
+	    Method m= o.getClass().getDeclaredMethod(methodName, formalTypes);
 	    m.setAccessible(true);
 	    return m.invoke(o, actualParms);
 	}
