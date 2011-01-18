@@ -38,34 +38,15 @@ public final class FactBaseUtils {
    */
   public static ISet getFactBaseSetValue(final FactBase factBase, final Type type, final IFactContext context, 
                                          final IProgressMonitor monitor) throws InterruptedException {
-    final ISet[] result = new ISet[1];
-    final InterruptedException[] exception = new InterruptedException[1];
-    final Runnable runnable = new Runnable() {
-      
-      public void run() {
-        try {
-          while (! IndexManager.isAvailable() && ! monitor.isCanceled()) {
-            synchronized (this) {
-              wait(500);
-            }
-          }
-          if (monitor.isCanceled()) {
-            throw new InterruptedException();
-          }
-          result[0] = (ISet) factBase.queryFact(new FactKey(type, context));
-        } catch (InterruptedException except) {
-          exception[0] = except;
-        }
+    while (! IndexManager.isAvailable() && ! monitor.isCanceled()) {
+      synchronized (Thread.currentThread()) {
+        Thread.currentThread().wait(500);
       }
-      
-    };
-    final Thread thread = new Thread(runnable);
-    thread.start();
-    thread.join();
-    if (exception[0] != null) {
-      throw exception[0];
     }
-    return result[0];
+    if (monitor.isCanceled()) {
+      throw new InterruptedException();
+    }
+    return (ISet) factBase.queryFact(new FactKey(type, context));
   }
   
   /**

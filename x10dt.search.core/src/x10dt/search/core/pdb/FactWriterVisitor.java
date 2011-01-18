@@ -29,6 +29,7 @@ import polyglot.types.MethodDef;
 import polyglot.types.Ref;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
+import x10.types.ParameterType;
 import x10dt.search.core.Messages;
 
 /**
@@ -68,17 +69,22 @@ public class FactWriterVisitor extends NodeVisitor {
     final IValue[] args = new IValue[formalTypes.size()];
     int i = -1;
     for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createTypeName(formalType.get().toString());
+      if (formalType.get() instanceof ParameterType) {
+        args[++i] = createTypeName('[' + formalType.get().toString());
+      } else {
+        args[++i] = createTypeName(formalType.get().toString());
+      }
     }
     return getValueFactory().tuple(getSourceLocation(methodDef.position()), this.fThisMethodName, this.fVoidType,  
                                    getValueFactory().list(args), createModifiersCodeValue(methodDef.flags()));
   }
   
   protected final IValue createFieldValue(final FieldDef fieldDef) {
+    final polyglot.types.Type fieldType = fieldDef.asInstance().type();
+    final String fieldTypeName = (fieldType instanceof ParameterType) ? '[' + fieldType.toString() : fieldType.toString();
     return getValueFactory().tuple(getSourceLocation(fieldDef.position()), 
                                    this.fFieldName.make(getValueFactory(), fieldDef.name().toString()),
-                                   createTypeName(fieldDef.asInstance().type().toString()),
-                                   createModifiersCodeValue(fieldDef.flags()));
+                                   createTypeName(fieldTypeName), createModifiersCodeValue(fieldDef.flags()));
   }
   
   protected final IValue createMethodValue(final MethodDef methodDef) {
@@ -86,11 +92,22 @@ public class FactWriterVisitor extends NodeVisitor {
     final IValue[] args = new IValue[formalTypes.size()];
     int i = -1;
     for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createTypeName(formalType.get().toString());
+      if (formalType.get() instanceof ParameterType) {
+        args[++i] = createTypeName('[' + formalType.get().toString());
+      } else {
+        args[++i] = createTypeName(formalType.get().toString());
+      }
+    }
+    final polyglot.types.Type returnType = methodDef.returnType().get();
+    final String returnTypeName;
+    if (returnType instanceof ParameterType) {
+      returnTypeName = '[' + returnType.toString();
+    } else {
+      returnTypeName = returnType.toString();
     }
     return getValueFactory().tuple(getSourceLocation(methodDef.position()),
                                    this.fMethodName.make(getValueFactory(), methodDef.name().toString()),
-                                   createTypeName(methodDef.returnType().get().toString()), getValueFactory().list(args),
+                                   createTypeName(returnTypeName), getValueFactory().list(args),
                                    createModifiersCodeValue(methodDef.flags()));
   }
   
