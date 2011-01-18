@@ -28,6 +28,13 @@ A point is a sequence of zero or more <b>Int</b>-valued coordinates.
 It is often useful to get at the coordinates directly, in variables. 
 
 <div class="p"><!----></div>
+<table>
+
+<tr><td align="right">VariableDeclarator ::= Id HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;" declares n

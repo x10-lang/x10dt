@@ -25,9 +25,13 @@
 suitable for use in a library.  For a shorter example, we define the
 <b>Pair</b> struct-available in <b>x10.util.Pair</b>.  A <b>Pair</b> packages
 two values of possibly unrelated type together in a single value, <em>e.g.</em>, to
-return two values from a function.
+return two values from a function.  
 
 <div class="p"><!----></div>
+<b>divmod</b> computes the quotient and remainder of <b>a  b</b> (naively).
+It returns both, packaged as a <b>Pair[UInt, UInt]</b>.  Note that the
+constructor uses type inference, and that the quotient and remainder are
+accessed through the <b>first</b> and <b>second</b> fields.
 <pre>
 struct Pair[T,U] {
     public val first:T;
@@ -36,9 +40,19 @@ struct Pair[T,U] {
         this.first = first;
         this.second = second;
     }
-    public def toString():String {
-        return "(" + first + ", " + second + ")";
-    }
+    public def toString() = "(" + first + ", " + second + ")";
+}
+class Example {
+  static def divmod(var a:UInt, b:UInt): Pair[UInt, UInt] {
+     assert b &#62; 0;
+     var q : UInt = 0;
+     while (a &#62; b) {q++; a -= b;}
+     return Pair(q, a); 
+  }
+  static def example() {
+     val qr = divmod(22, 7);
+     assert qr.first == 3 &amp;&amp; qr.second == 1;
+  }
 }
 </pre>
 

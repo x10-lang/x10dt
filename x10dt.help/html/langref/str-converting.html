@@ -52,18 +52,34 @@ struct Struct2Class {
 
 <ol type="1">
 <li> Class constructors require the <b>new</b> keyword; struct constructors
-      forbid it.  <b>new Class2Struct(3)</b> will need to be converted to
-      <b>Class2Struct(3)</b>, and <b>Struct2Class(3)</b> to 
+      allow  it but do not require it.  
+      <b>Struct2Class(3)</b> to will need to be converted to 
       <b>new Struct2Class(3)</b>.
 <div class="p"><!----></div>
 </li>
 
 <li> Objects and structs have different notions of <b>==</b>.  
-      For objects, <b>==</b> means 
+      For objects, <b>==</b> means "same object"; for structs, it means
+      "same contents". Before conversion, both <b>assert</b>s in the
+      following program succeed.  After converting and fixing constructors,
+      both of them fail.
+<pre>
+val a = new Class2Struct(2);
+val b = new Class2Struct(2);
+assert a != b;
+val c = Struct2Class(3);
+val d = Struct2Class(3);
+assert c==d;
+</pre>
 <div class="p"><!----></div>
 </li>
-same object"; for structs, it means
-      
+
+<li> Objects can be set to <b>null</b>.  Structs cannot.  There is no
+      default value like <b>null</b> available for structs.
+<div class="p"><!----></div>
+</li>
+</ol>
+
 <br /><br />
 
 </body>

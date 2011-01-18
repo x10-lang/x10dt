@@ -108,7 +108,37 @@ class A[B] {
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.1">
-2.1</a>&nbsp;&nbsp;Variance of Type Parameters</h3>
+2.1</a>&nbsp;&nbsp;Use of Generics</h3>
+
+<div class="p"><!----></div>
+An unconstrained type variable <b>X</b> can be instantiated any type. Within a
+generic struct or class, all the operations of <b>Any</b> are available on a
+variable of type unconstrained <b>X</b>. Additionally, variables of type
+<b>X</b> may be used with <b>==, !=</b>, in <b>instanceof</b>, and casts.  
+
+<div class="p"><!----></div>
+If a type variable is constrained, the operations implied by its constraint
+are available as well.
+
+<div class="p"><!----></div>
+The interface <b>Named</b> describes entities which know their own name.  The
+class <b>NameMap[T]</b> is a specialized map which stores and retrieves
+<b>Named</b> entities by name.  The call <b>t.name()</b> in <b>put()</b> is only
+valid because the constraint <b>T &lt;: Named</b> implies that <b>T</b> is a
+subtype of <b>Named</b>, and hence provides all the operations of <b>Named</b>. 
+<pre>
+interface Named { def name():String; }
+class NameMap[T]{T &lt;: Named} {
+   val m = new HashMap[String, T]();
+   def put(t:T) { m.put(t.name(), t); }
+   def get(s:String):T = m.getOrThrow(s);
+}
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.2</a>&nbsp;&nbsp;Variance of Type Parameters</h3>
 
 
 
