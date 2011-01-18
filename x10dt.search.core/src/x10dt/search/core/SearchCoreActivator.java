@@ -4,7 +4,6 @@ import static x10dt.ui.launch.core.LaunchCore.X10_CPP_PRJ_NATURE_ID;
 import static x10dt.ui.launch.core.LaunchCore.X10_PRJ_JAVA_NATURE_ID;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
