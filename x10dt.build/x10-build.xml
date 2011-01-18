@@ -157,8 +157,8 @@
     <!-- Get the platform tarball's contents into a temp directory -->
     <untar src="${dist.file}" dest="/tmp/x10-${zip.release.tag}_${os}" compression="gzip" />
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
-    <!-- Add to the temp directory the necessary bits from the source project. This is really just for
-         the bundle fragment's MANIFEST.MF. -->
+    <!-- Add to the fragment directory the necessary bits from the source project.
+         This is really just for the bundle fragment's MANIFEST.MF. -->
     <svn username="anonymous">
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
                 revision="${x10dt.revision}" destPath="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
@@ -171,8 +171,9 @@
       </fileset>
     </copy>
     <delete dir="/tmp/x10-${zip.release.tag}_${os}" />
-    <!-- Remove anything that shouldn't be there; mostly this consists of source entities like
-         .project, .classpath, etc that got pulled in by the SVN checkout above -->
+    <!-- Remove anything that shouldn't be in the deployed fragment. Mostly this consists
+         of source entities like the .project, .classpath, etc. files that got pulled in
+         by the SVN checkout above. -->
     <delete includeemptydirs="true">
       <fileset dir="${transformedRepoLocation}/plugins/${fragment-dir-name}" defaultexcludes="false">
         <exclude name="lib/**" />
@@ -206,16 +207,8 @@
         </resourcecount>
       </condition>
     </fail>
+    <!-- Get the platform tarball's contents into a temp directory -->
     <untar src="${dist.file}" dest="/tmp/x10-tlib_${svn.info.lastRev}_${os}" compression="gzip" />
-  </target>
-
-  <target name="transfer-tools-branch-build" depends="set-dist-file-loc,get-expand-fragment-tarball" unless="x10.release.based">
-    <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
-    <svn username="anonymous">
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
-                  revision="${x10dt.revision}" destPath="${x10.compiler.dist}/${fragment-dir-name}" />
-    </svn>
-
     <copy todir="${x10.compiler.dist}/${fragment-dir-name}">
       <fileset dir="/tmp/x10-tlib_${svn.info.lastRev}_${os}">
         <include name="include/**" />
@@ -223,6 +216,20 @@
       </fileset>
     </copy>
     <delete dir="/tmp/x10-tlib_${svn.info.lastRev}_${os}" />
+  </target>
+
+  <target name="transfer-tools-branch-build" depends="set-dist-file-loc,get-expand-fragment-tarball" unless="x10.release.based">
+    <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
+    <!-- Add to the fragment directory the necessary bits from the source project.
+         This is really just for the bundle fragment's MANIFEST.MF. -->
+    <svn username="anonymous">
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
+                  revision="${x10dt.revision}" destPath="${x10.compiler.dist}/${fragment-dir-name}" />
+    </svn>
+
+    <!-- Remove anything that shouldn't be in the deployed fragment. Mostly this consists
+         of source entities like the .project, .classpath, etc. files that got pulled in
+         by the SVN checkout above. -->
     <delete includeemptydirs="true">
       <fileset dir="${x10.compiler.dist}/${fragment-dir-name}" defaultexcludes="false">
         <exclude name="lib/**" />
