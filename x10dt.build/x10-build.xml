@@ -140,23 +140,36 @@
     <ant antfile="${x10.build.loc}/x10.dist.host/exportPlugin.xml" dir="${x10.build.loc}/x10.dist.host" target="build.jars" />
   </target>
 
-  <target name="check-transfer-required">
-    <condition property="transfer.required">
+  <target name="check-fragment-transfer-required">
+    <condition property="fragment.transfer.required">
       <and>
         <not>
           <isset property="omit.x10.fragments" />
         </not>
-        <not>
-          <available file="${x10.compiler.dist}" type="dir" />
-        </not>
+        <!-- consider checking whether a specific fragment exists -->
       </and>
     </condition>
   </target>
 
   <target name="transfer-x10-release" if="x10.release.based">
     <property name="dist.file" value="${x10.release.build.base}/${x10.tarballs.release.tag}/x10-${x10.tarballs.release.tag}_${os}.tgz" />
+    <fail message="Could not find ${dist.file}">
+      <condition>
+        <resourcecount when="greater" count="0">
+          <restrict>
+            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+            <fileset dir="${x10.release.build.base}/${x10.tarballs.release.tag}">
+              <include name="x10-${x10.tarballs.release.tag}_${os}.tgz" />
+            </fileset>
+          </restrict>
+        </resourcecount>
+      </condition>
+    </fail>
+    <!-- Get the platform tarball's contents into a temp directory -->
     <untar src="${dist.file}" dest="/tmp/x10-${zip.release.tag}_${os}" compression="gzip" />
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
+    <!-- Add to the temp directory the necessary bits from the source project. This is really just for
+         the bundle fragment's MANIFEST.MF. -->
     <svn username="anonymous">
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
                 revision="${x10dt.revision}" destPath="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
@@ -169,6 +182,8 @@
       </fileset>
     </copy>
     <delete dir="/tmp/x10-${zip.release.tag}_${os}" />
+    <!-- Remove anything that shouldn't be there; mostly this consists of source entities like
+         .project, .classpath, etc that got pulled in by the SVN checkout above -->
     <delete includeemptydirs="true">
       <fileset dir="${transformedRepoLocation}/plugins/${fragment-dir-name}" defaultexcludes="false">
         <exclude name="lib/**" />
@@ -185,8 +200,11 @@
     <echo message="${file.replaced}" file="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
   </target>
 
-  <target name="transfer-tools-branch-release" unless="x10.release.based">
+  <target name="set-dist-file-loc">
     <property name="dist.file" value="${x10.build.base}/${svn.info.lastRev}/x10-tib_${svn.info.lastRev}_${os}.tgz" />
+  </target>
+
+  <target name="get-expand-fragment-tarball" if="omit.x10.fragments">
     <fail message="Could not find ${dist.file}">
       <condition>
         <resourcecount when="greater" count="0">
@@ -200,6 +218,9 @@
       </condition>
     </fail>
     <untar src="${dist.file}" dest="/tmp/x10-tlib_${svn.info.lastRev}_${os}" compression="gzip" />
+  </target>
+
+  <target name="transfer-tools-branch-build" depends="set-dist-file-loc,get-expand-fragment-tarball" unless="x10.release.based">
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
     <svn username="anonymous">
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
@@ -229,20 +250,20 @@
     <echo message="${file.replaced}" file="${x10.compiler.dist}/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
   </target>
 
-  <target name="transfer-all" depends="check-transfer-required" if="transfer.required">
-    <antcall target="transfer-tools-branch-release">
+  <target name="transfer-all" depends="check-fragment-transfer-required" if="fragment.transfer.required">
+    <antcall target="transfer-tools-branch-build">
       <param name="os" value="linux_x86" />
       <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
     </antcall>
-    <antcall target="transfer-tools-branch-release">
+    <antcall target="transfer-tools-branch-build">
       <param name="os" value="linux_x86_64" />
       <param name="fragment-name" value="x10.dist.linux.x86_64.fragment" />
     </antcall>
-    <antcall target="transfer-tools-branch-release">
+    <antcall target="transfer-tools-branch-build">
       <param name="os" value="cygwin_x86" />
       <param name="fragment-name" value="x10.dist.win32.x86.fragment" />
     </antcall>
-    <antcall target="transfer-tools-branch-release">
+    <antcall target="transfer-tools-branch-build">
       <param name="os" value="macosx_x86" />
       <param name="fragment-name" value="x10.dist.macosx.x86.fragment" />
     </antcall>
