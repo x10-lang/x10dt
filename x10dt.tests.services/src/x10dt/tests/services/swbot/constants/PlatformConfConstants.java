@@ -21,7 +21,7 @@ public final class PlatformConfConstants {
   
   public static final String CPP_COMPILATION_LINKING_TAB = "C++ Compilation and Linking"; //$NON-NLS-1$
   
-  public static final String SAVE_PLATFORM_TOOLTIP_BT = "Save Platform Configuration"; //$NON-NLS-1$
+  public static final String SAVE_PLATFORM_TOOLTIP_BT = "Save Configuration"; //$NON-NLS-1$
   
   // --- Connection
   
