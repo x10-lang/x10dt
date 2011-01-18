@@ -140,17 +140,6 @@
     <ant antfile="${x10.build.loc}/x10.dist.host/exportPlugin.xml" dir="${x10.build.loc}/x10.dist.host" target="build.jars" />
   </target>
 
-  <target name="check-fragment-transfer-required">
-    <condition property="fragment.transfer.required">
-      <and>
-        <not>
-          <isset property="omit.x10.fragments" />
-        </not>
-        <!-- consider checking whether a specific fragment exists -->
-      </and>
-    </condition>
-  </target>
-
   <target name="transfer-x10-release" if="x10.release.based">
     <property name="dist.file" value="${x10.release.build.base}/${x10.tarballs.release.tag}/x10-${x10.tarballs.release.tag}_${os}.tgz" />
     <fail message="Could not find ${dist.file}">
@@ -204,7 +193,7 @@
     <property name="dist.file" value="${x10.build.base}/${svn.info.lastRev}/x10-tib_${svn.info.lastRev}_${os}.tgz" />
   </target>
 
-  <target name="get-expand-fragment-tarball" if="omit.x10.fragments">
+  <target name="get-expand-fragment-tarball" unless="omit.x10.fragment.tarballs">
     <fail message="Could not find ${dist.file}">
       <condition>
         <resourcecount when="greater" count="0">
@@ -250,7 +239,8 @@
     <echo message="${file.replaced}" file="${x10.compiler.dist}/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
   </target>
 
-  <target name="transfer-all" depends="check-fragment-transfer-required" if="fragment.transfer.required">
+  <target name="transfer-all">
+    <!-- Note: the following calls to transfer-tools-branch-build only execute when we're NOT building a release -->
     <antcall target="transfer-tools-branch-build">
       <param name="os" value="linux_x86" />
       <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
@@ -267,6 +257,7 @@
       <param name="os" value="macosx_x86" />
       <param name="fragment-name" value="x10.dist.macosx.x86.fragment" />
     </antcall>
+    <!-- Note: the following calls to transfer-x10-release only execute when we ARE building a release -->
     <antcall target="transfer-x10-release">
       <param name="os" value="linux_x86" />
       <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
