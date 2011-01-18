@@ -628,4 +628,12 @@ public class IndentationTests {
 
     indentTestHelper(org, exp);
   }
+
+  @Test
+  public void typeArgs1() { // Test for RTC bug #835
+    String org = "public class Bar[T]\n" + "    { // <<<\n" + "    public def foo() { }\n" + "  }";
+    String exp = "{ // <<<\n";
+
+    indentTestHelper(org, exp);
+  }
 }
