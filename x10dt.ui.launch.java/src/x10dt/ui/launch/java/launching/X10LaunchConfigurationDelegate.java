@@ -56,8 +56,8 @@ import x10dt.ui.X10DTUIPlugin;
  *
  */
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
-	/** Suffix that is appended to user class to get main x10 executable class - e.g. to make Hello$Main */
-	static final String USER_MAIN_SUFFIX="$Main";
+	/** Suffix that is appended to user class to get main x10 executable class - e.g. to make Hello$$Main */
+	static final String USER_MAIN_SUFFIX="$$Main";
 
     @Override
 	public IVMInstall getVMInstall(final ILaunchConfiguration configuration) throws CoreException {
