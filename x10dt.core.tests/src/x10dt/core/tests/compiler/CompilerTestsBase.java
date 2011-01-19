@@ -584,6 +584,9 @@ public class CompilerTestsBase {
     }
     
     private boolean notSevereMode(){
-    	return !System.getProperty("mode").equals(SEVERE_MODE);
+    	String mode = System.getProperty("mode");
+    	if (mode == null)
+    		return true;
+    	return !mode.equals(SEVERE_MODE);
     }
 }
