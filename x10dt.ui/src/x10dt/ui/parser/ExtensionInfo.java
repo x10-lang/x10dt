@@ -21,9 +21,6 @@ import java.util.Set;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
-
-import org.eclipse.imp.utils.StreamUtils;
-
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Goal;
@@ -90,20 +87,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     }
 
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-        // PORT1.7 Create a new lexer/parser for every parse - unlike with 1.5,
-        // this method can be called on behalf of different source files (including
-        // source files residing in the runtime jar), and the front-end can be in
-        // the middle of processing one source when it starts processing another.
-        x10_lexer = new X10Lexer();
-        x10_lexer.reset(new char[0], ""); // PORT1.7 BOB HACK to make sure lexer has a lexstream, needed by remapTerminalSymbols() (which probably shouldn't need it!)
-        if (reader instanceof CharBufferReader) {
-            x10_lexer.reset(((CharBufferReader) reader).getBuffer(), source.toString());
-        } else {
-            char[] buffer= StreamUtils.readReaderContents(reader).toCharArray();
-            x10_lexer.reset(buffer, source.toString());
-        }
-        x10_parser = new X10SemanticRules(x10_lexer.getILexStream(), typeSystem(), nodeFactory(), source, eq);
-        x10_lexer.lexer(x10_parser.getIPrsStream());
+        x10_parser = (X10SemanticRules) super.parser(reader, source, eq);
+        x10_lexer = x10_parser.getX10Lexer();
         x10_parser.getIPrsStream().setMessageHandler(handler);
         if (fInterestingSources.contains(source)) {
             fInterestingLexers.put(source, x10_lexer);
