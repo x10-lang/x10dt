@@ -112,7 +112,7 @@ public final class WizardConstants {
   public static final String QUICK_OUTLINE_SHELL= ""; // This value is really correct, at least for now //$NON-NLS-1$
 
   
-  // --- Constants for project and file navigation
+  // --- Constants for Open Type dialog
   
   public static final String PACKAGE_EXPLORER_VIEW_TITLE = "Package Explorer"; //$NON-NLS-1$
 
@@ -129,6 +129,29 @@ public final class WizardConstants {
   public static final String X10_TYPE_SEARCH_LISTBOX = "Matching items:"; //$NON-NLS-1$
 
   
+  // --- Constants for project search dialog
+  
+  public static final String SEARCH_MENU = "Search"; //$NON-NLS-1$
+  
+  public static final String SEARCH_DIALOG_TITLE = "Search";
+  
+  public static final String X10_SEARCH_TAB = "X10 Search"; //$NON-NLS-1$
+
+  public static final String X10_SEARCH_FIELD = "Search string (* = any string, ? = any character):";
+  
+  public static final String SEARCH_BUTTON = "Search";
+
+  public static final String X10_SEARCH_FOR_GROUP = "Search For";
+
+  public static final String X10_SEARCH_FOR_TYPE_RADIO = "Type";
+
+  public static final String SEARCH_VIEW_TITLE = "Search";
+
+  public static final String SEARCH_MENU_ITEM = "Search...";
+
+  public static final String REMOVE_ALL_MATCHES_BUTTON = "Remove All Matches";
+
+
   // --- Constants for project and file deletion
   
   public static final String DELETE_MENU_ITEM = "Delete"; //$NON-NLS-1$
@@ -138,7 +161,8 @@ public final class WizardConstants {
   public static final String DELETE_CONFIRMATION_SHELL = "Confirm Delete"; //$NON-NLS-1$
   
   public static final String DELETE_PROJECT_CONTENTS = "Delete project contents on disk (cannot be undone)"; //$NON-NLS-1$
-  
+
+
   // --- Private code
   
   private WizardConstants() {}
