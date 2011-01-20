@@ -254,7 +254,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   public File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException {
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
-      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE && cpEntry.getPath().isPrefixOf(x10File.getFullPath())
+    		  && !BuildPathUtils.isExcluded(x10File.getFullPath(), cpEntry)){
         final IPath outputLocation;
         if (cpEntry.getOutputLocation() == null) {
           outputLocation = project.getOutputLocation();
