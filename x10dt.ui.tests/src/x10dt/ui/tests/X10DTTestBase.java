@@ -21,15 +21,21 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
+import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCTabItem;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotRadio;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 
 import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
@@ -312,8 +318,8 @@ public class X10DTTestBase {
 	  }
   }
 
-  //Open up the 'Open X10 Type...' dialog and look for a few sample types
-  public static boolean findX10TypeDef(String typeName, String searchString)  throws X10DT_Test_Exception
+  //Open up the 'Open X10 Type...' dialog and look for a type declaration
+  public static boolean openX10Type(String typeName, String searchString, Integer expectedRows)  throws X10DT_Test_Exception
   {
 	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
 	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
@@ -326,9 +332,7 @@ public class X10DTTestBase {
 		  					WizardConstants.NAVIGATE_MENU +":"+ WizardConstants.OPEN_X10_TYPE_ITEM +"' menu";
 		  topLevelBot.menu(WizardConstants.NAVIGATE_MENU).menu(WizardConstants.OPEN_X10_TYPE_ITEM).click();
 
-		  //
-		  //Set up the new X10 project - specify project name and select whether or not to create Hello World sample code
-		  //
+		  // create a context message identifying the dialog
 		  dialogContextMsg = " the '" + WizardConstants.OPEN_X10_TYPE_DIALOG_TITLE + "' dialog";
 		  
 		  //Set up a shell for the X10 Type Dialog
@@ -346,48 +350,164 @@ public class X10DTTestBase {
 		  SWTBotTable typeList = x10TypeBot.tableWithLabel(WizardConstants.X10_TYPE_SEARCH_LISTBOX);
 
 		  operationMsg = "waiting for the '" + WizardConstants.X10_TYPE_SEARCH_LISTBOX + "' list box to fill, in" + dialogContextMsg;
-//		  try {
-//We need to wait for the table to fill, but waitUntil just doesn't seem to work. The condition seems to 
-// be blocked from occurring -  that is, the table never gets any rows - 
-// so it just waits for the timeout, then throws the exception
-//	doesn't work			  topLevelBot.waitUntil(Conditions.tableHasRows(typeList, 1), 5000);
-//	doesn't work			  x10TypeBot.waitUntil(Conditions.tableHasRows(typeList, 1), 5000);	//give it a few seconds to find something
-//		  }
-//		  catch (TimeoutException e) {
-//			  //not a big deal - it just means we didn't find a match, and we'll return false
-//			  System.out.println("timed out waiting for the type list to populate"); /*debug*/
-//		  }
-
-		  //workaround for the waitUntil problem. Do our own wait. We'll wait for at least one line to appear
-		  int timer = 0;
-		  int rowCount = typeList.rowCount();
-		  while ((rowCount <= 0) && (timer++ < 5)) {
-			  Thread.sleep(1000);
-			  rowCount = typeList.rowCount();
+		  try {
+			  x10TypeBot.waitUntil(Conditions.tableHasRows(typeList, expectedRows), 2000);	//give it a few seconds to find at least 
+			  																		// as many things as we're looking for.
+			  																		// benignly time-out if it doesn't find that many
 		  }
-
+		  catch (TimeoutException e) {
+			  //not a big deal - it just means we didn't find a match, and we'll return false
+			  System.out.println("timed out waiting for the type list to populate"); /*debug*/
+		  }
+		  
 		  // look for the expected type in the list
-
+		  
+		  //Check that we found the expected number of matching items
+		  int rowCount = typeList.rowCount();
+		  if (rowCount < expectedRows) {
+			  throw new Exception("expected to find " + expectedRows + ", found " + rowCount + " rows");			  
+		  }
+		  
+		  //See if we found the type we're looking for
 		  operationMsg = "find X10 type '" + typeName + "' by searching on '" + searchString + "' in" + dialogContextMsg;
 		  int i=0;
 		  while ((!found) && (i < rowCount))
 		  {
-			  found = typeList.getTableItem(i).getText().contains(typeName);
+			  String tableItemText = typeList.getTableItem(i).getText();
+			  int firstSpace = tableItemText.indexOf(' ');
+			  String classText = tableItemText.substring(0, (firstSpace != -1 ? firstSpace : tableItemText.length())); //get rid of various qualifiers, like " - default"
+			  System.out.println("comparing classText'" + classText + "' to typename'" + typeName + "'");
+			  found = classText.equals(typeName);
+			  if (found) {
+				  typeList.select(i);	//select the row
+			  }
 			  i++;
 		  }
-		  
-		  // throw a regular exception if we don't find anything (the X10DT_Test_Exception error message
-		  //		gets properly assembled by doing it this way)
-		  if (!found) {
+
+		  if (!found) {	// throw a regular exception if we don't find anything 
+			  			// (the X10DT_Test_Exception error message gets properly assembled by doing it this way)
 			  throw new Exception(((rowCount == 0) ?  "Type list is empty":"No match found in list"));
 		  }
 
-		  //that's enough for now.  find the Cancel button
-		  operationMsg = "find the '" + WizardConstants.CANCEL_BUTTON + "' button in" + dialogContextMsg;
-		  SWTBotButton cancelButton = x10TypeBot.button(WizardConstants.CANCEL_BUTTON);
-		  cancelButton.click();
+		  //that's enough for now.  find the OK button
+		  operationMsg = "find the '" + WizardConstants.OK_BUTTON + "' button in" + dialogContextMsg;
+		  SWTBotButton okButton = x10TypeBot.button(WizardConstants.OK_BUTTON);
+		  okButton.click();
 		  
 		  topLevelBot.waitUntil(Conditions.shellCloses(x10TypeShell));
+	  }
+	  catch (Exception e)
+	  {
+		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
+	  }
+
+	  return found;
+  }
+
+  //Open up the 'Search' dialog and search for an X10 type declaration
+  public static boolean searchForX10Type(String typeName, String searchString, Integer expectedRows)  throws X10DT_Test_Exception
+  {
+	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
+	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
+
+	  boolean found = false;	//assume the worst
+
+	  try {
+		  // Open the Search dialog
+		  dialogContextMsg = " the '" + WizardConstants.SEARCH_DIALOG_TITLE + "' dialog";
+
+		  operationMsg = "select the '" + WizardConstants.SEARCH_MENU +":"+ WizardConstants.SEARCH_MENU_ITEM +"' menu";
+		  topLevelBot.menu(WizardConstants.SEARCH_MENU).menu(WizardConstants.SEARCH_MENU_ITEM).click();
+		  
+		  //Set up a shell for the Search Dialog
+		  operationMsg = "create shell for" + dialogContextMsg;
+		  SWTBotShell x10SearchShell = topLevelBot.shell(WizardConstants.SEARCH_DIALOG_TITLE);
+		  x10SearchShell.activate();
+		  SWTBot x10SearchBot = x10SearchShell.bot();
+
+		  // activate out the X10 Search tab
+		  operationMsg = "activate the '" + WizardConstants.X10_SEARCH_TAB + "' tab in " + dialogContextMsg;
+		  x10SearchBot.tabItem(WizardConstants.X10_SEARCH_TAB).activate();
+		  
+		  // Fill in the search string field
+		  operationMsg = "fill in the '" + WizardConstants.X10_SEARCH_FIELD + "' field in" + dialogContextMsg;  
+		  x10SearchBot.comboBoxWithLabel(WizardConstants.X10_SEARCH_FIELD).setText(searchString);
+
+		  // check the 'search for type' box
+		  operationMsg = "check the '" + WizardConstants.X10_SEARCH_FOR_TYPE_RADIO + "' checkbox in group '" +
+		  			WizardConstants.X10_SEARCH_FOR_GROUP + "' in" + dialogContextMsg;
+		  x10SearchBot.radioInGroup(WizardConstants.X10_SEARCH_FOR_TYPE_RADIO, WizardConstants.X10_SEARCH_FOR_GROUP).click();
+
+		  // click the 'Search' button
+		  operationMsg = "click the '" + WizardConstants.SEARCH_BUTTON + "' button in" + dialogContextMsg;
+		  x10SearchBot.button(WizardConstants.SEARCH_BUTTON).click();
+
+		  //wait for the search dialog to go away
+		  x10SearchBot.waitUntil(Conditions.shellCloses(x10SearchShell));
+
+		  //find the Search View
+
+		  dialogContextMsg = " the '" + WizardConstants.SEARCH_VIEW_TITLE + "' View";
+		  operationMsg = "find" + dialogContextMsg;
+		  SWTBotView searchView = topLevelBot.viewByTitle(WizardConstants.SEARCH_VIEW_TITLE);
+		  SWTBot searchViewBot = searchView.bot();
+		  searchView.setFocus();
+
+		  //find the type list in the search view
+		  operationMsg = "find the search list box in" + dialogContextMsg;
+		  SWTBotTable typeList = searchViewBot.table();
+
+		  operationMsg = "see the search list fill in" + dialogContextMsg;
+		  Integer waitLoop = 30;
+		  do {
+			  try {
+				  typeList = searchViewBot.table();
+				  searchViewBot.waitUntil(Conditions.tableHasRows(typeList, expectedRows), 2000);	//give it a few seconds to find something.
+			  }
+			  catch (TimeoutException e) {
+				  //not a big deal - it just means we didn't find a match, and we'll return false
+				  System.out.println("timed out waiting for the type list to populate"); /*debug*/
+			  }
+		  } while ((--waitLoop > 0) && 
+			  		((typeList.getTableItem(0).getText().equals("Searching...")) ||
+			  		(typeList.getTableItem(0).getText().equals("")))
+				  );
+		  
+		  // look for the expected type in the list
+		  
+		  //Check that we found the expected number of matching items
+		  int rowCount = typeList.rowCount();
+		  if (rowCount < expectedRows) {
+			  throw new Exception("expected to find " + expectedRows + ", found " + rowCount + " rows");			  
+		  }
+		  
+		  //See if we found the type we're looking for
+		  operationMsg = "find X10 type '" + typeName + "' by searching on '" + searchString + "' in" + dialogContextMsg;
+		  int i=0;
+		  while ((!found) && (i < rowCount))
+		  {
+			  String tableItemText = typeList.getTableItem(i).getText();
+			  int firstSpace = tableItemText.indexOf(' ');
+			  String classText = tableItemText.substring(0, (firstSpace != -1 ? firstSpace : tableItemText.length())); //get rid of various qualifiers, like " - default"
+			  System.out.println("comparing classText'" + classText + "' to typename'" + typeName + "'");
+			  found = classText.equals(typeName);
+			  if (found) {
+				  typeList.setFocus();
+				  typeList.select(i);
+				  typeList.pressShortcut(0, '\n');
+			  }
+			  i++;
+		  }
+		  
+		  if (!found) {	// throw a regular exception if we don't find anything 
+			  		// (the X10DT_Test_Exception error message gets properly assembled by doing it this way)
+			  throw new Exception(((rowCount == 0) ?  "Type list is empty":"No match found in list"));
+		  }
+
+		  operationMsg = "clear search view by clicking toolbar button '" + WizardConstants.REMOVE_ALL_MATCHES_BUTTON + "' in" + dialogContextMsg;
+		  searchView.setFocus();
+		  searchView.toolbarPushButton(WizardConstants.REMOVE_ALL_MATCHES_BUTTON).click();	//reset search window for the next time around
+
 	  }
 	  catch (Exception e)
 	  {
@@ -454,7 +574,8 @@ public class X10DTTestBase {
 
   }
 
-  
+//TODO:
+// createCPPBackEndProject is Not Yet Ready For Prime-Time
   public static void createCPPBackEndProject(String projName, boolean withHello) throws Exception {
 	    topLevelBot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM).menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
 
@@ -484,6 +605,6 @@ public class X10DTTestBase {
 	    newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
 
 	    topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
-  }
+	  }
 
 }
