@@ -7,27 +7,8 @@ import org.eclipse.jdt.core.JavaModelException;
 
 public class BuildPathUtils {
 	
-	public static boolean isExcluded(IPath filePath, IJavaProject project){
-		try {
-		  // --- Determine the classpath source entry that corresponds to file. 
-		  IClasspathEntry srcEntry = null;
-		  if (project == null){
-			  return true; // --- If there is no java project associated with this file, then the file must be excluded.
-		  }
-		  // --- If filePath is not relative to the workspace, make it so.
-		  IPath workspace = project.getProject().getLocation().removeLastSegments(1);
-		  if (workspace.isPrefixOf(filePath)){
-			  filePath = filePath.makeRelativeTo(workspace);
-		  }
-		  for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
-			  if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE && cpEntry.getPath().isPrefixOf(filePath)){
-				  srcEntry = cpEntry;
-				  break;
-			  }
-		  } 
-		  if (srcEntry == null){ // --- If there is no source entry on the build path corresponding to filePath, then the file must be excluded.
-			  return true;
-		  }
+	// --- Determmines whether a path is excluded from a given source entry.
+	public static boolean isExcluded(IPath filePath, IClasspathEntry srcEntry){
 		  filePath = filePath.makeRelativeTo(srcEntry.getPath());
 		  IPath[] inclusionPatterns = srcEntry.getInclusionPatterns();
 		  if (inclusionPatterns != null && inclusionPatterns.length != 0){
@@ -50,10 +31,31 @@ public class BuildPathUtils {
 				  }
 			  }
 		  }
-		} catch(JavaModelException e){
+		  return false;
+	}
+	
+	// --- Determines if a path is excluded from the classpath of a given project.
+	public static boolean isExcluded(IPath filePath, IJavaProject project){
+		try {
+		  // --- Determine the classpath source entry that corresponds to file. 
+		  IClasspathEntry srcEntry = null;
+		  if (project == null){
+			  return true; // --- If there is no java project associated with this file, then the file must be excluded.
+		  }
+		  // --- If filePath is not relative to the workspace, make it so.
+		  IPath workspace = project.getProject().getLocation().removeLastSegments(1);
+		  if (workspace.isPrefixOf(filePath)){
+			  filePath = filePath.makeRelativeTo(workspace);
+		  }
+		  for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
+			  if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE && cpEntry.getPath().isPrefixOf(filePath) && !isExcluded(filePath, cpEntry)){
+				  return false;
+			  }
+		  } 
+		} catch (JavaModelException e){
 			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	  
@@ -83,6 +85,10 @@ public class BuildPathUtils {
 		}
 		if (!path.isEmpty() && pattern.isEmpty()){ 
 			return false;
+		}
+		
+		if (pattern.isPrefixOf(path)){
+			return true;
 		}
 		String pathFirst = path.segment(0);
 		String patternFirst = pattern.segment(0);

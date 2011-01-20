@@ -6,6 +6,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -18,6 +19,7 @@ import polyglot.frontend.Source;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.core.builder.BuildPathUtils;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 
@@ -90,9 +92,8 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
 			IClasspathEntry classpathEntry = cpEntries[i];
 			if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 				IPath cpPath= classpathEntry.getPath(); // ws rel
-				String cpPathStr = cpPath.toOSString();
-
-				if (pkgPath.startsWith(cpPathStr)) {
+				String cpPathStr = cpPath.toOSString();	
+				if (pkgPath.startsWith(cpPathStr) && !BuildPathUtils.isExcluded(new Path(pkgPath), classpathEntry)) {
 					int cpPathLen = cpPathStr.length();
 					String srcFolderRelPath= pkgPath.substring(cpPathLen + 1, pkgPath.length() - srcFileName.length() );
 					String result= srcFolderRelPath.replace(File.separatorChar, '.');
