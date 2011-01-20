@@ -240,7 +240,12 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   
   private ContextWrapper processResource(final IResource resource) throws AnalysisException {
     final IJavaProject javaProject = JavaCore.create(resource.getProject());  
-    if (javaProject.exists() && resource.exists()) {
+    if (javaProject.exists()) {
+      if (resource.getType() == IResource.FILE) {
+        if ( ! X10_EXT.equals(((IFile) resource).getFileExtension())) {
+          return null;
+        }
+      }
       final ContextWrapper context = new ContextWrapper();
       final IWorkspaceRoot wsRoot = javaProject.getProject().getWorkspace().getRoot();
       try {
