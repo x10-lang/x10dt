@@ -16,7 +16,6 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -218,10 +217,9 @@ public final class X10SearchEngine {
    * @param monitor The progress monitor to use to report progress or cancel the operation. Can be <b>null</b>.
    * @return A non-null but possibly empty array if we haven't found the type in the particular scope.
    * @throws InterruptedException Occurs if the operation get canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static ITypeInfo[] getTypeInfo(final IX10SearchScope searchScope, final String typeName,
-                                        final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                        final IProgressMonitor monitor) throws InterruptedException {
     return getTypeInfo(searchScope, new EqualsFilter(typeName), monitor);
   }
   
