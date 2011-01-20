@@ -7,8 +7,6 @@
  *******************************************************************************/
 package x10dt.tests.services.swbot.utils;
 
-import java.util.List;
-
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -32,11 +30,39 @@ import org.eclipse.ui.PlatformUI;
  */
 public final class SWTBotUtils {
 
-  public static void closeWelcomeViewIfNeeded(SWTWorkbenchBot topLevelBot) {
-    List<SWTBotView> views= topLevelBot.views();
-    for(SWTBotView v: views) {
-      if ("Welcome".equals(v.getTitle())) {
-        v.close();
+  /**
+   * Closes all editors attached to the SWTBot Workbench instance transmitted.
+   * 
+   * @param bot The current SWTBot instance to consider.
+   */
+  public static void closeAllEditors(final SWTWorkbenchBot bot) {
+    for (final SWTBotEditor editor : bot.editors()) {
+      editor.close();
+    }
+  }
+  
+  /**
+   * Closes all shells attached to the SWTBot Workbench instance transmitted.
+   * 
+   * @param bot The current SWTBot instance to consider.
+   */
+  public static void closeAllShells(final SWTWorkbenchBot bot) {
+    for (final SWTBotShell shell : bot.shells()) {
+      if (! isEclipseShell(shell, bot)) {
+        shell.close();
+      }
+    }
+  }
+  
+  /**
+   * Closes the welcome view if it is presents in the list of views from the SWTBot Workbench instance transmitted.
+   * 
+   * @param topLevelBot The current SWTBot instance to consider.
+   */
+  public static void closeWelcomeViewIfNeeded(final SWTWorkbenchBot topLevelBot) {
+    for (final SWTBotView view : topLevelBot.views()) {
+      if ("Welcome".equals(view.getTitle())) { //$NON-NLS-1$
+        view.close();
         topLevelBot.shells()[0].activate();
         return;
       }
@@ -56,8 +82,7 @@ public final class SWTBotUtils {
       public MenuItem run() {
         final Menu bar = parentMenu.widget.getMenu();
         if (bar != null) {
-          for (MenuItem item : bar.getItems()) {
-            System.out.println(item.getText());
+          for (final MenuItem item : bar.getItems()) {
             if (item.getText().equals(menuItemName)) {
               return item;
             }
@@ -73,63 +98,81 @@ public final class SWTBotUtils {
       return new SWTBotMenu(menuItem);
     }
   }
-  
-  // --- Private code
-  
-  private SWTBotUtils() {}
 
-  public static void resetWorkbench(SWTWorkbenchBot bot) {
+  /**
+   * Returns the shell of the active workbench window from the SWTBot Workbench instance transmitted.
+   * 
+   * @param bot The current SWTBot instance to consider.
+   * @return The shell containing this active window's controls or <b>null</b> if the shell has not been created yet or 
+   * if the window has been closed.
+   */
+  public static Widget getActiveWorkbenchWindowShell(final SWTWorkbenchBot bot) {
+    return getActiveWorkbenchWindow(bot).getShell();
+  }
+  
+  /**
+   * Returns the active workbench window from the SWTBot Workbench instance transmitted.
+   * 
+   * @param bot The current SWTBot instance to consider.
+   * @return A possibly <b>null</b> value if there is no active workbench window or if called from a non-UI thread.
+   */
+  public static IWorkbenchWindow getActiveWorkbenchWindow(final SWTWorkbenchBot bot) {
+    return UIThreadRunnable.syncExec(bot.getDisplay(), new Result<IWorkbenchWindow>() {
+      public IWorkbenchWindow run() {
+        return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+      }
+    });
+  }
+  
+  /**
+   * Identifies if the SWTBot shell transmitted is the shell of the active worbench window.
+   * 
+   * @param shell The SWBot shell to compare.
+   * @param bot The current SWTBot instance to consider.
+   * @return True if the shell is the main Eclipse shell, false otherwise.
+   */
+  public static boolean isEclipseShell(final SWTBotShell shell, final SWTWorkbenchBot bot) {
+    return getActiveWorkbenchWindowShell(bot) == shell.widget;
+  }
+
+  /**
+   * Saves all the dirty editors present in the SWT Workbench instance transmitted.
+   * 
+   * @param bot The current SWTBot instance to consider.
+   */
+  public static void saveAllDirtyEditors(final SWTWorkbenchBot bot) {
+    for (final SWTBotEditor editor : bot.editors()) {
+      if (editor.isDirty()) {
+        editor.save();
+      }
+    }
+  }
+  
+  /**
+   * Saves all the editors present in the SWT Workbench instance transmitted.
+   * 
+   * @param bot The current SWTBot instance to consider.
+   */
+  public static void saveAllEditors(final SWTWorkbenchBot bot) {
+    for (final SWTBotEditor editor : bot.editors()) {
+      editor.save();
+    }
+  }
+  
+  /**
+   * Closes all shells, saves and closes all editors present in the SWT Workbench instance transmitted.
+   * 
+   * @param bot The current SWTBot instance to consider.
+   */
+  public static void resetWorkbench(final SWTWorkbenchBot bot) {
     closeAllShells(bot);
     saveAllEditors(bot);
     closeAllEditors(bot);
   }
 
-  public static void closeAllShells(SWTWorkbenchBot bot) {
-    SWTBotShell[] shells = bot.shells();
-    for (SWTBotShell shell : shells) {
-        if (!isEclipseShell(shell, bot)) {
-            shell.close();
-        }
-    }
-  }
+  // --- Private code
 
-  public static void saveAllDirtyEditors(SWTWorkbenchBot bot) {
-    List<? extends SWTBotEditor> editors = bot.editors();
-    for (SWTBotEditor editor : editors) {
-      if (editor.isDirty()) {
-          editor.save();
-      }
-    }
-  }
-
-  public static void saveAllEditors(SWTWorkbenchBot bot) {
-    List<? extends SWTBotEditor> editors = bot.editors();
-    for (SWTBotEditor editor : editors) {
-        editor.save();
-    }
-  }
-
-  public static void closeAllEditors(SWTWorkbenchBot bot) {
-    List<? extends SWTBotEditor> editors = bot.editors();
-    for (SWTBotEditor editor : editors) {
-        editor.close();
-    }
-  }
-
-  public static boolean isEclipseShell(final SWTBotShell shell, SWTWorkbenchBot bot) {
-    return getActiveWorkbenchWindowShell(bot) == shell.widget;
-  }
-
-  public static IWorkbenchWindow getActiveWorkbenchWindow(SWTWorkbenchBot bot) {
-    return UIThreadRunnable.syncExec(bot.getDisplay(), new Result<IWorkbenchWindow>() {
-        public IWorkbenchWindow run() {
-            return PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        }
-    });
-  }
-
-  public static Widget getActiveWorkbenchWindowShell(SWTWorkbenchBot bot) {
-    return getActiveWorkbenchWindow(bot).getShell();
+  private SWTBotUtils() {
   }
 
 }
