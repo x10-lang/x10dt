@@ -7,6 +7,9 @@
  *******************************************************************************/
 package x10dt.tests.services.swbot.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -94,6 +97,39 @@ public final class SWTBotUtils {
 
     if (menuItem == null) {
       throw new WidgetNotFoundException(NLS.bind("MenuItem ''{0}'' not found.", menuItemName)); //$NON-NLS-1$
+    } else {
+      return new SWTBotMenu(menuItem);
+    }
+  }
+
+  /**
+   * Finds a SWTBot sub menu from a given menu item.
+   * 
+   * @param parentMenu The SWTBot parent menu to consider.
+   * @param itemNamePattern The regexp pattern for the name of the sub-menu to look for.
+   * @return A non-null SWTBot menu identifying the sub menu.
+   * @throws WidgetNotFoundException Occurs if we could not find the sub menu with the parameters provided.
+   */
+  public static SWTBotMenu findSubMenu(final SWTBotMenu parentMenu, final Pattern itemNamePattern) {
+//  System.out.println("looking for menu item pattern: " + itemNamePattern);
+    final MenuItem menuItem = UIThreadRunnable.syncExec(new WidgetResult<MenuItem>() {
+      public MenuItem run() {
+        final Menu bar = parentMenu.widget.getMenu();
+        if (bar != null) {
+          for (MenuItem item : bar.getItems()) {
+//          System.out.println(item.getText());
+            Matcher m = itemNamePattern.matcher(item.getText());
+            if (m.matches()) {
+              return item;
+            }
+          }
+        }
+        return null;
+      }
+    });
+
+    if (menuItem == null) {
+      throw new WidgetNotFoundException(NLS.bind("MenuItem with pattern ''{0}'' not found.", itemNamePattern)); //$NON-NLS-1$
     } else {
       return new SWTBotMenu(menuItem);
     }
