@@ -11,13 +11,9 @@ package x10dt.ui.editor;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.parser.IModelListener;
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
-import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.DefaultCondition;
 
-import x10dt.core.utils.Timeout;
-import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.tests.X10DTTestBase;
 
 /**
@@ -62,24 +58,5 @@ public class X10DTEditorTestBase extends X10DTTestBase {
           }
     
         });
-    }
-
-    public static void BeforeClass() {
-        SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy";
-        topLevelBot = new SWTWorkbenchBot();
-        SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // TODO remove this ?
-
-        SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
-        topLevelBot.perspectiveByLabel("X10").activate();
-    }
-
-    public void afterTest() {
-        SWTBotUtils.closeAllEditors(topLevelBot);
-        SWTBotUtils.closeAllShells(topLevelBot);
-    }
-
-    public static void AfterClass() {
-        SWTBotUtils.saveAllDirtyEditors(topLevelBot);
-        SWTBotUtils.resetWorkbench(topLevelBot);
     }
 }

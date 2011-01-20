@@ -16,32 +16,25 @@
 
 package x10dt.ui.tests;
 
-//import java.util.regex.Matcher;
-import org.hamcrest.Matcher;
-
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
-import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCTabItem;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotRadio;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
-import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
 
+import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.WizardConstants;
+import x10dt.tests.services.swbot.utils.SWTBotUtils;
 
 /**
  * @author rfuhrer@watson.ibm.com
@@ -53,6 +46,37 @@ public class X10DTTestBase {
   public static SWTWorkbenchBot topLevelBot;
 
   /**
+   * Saves dirty editors and resets the workbench.
+   * Call this from your derived test classes' @AfterClass-decorated method.
+   */
+  public static void AfterClass() {
+    SWTBotUtils.saveAllDirtyEditors(topLevelBot);
+    SWTBotUtils.resetWorkbench(topLevelBot);
+  }
+
+  /**
+   * Closes the "Welcome" view and makes sure the X10 perspective is open.
+   * Call this from your derived test classes' @BeforeClass-decorated method.
+   */
+  public static void BeforeClass() {
+    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
+    topLevelBot = new SWTWorkbenchBot();
+    SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // TODO remove this ?
+
+    SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
+    topLevelBot.perspectiveByLabel("X10").activate();
+  }
+
+  /**
+   * Closes all editors and shells.
+   * Call from your derived test classes' @After-decorated method.
+   */
+  public void afterTest() {
+    SWTBotUtils.closeAllEditors(topLevelBot);
+    SWTBotUtils.closeAllShells(topLevelBot);
+  }
+
+/**
    * This method waits for a build to finish before continuing
    * 
    * @throws Exception
@@ -460,6 +484,6 @@ public class X10DTTestBase {
 	    newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
 
 	    topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
-	  }
+  }
 
 }
