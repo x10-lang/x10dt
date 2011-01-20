@@ -65,6 +65,7 @@ public final class LocalAndRemoteLaunchTest {
   @AfterClass @SuppressWarnings("all") public static void sleep() {
     SWTBotUtils.saveAllDirtyEditors(bot);
     SWTBotUtils.resetWorkbench(bot);
+    bot.sleep(2000);
   }
   
   // --- Test cases
@@ -77,7 +78,6 @@ public final class LocalAndRemoteLaunchTest {
     
     bot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
     final SWTBotShell runShell = bot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
-    runShell.activate();
     bot.tree().select(LaunchConstants.NEW_CPP_LAUNCH_CONFIG).contextMenu(LaunchConstants.NEW_CONF_CONTEXT_MENU).click();
     
     bot.cTabItem(LaunchConstants.CPP_LAUNCH_CONFIG_APPLICATION_TAB).activate();
@@ -155,7 +155,7 @@ public final class LocalAndRemoteLaunchTest {
     final String x10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
     editorBot.textWithLabel(PlatformConfConstants.X10_DIST_TEXT_LABEL).setText(x10DistLoc);
     
-    editorBot.toolbarButtonWithTooltip(PlatformConfConstants.SAVE_PLATFORM_TOOLTIP_BT).click();
+    editorBot.toolbarButton(PlatformConfConstants.SAVE_PLATFORM_TOOLTIP_BT).click();
     
     editorBot.sleep(6000);
     
