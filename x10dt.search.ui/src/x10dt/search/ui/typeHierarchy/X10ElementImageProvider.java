@@ -12,7 +12,15 @@
 package x10dt.search.ui.typeHierarchy;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.imp.model.IPathEntryContent.PathEntryContentType;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.model.IWorkspaceModel;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.runtime.ImageDescriptorRegistry;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -97,7 +105,9 @@ public class X10ElementImageProvider {
 
 
 	private ImageDescriptor computeDescriptor(Object element, int flags){
-		if (element instanceof IX10Element) {
+		if (element instanceof ISourceEntity) {
+			return getJavaImageDescriptor((ISourceEntity) element, flags);
+		} if (element instanceof IX10Element) {
 			return getJavaImageDescriptor((IX10Element) element, flags);
 		} else if (element instanceof IFile) {
 			IFile file= (IFile) element;
@@ -151,6 +161,23 @@ public class X10ElementImageProvider {
 		}
 		return new X10ElementImageDescriptor(X10PluginImages.DESC_OBJS_GHOST, 0, size);
 	}
+	
+	/**
+	 * Returns an image descriptor for a java element. The descriptor includes overlays, if specified.
+	 * @param element the Java element
+	 * @param flags the image flags
+	 * @return returns the image descriptor
+	 */
+	public ImageDescriptor getJavaImageDescriptor(ISourceEntity element, int flags) {
+		Point size= useSmallSize(flags) ? SMALL_SIZE : BIG_SIZE;
+
+		ImageDescriptor baseDesc= getBaseImageDescriptor(element, flags);
+		if (baseDesc != null) {
+			int adornmentFlags= computeJavaAdornmentFlags(element, flags);
+			return new X10ElementImageDescriptor(baseDesc, adornmentFlags, size);
+		}
+		return null;
+	}
 
 	/**
 	 * Returns an image descriptor for a IAdaptable. The descriptor includes overlays, if specified (only error ticks apply).
@@ -175,6 +202,103 @@ public class X10ElementImageProvider {
 
 	// ---- Computation of base image key -------------------------------------------------
 
+	/**
+	 * Returns an image descriptor for a java element. This is the base image, no overlays.
+	 * @param element the element
+	 * @param renderFlags the image flags
+	 * @return returns the image descriptor
+	 */
+	public ImageDescriptor getBaseImageDescriptor(ISourceEntity element, int renderFlags) {
+
+		try {
+			if(element instanceof ISourceRoot)
+			{
+				ISourceRoot root= (ISourceRoot) element;
+//				IPath attach= root.getSourceAttachmentPath();
+				if (root.getContentType() == PathEntryContentType.BINARY) {
+					if (root.isArchive()) {
+						if (root.isExternal()) {
+//							if (attach == null) {
+//								return X10PluginImages.DESC_OBJS_EXTJAR;
+//							} else {
+								return X10PluginImages.DESC_OBJS_EXTJAR_WSRC;
+//							}
+						} else {
+//							if (attach == null) {
+//								return X10PluginImages.DESC_OBJS_JAR;
+//							} else {
+								return X10PluginImages.DESC_OBJS_JAR_WSRC;
+//							}
+						}
+					} else {
+//						if (attach == null) {
+//							return X10PluginImages.DESC_OBJS_CLASSFOLDER;
+//						} else {
+							return X10PluginImages.DESC_OBJS_CLASSFOLDER_WSRC;
+//						}
+					}
+				} else {
+					return X10PluginImages.DESC_OBJS_PACKFRAG_ROOT;
+				}
+			}
+				
+			else if(element instanceof ISourceFolder)
+			{
+				return getPackageFragmentIcon((ISourceFolder)element);
+			}
+			
+			else if(element instanceof ISourceProject)
+			{
+				ISourceProject jp= (ISourceProject)element;
+				if (jp.getProject().getRawProject().isOpen()) {
+					IProject project= jp.getRawProject();
+					IWorkbenchAdapter adapter= (IWorkbenchAdapter)project.getAdapter(IWorkbenchAdapter.class);
+					if (adapter != null) {
+						ImageDescriptor result= adapter.getImageDescriptor(project);
+						if (result != null)
+							return result;
+					}
+					return DESC_OBJ_PROJECT;
+				}
+				return DESC_OBJ_PROJECT_CLOSED;
+			}
+			
+			else if(element instanceof IWorkspaceModel)
+			{
+				return X10PluginImages.DESC_OBJS_JAVA_MODEL;
+			}
+			
+			// ignore. Must be a new, yet unknown Java element
+			// give an advanced IWorkbenchAdapter the chance
+			IResource resource = element.getResource();
+			
+			if(resource != null)
+			{
+				IWorkbenchAdapter wbAdapter= (IWorkbenchAdapter) resource.getAdapter(IWorkbenchAdapter.class);
+				if (wbAdapter != null) { // avoid recursion
+					ImageDescriptor imageDescriptor= wbAdapter.getImageDescriptor(element);
+					if (imageDescriptor != null) {
+						return imageDescriptor;
+					}
+					
+					else
+					{
+						imageDescriptor = getWorkbenchImageDescriptor(resource, renderFlags);
+						if (imageDescriptor != null) {
+							return imageDescriptor;
+						}
+					}
+				}
+			}
+			
+			return null;
+
+		} catch (ModelException e) {
+			UISearchPlugin.log(e);
+			return X10PluginImages.DESC_OBJS_UNKNOWN;
+		}
+	}
+	
 	/**
 	 * Returns an image descriptor for a java element. This is the base image, no overlays.
 	 * @param element the element
@@ -238,75 +362,6 @@ public class X10ElementImageProvider {
 //				case IX10Element.IMPORT_CONTAINER:
 //					return X10PluginImages.DESC_OBJS_IMPCONT;
 
-				
-				
-
-//				case IX10Element.PACKAGE_FRAGMENT_ROOT: {
-//					IPackageFragmentRoot root= (IPackageFragmentRoot) element;
-//					IPath attach= root.getSourceAttachmentPath();
-//					if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
-//						if (root.isArchive()) {
-//							if (root.isExternal()) {
-//								if (attach == null) {
-//									return X10PluginImages.DESC_OBJS_EXTJAR;
-//								} else {
-//									return X10PluginImages.DESC_OBJS_EXTJAR_WSRC;
-//								}
-//							} else {
-//								if (attach == null) {
-//									return X10PluginImages.DESC_OBJS_JAR;
-//								} else {
-//									return X10PluginImages.DESC_OBJS_JAR_WSRC;
-//								}
-//							}
-//						} else {
-//							if (attach == null) {
-//								return X10PluginImages.DESC_OBJS_CLASSFOLDER;
-//							} else {
-//								return X10PluginImages.DESC_OBJS_CLASSFOLDER_WSRC;
-//							}
-//						}
-//					} else {
-//						return X10PluginImages.DESC_OBJS_PACKFRAG_ROOT;
-//					}
-//				}
-
-//				case IX10Element.PACKAGE_FRAGMENT:
-//					return getPackageFragmentIcon(element);
-
-
-//				case IX10Element.COMPILATION_UNIT:
-//					return X10PluginImages.DESC_OBJS_CUNIT;
-
-//				case IX10Element.CLASS_FILE:
-//					/* this is too expensive for large packages
-//					try {
-//						IClassFile cfile= (IClassFile)element;
-//						if (cfile.isClass())
-//							return X10PluginImages.IMG_OBJS_CFILECLASS;
-//						return X10PluginImages.IMG_OBJS_CFILEINT;
-//					} catch(ModelException e) {
-//						// fall through;
-//					}*/
-//					return X10PluginImages.DESC_OBJS_CFILE;
-//
-//				case IX10Element.JAVA_PROJECT:
-//					IJavaProject jp= (IJavaProject)element;
-//					if (jp.getProject().isOpen()) {
-//						IProject project= jp.getProject();
-//						IWorkbenchAdapter adapter= (IWorkbenchAdapter)project.getAdapter(IWorkbenchAdapter.class);
-//						if (adapter != null) {
-//							ImageDescriptor result= adapter.getImageDescriptor(project);
-//							if (result != null)
-//								return result;
-//						}
-//						return DESC_OBJ_PROJECT;
-//					}
-//					return DESC_OBJ_PROJECT_CLOSED;
-//
-//				case IX10Element.JAVA_MODEL:
-//					return X10PluginImages.DESC_OBJS_JAVA_MODEL;
-//
 //				case IX10Element.TYPE_PARAMETER:
 //					return X10PluginImages.DESC_OBJS_TYPEVARIABLE;
 //
@@ -325,26 +380,24 @@ public class X10ElementImageProvider {
 		return !SearchUtils.hasFlag(X10.PUBLIC, flags) && !SearchUtils.hasFlag(X10.PROTECTED, flags) && !SearchUtils.hasFlag(X10.PRIVATE, flags);
 	}
 
-//	private ImageDescriptor getPackageFragmentIcon(IX10Element element) throws ModelException {
-//		IPackageFragment fragment= (IPackageFragment)element;
-//		boolean containsJavaElements= false;
-//		try {
-//			containsJavaElements= fragment.hasChildren();
-//		} catch(ModelException e) {
-//			// assuming no children;
-//		}
+	private ImageDescriptor getPackageFragmentIcon(ISourceFolder fragment) throws ModelException {
+		boolean containsJavaElements= fragment.getChildren().length > 0;
+		
 //		if(!containsJavaElements && (fragment.getNonJavaResources().length > 0))
 //			return X10PluginImages.DESC_OBJS_EMPTY_PACKAGE_RESOURCES;
-//		else if (!containsJavaElements)
-//			return X10PluginImages.DESC_OBJS_EMPTY_PACKAGE;
-//		return X10PluginImages.DESC_OBJS_PACKAGE;
-//	}
+//		else 
+		if (!containsJavaElements)
+			return X10PluginImages.DESC_OBJS_EMPTY_PACKAGE;
+		return X10PluginImages.DESC_OBJS_PACKAGE;
+	}
 
 	public void dispose() {
 	}
 
 	// ---- Methods to compute the adornments flags ---------------------------------
-
+	private int computeJavaAdornmentFlags(ISourceEntity element, int renderFlags) {
+		return 0;
+	}
 	private int computeJavaAdornmentFlags(IX10Element element, int renderFlags) {
 		int flags= 0;
 		if (showOverlayIcons(renderFlags) && element instanceof IMemberInfo) {

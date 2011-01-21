@@ -6,9 +6,10 @@
       <language
             extensions="x10"
             description="X10 Concurrent Programming Language"
-            natureID="x10dt.ui.launch.java.x10nature"
+            natureID="x10dt.ui.launch.cpp.x10nature"
             icons="icons/compilationUnitNormal.gif"
-            language="X10">
+            language="X10"
+            pathFileName=".x10path">
       </language>
    </extension>
    <extension
@@ -25,6 +26,7 @@
             language="X10">
       </tokenColorer>
    </extension>
+   <!--
    <extension
          point="org.eclipse.imp.runtime.autoEditStrategy">
       <autoEditStrategy
@@ -32,6 +34,7 @@
             language="X10">
       </autoEditStrategy>
    </extension>
+   -->
    <extension
          point="org.eclipse.ui.contexts">
       <context
@@ -298,7 +301,7 @@
                label="SelectRulerAction"
                class="org.eclipse.imp.actions.SelectRulerAction"
                actionID="RulerClick"
-               id="org.eclipse.imp.editor.internal.SelectRulerMenuAction">
+               id="x10dt.ui.editor.actions.X10SelectRulerAction">
          </action>
          <action
              label="Not Used"
@@ -421,6 +424,7 @@
          </action>
       </actionSet>
    </extension>
+   
    <extension
          point="org.eclipse.imp.runtime.entityNameLocator">
          <entityNameLocator
@@ -490,13 +494,6 @@
             id="x10dt.ui.wizards.NewX10PackageWizard"
             name="X10 Package">
       </wizard>
-   </extension>
-   <extension
-         point="org.eclipse.imp.runtime.editorInputResolver">
-      <editorInputResolver
-            class="x10dt.ui.editor.X10EditorInputResolver"
-            language="X10">
-      </editorInputResolver>
    </extension>
    <extension
          point="org.eclipse.imp.runtime.quickFixAssistant">

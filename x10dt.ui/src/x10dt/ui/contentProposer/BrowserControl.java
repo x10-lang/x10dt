@@ -14,11 +14,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.imp.editor.hover.AbstractTextHover;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.actions.OpenBrowserUtil;
 import org.eclipse.jdt.internal.ui.actions.SimpleSelectionProvider;
-import org.eclipse.jdt.internal.ui.text.java.hover.AbstractJavaEditorTextHover;
-import org.eclipse.jdt.ui.PreferenceConstants;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
@@ -49,7 +48,7 @@ import org.eclipse.ui.editors.text.EditorsUI;
  *
  * @since 2.1
  */
-public class BrowserControl extends AbstractJavaEditorTextHover {
+public class BrowserControl extends AbstractTextHover {
 
 	/**
 	 * Action to go back to the previous input in the hover control.
@@ -130,6 +129,7 @@ public class BrowserControl extends AbstractJavaEditorTextHover {
 		}
 	}
 
+	public final static String APPEARANCE_JAVADOC_FONT= "org.eclipse.jdt.ui.javadocfont"; //$NON-NLS-1$
 
 
 	/**
@@ -145,7 +145,7 @@ public class BrowserControl extends AbstractJavaEditorTextHover {
 		public IInformationControl doCreateInformationControl(Shell parent) {
 			if (BrowserInformationControl.isAvailable(parent)) {
 				ToolBarManager tbm= new ToolBarManager(SWT.FLAT);
-				String font= PreferenceConstants.APPEARANCE_JAVADOC_FONT;
+				String font= APPEARANCE_JAVADOC_FONT;
 				final BrowserInformationControl iControl= new BrowserInformationControl(parent, font, tbm);
 
 				final BackAction backAction= new BackAction(iControl);
@@ -172,7 +172,7 @@ public class BrowserControl extends AbstractJavaEditorTextHover {
 							BrowserInformationControlInput input= (BrowserInformationControlInput) newInput;
 							Object inputElement= input.getInputElement();
 							selectionProvider.setSelection(new StructuredSelection(inputElement));
-//							boolean isJavaElementInput= inputElement instanceof IJavaElement;
+//							boolean isJavaElementInput= inputElement instanceof ISourceEntity;
 //							showInJavadocViewAction.setEnabled(isJavaElementInput);
 //							openDeclarationAction.setEnabled(isJavaElementInput);
 						}
@@ -346,9 +346,9 @@ private static void addLinkListener(final BrowserInformationControl control) {
  }
 //		control.addLocationListener(JavaElementLinks.createLocationListener(new JavaElementLinks.ILinkHandler() {
 //			/* (non-Javadoc)
-//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleJavadocViewLink(org.eclipse.jdt.core.IJavaElement)
+//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleJavadocViewLink(org.eclipse.jdt.core.ISourceEntity)
 //			 */
-//			public void handleJavadocViewLink(IJavaElement linkTarget) {
+//			public void handleJavadocViewLink(ISourceEntity linkTarget) {
 //				control.notifyDelayedInputChange(null);
 //				control.setVisible(false);
 //				control.dispose(); //FIXME: should have protocol to hide, rather than dispose
@@ -361,10 +361,10 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //			}
 //
 //			/* (non-Javadoc)
-//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleInlineJavadocLink(org.eclipse.jdt.core.IJavaElement)
+//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleInlineJavadocLink(org.eclipse.jdt.core.ISourceEntity)
 //			 */
-//			public void handleInlineJavadocLink(IJavaElement linkTarget) {
-//				JavadocBrowserInformationControlInput hoverInfo= getHoverInfo(new IJavaElement[] { linkTarget }, null, (JavadocBrowserInformationControlInput) control.getInput());
+//			public void handleInlineJavadocLink(ISourceEntity linkTarget) {
+//				JavadocBrowserInformationControlInput hoverInfo= getHoverInfo(new ISourceEntity[] { linkTarget }, null, (JavadocBrowserInformationControlInput) control.getInput());
 //				if (control.hasDelayedInputChangeListener())
 //					control.notifyDelayedInputChange(hoverInfo);
 //				else
@@ -372,9 +372,9 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //			}
 //
 //			/* (non-Javadoc)
-//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleDeclarationLink(org.eclipse.jdt.core.IJavaElement)
+//			 * @see org.eclipse.jdt.internal.ui.viewsupport.JavaElementLinks.ILinkHandler#handleDeclarationLink(org.eclipse.jdt.core.ISourceEntity)
 //			 */
-//			public void handleDeclarationLink(IJavaElement linkTarget) {
+//			public void handleDeclarationLink(ISourceEntity linkTarget) {
 //				control.notifyDelayedInputChange(null);
 //				control.dispose(); //FIXME: should have protocol to hide, rather than dispose
 //				try {
@@ -382,7 +382,7 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //					JavaUI.openInEditor(linkTarget);
 //				} catch (PartInitException e) {
 //					JavaPlugin.log(e);
-//				} catch (JavaModelException e) {
+//				} catch (ModelException e) {
 //					JavaPlugin.log(e);
 //				}
 //			}
@@ -424,12 +424,12 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //	}
 //
 //	private JavadocBrowserInformationControlInput internalGetHoverInfo(ITextViewer textViewer, IRegion hoverRegion) {
-//		IJavaElement[] elements= getJavaElementsAt(textViewer, hoverRegion);
+//		ISourceEntity[] elements= getJavaElementsAt(textViewer, hoverRegion);
 //		if (elements == null || elements.length == 0)
 //			return null;
 //
 //		String constantValue;
-//		if (elements.length == 1 && elements[0].getElementType() == IJavaElement.FIELD) {
+//		if (elements.length == 1 && elements[0].getElementType() == ISourceEntity.FIELD) {
 //			constantValue= getConstantValue((IField) elements[0], hoverRegion);
 //			if (constantValue != null)
 //				constantValue= HTMLPrinter.convertToHTMLContent(constantValue);
@@ -449,12 +449,12 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //	 * @return the HTML hover info for the given element(s) or <code>null</code> if no information is available
 //	 * @since 3.4
 //	 */
-//	private static JavadocBrowserInformationControlInput getHoverInfo(IJavaElement[] elements, String constantValue, JavadocBrowserInformationControlInput previousInput) {
+//	private static JavadocBrowserInformationControlInput getHoverInfo(ISourceEntity[] elements, String constantValue, JavadocBrowserInformationControlInput previousInput) {
 //		int nResults= elements.length;
 //		StringBuffer buffer= new StringBuffer();
 //		boolean hasContents= false;
 //		String base= null;
-//		IJavaElement element= null;
+//		ISourceEntity element= null;
 //
 //		int leadingImageWidth= 0;
 //
@@ -462,8 +462,8 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //
 //			for (int i= 0; i < elements.length; i++) {
 //				HTMLPrinter.startBulletList(buffer);
-//				IJavaElement curr= elements[i];
-//				if (curr instanceof IMember || curr.getElementType() == IJavaElement.LOCAL_VARIABLE) {
+//				ISourceEntity curr= elements[i];
+//				if (curr instanceof IMember || curr.getElementType() == ISourceEntity.LOCAL_VARIABLE) {
 //					//FIXME: provide links
 //					HTMLPrinter.addBullet(buffer, getInfoText(curr, constantValue, false));
 //					hasContents= true;
@@ -486,7 +486,7 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //					// Provide hint why there's no Javadoc
 //					if (reader == null && member.isBinary()) {
 //						boolean hasAttachedJavadoc= JavaDocLocations.getJavadocBaseLocation(member) != null;
-//						IPackageFragmentRoot root= (IPackageFragmentRoot)member.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+//						ISourceFolderRoot root= (ISourceFolderRoot)member.getAncestor(ISourceEntity.PACKAGE_FRAGMENT_ROOT);
 //						boolean hasAttachedSource= root != null && root.getSourceAttachmentPath() != null;
 //						IOpenable openable= member.getOpenable();
 //						boolean hasSource= openable.getBuffer() != null;
@@ -504,7 +504,7 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //						base= JavaDocLocations.getBaseURL(member);
 //					}
 //
-//				} catch (JavaModelException ex) {
+//				} catch (ModelException ex) {
 //					reader= new StringReader(JavaHoverMessages.JavadocHover_error_gettingJavadoc);
 //					JavaPlugin.log(ex);
 //				}
@@ -514,7 +514,7 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //				}
 //				hasContents= true;
 //
-//			} else if (element.getElementType() == IJavaElement.LOCAL_VARIABLE || element.getElementType() == IJavaElement.TYPE_PARAMETER) {
+//			} else if (element.getElementType() == ISourceEntity.LOCAL_VARIABLE || element.getElementType() == ISourceEntity.TYPE_PARAMETER) {
 //				HTMLPrinter.addSmallHeader(buffer, getInfoText(element, constantValue, true));
 //				hasContents= true;
 //			}
@@ -537,13 +537,13 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //		return null;
 //	}
 //
-//	private static String getInfoText(IJavaElement element, String constantValue, boolean allowImage) {
+//	private static String getInfoText(ISourceEntity element, String constantValue, boolean allowImage) {
 //		long flags;
 //		switch (element.getElementType()) {
-//			case IJavaElement.LOCAL_VARIABLE:
+//			case ISourceEntity.LOCAL_VARIABLE:
 //				flags= LOCAL_VARIABLE_FLAGS;
 //				break;
-//			case IJavaElement.TYPE_PARAMETER:
+//			case ISourceEntity.TYPE_PARAMETER:
 //				flags= TYPE_PARAMETER_FLAGS;
 //				break;
 //			default:
@@ -551,9 +551,9 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //				break;
 //		}
 //		StringBuffer label= new StringBuffer(JavaElementLinks.getElementLabel(element, flags));
-//		if (element.getElementType() == IJavaElement.FIELD) {
+//		if (element.getElementType() == ISourceEntity.FIELD) {
 //			if (constantValue != null) {
-//				IJavaProject javaProject= element.getJavaProject();
+//				ISourceProject javaProject= element.getJavaProject();
 //				if (JavaCore.INSERT.equals(javaProject.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, true)))
 //					label.append(' ');
 //				label.append('=');
@@ -582,7 +582,7 @@ private static void addLinkListener(final BrowserInformationControl control) {
 //	private static boolean isStaticFinal(IField field) {
 //		try {
 //			return JdtFlags.isFinal(field) && JdtFlags.isStatic(field);
-//		} catch (JavaModelException e) {
+//		} catch (ModelException e) {
 //			JavaPlugin.log(e);
 //			return false;
 //		}

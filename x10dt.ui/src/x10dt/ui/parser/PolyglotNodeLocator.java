@@ -17,15 +17,14 @@ import lpg.runtime.IToken;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.model.IPathEntry;
 import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.parser.ISourcePositionLocator;
-import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.MethodDecl;
@@ -471,17 +470,17 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             if (defPos.isCompilerGenerated())
                 return null;
             final String path= defPos.file();
-            if (path.endsWith(".class")) {
-                try {
-                    IClassFile classFile= resolveClassFile(path);
-                    if (classFile.exists())
-                        // Eclipse doesn't seem to properly handle "jar:" URLs.
-//                      return new Path("jar:" + classFile.getPath().toPortableString() + "!" + path);
-                        return classFile.getPath(); // but this just describes the archive container, not the member within it...
-                } catch (JavaModelException jme) {
-                    System.err.println(jme.getMessage());
-                }
-            }
+//            if (path.endsWith(".class")) {
+//                try {
+//                    IClassFile classFile= resolveClassFile(path);
+//                    if (classFile.exists())
+//                        // Eclipse doesn't seem to properly handle "jar:" URLs.
+////                      return new Path("jar:" + classFile.getPath().toPortableString() + "!" + path);
+//                        return classFile.getPath(); // but this just describes the archive container, not the member within it...
+//                } catch (ModelException jme) {
+//                    System.err.println(jme.getMessage());
+//                }
+//            }
             return new Path(path);
         } else if (obj instanceof Node) {
             Node node = (Node) obj;
@@ -506,23 +505,23 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         }
     }
 
-    private IClassFile resolveClassFile(final String path) throws JavaModelException {
-        IJavaProject javaProject= JavaCore.create(fSrcProject.getRawProject());
-        IClasspathEntry[] cpEntries= javaProject.getResolvedClasspath(true);
-
-        for(int i= 0; i < cpEntries.length; i++) {
-            IClasspathEntry entry= cpEntries[i];
-
-            if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-                IPath entryPath= entry.getPath();
-                IPackageFragmentRoot pkgRoot= javaProject.findPackageFragmentRoot(entryPath);
-                final int pkgEnd= path.lastIndexOf('/');
-                String pkgName= path.substring(0, pkgEnd).replace('/', '.');
-                IPackageFragment pkgFrag= pkgRoot.getPackageFragment(pkgName);
-
-                return pkgFrag.getClassFile(path.substring(pkgEnd + 1));
-            }
-        }
-        return null;
-    }
+//    private IClassFile resolveClassFile(final String path) throws ModelException {
+//        ISourceProject javaProject= ModelFactory.getProject(fSrcProject.getRawProject());
+//        IPathEntry[] cpEntries= javaProject.getResolvedClasspath(true);
+//
+//        for(int i= 0; i < cpEntries.length; i++) {
+//            IPathEntry entry= cpEntries[i];
+//
+//            if (entry.getEntryType() == PathEntryType.ARCHIVE) {
+//                IPath entryPath= entry.getRawPath();
+//                ISourceRoot pkgRoot= javaProject.findPackageFragmentRoot(entryPath);
+//                final int pkgEnd= path.lastIndexOf('/');
+//                String pkgName= path.substring(0, pkgEnd).replace('/', '.');
+//                ISourceFolder pkgFrag= pkgRoot.getPackageFragment(pkgName);
+//
+//                return pkgFrag.getClassFile(path.substring(pkgEnd + 1));
+//            }
+//        }
+//        return null;
+//    }
 }

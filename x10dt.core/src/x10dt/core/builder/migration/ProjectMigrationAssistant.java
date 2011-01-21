@@ -22,13 +22,17 @@ import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -221,25 +225,25 @@ public class ProjectMigrationAssistant {
 				findOldRuntimeContainerRef(project) >= 0) {
 				return true;
 			}
-		} catch (CoreException e) {
+		} catch (Exception e) {
 			X10DTCorePlugin.getInstance().logException("Exception encountered while examining project description for X10DT migration", e); //$NON-NLS-1$
 		}
 		return false;
 	}
 
-	private int findOldRuntimeContainerRef(IProject project) throws JavaModelException {
-		IJavaProject javaProj= JavaCore.create(project);
+	private int findOldRuntimeContainerRef(IProject project) throws ModelException {
+		ISourceProject javaProj= ModelFactory.getProject(project);
 
-		if (!javaProj.exists()) { // this isn't a Java/JDT project, so there's no JDT classpath to examine
+		if (javaProj == null) { // this isn't a Java/JDT project, so there's no JDT classpath to examine
 			return -1;
 		}
 
-		IClasspathEntry[] cpEntries= javaProj.getRawClasspath();
+		List<IPathEntry> cpEntries= javaProj.getBuildPath(LanguageRegistry.findLanguage("X10"));
 
 		int idx= 0;
-		for(IClasspathEntry cpEntry: cpEntries) {
-			if (cpEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
-				if (cpEntry.getPath().toString().equals(OLD_CONTAINER_ID)) {
+		for(IPathEntry cpEntry: cpEntries) {
+			if (cpEntry.getEntryType() == PathEntryType.CONTAINER) {
+				if (cpEntry.getRawPath().toString().equals(OLD_CONTAINER_ID)) {
 					return idx;
 				}
 			}
@@ -288,16 +292,17 @@ public class ProjectMigrationAssistant {
 
 	private void fixContainer(IProject project) {
 		try {
-			IJavaProject javaProj= JavaCore.create(project);
-			IClasspathEntry[] cpEntries= javaProj.getRawClasspath();
+			ISourceProject javaProj= ModelFactory.getProject(project);
+			Language lang = LanguageRegistry.findLanguage("X10");
+			List<IPathEntry> cpEntries= javaProj.getBuildPath(lang);
 			int idx= findOldRuntimeContainerRef(project);
 
 			if (idx >= 0) {
-				cpEntries[idx]= JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID));
+				cpEntries.set(idx, ModelFactory.createContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID)));
 			}
 
-			javaProj.setRawClasspath(cpEntries, null);
-		} catch (JavaModelException e) {
+			javaProj.setBuildPath(lang, cpEntries, null, new NullProgressMonitor());
+		} catch (ModelException e) {
 			X10DTCorePlugin.getInstance().logException("Exception encountered while updating project classpath", e); //$NON-NLS-1$
 		}
 	}

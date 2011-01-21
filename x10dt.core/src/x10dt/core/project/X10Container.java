@@ -7,21 +7,23 @@
  *******************************************************************************/
 package x10dt.core.project;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.imp.model.IPathContainer;
+import org.eclipse.imp.model.IPathEntry;
 
 
-final class X10Container implements IClasspathContainer {
+final class X10Container implements IPathContainer {
   
-  X10Container(final IPath path, final IClasspathEntry[] classPathEntries) {
+  X10Container(final IPath path, List<IPathEntry> classPathEntries) {
     this.fPath = path;
     this.fClassPathEntries = classPathEntries;
   }
 
   // --- Interface methods implementation
   
-  public IClasspathEntry[] getClasspathEntries() {
+  public List<IPathEntry> getPathEntries() {
     return this.fClassPathEntries;
   }
 
@@ -29,8 +31,8 @@ final class X10Container implements IClasspathContainer {
     return "X10 Runtime Container"; //$NON-NLS-1$
   }
 
-  public int getKind() {
-    return IClasspathContainer.K_APPLICATION;
+  public PathContainerType getType() {
+    return PathContainerType.APPLICATION;
   }
 
   public IPath getPath() {
@@ -41,6 +43,6 @@ final class X10Container implements IClasspathContainer {
   
   private final IPath fPath;
   
-  private final IClasspathEntry[] fClassPathEntries;
+  private final List<IPathEntry> fClassPathEntries;
 
 }

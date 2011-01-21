@@ -28,11 +28,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.ast.Node;
@@ -71,50 +72,55 @@ public final class X10Utils {
    * get the class path entries for the project class path containing the Java element.
    * @throws InterruptedException Occurs if the search operation got canceled.
    */
-  public static void collectX10MainTypes(final Collection<ClassType> x10Types, final IJavaElement javaElement,
+  public static void collectX10MainTypes(final Collection<ClassType> x10Types, final ISourceEntity entity,
                                          final IProgressMonitor monitor) throws CoreException, InterruptedException {
     monitor.beginTask(null, 10);
     
     final Collection<Source> x10Files = new LinkedList<Source>();
-    javaElement.getResource().accept(new X10FileResourceVisitor(x10Files));
+    entity.getResource().accept(new X10FileResourceVisitor(x10Files));
     if (monitor.isCanceled()) {
       throw new InterruptedException();
     }
     
-    final IJavaProject javaProject = javaElement.getJavaProject();
-    final Set<IPath> entries = collectPathEntries(javaProject);
-    final StringBuilder cpBuilder = new StringBuilder();
-    int i = -1;
-    for (final IPath pathEntry : entries) {
-      if (++i > 0) {
-        cpBuilder.append(File.pathSeparatorChar);
-      }
-      cpBuilder.append(pathEntry.toOSString());
-    }
-    
-    final List<File> sourcePath = new ArrayList<File>();
-    for (final IPath pathEntry : entries) {
-      final String entry = pathEntry.toOSString();
-      if (entry.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID) || entry.contains(javaProject.getElementName())) {
-        sourcePath.add(pathEntry.toFile());
-      }
-    }
-    
-    final ExtensionInfo extInfo = new ExtensionInfo(null /* monitor */, new ShallowMessageHander());
-    final X10CompilerOptions compilerOptions = (X10CompilerOptions) extInfo.getOptions();
-    compilerOptions.assertions = true;
-    compilerOptions.serialize_type_info = false;
-    compilerOptions.compile_command_line_only = true;
-    compilerOptions.post_compiler = null;
-    compilerOptions.classpath = cpBuilder.toString();
-    compilerOptions.output_classpath = compilerOptions.classpath;
-    compilerOptions.source_path = sourcePath;
-    
-    extInfo.setInterestingSources(x10Files);
-    
-    if (monitor.isCanceled()) {
-      throw new InterruptedException();
-    }
+    ExtensionInfo extInfo = null;
+	try {
+		final ISourceProject javaProject = ModelFactory.getProject(entity.getResource().getProject());
+		final Set<IPath> entries = collectPathEntries(javaProject);
+		final StringBuilder cpBuilder = new StringBuilder();
+		int i = -1;
+		for (final IPath pathEntry : entries) {
+		  if (++i > 0) {
+		    cpBuilder.append(File.pathSeparatorChar);
+		  }
+		  cpBuilder.append(pathEntry.toOSString());
+		}
+		
+		final List<File> sourcePath = new ArrayList<File>();
+		for (final IPath pathEntry : entries) {
+		  final String entry = pathEntry.toOSString();
+		  if (entry.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID) || entry.contains(javaProject.getName())) {
+		    sourcePath.add(pathEntry.toFile());
+		  }
+		}
+		
+		extInfo = new ExtensionInfo(null /* monitor */, new ShallowMessageHander());
+		final X10CompilerOptions compilerOptions = (X10CompilerOptions) extInfo.getOptions();
+		compilerOptions.assertions = true;
+		compilerOptions.serialize_type_info = false;
+		compilerOptions.compile_command_line_only = true;
+		compilerOptions.post_compiler = null;
+		compilerOptions.classpath = cpBuilder.toString();
+		compilerOptions.output_classpath = compilerOptions.classpath;
+		compilerOptions.source_path = sourcePath;
+		
+		extInfo.setInterestingSources(x10Files);
+		
+		if (monitor.isCanceled()) {
+		  throw new InterruptedException();
+		}
+	} catch (ModelException e) {
+		throw ModelFactory.createCoreException(e);
+	}
     
     final Compiler compiler = new Compiler(extInfo, new ShallowErrorQueue());
     try {
@@ -142,35 +148,35 @@ public final class X10Utils {
   
   private X10Utils() {}
   
-  private static Set<IPath> collectPathEntries(final IJavaProject project) throws JavaModelException {
+  private static Set<IPath> collectPathEntries(final ISourceProject project) throws ModelException {
     final Set<IPath> container = new HashSet<IPath>();
     final IWorkspaceRoot root = project.getResource().getWorkspace().getRoot();
-    for (final IClasspathEntry cpEntry : project.getResolvedClasspath(true)) {
+    for (final IPathEntry cpEntry : project.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
       collectCpEntries(container, cpEntry, root);
     }
     return container;
   }
   
-  private static <T> void collectCpEntries(final Set<IPath> container, final IClasspathEntry cpEntry, 
-                                           final IWorkspaceRoot root) throws JavaModelException {
-    switch (cpEntry.getEntryKind()) {
-      case IClasspathEntry.CPE_SOURCE:
-        if (cpEntry.getPath().isRoot()) {
-          container.add(cpEntry.getPath());
+  private static <T> void collectCpEntries(final Set<IPath> container, final IPathEntry cpEntry, 
+                                           final IWorkspaceRoot root) throws ModelException {
+    switch (cpEntry.getEntryType()) {
+      case SOURCE_FOLDER:
+        if (cpEntry.getRawPath().isRoot()) {
+          container.add(cpEntry.getRawPath());
         } else {
-          container.add(root.getLocation().append(cpEntry.getPath()));
+          container.add(root.getLocation().append(cpEntry.getRawPath()));
         }
         break;
         
-      case IClasspathEntry.CPE_LIBRARY:
-        container.add(cpEntry.getPath());
+      case ARCHIVE:
+        container.add(cpEntry.getRawPath());
         break;
       
-      case IClasspathEntry.CPE_PROJECT:
-        final IResource resource = root.findMember(cpEntry.getPath());
+      case PROJECT:
+        final IResource resource = root.findMember(cpEntry.getRawPath());
         if (resource != null) {
-          final IJavaProject refProject = JavaCore.create((IProject) resource);
-          for (final IClasspathEntry newCPEntry : refProject.getResolvedClasspath(true)) {
+          final ISourceProject refProject = ModelFactory.getProject((IProject) resource);
+          for (final IPathEntry newCPEntry : refProject.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
             collectCpEntries(container, newCPEntry, root);
           }
         }

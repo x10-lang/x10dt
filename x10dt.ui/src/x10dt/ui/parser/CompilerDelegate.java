@@ -18,6 +18,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,13 +36,16 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.quickfix.IAnnotation;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesService;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
@@ -72,6 +76,7 @@ public class CompilerDelegate {
 			super(limit, name);
 			this.filePath = filePath;
 			this.handler = handler;
+			
 		}
 
 		protected void displayError(ErrorInfo error) {
@@ -81,7 +86,7 @@ public class CompilerDelegate {
 				}
 			} else {
 //				System.out.println(error.getMessage());
-				if (BuildPathUtils.isExcluded(filePath, fX10Project)) {
+				if (BuildPathUtils.isExcluded(filePath, fX10Project, language)) {
 					return;
 				}
 				
@@ -104,15 +109,18 @@ public class CompilerDelegate {
 
 	private x10dt.ui.parser.ExtensionInfo fExtInfo;
 
-    private final IJavaProject fX10Project;
+    private final ISourceProject fX10Project;
 
     private final ParseController.InvariantViolationHandler fViolationHandler;
 
     private final IPath fFilePath;
+    
+    private Language language;
 
     CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) throws CoreException {
-        this.fX10Project= (project != null) ? JavaCore.create(project) : null;
+        this.fX10Project= (project != null) ? ModelFactory.getProject(project) : null;
         this.fFilePath= filePath;
+        language = LanguageRegistry.findLanguage("X10");
         fViolationHandler= violationHandler;
 
         IPreferencesService prefSvc= new PreferencesService(project, X10DTCorePlugin.kLanguageName);
@@ -132,8 +140,8 @@ public class CompilerDelegate {
     
 	private boolean isX10Project() {
 		try {
-			return fX10Project.getProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) ||
-			       fX10Project.getProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID);
+			return fX10Project.getRawProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) ||
+			       fX10Project.getRawProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID);
 		} catch (CoreException e) {
 			X10DTUIPlugin.log(e);
 			return false;
@@ -232,7 +240,7 @@ public class CompilerDelegate {
 
     /**
      * @return a list of all project-relative CPE_SOURCE-type classpath entries.
-     * @throws JavaModelException
+     * @throws ModelException
      */
     private List<IPath> getProjectSrcPath() throws CoreException {
         List<IPath> srcPath= new ArrayList<IPath>();
@@ -243,7 +251,7 @@ public class CompilerDelegate {
         	IPath pkgRootPath= determinePkgRootPath();
 
         	if (pkgRootPath != null) {
-        		if (fX10Project != null && fX10Project.getProject().getName().equals("x10.runtime")) {
+        		if (fX10Project != null && fX10Project.getRawProject().getName().equals("x10.runtime")) {
         			// If the containing project happens to be x10.runtime,
         			// don't add the runtime bound into the X10DT to the search path
         			return Arrays.asList(pkgRootPath);
@@ -255,48 +263,47 @@ public class CompilerDelegate {
         	}
         }
 
-        IClasspathEntry[] classPath= fX10Project.getResolvedClasspath(true);
+		List<IPathEntry> classPath= fX10Project.getBuildPath(language);
 
-        for(int i= 0; i < classPath.length; i++) {
-            IClasspathEntry e= classPath[i];
+		for(IPathEntry e : classPath) {
+		    if (e.getEntryType() == PathEntryType.SOURCE_FOLDER) {
+		        srcPath.add(e.getRawPath());
+		    } else if (e.getEntryType() == PathEntryType.PROJECT) {
+		        //PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
+		        // so add source path entries of referenced projects to this project's sourcepath.
+		        // Assume that goal dependencies are such that Polyglot will not be compelled to
+		        // compile referenced X10 source down to Java source (causing duplication; see below).
+		        //
+		        // RMF 6/4/2008 - Don't add referenced projects to the source path:
+		        // 1) doing so should be unnecessary, since the classpath will include
+		        //    the project, and the class files should satisfy all references,
+		        // 2) doing so will cause Polyglot to compile the source files found in
+		        //    the other project to Java source files located in the *referencing*
+		        //    project, causing duplication, which is not what we want.
+		        //
+		        IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getRawPath().toPortableString());
+		        ISourceProject refJavaProject= ModelFactory.getProject(refProject);
+		        List<IPathEntry> refJavaCPEntries= refJavaProject.getBuildPath(language);
+		        for(IPathEntry refJavaCPEntry:  refJavaCPEntries) {
+		            if (refJavaCPEntry.getEntryType() == PathEntryType.SOURCE_FOLDER) {
+		                srcPath.add(refJavaCPEntry.getRawPath());
+		            }
+		        }
+		    } else if (e.getEntryType() == PathEntryType.ARCHIVE) {
+		        // PORT1.7 Add the X10 runtime jar to the source path, since the compiler
+		        // needs to see the X10 source for the user-visible runtime classes (like
+		        // x10.lang.Region) to get the extra type information (for deptypes) that
+		        // can't be stored in Java class files, and for now, these source files
+		        // actually live in the X10 runtime jar.
+		        IPath path= e.getRawPath();
+		        if (path.toPortableString().contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {
+		            srcPath.add(path);
+		        }
+		    }
+		}
+		if (srcPath.size() == 0)
+		    srcPath.add(fX10Project.getRawProject().getLocation());
 
-            if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                srcPath.add(e.getPath());
-            } else if (e.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-                //PORT1.7 Compiler needs to see X10 source for all referenced compilation units,
-                // so add source path entries of referenced projects to this project's sourcepath.
-                // Assume that goal dependencies are such that Polyglot will not be compelled to
-                // compile referenced X10 source down to Java source (causing duplication; see below).
-                //
-                // RMF 6/4/2008 - Don't add referenced projects to the source path:
-                // 1) doing so should be unnecessary, since the classpath will include
-                //    the project, and the class files should satisfy all references,
-                // 2) doing so will cause Polyglot to compile the source files found in
-                //    the other project to Java source files located in the *referencing*
-                //    project, causing duplication, which is not what we want.
-                //
-                IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getPath().toPortableString());
-                IJavaProject refJavaProject= JavaCore.create(refProject);
-                IClasspathEntry[] refJavaCPEntries= refJavaProject.getResolvedClasspath(true);
-                for(int j= 0; j < refJavaCPEntries.length; j++) {
-                    if (refJavaCPEntries[j].getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-                        srcPath.add(refJavaCPEntries[j].getPath());
-                    }
-                }
-            } else if (e.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-                // PORT1.7 Add the X10 runtime jar to the source path, since the compiler
-                // needs to see the X10 source for the user-visible runtime classes (like
-                // x10.lang.Region) to get the extra type information (for deptypes) that
-                // can't be stored in Java class files, and for now, these source files
-                // actually live in the X10 runtime jar.
-                IPath path= e.getPath();
-                if (path.toPortableString().contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {
-                    srcPath.add(path);
-                }
-            }
-        }
-        if (srcPath.size() == 0)
-            srcPath.add(fX10Project.getProject().getLocation());
         return srcPath;
     }
 
@@ -313,8 +320,8 @@ public class CompilerDelegate {
                 // live inside the workspace, so use its actual location as the prefix
                 // for the rest of the specified path.
                 buff.append(projectRef.getLocation().append(path.removeFirstSegments(1)).toOSString());
-            } else if (fX10Project != null && fX10Project.getProject().exists(path)) {
-                buff.append(fX10Project.getProject().getLocation().append(path).toOSString());
+            } else if (fX10Project != null && fX10Project.getRawProject().exists(path)) {
+                buff.append(fX10Project.getRawProject().getLocation().append(path).toOSString());
             } else {
                 buff.append(path.toOSString());
             }
@@ -359,30 +366,28 @@ public class CompilerDelegate {
         	return ".";
         }
 
-        try {
-            IClasspathEntry[] classPath= (fX10Project != null) ? fX10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
+        List<IPathEntry> classPath= Collections.emptyList();
+        if(fX10Project != null)
+        	classPath = fX10Project.getBuildPath(language);
 
-            for(int i= 0; i < classPath.length; i++) {
-                IClasspathEntry entry= classPath[i];
-                final String entryPath= entry.getPath().toOSString();
+        for(int i= 0; i < classPath.size(); i++) {
+            IPathEntry entry= classPath.get(i);
+            final String entryPath= entry.getRawPath().toOSString();
 
-                if (i > 0)
-                    buff.append(File.pathSeparatorChar);
-                buff.append(entryPath);
+            if (i > 0)
+                buff.append(File.pathSeparatorChar);
+            buff.append(entryPath);
 
-                if (entryPath.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
-                    hasRuntime= true;
-                    if (new File(entryPath).exists())
-                        runtimeValid= true;
-                }
+            if (entryPath.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
+                hasRuntime= true;
+                if (new File(entryPath).exists())
+                    runtimeValid= true;
             }
-            if (!hasRuntime || !runtimeValid) {
-                if (buff.length() > 0)
-                    buff.append(File.pathSeparatorChar);
-                buff.append(getRuntimePath());
-            }
-        } catch (JavaModelException e) {
-            X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
+        }
+        if (!hasRuntime || !runtimeValid) {
+            if (buff.length() > 0)
+                buff.append(File.pathSeparatorChar);
+            buff.append(getRuntimePath());
         }
         return buff.toString();
     }

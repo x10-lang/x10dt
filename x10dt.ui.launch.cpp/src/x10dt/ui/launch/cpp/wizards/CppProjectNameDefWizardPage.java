@@ -8,9 +8,9 @@
 package x10dt.ui.launch.cpp.wizards;
 
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageOne;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.ui.wizards.NewProjectWizardPageOne;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -22,7 +22,7 @@ import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 
 
-final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
+final class CppProjectNameDefWizardPage extends NewProjectWizardPageOne {
 
   CppProjectNameDefWizardPage() {
     setPageComplete(false);
@@ -62,11 +62,11 @@ final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
     setControl(composite);
   }
   
-  public IClasspathEntry[] getDefaultClasspathEntries() {
-    final IClasspathEntry[] entries = new IClasspathEntry[0];
-    final IClasspathEntry[] all = new IClasspathEntry[entries.length + 1];
+  public IPathEntry[] getDefaultClasspathEntries() {
+    final IPathEntry[] entries = new IPathEntry[0];
+    final IPathEntry[] all = new IPathEntry[entries.length + 1];
     System.arraycopy(entries, 0, all, 0, entries.length);
-    all[entries.length] = JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID));
+    all[entries.length] = ModelFactory.createContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID));
     return all;
   }
 

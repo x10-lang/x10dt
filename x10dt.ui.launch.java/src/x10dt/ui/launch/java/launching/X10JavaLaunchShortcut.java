@@ -16,17 +16,19 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 
 import polyglot.types.ClassType;
 import x10dt.core.utils.X10BundleUtils;
-import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.LaunchCore;
+import x10dt.ui.launch.java.Messages;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
 /**
@@ -47,8 +49,8 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   }
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
-                                                  final Pair<ClassType, IJavaElement> type) {
-    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getJavaProject().getElementName());
+                                                  final Pair<ClassType, ISourceEntity> type) {
+    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getName());
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
     
     try {
@@ -62,8 +64,21 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
     }
   }
   
-  // --- Fields
+  @Override
+  protected boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
+			final String projectName) throws CoreException {
+	// This is a fairly loose match, based only on the project and main type names.
+	// This is based on the notion that the most common scenario is to have a single
+	// launch configuration for a given project and main type.
+	// If we want to support multiple launch types (e.g. with different comm interfaces)
+	// for a given project/main type better, we should tighten this match.
+	return config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName) && //$NON-NLS-1$
+	config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName);
+  }
+
   
-  private static final String LAUNCH_CONF_TYPE = "x10dt.ui.launch.java.launching.X10LaunchConfigurationType"; //$NON-NLS-1$
+  // --- Fields
+
+private static final String LAUNCH_CONF_TYPE = "x10dt.ui.launch.java.launching.X10LaunchConfigurationType"; //$NON-NLS-1$
   
 }

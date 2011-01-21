@@ -41,11 +41,15 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.ISourceFolderEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.preferences.IPreferencesService;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -55,7 +59,6 @@ import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.main.Options;
 import polyglot.util.InternalCompilerError;
-import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10dt.core.X10DTCorePlugin;
@@ -120,6 +123,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
    */
   public abstract String getFileExtension();
 
+  public AbstractX10Builder()
+  {
+	  fLanguage = LanguageRegistry.findLanguage("X10");
+  }
+  
   // --- Abstract methods implementation
 
   @SuppressWarnings("rawtypes")
@@ -156,7 +164,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
 
-      this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
+      this.fProjectWrapper.getRawProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
@@ -214,7 +222,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   protected void clean(final IProgressMonitor monitor) throws CoreException {
     if (getProject().isAccessible()) {
       if (this.fProjectWrapper == null) {
-        this.fProjectWrapper = JavaCore.create(getProject());
+        this.fProjectWrapper = ModelFactory.getProject(getProject());
       }
       this.fDependencyInfo.clearAllDependencies();
       final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
@@ -231,7 +239,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   protected void startupOnInitialize() {
     if (getProject().isAccessible()) {
       if (this.fProjectWrapper == null) {
-        this.fProjectWrapper = JavaCore.create(getProject());
+        this.fProjectWrapper = ModelFactory.getProject(getProject());
       }
       if (this.fDependencyInfo == null) {
         this.fDependencyInfo = new PolyglotDependencyInfo(getProject());
@@ -251,21 +259,21 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
    * @throws CoreException
    *           Occurs if we could not access some project information or get the local file for the location identified.
    */
-  public File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException {
+  public File getMainGeneratedFile(final ISourceProject project, final IFile x10File) throws CoreException {
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-    for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
-      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+    for (final IPathEntry cpEntry : project.getBuildPath(fLanguage)) {
+      if (cpEntry.getEntryType() == PathEntryType.SOURCE_FOLDER) {
         final IPath outputLocation;
-        if (cpEntry.getOutputLocation() == null) {
-          outputLocation = project.getOutputLocation();
+        if (((ISourceFolderEntry)cpEntry).getOutputLocation() == null) {
+          outputLocation = project.getOutputLocation(fLanguage);
         } else {
-          outputLocation = cpEntry.getOutputLocation();
+          outputLocation = ((ISourceFolderEntry)cpEntry).getOutputLocation();
         }
         final StringBuilder sb = new StringBuilder();
         sb.append(File.separatorChar).append(x10File.getProjectRelativePath().removeFileExtension().toString())
           .append(getFileExtension());
         final IPath projectRelativeFilePath = new Path(sb.toString());
-        final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
+        final int srcPathCount = cpEntry.getRawPath().removeFirstSegments(1).segmentCount();
         final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
         final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(generatedFilePath).getLocationURI());
         if (fileStore.fetchInfo().exists()) {
@@ -297,7 +305,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private void filter(Collection<IFile> files){
 	Collection<IFile> filesToRemove = new ArrayList<IFile>();
 	for(IFile file: files){
-		if (BuildPathUtils.isExcluded(file.getFullPath(), this.fProjectWrapper)){
+		if (BuildPathUtils.isExcluded(file.getFullPath(), this.fProjectWrapper, fLanguage)){
 			filesToRemove.add(file);
 		}
 	}
@@ -322,13 +330,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
 
   private void collectSourceFilesToCompile(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,
-                                           final Collection<IFile> deletedSources, final IJavaProject javaProject,
+                                           final Collection<IFile> deletedSources, final ISourceProject javaProject,
                                            final Set<IProject> dependentProjects, final IFilter<IFile> nativeFilesFilter,
                                            final boolean fullBuild, final SubMonitor monitor) throws CoreException {
     try {
       monitor.beginTask(Messages.CPPB_CollectingSourcesTaskName, 1);
 
-      final IProject project = javaProject.getProject();
+      final IProject project = javaProject.getRawProject();
 
       final IResourceDelta resourceDelta = getDelta(project);
       if (resourceDelta != null) {
@@ -391,10 +399,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       if (fullBuild || conservativeBuild) {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-        for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-          if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-            if (cpEntry.getPath().segmentCount() > 1) {
-              final IFolder folder = root.getFolder(cpEntry.getPath());
+        for (final IPathEntry cpEntry : javaProject.getBuildPath(fLanguage)) {
+          if (cpEntry.getEntryType() == PathEntryType.SOURCE_FOLDER) {
+            if (cpEntry.getRawPath().segmentCount() > 1) {
+              final IFolder folder = root.getFolder(cpEntry.getRawPath());
               if (folder.exists()){
                 folder.accept(visitor);
               }
@@ -414,8 +422,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
       public void run(final IProgressMonitor monitor) throws CoreException {
-        compileGeneratedFiles(builderOp, compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20)), 
-                              subMonitor.newChild(65));
+        try {
+			compileGeneratedFiles(builderOp, compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20)), 
+			                      subMonitor.newChild(65));
+		} catch (ModelException e) {
+			throw ModelFactory.createCoreException(e);
+		}
       }
 
     };
@@ -436,7 +448,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
 
   private Collection<File> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
-                                           final IProgressMonitor monitor) throws CoreException {
+                                           final IProgressMonitor monitor) throws CoreException, ModelException {
 	checkSrcFolders();  
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
                                                               new AlwaysTrueFilter<IPath>());
@@ -474,7 +486,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       
       final Collection<File> generatedFiles = new LinkedList<File>();
       final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
-      final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
+      final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation(fLanguage).toString().substring(1));
       for (final Object outputFile : compiler.outputFiles()) {
         final String outputFileName = (String) outputFile;
         if (outputFileName.endsWith(getFileExtension())) {
@@ -542,11 +554,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  try {
 		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		boolean hasNoSourceTypeEntries = true;
-		IClasspathEntry[] entries = this.fProjectWrapper.getResolvedClasspath(true);
-		for(int i = 0; i< entries.length; i++){
-			if (entries[i].getEntryKind() == IClasspathEntry.CPE_SOURCE){
+		List<IPathEntry> entries = this.fProjectWrapper.getResolvedBuildPath(fLanguage, true);
+		for(IPathEntry entry : entries){
+			if (entry.getEntryType() == PathEntryType.SOURCE_FOLDER){
 				hasNoSourceTypeEntries = false;
-				final IPath path = entries[i].getPath();
+				final IPath path = entry.getRawPath();
 				if (path.segmentCount() > 1) {
           final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(path).getLocationURI());
           if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
@@ -564,7 +576,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 			CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NoSRCFolder, getProject().getName()),
                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
 		}
-	} catch (JavaModelException e) {
+	} catch (ModelException e) {
 		LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, e);
 	}
   }
@@ -577,7 +589,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private void checkPackageDeclarations(final Collection<Job> jobs) {
     for (final Job job : jobs) {
-      final CheckPackageDeclVisitor visitor = new CheckPackageDeclVisitor(job, this.fProjectWrapper.getProject(), this);
+      final CheckPackageDeclVisitor visitor = new CheckPackageDeclVisitor(job, this.fProjectWrapper.getRawProject(), this);
       if (job.ast() != null) {
         job.ast().visit(visitor.begin());
         visitor.finish();
@@ -699,6 +711,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private PolyglotDependencyInfo fDependencyInfo;
 
-  private IJavaProject fProjectWrapper;
+  private ISourceProject fProjectWrapper;
+  
+  private Language fLanguage;
 
 }

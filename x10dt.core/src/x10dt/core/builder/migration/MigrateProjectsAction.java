@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -43,9 +43,9 @@ public class MigrateProjectsAction implements IObjectActionDelegate {
 			IStructuredSelection structuredSelection = (IStructuredSelection) selection;
 
 			for(Object selObj: structuredSelection.toArray()) {
-				if (selObj instanceof IJavaProject) {
-					IJavaProject javaProject = (IJavaProject) selObj;
-					fProjects.add(javaProject.getProject());
+				if (selObj instanceof ISourceProject) {
+					ISourceProject javaProject = (ISourceProject) selObj;
+					fProjects.add(javaProject.getRawProject());
 				}
 			}
 		}

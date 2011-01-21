@@ -3,15 +3,12 @@ package x10dt.ui.editor;
 import org.eclipse.imp.editor.StructuredSourceViewerConfiguration;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.ui.DefaultPartListener;
-import org.eclipse.jdt.internal.ui.IJavaHelpContextIds;
-import org.eclipse.jdt.internal.ui.javaeditor.JavaSourceViewer;
 import org.eclipse.jface.action.GroupMarker;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.texteditor.TextOperationAction;
 
@@ -26,6 +23,11 @@ public class X10Editor extends UniversalEditor {
 
 	public static final String TYPE_ACTION_SET = X10DTUIPlugin.PLUGIN_ID
 			+ ".typeActionSet";
+	
+	/**
+	 * Text operation code for requesting the hierarchy for the current input.
+	 */
+	public static final int SHOW_HIERARCHY= 53;
 
 	OpenViewActionGroup ovg;
 
@@ -95,11 +97,11 @@ public class X10Editor extends UniversalEditor {
 
 		IAction action = new TextOperationAction(Messages
 				.getBundleForConstructedKeys(),
-				"OpenHierarchy.", this, JavaSourceViewer.SHOW_HIERARCHY, true); //$NON-NLS-1$
+				"OpenHierarchy.", this, SHOW_HIERARCHY, true); //$NON-NLS-1$
 		action.setActionDefinitionId(EditorActionDefinitionIds.OPEN_HIERARCHY);
 		setAction(EditorActionDefinitionIds.OPEN_HIERARCHY, action);
-		PlatformUI.getWorkbench().getHelpSystem().setHelp(action,
-				IJavaHelpContextIds.OPEN_HIERARCHY_ACTION);
+//		PlatformUI.getWorkbench().getHelpSystem().setHelp(action,
+//				IJavaHelpContextIds.OPEN_HIERARCHY_ACTION);
 
 		ovg = new OpenViewActionGroup(this);
 	}

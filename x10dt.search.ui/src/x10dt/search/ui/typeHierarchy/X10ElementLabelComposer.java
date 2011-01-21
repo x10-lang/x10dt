@@ -12,16 +12,13 @@
 package x10dt.search.ui.typeHierarchy;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.imp.model.ICompilationUnit;
-import org.eclipse.imp.model.ModelFactory.ModelException;
-import org.eclipse.imp.preferences.PreferenceConstants;
+import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.ui.ElementLabelComposer;
+import org.eclipse.imp.ui.UIMessages;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.jface.viewers.StyledString.Styler;
 
 import x10dt.search.core.elements.IFieldInfo;
 import x10dt.search.core.elements.IMemberInfo;
@@ -32,7 +29,6 @@ import x10dt.search.core.engine.ITypeHierarchy;
 import x10dt.search.core.engine.X10SearchEngine;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
-import x10dt.search.ui.Messages;
 
 
 /**
@@ -40,7 +36,7 @@ import x10dt.search.ui.Messages;
  *
  * @since 3.5
  */
-public class X10ElementLabelComposer {
+public class X10ElementLabelComposer extends ElementLabelComposer{
 
 	private static class Signature
 	{
@@ -55,199 +51,26 @@ public class X10ElementLabelComposer {
 		}
 	}
 	
-	/**
-	 * Use of this constant is <b>FORBIDDEN</b> for external clients.
-	 * <p>
-	 * TODO: Make API in PreferenceConstants in 3.7, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=306069
-	 * 
-	 * @see PreferenceConstants#APPEARANCE_PKG_NAME_ABBREVIATION_PATTERN_FOR_PKG_VIEW
-	 */
-	public static final String APPEARANCE_PKG_NAME_ABBREVIATION_PATTERN_FOR_PKG_VIEW= "org.eclipse.jdt.ui.pkgNameAbbreviationPatternForPackagesView";//$NON-NLS-1$
-
-	/**
-	 * Use of this constant is <b>FORBIDDEN</b> for external clients.
-	 * <p>
-	 * TODO: Make API in PreferenceConstants in 3.7, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=306069
-	 * 
-	 * @see PreferenceConstants#APPEARANCE_ABBREVIATE_PACKAGE_NAMES
-	 */
-	public static final String APPEARANCE_ABBREVIATE_PACKAGE_NAMES= "org.eclipse.jdt.ui.abbreviatepackagenames";//$NON-NLS-1$
-
-	/**
-	 * An adapter for buffer supported by the label composer.
-	 */
-	public static abstract class FlexibleBuffer {
-
-		/**
-		 * Appends the string representation of the given character to the buffer.
-		 *
-		 * @param ch the character to append
-		 * @return a reference to this object
-		 */
-		public abstract FlexibleBuffer append(char ch);
-
-		/**
-		 * Appends the given string to the buffer.
-		 *
-		 * @param string the string to append
-		 * @return a reference to this object
-		 */
-		public abstract FlexibleBuffer append(String string);
-
-		/**
-		 * Returns the length of the the buffer.
-		 *
-		 * @return the length of the current string
-		 */
-		public abstract int length();
-
-		/**
-		 * Sets a styler to use for the given source range. The range must be subrange of actual
-		 * string of this buffer. Stylers previously set for that range will be overwritten.
-		 *
-		 * @param offset the start offset of the range
-		 * @param length the length of the range
-		 * @param styler the styler to set
-		 *
-		 * @throws StringIndexOutOfBoundsException if <code>start</code> is less than zero, or if
-		 *             offset plus length is greater than the length of this object.
-		 */
-		public abstract void setStyle(int offset, int length, Styler styler);
-	}
-
-	public static class FlexibleStringBuffer extends FlexibleBuffer {
-		private final StringBuffer fStringBuffer;
-
-		public FlexibleStringBuffer(StringBuffer stringBuffer) {
-			fStringBuffer= stringBuffer;
-		}
-
-		public FlexibleBuffer append(char ch) {
-			fStringBuffer.append(ch);
-			return this;
-		}
-
-		public FlexibleBuffer append(String string) {
-			fStringBuffer.append(string);
-			return this;
-		}
-
-		public int length() {
-			return fStringBuffer.length();
-		}
-
-		public void setStyle(int offset, int length, Styler styler) {
-			// no style
-		}
-
-		public String toString() {
-			return fStringBuffer.toString();
-		}
-	}
-
-	public static class FlexibleStyledString extends FlexibleBuffer {
-		private final StyledString fStyledString;
-
-		public FlexibleStyledString(StyledString stringBuffer) {
-			fStyledString= stringBuffer;
-		}
-
-		public FlexibleBuffer append(char ch) {
-			fStyledString.append(ch);
-			return this;
-		}
-
-		public FlexibleBuffer append(String string) {
-			fStyledString.append(string);
-			return this;
-		}
-
-		public int length() {
-			return fStyledString.length();
-		}
-
-		public void setStyle(int offset, int length, Styler styler) {
-			fStyledString.setStyle(offset, length, styler);
-		}
-
-		public String toString() {
-			return fStyledString.toString();
-		}
-	}
-
-	private static class PackageNameAbbreviation {
-		private String fPackagePrefix;
-
-		private String fAbbreviation;
-
-		public PackageNameAbbreviation(String packagePrefix, String abbreviation) {
-			fPackagePrefix= packagePrefix;
-			fAbbreviation= abbreviation;
-		}
-
-		public String getPackagePrefix() {
-			return fPackagePrefix;
-		}
-
-		public String getAbbreviation() {
-			return fAbbreviation;
-		}
-	}
-
-
-	private final static long QUALIFIER_FLAGS= X10ElementLabels.P_COMPRESSED | X10ElementLabels.USE_RESOLVED;
-
-	private static final Styler QUALIFIER_STYLE= StyledString.QUALIFIER_STYLER;
-	private static final Styler COUNTER_STYLE= StyledString.COUNTER_STYLER;
-	private static final Styler DECORATIONS_STYLE= StyledString.DECORATIONS_STYLER;
 	
-	/*
-	 * Package name compression
-	 */
-	private static String fgPkgNamePattern= ""; //$NON-NLS-1$
-	private static String fgPkgNamePrefix;
-	private static String fgPkgNamePostfix;
-	private static int fgPkgNameChars;
-	private static int fgPkgNameLength= -1;
 	
-	/*
-	 * Package name abbreviation
-	 */
-	private static String fgPkgNameAbbreviationPattern= ""; //$NON-NLS-1$
-	private static PackageNameAbbreviation[] fgPkgNameAbbreviation;
-
-	private final FlexibleBuffer fBuffer;
-
-	private static final boolean getFlag(long flags, long flag) {
-		return (flags & flag) != 0;
-	}
-
-	/**
-	 * Creates a new java element composer based on the given buffer.
-	 *
-	 * @param buffer the buffer
-	 */
+	
 	public X10ElementLabelComposer(FlexibleBuffer buffer) {
-		fBuffer= buffer;
+		super(buffer);
 	}
 
-	/**
-	 * Creates a new java element composer based on the given buffer.
-	 *
-	 * @param buffer the buffer
-	 */
-	public X10ElementLabelComposer(StyledString buffer) {
-		this(new FlexibleStyledString(buffer));
-	}
 
-	/**
-	 * Creates a new java element composer based on the given buffer.
-	 *
-	 * @param buffer the buffer
-	 */
+
 	public X10ElementLabelComposer(StringBuffer buffer) {
-		this(new FlexibleStringBuffer(buffer));
+		super(buffer);
 	}
+
+
+
+	public X10ElementLabelComposer(StyledString buffer) {
+		super(buffer);
+	}
+
+
 
 	/**
 	 * Appends the label for a Java element with the flags as defined by this class.
@@ -255,8 +78,8 @@ public class X10ElementLabelComposer {
 	 * @param element the element to render
 	 * @param flags the rendering flags.
 	 */
-	public void appendElementLabel(IX10Element element, long flags) {
-//		ISourceRoot root= null;
+	public void appendElementLabel(Object element, long flags) {
+		ISourceRoot root= null;
 
 //		if (type != IX10Element.JAVA_MODEL && type != IX10Element.JAVA_PROJECT && type != IX10Element.PACKAGE_FRAGMENT_ROOT)
 //			root= ModelUtil.getPackageFragmentRoot(element);
@@ -264,7 +87,7 @@ public class X10ElementLabelComposer {
 //			appendPackageFragmentRootLabel(root, X10ElementLabels.ROOT_QUALIFIED);
 //			fBuffer.append(X10ElementLabels.CONCAT_STRING);
 //		}
-
+		
 		if(element instanceof IMethodInfo)
 		{
 			appendMethodLabel((IMethodInfo) element, flags);
@@ -295,40 +118,11 @@ public class X10ElementLabelComposer {
 //			case IX10Element.INITIALIZER:
 //				appendInitializerLabel((IInitializer) element, flags);
 //				break;
-//			case IX10Element.CLASS_FILE:
-//				appendClassFileLabel((IClassFile) element, flags);
-//				break;
-//			case IX10Element.COMPILATION_UNIT:
-//				appendCompilationUnitLabel((ICompilationUnit) element, flags);
-//				break;
-//			case IX10Element.PACKAGE_FRAGMENT:
-//				appendPackageFragmentLabel((IPackageFragment) element, flags);
-//				break;
-//			case IX10Element.PACKAGE_FRAGMENT_ROOT:
-//				appendPackageFragmentRootLabel((IPackageFragmentRoot) element, flags);
-//				break;
 //			case IX10Element.IMPORT_CONTAINER:
 //			case IX10Element.IMPORT_DECLARATION:
 //			case IX10Element.PACKAGE_DECLARATION:
 //				appendDeclarationLabel(element, flags);
 //				break;
-//			case IX10Element.JAVA_PROJECT:
-//			case IX10Element.JAVA_MODEL:
-//				fBuffer.append(element.getElementName());
-//				break;
-//			default:
-//				fBuffer.append(element.getElementName());
-//		}
-//
-//		if (root != null && getFlag(flags, X10ElementLabels.APPEND_ROOT_PATH)) {
-//			int offset= fBuffer.length();
-//			fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//			appendPackageFragmentRootLabel(root, X10ElementLabels.ROOT_QUALIFIED);
-//
-//			if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-//				fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-//			}
-//
 //		}
 	}
 
@@ -383,7 +177,7 @@ public class X10ElementLabelComposer {
 				fBuffer.append('.');
 			}
 
-			fBuffer.append(getElementName(method));
+			fBuffer.append(getName(method));
 
 			// parameters
 			fBuffer.append('(');
@@ -416,7 +210,7 @@ public class X10ElementLabelComposer {
 //								types= typesWithoutSyntheticParams;
 //							} else {
 //								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=101029
-//								// UISearchPlugin.logErrorMessage("X10ElementLabels: Number of param types(" + nParams + ") != number of names(" + names.length + "): " + method.getElementName());   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+//								// UISearchPlugin.logErrorMessage("X10ElementLabels: Number of param types(" + nParams + ") != number of names(" + names.length + "): " + method.getName());   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 //								names= null; // no names rendered
 //							}
 //						}
@@ -562,7 +356,7 @@ public class X10ElementLabelComposer {
 				if (i > 0) {
 					fBuffer.append(X10ElementLabels.COMMA_STRING);
 				}
-				fBuffer.append(getElementName(typeParameters[i]));
+				fBuffer.append(getName(typeParameters[i]));
 			}
 			fBuffer.append(getGT());
 		}
@@ -591,7 +385,7 @@ public class X10ElementLabelComposer {
 				appendTypeLabel(field.getDeclaringType(), X10ElementLabels.T_FULLY_QUALIFIED | (flags & QUALIFIER_FLAGS));
 				fBuffer.append('.');
 			}
-			fBuffer.append(getElementName(field));
+			fBuffer.append(getName(field));
 
 			if (getFlag(flags, X10ElementLabels.F_APP_TYPE_SIGNATURE) && field.exists(new NullProgressMonitor()) /*&& !Flags.isEnum(field.getX10FlagsCode()) */) {
 				int offset= fBuffer.length();
@@ -642,7 +436,7 @@ public class X10ElementLabelComposer {
 //			fBuffer.append('.');
 //		}
 //
-//		fBuffer.append(getElementName(localVariable));
+//		fBuffer.append(getName(localVariable));
 //
 //		if (getFlag(flags, X10ElementLabels.F_APP_TYPE_SIGNATURE)) {
 //			int offset= fBuffer.length();
@@ -668,7 +462,7 @@ public class X10ElementLabelComposer {
 //	 */
 //	public void appendTypeParameterLabel(ITypeInfo typeParameter, long flags) {
 //		try {
-//			fBuffer.append(getElementName(typeParameter));
+//			fBuffer.append(getName(typeParameter));
 //
 //			if (typeParameter.exists()) {
 //				String[] bounds= typeParameter.getBoundsSignatures();
@@ -836,9 +630,8 @@ public class X10ElementLabelComposer {
 	public void appendTypeLabel(ITypeInfo type, long flags) {
 
 		if (getFlag(flags, X10ElementLabels.T_FULLY_QUALIFIED)) {
-//			IPackageFragment pack= type.getPackageFragment();
-			String pack = SearchUtils.getPackageName(type);
-			if (!SearchUtils.isDefaultPackage(pack)) {
+			ISourceFolder pack= SearchUtils.getSourceFolder(type);
+			if (!SearchUtils.isDefaultPackage(pack.getName())) {
 				appendPackageFragmentLabel(pack, (flags & QUALIFIER_FLAGS));
 				fBuffer.append('.');
 			}
@@ -856,7 +649,7 @@ public class X10ElementLabelComposer {
 //			}
 		}
 
-		String typeName= getElementName(type);
+		String typeName= getName(type);
 		if (typeName.length() == 0) { // anonymous
 			try {
 //				if (type.getParent() instanceof IFieldInfo && type.isEnum()) {
@@ -873,11 +666,11 @@ public class X10ElementLabelComposer {
 					} else {
 						supertypeName= getSimpleTypeName(type, hierarchy.getSuperClass(typeName).getName());
 					}
-					typeName= MessageFormat.format(Messages.X10ElementLabels_anonym_type , supertypeName);
+					typeName= MessageFormat.format(UIMessages.ElementLabels_anonym_type , supertypeName);
 //				}
 			} catch (Exception e) {
 				//ignore
-				typeName= Messages.X10ElementLabels_anonym;
+				typeName= UIMessages.ElementLabels_anonym;
 			}
 		}
 		fBuffer.append(typeName);
@@ -924,7 +717,7 @@ public class X10ElementLabelComposer {
 //				}
 			} 
 			else {
-				appendPackageFragmentLabel(SearchUtils.getPackageName(type), flags & QUALIFIER_FLAGS);
+				appendPackageFragmentLabel(SearchUtils.getSourceFolder(type), flags & QUALIFIER_FLAGS);
 			}
 			if (getFlag(flags, X10ElementLabels.COLORIZE)) {
 				fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
@@ -933,12 +726,12 @@ public class X10ElementLabelComposer {
 	}
 
 	/**
-	 * Returns the string for rendering the {@link IX10Element#getElementName() element name} of the given element.
+	 * Returns the string for rendering the {@link IX10Element#getName() element name} of the given element.
 	 *
 	 * @param element the element to render
 	 * @return the string for rendering the element name
 	 */
-	protected String getElementName(IMemberInfo element) {
+	protected String getName(IMemberInfo element) {
 		return SearchUtils.getElementName(element);
 	}
 
@@ -960,7 +753,7 @@ public class X10ElementLabelComposer {
 //		if (declaration.getElementType() == IX10Element.IMPORT_CONTAINER) {
 //			fBuffer.append(JavaUIMessages.JavaElementLabels_import_container);
 //		} else {
-//			fBuffer.append(declaration.getElementName());
+//			fBuffer.append(declaration.getName());
 //		}
 //		// post qualification
 //		if (getFlag(flags, X10ElementLabels.D_POST_QUALIFIED)) {
@@ -984,464 +777,21 @@ public class X10ElementLabelComposer {
 //	 */
 //	public void appendClassFileLabel(IClassFile classFile, long flags) {
 //		if (getFlag(flags, X10ElementLabels.CF_QUALIFIED)) {
-//			IPackageFragment pack= (IPackageFragment) classFile.getParent();
+//			ISourceFolder pack= (ISourceFolder) classFile.getParent();
 //			if (!pack.isDefaultPackage()) {
 //				appendPackageFragmentLabel(pack, (flags & QUALIFIER_FLAGS));
 //				fBuffer.append('.');
 //			}
 //		}
-//		fBuffer.append(classFile.getElementName());
+//		fBuffer.append(classFile.getName());
 //
 //		if (getFlag(flags, X10ElementLabels.CF_POST_QUALIFIED)) {
 //			int offset= fBuffer.length();
 //			fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//			appendPackageFragmentLabel((IPackageFragment) classFile.getParent(), flags & QUALIFIER_FLAGS);
+//			appendPackageFragmentLabel((ISourceFolder) classFile.getParent(), flags & QUALIFIER_FLAGS);
 //			if (getFlag(flags, X10ElementLabels.COLORIZE)) {
 //				fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
 //			}
 //		}
 //	}
-
-	/**
-	 * Appends the label for a compilation unit. Considers the CU_* flags.
-	 *
-	 * @param cu the element to render
-	 * @param flags the rendering flags. Flags with names starting with 'CU_' are considered.
-	 */
-	public void appendCompilationUnitLabel(ICompilationUnit cu, long flags) {
-//		if (getFlag(flags, X10ElementLabels.CU_QUALIFIED)) {
-//			IPackageFragment pack= (IPackageFragment) cu.getParent();
-//			if (!pack.isDefaultPackage()) {
-//				appendPackageFragmentLabel(pack, (flags & QUALIFIER_FLAGS));
-//				fBuffer.append('.');
-//			}
-//		}
-		fBuffer.append(cu.getName());
-
-		if (getFlag(flags, X10ElementLabels.CU_POST_QUALIFIED)) {
-			int offset= fBuffer.length();
-			fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//			appendPackageFragmentLabel((IPackageFragment) cu.getParent(), flags & QUALIFIER_FLAGS);
-			if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-				fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-			}
-		}
-	}
-
-	/**
-	 * Appends the label for a package fragment. Considers the P_* flags.
-	 *
-	 * @param pack the element to render
-	 * @param flags the rendering flags. Flags with names starting with P_' are considered.
-	 */
-	public void appendPackageFragmentLabel(String pack, long flags) {
-//		if (getFlag(flags, X10ElementLabels.P_QUALIFIED)) {
-//			appendPackageFragmentRootLabel((IPackageFragmentRoot) pack.getParent(), X10ElementLabels.ROOT_QUALIFIED);
-//			fBuffer.append('/');
-//		}
-		if (SearchUtils.isDefaultPackage(pack)) {
-			fBuffer.append(X10ElementLabels.DEFAULT_PACKAGE);
-		} 
-//		else if (getFlag(flags, X10ElementLabels.P_COMPRESSED)) {
-//			if (isPackageNameAbbreviationEnabled())
-//				appendAbbreviatedPackageFragment(pack);
-//			else
-//				appendCompressedPackageFragment(pack);
-//		} 
-		else {
-			fBuffer.append(pack);
-		}
-//		if (getFlag(flags, X10ElementLabels.P_POST_QUALIFIED)) {
-//			int offset= fBuffer.length();
-//			fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//			appendPackageFragmentRootLabel((IPackageFragmentRoot) pack.getParent(), X10ElementLabels.ROOT_QUALIFIED);
-//			if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-//				fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-//			}
-//		}
-	}
-//
-//	private void appendCompressedPackageFragment(IPackageFragment pack) {
-//		appendCompressedPackageFragment(pack.getElementName());
-//	}
-//	
-//	private void appendCompressedPackageFragment(String elementName) {
-//		refreshPackageNamePattern();
-//		if (fgPkgNameLength < 0) {
-//			fBuffer.append(elementName);
-//			return;
-//		}
-//		String name= elementName;
-//		int start= 0;
-//		int dot= name.indexOf('.', start);
-//		while (dot > 0) {
-//			if (dot - start > fgPkgNameLength-1) {
-//				fBuffer.append(fgPkgNamePrefix);
-//				if (fgPkgNameChars > 0)
-//					fBuffer.append(name.substring(start, Math.min(start+ fgPkgNameChars, dot)));
-//				fBuffer.append(fgPkgNamePostfix);
-//			} else
-//				fBuffer.append(name.substring(start, dot + 1));
-//			start= dot + 1;
-//			dot= name.indexOf('.', start);
-//		}
-//		fBuffer.append(name.substring(start));
-//	}
-//
-//	private void appendAbbreviatedPackageFragment(IPackageFragment pack) {
-//		refreshPackageNameAbbreviation();
-//
-//		String pkgName= pack.getElementName();
-//
-//		if (fgPkgNameAbbreviation != null && fgPkgNameAbbreviation.length != 0) {
-//
-//			for (int i= 0; i < fgPkgNameAbbreviation.length; i++) {
-//				PackageNameAbbreviation abbr= fgPkgNameAbbreviation[i];
-//
-//				String abbrPrefix= abbr.getPackagePrefix();
-//				if (pkgName.startsWith(abbrPrefix)) {
-//					int abbrPrefixLength= abbrPrefix.length();
-//					int pkgLength= pkgName.length();
-//					if (!(pkgLength == abbrPrefixLength || pkgName.charAt(abbrPrefixLength) == '.'))
-//						continue;
-//
-//					fBuffer.append(abbr.getAbbreviation());
-//
-//					if (pkgLength > abbrPrefixLength) {
-//						fBuffer.append('.');
-//
-//						String remaining= pkgName.substring(abbrPrefixLength + 1);
-//
-//						if (isPackageNameCompressionEnabled())
-//							appendCompressedPackageFragment(remaining);
-//						else
-//							fBuffer.append(remaining);
-//					}
-//
-//					return;
-//				}
-//			}
-//		}
-//
-//		if (isPackageNameCompressionEnabled()) {
-//			appendCompressedPackageFragment(pkgName);
-//		} else {
-//			fBuffer.append(pkgName);
-//		}
-//	}
-//
-//	/**
-//	 * Appends the label for a package fragment root. Considers the ROOT_* flags.
-//	 *
-//	 * @param root the element to render
-//	 * @param flags the rendering flags. Flags with names starting with ROOT_' are considered.
-//	 */
-//	public void appendPackageFragmentRootLabel(IPackageFragmentRoot root, long flags) {
-//		// Handle variables different
-//		if (getFlag(flags, X10ElementLabels.ROOT_VARIABLE) && appendVariableLabel(root, flags))
-//			return;
-//		if (root.isArchive())
-//			appendArchiveLabel(root, flags);
-//		else
-//			appendFolderLabel(root, flags);
-//	}
-//
-//	private void appendArchiveLabel(IPackageFragmentRoot root, long flags) {
-//		boolean external= root.isExternal();
-//		if (external)
-//			appendExternalArchiveLabel(root, flags);
-//		else
-//			appendInternalArchiveLabel(root, flags);
-//	}
-//
-//	private boolean appendVariableLabel(IPackageFragmentRoot root, long flags) {
-//		try {
-//			IClasspathEntry rawEntry= root.getRawClasspathEntry();
-//			if (rawEntry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
-//				IClasspathEntry entry= ModelUtil.getClasspathEntry(root);
-//				if (entry.getReferencingEntry() != null) {
-//					return false; // not the variable entry itself, but a referenced entry
-//				}
-//				IPath path= rawEntry.getPath().makeRelative();
-//
-//				if (getFlag(flags, X10ElementLabels.REFERENCED_ROOT_POST_QUALIFIED)) {
-//					int segements= path.segmentCount();
-//					if (segements > 0) {
-//						fBuffer.append(path.segment(segements - 1));
-//						if (segements > 1) {
-//							int offset= fBuffer.length();
-//							fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//							fBuffer.append(path.removeLastSegments(1).toOSString());
-//							if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-//								fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-//							}
-//						}
-//					} else {
-//						fBuffer.append(path.toString());
-//					}
-//				} else {
-//					fBuffer.append(path.toString());
-//				}
-//				int offset= fBuffer.length();
-//				fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//				if (root.isExternal())
-//					fBuffer.append(root.getPath().toOSString());
-//				else
-//					fBuffer.append(root.getPath().makeRelative().toString());
-//
-//				if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-//					fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-//				}
-//				return true;
-//			}
-//		} catch (ModelException e) {
-//			// problems with class path, ignore (bug 202792)
-//			return false;
-//		}
-//		return false;
-//	}
-//
-//	private void appendExternalArchiveLabel(IPackageFragmentRoot root, long flags) {
-//		IPath path;
-//		IClasspathEntry classpathEntry= null;
-//		try {
-//			classpathEntry= ModelUtil.getClasspathEntry(root);
-//			IPath rawPath= classpathEntry.getPath();
-//			if (classpathEntry.getEntryKind() != IClasspathEntry.CPE_CONTAINER && !rawPath.isAbsolute())
-//				path= rawPath;
-//			else
-//				path= root.getPath();
-//		} catch (ModelException e) {
-//			path= root.getPath();
-//		}
-//		if (getFlag(flags, X10ElementLabels.REFERENCED_ROOT_POST_QUALIFIED)) {
-//			int segements= path.segmentCount();
-//			if (segements > 0) {
-//				fBuffer.append(path.segment(segements - 1));
-//				int offset= fBuffer.length();
-//				if (segements > 1 || path.getDevice() != null) {
-//					fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//					fBuffer.append(path.removeLastSegments(1).toOSString());
-//				}
-//				if (classpathEntry != null) {
-//					IClasspathEntry referencingEntry= classpathEntry.getReferencingEntry();
-//					if (referencingEntry != null) {
-//						fBuffer.append(Messages.format(JavaUIMessages.JavaElementLabels_onClassPathOf, new Object[] { Name.CLASS_PATH.toString(), referencingEntry.getPath().lastSegment() }));
-//					}
-//				}
-//				if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-//					fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-//				}
-//			} else {
-//				fBuffer.append(path.toOSString());
-//			}
-//		} else {
-//			fBuffer.append(path.toOSString());
-//		}
-//	}
-//
-//	private void appendInternalArchiveLabel(IPackageFragmentRoot root, long flags) {
-//		IResource resource= root.getResource();
-//		boolean rootQualified= getFlag(flags, X10ElementLabels.ROOT_QUALIFIED);
-//		if (rootQualified) {
-//			fBuffer.append(root.getPath().makeRelative().toString());
-//		} else {
-//			fBuffer.append(root.getElementName());
-//			int offset= fBuffer.length();
-//			boolean referencedPostQualified= getFlag(flags, X10ElementLabels.REFERENCED_ROOT_POST_QUALIFIED);
-//			if (referencedPostQualified && isReferenced(root)) {
-//				fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//				fBuffer.append(resource.getParent().getFullPath().makeRelative().toString());
-//			} else if (getFlag(flags, X10ElementLabels.ROOT_POST_QUALIFIED)) {
-//				fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//				fBuffer.append(root.getParent().getPath().makeRelative().toString());
-//			}
-//			if (referencedPostQualified) {
-//				try {
-//					IClasspathEntry referencingEntry= ModelUtil.getClasspathEntry(root).getReferencingEntry();
-//					if (referencingEntry != null) {
-//						fBuffer.append(Messages.format(JavaUIMessages.JavaElementLabels_onClassPathOf, new Object[] { Name.CLASS_PATH.toString(), referencingEntry.getPath().lastSegment() }));
-//					}
-//				} catch (ModelException e) {
-//					// ignore
-//				}
-//			}
-//			if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-//				fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-//			}
-//		}
-//	}
-//
-//	private void appendFolderLabel(IPackageFragmentRoot root, long flags) {
-//		IResource resource= root.getResource();
-//		if (resource == null) {
-//			appendExternalArchiveLabel(root, flags);
-//			return;
-//		}
-//
-//		boolean rootQualified= getFlag(flags, X10ElementLabels.ROOT_QUALIFIED);
-//		boolean referencedQualified= getFlag(flags, X10ElementLabels.REFERENCED_ROOT_POST_QUALIFIED) && isReferenced(root);
-//		if (rootQualified) {
-//			fBuffer.append(root.getPath().makeRelative().toString());
-//		} else {
-//			IPath projectRelativePath= resource.getProjectRelativePath();
-//			if (projectRelativePath.segmentCount() == 0) {
-//				fBuffer.append(resource.getName());
-//				referencedQualified= false;
-//			} else {
-//				fBuffer.append(projectRelativePath.toString());
-//			}
-//
-//			int offset= fBuffer.length();
-//			if (referencedQualified) {
-//				fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//				fBuffer.append(resource.getProject().getName());
-//			} else if (getFlag(flags, X10ElementLabels.ROOT_POST_QUALIFIED)) {
-//				fBuffer.append(X10ElementLabels.CONCAT_STRING);
-//				fBuffer.append(root.getParent().getElementName());
-//			} else {
-//				return;
-//			}
-//			if (getFlag(flags, X10ElementLabels.COLORIZE)) {
-//				fBuffer.setStyle(offset, fBuffer.length() - offset, QUALIFIER_STYLE);
-//			}
-//		}
-//	}
-//
-//	/**
-//	 * Returns <code>true</code> if the given package fragment root is
-//	 * referenced. This means it is a descendant of a different project but is referenced
-//	 * by the root's parent. Returns <code>false</code> if the given root
-//	 * doesn't have an underlying resource.
-//	 *
-//	 * @param root the package fragment root
-//	 * @return returns <code>true</code> if the given package fragment root is referenced
-//	 */
-//	private boolean isReferenced(IPackageFragmentRoot root) {
-//		IResource resource= root.getResource();
-//		if (resource != null) {
-//			IProject jarProject= resource.getProject();
-//			IProject container= root.getJavaProject().getProject();
-//			return !container.equals(jarProject);
-//		}
-//		return false;
-//	}
-
-//	private void refreshPackageNamePattern() {
-//		String pattern= getPkgNamePatternForPackagesView();
-//		final String EMPTY_STRING= ""; //$NON-NLS-1$
-//		if (pattern.equals(fgPkgNamePattern))
-//			return;
-//		else if (pattern.length() == 0) {
-//			fgPkgNamePattern= EMPTY_STRING;
-//			fgPkgNameLength= -1;
-//			return;
-//		}
-//		fgPkgNamePattern= pattern;
-//		int i= 0;
-//		fgPkgNameChars= 0;
-//		fgPkgNamePrefix= EMPTY_STRING;
-//		fgPkgNamePostfix= EMPTY_STRING;
-//		while (i < pattern.length()) {
-//			char ch= pattern.charAt(i);
-//			if (Character.isDigit(ch)) {
-//				fgPkgNameChars= ch-48;
-//				if (i > 0)
-//					fgPkgNamePrefix= pattern.substring(0, i);
-//				if (i >= 0)
-//					fgPkgNamePostfix= pattern.substring(i+1);
-//				fgPkgNameLength= fgPkgNamePrefix.length() + fgPkgNameChars + fgPkgNamePostfix.length();
-//				return;
-//			}
-//			i++;
-//		}
-//		fgPkgNamePrefix= pattern;
-//		fgPkgNameLength= pattern.length();
-//	}
-	
-//	private void refreshPackageNameAbbreviation() {
-//		String pattern= getPkgNameAbbreviationPatternForPackagesView();
-//
-//		if (fgPkgNameAbbreviationPattern.equals(pattern))
-//			return;
-//
-//		fgPkgNameAbbreviationPattern= pattern;
-//
-//		if (pattern == null || pattern.length() == 0) {
-//			fgPkgNameAbbreviationPattern= ""; //$NON-NLS-1$
-//			fgPkgNameAbbreviation= null;
-//			return;
-//		}
-//
-//		PackageNameAbbreviation[] abbrs= parseAbbreviationPattern(pattern);
-//
-//		if (abbrs == null)
-//			abbrs= new PackageNameAbbreviation[0];
-//
-//		fgPkgNameAbbreviation= abbrs;
-//	}
-
-	public static PackageNameAbbreviation[] parseAbbreviationPattern(String pattern) {
-		String[] parts= pattern.split("\\s*(?:\r\n?|\n)\\s*"); //$NON-NLS-1$
-
-		ArrayList result= new ArrayList();
-
-		for (int i= 0; i < parts.length; i++) {
-			String part= parts[i].trim();
-
-			if (part.length() == 0)
-				continue;
-
-			String[] parts2= part.split("\\s*=\\s*", 2); //$NON-NLS-1$
-
-			if (parts2.length != 2)
-				return null;
-
-			String prefix= parts2[0].trim();
-			String abbr= parts2[1].trim();
-
-			if (prefix.startsWith("#")) //$NON-NLS-1$
-				continue;
-
-			PackageNameAbbreviation pkgAbbr= new PackageNameAbbreviation(prefix, abbr);
-
-			result.add(pkgAbbr);
-		}
-
-		Collections.sort(result, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				PackageNameAbbreviation a1= (PackageNameAbbreviation)o1;
-				PackageNameAbbreviation a2= (PackageNameAbbreviation)o2;
-
-				return a2.getPackagePrefix().length() - a1.getPackagePrefix().length();
-			}
-		});
-
-		return (PackageNameAbbreviation[])result.toArray(new PackageNameAbbreviation[0]);
-	}
-	
-//	private boolean isPackageNameCompressionEnabled() {
-//		IPreferenceStore store= PreferenceConstants.getPreferenceStore();
-//		return store.getBoolean(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES);
-//	}
-//
-//	private String getPkgNamePatternForPackagesView() {
-//		IPreferenceStore store= PreferenceConstants.getPreferenceStore();
-//		if (!store.getBoolean(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES))
-//			return ""; //$NON-NLS-1$
-//		return store.getString(PreferenceConstants.APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW);
-//	}
-//
-//	private boolean isPackageNameAbbreviationEnabled() {
-//		IPreferenceStore store= PreferenceConstants.getPreferenceStore();
-//		return store.getBoolean(JavaElementLabelComposer.APPEARANCE_ABBREVIATE_PACKAGE_NAMES);
-//	}
-//
-//	private String getPkgNameAbbreviationPatternForPackagesView() {
-//		IPreferenceStore store= PreferenceConstants.getPreferenceStore();
-//		if (!store.getBoolean(JavaElementLabelComposer.APPEARANCE_ABBREVIATE_PACKAGE_NAMES))
-//			return ""; //$NON-NLS-1$
-//		return store.getString(JavaElementLabelComposer.APPEARANCE_PKG_NAME_ABBREVIATION_PATTERN_FOR_PKG_VIEW);
-//	}
-
 }

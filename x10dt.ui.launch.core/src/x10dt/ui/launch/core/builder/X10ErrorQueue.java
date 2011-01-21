@@ -14,7 +14,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.imp.model.ISourceProject;
 
 import polyglot.util.AbstractErrorQueue;
 import polyglot.util.CodedErrorInfo;
@@ -25,9 +25,9 @@ import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 
 final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
-	IJavaProject fProject;
+	ISourceProject fProject;
 
-	X10ErrorQueue(IJavaProject project, final int errorsLimit,
+	X10ErrorQueue(ISourceProject project, final int errorsLimit,
 			final String compilerName) {
 		super(errorsLimit, compilerName);
 		fProject = project;

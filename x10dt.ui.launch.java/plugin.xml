@@ -26,9 +26,6 @@
       <builder
             id="x10dt.ui.launch.java.X10JavaBuilder">
       </builder>
-      <requires-nature
-            id="org.eclipse.jdt.core.javanature">
-      </requires-nature>
    </extension>
    <extension
          point="org.eclipse.ui.popupMenus">

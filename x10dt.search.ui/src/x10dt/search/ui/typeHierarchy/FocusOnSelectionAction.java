@@ -13,6 +13,7 @@ package x10dt.search.ui.typeHierarchy;
 
 import java.text.MessageFormat;
 
+import org.eclipse.imp.utils.SelectionUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;

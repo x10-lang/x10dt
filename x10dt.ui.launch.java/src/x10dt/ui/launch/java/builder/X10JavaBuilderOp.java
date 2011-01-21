@@ -9,7 +9,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.imp.model.ModelFactory;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
@@ -34,7 +34,7 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 
   public void cleanFiles(final ICountableIterable<IFile> files, final SubMonitor monitor) throws CoreException {
     for (final IFile file : files) {
-      final File javaFile = this.fBuilder.getMainGeneratedFile(JavaCore.create(this.fProject), file);
+      final File javaFile = this.fBuilder.getMainGeneratedFile(ModelFactory.getProject(this.fProject), file);
       if (javaFile != null) {
         if (javaFile.exists()) {
           javaFile.delete();

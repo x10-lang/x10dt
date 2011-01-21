@@ -12,7 +12,6 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -22,16 +21,13 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.ui.JavaElementLabelProvider;
-import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
@@ -56,8 +52,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 import polyglot.types.ClassType;
-import x10dt.ui.Messages;
-import x10dt.ui.X10DTUIPlugin;
+import x10dt.ui.editor.X10LabelProvider;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -71,7 +66,6 @@ import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
-import x10dt.ui.utils.LaunchUtils;
 
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
 
@@ -361,7 +355,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     }
 
     public void widgetSelected(final SelectionEvent event) {
-      final ILabelProvider labelProvider = new JavaElementLabelProvider(JavaElementLabelProvider.SHOW_DEFAULT);
+      final ILabelProvider labelProvider = new X10LabelProvider();
       final ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
       dialog.setTitle(LaunchMessages.CAT_PrjSelectionDialogTitle);
       dialog.setMessage(LaunchMessages.CAT_PrjSelectionDialogMsg);
@@ -435,7 +429,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       } else {
         project = null;
       }
-      final IJavaElement[] scope;
+      final ISourceEntity[] scope;
       if ((project == null) || !project.exists()) {
         scope = null;
       } else {
@@ -445,31 +439,32 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         } catch (CoreException except) {
           // Do nothing.
         }
-        scope = hasValidNature ? new IJavaElement[] { JavaCore.create(project) } : null;
+        scope = hasValidNature ? new ISourceEntity[] { ModelFactory.getProject(project) } : null;
       }
-      try {
-        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, LaunchCore.X10_CPP_PRJ_NATURE_ID,
-                                                                                getShell());
+//      try {
+        final Pair<ClassType, ISourceEntity> mainType = null;
+//        	LaunchUtils.findMainType(scope, LaunchCore.X10_CPP_PRJ_NATURE_ID,
+//                                                                                getShell());
         if (mainType != null) {
           CppApplicationTab.this.fMainTypeText.setText(mainType.first.fullName().toString());
           if (scope == null) {
-            CppApplicationTab.this.fProjectText.setText(mainType.second.getJavaProject().getElementName());
+            CppApplicationTab.this.fProjectText.setText(mainType.second.getProject().getName());
           }
         }
-      } catch (InvocationTargetException except) {
-        if (except.getTargetException() instanceof CoreException) {
-          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg,
-                                ((CoreException) except.getTargetException()).getStatus());
-          CppLaunchCore.log(((CoreException) except.getTargetException()).getStatus());
-        } else {
-          final IStatus status = new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, Messages.AXLS_MainTypeSearchInternalError,
-                                            except.getTargetException());
-          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
-          CppLaunchCore.log(status);
-        }
-      } catch (InterruptedException except) {
-        // Do nothing.
-      }
+//      } catch (InvocationTargetException except) {
+//        if (except.getTargetException() instanceof CoreException) {
+//          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg,
+//                                ((CoreException) except.getTargetException()).getStatus());
+//          CppLaunchCore.log(((CoreException) except.getTargetException()).getStatus());
+//        } else {
+//          final IStatus status = new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, Messages.AXLS_MainTypeSearchInternalError,
+//                                            except.getTargetException());
+//          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
+//          CppLaunchCore.log(status);
+//        }
+//      } catch (InterruptedException except) {
+//        // Do nothing.
+//      }
       updateLaunchConfigurationDialog();
     }
 

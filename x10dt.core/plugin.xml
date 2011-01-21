@@ -23,11 +23,12 @@
       </initializer>
    </extension>
    <extension
-         point="org.eclipse.jdt.core.classpathContainerInitializer">
-      <classpathContainerInitializer
+         point="org.eclipse.imp.runtime.pathContainerInitializer">
+      <pathContainerInitializer
             class="x10dt.core.project.X10ClasspathContainerInitializer"
+            language="X10"
             id="x10dt.X10_CONTAINER">
-      </classpathContainerInitializer>
+      </pathContainerInitializer>
    </extension>
    <extension
          id="classpathMarker"

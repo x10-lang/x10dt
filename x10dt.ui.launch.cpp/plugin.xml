@@ -27,9 +27,6 @@
       <builder
             id="x10dt.ui.launch.cpp.X10CppBuilder">
       </builder>
-      <requires-nature
-            id="org.eclipse.jdt.core.javanature">
-      </requires-nature>
    </extension>
    <extension
          point="org.eclipse.ui.newWizards">
@@ -284,6 +281,7 @@
             class="x10dt.ui.launch.cpp.actions.CppBackEndProjectConverter">
       </converter>
    </extension>
+   <!--
    <extension
          point="x10dt.ui.launch.core.x10ToggleBreakpointHandler">
       <x10ToggleBreakpointHandler
@@ -291,5 +289,5 @@
             class="x10dt.ui.launch.cpp.debug.X10CppToggleBreakpointsHandler">
       </x10ToggleBreakpointHandler>
    </extension>
-
+   -->
 </plugin>

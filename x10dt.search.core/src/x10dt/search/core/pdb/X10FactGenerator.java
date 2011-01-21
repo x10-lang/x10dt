@@ -36,6 +36,15 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathContainer;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.model.PathContainerRegistry;
 import org.eclipse.imp.pdb.analysis.AnalysisException;
 import org.eclipse.imp.pdb.analysis.IFactGenerator;
 import org.eclipse.imp.pdb.analysis.IFactUpdater;
@@ -46,13 +55,8 @@ import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.ISourceEntityContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.imp.utils.UnimplementedError;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Shell;
@@ -74,6 +78,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   X10FactGenerator(final SearchDBTypes searchDBTypes) {
     this.fIndexingCompiler = new IndexingCompiler();
     this.fSearchDBTypes = searchDBTypes;
+    fLanguage = LanguageRegistry.findLanguage("X10");
   }
 
   // --- IFactGenerator's interface methods implementation
@@ -174,29 +179,29 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
     return indexingFile.exists();
   }
   
-  private void processEntries(final ContextWrapper context, final IWorkspaceRoot wsRoot, final IClasspathEntry[] entries, 
-                              final IJavaProject javaProject, final IResource contextResource,
-                              final boolean isInRuntime) throws JavaModelException, AnalysisException {
-    for (final IClasspathEntry pathEntry : entries) {
-      switch (pathEntry.getEntryKind()) {
-      case IClasspathEntry.CPE_SOURCE:
-        if (pathEntry.getPath().isRoot()) {
-          context.addToSourcePath(pathEntry.getPath().toFile());
+  private void processEntries(final ContextWrapper context, final IWorkspaceRoot wsRoot, final List<IPathEntry> entries, 
+                              final ISourceProject javaProject, final IResource contextResource,
+                              final boolean isInRuntime) throws ModelException, AnalysisException {
+    for (final IPathEntry pathEntry : entries) {
+      switch (pathEntry.getEntryType()) {
+      case SOURCE_FOLDER:
+        if (pathEntry.getRawPath().isRoot()) {
+          context.addToSourcePath(pathEntry.getRawPath().toFile());
         } else {
-          context.addToSourcePath(wsRoot.getLocation().append(pathEntry.getPath()).toFile());
+          context.addToSourcePath(wsRoot.getLocation().append(pathEntry.getRawPath()).toFile());
         }
-        if (pathEntry.getPath().segmentCount() > 1) {
-          processSourceFolder(context, wsRoot.getFolder(pathEntry.getPath()), wsRoot, contextResource);
+        if (pathEntry.getRawPath().segmentCount() > 1) {
+          processSourceFolder(context, wsRoot.getFolder(pathEntry.getRawPath()), wsRoot, contextResource);
         }
         break;
 
-      case IClasspathEntry.CPE_LIBRARY:
+      case ARCHIVE:
         try {
-          final IPackageFragmentRoot pkgRoot = javaProject.findPackageFragmentRoot(pathEntry.getPath());
-          if ((pkgRoot != null) && pkgRoot.exists()) {
+          final ISourceRoot pkgRoot = BuildPathUtils.getSourceRoot(javaProject, fLanguage, pathEntry.getRawPath());
+          if ((pkgRoot != null)) {
             final File localFile;
             if (pkgRoot.isExternal()) {
-              localFile = pathEntry.getPath().toFile();
+              localFile = pathEntry.getRawPath().toFile();
             } else {
               localFile = pkgRoot.getResource().getLocation().toFile();
             }
@@ -205,7 +210,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
               context.addToSourcePath(localFile);
             }
             final ZipFile zipFile;
-            if (JAR_EXT.equals(pathEntry.getPath().getFileExtension())) {
+            if (JAR_EXT.equals(pathEntry.getRawPath().getFileExtension())) {
               zipFile = new JarFile(localFile);
             } else {
               zipFile = new ZipFile(localFile);
@@ -213,25 +218,27 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
             processLibrary(context, zipFile, localFile, contextResource, isInRuntime);
           }
         } catch (IOException except) {
-          throw new AnalysisException(NLS.bind(Messages.XFG_JarReadingError, pathEntry.getPath()), except);
+          throw new AnalysisException(NLS.bind(Messages.XFG_JarReadingError, pathEntry.getRawPath()), except);
         }
         break;
 
-      case IClasspathEntry.CPE_CONTAINER:
-        final IClasspathContainer cpContainer = JavaCore.getClasspathContainer(pathEntry.getPath(), javaProject);
-        processEntries(context, wsRoot, cpContainer.getClasspathEntries(), javaProject, contextResource, true);
+      case CONTAINER:
+        final IPathContainer cpContainer = PathContainerRegistry.getInstance().getClasspathContainer(pathEntry.getRawPath(), javaProject);
+        processEntries(context, wsRoot, cpContainer.getPathEntries(), javaProject, contextResource, true);
         break;
 
-      case IClasspathEntry.CPE_PROJECT:
-        final IResource projectResource = ResourcesPlugin.getWorkspace().getRoot().findMember(pathEntry.getPath());
+      case PROJECT:
+        final IResource projectResource = ResourcesPlugin.getWorkspace().getRoot().findMember(pathEntry.getRawPath());
         if ((projectResource != null) && projectResource.isAccessible()) {
-          final IJavaProject newJavaProject = JavaCore.create((IProject) projectResource);
-          processEntries(context, wsRoot, newJavaProject.getRawClasspath(), newJavaProject, contextResource, false);
+          final ISourceProject newJavaProject = ModelFactory.getProject((IProject) projectResource);
+          processEntries(context, wsRoot, newJavaProject.getBuildPath(fLanguage), newJavaProject, contextResource, false);
         }
         break;
 
-      case IClasspathEntry.CPE_VARIABLE:
-        processEntries(context, wsRoot, new IClasspathEntry[] { JavaCore.getResolvedClasspathEntry(pathEntry) }, javaProject, 
+      case VARIABLE:
+    	List<IPathEntry> list = new ArrayList<IPathEntry>(1);
+    	list.add(pathEntry);
+        processEntries(context, wsRoot, list, javaProject, 
                        contextResource, false);
         break;
       }
@@ -239,13 +246,13 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   }
   
   private ContextWrapper processResource(final IResource resource) throws AnalysisException {
-    final IJavaProject javaProject = JavaCore.create(resource.getProject());  
-    if (javaProject.exists() && resource.exists()) {
+    final ISourceProject javaProject = ModelFactory.getProject(resource.getProject());  
+    if (javaProject.getRawProject().exists() && resource.exists()) {
       final ContextWrapper context = new ContextWrapper();
-      final IWorkspaceRoot wsRoot = javaProject.getProject().getWorkspace().getRoot();
+      final IWorkspaceRoot wsRoot = javaProject.getRawProject().getWorkspace().getRoot();
       try {
-        processEntries(context, wsRoot, javaProject.getRawClasspath(), javaProject, resource, false);
-      } catch (CoreException except) {
+        processEntries(context, wsRoot, javaProject.getBuildPath(fLanguage), javaProject, resource, false);
+      } catch (ModelException except) {
         throw new AnalysisException(NLS.bind(Messages.XFG_ResourceAccessError, resource.getFullPath()), except);
       }
       return context;
@@ -384,5 +391,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   private static final String JAR_EXT = "jar"; //$NON-NLS-1$
   
   private static final String X10_EXT = "x10"; //$NON-NLS-1$
+  
+  private Language fLanguage;
 
 }

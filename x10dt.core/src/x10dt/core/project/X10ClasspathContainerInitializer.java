@@ -20,11 +20,12 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jdt.core.ClasspathContainerInitializer;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.imp.model.IPathContainer;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.PathContainerInitializer;
+import org.eclipse.imp.model.IPathEntryContent.PathEntryContentType;
 import org.eclipse.osgi.util.NLS;
 
 import x10dt.core.Messages;
@@ -37,15 +38,13 @@ import x10dt.core.utils.X10DTCoreConstants;
  * 
  * @author egeay
  */
-public final class X10ClasspathContainerInitializer extends ClasspathContainerInitializer {
+public final class X10ClasspathContainerInitializer extends PathContainerInitializer {
 
   // --- Abstract methods implementation
   
-  public void initialize(final IPath containerPath, final IJavaProject project) throws CoreException {
+  public IPathContainer initialize(final IPath containerPath, final ISourceProject project) throws CoreException {
     if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(containerPath.toString())) {
-      JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project }, new IClasspathContainer[] { 
-                                     new X10Container(containerPath, newResolveClassPathEntries(project)) },
-                                     null /* monitor */);
+		return new X10Container(containerPath, newResolveClassPathEntries(project));
     } else {
       throw new CoreException(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, 
                                          NLS.bind(Messages.XCCI_WrongClassPathContainer, containerPath.toString())));
@@ -54,14 +53,14 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
   
   // --- Private code
   
-  private IClasspathEntry[] newResolveClassPathEntries(final IJavaProject project) throws CoreException {
-    final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
+  private List<IPathEntry> newResolveClassPathEntries(final ISourceProject project) throws CoreException {
+    final List<IPathEntry> cpEntries = new ArrayList<IPathEntry>();
     final URL x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
     if ((x10RuntimeURL == null) || ! X10BundleUtils.isDeployedX10Runtime(x10RuntimeURL)) {
       if (x10RuntimeURL == null) {
-        final IMarker marker = project.getProject().createMarker(X10DTCorePlugin.kPluginID + ".classpathMarker"); //$NON-NLS-1$
+        final IMarker marker = project.getRawProject().createMarker(X10DTCorePlugin.kPluginID + ".classpathMarker"); //$NON-NLS-1$
         marker.setAttribute(IMarker.MESSAGE, Messages.XCCI_NoX10JARFound);
-        marker.setAttribute(IMarker.LOCATION, project.getProject().getLocation().toString());
+        marker.setAttribute(IMarker.LOCATION, project.getRawProject().getLocation().toString());
         marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
         marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
       } else {
@@ -73,10 +72,10 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
       addClasspathEntry(cpEntries, X10BundleUtils.getX10CommonURL());
       addClasspathEntry(cpEntries, X10BundleUtils.getX10ConstraintsURL());
     }
-    return cpEntries.toArray(new IClasspathEntry[cpEntries.size()]);
+    return cpEntries;
   }
 
-  private void addClasspathEntry(final List<IClasspathEntry> cpEntries, final URL wURL) throws CoreException {
+  private void addClasspathEntry(final List<IPathEntry> cpEntries, final URL wURL) throws CoreException {
     IPath path;
     try {
       final URL url = FileLocator.resolve(wURL);
@@ -90,7 +89,7 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
       throw new CoreException(new Status(IStatus.ERROR, X10DTCorePlugin.kPluginID, 
                                          Messages.XCCI_ClasspathResIOError, except));
     }
-    cpEntries.add(JavaCore.newLibraryEntry(path, null /* sourceAttachmentPath */, null /* sourceAttachmentRootPath */));
+    cpEntries.add(ModelFactory.createArchiveEntry(path, PathEntryContentType.BINARY, null, null));
   }
 
 }
