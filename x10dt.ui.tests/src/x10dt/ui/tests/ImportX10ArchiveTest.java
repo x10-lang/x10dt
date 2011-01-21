@@ -23,6 +23,7 @@ import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
 import org.eclipse.swtbot.eclipse.finder.waits.WaitForView;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
+import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotWorkbenchPart;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
@@ -31,6 +32,7 @@ import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IViewReference;
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -56,11 +58,7 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 
 	private static final String CLASS_NAME = "QSort";  //$NON-NLS-1$
 
-	private static final String SUBCLASS_NAME = "QSortable";  //$NON-NLS-1$
-
 	private static final String CLASS_SRCFILE_NAME = CLASS_NAME + ".x10"; //$NON-NLS-1$
-
-	private final static String LINE_MARKER = "public static def main("; //$NON-NLS-1$
 
 	private static final String ARCHIVE_NAME = "/Users/lesniakr/x10dt/QSort.x10.tar.gz"; //$NON-NLS-1$	// specify file at top level of this workspace
 
@@ -70,11 +68,32 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 																		"array is now sorted", 
 																		"++++++ Test succeeded spectacularly!"
 																	);
+	
+	private static class TypeSearchInfo {
+		TypeSearchInfo(String searchString, String typeName, Integer expectToFind, String fileName, String typeDeclaration) {
+			this.searchString = searchString;
+			this.typeName = typeName;
+			this.fileName = fileName;
+			this.typeDeclaration = typeDeclaration;
+			this.expectToFind = expectToFind;
+			}
+		String	searchString;
+		String	typeName;
+		String	typeDeclaration;
+		String	fileName;
+		Integer	expectToFind;
+	}
+	
+	public static final List<TypeSearchInfo> declarationCheckList = Arrays.asList
+	(
+								/*search*/	/*type*/		/*find*/	/*file*/			/*expected declaration*/
+			new TypeSearchInfo("QS*",		"QSortable",	2,			"QSort.x10",		"public class QSortable(theArray: SortableArray)"),
+			new TypeSearchInfo("Pos*",		"Position",		1,			"TriangleTest.x10",	"class Position(x: Int, y: Int)"),
+			new TypeSearchInfo("Ar*",		"Array",		5,			"Array.x10",		"public final class Array[T] ("),
+			new TypeSearchInfo("Ar*",		"ArrayList",	5,			"ArrayList.x10",	"public class ArrayList[T] extends AbstractCollection[T] implements List[T] {"),
+			new TypeSearchInfo("QSort*",	"QSort",		2,			"QSort.x10",		"public class QSort")
+	);
 
-  /**
-   * The bot for the editor created for the archive class.
-   */
-  protected SWTBotEclipseEditor fZipTestEditor;
 
   @BeforeClass
   public static void beforeClass() throws Exception {
@@ -96,7 +115,7 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
   }
   
   @Test
-  public void basicImportZipTest() throws Exception {
+  public void importArchiveTest() throws Exception {
 
 	  Boolean createHello = false;
 	  String launchName = PROJECT_NAME;
@@ -123,10 +142,6 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 			  //wait for the editor to open
 			  operationMsg = "open '" + CLASS_SRCFILE_NAME + "' editor view";
 			  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)));
-
-			  //make an editor widget in case we want to modify the source file later on
-			  operationMsg = "create '" + CLASS_SRCFILE_NAME + "' editor widget";
-			  fZipTestEditor = topLevelBot.editorByTitle(CLASS_SRCFILE_NAME).toTextEditor();
 		  }
 		  catch (Exception e)
 		  {
@@ -144,38 +159,28 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 		  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT, 1); //$NON-NLS-1$
 		  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
 
-		  //    	// now let's change the source code to produce different console output, and run it again
-		  //    	operationMsg = "modify class '" + CLASS_SRCFILE_NAME + 
-		  //						"' in project '" + PROJECT_NAME + "', to produce different expected output'";
-		  //    	modifySrcText();
-		  //        
-		  //    	operationMsg = "re-run configuration '" + launchName + "' of class '" + CLASS_SRCFILE_NAME + "' in project '" + PROJECT_NAME + "'";
-		  //    	launchRunModeLaunchConfig("1 " + launchName);
-		  //    	
-		  //    	operationMsg = "match modified expected output of class '" + CLASS_SRCFILE_NAME + 
-		  //						"' in project '" + PROJECT_NAME + "', using Run Configuration '" + launchName + "'";
-		  //    	match = checkConsoleOutput(EXPECTED_OUTPUT, 2); //$NON-NLS-1$ //$NON-NLS-2$
-		  //        Assert.assertTrue("ImportArchiveTest: Modified console output does not match", match); //$NON-NLS-1$
-
-		  //Let's make sure the type indexer is working
+		  //OK - the program runs properly.
+		  // So let's make sure the type indexer is working
 		  
-		  //look for a specific source class
-		  String typeName = SUBCLASS_NAME;
-		  String searchString = typeName;
-		  operationMsg = "find x10 type '" + typeName +  "', using search pattern '" + searchString + "'";
-		  findX10TypeDef(typeName, searchString);
-
-		  //look for the X10 'Array' class, using a substring search pattern
-		  typeName = "Array";
-		  searchString = typeName.substring(0, 2);
-		  operationMsg = "find x10 type '" + typeName +  "', using search pattern '" + searchString + "'";
-		  findX10TypeDef(typeName, searchString);
-
-		  //look for a specific source class, using a substring search pattern
-		  typeName = SUBCLASS_NAME;
-		  searchString = typeName.substring(0, 2);
-		  operationMsg = "find x10 type '" + typeName +  "', using search pattern '" + searchString + "'";
-		  findX10TypeDef(typeName, searchString);
+		  // first, look for a few types by using the 'Open X10 Type...' dialog 
+		  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
+		  {
+			  TypeSearchInfo searchSet = it.next();
+			  //look for a specific source class
+			  operationMsg = "find x10 type '" + searchSet.typeName +  "', using search pattern '" + searchSet.searchString + "'";
+			  openX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
+			  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
+		  }
+		  
+		  // now, do it all over again by looking for a few types using the X10 Search dialog 
+		  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
+		  {
+			  TypeSearchInfo searchSet = it.next();
+			  //look for a specific source class
+			  operationMsg = "find x10 type '" + searchSet.typeName +  "', using search pattern '" + searchSet.searchString + "'";
+			  searchForX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
+			  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
+		  }
 	  }
 	  catch (X10DT_Test_Exception e)
 	  {
@@ -188,26 +193,8 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
   }
 
 /*
- * Support routines
+ * Verification routines
  */
-  
-  //	Launch application in Run mode
-  //
-  private void launchRunModeLaunchConfig(String launchMenuItemName) throws X10DT_Test_Exception {
-	  try
-	  {
-		  topLevelBot.menu(LaunchConstants.RUN_MENU)
-    					.menu(LaunchConstants.RUN_HISTORY_ITEM)
-    						.menu(launchMenuItemName).click(); //$NON-NLS-1$
-	  }
-	  catch (Exception e)
-	  {
-		  throw new X10DT_Test_Exception("Failed to find the '" +
-				  					LaunchConstants.RUN_HISTORY_ITEM  + "' item from menu '" +
-				  						LaunchConstants.RUN_MENU +
-				  							"'.\n        Reason: " + e.getMessage());
-	  }
-  }
 
   //	Verify console output from application
   //
@@ -244,30 +231,45 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 			  matches = currentActualLine.equals(currentExpectedLine);
 		  }
 		  
-		  if (!matches) //D'oh!
-		  {
+		  if (!matches) { //D'oh!
 			  throw new X10DT_Test_Exception ("Mismatch at line " + currentLine + 
 					  							"\n    actual: '" + currentActualLine + 
 					  							"\n    expected: '" + currentExpectedLine + "'");
 		  }
 	  }
-	  catch (X10DT_Test_Exception e)
-	  {
+	  catch (X10DT_Test_Exception e) {
 		  Assert.fail("Failed to " + operationMsg + ". \n  Reason: " + e.getMessage()); //$NON-NLS-1$
 	  }
 	  return matches;
   }
-}
 
-////	Alter source code to change console output
-////
-//private void modifySrcText() {
-//  List<String> lines = fZipTestEditor.getLines();
-//  for (int i = 0; i < lines.size(); i++) {
-//    if (lines.get(i).contains(LINE_MARKER)) {
-//      fZipTestEditor.insertText(i + 1, 0, "    Console.OUT.println(\"Huh?\");\n"); //$NON-NLS-1$
-//      break;
-//    }
-//  }
-//  fZipTestEditor.save();
-//}
+
+  //	Verify source line in editor
+  //
+  private Boolean verifySourceLine(String fileName, String expectedText) throws X10DT_Test_Exception 
+  {
+	  String operationMsg = null;
+	  Boolean matches = false;
+
+	  try {
+		  operationMsg = "activate '" + fileName + "' editor widget";
+		  SWTBotEclipseEditor fArchiveFileEditor = topLevelBot.editorByTitle(fileName).toTextEditor();
+		  
+		  operationMsg = "compare '" + expectedText + "' with actual text in editor '" + fileName + "'";
+		  String actualText = fArchiveFileEditor.getTextOnCurrentLine();
+		  matches = expectedText.equals(actualText.trim());
+		  
+		  if (!matches) { //D'oh!
+			  throw new X10DT_Test_Exception ("Expected source line does not match actual source line in file '" + fileName +  "':" +
+					  							"\n    actual: '" + actualText + 
+					  							"'\n    expected: '" + expectedText + "'");
+		  }
+		  
+		  return matches;
+	  }
+	  catch (Exception e) {  //turn it into an X10_Test_Exception so that our exception structure works
+			  throw new X10DT_Test_Exception("Failed to " + operationMsg + ".\n        Reason: " + e.getMessage());
+	  }
+
+  }
+}
