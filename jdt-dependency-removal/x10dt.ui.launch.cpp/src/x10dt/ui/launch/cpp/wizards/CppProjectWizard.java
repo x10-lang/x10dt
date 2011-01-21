@@ -18,7 +18,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
@@ -83,8 +83,8 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
       
       final IWorkingSet[] workingSets = this.fFirstPage.getWorkingSets();
       if (workingSets.length > 0) {
-        final IJavaProject newProject = this.fSecondPage.getJavaProject();
-        PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(newProject, workingSets);
+        final ISourceProject newProject = this.fSecondPage.getJavaProject();
+        PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(newProject.getRawProject(), workingSets);
       }
 
       BasicNewProjectResourceWizard.updatePerspective(this.fConfigElement);
@@ -141,7 +141,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
   
   private void createPlatformConfFile(final IProgressMonitor monitor) throws CoreException {
     try {
-      final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fSecondPage.getJavaProject().getProject());
+      final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fSecondPage.getJavaProject().getRawProject());
       
       final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
       final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();

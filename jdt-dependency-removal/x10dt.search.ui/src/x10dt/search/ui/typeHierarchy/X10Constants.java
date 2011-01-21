@@ -29,16 +29,7 @@ public class X10Constants {
 	 */
 	public static final String APPEARANCE_METHOD_TYPEPARAMETERS= "x10dt.search.ui.methodtypeparametesr";//$NON-NLS-1$
 
-	/**
-	 * A named preference that controls if package name compression is turned on or off.
-	 * <p>
-	 * Value is of type <code>Boolean</code>.
-	 * </p>
-	 *
-	 * @see #APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW
-	 */
-	public static final String APPEARANCE_COMPRESS_PACKAGE_NAMES= "x10dt.search.ui.compresspackagenames";//$NON-NLS-1$
-
+	
 	/**
 	 * A named preference that controls category rendering of Java elements in the UI.
 	 * <p>
@@ -48,15 +39,7 @@ public class X10Constants {
 	 */
 	public static final String APPEARANCE_CATEGORY= "x10dt.search.ui.category";//$NON-NLS-1$
 
-	/**
-	 * A named preference that defines the pattern used for package name compression.
-	 * <p>
-	 * Value is of type <code>String</code>. For example for the given package name 'org.eclipse.jdt' pattern
-	 * '.' will compress it to '..jdt', '1~' to 'o~.e~.jdt'.
-	 * </p>
-	 */
-	public static final String APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW= "PackagesView.pkgNamePatternForPackagesView";//$NON-NLS-1$
-
+	
 	/**
 	 * Type hierarchy view part: pop-up menu target ID for type hierarchy viewer
 	 * (value <code>"org.eclipse.jdt.ui.TypeHierarchy.typehierarchy"</code>).
@@ -108,11 +91,9 @@ public class X10Constants {
 
 
 	public static void initializeDefaultValues(IPreferenceStore store) {
-		store.setDefault(APPEARANCE_COMPRESS_PACKAGE_NAMES, false);
 		store.setDefault(APPEARANCE_METHOD_RETURNTYPE, true);
 		store.setDefault(APPEARANCE_METHOD_TYPEPARAMETERS, true);
 		store.setDefault(APPEARANCE_CATEGORY, true);
-		store.setDefault(APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW, ""); //$NON-NLS-1$
 		
 		store.setDefault(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION, true);
 	}

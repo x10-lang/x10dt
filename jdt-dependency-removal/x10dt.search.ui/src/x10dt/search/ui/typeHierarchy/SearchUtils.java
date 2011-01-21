@@ -14,6 +14,7 @@ package x10dt.search.ui.typeHierarchy;
 import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -22,7 +23,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.EditorUtility;
-import org.eclipse.imp.model.ICompilationUnit;
+import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.ui.UIMessages;
 import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.jface.text.Region;
 import org.eclipse.ui.IEditorPart;
@@ -37,7 +41,6 @@ import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
-import x10dt.search.ui.Messages;
 import x10dt.search.ui.UISearchPlugin;
 
 
@@ -261,6 +264,21 @@ public class SearchUtils {
 		return getTypeContainerName(info);
 	}
 	
+	public static ISourceFolder getSourceFolder(ITypeInfo info)
+	{
+		try {
+			IResource resource = getResource(info);
+			if(resource instanceof IFolder)
+			{
+				return (ISourceFolder)ModelFactory.open(resource);
+			}
+		} catch (ModelException e) {
+			// fall through
+		}
+		
+		return null;
+	}
+	
 	public static IResource getResource(IMemberInfo info) {
 		try {
 			IPath path = getPath(info);
@@ -284,14 +302,14 @@ public class SearchUtils {
 
 	public static boolean isDefaultPackage(String name)
 	{
-		return name.equals(Messages.X10ElementLabels_default_package);
+		return name.equals(UIMessages.ElementLabels_default_package) || name.length() == 0;
 	}
 	
 	public static String getTypeContainerName(ITypeInfo info) {
 		try {
 			return info.getName().substring(0, info.getName().lastIndexOf("."));
 		} catch (Exception e) {
-			return Messages.X10ElementLabels_default_package;
+			return UIMessages.ElementLabels_default_package;
 		}
 	}
 

@@ -21,6 +21,8 @@ import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.IPathEntry;
 import org.eclipse.imp.model.IPathEntry.PathEntryType;
 import org.eclipse.imp.model.ISourceProject;
@@ -479,7 +481,8 @@ public final class X10SearchEngine {
   private static ITypeInfo findTypeInfo(final FactBase factBase, final IFactContext context, final String typeName,
                                         final ISourceProject sourceProject,
                                         final IProgressMonitor monitor) throws InterruptedException {
-    for (final IPathEntry pathEntry : sourceProject.getBuildPath()) {
+    Language lang = LanguageRegistry.findLanguage("X10");
+	for (final IPathEntry pathEntry : sourceProject.getBuildPath(lang)) {
       if (pathEntry.getEntryType() == PathEntryType.PROJECT) {
         //TODO To implement once Adam has committed his code.
       }

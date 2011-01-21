@@ -17,6 +17,7 @@
  */
 package x10dt.ui.perspective;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.debug.ui.IDebugUIConstants;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.search.ui.NewSearchUI;
@@ -33,7 +34,7 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
     String editorArea = layout.getEditorArea();
     IFolderLayout folder = layout.createFolder("left", IPageLayout.LEFT, (float) 0.25, editorArea); //$NON-NLS-1$
 
-    folder.addView(JavaUI.ID_PACKAGES);
+    folder.addView(IPageLayout.ID_PROJECT_EXPLORER);
     folder.addView(X10Constants.ID_TYPE_HIERARCHY);
     folder.addPlaceholder(IPageLayout.ID_RES_NAV);
 
@@ -54,7 +55,7 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
     layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 
     // views - java
-    layout.addShowViewShortcut(JavaUI.ID_PACKAGES);
+    layout.addShowViewShortcut(IPageLayout.ID_PROJECT_EXPLORER);
     layout.addShowViewShortcut(X10Constants.ID_TYPE_HIERARCHY);
     layout.addShowViewShortcut(JavaUI.ID_SOURCE_VIEW);
     layout.addShowViewShortcut(JavaUI.ID_JAVADOC_VIEW);

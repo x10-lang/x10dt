@@ -25,9 +25,8 @@ import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -75,7 +74,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
    * @param type The X10 main type of interest.
    */
   protected abstract void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
-                                                           final Pair<ClassType, IJavaElement> type);
+                                                           final Pair<ClassType, ISourceEntity> type);
   
   // --- Interface methods implementation
 
@@ -83,14 +82,14 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     
     if (selection instanceof IStructuredSelection) {
       final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-      final IJavaElement[] elements = new IJavaElement[structuredSelection.size()];
+      final ISourceEntity[] elements = new ISourceEntity[structuredSelection.size()];
       final Iterator<?> it = structuredSelection.iterator();
       for (int i = 0, size = structuredSelection.size(); i < size; ++i) {
         final Object obj = it.next();
         if (obj instanceof IFile) {
           elements[i] = new X10FileElementWrapper((IFile) obj);
         } else {
-          elements[i] = (IJavaElement) obj;
+          elements[i] = (ISourceEntity) obj;
         }
       }
       searchAndLaunch(elements, mode);
@@ -100,7 +99,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   public final void launch(final IEditorPart editor, final String mode) {
     if (editor instanceof UniversalEditor) {
       final IFile file = ((IFileEditorInput) editor.getEditorInput()).getFile();
-      searchAndLaunch(new IJavaElement[] { new X10FileElementWrapper(file) }, mode);
+      searchAndLaunch(new ISourceEntity[] { new X10FileElementWrapper(file) }, mode);
     }
   }
   
@@ -130,7 +129,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   
   @SuppressWarnings("deprecation")
   // We will need to use the new method "generateLaunchConfigurationName" once Galileo won't be supported anymore by X10DT.
-  private ILaunchConfiguration createConfiguration(final Pair<ClassType, IJavaElement> type) {
+  private ILaunchConfiguration createConfiguration(final Pair<ClassType, ISourceEntity> type) {
     final ILaunchConfigurationType launchConfType = getConfigurationType();
     final String namePrefix = type.first.fullName().toString();
     final String confName = DebugPlugin.getDefault().getLaunchManager().generateUniqueLaunchConfigurationNameFrom(namePrefix);
@@ -168,16 +167,8 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     return null;
   }
 
-  protected boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
-		  								final String projectName) throws CoreException {
-    // This is a fairly loose match, based only on the project and main type names.
-    // This is based on the notion that the most common scenario is to have a single
-    // launch configuration for a given project and main type.
-    // If we want to support multiple launch types (e.g. with different comm interfaces)
-    // for a given project/main type better, we should tighten this match.
-	return config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName) && //$NON-NLS-1$
-		   config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName);
-  }
+  protected abstract boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
+		  								final String projectName) throws CoreException;
 
   /**
    * Makes sure the launch configuration's attributes are in sync with the platform conf
@@ -187,12 +178,12 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     // do nothing by default
   }
 
-  private void searchAndLaunch(final IJavaElement[] selection, final String mode) {
+  private void searchAndLaunch(final ISourceEntity[] selection, final String mode) {
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(selection, getProjectNatureId(), getShell());
+      final Pair<ClassType, ISourceEntity> mainType = LaunchUtils.findMainType(selection, getProjectNatureId(), getShell());
       if (mainType != null) {
         ILaunchConfiguration config = findLaunchConfiguration(getConfigurationType(), mainType.first.fullName().toString(),
-                                                              mainType.second.getJavaProject().getElementName());
+                                                              mainType.second.getProject().getName());
         if (config == null) {
           config = createConfiguration(mainType);
         } else {

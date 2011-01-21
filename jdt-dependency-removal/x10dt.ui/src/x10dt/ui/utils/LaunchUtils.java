@@ -15,15 +15,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModel;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -57,21 +55,20 @@ public final class LaunchUtils {
    * {@link CoreException} as its target in this case.
    * @throws InterruptedException Occurs if the operation got canceled by end-user.
    */
-  public static Pair<ClassType, IJavaElement> findMainType(final IJavaElement[] javaElements,
+  public static Pair<ClassType, ISourceEntity> findMainType(final ISourceEntity[] javaElements,
                                                            final String projectNatureId,
                                                            final Shell shell) throws InvocationTargetException, 
                                                                                      InterruptedException {
-    final IJavaElement[] elements;
+    final ISourceEntity[] elements;
     if ((javaElements == null) || (javaElements.length == 0)) {
-      final IJavaModel model = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot());
       try {
-        final Collection<IJavaProject> projects = new ArrayList<IJavaProject>();
-        for (final IJavaProject javaProject : model.getJavaProjects()) {
-          if (javaProject.getProject().getDescription().hasNature(projectNatureId)) {
+        final Collection<ISourceProject> projects = new ArrayList<ISourceProject>();
+        for (final ISourceProject javaProject : ModelFactory.getModelRoot().getProjects()) {
+          if (javaProject.getRawProject().getDescription().hasNature(projectNatureId)) {
             projects.add(javaProject);
           }
         }
-        elements = projects.toArray(new IJavaProject[projects.size()]);
+        elements = projects.toArray(new ISourceProject[projects.size()]);
       } catch (CoreException except) {
         throw new InvocationTargetException(except);
       }
@@ -98,7 +95,7 @@ public final class LaunchUtils {
   
   private LaunchUtils() {}
   
-  private static Pair<ClassType, IJavaElement> chooseType(final MainClassesWrapper mainClasses, 
+  private static Pair<ClassType, ISourceEntity> chooseType(final MainClassesWrapper mainClasses, 
                                                           final Shell shell) throws InterruptedException {
     final X10TypeSelectionDialog dialog = new X10TypeSelectionDialog(shell, mainClasses.getX10Types());
     if (dialog.open() == Window.OK) {
@@ -109,14 +106,14 @@ public final class LaunchUtils {
     }
   }
   
-  private static MainClassesWrapper findMainTypes(final IJavaElement[] elements, 
+  private static MainClassesWrapper findMainTypes(final ISourceEntity[] elements, 
                                                   final IProgressService progressService) throws InterruptedException,
                                                                                                  InvocationTargetException {
     final MainClassesWrapper wrapper = new MainClassesWrapper();
     final IRunnableWithProgress runnable = new IRunnableWithProgress() {
       public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
         monitor.beginTask(null, elements.length);
-        for (final IJavaElement javaElement : elements) {
+        for (final ISourceEntity javaElement : elements) {
           if (monitor.isCanceled()) {
             throw new InterruptedException();
           }
@@ -141,19 +138,19 @@ public final class LaunchUtils {
     
     // --- Internal services
     
-    void add(final IJavaElement javaElement, final Collection<ClassType> types) {
+    void add(final ISourceEntity javaElement, final Collection<ClassType> types) {
       for (final ClassType classType : types) {
         this.fMainClasses.put(classType, javaElement);
       }
     }
     
-    Pair<ClassType, IJavaElement> getClassJavaElementPair(final ClassType classType) {
-      return new Pair<ClassType, IJavaElement>(classType, this.fMainClasses.get(classType));
+    Pair<ClassType, ISourceEntity> getClassJavaElementPair(final ClassType classType) {
+      return new Pair<ClassType, ISourceEntity>(classType, this.fMainClasses.get(classType));
     }
     
-    Pair<ClassType, IJavaElement> getUniqueMainType() {
-      final Map.Entry<ClassType, IJavaElement> entry = this.fMainClasses.entrySet().iterator().next();
-      return new Pair<ClassType, IJavaElement>(entry.getKey(), entry.getValue());
+    Pair<ClassType, ISourceEntity> getUniqueMainType() {
+      final Map.Entry<ClassType, ISourceEntity> entry = this.fMainClasses.entrySet().iterator().next();
+      return new Pair<ClassType, ISourceEntity>(entry.getKey(), entry.getValue());
     }
     
     Set<ClassType> getX10Types() {
@@ -166,7 +163,7 @@ public final class LaunchUtils {
     
     // --- Fields
     
-    private final Map<ClassType, IJavaElement> fMainClasses = new HashMap<ClassType, IJavaElement>();
+    private final Map<ClassType, ISourceEntity> fMainClasses = new HashMap<ClassType, ISourceEntity>();
     
   }
 

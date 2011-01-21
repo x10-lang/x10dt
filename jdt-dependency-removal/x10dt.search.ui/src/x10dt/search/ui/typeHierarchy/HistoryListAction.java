@@ -16,8 +16,10 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.imp.java.hosted.wizards.fields.DialogField;
-import org.eclipse.imp.java.hosted.wizards.utils.LayoutUtil;
+import org.eclipse.imp.ui.wizards.fields.DialogField;
+import org.eclipse.imp.ui.wizards.fields.IListAdapter;
+import org.eclipse.imp.ui.wizards.fields.ListDialogField;
+import org.eclipse.imp.ui.wizards.utils.LayoutUtil;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.jface.viewers.ISelection;

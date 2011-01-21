@@ -41,8 +41,8 @@ public class Messages extends NLS {
 	public static String AXLS_MultipleConfDialogTitle;
 	public static String LU_MainTypeSearchResult;
 	public static String LU_NoMainTypeFound;
-	public static String XJS_X10RuntimeAccessError;
-  public static String XTSD_SelectX10TypeDlgTitle;
+	
+	public static String XTSD_SelectX10TypeDlgTitle;
 	public static String XTSD_SelectX10TypeMsg;
 	public static String XU_ParsingX10Files;
 	public static String XU_SearchForMainTypes;

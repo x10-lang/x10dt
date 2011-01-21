@@ -4,7 +4,6 @@ import static x10dt.ui.launch.core.LaunchCore.X10_CPP_PRJ_NATURE_ID;
 import static x10dt.ui.launch.core.LaunchCore.X10_PRJ_JAVA_NATURE_ID;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,6 +19,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
@@ -28,10 +30,6 @@ import org.eclipse.imp.pdb.facts.db.IFactKey;
 import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.indexing.IndexManager;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
@@ -97,7 +95,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
                   }
                 }
                 try {
-                  final IJavaProject javaProject = JavaCore.create(project);
+                  final ISourceProject javaProject = ModelFactory.getProject(project);
                   while (! hasRightNature() || ! hasX10Container(javaProject)) {
                     try {
                       synchronized (this) {
@@ -131,9 +129,9 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
                 return project.hasNature(X10_CPP_PRJ_NATURE_ID) || project.hasNature(X10_PRJ_JAVA_NATURE_ID);
               }
               
-              private boolean hasX10Container(final IJavaProject javaProject) throws JavaModelException {
-                for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-                  if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(cpEntry.getPath().toString())) {
+              private boolean hasX10Container(final ISourceProject javaProject) throws ModelException {
+                for (final IPathEntry cpEntry : javaProject.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
+                  if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(cpEntry.getRawPath().toString())) {
                     return true;
                   }
                 }

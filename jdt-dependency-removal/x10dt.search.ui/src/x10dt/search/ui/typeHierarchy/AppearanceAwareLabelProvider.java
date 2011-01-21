@@ -11,6 +11,7 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
+import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -63,7 +64,7 @@ public class AppearanceAwareLabelProvider extends X10LabelProvider implements IP
 		if (!store.getBoolean(X10Constants.APPEARANCE_METHOD_TYPEPARAMETERS)) {
 			fTextFlagMask ^= X10ElementLabels.M_APP_TYPE_PARAMETERS;
 		}
-		if (!store.getBoolean(X10Constants.APPEARANCE_COMPRESS_PACKAGE_NAMES)) {
+		if (!store.getBoolean(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES)) {
 			fTextFlagMask ^= X10ElementLabels.P_COMPRESSED;
 		}
 		if (!store.getBoolean(X10Constants.APPEARANCE_CATEGORY)) {
@@ -81,8 +82,8 @@ public class AppearanceAwareLabelProvider extends X10LabelProvider implements IP
 		if (property.equals(X10Constants.APPEARANCE_METHOD_RETURNTYPE)
 				|| property.equals(X10Constants.APPEARANCE_METHOD_TYPEPARAMETERS)
 				|| property.equals(X10Constants.APPEARANCE_CATEGORY)
-				|| property.equals(X10Constants.APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW)
-				|| property.equals(X10Constants.APPEARANCE_COMPRESS_PACKAGE_NAMES)) {
+				|| property.equals(PreferenceConstants.APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW)
+				|| property.equals(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES)) {
 			initMasks();
 			LabelProviderChangedEvent lpEvent= new LabelProviderChangedEvent(this, null); // refresh all
 			fireLabelProviderChanged(lpEvent);

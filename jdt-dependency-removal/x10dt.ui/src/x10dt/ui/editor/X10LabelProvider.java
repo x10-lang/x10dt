@@ -32,8 +32,6 @@ import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
@@ -59,6 +57,8 @@ import x10.ast.Next;
 import x10.ast.TypeDecl_c;
 import x10.ast.X10Loop;
 import x10.parser.X10SemanticRules.JPGPosition;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.ui.typeHierarchy.X10PluginImages;
 import x10dt.ui.X10DTUIPlugin;
 
 /**
@@ -100,39 +100,39 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     
     //================== PORT1.7 Images moved here from Outliner
     
-    public static Image _DESC_ELCL_VIEW_MENU = JavaPluginImages.DESC_ELCL_VIEW_MENU.createImage();
+    public static Image _DESC_ELCL_VIEW_MENU = X10PluginImages.DESC_ELCL_VIEW_MENU.createImage();
 
     /** Images for the default, private, protected, and public versions of fields */
-    public static Image _DESC_FIELD_DEFAULT = JavaPluginImages.DESC_FIELD_DEFAULT.createImage();
-    public static Image _DESC_FIELD_PRIVATE = JavaPluginImages.DESC_FIELD_PRIVATE.createImage();
-    public static Image _DESC_FIELD_PROTECTED = JavaPluginImages.DESC_FIELD_PROTECTED.createImage();
-    public static Image _DESC_FIELD_PUBLIC = JavaPluginImages.DESC_FIELD_PUBLIC.createImage();
+    public static Image _DESC_FIELD_DEFAULT = X10PluginImages.DESC_FIELD_DEFAULT.createImage();
+    public static Image _DESC_FIELD_PRIVATE = X10PluginImages.DESC_FIELD_PRIVATE.createImage();
+    public static Image _DESC_FIELD_PROTECTED = X10PluginImages.DESC_FIELD_PROTECTED.createImage();
+    public static Image _DESC_FIELD_PUBLIC = X10PluginImages.DESC_FIELD_PUBLIC.createImage();
 
     /** Images for the default, private, protected, and public versions of miscellaneous objects */
-    public static Image _DESC_MISC_DEFAULT = JavaPluginImages.DESC_MISC_DEFAULT.createImage();
-    public static Image _DESC_MISC_PRIVATE = JavaPluginImages.DESC_MISC_PRIVATE.createImage();
-    public static Image _DESC_MISC_PROTECTED = JavaPluginImages.DESC_MISC_PROTECTED.createImage();
-    public static Image _DESC_MISC_PUBLIC = JavaPluginImages.DESC_MISC_PUBLIC.createImage();
+    public static Image _DESC_MISC_DEFAULT = X10PluginImages.DESC_MISC_DEFAULT.createImage();
+    public static Image _DESC_MISC_PRIVATE = X10PluginImages.DESC_MISC_PRIVATE.createImage();
+    public static Image _DESC_MISC_PROTECTED = X10PluginImages.DESC_MISC_PROTECTED.createImage();
+    public static Image _DESC_MISC_PUBLIC = X10PluginImages.DESC_MISC_PUBLIC.createImage();
 
-    public static Image _DESC_OBJS_CFILECLASS = JavaPluginImages.DESC_OBJS_CFILECLASS.createImage();
-    public static Image _DESC_OBJS_CFILEINT = JavaPluginImages.DESC_OBJS_CFILEINT.createImage();
+    public static Image _DESC_OBJS_CFILECLASS = X10PluginImages.DESC_OBJS_CFILECLASS.createImage();
+    public static Image _DESC_OBJS_CFILEINT = X10PluginImages.DESC_OBJS_CFILEINT.createImage();
 
     /** Images for the default, private, protected, and public versions of objects */
-    public static Image _DESC_OBJS_INNER_CLASS_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_DEFAULT = X10PluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_PRIVATE = X10PluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_PROTECTED = X10PluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage();
+    public static Image _DESC_OBJS_INNER_CLASS_PUBLIC = X10PluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage();
 
 
     /** Images for the default, private, protected, and public versions of Interfaces */
-    public static Image _DESC_OBJS_INNER_INTERFACE_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_DEFAULT = X10PluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_PRIVATE = X10PluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_PROTECTED = X10PluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage();
+    public static Image _DESC_OBJS_INNER_INTERFACE_PUBLIC = X10PluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage();
 
 
 
-    public static Image _DESC_OBJS_PACKDECL = JavaPluginImages.DESC_OBJS_PACKDECL.createImage();
+    public static Image _DESC_OBJS_PACKDECL = X10PluginImages.DESC_OBJS_PACKDECL.createImage();
     
     
     public static Image[] FIELD_DESCS= {
@@ -148,7 +148,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     	X10LabelProvider._DESC_OBJS_INNER_INTERFACE_DEFAULT, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PRIVATE, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PROTECTED, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PUBLIC
         };
     
-    public static final ImageDescriptor DESC_OVR_FOCUS= JavaPluginImages.DESC_OVR_FOCUS;
+    public static final ImageDescriptor DESC_OVR_FOCUS= X10PluginImages.DESC_OVR_FOCUS;
 	
     
     //===================
@@ -280,8 +280,8 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     }
 
     public String getText(Object element) {
-		if (element instanceof IType) {
-			return ((IType) element).getElementName();
+		if (element instanceof ITypeInfo) {
+			return ((ITypeInfo) element).getName();
 		}
     	
         Node node= (element instanceof ModelTreeNode) ?

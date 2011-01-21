@@ -18,9 +18,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.utils.BuildPathUtils;
 
 import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
@@ -63,13 +67,13 @@ import x10dt.ui.launch.core.utils.ProjectUtils;
  * @author rfuhrer
  */
 public class ComputeDependenciesVisitor extends ContextVisitor {
-	private final IJavaProject fProject;
+	private final ISourceProject fProject;
     private final Job fJob;
     private Type fFromType;
     private SourceFile fFromFile;
     private final PolyglotDependencyInfo fDependencyInfo;
 
-    public ComputeDependenciesVisitor(IJavaProject project, Job job, TypeSystem ts, PolyglotDependencyInfo di) {
+    public ComputeDependenciesVisitor(ISourceProject project, Job job, TypeSystem ts, PolyglotDependencyInfo di) {
     	super(job, ts, ts.extensionInfo().nodeFactory());
         fJob= job;
         fDependencyInfo= di;
@@ -140,12 +144,12 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
     	Collection<String> result = new ArrayList<String>();
     	try {
     		result.addAll(ProjectUtils.collectSourceFolders(fProject));
-    		for(String project: fProject.getRequiredProjectNames()){
-    			IJavaProject javaProject = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(project));
+    		for(String project : BuildPathUtils.getRequiredProjectNames(fProject, LanguageRegistry.findLanguage("X10"))){
+    			ISourceProject javaProject = ModelFactory.getProject(ResourcesPlugin.getWorkspace().getRoot().getProject(project));
     			result.addAll(ProjectUtils.collectSourceFolders(javaProject));
     		}
-    	} catch(JavaModelException e){
-    		LaunchCore.log(e.getStatus());
+    	} catch(ModelException e){
+    		LaunchCore.log(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, e.getMessage(), e));
     	}
     	return result;
     }

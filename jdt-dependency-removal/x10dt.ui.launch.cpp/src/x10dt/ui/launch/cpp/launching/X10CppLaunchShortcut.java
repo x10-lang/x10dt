@@ -7,13 +7,9 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching;
 
-import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
-import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
 import static x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
-
-import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -23,10 +19,8 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.ui.actions.MultiOrganizeImportAction;
-import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
 import org.eclipse.ptp.core.elements.IResourceManager;
@@ -41,8 +35,6 @@ import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
-import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
-import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IMPICH2InterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -56,6 +48,18 @@ import x10dt.ui.launching.AbstractX10LaunchShortcut;
  */
 public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements ILaunchShortcut {
 
+	/**
+	 * Launch configuration attribute key. The value is a name of
+	 * a Java project associated with a Java launch configuration.
+	 */
+	public static final String ATTR_PROJECT_NAME = "org.eclipse.jdt.launching.PROJECT_ATTR"; //$NON-NLS-1$
+	
+	/**
+	 * Launch configuration attribute key. The value is a fully qualified name
+	 * of a main type to launch.
+	 */
+	public static final String ATTR_MAIN_TYPE_NAME = "org.eclipse.jdt.launching.MAIN_TYPE";	 //$NON-NLS-1$
+	
   // --- Abstract methods implementation
 
   protected ILaunchConfigurationType getConfigurationType() {
@@ -68,7 +72,7 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
 
   @Override
   protected void updateLaunchConfig(ILaunchConfigurationWorkingCopy config) throws CoreException {
-    String projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "");
+    String projectName = config.getAttribute(ATTR_PROJECT_NAME, "");
     IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
     IResourceManager rsrcMgr = PTPConfUtils.findResourceManagerById(platformConf);
@@ -158,10 +162,10 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
   }
 
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
-                                                  final Pair<ClassType, IJavaElement> type) {
-    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getJavaProject().getElementName());
+                                                  final Pair<ClassType, ISourceEntity> type) {
+    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getProject().getName());
     workingCopy.setAttribute(org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
-                             type.second.getJavaProject().getElementName());
+                             type.second.getProject().getName());
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
     workingCopy.setAttribute(ATTR_CONSOLE, true);
     workingCopy.setAttribute(Constants.ATTR_X10_MAIN_CLASS, type.first.fullName().toString());
@@ -217,8 +221,15 @@ public final class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implem
     }
   }
   
+  @Override
+  protected boolean launchConfigMatches(ILaunchConfiguration config,
+			String typeName, String projectName) throws CoreException {
+	  //return config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName) && //$NON-NLS-1$
+	  return config.getAttribute(org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName);
+  }
+  
   // --- Fields
   
-  private static final String LAUNCH_CONF_TYPE = "x10dt.ui.cpp.launch.X10LaunchConfigurationType"; //$NON-NLS-1$
+private static final String LAUNCH_CONF_TYPE = "x10dt.ui.cpp.launch.X10LaunchConfigurationType"; //$NON-NLS-1$
 
 }

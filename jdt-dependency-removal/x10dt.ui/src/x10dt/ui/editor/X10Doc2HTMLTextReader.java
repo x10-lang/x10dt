@@ -20,8 +20,6 @@ import java.util.List;
 import org.eclipse.jface.internal.text.html.HTMLPrinter;
 import org.eclipse.jface.internal.text.html.SubstitutionTextReader;
 
-import org.eclipse.jdt.core.dom.TagElement;
-
 
 /**
  * Processes JavaDoc tags.
@@ -29,6 +27,110 @@ import org.eclipse.jdt.core.dom.TagElement;
  */
 public class X10Doc2HTMLTextReader extends SubstitutionTextReader {
 
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_AUTHOR = "@author"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 * <p>
+	 * Note that this tag first appeared in J2SE 5.
+	 * </p>
+	 * @since 3.1
+	 */
+	public static final String TAG_CODE = "@code"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_DEPRECATED = "@deprecated"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_DOCROOT = "@docRoot"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_EXCEPTION = "@exception"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_INHERITDOC = "@inheritDoc"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_LINK = "@link"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_LINKPLAIN = "@linkplain"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 * <p>
+	 * Note that this tag first appeared in J2SE 5.
+	 * </p>
+	 * @since 3.1
+	 */
+	public static final String TAG_LITERAL = "@literal"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_PARAM = "@param"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_RETURN = "@return"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SEE = "@see"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SERIAL = "@serial"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SERIALDATA= "@serialData"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SERIALFIELD= "@serialField"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_SINCE = "@since"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_THROWS = "@throws"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 */
+	public static final String TAG_VALUE= "@value"; //$NON-NLS-1$
+
+	/**
+	 * Standard doc tag name (value {@value}).
+	 */
+	public static final String TAG_VERSION = "@version"; //$NON-NLS-1$
+
+	
 	static private class Pair {
 		String fTag;
 		String fContent;
@@ -211,19 +313,19 @@ public class X10Doc2HTMLTextReader extends SubstitutionTextReader {
 
 		tagContent= tagContent.trim();
 
-		if (TagElement.TAG_PARAM.equals(tag))
+		if (TAG_PARAM.equals(tag))
 			fParameters.add(tagContent);
-		else if (TagElement.TAG_RETURN.equals(tag)) 
+		else if (TAG_RETURN.equals(tag)) 
 			fReturn= tagContent;
-		else if (TagElement.TAG_EXCEPTION.equals(tag)) 
+		else if (TAG_EXCEPTION.equals(tag)) 
 			fExceptions.add(tagContent);
-		else if (TagElement.TAG_THROWS.equals(tag)) 
+		else if (TAG_THROWS.equals(tag)) 
 			fExceptions.add(tagContent);
-		else if (TagElement.TAG_AUTHOR.equals(tag)) 
+		else if (TAG_AUTHOR.equals(tag)) 
 			fAuthors.add(substituteQualification(tagContent));
-		else if (TagElement.TAG_SEE.equals(tag)) 
+		else if (TAG_SEE.equals(tag)) 
 			fSees.add(substituteQualification(tagContent));
-		else if (TagElement.TAG_SINCE.equals(tag)) 
+		else if (TAG_SINCE.equals(tag)) 
 			fSince.add(substituteQualification(tagContent));
 		else if (tagContent != null)
 			fRest.add(new Pair(tag, tagContent));
@@ -263,7 +365,7 @@ public class X10Doc2HTMLTextReader extends SubstitutionTextReader {
 
 	private String printBlockTag(String tag, String tagContent) {
 
-		if (TagElement.TAG_LINK.equals(tag) || TagElement.TAG_LINKPLAIN.equals(tag)) {
+		if (TAG_LINK.equals(tag) || TAG_LINKPLAIN.equals(tag)) {
 
 			char[] contentChars= tagContent.toCharArray();
 			boolean inParentheses= false;
@@ -294,15 +396,15 @@ public class X10Doc2HTMLTextReader extends SubstitutionTextReader {
 					break;
 				}
 			}
-			if (TagElement.TAG_LINK.equals(tag))
+			if (TAG_LINK.equals(tag))
 				return "<code>" + substituteQualification(tagContent.substring(labelStart)) + "</code>";  //$NON-NLS-1$//$NON-NLS-2$
 			else
 				return substituteQualification(tagContent.substring(labelStart));
 			
-		} else if (TagElement.TAG_LITERAL.equals(tag)) {
+		} else if (TAG_LITERAL.equals(tag)) {
 			return printLiteral(tagContent);
 			
-		} else if (TagElement.TAG_CODE.equals(tag)) {
+		} else if (TAG_CODE.equals(tag)) {
 			return "<code>" + printLiteral(tagContent) + "</code>"; //$NON-NLS-1$//$NON-NLS-2$
 		}
 

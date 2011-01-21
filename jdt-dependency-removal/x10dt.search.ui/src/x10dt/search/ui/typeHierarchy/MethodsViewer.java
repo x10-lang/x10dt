@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.utils.SelectionUtil;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.MenuManager;

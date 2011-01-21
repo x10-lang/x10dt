@@ -28,7 +28,6 @@ import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
-import org.eclipse.jdt.internal.ui.viewsupport.StorageLabelProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.util.SafeRunnable;
@@ -182,12 +181,15 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     private Language fX10Language= LanguageRegistry.findLanguage("x10");
 
     public Image getImage(Object o) {
-        if (o instanceof IResource || o instanceof ISourceEntity) {
-            IResource res= (o instanceof ISourceEntity) ? ((ISourceEntity) o).getResource() : (IResource) o;
-            return getErrorTicksFromMarkers(res);
-        }
+//        if (o instanceof IResource || o instanceof ISourceEntity) {
+//            IResource res= (o instanceof ISourceEntity) ? ((ISourceEntity) o).getResource() : (IResource) o;
+//            return getErrorTicksFromMarkers(res);
+//        }
 
         Image result= fImageLabelProvider.getImageLabel(o, fImageFlags);
+        if (result == null && (o instanceof ISourceEntity)) {
+			result= fStorageLabelProvider.getImage(o);
+		}
         return decorateImage(result, o);
     }
 
@@ -258,7 +260,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
 			}
 			fLabelDecorators= null;
 		}
-//		fStorageLabelProvider.dispose();
+		fStorageLabelProvider.dispose();
 		fImageLabelProvider.dispose();
 	}
 

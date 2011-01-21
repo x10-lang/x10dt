@@ -22,10 +22,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.imp.utils.ExtensionException;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -54,7 +53,7 @@ public abstract class AbstractConvertX10ProjectAction implements IObjectActionDe
   public final void run(final IAction action) {
     if (this.fCurSelection instanceof IStructuredSelection) {
       for (final Iterator<?> it = ((IStructuredSelection) this.fCurSelection).iterator(); it.hasNext();) {
-        final IProject project = ((IJavaProject) it.next()).getProject();
+        final IProject project = ((ISourceProject) it.next()).getRawProject();
         
         final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
           
@@ -77,7 +76,7 @@ public abstract class AbstractConvertX10ProjectAction implements IObjectActionDe
           converter.preProjectSetup(this.fShellProvider, project);
         
           final String[] natureIds = new String[] { 
-            converter.getProjectNatureId(), SmapiProjectNature.k_natureID, JavaCore.NATURE_ID
+            converter.getProjectNatureId(), SmapiProjectNature.k_natureID
           };
           newDescr.setNatureIds(natureIds);
 

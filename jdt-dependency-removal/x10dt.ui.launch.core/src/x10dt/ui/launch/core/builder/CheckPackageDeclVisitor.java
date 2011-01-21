@@ -1,15 +1,18 @@
 package x10dt.ui.launch.core.builder;
 
 import java.io.File;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.ISingleResolvedPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
 
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
@@ -17,7 +20,6 @@ import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
-import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 
@@ -76,20 +78,12 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
             pkgPath= srcPath;
         }
 
-        IJavaProject javaProject = JavaCore.create(fProject);
-        IClasspathEntry[] cpEntries;
-		try {
-			cpEntries = javaProject.getResolvedClasspath(true);
-		} catch (JavaModelException e) {
-			X10DTCorePlugin.getInstance().logException(e.getMessage(), e);
-			// remember to test if java nature is still on cpp-backend projects etc.
-			return null;
-		}
+        ISourceProject javaProject = ModelFactory.getProject(fProject);
+        List<IPathEntry> cpEntries = javaProject.getBuildPath(LanguageRegistry.findLanguage("X10"));
 
-        for (int i = 0; i < cpEntries.length; i++) {
-			IClasspathEntry classpathEntry = cpEntries[i];
-			if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-				IPath cpPath= classpathEntry.getPath(); // ws rel
+        for (IPathEntry classpathEntry : cpEntries) {
+			if (classpathEntry.getEntryType() == PathEntryType.SOURCE_FOLDER) {
+				IPath cpPath= ((ISingleResolvedPathEntry)classpathEntry).getResolvedPath(); // ws rel
 				String cpPathStr = cpPath.toOSString();
 
 				if (pkgPath.startsWith(cpPathStr)) {

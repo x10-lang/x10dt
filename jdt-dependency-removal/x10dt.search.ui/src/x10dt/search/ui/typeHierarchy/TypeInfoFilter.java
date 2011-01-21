@@ -11,6 +11,7 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
+import org.eclipse.imp.ui.wizards.buildpaths.Strings;
 import org.eclipse.ui.dialogs.SearchPattern;
 
 import x10dt.search.core.engine.scope.IX10SearchScope;

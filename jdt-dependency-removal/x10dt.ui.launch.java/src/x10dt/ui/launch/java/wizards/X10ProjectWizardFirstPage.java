@@ -21,8 +21,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import org.eclipse.imp.java.hosted.wizards.NewProjectWizardFirstPage;
-import org.eclipse.imp.java.hosted.wizards.fields.SelectionButtonDialogField;
-import org.eclipse.imp.java.hosted.wizards.utils.LayoutUtil;
+import org.eclipse.imp.ui.wizards.fields.SelectionButtonDialogField;
+import org.eclipse.imp.ui.wizards.utils.LayoutUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;

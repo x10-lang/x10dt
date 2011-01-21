@@ -22,17 +22,20 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.osgi.util.NLS;
 
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 
 /**
- * Utility methods for JDT {@link IJavaProject} interface.
+ * Utility methods for JDT {@link ISourceProject} interface.
  *
  * @author egeay
  */
@@ -47,15 +50,15 @@ public final class ProjectUtils {
    * entry into another type of interest.
    * @param libFilter The filter to user in order to filter the library entries.
    * @return A non-null, possibly empty, set of class path entries.
-   * @throws JavaModelException Occurs if we could not resolve the class path entries.
+   * @throws ModelException Occurs if we could not resolve the class path entries.
    * @throws IllegalArgumentException Occurs if a class path entry kind is not one of the expected
    * list. More precisely, CPE_VARIABLE and CPE_CONTAINER should not be encountered.
    */
-  public static <T> Set<T> getFilteredCpEntries(final IJavaProject jProject, final IFunctor<IPath, T> cpEntryFunctor,
-                                                final IFilter<IPath> libFilter) throws JavaModelException {
+  public static <T> Set<T> getFilteredCpEntries(final ISourceProject jProject, final IFunctor<IPath, T> cpEntryFunctor,
+                                                final IFilter<IPath> libFilter) throws ModelException {
     final Set<T> container = new HashSet<T>();
     final IWorkspaceRoot root = jProject.getResource().getWorkspace().getRoot();
-    for (final IClasspathEntry cpEntry : jProject.getResolvedClasspath(true)) {
+    for (final IPathEntry cpEntry : jProject.getResolvedBuildPath(LanguageRegistry.findLanguage("X10"), true)) {
       collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor);
     }
     return container;
@@ -69,9 +72,9 @@ public final class ProjectUtils {
    * @throws CoreException Occurs if we could not access the output directory for the project transmitted.
    */
   public static String getProjectOutputDirPath(final IProject project) throws CoreException {
-    final IJavaProject javaProject = JavaCore.create(project);
+    final ISourceProject javaProject = ModelFactory.getProject(project);
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-    final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation()).getLocationURI();
+    final URI outputFolderURI = root.getFolder(javaProject.getOutputLocation(LanguageRegistry.findLanguage("X10"))).getLocationURI();
     return EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor()).getAbsolutePath();
   }
   
@@ -80,14 +83,14 @@ public final class ProjectUtils {
    * 
    * @param project The project of interest.
    * @return A non-null collection of workspace-relative strings representing the src folders of the project.
-   * @throws JavaModelException Occurs if we could not resolve the project class path.
+   * @throws ModelException Occurs if we could not resolve the project class path.
    */
-  public static Collection<String> collectSourceFolders(final IJavaProject project) throws JavaModelException {
+  public static Collection<String> collectSourceFolders(final ISourceProject project) throws ModelException {
     final Collection<String> result = new ArrayList<String>();
-    for (final IClasspathEntry cpEntry : project.getResolvedClasspath(true)) {
-      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-        final IPath entryPath = cpEntry.getPath();
-        if (! entryPath.segment(0).equals(project.getElementName())) {
+    for (final IPathEntry cpEntry : project.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
+      if (cpEntry.getEntryType() == PathEntryType.SOURCE_FOLDER) {
+        final IPath entryPath = cpEntry.getRawPath();
+        if (! entryPath.segment(0).equals(project.getName())) {
           continue;
         }
         result.add(entryPath.toOSString());
@@ -100,34 +103,34 @@ public final class ProjectUtils {
   
   private ProjectUtils() {}
   
-  private static <T> void collectCpEntries(final Set<T> container, final IClasspathEntry cpEntry, final IWorkspaceRoot root, 
+  private static <T> void collectCpEntries(final Set<T> container, final IPathEntry cpEntry, final IWorkspaceRoot root, 
                                            final IFilter<IPath> libFilter, 
-                                           final IFunctor<IPath, T> functor) throws JavaModelException {
-    switch (cpEntry.getEntryKind()) {
-      case IClasspathEntry.CPE_SOURCE:
-        container.add(functor.apply(getAbsolutePath(root, cpEntry.getPath())));
+                                           final IFunctor<IPath, T> functor) throws ModelException {
+    switch (cpEntry.getEntryType()) {
+      case SOURCE_FOLDER:
+        container.add(functor.apply(getAbsolutePath(root, cpEntry.getRawPath())));
         break;
         
-      case IClasspathEntry.CPE_LIBRARY:
-        if (libFilter.accepts(cpEntry.getPath())) {
-          container.add(functor.apply(cpEntry.getPath()));
+      case ARCHIVE:
+        if (libFilter.accepts(cpEntry.getRawPath())) {
+          container.add(functor.apply(cpEntry.getRawPath()));
         }
         break;
       
-      case IClasspathEntry.CPE_PROJECT:
-        final IResource resource = root.findMember(cpEntry.getPath());
+      case PROJECT:
+        final IResource resource = root.findMember(cpEntry.getRawPath());
         if (resource == null) {
-          LaunchCore.log(IStatus.WARNING, NLS.bind(Messages.JPU_ResourceErrorMsg, cpEntry.getPath()));
+          LaunchCore.log(IStatus.WARNING, NLS.bind(Messages.JPU_ResourceErrorMsg, cpEntry.getRawPath()));
         } else {
-          final IJavaProject refProject = JavaCore.create((IProject) resource);
-          for (final IClasspathEntry newCPEntry : refProject.getResolvedClasspath(true)) {
+          final ISourceProject refProject = ModelFactory.getProject((IProject) resource);
+          for (final IPathEntry newCPEntry : refProject.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
             collectCpEntries(container, newCPEntry, root, libFilter, functor);
           }
         }
         break;
         
       default:
-        throw new IllegalArgumentException(NLS.bind(Messages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryKind()));
+        throw new IllegalArgumentException(NLS.bind(Messages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryType()));
     }
   }
   

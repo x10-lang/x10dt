@@ -8,20 +8,22 @@
 package x10dt.ui.launch.cpp.actions;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.jface.window.IShellProvider;
 
+import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
 import x10dt.ui.launch.core.dialogs.DialogsFactory;
@@ -45,23 +47,21 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   }
   
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) {
-    final IJavaProject javaProject = JavaCore.create(project);
-    final Collection<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    try {
-      boolean foundEntry = false;
-      for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-        if (JavaRuntime.JRE_CONTAINER.equals(cpEntry.getPath().toString())) {
-          foundEntry = true;
-        } else {
-          cpEntries.add(cpEntry);
-        }
-      }
-      if (foundEntry) {
-        javaProject.setRawClasspath(cpEntries.toArray(new IClasspathEntry[cpEntries.size()]), new NullProgressMonitor());
-      }
-    } catch (JavaModelException except) {
-      CppLaunchCore.log(except.getStatus());
-    }
+    final ISourceProject javaProject = ModelFactory.getProject(project);
+    final ArrayList<IPathEntry> cpEntries = new ArrayList<IPathEntry>();
+    
+	  Language lang = LanguageRegistry.findLanguage("X10");
+	  boolean foundEntry = false;
+	  for (final IPathEntry cpEntry : javaProject.getBuildPath(lang)) {
+	    if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(cpEntry.getRawPath().toString())) {
+	      foundEntry = true;
+	    } else {
+	      cpEntries.add(cpEntry);
+	    }
+	  }
+	  if (foundEntry) {
+	    javaProject.setBuildPath(lang, cpEntries, new NullProgressMonitor());
+	  }
   }
 
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {

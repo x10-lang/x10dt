@@ -2,8 +2,9 @@ package x10dt.ui.parser;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
-import org.eclipse.jdt.core.IJavaProject;
 
 import x10.parser.X10SemanticRules.MessageHandler;
 import x10dt.core.builder.BuildPathUtils;
@@ -11,10 +12,10 @@ import x10dt.core.builder.BuildPathUtils;
 public class MessageHandlerAdapterFilter implements lpg.runtime.IMessageHandler {
 	private final IMessageHandler fIMPHandler;
 	private final IPath fFilePath;
-	private final IJavaProject fProject;
+	private final ISourceProject fProject;
 	
 	public MessageHandlerAdapterFilter(IMessageHandler impHandler,
-			IPath filePath, IJavaProject project) {
+			IPath filePath, ISourceProject project) {
 		fIMPHandler = impHandler;
 		fFilePath = filePath;
 		fProject = project;
@@ -26,7 +27,7 @@ public class MessageHandlerAdapterFilter implements lpg.runtime.IMessageHandler 
 									// parsing on behalf of the structure
 									// compare view
 			return;
-		if (BuildPathUtils.isExcluded(fFilePath, fProject)) //If this file is excluded from the build path, then ignore messages.
+		if (BuildPathUtils.isExcluded(fFilePath, fProject, LanguageRegistry.findLanguage("X10"))) //If this file is excluded from the build path, then ignore messages.
 			return;
 		int startOffset = msgLocation[lpg.runtime.IMessageHandler.OFFSET_INDEX];
 		int length = msgLocation[lpg.runtime.IMessageHandler.LENGTH_INDEX];

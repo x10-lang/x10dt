@@ -1,26 +1,26 @@
 package x10dt.core.builder;
 
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
 
 public class BuildPathUtils {
 	
-	public static boolean isExcluded(IPath filePath, IJavaProject project){
-		try {
+	public static boolean isExcluded(IPath filePath, ISourceProject project, Language language){
 		  // --- Determine the classpath source entry that corresponds to file. 
-		  IClasspathEntry srcEntry = null;
+		  IPathEntry srcEntry = null;
 		  if (project == null){
 			  return true; // --- If there is no java project associated with this file, then the file must be excluded.
 		  }
 		  // --- If filePath is not relative to the workspace, make it so.
-		  IPath workspace = project.getProject().getLocation().removeLastSegments(1);
+		  IPath workspace = project.getRawProject().getLocation().removeLastSegments(1);
 		  if (workspace.isPrefixOf(filePath)){
 			  filePath = filePath.makeRelativeTo(workspace);
 		  }
-		  for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
-			  if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE && cpEntry.getPath().isPrefixOf(filePath)){
+		  for (final IPathEntry cpEntry : project.getBuildPath(language)) {
+			  if (cpEntry.getEntryType() == PathEntryType.SOURCE_FOLDER && cpEntry.getRawPath().isPrefixOf(filePath)){
 				  srcEntry = cpEntry;
 				  break;
 			  }
@@ -28,32 +28,8 @@ public class BuildPathUtils {
 		  if (srcEntry == null){ // --- If there is no source entry on the build path corresponding to filePath, then the file must be excluded.
 			  return true;
 		  }
-		  filePath = filePath.makeRelativeTo(srcEntry.getPath());
-		  IPath[] inclusionPatterns = srcEntry.getInclusionPatterns();
-		  if (inclusionPatterns != null && inclusionPatterns.length != 0){
-			  boolean foundMatch = false;
-			  for(IPath pattern: inclusionPatterns){
-				  if (matches(filePath, pattern)){
-					  foundMatch = true;
-					  break;
-				  }
-			  }
-			  if (!foundMatch){
-				  return true;
-			  }
-		  }
-		  IPath[] exclusionPatterns = srcEntry.getExclusionPatterns();
-		  if (exclusionPatterns != null && exclusionPatterns.length != 0){
-			  for(IPath pattern: exclusionPatterns){
-				  if (matches(filePath, pattern)){
-					 return true;
-				  }
-			  }
-		  }
-		} catch(JavaModelException e){
-			return true;
-		}
-		return false;
+		  
+		  return false;
 	}
 	
 	  
