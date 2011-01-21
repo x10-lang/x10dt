@@ -1,0 +1,36 @@
+/*******************************************************************************
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package x10dt.ui.navigator.internal.filters;
+
+import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerFilter;
+
+
+/**
+ * Filters synthetic members
+ *
+ * @since 3.1
+ */
+public class SyntheticMembersFilter extends ViewerFilter {
+	public boolean select(Viewer viewer, Object parent, Object element) {
+//		if (!(element instanceof IMemberInfo))
+//			return true;
+//		IMemberInfo member= (IMemberInfo)element;
+//		if (!(member.isBinary()))
+//			return true;
+//		try {
+//			return !Flags.isSynthetic(member.getFlags());
+//		} catch (ModelException e) {
+//			return true;
+//		}
+		return true;
+	}
+}
