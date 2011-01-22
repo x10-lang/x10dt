@@ -60,8 +60,9 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 
 	private static final String CLASS_SRCFILE_NAME = CLASS_NAME + ".x10"; //$NON-NLS-1$
 
-	private static final String ARCHIVE_NAME = "/Users/lesniakr/x10dt/QSort.x10.tar.gz"; //$NON-NLS-1$	// specify file at top level of this workspace
-
+//	private static final String ARCHIVE_NAME = "/Users/lesniakr/x10dt/QSort.x10.tar.gz"; //$NON-NLS-1$	// specify file at top level of this workspace
+	private static final String ARCHIVE_NAME = "/Users/lesniakr/x10dt/ArchiveTestFile.zip"; //$NON-NLS-1$	// specify file at top level of this workspace
+	
 	private static final String PROJECT_NAME = "ArchiveTest"; //$NON-NLS-1$	//will be created as a new empty project to accept the import
 
 	public static final List<String> EXPECTED_OUTPUT = Arrays.asList(	"size of array: 1000",
@@ -86,7 +87,7 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 	
 	public static final List<TypeSearchInfo> declarationCheckList = Arrays.asList
 	(
-								/*search*/	/*type*/		/*find*/	/*file*/			/*expected declaration*/
+								/*search*/	/*type*/	 /*# to find*/	/*file*/			/*expected declaration*/
 			new TypeSearchInfo("QS*",		"QSortable",	2,			"QSort.x10",		"public class QSortable(theArray: SortableArray)"),
 			new TypeSearchInfo("Pos*",		"Position",		1,			"TriangleTest.x10",	"class Position(x: Int, y: Int)"),
 			new TypeSearchInfo("Ar*",		"Array",		5,			"Array.x10",		"public final class Array[T] ("),

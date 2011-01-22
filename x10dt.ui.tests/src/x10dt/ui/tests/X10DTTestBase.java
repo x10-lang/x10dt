@@ -182,6 +182,11 @@ public class X10DTTestBase {
   //
   public static void importArchiveToJavaBackEndProject(String archiveName, String folderName, boolean doOverwrite) throws X10DT_Test_Exception {
 	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
+
+//experiment
+//	  java.net.URL fullPath = java.lang.ClassLoader.getSystemResource(archiveName);
+//	  System.out.println("fullPath = " + fullPath.toString());
+	  
 	  try
 	  {
 		  //Open the New Import dialog
@@ -196,18 +201,23 @@ public class X10DTTestBase {
 
 		  SWTBot selectArchiveBot = selectArchiveShell.bot();
 		  SWTBotTree importSourceTree = selectArchiveBot.tree();
-		  //	  try {
-		  ////	doesn't work		selectArchiveBot.waitUntil(Conditions.treeHasRows(importSourceTree, 1));
-		  ////	also doesn't work	topLevelBot.waitUntil(Conditions.treeHasRows(importSourceTree, 1));
-		  //	  }
-		  //	  catch (TimeoutException e) {
-		  //		  throw new X10DT_Test_Exception("Import source tree is empty");
-		  //	  }
+
+//TODO: This appears to be a race condition. Find a good way to wait for the tree to fill  
+//NOTE:  This same problem occurs elsewhere. Find and fix!
+//		  	  try {	  		  
+//		  //	doesn't work		selectArchiveBot.waitUntil(Conditions.treeHasRows(importSourceTree, 1));
+//		  //	also doesn't work	topLevelBot.waitUntil(Conditions.treeHasRows(importSourceTree, 1));
+//		  	  }
+//		  	  catch (TimeoutException e) {
+//		  		  throw new X10DT_Test_Exception("Import source tree is empty");
+//		  	  }
 
 		  //Select the General item in the import sources list
-		  operationMsg = "select the '" +
-		  					WizardConstants.GENERAL_FOLDER + ":" + WizardConstants.IMPORT_ARCHIVE + "' item.";
+		  operationMsg = "select the '" + WizardConstants.GENERAL_FOLDER + "' item.";
 		  SWTBotTreeItem x10ProjItems = importSourceTree.expandNode(WizardConstants.GENERAL_FOLDER);
+		  
+		  //Select the Import Archive item in the import sources list
+		  operationMsg = "select the '" + WizardConstants.IMPORT_ARCHIVE + "' item.";
 		  x10ProjItems.select(WizardConstants.IMPORT_ARCHIVE);
 
 		  //click Next to go to the Import Archive dialog
@@ -235,20 +245,26 @@ public class X10DTTestBase {
 
 		  if (doOverwrite) {
 			  // check the 'overwrite existing' box and click 'Finish'
-			  operationMsg = "check the '" + 
-			  		WizardConstants.OVERWRITE_EXISTING_CHECKBOX + "' checkbox and click the " +
-			  			WizardConstants.FINISH_BUTTON + "' button";
+			  operationMsg = "check the '" + WizardConstants.OVERWRITE_EXISTING_CHECKBOX + "' checkbox";
 			  importArchiveBot.checkBox(WizardConstants.OVERWRITE_EXISTING_CHECKBOX).select();
+			  
+			  // click 'Finish'
+			  operationMsg = "click the " + WizardConstants.FINISH_BUTTON + 
+			  					"' button and import archive file '" + archiveName + "'.";
 			  importArchiveBot.button(WizardConstants.FINISH_BUTTON).click();
 		  } else {
-//			  // uncheck the 'overwrite existing' box and click 'Finish'
-//			  operationMsg = "uncheck the '" + 
-//			  		WizardConstants.OVERWRITE_EXISTING_CHECKBOX + "' checkbox and click the " +
-//		  				WizardConstants.FINISH_BUTTON + "' button";
+//TODO: We might never want to do this, so I never finished it.  Maybe someday...
+//
+//			  // uncheck the 'overwrite existing' box
+//			  operationMsg = "uncheck the '" + WizardConstants.OVERWRITE_EXISTING_CHECKBOX + "' checkbox";
 //	  		  importArchiveBot.checkBox(WizardConstants.OVERWRITE_EXISTING_CHECKBOX).deselect();
+//
+//			  // click 'Finish'
+//			  operationMsg = "click the " + WizardConstants.FINISH_BUTTON + 
+//			  					"' button and import archive file '" + archiveName + "'.";
 //	  		  importArchiveBot.button(WizardConstants.FINISH_BUTTON).click();
 //	  		  
-//	  		  //the wizard may incredulously question our jugdement, nay, even our sanity!
+//	  		  //the wizard may incredulously question our judgment, nay, even our sanity!
 //			  operationMsg += "find the 'overwrite file, are-you-sure?' dialog";
 //	  		  Matcher areYouSureAlert = allOf (widgetOfType(Label.class), withRegex("Overwrite .*"));
 //	  		  
@@ -446,7 +462,6 @@ public class X10DTTestBase {
 		  x10SearchBot.waitUntil(Conditions.shellCloses(x10SearchShell));
 
 		  //find the Search View
-
 		  dialogContextMsg = " the '" + WizardConstants.SEARCH_VIEW_TITLE + "' View";
 		  operationMsg = "find" + dialogContextMsg;
 		  SWTBotView searchView = topLevelBot.viewByTitle(WizardConstants.SEARCH_VIEW_TITLE);
@@ -455,18 +470,41 @@ public class X10DTTestBase {
 
 		  //find the type list in the search view
 		  operationMsg = "find the search list box in" + dialogContextMsg;
-		  SWTBotTable typeList = searchViewBot.table();
-
-		  operationMsg = "see the search list fill in" + dialogContextMsg;
+		  SWTBotTable typeList = null;
+		  
+		  //ok, this is annoying. We can't simply assume that the table is going to be at index 0,
+		  // because I have seen it appear in both index 0 and at index 1. I don't know of a way 
+		  // to search for the right one by name. If you do know how, you are welcome to replace
+		  // the following.
+		  //This scans through table indices from 0 until it throws an exception. The possibly
+		  // foolish assumption is that the table with the highest index is the one we want.
+		  found = false;
+		  Integer tableIndex = 0;
+		  while (!found)
+		  {
+			  try {
+				  typeList = searchViewBot.table(tableIndex);
+				  tableIndex++;
+			  }
+			  catch (Exception e) {
+				  found = true;
+			  }
+		  }
+		  
+		  operationMsg = "see the search list become filled" + dialogContextMsg;
 		  Integer waitLoop = 30;
+		  System.out.println("\n    find X10 type '" + typeName + "' by searching on '" + searchString + "'");
+
 		  do {
 			  try {
-				  typeList = searchViewBot.table();
 				  searchViewBot.waitUntil(Conditions.tableHasRows(typeList, expectedRows), 2000);	//give it a few seconds to find something.
 			  }
 			  catch (TimeoutException e) {
 				  //not a big deal - it just means we didn't find a match, and we'll return false
-				  System.out.println("timed out waiting for the type list to populate"); /*debug*/
+				  System.out.println("timed out waiting for the type list to populate.\n     have " + typeList.rowCount() + " rows so far"); /*debug*/
+				  for (Integer i=0; (i < typeList.rowCount()); i++)
+					  System.out.println("      line " + i + " is '" + typeList.getTableItem(i).getText() +"'");
+
 			  }
 		  } while ((--waitLoop > 0) && 
 			  		((typeList.getTableItem(0).getText().equals("Searching...")) ||
@@ -484,6 +522,7 @@ public class X10DTTestBase {
 		  //See if we found the type we're looking for
 		  operationMsg = "find X10 type '" + typeName + "' by searching on '" + searchString + "' in" + dialogContextMsg;
 		  int i=0;
+		  found = false;
 		  while ((!found) && (i < rowCount))
 		  {
 			  String tableItemText = typeList.getTableItem(i).getText();
@@ -507,7 +546,6 @@ public class X10DTTestBase {
 		  operationMsg = "clear search view by clicking toolbar button '" + WizardConstants.REMOVE_ALL_MATCHES_BUTTON + "' in" + dialogContextMsg;
 		  searchView.setFocus();
 		  searchView.toolbarPushButton(WizardConstants.REMOVE_ALL_MATCHES_BUTTON).click();	//reset search window for the next time around
-
 	  }
 	  catch (Exception e)
 	  {
