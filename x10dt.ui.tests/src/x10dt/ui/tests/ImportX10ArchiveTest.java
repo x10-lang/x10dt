@@ -12,11 +12,14 @@
 
 package x10dt.ui.tests;
 
+import java.io.File;
+import java.net.URL;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Arrays;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
@@ -60,8 +63,7 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 
 	private static final String CLASS_SRCFILE_NAME = CLASS_NAME + ".x10"; //$NON-NLS-1$
 
-//	private static final String ARCHIVE_NAME = "/Users/lesniakr/x10dt/QSort.x10.tar.gz"; //$NON-NLS-1$	// specify file at top level of this workspace
-	private static final String ARCHIVE_NAME = "/Users/lesniakr/x10dt/ArchiveTestFile.zip"; //$NON-NLS-1$	// specify file at top level of this workspace
+	private static final String ARCHIVE_NAME = "ArchiveTestFile.zip"; //$NON-NLS-1$	// specify file at top level of this workspace
 	
 	private static final String PROJECT_NAME = "ArchiveTest"; //$NON-NLS-1$	//will be created as a new empty project to accept the import
 
@@ -120,18 +122,32 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 
 	  Boolean createHello = false;
 	  String launchName = PROJECT_NAME;
-
+	  String archivePath;
+	  
 	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
-
+		  		  	  
 	  try
 	  {
+
+		  // Locate the archive file in the file system - get the full file path
+		  operationMsg = "get archive file path";
+		  ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
+		  URL archiveURL = cl.getResource(ARCHIVE_NAME);	//find the file
+		  if (archiveURL != null) {
+			  archivePath = FileLocator.toFileURL(archiveURL).getPath();	//turn the net URL into a file path
+			  System.out.println("full path to archive = " + archivePath);
+		  }
+		  else {
+			  throw new X10DT_Test_Exception("archive file '" + ARCHIVE_NAME + "' not found");  //turn it into an X10_Test_Exception so the exception structure works			  
+		  }
+		  
 		  // create a java project to import the archive into
 		  operationMsg = "create Java Backend Project '" + PROJECT_NAME + "'";
 		  createJavaBackEndProject(PROJECT_NAME, createHello);
 
 		  //import the archive
 		  operationMsg = "import Java Backend Project '" + PROJECT_NAME + "'";
-		  importArchiveToJavaBackEndProject(ARCHIVE_NAME, PROJECT_NAME + "/src", true);
+		  importArchiveToJavaBackEndProject(archivePath, PROJECT_NAME + "/src", true);
 		  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher("Hello.x10")));
 
 		  //open the imported file in an editor view
