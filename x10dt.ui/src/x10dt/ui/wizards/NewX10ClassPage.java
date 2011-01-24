@@ -34,7 +34,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
-import org.eclipse.jdt.internal.ui.wizards.NewWizardMessages;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogFieldGroup;
@@ -257,7 +256,8 @@ public class NewX10ClassPage extends NewTypeWizardPage {
   public void createType(IProgressMonitor monitor) throws CoreException, InterruptedException {
     IPackageFragment pkgFrag = this.getPackageFragment();
     String superClass = this.getSuperClass();
-    List/* <String> */superIntfs = this.getSuperInterfaces();
+    @SuppressWarnings("unchecked")
+    List<String> superIntfs = this.getSuperInterfaces();
     String typeName = this.getTypeName();
 
     doCreateType(typeName, pkgFrag, superClass, superIntfs, monitor);
@@ -267,9 +267,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
    * The worker method. It will find the container, create the file if missing or just replace its contents, and open the
    * editor on the newly created file.
    */
-  private void doCreateType(String typeName, IPackageFragment pkgFrag, String superClass, List/*
-                                                                                               * <String >
-                                                                                               */superIntfs,
+  private void doCreateType(String typeName, IPackageFragment pkgFrag, String superClass, List<String> superIntfs,
                             IProgressMonitor monitor) throws CoreException {
     monitor.beginTask("Creating " + typeName, 2);
     if (!pkgFrag.exists()) {
@@ -297,7 +295,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     try {
       boolean doComments = isAddComments();
       InputStream stream = createContentStream(file, typeName, pkgFrag, superClass, superIntfs, isCreateMain(),
-                                               isCreateConstructors(), isAddComments());
+                                               isCreateConstructors(), doComments);
 
       if (file.exists()) {
         file.setContents(stream, true, true, monitor);
