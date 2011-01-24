@@ -11,17 +11,10 @@
 
 package x10dt.ui.editor;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.utils.StreamUtils;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
@@ -35,7 +28,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.osgi.framework.Bundle;
 
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
@@ -251,23 +243,5 @@ public class ContentAssistTests extends X10DTEditorTestBase {
       }
     }
     return false;
-  }
-
-  private void getTestSource(final SWTBotEclipseEditor srcEditor, final String resPath, final String className) {
-    final Bundle bundle = Platform.getBundle("x10dt.ui.tests"); //$NON-NLS-1$
-    final URL resURL = bundle.getEntry(resPath);
-    junit.framework.Assert.assertNotNull("Unable to find test source: " + resPath, resURL); //$NON-NLS-1$
-    try {
-      final InputStream resStream = FileLocator.openStream(bundle, new Path(resURL.getPath()), false);
-      final String contents = StreamUtils.readStreamContents(resStream);
-
-      final IEditorPart editorPart = srcEditor.getReference().getEditor(false);
-      final UniversalEditor univEditor = (UniversalEditor) editorPart;
-      univEditor.addModelListener(fUpdateListener);
-
-      srcEditor.setText(contents);
-    } catch (final IOException e) {
-      junit.framework.Assert.fail(e.getMessage());
-    }
   }
 }
