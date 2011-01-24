@@ -41,6 +41,7 @@ import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
+import x10dt.ui.tests.waits.X10DT_Conditions;
 
 /**
  * @author rfuhrer@watson.ibm.com
@@ -117,13 +118,16 @@ public class X10DTTestBase {
 		  SWTBotShell newProjShell = topLevelBot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
 		  newProjShell.activate();
 		  SWTBot newProjBot = newProjShell.bot();
+		  SWTBotTree newProjTree = newProjBot.tree();
 		  
 		  //open the X10 wizard folder
 		  operationMsg = "find the '" + WizardConstants.X10_FOLDER + "' wizard folder in" + dialogContextMsg;
+		  newProjBot.waitUntil(X10DT_Conditions.treeHasNode(newProjTree, WizardConstants.X10_FOLDER), 10000);  
 		  SWTBotTreeItem x10ProjItems = newProjBot.tree().expandNode(WizardConstants.X10_FOLDER);
 
 		  //find the X10 wizard 
 		  operationMsg = "find the '" + WizardConstants.X10_PROJECT_JAVA_BACKEND + "' wizard in" + dialogContextMsg;
+		  newProjBot.waitUntil(X10DT_Conditions.treeNodeHasItem(x10ProjItems, WizardConstants.X10_PROJECT_JAVA_BACKEND), 10000);
 		  x10ProjItems.select(WizardConstants.X10_PROJECT_JAVA_BACKEND);
 
 		  //click 'Next'
@@ -182,10 +186,6 @@ public class X10DTTestBase {
   //
   public static void importArchiveToJavaBackEndProject(String archiveName, String folderName, boolean doOverwrite) throws X10DT_Test_Exception {
 	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
-
-//experiment
-//	  java.net.URL fullPath = java.lang.ClassLoader.getSystemResource(archiveName);
-//	  System.out.println("fullPath = " + fullPath.toString());
 	  
 	  try
 	  {
@@ -202,22 +202,14 @@ public class X10DTTestBase {
 		  SWTBot selectArchiveBot = selectArchiveShell.bot();
 		  SWTBotTree importSourceTree = selectArchiveBot.tree();
 
-//TODO: This appears to be a race condition. Find a good way to wait for the tree to fill  
-//NOTE:  This same problem occurs elsewhere. Find and fix!
-//		  	  try {	  		  
-//		  //	doesn't work		selectArchiveBot.waitUntil(Conditions.treeHasRows(importSourceTree, 1));
-//		  //	also doesn't work	topLevelBot.waitUntil(Conditions.treeHasRows(importSourceTree, 1));
-//		  	  }
-//		  	  catch (TimeoutException e) {
-//		  		  throw new X10DT_Test_Exception("Import source tree is empty");
-//		  	  }
-
 		  //Select the General item in the import sources list
 		  operationMsg = "select the '" + WizardConstants.GENERAL_FOLDER + "' item.";
+		  selectArchiveBot.waitUntil(X10DT_Conditions.treeHasNode(importSourceTree, WizardConstants.GENERAL_FOLDER), 10000);  
 		  SWTBotTreeItem x10ProjItems = importSourceTree.expandNode(WizardConstants.GENERAL_FOLDER);
 		  
 		  //Select the Import Archive item in the import sources list
 		  operationMsg = "select the '" + WizardConstants.IMPORT_ARCHIVE + "' item.";
+		  selectArchiveBot.waitUntil(X10DT_Conditions.treeNodeHasItem(x10ProjItems, WizardConstants.IMPORT_ARCHIVE), 10000);
 		  x10ProjItems.select(WizardConstants.IMPORT_ARCHIVE);
 
 		  //click Next to go to the Import Archive dialog
@@ -312,14 +304,17 @@ public class X10DTTestBase {
 		  //Navigate down the package tree to find the project
 		  operationMsg = "find the project'" + projName + "' in the Package View";
 		  SWTBotTree packageTree = packageExplorerBot.tree();
+		  packageExplorerBot.waitUntil(X10DT_Conditions.treeHasNode(packageTree, projName), 10000);  
 		  SWTBotTreeItem projectFolder = packageTree.expandNode(projName);
 		  
 		  //Find the src folder
 		  operationMsg = "find the src folder for project '" + projName + "'";
+		  packageExplorerBot.waitUntil(X10DT_Conditions.treeNodeHasItem(projectFolder, "src"), 10000);
 		  SWTBotTreeItem srcFolder = projectFolder.expandNode("src");
 		  
 		  //find the file
 		  operationMsg = "find the file '" + fileName + "' in project '" + projName + "'";
+		  packageExplorerBot.waitUntil(X10DT_Conditions.treeNodeHasItem(srcFolder, fileName), 10000);
 		  SWTBotTreeItem srcFile = srcFolder.expandNode(fileName);
 		  srcFile.select();
 
