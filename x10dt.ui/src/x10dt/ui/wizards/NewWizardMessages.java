@@ -42,6 +42,8 @@ public class NewWizardMessages extends NLS {
 
   public static String NewPackageWizardPage_error_PackageExists;
 
+  public static String NewPackageWizardPage_error_PackageExistsDifferentCase;
+
   public static String NewPackageWizardPage_error_PackageNotShown;
 
   public static String NewClassWizardPage_methods_label;
@@ -51,6 +53,8 @@ public class NewWizardMessages extends NLS {
   public static String NewClassWizardPage_methods_constructors;
 
   public static String NewClassWizardPage_methods_inherited;
+
+  public static String NewTypeWizardPage_error_TypeNameExists;
 
   static {
     NLS.initializeMessages(BUNDLE_NAME, NewWizardMessages.class);

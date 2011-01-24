@@ -13,8 +13,11 @@
 package x10dt.ui.wizards;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.text.MessageFormat;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -235,15 +238,15 @@ public class NewX10PackageWizardPage extends NewContainerWizardPage {
           }
         }
         // 11/14/2007 RMF disabled to avoid dependency on EFS for now
-        // else {
-        // URI location= pack.getResource().getLocationURI();
-        // if (location != null) {
-        // IFileStore store= EFS.getStore(location);
-        // if (store.fetchInfo().exists()) {
-        // status.setError(NewWizardMessages.NewPackageWizardPage_error_PackageExistsDifferentCase);
-        // }
-        // }
-        // }
+        else {
+          URI location= pack.getResource().getLocationURI();
+          if (location != null) {
+            IFileStore store= EFS.getStore(location);
+            if (store.fetchInfo().exists()) {
+              status.setError(NewWizardMessages.NewPackageWizardPage_error_PackageExistsDifferentCase);
+            }
+          }
+        }
       } catch (CoreException e) {
         X10DTCorePlugin.getInstance().logException(e.getMessage(), e);
       }
