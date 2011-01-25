@@ -7,9 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionListener;
@@ -18,6 +16,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+
+import x10dt.ui.X10DTUIPlugin;
 
 /**
  * Utility methods for the various X10 wizards.
@@ -78,31 +78,18 @@ public final class WizardUtils {
   }
   
   /**
-   * Initializes the given file's contents with "Hello World" source code in X10.
-   * 
-   * @param packageName The package name to use.
-   * @param typeName The type name that will contain the code.
-   * @return A non-null input stream encapsulating the sample code.
-   */
-  public static InputStream createSampleContentStream(final String packageName, final String typeName) {
-    final StringBuilder sb = new StringBuilder();
-
-    if ((packageName != null) && (packageName.trim().length() > 0)) {
-      sb.append("package " + packageName + ";\n\n"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
-    sb.append("/**\n");
-    sb.append(" * The canonical \"Hello, World\" demo class expressed in X10\n");
-    sb.append(" */\n");
-    sb.append("public class " + typeName + " {\n\n"); //$NON-NLS-1$ //$NON-NLS-2$
-    sb.append("    /**\n");
-    sb.append("     * The main method for the Hello class\n");
-    sb.append("     */\n");
-    sb.append("    public static def main(Array[String]) {\n"); //$NON-NLS-1$
-    sb.append("        Console.OUT.println(\"Hello, World!\");\n"); //$NON-NLS-1$
-    sb.append("    }\n\n"); //$NON-NLS-1$
-    sb.append("}"); //$NON-NLS-1$
-
-    return new ByteArrayInputStream(sb.toString().getBytes());
-  }
-
+	 * Returns a section in the Java plugin's dialog settings. If the section doesn't exist yet, it is created.
+	 *
+	 * @param name the name of the section
+	 * @return the section of the given name
+	 * @since 3.2
+	 */
+	public static IDialogSettings getDialogSettingsSection(String name) {
+		IDialogSettings dialogSettings= X10DTUIPlugin.getInstance().getDialogSettings();
+		IDialogSettings section= dialogSettings.getSection(name);
+		if (section == null) {
+			section= dialogSettings.addNewSection(name);
+		}
+		return section;
+	}
 }

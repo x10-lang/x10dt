@@ -21,8 +21,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.ui.wizards.NewElementWizard;
+import org.eclipse.imp.ui.wizards.NewElementWizard;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
@@ -65,7 +64,7 @@ public class NewX10InterfaceWizard extends NewElementWizard implements INewWizar
    * @see org.eclipse.jface.wizard.IWizard#performFinish()
    */
   public boolean performFinish() {
-    warnAboutTypeCommentDeprecation();
+//    warnAboutTypeCommentDeprecation();
     boolean res = super.performFinish();
     if (res) {
       IResource resource = fPage.getModifiedResource();

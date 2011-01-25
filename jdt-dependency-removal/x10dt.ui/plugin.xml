@@ -487,7 +487,7 @@
       </wizard>
       <wizard
             category="x10dt.wizards.category"
-            class="x10dt.ui.wizards.NewX10PackageWizard"
+            class="org.eclipse.imp.ui.wizards.NewPackageWizard"
             finalPerspective="x10dt.ui.perspective"
             hasPages="true"
             icon="icons/newpack_wiz.gif"
