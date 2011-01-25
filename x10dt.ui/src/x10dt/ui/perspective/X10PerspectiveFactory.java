@@ -17,9 +17,7 @@
  */
 package x10dt.ui.perspective;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.debug.ui.IDebugUIConstants;
-import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
@@ -41,8 +39,8 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
     IFolderLayout outputfolder = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.75, editorArea); //$NON-NLS-1$
 
     outputfolder.addView(IPageLayout.ID_PROBLEM_VIEW);
-    outputfolder.addView(JavaUI.ID_JAVADOC_VIEW);
-    outputfolder.addView(JavaUI.ID_SOURCE_VIEW);
+//    outputfolder.addView(JavaUI.ID_JAVADOC_VIEW);
+//    outputfolder.addView(JavaUI.ID_SOURCE_VIEW);
     outputfolder.addPlaceholder(NewSearchUI.SEARCH_VIEW_ID);
     outputfolder.addPlaceholder(IConsoleConstants.ID_CONSOLE_VIEW);
     outputfolder.addPlaceholder(IPageLayout.ID_BOOKMARKS);
@@ -50,15 +48,15 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
 
     layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float) 0.75, editorArea);
     layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
-    layout.addActionSet(JavaUI.ID_ACTION_SET);
-    layout.addActionSet(JavaUI.ID_ELEMENT_CREATION_ACTION_SET);
+//    layout.addActionSet(JavaUI.ID_ACTION_SET);
+//    layout.addActionSet(JavaUI.ID_ELEMENT_CREATION_ACTION_SET);
     layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 
     // views - java
     layout.addShowViewShortcut(IPageLayout.ID_PROJECT_EXPLORER);
     layout.addShowViewShortcut(X10Constants.ID_TYPE_HIERARCHY);
-    layout.addShowViewShortcut(JavaUI.ID_SOURCE_VIEW);
-    layout.addShowViewShortcut(JavaUI.ID_JAVADOC_VIEW);
+//    layout.addShowViewShortcut(JavaUI.ID_SOURCE_VIEW);
+//    layout.addShowViewShortcut(JavaUI.ID_JAVADOC_VIEW);
 
     // views - search
     layout.addShowViewShortcut(NewSearchUI.SEARCH_VIEW_ID);

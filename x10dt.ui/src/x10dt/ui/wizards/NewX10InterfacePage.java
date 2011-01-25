@@ -30,12 +30,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.ui.wizards.NewTypeWizardPage;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -43,7 +43,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 
-import x10dt.core.X10DTCorePlugin;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.ui.typeHierarchy.SearchUtils;
 
 /**
  * The "New X10 Class" wizard page allows setting the package for the new class as well as the class name.
@@ -53,7 +54,7 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
   private static final String PAGE_NAME = "wizardPage";
 
   public NewX10InterfacePage(ISelection selection) {
-    super(false, PAGE_NAME);
+    super(LanguageRegistry.findLanguage("X10"), false, PAGE_NAME);
     setTitle("X10 Interface");
     setDescription("This wizard creates a new X10 interface in a user-specified package.");
   }
@@ -66,7 +67,7 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
    *          used to initialize the fields
    */
   public void init(IStructuredSelection selection) {
-    IJavaElement jelem = getInitialJavaElement(selection);
+    ISourceEntity jelem = getInitialJavaElement(selection);
     initContainerPage(jelem);
     initTypePage(jelem);
     doStatusUpdate();
@@ -132,7 +133,7 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
   }
 
   public void createType(IProgressMonitor monitor) throws CoreException, InterruptedException {
-    IPackageFragment pkgFrag = this.getPackageFragment();
+    ISourceFolder pkgFrag = this.getPackageFragment();
     String superClass = this.getSuperClass();
     List<String> superIntfs = this.getSuperInterfaces();
     String typeName = this.getTypeName();
@@ -144,16 +145,21 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
    * The worker method. It will find the container, create the file if missing or just replace its contents, and open the
    * editor on the newly created file.
    */
-  private void doCreateType(String typeName, IPackageFragment pkgFrag, String superClass, List<String> superIntfs,
+  private void doCreateType(String typeName, ISourceFolder pkgFrag, String superClass, List<String> superIntfs,
                             IProgressMonitor monitor) throws CoreException {
     monitor.beginTask("Creating " + typeName, 2);
-    if (!pkgFrag.exists()) {
-      String pkgName = pkgFrag.getElementName();
-      IPackageFragmentRoot root = this.getPackageFragmentRoot();
+    if (!pkgFrag.getResource().exists()) {
+      String pkgName = pkgFrag.getName();
+      ISourceRoot root = this.getPackageFragmentRoot();
 
-      pkgFrag = root.createPackageFragment(pkgName, true, null);
+      try {
+		pkgFrag = root.createSourceFolder(pkgName, true, null);
+	   } catch (ModelException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	  }
     }
-    IResource resource = pkgFrag.getCorrespondingResource();
+    IResource resource = pkgFrag.getResource();
     IContainer container = (IContainer) resource;
 
     final IFile file = container.getFile(new Path(typeName + ".x10"));
@@ -176,12 +182,12 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
    * 
    * @param sourceFile
    */
-  private InputStream createContentStream(IFile sourceFile, String typeName, IPackageFragment pkgFrag, String superClass,
+  private InputStream createContentStream(IFile sourceFile, String typeName, ISourceFolder pkgFrag, String superClass,
                                           List/* <String> */superIntfs) {
     StringBuffer buff = new StringBuffer();
 
-    if (!pkgFrag.isDefaultPackage())
-      buff.append("package " + pkgFrag.getElementName() + ";\n\n");
+    if (!BuildPathUtils.isDefaultPackage(pkgFrag.getName()))
+      buff.append("package " + pkgFrag.getName() + ";\n\n");
     buff.append("public interface " + typeName);
     if (superIntfs.size() > 0) {
       buff.append(" extends ");
@@ -204,22 +210,17 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
    * @since 3.0
    */
   public IResource getModifiedResource() {
-    IType enclosing = getEnclosingType();
+    ITypeInfo enclosing = getEnclosingType();
 
     if (enclosing != null) {
-      return enclosing.getResource();
+      return SearchUtils.getResource(enclosing);
     }
 
-    IPackageFragment pack = getPackageFragment();
+    ISourceFolder pack = getPackageFragment();
 
     if (pack != null) {
       IContainer packCont;
-      try {
-        packCont = (IContainer) pack.getCorrespondingResource();
-      } catch (JavaModelException e) {
-        X10DTCorePlugin.getInstance().writeErrorMsg(e.getMessage());
-        return null;
-      }
+      packCont = (IContainer) pack.getResource();
       return packCont.getFile(new Path(getTypeName() + ".x10"));
     }
     return null;

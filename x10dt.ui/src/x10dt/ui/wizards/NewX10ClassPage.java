@@ -26,20 +26,19 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.ui.dialogs.StatusInfo;
-import org.eclipse.jdt.internal.ui.wizards.NewWizardMessages;
-import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
-import org.eclipse.jdt.internal.ui.wizards.dialogfields.LayoutUtil;
-import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogFieldGroup;
-import org.eclipse.jdt.ui.wizards.NewTypeWizardPage;
+import org.eclipse.debug.internal.ui.actions.StatusInfo;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.ui.wizards.fields.DialogField;
+import org.eclipse.imp.ui.wizards.fields.SelectionButtonDialogFieldGroup;
+import org.eclipse.imp.ui.wizards.utils.LayoutUtil;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.ISelection;
@@ -55,6 +54,7 @@ import x10dt.search.core.engine.X10SearchEngine;
 import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
+import x10dt.search.ui.typeHierarchy.SearchUtils;
 
 /**
  * The "New X10 Class" wizard page allows setting the package for the new class as well as the class name.
@@ -70,8 +70,8 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 
   private SelectionButtonDialogFieldGroup fMethodStubsButtons;
 
-  public NewX10ClassPage(ISelection selection) {
-    super(true, PAGE_NAME);
+  public NewX10ClassPage(Language language, ISelection selection) {
+    super(language, true, PAGE_NAME);
     setTitle("X10 Class");
     setDescription("This wizard creates a new X10 class in a user-specified package.");
     String[] buttonNames = new String[] { NewWizardMessages.NewClassWizardPage_methods_main,
@@ -90,7 +90,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
    *          used to initialize the fields
    */
   public void init(IStructuredSelection selection) {
-    IJavaElement jelem = getInitialJavaElement(selection);
+    ISourceEntity jelem = getInitialJavaElement(selection);
     initContainerPage(jelem);
     initTypePage(jelem);
     setSuperClass("x10.lang.Object", true);
@@ -255,8 +255,8 @@ public class NewX10ClassPage extends NewTypeWizardPage {
     return fMethodStubsButtons.isSelected(2);
   }
 
-  public void createType(IProgressMonitor monitor) throws CoreException, InterruptedException {
-    IPackageFragment pkgFrag = this.getPackageFragment();
+  public void createType(IProgressMonitor monitor) throws ModelException, CoreException, InterruptedException {
+    ISourceFolder pkgFrag = this.getPackageFragment();
     String superClass = this.getSuperClass();
     List/* <String> */superIntfs = this.getSuperInterfaces();
     String typeName = this.getTypeName();
@@ -268,30 +268,27 @@ public class NewX10ClassPage extends NewTypeWizardPage {
    * The worker method. It will find the container, create the file if missing or just replace its contents, and open the
    * editor on the newly created file.
    */
-  private void doCreateType(String typeName, IPackageFragment pkgFrag, String superClass, List/*
+  private void doCreateType(String typeName, ISourceFolder pkgFrag, String superClass, List/*
                                                                                                * <String >
                                                                                                */superIntfs,
-                            IProgressMonitor monitor) throws CoreException {
+                            IProgressMonitor monitor) throws CoreException, ModelException {
     monitor.beginTask("Creating " + typeName, 2);
-    if (!pkgFrag.exists()) {
-      String pkgName = pkgFrag.getElementName();
-      IPackageFragmentRoot root = this.getPackageFragmentRoot();
+    if (!pkgFrag.getResource().exists()) {
+      String pkgName = pkgFrag.getName();
+      ISourceRoot root = this.getPackageFragmentRoot();
 
-      if (!root.exists()) {
-          IJavaProject javaProject= getJavaProject();
-          IClasspathEntry newEntry= JavaCore.newSourceEntry(new Path(getPackageFragmentRootText()).makeAbsolute());
-          IClasspathEntry[] entries= javaProject.getRawClasspath();
-          IClasspathEntry[] newEntries= new IClasspathEntry[entries.length + 1];
+      if (!root.getResource().exists()) {
+          ISourceProject javaProject= getJavaProject();
+          IPathEntry newEntry= ModelFactory.createSourceEntry(new Path(getPackageFragmentRootText()).makeAbsolute(), null);
+          List<IPathEntry> entries= javaProject.getBuildPath(fLanguage);
+          entries.add(newEntry);
+          javaProject.setBuildPath(fLanguage, entries, new NullProgressMonitor());
 
-          System.arraycopy(entries, 0, newEntries, 0, entries.length);
-          newEntries[entries.length]= newEntry;
-          javaProject.setRawClasspath(newEntries, new NullProgressMonitor());
-
-          root= (IPackageFragmentRoot) JavaCore.create(javaProject.getProject().getWorkspace().getRoot().getFolder(newEntry.getPath()));
+          root= (ISourceRoot) ModelFactory.create(javaProject.getRawProject().getWorkspace().getRoot().getFolder(newEntry.getRawPath()));
       }
-      pkgFrag = root.createPackageFragment(pkgName, true, null);
+      pkgFrag = root.createSourceFolder(pkgName, true, null);
     }
-    IResource resource = pkgFrag.getCorrespondingResource();
+    IResource resource = pkgFrag.getResource();
     IContainer container = (IContainer) resource;
 
     final IFile file = container.getFile(new Path(typeName + ".x10"));
@@ -316,13 +313,13 @@ public class NewX10ClassPage extends NewTypeWizardPage {
    * 
    * @param sourceFile
    */
-  protected static InputStream createContentStream(IFile sourceFile, String typeName, IPackageFragment pkgFrag,
+  protected static InputStream createContentStream(IFile sourceFile, String typeName, ISourceFolder pkgFrag,
                                                    String superClass, List<String> superIntfs, boolean createMain,
                                                    boolean createConstructors, boolean createComments) {
     StringBuffer buff = new StringBuffer();
 
-    if (!pkgFrag.isDefaultPackage())
-      buff.append("package " + pkgFrag.getElementName() + ";\n\n");
+    if (!BuildPathUtils.isDefaultPackage(pkgFrag.getName()))
+      buff.append("package " + pkgFrag.getName() + ";\n\n");
     if (createComments) {
       buff.append("/**\n");
       buff.append(" * Class " + typeName + "\n");
@@ -374,22 +371,17 @@ public class NewX10ClassPage extends NewTypeWizardPage {
    * @since 3.0
    */
   public IResource getModifiedResource() {
-    IType enclosing = getEnclosingType();
+    ITypeInfo enclosing = getEnclosingType();
 
     if (enclosing != null) {
-      return enclosing.getResource();
+      return SearchUtils.getResource(enclosing);
     }
 
-    IPackageFragment pack = getPackageFragment();
+    ISourceFolder pack = getPackageFragment();
 
     if (pack != null) {
       IContainer packCont;
-      try {
-        packCont = (IContainer) pack.getCorrespondingResource();
-      } catch (JavaModelException e) {
-        X10DTCorePlugin.getInstance().writeErrorMsg(e.getMessage());
-        return null;
-      }
+      packCont = (IContainer) pack.getResource();
       return packCont.getFile(new Path(getTypeName() + ".x10"));
     }
     return null;
@@ -408,17 +400,14 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 		StatusInfo status= new StatusInfo();
 		try {
 			String type = getTypeName();
-			IPackageFragment pack= getPackageFragment();
-			IResource folder = pack.getCorrespondingResource();
+			ISourceFolder pack= getPackageFragment();
+			IResource folder = pack.getResource();
 			IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, folder);
 			ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(scope, type, true, null);
 			if (typeExists(results, folder.getLocationURI().getPath())){ 
-				status.setError(NewWizardMessages.NewTypeWizardPage_error_TypeNameExists);
+				status.setError(org.eclipse.imp.ui.wizards.NewWizardMessages.NewTypeWizardPage_error_TypeNameExists);
 				return status;
 			}
-		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

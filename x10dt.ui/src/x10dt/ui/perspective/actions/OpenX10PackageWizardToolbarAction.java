@@ -7,13 +7,12 @@
  *****************************************************************************/
 package x10dt.ui.perspective.actions;
 
+import org.eclipse.imp.ui.wizards.NewPackageWizard;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
-
-import x10dt.ui.wizards.NewX10PackageWizard;
 
 public final class OpenX10PackageWizardToolbarAction extends AbstractWizardToolbarAction 
 																										 implements IWorkbenchWindowActionDelegate {
@@ -40,7 +39,7 @@ public final class OpenX10PackageWizardToolbarAction extends AbstractWizardToolb
 	// --- Abstract methods implementation
 
 	protected INewWizard createNewWizard() {
-		return new NewX10PackageWizard();
+		return new NewPackageWizard();
 	}
 
 }

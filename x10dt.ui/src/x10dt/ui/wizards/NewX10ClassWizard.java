@@ -21,13 +21,17 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.ui.wizards.NewElementWizard;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.ui.wizards.NewElementWizard;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.PlatformUI;
+
+import x10dt.search.core.elements.ITypeInfo;
 
 /**
  * This is the "New X10 Class" wizard. Its role is to create a new class in the given package in the given project. The wizard
@@ -45,7 +49,7 @@ public class NewX10ClassWizard extends NewElementWizard implements INewWizard {
    * Adding the fPage to the wizard.
    */
   public void addPages() {
-    fPage = new NewX10ClassPage(getSelection());
+    fPage = new NewX10ClassPage(LanguageRegistry.findLanguage("X10"), getSelection());
     addPage(fPage);
     fPage.init(getSelection());
   }
@@ -56,7 +60,11 @@ public class NewX10ClassWizard extends NewElementWizard implements INewWizard {
    * @see org.eclipse.jdt.internal.ui.wizards.NewElementWizard#finishPage(org.eclipse.core.runtime.IProgressMonitor)
    */
   protected void finishPage(IProgressMonitor monitor) throws InterruptedException, CoreException {
-    fPage.createType(monitor); // use the full progress monitor
+    try {
+		fPage.createType(monitor); // use the full progress monitor
+	} catch (ModelException e) {
+		throw ModelFactory.createCoreException(e);
+	}
   }
 
   /*
@@ -65,7 +73,7 @@ public class NewX10ClassWizard extends NewElementWizard implements INewWizard {
    * @see org.eclipse.jface.wizard.IWizard#performFinish()
    */
   public boolean performFinish() {
-    warnAboutTypeCommentDeprecation();
+//    warnAboutTypeCommentDeprecation();
     boolean res = super.performFinish();
     if (res) {
       IResource resource = fPage.getModifiedResource();
@@ -93,7 +101,7 @@ public class NewX10ClassWizard extends NewElementWizard implements INewWizard {
    * 
    * @see org.eclipse.jdt.internal.ui.wizards.NewElementWizard#getCreatedElement()
    */
-  public IJavaElement getCreatedElement() {
+  public ITypeInfo getCreatedElement() {
     return fPage.getCreatedType();
   }
 }
