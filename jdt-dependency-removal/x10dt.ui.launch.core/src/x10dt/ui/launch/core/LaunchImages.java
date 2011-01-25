@@ -46,6 +46,9 @@ public class LaunchImages {
   
   public static final String TERMINATE = "terminate.gif";
   
+  public static final String NEW_X10_PRJ_WIZBAN = "wizban/newx10prj_cpp.png"; //$NON-NLS-1$
+  
+  
   // --- Public services
   
   /**

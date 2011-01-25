@@ -30,9 +30,11 @@ import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.model.ISourceFolder;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ISourceRoot;
-import org.eclipse.imp.model.IWorkspaceModel;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.ui.StandardElementContentProvider;
+import org.eclipse.imp.ui.navigator.ClassPathContainer;
+import org.eclipse.imp.ui.navigator.PackageFragmentRootContainer;
 import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
@@ -46,7 +48,6 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.progress.UIJob;
 
 import x10dt.search.ui.typeHierarchy.SearchUtils;
-import x10dt.ui.navigator.StandardElementContentProvider;
 import x10dt.ui.navigator.UINavigatorPlugin;
 import x10dt.ui.navigator.preferences.PreferenceConstants;
 

@@ -245,10 +245,7 @@ public static String CppCompilationChecker_errorAppendingMainMethodStub;
 
   public static String PW_PrjCancelationErrorTitle;
 
-  public static String PW_ProjectCreationErrorMessage;
-
-  public static String PW_ProjectCreationErrorTitle;
-
+  
   public static String PW_WindowTitle;
 
   public static String PWFP_PageDescription;
@@ -258,25 +255,7 @@ public static String CppCompilationChecker_errorAppendingMainMethodStub;
   public static String PWFP_RuntimeEntryErrorMsg;
 
   public static String PWFP_RuntimeEntryErrorTitle;
-
-  public static String PWFP_SampleCodeGenButton;
   
-  public static String PWSP_BuildPathInitTaskName;
-
-  public static String PWSP_CPEntriesError;
-
-  public static String PWSP_EditorOpeningError;
-
-  public static String PWSP_FinishTaskName;
-
-  public static String PWSP_PageDescription;
-
-  public static String PWSP_PageTitle;
-
-  public static String PWSP_SourceProjectError;
-
-  public static String PWSP_UpdateProjectTaskName;
-
   public static String LLTCP_AlwaysWriteOpt;
 
   public static String LLTCP_ArgsBt;

@@ -13,7 +13,7 @@ import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 
-import x10dt.ui.launch.java.wizards.X10ProjectWizard;
+import x10dt.ui.launch.java.wizards.JavaProjectWizard;
 import x10dt.ui.perspective.actions.AbstractWizardToolbarAction;
 
 public final class OpenX10ProjectJavaBCWizardToolbarAction extends AbstractWizardToolbarAction 
@@ -39,7 +39,7 @@ public final class OpenX10ProjectJavaBCWizardToolbarAction extends AbstractWizar
 	// --- Abstract methods implementation
 
 	protected INewWizard createNewWizard() {
-		return new X10ProjectWizard();
+		return new JavaProjectWizard();
 	}
 
 }

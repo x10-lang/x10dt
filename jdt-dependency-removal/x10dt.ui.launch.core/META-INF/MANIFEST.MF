@@ -30,5 +30,6 @@ Export-Package: x10dt.ui.launch.core,
  x10dt.ui.launch.core.debug,
  x10dt.ui.launch.core.dialogs,
  x10dt.ui.launch.core.platform_conf,
- x10dt.ui.launch.core.utils
+ x10dt.ui.launch.core.utils,
+ x10dt.ui.launch.core.wizards
 Bundle-Vendor: x10-users@lists.sourceforge.net

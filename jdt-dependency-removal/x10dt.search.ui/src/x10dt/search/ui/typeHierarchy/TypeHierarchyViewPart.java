@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.GenerateActionGroup;
 import org.eclipse.imp.editor.OpenEditorActionGroup;
+import org.eclipse.imp.ui.IViewPartInputProvider;
 import org.eclipse.imp.utils.SelectionUtil;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;

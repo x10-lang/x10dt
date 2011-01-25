@@ -55,12 +55,12 @@ import x10dt.ui.launch.core.utils.CollectionUtils;
 import x10dt.ui.launch.core.utils.FileUtils;
 import x10dt.ui.launch.core.utils.IFilter;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
+import x10dt.ui.launch.core.utils.WizardUtils;
 import x10dt.ui.launch.core.utils.X10BuilderUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.X10CppBuilder;
 import x10dt.ui.launch.cpp.utils.PTPUtils;
-import x10dt.ui.utils.WizardUtils;
 
 
 final class CppCompilationChecker implements ICppCompilationChecker {

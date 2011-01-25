@@ -10,11 +10,14 @@
  *******************************************************************************/
 package x10dt.ui.navigator.internal;
 
+import org.eclipse.imp.actions.GenerateBuildPathActionGroup;
 import org.eclipse.imp.editor.GenerateActionGroup;
+import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.actions.ActionContext;
+import org.eclipse.ui.internal.navigator.resources.actions.EditActionGroup;
 import org.eclipse.ui.navigator.CommonActionProvider;
 import org.eclipse.ui.navigator.ICommonActionExtensionSite;
 import org.eclipse.ui.navigator.ICommonViewerWorkbenchSite;
@@ -42,9 +45,11 @@ public class NavigatorActionProvider extends CommonActionProvider {
 //
 //	private JavaSearchActionGroup fSearchGroup;
 //
-//	private GenerateBuildPathActionGroup fBuildPathGroup;
+	private GenerateBuildPathActionGroup fBuildPathGroup;
 
 	private GenerateActionGroup fGenerateGroup;
+	
+	private EditActionGroup fEditGroup;
 
 	private boolean fInViewPart= false;
 
@@ -52,9 +57,10 @@ public class NavigatorActionProvider extends CommonActionProvider {
 		if (fInViewPart) {
 			fOpenViewGroup.fillActionBars(actionBars);
 //			fCCPGroup.fillActionBars(actionBars);
-//			fBuildPathGroup.fillActionBars(actionBars);
+			fBuildPathGroup.fillActionBars(actionBars);
 			fGenerateGroup.fillActionBars(actionBars);
 //			fSearchGroup.fillActionBars(actionBars);
+			fEditGroup.fillActionBars(actionBars);
 		}
 	}
 
@@ -62,9 +68,10 @@ public class NavigatorActionProvider extends CommonActionProvider {
 		if (fInViewPart) {
 			fOpenViewGroup.fillContextMenu(menu);
 //			fCCPGroup.fillContextMenu(menu);
-//			fBuildPathGroup.fillContextMenu(menu);
+			fBuildPathGroup.fillContextMenu(menu);
 			fGenerateGroup.fillContextMenu(menu);
 //			fSearchGroup.fillContextMenu(menu);
+			fEditGroup.fillContextMenu(menu);
 		}
 	}
 
@@ -83,8 +90,9 @@ public class NavigatorActionProvider extends CommonActionProvider {
 //				fCCPGroup= new CCPActionGroup(viewPart);
 				fGenerateGroup= new GenerateActionGroup(viewPart);
 //				fSearchGroup= new JavaSearchActionGroup(viewPart);
-//				fBuildPathGroup= new GenerateBuildPathActionGroup(viewPart);
-
+				fBuildPathGroup= new GenerateBuildPathActionGroup(LanguageRegistry.findLanguage("X10"), viewPart);
+				fEditGroup= new EditActionGroup(workbenchSite.getShell());
+				
 				fInViewPart= true;
 			}
 		}
@@ -97,7 +105,8 @@ public class NavigatorActionProvider extends CommonActionProvider {
 //			fCCPGroup.setContext(context);
 			fGenerateGroup.setContext(context);
 //			fSearchGroup.setContext(context);
-//			fBuildPathGroup.setContext(context);
+			fBuildPathGroup.setContext(context);
+			fEditGroup.setContext(context);
 		}
 	}
 
@@ -110,8 +119,9 @@ public class NavigatorActionProvider extends CommonActionProvider {
 			fOpenViewGroup.dispose();
 //			fCCPGroup.dispose();
 //			fSearchGroup.dispose();
-//			fBuildPathGroup.dispose();
+			fBuildPathGroup.dispose();
 			fGenerateGroup.dispose();
+			fEditGroup.dispose();
 		}
 		super.dispose();
 	}
