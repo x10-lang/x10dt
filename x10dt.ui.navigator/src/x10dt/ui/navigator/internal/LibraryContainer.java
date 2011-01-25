@@ -13,12 +13,12 @@ package x10dt.ui.navigator.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.IPathEntry.PathEntryType;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ISourceRoot;
 import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.ui.navigator.PackageFragmentRootContainer;
 import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.resource.ImageDescriptor;
 

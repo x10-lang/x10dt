@@ -24,7 +24,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.cheatsheets.ICheatSheetAction;
 import org.eclipse.ui.cheatsheets.ICheatSheetManager;
 
-import x10dt.ui.launch.java.wizards.X10ProjectWizard;
+import x10dt.ui.launch.java.wizards.JavaProjectWizard;
 
 public class NewX10ProjectAction extends Action implements ICheatSheetAction {
     public NewX10ProjectAction() {
@@ -36,7 +36,7 @@ public class NewX10ProjectAction extends Action implements ICheatSheetAction {
     }
 
     public void run(String[] params, ICheatSheetManager manager) {
-	X10ProjectWizard newProjWizard= new X10ProjectWizard();
+	JavaProjectWizard newProjWizard= new JavaProjectWizard();
 	Shell shell= PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
 	WizardDialog wizDialog= new WizardDialog(shell, newProjWizard);
 

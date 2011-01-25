@@ -1,6 +1,6 @@
 package x10dt.search.ui.typeHierarchy;
 
-import org.eclipse.jdt.ui.PreferenceConstants;
+import org.eclipse.imp.preferences.PreferenceConstants;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 
@@ -95,6 +95,6 @@ public class X10Constants {
 		store.setDefault(APPEARANCE_METHOD_TYPEPARAMETERS, true);
 		store.setDefault(APPEARANCE_CATEGORY, true);
 		
-		store.setDefault(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION, true);
+//		store.setDefault(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION, true);
 	}
 }

@@ -46,9 +46,6 @@ public class CppLaunchImages {
   
   public static final String VALID_RM = "obj/valid-rm.png"; //$NON-NLS-1$
   
-  // --- Wizards images
-  
-  public static final String NEW_X10_PRJ_WIZBAN = "wizban/newx10prj_cpp.png"; //$NON-NLS-1$
   
   // --- Public services
   

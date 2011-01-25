@@ -13,10 +13,9 @@ package x10dt.ui.navigator.internal.filters;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.ui.navigator.ClassPathContainer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-
-import x10dt.ui.navigator.internal.ClassPathContainer;
 
 
 

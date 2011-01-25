@@ -49,37 +49,37 @@ public class SearchUtils {
 	
 	public static class Flags
 	{
-		static boolean isPublic(int flags)
+		public static boolean isPublic(int flags)
 		{
 			return SearchUtils.hasFlag(X10.PUBLIC, flags);
 		}
 		
-		static boolean isProtected(int flags)
+		public static boolean isProtected(int flags)
 		{
 			return SearchUtils.hasFlag(X10.PROTECTED, flags);
 		}
 		
-		static boolean isPrivate(int flags)
+		public static boolean isPrivate(int flags)
 		{
 			return SearchUtils.hasFlag(X10.PRIVATE, flags);
 		}
 		
-		static boolean isAbstract(int flags)
+		public static boolean isAbstract(int flags)
 		{
 			return SearchUtils.hasFlag(X10.ABSTRACT, flags);
 		}
 		
-		static boolean isFinal(int flags)
+		public static boolean isFinal(int flags)
 		{
 			return SearchUtils.hasFlag(X10.FINAL, flags);
 		}
 		
-		static boolean isStatic(int flags)
+		public static boolean isStatic(int flags)
 		{
 			return SearchUtils.hasFlag(X10.STATIC, flags);
 		}
 		
-		static boolean isInterface(int flags)
+		public static boolean isInterface(int flags)
 		{
 			return SearchUtils.hasFlag(X10.INTERFACE, flags);
 		}

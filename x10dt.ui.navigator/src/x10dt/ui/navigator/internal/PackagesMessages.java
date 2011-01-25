@@ -53,8 +53,6 @@ public final class PackagesMessages extends NLS {
 	public static String LayoutActionGroup_hierarchicalLayoutAction_label;
 	public static String LayoutActionGroup_show_libraries_in_group;
 	
-	public static String ClassPathContainer_unbound_label;
-	public static String ClassPathContainer_unknown_label;
 	
 	public static String LibraryContainer_name;
 

@@ -205,7 +205,7 @@
       <wizard
             canFinishEarly="false"
             category="x10dt.wizards.category"
-            class="x10dt.ui.launch.java.wizards.X10ProjectWizard"
+            class="x10dt.ui.launch.java.wizards.JavaProjectWizard"
             finalPerspective="x10dt.ui.perspective"
             hasPages="true"
             icon="icons/newproject.gif"

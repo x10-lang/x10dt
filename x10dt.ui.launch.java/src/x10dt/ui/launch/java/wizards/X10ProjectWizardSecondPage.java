@@ -20,100 +20,36 @@
  */
 package x10dt.ui.launch.java.wizards;
 
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.builder.ProjectNatureBase;
-import org.eclipse.imp.java.hosted.wizards.NewProjectWizardSecondPage;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragment;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.ui.wizards.NewProjectWizardPageOne;
 
 import x10dt.core.utils.X10DTCoreConstants;
-import x10dt.ui.launch.java.Activator;
-import x10dt.ui.launch.java.Messages;
+import x10dt.ui.launch.core.LaunchCore;
+import x10dt.ui.launch.core.wizards.X10ProjectPropertiesWizardPage;
 import x10dt.ui.launch.java.nature.X10ProjectNature;
-import x10dt.ui.utils.WizardUtils;
 
-public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
+public class X10ProjectWizardSecondPage extends X10ProjectPropertiesWizardPage {
 
-  public X10ProjectWizardSecondPage(X10ProjectWizardFirstPage firstPage) {
-    super(firstPage);
+  public X10ProjectWizardSecondPage(final NewProjectWizardPageOne firstPage) {
+	super(firstPage);
   }
 
   protected ProjectNatureBase getProjectNature() {
     return new X10ProjectNature();
   }
 
-  @Override
-  protected List<IClasspathEntry> createLanguageRuntimeEntries() {
-    return Arrays.asList(JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID)));
+  protected List<IPathEntry> createLanguageRuntimeEntries() {
+    return Arrays.asList(ModelFactory.createContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID)));
   }
 
-  /**
-   * The purpose of this override is to add an extra check on the classpath,
-   * to make sure that it has an explicit source folder entry. Unfortunately,
-   * there does not appear to be enough API exposed on the base class to implement
-   * this check in the normal manner.
-   */
-  protected void updateStatus(IStatus status) {
-    if (status.isOK()) {
-      if (!checkClasspath()) {
-        super.updateStatus(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.X10ProjectWizardSecondPage_noSourceEntry));
-        return;
-      }
-    }
-    super.updateStatus(status);
+  protected String[] getNatureIds()
+  {
+	  return new String[] { LaunchCore.X10_PRJ_JAVA_NATURE_ID };
   }
-
-  private boolean checkClasspath() {
-    IClasspathEntry[] cpEntries= getRawClassPath();
-    for(IClasspathEntry entry: cpEntries) {
-        if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-            return true;
-        }
-    }
-    return false;
-  }
-
-  @Override
-  public void performFinish(IProgressMonitor monitor) throws CoreException, InterruptedException {
-    final X10ProjectWizardFirstPage firstPage = (X10ProjectWizardFirstPage) this.getPreviousPage();
-    final IProject project = firstPage.getProjectHandle();
-
-    super.performFinish(monitor);
-
-    // generate sample "Hello World" X10 application
-    if (firstPage.isGenHello()) {
-      ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
-        public void run(IProgressMonitor monitor) throws CoreException {
-          IFile newFile = project.getFile("src/Hello.x10"); //$NON-NLS-1$
-          IFolder srcFolder = project.getFolder("src"); //$NON-NLS-1$
-          IJavaProject javaProject = JavaCore.create(project);
-          IPackageFragmentRoot pkgFragRoot = javaProject.getPackageFragmentRoot(srcFolder);
-          IPackageFragment pkgFrag = pkgFragRoot.getPackageFragment(""); //$NON-NLS-1$
-
-          InputStream sourceInputStream = WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello"); //$NON-NLS-1$
-          newFile.create(sourceInputStream, true, monitor);
-
-          ((X10ProjectWizard) X10ProjectWizardSecondPage.this.getWizard()).selectAndReveal(newFile);
-          openResource(newFile);
-        }
-      }, monitor);
-    }
-  }
-
 }
