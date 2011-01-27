@@ -65,7 +65,8 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 
 	private static final String ARCHIVE_NAME = "ArchiveTestFile.zip"; //$NON-NLS-1$	// specify file at top level of this workspace
 	
-	private static final String PROJECT_NAME = "ArchiveTest"; //$NON-NLS-1$	//will be created as a new empty project to accept the import
+	private static final String PROJECT_NAME_JAVABACK = "ArchiveTest_JBack"; //$NON-NLS-1$	//will be created as a new empty project to accept the import
+	private static final String PROJECT_NAME_CPPBACK = "ArchiveTest_CPPBack"; //$NON-NLS-1$	//will be created as a new empty project to accept the import
 
 	public static final List<String> EXPECTED_OUTPUT = Arrays.asList(	"size of array: 1000",
 																		"array is now sorted", 
@@ -118,10 +119,21 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
   }
   
   @Test
-  public void importArchiveTest() throws Exception {
+  public void importCPPArchiveTest() throws Exception {
+	  importArchiveTest(BackEndType.cppBackEnd);
+  }
+
+  @Test
+  public void importJavaArchiveTest() throws Exception {
+	  importArchiveTest(BackEndType.javaBackEnd);	  
+  }
+
+
+  public void importArchiveTest(BackEndType backEnd) throws Exception {
 
 	  Boolean createHello = false;
-	  String launchName = PROJECT_NAME;
+	  String projectName = (backEnd == BackEndType.javaBackEnd)?PROJECT_NAME_JAVABACK:PROJECT_NAME_CPPBACK;
+	  String launchName = projectName;
 	  String archivePath;
 	  
 	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
@@ -141,18 +153,28 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 			  throw new X10DT_Test_Exception("archive file '" + ARCHIVE_NAME + "' not found");  //turn it into an X10_Test_Exception so the exception structure works			  
 		  }
 		  
-		  // create a java project to import the archive into
-		  operationMsg = "create Java Backend Project '" + PROJECT_NAME + "'";
-		  createJavaBackEndProject(PROJECT_NAME, createHello);
+		  
+		  if (backEnd == BackEndType.javaBackEnd) {
+			  // create a java back end project to import the archive into
+			  operationMsg = "create Java Backend Project '" + projectName + "'";
+			  createJavaBackEndProject(projectName, createHello);
+		  }
+		  else { // create a C++ back end project to import the archive into
+			  operationMsg = "create C++ Backend Project '" + projectName + "'";
+			  createCPPBackEndProject(projectName, createHello);
+		  }
+		  
+		  if (createHello) {
+			  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher("Hello.x10")));
+		  }
 
 		  //import the archive
-		  operationMsg = "import Java Backend Project '" + PROJECT_NAME + "'";
-		  importArchiveToJavaBackEndProject(archivePath, PROJECT_NAME + "/src", true);
-		  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher("Hello.x10")));
+		  operationMsg = "import archive to Project '" + projectName + "'";
+		  importArchiveToX10Project(archivePath, projectName + "/src", true);
 
 		  //open the imported file in an editor view
-		  operationMsg = "open project '" + PROJECT_NAME + "', file '" + CLASS_SRCFILE_NAME + "'";
-		  openX10FileInEditor(PROJECT_NAME, CLASS_SRCFILE_NAME);
+		  operationMsg = "open project '" + projectName + "', file '" + CLASS_SRCFILE_NAME + "'";
+		  openX10FileInEditor(projectName, CLASS_SRCFILE_NAME);
 
 		  try
 		  {
@@ -166,13 +188,18 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 		  }
 
 		  //run the program
-		  operationMsg = "run configuration '" + launchName + "' of class '" + CLASS_SRCFILE_NAME + "' in project '" + PROJECT_NAME + "'";
-		  createAndRunJavaBackEndLaunchConfig(launchName, PROJECT_NAME, CLASS_NAME);
+		  operationMsg = "run configuration '" + launchName + "' of class '" + CLASS_SRCFILE_NAME + "' in project '" + projectName + "'";
+		  if (backEnd == BackEndType.javaBackEnd) {
+			  createAndRunJavaBackEndLaunchConfig(launchName, projectName, CLASS_NAME);
+		  }
+		  else {
+			  createAndRunCPPBackEndLaunchConfig(launchName, projectName, CLASS_NAME);			  
+		  }
 
 		  //Well, let's see if it worked
 		  // verify that the actual output matches the expected output
 		  operationMsg = "match expected output of class '" + CLASS_NAME + 
-		  "' in project '" + PROJECT_NAME + "', using Run Configuration '" + launchName + "'";
+		  "' in project '" + projectName + "', using Run Configuration '" + launchName + "'";
 		  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT, 1); //$NON-NLS-1$
 		  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
 
