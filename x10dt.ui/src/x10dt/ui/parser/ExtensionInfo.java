@@ -102,7 +102,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             char[] buffer= StreamUtils.readReaderContents(reader).toCharArray();
             x10_lexer.reset(buffer, source.toString());
         }
-        x10_parser = new X10SemanticRules(x10_lexer.getILexStream(), typeSystem(), nodeFactory(), source, eq);
+        x10_parser = new X10SemanticRules(x10_lexer, typeSystem(), nodeFactory(), source, eq);
         x10_lexer.lexer(x10_parser.getIPrsStream());
         x10_parser.getIPrsStream().setMessageHandler(handler);
         if (fInterestingSources.contains(source)) {
