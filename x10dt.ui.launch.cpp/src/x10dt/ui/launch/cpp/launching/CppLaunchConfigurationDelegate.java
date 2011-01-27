@@ -88,9 +88,30 @@ import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
  * 
  * @author egeay
  */
-public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationDelegate {
+public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationDelegate {
 
   // --- Overridden methods
+  
+  public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
+                     final IProgressMonitor monitor) throws CoreException {
+    try {
+      // Performs linking first.
+      monitor.beginTask(null, 10);
+      monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
+
+      final IProject project = verifyProject(configuration);
+      if (!monitor.isCanceled() && shouldProcessToLinkStep(project) &&
+          createExecutable(configuration, project, mode, new SubProgressMonitor(monitor, 5)) == 0) {
+        // Then, performs the launch.
+        if (!monitor.isCanceled()) {
+          monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
+          super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+        }
+      }
+    } finally {
+      monitor.done();
+    }
+  }
 
   protected AttributeManager getAttributeManager(final ILaunchConfiguration configuration, final String mode,
                                                  final IProgressMonitor monitor) throws CoreException {
@@ -164,6 +185,10 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
       monitor.done();
     }
   }
+  
+  protected final String getExecutablePath() {
+    return this.fExecPath;
+  }
 
   protected void doCompleteJobLaunch(final ILaunchConfiguration configuration, final String mode, final IPLaunch launch,
                                      final AttributeManager mgr, final IPDebugger debugger, final IPJob job) {
@@ -175,27 +200,6 @@ public final class CppLaunchConfigurationDelegate extends ParallelLaunchConfigur
 
   protected IResourceManager getResourceManager(final ILaunchConfiguration configuration) {
     return this.fResourceManager;
-  }
-
-  public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
-                     final IProgressMonitor monitor) throws CoreException {
-    try {
-      // Performs linking first.
-      monitor.beginTask(null, 10);
-      monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
-
-      final IProject project = verifyProject(configuration);
-      if (!monitor.isCanceled() && shouldProcessToLinkStep(project) &&
-          createExecutable(configuration, project, mode, new SubProgressMonitor(monitor, 5)) == 0) {
-        // Then, performs the launch.
-        if (!monitor.isCanceled()) {
-          monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-          super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
-        }
-      }
-    } finally {
-      monitor.done();
-    }
   }
 
   protected IPath verifyExecutablePath(final ILaunchConfiguration configuration, 
