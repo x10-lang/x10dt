@@ -14,10 +14,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.eclipse.imp.actions.SimpleSelectionProvider;
 import org.eclipse.imp.editor.hover.AbstractTextHover;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.actions.OpenBrowserUtil;
-import org.eclipse.jdt.internal.ui.actions.SimpleSelectionProvider;
+import org.eclipse.imp.utils.OpenBrowserUtil;
+import org.eclipse.imp.utils.UIUtils;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.jface.internal.text.html.BrowserInformationControl;
@@ -256,7 +256,7 @@ public class BrowserControl extends AbstractTextHover {
 				return false;
 
 			if (control instanceof IInformationControlExtension4) {
-				String tooltipAffordanceString= fAdditionalInfoAffordance ? JavaPlugin.getAdditionalInfoAffordanceString() : EditorsUI.getTooltipAffordanceString();
+				String tooltipAffordanceString= fAdditionalInfoAffordance ? UIUtils.getAdditionalInfoAffordanceString() : EditorsUI.getTooltipAffordanceString();
 				((IInformationControlExtension4)control).setStatusText(tooltipAffordanceString);
 			}
 
