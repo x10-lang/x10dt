@@ -14,7 +14,6 @@ package x10dt.search.ui.typeHierarchy;
 
 import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.UniversalEditor;
-import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
@@ -23,7 +22,7 @@ import org.eclipse.jface.text.information.IInformationProviderExtension;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 
-import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.core.elements.IMemberInfo;
 
 /**
  * Provides a Java element to be displayed in by an information presenter.
@@ -78,7 +77,7 @@ public class TypeElementProvider implements IInformationProvider, IInformationPr
 				if (!sel.isEmpty())
 					return sel.getFirstElement();
 			}
-			ITypeInfo element= SelectionConverter.getElementAtOffset(fEditor, false);
+			IMemberInfo element= SelectionConverter.getElementAtOffset(fEditor, false);
 			if (element != null)
 				return element;
 

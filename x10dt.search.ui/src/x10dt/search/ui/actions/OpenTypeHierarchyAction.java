@@ -149,12 +149,12 @@ public class OpenTypeHierarchyAction extends SelectionDispatchAction {
 	 * Method declared on SelectionDispatchAction.
 	 */
 	public void run(ITextSelection selection) {
-		ITypeInfo input= SelectionConverter.getInput(fEditor);
+		IMemberInfo input= SelectionConverter.getInput(fEditor);
 //		if (!ActionUtil.isProcessable(getShell(), input))
 //			return;
 
 		try {
-			ITypeInfo[] elements= SelectionConverter.codeResolveOrInputForked(fEditor);
+			IMemberInfo[] elements= SelectionConverter.codeResolveOrInputForked(fEditor);
 			if (elements == null)
 				return;
 			List candidates= new ArrayList(elements.length);

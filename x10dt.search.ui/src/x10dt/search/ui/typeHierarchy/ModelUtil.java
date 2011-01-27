@@ -13,12 +13,14 @@ package x10dt.search.ui.typeHierarchy;
 
 
 import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.jdt.core.JavaModelException;
 
 import x10dt.search.core.elements.IMemberInfo;
 import x10dt.search.core.elements.IMethodInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
+import x10dt.search.ui.typeHierarchy.SearchUtils.Flags;
 
 /**
  * Utility methods for the Java Model.
@@ -184,32 +186,31 @@ public final class ModelUtil {
 //		return (pack != null && otherpack != null && isSamePackage(pack, otherpack));
 //	}
 //
-//	/**
-//	 * Evaluates if a member in the focus' element hierarchy is visible from
-//	 * elements in a package.
-//	 * @param member The member to test the visibility for
-//	 * @param pack The package of the focus element focus
-//	 * @return returns <code>true</code> if the member is visible from the package
-//	 * @throws JavaModelException thrown when the member can not be accessed
-//	 */
-//	public static boolean isVisibleInHierarchy(IMember member, IPackageFragment pack) throws JavaModelException {
-//		int type= member.getElementType();
-//		if  (type == IJavaElement.INITIALIZER ||  (type == IJavaElement.METHOD && member.getElementName().startsWith("<"))) { //$NON-NLS-1$
-//			return false;
-//		}
-//
-//		int otherflags= member.getFlags();
-//
-//		IType declaringType= member.getDeclaringType();
-//		if (Flags.isPublic(otherflags) || Flags.isProtected(otherflags) || (declaringType != null && isInterfaceOrAnnotation(declaringType))) {
-//			return true;
-//		} else if (Flags.isPrivate(otherflags)) {
-//			return false;
-//		}
-//
-//		IPackageFragment otherpack= (IPackageFragment) member.getAncestor(IJavaElement.PACKAGE_FRAGMENT);
-//		return (pack != null && pack.equals(otherpack));
-//	}
+	/**
+	 * Evaluates if a member in the focus' element hierarchy is visible from
+	 * elements in a package.
+	 * @param member The member to test the visibility for
+	 * @param pack The package of the focus element focus
+	 * @return returns <code>true</code> if the member is visible from the package
+	 * @throws JavaModelException thrown when the member can not be accessed
+	 */
+	public static boolean isVisibleInHierarchy(IMemberInfo member, String pack) throws ModelException {
+		if (member instanceof IMethodInfo && member.getName().startsWith("<")) { //$NON-NLS-1$
+			return false;
+		}
+
+		int otherflags= member.getX10FlagsCode();
+
+		ITypeInfo declaringType= member.getDeclaringType();
+		if (Flags.isPublic(otherflags) || Flags.isProtected(otherflags) || (declaringType != null && isInterface(declaringType))) {
+			return true;
+		} else if (Flags.isPrivate(otherflags)) {
+			return false;
+		}
+
+		String otherpack=  SearchUtils.getPackageName(member.getDeclaringType());
+		return (pack != null && pack.equals(otherpack));
+	}
 //
 //
 //	/**
