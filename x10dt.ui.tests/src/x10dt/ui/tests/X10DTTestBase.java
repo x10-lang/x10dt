@@ -51,6 +51,8 @@ public class X10DTTestBase {
    * The top-level "bot" for the entire workbench.
    */
   public static SWTWorkbenchBot topLevelBot;
+  
+  public enum BackEndType {javaBackEnd, cppBackEnd};
 
   /**
    * Saves dirty editors and resets the workbench.
@@ -92,6 +94,10 @@ public class X10DTTestBase {
     Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
   }
   
+  //
+  //	For Java Back End Projects
+  //
+
   //Create a new X10 Java back-end project
   //
   public static void createJavaBackEndProject(String projName, boolean withHello) throws X10DT_Test_Exception {
@@ -162,7 +168,7 @@ public class X10DTTestBase {
 						  WizardConstants.NEW_X10_PROJECT_SAMPLE_SOURCE_GROUP).click();
 		  }
 
-		  // Fill in the archive file name field
+		  // Fill in the project name field
 		  operationMsg = "fill in the '" + WizardConstants.X10_PROJECT_JAVA_BACKEND_NAME_FIELD + "' field of" + dialogContextMsg;
 		  newX10ProjBot.textWithLabel(WizardConstants.X10_PROJECT_JAVA_BACKEND_NAME_FIELD).setFocus();
 		  newX10ProjBot.textWithLabel(WizardConstants.X10_PROJECT_JAVA_BACKEND_NAME_FIELD).setText(projName);
@@ -181,10 +187,183 @@ public class X10DTTestBase {
 				  								"'.\n        Reason: " + e.getMessage());
 	  }
   }
- 
-  //Import an archive into an existing X10 Java back-end project
+
+  //Set up Java back end run configuration and launch application
   //
-  public static void importArchiveToJavaBackEndProject(String archiveName, String folderName, boolean doOverwrite) throws X10DT_Test_Exception {
+  public static void createAndRunJavaBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) throws X10DT_Test_Exception
+  {
+	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
+	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
+
+	  try {
+		  // Open the X10 Run Configuration dialog
+		  dialogContextMsg = " the '" + LaunchConstants.RUN_CONF_DIALOG_TITLE + "' dialog";
+
+		  operationMsg = "access the '" + LaunchConstants.RUN_MENU +":"+ LaunchConstants.RUN_CONFS_MENU_ITEM +"' menu";
+		  topLevelBot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
+
+		  // Wait for the Run Configuration dialog to open
+		  operationMsg = "find" + dialogContextMsg;
+		  
+		  topLevelBot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
+		  SWTBotShell configsShell = topLevelBot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
+		  configsShell.activate();
+		  SWTBot configsBot = configsShell.bot();
+
+		  //Select Java Back-End application configuration
+		  operationMsg = "select the '" + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_TYPE + "' item in" + dialogContextMsg;
+		  SWTBotTreeItem x10AppItem = configsBot.tree().getTreeItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_TYPE);
+		  x10AppItem.doubleClick();
+
+		  //enter the project configuration name
+		  operationMsg = "enter the configuration name '" + launchName + "' in field '" +
+		  					LaunchConstants.JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD + "' of" + dialogContextMsg;
+		  SWTBotText launchNameText = configsBot.textWithLabel(LaunchConstants.JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD);
+		  launchNameText.setText(launchName);
+
+		  //pick the the 'Main' dialog tab
+		  operationMsg = "select the '" + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB + "' tab in"+ dialogContextMsg;
+		  SWTBotCTabItem mainTab = configsBot.cTabItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB);
+		  mainTab.activate();
+		  
+		  //set the project name
+		  operationMsg = "enter  '" + projectName + "' in field " + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_PROJECT + "' of" + dialogContextMsg;
+		  configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_PROJECT, 0).setText(projectName);
+
+		  //set the main class name
+		  operationMsg = "enter  '" + mainTypeName + "' in field " + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS + "' of" + dialogContextMsg;
+		  configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS, 0).setText(mainTypeName);
+
+		  //click the RUN button
+		  operationMsg = "click the '" + LaunchConstants.RUN_BUTTON + "' button in" + dialogContextMsg;
+		  configsBot.button(LaunchConstants.RUN_BUTTON).click();
+	  }
+	  catch (Exception e)
+	  {
+		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
+	  }
+
+  }
+
+  //
+  //	For C++ Back End Projects
+  //
+  
+  //Create a new X10 C++ back-end project
+  //
+  public static void createCPPBackEndProject(String projName, boolean withHello) throws Exception {
+
+	  //Open the New Project dialog
+	  topLevelBot.menu(WizardConstants.FILE_MENU)
+	  				.menu(WizardConstants.NEW_MENU_ITEM)
+	  					.menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
+
+	  //
+	  //Use the New Project wizard in the X10 folder
+	  //
+
+	  //find the new project wizard dialog
+	  SWTBotShell newProjShell = topLevelBot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
+	  newProjShell.activate();
+	  SWTBot newProjBot = newProjShell.bot();
+	  SWTBotTree newProjTree = newProjBot.tree();
+	  
+	  //open the X10 wizard folder
+	  newProjBot.waitUntil(X10DT_Conditions.treeHasNode(newProjTree, WizardConstants.X10_FOLDER), 10000);  
+	  SWTBotTreeItem x10ProjItems = newProjBot.tree().expandNode(WizardConstants.X10_FOLDER);
+
+	  //find the X10 wizard 
+	  newProjBot.waitUntil(X10DT_Conditions.treeNodeHasItem(x10ProjItems, WizardConstants.X10_PROJECT_CPP_BACKEND), 10000);
+	  x10ProjItems.select(WizardConstants.X10_PROJECT_CPP_BACKEND);
+
+	  //click 'Next'
+	  newProjBot.button(WizardConstants.NEXT_BUTTON).click();
+
+	  //
+	  //Set up the new X10 project - specify project name and select whether or not to create Hello World sample code
+	  //
+	  SWTBotShell newX10ProjShell = topLevelBot.shell(WizardConstants.X10_PROJECT_SHELL_CPP_BACKEND);
+	  newX10ProjShell.activate();
+	  SWTBot newX10ProjBot = newX10ProjShell.bot();
+
+	  // Fill in the project name field
+	  newX10ProjBot.textWithLabel(WizardConstants.NEW_CPP_PROJECT_NAME_FIELD).setFocus();
+	  newX10ProjBot.textWithLabel(WizardConstants.NEW_CPP_PROJECT_NAME_FIELD).setText(projName);
+
+	  //set radio button to either create hello sample code or not
+	  if (withHello) {
+		  newX10ProjBot.checkBox(WizardConstants.NEW_X10_PROJECT_HELLO_SOURCE_CHECKBOX).select();
+	  } else {
+		  newX10ProjBot.checkBox(WizardConstants.NEW_X10_PROJECT_HELLO_SOURCE_CHECKBOX).deselect();
+	  }
+
+	  // click the 'Finish' button
+	  newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
+
+	  topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
+  }
+
+  //Set up CPP backend run configuration and launch application
+  //
+  public static void createAndRunCPPBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) throws X10DT_Test_Exception
+  {
+	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
+	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
+
+	  try {
+		  // Open the X10 Run Configuration dialog
+		  dialogContextMsg = " the '" + LaunchConstants.RUN_CONF_DIALOG_TITLE + "' dialog";
+
+		  operationMsg = "access the '" + LaunchConstants.RUN_MENU +":"+ LaunchConstants.RUN_CONFS_MENU_ITEM +"' menu";
+		  topLevelBot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
+
+		  // Wait for the Run Configuration dialog to open
+		  operationMsg = "find" + dialogContextMsg;
+		  topLevelBot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
+		  SWTBotShell configsShell = topLevelBot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
+		  configsShell.activate();
+		  SWTBot configsBot = configsShell.bot();
+
+		  //Select C++ Back-End application configuration
+		  operationMsg = "select the '" + LaunchConstants.NEW_CPP_LAUNCH_CONFIG + "' item in" + dialogContextMsg;
+		  SWTBotTreeItem x10AppItem = configsBot.tree().getTreeItem(LaunchConstants.NEW_CPP_LAUNCH_CONFIG);
+		  x10AppItem.doubleClick();
+
+		  //enter the project configuration name
+		  operationMsg = "enter the configuration name '" + launchName + "' in field '" +
+		  					LaunchConstants.CPP_BACK_END_PROJECT_DIALOG_NAME_FIELD + "' of" + dialogContextMsg;
+		  SWTBotText launchNameText = configsBot.textWithLabel(LaunchConstants.CPP_BACK_END_PROJECT_DIALOG_NAME_FIELD);
+		  launchNameText.setText(launchName);
+
+		  //pick the the 'Application' dialog tab
+		  operationMsg = "select the '" + LaunchConstants.CPP_LAUNCH_CONFIG_APPLICATION_TAB + "' tab in"+ dialogContextMsg;
+		  SWTBotCTabItem mainTab = configsBot.cTabItem(LaunchConstants.CPP_LAUNCH_CONFIG_APPLICATION_TAB);
+		  mainTab.activate();
+		  
+		  //set the project name
+		  operationMsg = "enter  '" + projectName + "' in field " + LaunchConstants.CPP_LAUNCH_CONFIG_X10_PROJECT + "' of" + dialogContextMsg;
+		  configsBot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_X10_PROJECT, 0).setText(projectName);
+
+		  //set the main class name
+		  operationMsg = "enter  '" + mainTypeName + "' in field " + LaunchConstants.CPP_LAUNCH_CONFIG_MAIN_CLASS + "' of" + dialogContextMsg;
+		  configsBot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_MAIN_CLASS, 0).setText(mainTypeName);
+
+		  //click the RUN button
+		  operationMsg = "click the '" + LaunchConstants.RUN_BUTTON + "' button in" + dialogContextMsg;
+		  configsBot.button(LaunchConstants.RUN_BUTTON).click();
+	  }
+	  catch (Exception e)
+	  {
+		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
+	  }
+  }
+
+  //
+  //	For all X10 projects
+  //
+  //Import an archive into an existing X10 project
+  //
+  public static void importArchiveToX10Project(String archiveName, String folderName, boolean doOverwrite) throws X10DT_Test_Exception {
 	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
 	  
 	  try
@@ -549,95 +728,4 @@ public class X10DTTestBase {
 
 	  return found;
   }
-
-  //Set up Java backend run configuration and launch application
-  //
-  public static void createAndRunJavaBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) throws X10DT_Test_Exception
-  {
-	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
-	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
-
-	  try {
-		  // Open the X10 Run Configuration dialog
-		  dialogContextMsg = " the '" + LaunchConstants.RUN_CONF_DIALOG_TITLE + "' dialog";
-
-		  operationMsg = "access the '" + LaunchConstants.RUN_MENU +":"+ LaunchConstants.RUN_CONFS_MENU_ITEM +"' menu";
-		  topLevelBot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
-
-		  // Wait for the Run Configuration dialog to open
-		  operationMsg = "find" + dialogContextMsg;
-		  
-		  topLevelBot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
-		  SWTBotShell configsShell = topLevelBot.shell(LaunchConstants.RUN_CONF_DIALOG_TITLE);
-		  configsShell.activate();
-		  SWTBot configsBot = configsShell.bot();
-
-		  //Select Java Back-End application configuration
-		  operationMsg = "select the '" + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_TYPE + "' item in" + dialogContextMsg;
-		  SWTBotTreeItem x10AppItem = configsBot.tree().getTreeItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_TYPE);
-		  x10AppItem.doubleClick();
-
-		  //enter the project configuration name
-		  operationMsg = "enter the configuration name '" + launchName + "' in field '" +
-		  					LaunchConstants.JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD + "' of" + dialogContextMsg;
-		  SWTBotText launchNameText = configsBot.textWithLabel(LaunchConstants.JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD);
-		  launchNameText.setText(launchName);
-
-		  //pick the the 'Main' dialog tab
-		  operationMsg = "select the '" + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB + "' tab in"+ dialogContextMsg;
-		  SWTBotCTabItem mainTab = configsBot.cTabItem(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB);
-		  mainTab.activate();
-		  
-		  //set the project name
-		  operationMsg = "enter  '" + projectName + "' in field " + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_PROJECT + "' of" + dialogContextMsg;
-		  configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_PROJECT, 0).setText(projectName);
-
-		  //set the main class name
-		  operationMsg = "enter  '" + mainTypeName + "' in field " + LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS + "' of" + dialogContextMsg;
-		  configsBot.textInGroup(LaunchConstants.JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS, 0).setText(mainTypeName);
-
-		  //click the RUN button
-		  operationMsg = "click the '" + LaunchConstants.RUN_BUTTON + "' button in" + dialogContextMsg;
-		  configsBot.button(LaunchConstants.RUN_BUTTON).click();
-	  }
-	  catch (Exception e)
-	  {
-		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
-	  }
-
-  }
-
-//TODO:
-// createCPPBackEndProject is Not Yet Ready For Prime-Time
-  public static void createCPPBackEndProject(String projName, boolean withHello) throws Exception {
-	    topLevelBot.menu(WizardConstants.FILE_MENU).menu(WizardConstants.NEW_MENU_ITEM).menu(WizardConstants.PROJECTS_SUB_MENU_ITEM).click();
-
-	    SWTBotShell newProjShell = topLevelBot.shell(WizardConstants.NEW_PROJECT_DIALOG_TITLE);
-
-	    newProjShell.activate();
-
-	    SWTBot newProjBot = newProjShell.bot();
-	    SWTBotTreeItem x10ProjItems = newProjBot.tree().expandNode(WizardConstants.X10_FOLDER);
-
-	    x10ProjItems.select(WizardConstants.X10_PROJECT_CPP_BACKEND);
-
-	    SWTBotButton nextBut = newProjBot.button(WizardConstants.NEXT_BUTTON);
-
-	    nextBut.click();
-
-	    SWTBotShell newX10ProjShell = topLevelBot.shell(WizardConstants.X10_PROJECT_SHELL_CPP_BACKEND);
-	    newX10ProjShell.activate();
-	    SWTBot newX10ProjBot = newX10ProjShell.bot();
-
-	    newX10ProjBot.textWithLabel(WizardConstants.NEW_CPP_PROJECT_NAME_FIELD).setText(projName);
-	    if (withHello) {
-	      newX10ProjBot.checkBox(WizardConstants.NEW_X10_PROJECT_HELLO_SOURCE_CHECKBOX).select();
-	    } else {
-		      newX10ProjBot.checkBox(WizardConstants.NEW_X10_PROJECT_HELLO_SOURCE_CHECKBOX).deselect();
-	    }
-	    newX10ProjBot.button(WizardConstants.FINISH_BUTTON).click();
-
-	    topLevelBot.waitUntil(Conditions.shellCloses(newX10ProjShell));
-	  }
-
 }
