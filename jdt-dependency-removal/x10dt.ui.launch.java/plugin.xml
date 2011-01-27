@@ -209,12 +209,12 @@
             finalPerspective="x10dt.ui.perspective"
             hasPages="true"
             icon="icons/newproject.gif"
-            id="x10dt.ui.ui.launch.wizards.NewX10Project"
+            id="x10dt.ui.java.launch.wizards.NewX10Project"
             name="X10 Project (Java back-end)"
             project="true">
       </wizard>
    </extension>
-      <extension
+   <extension
          point="org.eclipse.ui.perspectiveExtensions">
       <perspectiveExtension
             targetID="x10dt.ui.perspective">
@@ -222,8 +222,8 @@
                id="x10dt.ui.launch.java.X10ElementCreation">
          </actionSet>
          <newWizardShortcut
-               id="x10dt.ui.ui.launch.wizards.NewX10Project">
-         </newWizardShortcut>rdShortcut>
+               id="x10dt.ui.java.launch.wizards.NewX10Project">
+         </newWizardShortcut>
       </perspectiveExtension>
    </extension>
    <extension

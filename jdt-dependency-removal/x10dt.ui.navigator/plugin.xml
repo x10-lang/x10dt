@@ -13,8 +13,7 @@
 				<contentExtension pattern="x10dt.ui.navigator.x10LinkHelper" />	
 			</includes>
 		</viewerContentBinding>
-	</extension>
-	
+	</extension> 
 	<extension
 			point="org.eclipse.ui.navigator.navigatorContent">
 		<navigatorContent
@@ -142,7 +141,107 @@
 			<commonSorter
 					class="org.eclipse.jdt.ui.JavaElementSorter"
 					id="org.eclipse.jdt.ui.javaElementSorter"/>
-			-->	
+			-->
+			<commonWizard
+		        menuGroupId="x10dt.wizards.category"
+		        type="new"
+		        wizardId="x10dt.ui.java.launch.wizards.NewX10Project">
+		     <enablement>
+		        <or>
+		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
+		           <adapt type="org.eclipse.core.resources.IProject">
+		              <or>
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+					  </or>
+		           </adapt>
+		           <test property="x10dt.ui.perspectiveId" value="x10dt.ui.perspective" />
+		        </or>
+		     </enablement>
+		    </commonWizard>
+		    <commonWizard
+		        menuGroupId="x10dt.wizards.category"
+		        type="new"
+		        wizardId="x10dt.ui.cpp.launch.NewX10Project">
+		     <enablement>
+		        <or>
+		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
+		           <adapt type="org.eclipse.core.resources.IProject">
+		              <or>
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+					  </or>
+		           </adapt>
+		           <test property="x10dt.ui.perspectiveId" value="x10dt.ui.perspective" />
+		        </or>
+		     </enablement>
+		    </commonWizard>
+			<commonWizard
+		        menuGroupId="x10dt.wizards.category"
+		        type="new"
+		        wizardId="x10dt.ui.wizards.NewX10PackageWizard">
+		     <enablement>
+		        <or>
+		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
+		           <adapt type="org.eclipse.core.resources.IProject">
+		              <or>
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+					  </or>
+		           </adapt>
+		        </or>
+		     </enablement>
+		    </commonWizard>
+		    <commonWizard
+		        menuGroupId="x10dt.wizards.category"
+		        type="new"
+		        wizardId="x10dt.ui.wizards.NewX10ClassWizard">
+		     <enablement>
+		        <or>
+		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
+		           <adapt type="org.eclipse.core.resources.IProject">
+		              <or>
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+					  </or>
+		           </adapt>
+		        </or>
+		     </enablement>
+		    </commonWizard>
+   	        <commonWizard
+		        menuGroupId="x10dt.wizards.category"
+		        type="new"
+		        wizardId="x10dt.ui.wizards.NewX10InterfaceWizard">
+		     <enablement>
+		        <or>
+		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
+		           <adapt type="org.eclipse.core.resources.IProject">
+		              <or>
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
+				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+					  </or>
+		           </adapt>
+		        </or>
+		     </enablement>
+		    </commonWizard>
+		    <!--	  
+		    <commonWizard
+		          menuGroupId="x10dt.wizards.category"
+		          type="new"
+		          wizardId="x10dt.ui.wizards.NewSourceFolderCreationWizard">
+				<enablement>
+					<or> 
+						<instanceof value="org.eclipse.imp.model.ISourceRoot"/> 
+						<adapt type="org.eclipse.core.resources.IProject">
+							<or>
+						       <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
+						       <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+							</or>
+						</adapt>
+					</or>
+				</enablement>
+		    </commonWizard>
+		    -->
 		</navigatorContent>
 			
 			
@@ -248,7 +347,5 @@
 		        name="%HideX10OutputFolder.label"
 		        description="%HideOutputFolder.description"
 		        id="x10dt.ui.navigator.filters.HideOutputFolder"/>
-		        
-
-	</extension> 		
+	</extension>
 </plugin>
