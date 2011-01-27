@@ -401,7 +401,18 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 		try {
 			String type = getTypeName();
 			ISourceFolder pack= getPackageFragment();
-			IResource folder = pack.getResource();
+			IResource folder = null;
+			if(pack != null)
+			{
+				folder = pack.getResource();
+			}
+			
+			else
+			{
+				String packName= getPackageText();
+				folder = getJavaProject().getRawProject().getFolder(packName);
+			}
+			 
 			IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, folder);
 			ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(scope, type, true, null);
 			if (typeExists(results, folder.getLocationURI().getPath())){ 

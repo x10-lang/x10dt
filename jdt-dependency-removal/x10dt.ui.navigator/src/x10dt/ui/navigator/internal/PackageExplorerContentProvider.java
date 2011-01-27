@@ -461,7 +461,7 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 
 	public Object getHierarchicalPackageParent(ISourceFolder child) {
 		String name= child.getName();
-		ISourceRoot parent= (ISourceRoot) child.getParent();
+		ISourceRoot parent= (ISourceRoot) child.getAncestor(ISourceRoot.class);
 		int index= name.lastIndexOf('.');
 		if (index != -1) {
 			String realParentName= name.substring(0, index);
@@ -491,7 +491,7 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 				}
 			}
 		}
-		if (parent.getResource() instanceof IProject) {
+		if (parent != null && parent.getResource() instanceof IProject) {
 			return parent.getProject();
 		}
 		return parent;
