@@ -33,13 +33,15 @@ public final class LaunchConstants {
 
   // --- Java back-end specific
 
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_TYPE= "X10 Application (Java back-end)"; //$NON-NLS-1$
+
   public static final String JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD = "Name:"; //$NON-NLS-1$
 
   // --- C++ back-end specific
 
-  public static final String NEW_CPP_LAUNCH_CONFIG = "X10 Application (C++ back-end)"; //$NON-NLS-1$
+  public static final String CPP_BACK_END_PROJECT_DIALOG_NAME_FIELD = "Name:"; //$NON-NLS-1$
 
-  public static final String JAVA_BACK_END_LAUNCH_CONFIG_TYPE= "X10 Application (Java back-end)"; //$NON-NLS-1$
+  public static final String NEW_CPP_LAUNCH_CONFIG = "X10 Application (C++ back-end)"; //$NON-NLS-1$
 
   // The following two patterns are needed b/c the "Run As" menu has different contents
   // depending on what installed plugins contribute to that menu. Also, the order, and
