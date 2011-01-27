@@ -28,6 +28,8 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWizard;
 import org.eclipse.ui.PlatformUI;
 
+import x10dt.search.core.elements.ITypeInfo;
+
 /**
  * This is the "New X10 Class" wizard. Its role is to create a new class in the given package in the given project. The wizard
  * creates one source file with the extension "x10" and expanded with the default class template.
@@ -92,7 +94,7 @@ public class NewX10InterfaceWizard extends NewElementWizard implements INewWizar
    * 
    * @see org.eclipse.jdt.internal.ui.wizards.NewElementWizard#getCreatedElement()
    */
-  public IJavaElement getCreatedElement() {
+  public ITypeInfo getCreatedElement() {
     return fPage.getCreatedType();
   }
 }
