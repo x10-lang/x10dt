@@ -9,6 +9,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -81,7 +83,7 @@ public class X10MainTab extends JavaMainTab {
   
   protected void handleSearchButtonSelected() {
     final IJavaProject project = getJavaProject();
-    final IJavaElement[] scope;
+    final ISourceEntity[] scope;
     if ((project == null) || ! project.exists()) {
       scope = null;
     } else {
@@ -91,15 +93,15 @@ public class X10MainTab extends JavaMainTab {
       } catch (CoreException except) {
         // Do nothing.
       }
-      scope = hasValidNature ? new IJavaElement[] { project } : null;
+      scope = hasValidNature ? new ISourceEntity[] { ModelFactory.getProject(project.getProject()) } : null;
     }
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, LaunchCore.X10_PRJ_JAVA_NATURE_ID,
+      final Pair<ClassType, ISourceEntity> mainType = LaunchUtils.findMainType(scope, LaunchCore.X10_PRJ_JAVA_NATURE_ID,
                                                                               getShell());
       if (mainType != null) {
         super.fMainText.setText(mainType.first.fullName().toString());
         if ((project == null) || ! project.exists()) {
-          super.fProjText.setText(mainType.second.getJavaProject().getElementName());
+          super.fProjText.setText(mainType.second.getProject().getName());
         }
       }
     } catch (InvocationTargetException except) {
