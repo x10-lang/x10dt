@@ -273,8 +273,9 @@ public class NewX10ClassPage extends NewTypeWizardPage {
                                                                                                */superIntfs,
                             IProgressMonitor monitor) throws CoreException, ModelException {
     monitor.beginTask("Creating " + typeName, 2);
-    if (!pkgFrag.getResource().exists()) {
-      String pkgName = pkgFrag.getName();
+    
+    if (pkgFrag == null) {
+      String pkgName = getPackageText();
       ISourceRoot root = this.getPackageFragmentRoot();
 
       if (!root.getResource().exists()) {
@@ -286,7 +287,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 
           root= (ISourceRoot) ModelFactory.create(javaProject.getRawProject().getWorkspace().getRoot().getFolder(newEntry.getRawPath()));
       }
-      pkgFrag = root.createSourceFolder(pkgName, true, null);
+      pkgFrag = root.createSourceFolder(pkgName, true, monitor);
     }
     IResource resource = pkgFrag.getResource();
     IContainer container = (IContainer) resource;

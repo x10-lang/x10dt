@@ -67,11 +67,26 @@ public class X10ElementLabels extends ElementLabels {
 	 */
 	public static StyledString getStyledTextLabel(Object obj, long flags) {
 		if (obj instanceof IX10Element) {
-			return getStyledElementLabel(obj, flags);
+			return getStyledElementLabel((IX10Element)obj, flags);
 		}
 		return ElementLabels.getStyledTextLabel(obj, flags);
 	}
 
+	/**
+	 * Returns the styled label for a Java element with the flags as defined by this class.
+	 *
+	 * @param element the element to render
+	 * @param flags the rendering flags
+	 * @return the label of the Java element
+	 *
+	 * @since 3.4
+	 */
+	public static StyledString getStyledElementLabel(IX10Element element, long flags) {
+		StyledString result= new StyledString();
+		getElementLabel(element, flags, result);
+		return Strings.markJavaElementLabelLTR(result);
+	}
+	
 	/**
 	 * Returns the label for a Java element with the flags as defined by this class.
 	 *
@@ -94,6 +109,19 @@ public class X10ElementLabels extends ElementLabels {
 	 */
 	public static void getElementLabel(IX10Element element, long flags, StringBuffer buf) {
 		new X10ElementLabelComposer(buf).appendElementLabel(element, flags);
+	}
+	
+	/**
+	 * Returns the styled label for a Java element with the flags as defined by this class.
+	 *
+	 * @param element the element to render
+	 * @param flags the rendering flags
+	 * @param result the buffer to append the resulting label to
+	 *
+	 * @since 3.4
+	 */
+	public static void getElementLabel(IX10Element element, long flags, StyledString result) {
+		new X10ElementLabelComposer(result).appendElementLabel(element, flags);
 	}
 
 	/**

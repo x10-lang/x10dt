@@ -10,7 +10,6 @@
  *******************************************************************************/
 package x10dt.search.ui.typeHierarchy;
 
-import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.jface.preference.JFacePreferences;
 import org.eclipse.jface.resource.CompositeImageDescriptor;
 import org.eclipse.jface.resource.ImageDescriptor;
