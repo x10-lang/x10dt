@@ -34,9 +34,7 @@
 					</adapt>
 					<instanceof	value="org.eclipse.core.resources.IResource" />
 					<instanceof value="org.eclipse.imp.model.ISourceEntity" />
-					<instanceof value="x10dt.search.core.elements.IX10Element" />
-					<instanceof value="org.eclipse.jdt.core.IJarEntryResource" />
-					<instanceof value="x10dt.ui.navigator.internal.PackageFragmentRootContainer" />
+					<instanceof value="org.eclipse.imp.ui.navigator.PackageFragmentRootContainer" />
 					
  				</or>
 			</triggerPoints>
@@ -44,9 +42,7 @@
 				<or>
 					<instanceof	value="org.eclipse.core.resources.IResource" />
 					<instanceof value="org.eclipse.imp.model.ISourceEntity" />
-					<instanceof value="x10dt.search.core.elements.IX10Element" />
-					<instanceof value="org.eclipse.jdt.core.IJarEntryResource" />
-					<instanceof value="x10dt.ui.navigator.internal.PackageFragmentRootContainer" />
+					<instanceof value="org.eclipse.imp.ui.navigator.PackageFragmentRootContainer" />
 				</or>
 			</possibleChildren> 
 			<actionProvider
@@ -75,9 +71,7 @@
 						    </or>
 						</and>
 						<instanceof value="org.eclipse.imp.model.ISourceEntity" />
-						<instanceof value="x10dt.search.core.elements.IX10Element" />
-						<instanceof value="org.eclipse.jdt.core.IJarEntryResource" /> 
-						<instanceof	value="x10dt.ui.navigator.internal.PackageFragmentRootContainer" />
+						<instanceof	value="org.eclipse.imp.ui.navigator.PackageFragmentRootContainer" />
 						<adapt type="java.util.Collection"> 
 							<count value="0" />
 						</adapt>
@@ -99,9 +93,7 @@
 						    </or>
 						</and>
 						<instanceof value="org.eclipse.imp.model.ISourceEntity" />
-						<instanceof value="x10dt.search.core.elements.IX10Element" />
-						<instanceof value="org.eclipse.jdt.core.IJarEntryResource" />
-						<instanceof value="x10dt.ui.navigator.internal.PackageFragmentRootContainer" />
+						<instanceof value="org.eclipse.imp.ui.navigator.PackageFragmentRootContainer" />
 						
 						<adapt type="java.util.Collection"> 
 							<count value="0" />
@@ -243,8 +235,7 @@
 		    </commonWizard>
 		    -->
 		</navigatorContent>
-			
-			
+				
 		<commonFilter
 		        activeByDefault="false"
 		        class="x10dt.ui.navigator.internal.NonEssentialEmptyPackageFilter"
@@ -256,49 +247,12 @@
 		        class="x10dt.ui.navigator.internal.NonEssentialEmptyInnerPackageFilter"
 		        name="%HideEmptyInnerPackages.label"
 		        description="%HideEmptyInnerPackages.description"
-		        id="x10dt.ui.navigator.filters.HideEmptyInnerPackages"/>
-  		<commonFilter 
-		        class="x10dt.ui.navigator.internal.filters.AnnotationFilter"
-		        name="%HideAnnotation.label"
-		        description="%HideAnnotation.description"
-		        id="x10dt.ui.navigator.filters.HideAnnotations"/>
-  		<commonFilter 
-		        class="x10dt.ui.navigator.internal.filters.EnumFilter"
-		        name="%HideEnum.label"
-		        description="%HideEnum.description"
-		        id="x10dt.ui.navigator.filters.HideAnnotations"/>
-  		<commonFilter 
-		        class="x10dt.ui.navigator.internal.filters.InterfaceFilter"
-		        name="%HideInterface.label"
-		        description="%HideInterface.description"
-		        id="x10dt.ui.navigator.filters.HideInterface"/>		        		        
-  		<commonFilter 
-		        class="x10dt.ui.navigator.internal.filters.FieldsFilter"
-		        name="%HideFields.label"
-		        description="%HideFields.description"
-		        id="x10dt.ui.navigator.filters.HideFields"/>
-  		<commonFilter
-		        activeByDefault="true"
-		        class="x10dt.ui.navigator.internal.filters.ImportDeclarationFilter"
-		        name="%HideImportDeclaration.label"
-		        description="%HideImportDeclaration.description"
-		        id="x10dt.ui.navigator.filters.HideImportDeclaration"/> 
-  		<commonFilter
-		        activeByDefault="true"
-		        class="x10dt.ui.navigator.internal.filters.InnerClassFilesFilter"
-		        name="%HideInnerClassFiles.label"
-		        description="%HideInnerClassFiles.description"
-		        id="x10dt.ui.navigator.filters.HideInnerClassFiles"/>
+		        id="x10dt.ui.navigator.filters.HideEmptyInnerPackages"/>        
   		<commonFilter 
 		        class="x10dt.ui.navigator.internal.filters.X10FileFilter"
 		        name="%HideX10Files.label"
 		        description="%HideX10Files.description"
 		        id="x10dt.ui.navigator.filters.HideX10Files"/> 		 
-  		<commonFilter 
-		        class="x10dt.ui.navigator.internal.filters.LocalTypesFilter"
-		        name="%HideLocalTypes.label"
-		        description="%HideLocalTypes.description"
-		        id="x10dt.ui.navigator.filters.HideLocalTypes"/>
   		<commonFilter 
 		        class="x10dt.ui.navigator.internal.filters.NonX10ElementFilter"
 		        name="%HideNonX10Elements.label"
@@ -308,39 +262,17 @@
 		        class="x10dt.ui.navigator.internal.filters.NonX10ProjectsFilter"
 		        name="%HideNonX10Projects.label"
 		        description="%HideNonX10Projects.description"
-		        id="x10dt.ui.navigator.filters.HideNonX10Projects"/>   
-  		<commonFilter 
-		        class="x10dt.ui.navigator.internal.filters.NonPublicFilter"
-		        name="%HideNonPublic.label"
-		        description="%HideNonPublic.description"
-		        id="x10dt.ui.navigator.filters.HideNonPublic"/>   
+		        id="x10dt.ui.navigator.filters.HideNonX10Projects"/>     
   		<commonFilter 
 		        class="x10dt.ui.navigator.internal.filters.NonSharedProjectFilter"
 		        name="%HideNonSharedProjects.label"
 		        description="%HideNonSharedProjects.description"
 		        id="x10dt.ui.navigator.filters.HideNonSharedProjects"/>   
-  		<commonFilter
-		        activeByDefault="true"
-		        class="x10dt.ui.navigator.internal.filters.PackageDeclarationFilter"
-		        name="%HidePackageDeclaration.label"
-		        description="%HidePackageDeclaration.description"
-		        id="x10dt.ui.navigator.filters.HidePackageDeclaration"/>   
   		<commonFilter 
 		        class="x10dt.ui.navigator.internal.filters.LibraryFilter"
 		        name="%HideReferencedLibraries.label"
 		        description="%HideReferencedLibraries.description"
 		        id="x10dt.ui.navigator.filters.HideReferencedLibraries"/>   
-  		<commonFilter 
-		        class="x10dt.ui.navigator.internal.filters.StaticsFilter"
-		        name="%HideStatics.label"
-		        description="%HideStatics.description"
-		        id="x10dt.ui.navigator.filters.HideStatics"/>
-  		<commonFilter
-		        activeByDefault="true"
-		        class="x10dt.ui.navigator.internal.filters.SyntheticMembersFilter"
-		        name="%HideSyntheticMembers.label"
-		        description="%HideSyntheticMembers.description"
-		        id="x10dt.ui.navigator.filters.HideSyntheticMembers"/>
   		<commonFilter
 		        activeByDefault="true"
 		        class="x10dt.ui.navigator.internal.filters.OutputFolderFilter"
