@@ -14,7 +14,6 @@ package x10dt.search.ui.typeHierarchy;
 import java.net.URI;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -23,6 +22,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.EditorUtility;
+import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.model.ISourceFolder;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
@@ -268,10 +268,12 @@ public class SearchUtils {
 	{
 		try {
 			IResource resource = getResource(info);
-			if(resource instanceof IFolder)
+			ISourceEntity entity = ModelFactory.open(resource.getParent());
+			if(entity instanceof ISourceFolder)
 			{
-				return (ISourceFolder)ModelFactory.open(resource);
+				return (ISourceFolder)entity;
 			}
+			
 		} catch (ModelException e) {
 			// fall through
 		}
