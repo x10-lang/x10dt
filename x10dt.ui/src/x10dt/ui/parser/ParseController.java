@@ -154,12 +154,14 @@ public class ParseController extends SimpleLPGParseController {
             	final X10SemanticRules parser= fCompiler.getParserFor(source);
             	final X10Lexer lexer= fCompiler.getLexerFor(source);
             	fParseStream = parser.getIPrsStream();
-            	fLexStream = lexer.getILexStream();
+            	fLexStream = fParseStream.getILexStream();
+//            	fLexStream = lexer.getILexStream();
             	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
             	fLexer = new LexerDelegate(lexer);
             	fCurrentAst= fCompiler.getASTFor(source); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
 
             	if (fViolationHandler != null && fCurrentAst != null) {
+                    // TODO Tweak appropriate option in Configuration/Options object to include the invariant checking goals
 	            	Job job= fCompiler.getJobFor(source);
 	            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "");
 	            	InstanceInvariantChecker iic= new InstanceInvariantChecker(job);
