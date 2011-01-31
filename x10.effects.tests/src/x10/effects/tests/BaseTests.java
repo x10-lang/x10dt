@@ -16,27 +16,21 @@ import x10.effects.constraints.LocalLocs;
 
 /**
  * @author vj
- *
  */
 public class BaseTests extends TestCase {
-
-	/**
-	 * 
-	 */
+    LocalLocs l1 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l1")));
+    LocalLocs l2 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l2")));
+    LocalLocs l3 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l3")));
+    LocalLocs l4 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l4")));
+    
 	public BaseTests() {
 		super("BaseTests");
 	}
-	LocalLocs l1 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeFreshName()));
-	LocalLocs l2 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeFreshName()));
-	LocalLocs l3 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeFreshName()));
-	LocalLocs l4 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeFreshName()));
-	
 	
 	/**
 	 * Does {read(l1), write(l2), atomic(l3)} commute with {read(l4)}?
 	 * @throws Throwable
 	 */
-
 	public void test1() throws Throwable {
 		Effect e1 = new Effect_c(Effects.FUN);
 		e1.addRead(l1);
@@ -55,7 +49,6 @@ public class BaseTests extends TestCase {
 	 * Does {read(l1)} commute with {read(l1)}?
 	 * @throws Throwable
 	 */
-
 	public void test2() throws Throwable {
 		Effect e1 = new Effect_c(Effects.FUN);	
 		e1.addRead(l1);
@@ -83,6 +76,7 @@ public class BaseTests extends TestCase {
 		assertFalse(result);
 		
 	}
+
 	/**
 	 * Does {read(l1)} commute with {atomic(l1)}?
 	 * @throws Throwable
@@ -210,6 +204,7 @@ public class BaseTests extends TestCase {
 		assertTrue(result);
 		
 	}
+
 	/**
 	 * Is {read(l1,l2)}.exists(l1).equals({read(l2)})
 	 * @throws Throwable
@@ -226,6 +221,7 @@ public class BaseTests extends TestCase {
 		assertTrue(result);
 		
 	}
+
 	/**
 	 * Is {read(L.f)}.exists(L,M).equals({read(M.f)})
 	 * @throws Throwable
@@ -269,6 +265,7 @@ public class BaseTests extends TestCase {
 		assertTrue(result);
 		
 	}
+
 	/**
 	 * Is {read(L(1))}.exists(L,M).equals({read(M(1))})?
 	 * @throws Throwable
@@ -291,7 +288,7 @@ public class BaseTests extends TestCase {
 		assertTrue(result);
 		
 	}
-	
+
 	public void test16() throws Throwable {
 		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
 		XLocal A = XTerms.makeLocal(XTerms.makeName("A"));
@@ -314,7 +311,7 @@ public class BaseTests extends TestCase {
 		assertTrue(result);
 		
 	}
-	
+
 	public void test17() throws Throwable {
 		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
 		XLocal A = XTerms.makeLocal(XTerms.makeName("A"));
@@ -330,5 +327,4 @@ public class BaseTests extends TestCase {
 		assertTrue(result);
 		
 	}
-	
 }
