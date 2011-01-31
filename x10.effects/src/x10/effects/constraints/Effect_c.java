@@ -4,12 +4,12 @@
 package x10.effects.constraints;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import x10.constraint.XConstraint;
+import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
@@ -155,8 +155,10 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	public boolean commutesWithForall(XLocal x, XConstraint c) {
 		if (this == Effects.BOTTOM_EFFECT)
 			return false;
-		XLocal x1 = XTerms.makeLocal(XTerms.makeFreshName());
-		XLocal x2 = XTerms.makeLocal(XTerms.makeFreshName());
+//		XLocal x1 = XTerms.makeLocal(XTerms.makeFreshName());
+//		XLocal x2 = XTerms.makeLocal(XTerms.makeFreshName());
+        XEQV x1 = XTerms.makeEQV();
+        XEQV x2 = XTerms.makeEQV();
 	
 		Effect e1 = substitute( x1, x), e2 = substitute(x2, x);
 		XConstraint c2 = c.copy();
@@ -189,20 +191,23 @@ public boolean commutesWith(Effect e, XConstraint c) {
             return false;
         Effect e1 = this;
         Effect e2 = this;
-        List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
+//      List<Pair<XLocal, XLocal>> freshVars= new ArrayList<Pair<XLocal,XLocal>>(xs.size());
+        List<Pair<XEQV, XEQV>> freshVars= new ArrayList<Pair<XEQV,XEQV>>(xs.size());
         for(XLocal x: xs) {
-            XLocal x1= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
-            XLocal x2= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
+//          XLocal x1= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
+//          XLocal x2= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
+            XEQV x1 = XTerms.makeEQV();
+            XEQV x2 = XTerms.makeEQV();
 
-            freshVars.add(new Pair<XLocal, XLocal>(x1, x2));
+            freshVars.add(new Pair<XEQV, XEQV>(x1, x2));
             e1 = e1.substitute(x1, x);
             e2 = e2.substitute(x2, x);
         }
         XConstraint c2 = c.copy();
         try {
-            for(Pair<XLocal,XLocal> freshVar: freshVars) {
-                XLocal x1= freshVar.fst;
-                XLocal x2= freshVar.snd;
+            for(Pair<XEQV,XEQV> freshVar: freshVars) {
+                XEQV x1= freshVar.fst;
+                XEQV x2= freshVar.snd;
                 c2.addDisBinding(x1, x2);
             }
         } catch (XFailure z) {
