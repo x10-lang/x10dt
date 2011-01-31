@@ -62,7 +62,9 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.visit.MessagePassingCodeGenerator;
+import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
@@ -144,7 +146,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       }
       final String x10MainType = configuration.getAttribute(Constants.ATTR_X10_MAIN_CLASS, Constants.EMPTY_STR);
       final String mainX10FilePath = createX10MainFile(this.fTargetOpHelper, x10MainType.replace(PACKAGE_SEP, NAMESPACE_SEP),
-                                                       this.fWorkspaceDir, subMonitor.newChild(1));
+                                                       this.fWorkspaceDir, project, subMonitor.newChild(1));
 
       final IFileStore mainCppFileStore = getMainCppFileStore(x10MainType, this.fWorkspaceDir);
       if (mainCppFileStore == null) {
@@ -399,7 +401,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
   // --- Private code
 
   private String createX10MainFile(final ITargetOpHelper targetOpHelper, final String mainClassName,
-                                   final String workspaceDir, final IProgressMonitor monitor) throws CoreException {
+                                   final String workspaceDir, IProject project, final IProgressMonitor monitor) throws CoreException {
+    final X10CPPCompilerOptions options = (X10CPPCompilerOptions) CompilerOptionsFactory.createOptions(project);
     final StringBuilder sb = new StringBuilder();
     final int namespaceIndex = mainClassName.lastIndexOf(NAMESPACE_SEP);
     sb.append("#include \""); //$NON-NLS-1$
@@ -409,7 +412,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       sb.append(mainClassName.substring(namespaceIndex + 2));
     }
     sb.append(".h\"\n"); //$NON-NLS-1$
-    sb.append(MessagePassingCodeGenerator.createMainStub(mainClassName));
+    sb.append(MessagePassingCodeGenerator.createMainStub(mainClassName, options));
     final InputStream is = new ByteArrayInputStream(sb.toString().getBytes());
 
     final String mainFileName = workspaceDir + MAIN_FILE_NAME;
