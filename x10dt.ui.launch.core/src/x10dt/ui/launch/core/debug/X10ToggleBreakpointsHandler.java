@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.services.IToggleBreakpointsHandler;
 import org.eclipse.osgi.util.NLS;
 
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 
@@ -65,13 +66,13 @@ public final class X10ToggleBreakpointsHandler implements IToggleBreakpointsHand
   // --- Private code
   
   private IToggleBreakpointsHandler getToggleBreakpointHandler(final IFile file) throws CoreException {
-    if (file.getProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+    if (file.getProject().hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
       if (this.fCPPNatureHandler == null) {
         throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, 
                                            NLS.bind(Messages.XTBH_NoHandlerForCppBackEnd, file.getProject().getName())));
       }
       return this.fCPPNatureHandler;
-    } else if (file.getProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID)) {
+    } else if (file.getProject().hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID)) {
       if (this.fJavaNatureHandler == null) {
         throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, 
                                            NLS.bind(Messages.XTBH_NoHandlerForJavaBackEnd, file.getProject().getName())));

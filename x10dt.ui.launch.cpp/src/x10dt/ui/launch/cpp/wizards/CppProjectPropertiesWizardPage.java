@@ -51,7 +51,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
 
-import x10dt.ui.launch.core.LaunchCore;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.utils.WizardUtils;
@@ -142,7 +142,7 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
     try {
       final IProjectDescription description = this.fCurrProject.getDescription();
       final String[] natureIds = new String[] { 
-        LaunchCore.X10_CPP_PRJ_NATURE_ID, SmapiProjectNature.k_natureID, JavaCore.NATURE_ID
+        X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID, SmapiProjectNature.k_natureID, JavaCore.NATURE_ID
       };
       description.setNatureIds(natureIds);
       this.fCurrProject.setDescription(description, monitor);

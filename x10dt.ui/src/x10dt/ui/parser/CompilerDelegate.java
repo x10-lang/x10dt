@@ -61,7 +61,6 @@ import x10dt.core.builder.BuildPathUtils;
 import x10dt.core.preferences.generated.X10Constants;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.launch.core.LaunchCore;
 
 public class CompilerDelegate {
 	private class EditorErrorQueue extends AbstractErrorQueue {
@@ -132,8 +131,8 @@ public class CompilerDelegate {
     
 	private boolean isX10Project() {
 		try {
-			return fX10Project.getProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) ||
-			       fX10Project.getProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID);
+			return fX10Project.getProject().hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID) ||
+			       fX10Project.getProject().hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
 		} catch (CoreException e) {
 			X10DTUIPlugin.log(e);
 			return false;

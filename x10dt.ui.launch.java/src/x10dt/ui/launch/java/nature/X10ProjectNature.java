@@ -22,13 +22,12 @@ import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.jdt.core.JavaCore;
 
 import x10dt.core.X10DTCorePlugin;
-import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.java.Activator;
 
 public class X10ProjectNature extends ProjectNatureBase {
 
     public String getNatureID() {
-        return LaunchCore.X10_PRJ_JAVA_NATURE_ID;
+        return X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID;
     }
 
     public String getBuilderID() {

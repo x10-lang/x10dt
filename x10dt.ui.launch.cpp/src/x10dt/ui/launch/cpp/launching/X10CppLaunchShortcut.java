@@ -33,8 +33,8 @@ import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfigurationDefaults;
 
 import polyglot.types.ClassType;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
@@ -58,7 +58,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
   }
   
   protected final String getProjectNatureId() {
-    return LaunchCore.X10_CPP_PRJ_NATURE_ID;
+    return X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID;
   }
 
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,

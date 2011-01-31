@@ -23,9 +23,9 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 
 import polyglot.types.ClassType;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.utils.LaunchUtils;
 
 public class X10MainTab extends JavaMainTab {
@@ -87,14 +87,14 @@ public class X10MainTab extends JavaMainTab {
     } else {
       boolean hasValidNature = false;
       try {
-        hasValidNature = project.getProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID);
+        hasValidNature = project.getProject().hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
       } catch (CoreException except) {
         // Do nothing.
       }
       scope = hasValidNature ? new IJavaElement[] { project } : null;
     }
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, LaunchCore.X10_PRJ_JAVA_NATURE_ID,
+      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID,
                                                                               getShell());
       if (mainType != null) {
         super.fMainText.setText(mainType.first.fullName().toString());

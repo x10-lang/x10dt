@@ -36,9 +36,9 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 
+import x10dt.core.X10DTCorePlugin;
 import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.tests.services.TestsServicesActivator;
-import x10dt.ui.launch.core.LaunchCore;
 
 /**
  * Utility methods to create X10 project(s) for PDE test cases.
@@ -103,7 +103,7 @@ public final class ProjectUtils {
    * @throws CoreException Occurs if we could not create the project or some its structures.
    */
   public static IProject createX10ProjectCppBackEnd(final String name) throws CoreException {
-    return createX10Project(name, LaunchCore.X10_CPP_PRJ_NATURE_ID);
+    return createX10Project(name, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID);
   }
   
   /**
@@ -121,7 +121,7 @@ public final class ProjectUtils {
   public static IProject createX10ProjectCppBackEnd(final String name, final Bundle bundle,
                                                     final String bundleEntryPath) throws CoreException, URISyntaxException, 
                                                                                          IOException {
-    final IProject project = createX10Project(name, LaunchCore.X10_CPP_PRJ_NATURE_ID);
+    final IProject project = createX10Project(name, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID);
     addFileToProject(project, bundle, bundleEntryPath);
     return project;
   }
@@ -134,7 +134,7 @@ public final class ProjectUtils {
    * @throws CoreException
    */
   public static IProject createX10ProjectJavaBackEnd(final String name) throws CoreException {
-    return createX10Project(name, LaunchCore.X10_PRJ_JAVA_NATURE_ID);
+    return createX10Project(name, X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
   }
   
   /**
@@ -152,7 +152,7 @@ public final class ProjectUtils {
   public static IProject createX10ProjectJavaBackEnd(final String name, final Bundle bundle,
                                                      final String bundleEntryPath) throws CoreException, URISyntaxException, 
                                                                                           IOException {
-    final IProject project = createX10Project(name, LaunchCore.X10_PRJ_JAVA_NATURE_ID);
+    final IProject project = createX10Project(name, X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
     addFileToProject(project, bundle, bundleEntryPath);
     return project;
   }

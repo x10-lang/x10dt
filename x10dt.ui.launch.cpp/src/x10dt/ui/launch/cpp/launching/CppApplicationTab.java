@@ -56,10 +56,10 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 import polyglot.types.ClassType;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
@@ -197,7 +197,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           return false;
         }
         try {
-          if (!project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+          if (!project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
             setErrorMessage(NLS.bind(LaunchMessages.CAT_NoCPPProjectNature, projectName));
             return false;
           }
@@ -383,7 +383,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       final IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
       final Collection<IProject> projects = new ArrayList<IProject>(allProjects.length);
       for (final IProject project : allProjects) {
-        if (project.isOpen() && project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+        if (project.isOpen() && project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
           projects.add(project);
         }
       }
@@ -401,7 +401,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       try {
         if (name.length() > 0) {
           final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
-          if (project.exists() && project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+          if (project.exists() && project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
             final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
             if (errors == 0) {
               CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
@@ -441,14 +441,14 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       } else {
         boolean hasValidNature = false;
         try {
-          hasValidNature = project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID);
+          hasValidNature = project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID);
         } catch (CoreException except) {
           // Do nothing.
         }
         scope = hasValidNature ? new IJavaElement[] { JavaCore.create(project) } : null;
       }
       try {
-        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, LaunchCore.X10_CPP_PRJ_NATURE_ID,
+        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID,
                                                                                 getShell());
         if (mainType != null) {
           CppApplicationTab.this.fMainTypeText.setText(mainType.first.fullName().toString());

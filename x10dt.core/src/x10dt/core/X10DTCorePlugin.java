@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChange
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.runtime.PluginBase;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
@@ -51,11 +50,6 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import x10.Configuration;
-import x10.config.ConfigurationError;
-import x10.config.OptionError;
-import x10dt.core.preferences.generated.X10Constants;
-
 /**
  * The main plugin class to be used in the desktop.
  * 
@@ -69,8 +63,8 @@ import x10dt.core.preferences.generated.X10Constants;
  */
 public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeListener {
   
-	  public static final String kPluginID= "x10dt.core";
-	  public static final String X10DT_CONSOLE_NAME = "X10DT info";
+    public static final String kPluginID= "x10dt.core";
+    public static final String X10DT_CONSOLE_NAME = "X10DT info";
     public static final String kLanguageName = "X10";
    
     /**
@@ -78,6 +72,16 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
      */
     protected static X10DTCorePlugin sPlugin;
     protected static MessageConsole console=null;
+
+    /**
+     * Id for the X10DT C++ Project Nature.
+     */
+    public static final String X10_CPP_PRJ_NATURE_ID = "x10dt.ui.launch.cpp.x10nature"; //$NON-NLS-1$
+
+    /**
+     * Id for the X10DT Java Project Nature.
+     */
+    public static final String X10_PRJ_JAVA_NATURE_ID = "x10dt.ui.launch.java.x10nature"; //$NON-NLS-1$
 
     public X10DTCorePlugin() {
       super();
