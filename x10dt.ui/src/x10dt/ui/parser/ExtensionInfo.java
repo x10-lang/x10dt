@@ -80,7 +80,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 if (fInterestingSources.contains(job.source())) {
                 	fInterestingJobs.put(job.source(), job);
                 }
-                return super.validateOnlyGoals(job);
+                return super.semanticCheckSourceGoals(job);
             }
  
         };
