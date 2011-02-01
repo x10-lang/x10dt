@@ -37,7 +37,7 @@ public class X10ProjectNature extends ProjectNatureBase {
 
     public void addToProject(IProject project) {
         super.addToProject(project);
-        new SmapiProjectNature("x10", Activator.BUILDER_ID).addToProject(project);
+        new SmapiProjectNature("x10", "X10", Activator.BUILDER_ID).addToProject(project);
     }
 
     protected void refreshPrefs() {}

@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.model.IPathEntry;
 import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.imp.ui.wizards.NewProjectWizardPageOne;
 
 import x10dt.core.utils.X10DTCoreConstants;
@@ -50,6 +51,6 @@ public class X10ProjectWizardSecondPage extends X10ProjectPropertiesWizardPage {
 
   protected String[] getNatureIds()
   {
-	  return new String[] { LaunchCore.X10_PRJ_JAVA_NATURE_ID };
+	  return new String[] { LaunchCore.X10_PRJ_JAVA_NATURE_ID};
   }
 }

@@ -18,7 +18,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -31,6 +30,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.IPathEntry;
@@ -65,6 +65,11 @@ public class X10ProjectPropertiesWizardPage extends CapabilityConfigurationPage 
   protected String[] getNatureIds()
   {
 	  return new String[0];
+  }
+  
+  protected ProjectNatureBase getProjectNature()
+  {
+	  return null;
   }
   
   protected List<IPathEntry> getBuildPath()
@@ -135,10 +140,10 @@ public class X10ProjectPropertiesWizardPage extends CapabilityConfigurationPage 
 
   private void configureX10Project(final IProgressMonitor monitor) throws CoreException {
     try {
-      final IProjectDescription description = this.fCurrProject.getDescription();
-      final String[] natureIds = getNatureIds();
-      description.setNatureIds(natureIds);
-      this.fCurrProject.setDescription(description, monitor);
+//      final IProjectDescription description = this.fCurrProject.getDescription();
+//      final String[] natureIds = getNatureIds();
+//      description.setNatureIds(natureIds);
+//      this.fCurrProject.setDescription(description, monitor);
       
       getJavaProject().setBuildPath(LanguageRegistry.findLanguage("X10"), getBuildPath(), getOutputLocation(), monitor);
     } finally {
@@ -252,6 +257,13 @@ public class X10ProjectPropertiesWizardPage extends CapabilityConfigurationPage 
 
       initializeBuildPath(ModelFactory.open(this.fCurrProject), new SubProgressMonitor(monitor, 2));
       configureX10Project(new SubProgressMonitor(monitor, 3));
+      
+      ProjectNatureBase base = getProjectNature();
+      if(base != null)
+      {
+    	  base.addToProject(fCurrProject);
+      }
+      
     } catch (ModelException except) {
       throw new CoreException(new Status(IStatus.ERROR, LaunchCore.PLUGIN_ID, Messages.PWSP_SourceProjectError, except));
     } finally {

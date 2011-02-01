@@ -27,7 +27,6 @@ import org.eclipse.imp.model.ISourceFolder;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.ui.UIMessages;
-import org.eclipse.jdt.internal.core.search.StringOperation;
 import org.eclipse.jface.text.Region;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.SearchPattern;
@@ -178,7 +177,7 @@ public class SearchUtils {
 				//$FALL-THROUGH$
 			case SearchPattern.RULE_CAMELCASE_MATCH:
 				if (patternLength <= nameLength) {
-					int[] regions = StringOperation.getCamelCaseMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, countMatch);
+					int[] regions = null;/*StringOperation.getCamelCaseMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, countMatch);*/
 					if (regions != null) return regions;
 					if (name.substring(0, patternLength).equalsIgnoreCase(pattern)) {
 						return new int[] { 0, patternLength };
@@ -190,13 +189,13 @@ public class SearchUtils {
 				//$FALL-THROUGH$
 			case SearchPattern.RULE_CAMELCASE_MATCH | SearchPattern.RULE_CASE_SENSITIVE:
 				if (patternLength <= nameLength) {
-					return StringOperation.getCamelCaseMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, countMatch);
+//					return StringOperation.getCamelCaseMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, countMatch);
 				}
 				break;
-			case SearchPattern.RULE_PATTERN_MATCH:
-				return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, false);
-			case SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_CASE_SENSITIVE:
-				return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, true);
+//			case SearchPattern.RULE_PATTERN_MATCH:
+//				return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, false);
+//			case SearchPattern.RULE_PATTERN_MATCH | SearchPattern.RULE_CASE_SENSITIVE:
+//				return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, true);
 		}
 		return null;
 	}
@@ -302,11 +301,6 @@ public class SearchUtils {
 		return null;
 	}
 
-	public static boolean isDefaultPackage(String name)
-	{
-		return name.equals(UIMessages.ElementLabels_default_package) || name.length() == 0;
-	}
-	
 	public static String getTypeContainerName(ITypeInfo info) {
 		try {
 			return info.getName().substring(0, info.getName().lastIndexOf("."));

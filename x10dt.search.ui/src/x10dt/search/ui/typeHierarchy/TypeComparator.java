@@ -17,8 +17,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.preferences.MembersOrderPreferenceCache;
 import org.eclipse.jface.viewers.ContentViewer;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -30,6 +28,7 @@ import x10dt.search.core.elements.IFieldInfo;
 import x10dt.search.core.elements.IMemberInfo;
 import x10dt.search.core.elements.IMethodInfo;
 import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.ui.UISearchPlugin;
 import x10dt.search.ui.typeHierarchy.SearchUtils.Flags;
 
 
@@ -76,7 +75,7 @@ public class TypeComparator extends ViewerComparator {
 	 */
 	public TypeComparator() {
 		super(null); // delay initialization of collator
-		fMemberOrderCache= JavaPlugin.getDefault().getMemberOrderPreferenceCache();
+		fMemberOrderCache= UISearchPlugin.getDefault().getMemberOrderPreferenceCache();
 	}
 
 	/* (non-Javadoc)

@@ -13,10 +13,9 @@ package x10dt.ui.navigator.internal;
 
 import org.eclipse.imp.model.ISourceFolder;
 import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
-
-import x10dt.search.ui.typeHierarchy.SearchUtils;
 
 
 /**
@@ -31,7 +30,7 @@ public class EmptyInnerPackageFilter extends ViewerFilter {
 		if (element instanceof ISourceFolder) {
 			ISourceFolder pkg= (ISourceFolder)element;
 			try {
-				if (SearchUtils.isDefaultPackage(pkg.getName()))
+				if (BuildPathUtils.isDefaultPackage(pkg.getName()))
 					return pkg.getChildren().length > 0;
 				return !Utils.hasSubpackages(pkg) || pkg.getChildren().length > 0 /*|| (pkg.getNonJavaResources().length > 0)*/;
 			} catch (ModelException e) {

@@ -205,7 +205,7 @@ public class X10LabelProvider extends DecoratingLabelProvider {
             return super.getImage(o);
         }
         
-        else if(o instanceof Node)
+        else if(o instanceof Node || o instanceof ModelTreeNode)
 		{
 	        Node node= (o instanceof ModelTreeNode) ?
 	                (Node) ((ModelTreeNode) o).getASTNode() :
@@ -302,7 +302,7 @@ public class X10LabelProvider extends DecoratingLabelProvider {
 				return ((ISourceEntity) element).getName();
 			}
 	    	
-			else if(element instanceof Node)
+			else if(element instanceof Node || element instanceof ModelTreeNode)
 			{
 		        Node node= (element instanceof ModelTreeNode) ?
 			        (Node) ((ModelTreeNode) element).getASTNode():

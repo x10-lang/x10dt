@@ -1,12 +1,10 @@
 package x10dt.search.ui.search;
 
 import static x10dt.search.ui.search.SearchPatternData.ALL_OCCURRENCES;
-import static x10dt.search.ui.search.SearchPatternData.CONSTRUCTOR;
 import static x10dt.search.ui.search.SearchPatternData.DECLARATIONS;
 import static x10dt.search.ui.search.SearchPatternData.FIELD;
 import static x10dt.search.ui.search.SearchPatternData.IMPLEMENTORS;
 import static x10dt.search.ui.search.SearchPatternData.METHOD;
-import static x10dt.search.ui.search.SearchPatternData.PACKAGE;
 import static x10dt.search.ui.search.SearchPatternData.READ_ACCESSES;
 import static x10dt.search.ui.search.SearchPatternData.REFERENCES;
 import static x10dt.search.ui.search.SearchPatternData.SPECIFIC_REFERENCES;
@@ -20,12 +18,9 @@ import java.util.List;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.PackageFragment;
-import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.ui.JavaPlugin;
-import org.eclipse.jdt.internal.ui.util.SWTUtil;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.ui.SWTUtil;
+import org.eclipse.imp.utils.UIUtils;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.DialogPage;
 import org.eclipse.jface.dialogs.IDialogSettings;
@@ -190,19 +185,8 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 			Object[] sel = ((IStructuredSelection) selection).toArray();
 			Collection<IResource> pns = new ArrayList<IResource>();
 			for(int i = 0; i < sel.length; i++){
-				try {
-					if (sel[i] instanceof JavaProject){
-						pns.add(((JavaProject) sel[i]).getProject());
-					} else if (sel[i] instanceof PackageFragmentRoot){
-						IResource res = ((PackageFragmentRoot)sel[i]).getCorrespondingResource();
-						pns.add(res);
-					} else if (sel[i] instanceof PackageFragment){
-						IResource res = ((PackageFragment)sel[i]).getCorrespondingResource();
-						pns.add(res);
-					}
-				} catch(JavaModelException e){
-					//TODO: Fixme
-					System.err.println(e);
+				if (sel[i] instanceof ISourceEntity){
+					pns.add(((ISourceEntity) sel[i]).getResource());
 				}
 			}
 			resources = pns.toArray(new IResource[0]);
@@ -476,7 +460,7 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 	
 	private IDialogSettings getDialogSettings() {
 		if (fDialogSettings == null) {
-			fDialogSettings= JavaPlugin.getDefault().getDialogSettingsSection(PAGE_NAME);
+			fDialogSettings= UIUtils.getDialogSettingsSection(PAGE_NAME);
 		}
 		return fDialogSettings;
 	}

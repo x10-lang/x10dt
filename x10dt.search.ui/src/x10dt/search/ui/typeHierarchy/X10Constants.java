@@ -89,12 +89,68 @@ public class X10Constants {
 	 */
 	public final static String EDITOR_SUB_WORD_NAVIGATION= "subWordNavigation"; //$NON-NLS-1$
 
+	/**
+	 * A named preferences that controls if Java elements are also sorted by
+	 * visibility.
+	 * <p>
+	 * Value is of type <code>Boolean</code>.
+	 * </p>
+	 * @since 3.0
+	 */
+	public static final String APPEARANCE_ENABLE_VISIBILITY_SORT_ORDER= "x10dt.search.ui.enable.visibility.order"; //$NON-NLS-1$
+
+	/**
+	 * A named preference that defines how member elements are ordered by the
+	 * Java views using the <code>JavaElementSorter</code>.
+	 * <p>
+	 * Value is of type <code>String</code>: A comma separated list of the
+	 * following entries. Each entry must be in the list, no duplication. List
+	 * order defines the sort order.
+	 * <ul>
+	 * <li><b>T</b>: Types</li>
+	 * <li><b>C</b>: Constructors</li>
+	 * <li><b>I</b>: Initializers</li>
+	 * <li><b>M</b>: Methods</li>
+	 * <li><b>F</b>: Fields</li>
+	 * <li><b>SI</b>: Static Initializers</li>
+	 * <li><b>SM</b>: Static Methods</li>
+	 * <li><b>SF</b>: Static Fields</li>
+	 * </ul>
+	 * </p>
+	 * @since 2.1
+	 */
+	public static final String APPEARANCE_MEMBER_SORT_ORDER= "outlinesortoption"; //$NON-NLS-1$
+
+	/**
+	 * A named preference that defines how member elements are ordered by visibility in the
+	 * Java views using the <code>JavaElementSorter</code>.
+	 * <p>
+	 * Value is of type <code>String</code>: A comma separated list of the
+	 * following entries. Each entry must be in the list, no duplication. List
+	 * order defines the sort order.
+	 * <ul>
+	 * <li><b>B</b>: Public</li>
+	 * <li><b>V</b>: Private</li>
+	 * <li><b>R</b>: Protected</li>
+	 * <li><b>D</b>: Default</li>
+	 * </ul>
+	 * </p>
+	 * @since 3.0
+	 */
+	public static final String APPEARANCE_VISIBILITY_SORT_ORDER= "x10dt.search.ui.visibility.order"; //$NON-NLS-1$
+
 
 	public static void initializeDefaultValues(IPreferenceStore store) {
 		store.setDefault(APPEARANCE_METHOD_RETURNTYPE, true);
 		store.setDefault(APPEARANCE_METHOD_TYPEPARAMETERS, true);
 		store.setDefault(APPEARANCE_CATEGORY, true);
 		
-//		store.setDefault(PreferenceConstants.EDITOR_SUB_WORD_NAVIGATION, true);
+		store.setDefault(EDITOR_SUB_WORD_NAVIGATION, true);
+		
+		// MembersOrderPreferencePage
+		store.setDefault(APPEARANCE_MEMBER_SORT_ORDER, "T,SF,SI,SM,F,I,C,M"); //$NON-NLS-1$
+		store.setDefault(APPEARANCE_VISIBILITY_SORT_ORDER, "B,V,R,D"); //$NON-NLS-1$
+		store.setDefault(APPEARANCE_ENABLE_VISIBILITY_SORT_ORDER, false);
+
 	}
 }

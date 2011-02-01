@@ -13,6 +13,7 @@ package x10dt.ui.navigator.internal;
 
 import org.eclipse.imp.model.ISourceFolder;
 import org.eclipse.imp.model.ModelFactory.ModelException;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
@@ -21,8 +22,6 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.navigator.IExtensionStateModel;
 import org.eclipse.ui.navigator.INavigatorContentService;
-
-import x10dt.search.ui.typeHierarchy.SearchUtils;
 
 
 /**
@@ -61,7 +60,7 @@ public abstract class NonEssentialElementsFilter extends ViewerFilter {
 				boolean isHierarchicalLayout= !fStateModel.getBooleanProperty(IExtensionStateConstants.Values.IS_LAYOUT_FLAT);
 				try {
 					ISourceFolder fragment = (ISourceFolder) element;
-					if (isHierarchicalLayout && !SearchUtils.isDefaultPackage(fragment.getName()) && Utils.hasSubpackages(fragment)) {
+					if (isHierarchicalLayout && !BuildPathUtils.isDefaultPackage(fragment.getName()) && Utils.hasSubpackages(fragment)) {
 						return hasFilteredChildren((StructuredViewer) viewer, fragment);
 					}
 				} catch (ModelException e) {
