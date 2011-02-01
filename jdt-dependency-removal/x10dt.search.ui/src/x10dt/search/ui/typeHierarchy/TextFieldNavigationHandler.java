@@ -21,7 +21,6 @@ import org.eclipse.core.commands.CommandManager;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.commands.common.NotDefinedException;
 import org.eclipse.core.commands.contexts.ContextManager;
-import org.eclipse.jdt.internal.ui.text.JavaWordIterator;
 import org.eclipse.jface.bindings.BindingManager;
 import org.eclipse.jface.bindings.Scheme;
 import org.eclipse.jface.bindings.TriggerSequence;
@@ -252,12 +251,12 @@ public class TextFieldNavigationHandler {
 
 		private static final String EMPTY_TEXT= ""; //$NON-NLS-1$
 
-		private final JavaWordIterator fIterator;
+		private final X10WordIterator fIterator;
 		private final Navigable fNavigable;
 		private KeyAdapter fKeyListener;
 
 		private FocusHandler(Navigable navigable) {
-			fIterator= new JavaWordIterator();
+			fIterator= new X10WordIterator();
 			fNavigable= navigable;
 
 			Control control= navigable.getControl();

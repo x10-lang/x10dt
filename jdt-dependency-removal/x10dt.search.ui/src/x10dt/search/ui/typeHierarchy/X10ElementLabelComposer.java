@@ -18,6 +18,7 @@ import org.eclipse.imp.model.ISourceFolder;
 import org.eclipse.imp.model.ISourceRoot;
 import org.eclipse.imp.ui.ElementLabelComposer;
 import org.eclipse.imp.ui.UIMessages;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.viewers.StyledString;
 
 import x10dt.search.core.elements.IFieldInfo;
@@ -631,7 +632,7 @@ public class X10ElementLabelComposer extends ElementLabelComposer{
 
 		if (getFlag(flags, X10ElementLabels.T_FULLY_QUALIFIED)) {
 			ISourceFolder pack= SearchUtils.getSourceFolder(type);
-			if (!SearchUtils.isDefaultPackage(pack.getName())) {
+			if (!BuildPathUtils.isDefaultPackage(pack.getName())) {
 				appendPackageFragmentLabel(pack, (flags & QUALIFIER_FLAGS));
 				fBuffer.append('.');
 			}

@@ -15,6 +15,7 @@ import org.eclipse.ui.navigator.ICommonMenuConstants;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import x10dt.search.ui.typeHierarchy.MembersOrderPreferenceCache;
 import x10dt.search.ui.typeHierarchy.TypeFilter;
 import x10dt.search.ui.typeHierarchy.X10Constants;
 
@@ -36,6 +37,8 @@ public class UISearchPlugin extends AbstractUIPlugin {
 
 	private TypeFilter fTypeFilter;
 	
+	private MembersOrderPreferenceCache fMembersOrderPreferenceCache;
+	
 	private ImageDescriptorRegistry fImageDescriptorRegistry;
 
 	/**
@@ -55,6 +58,8 @@ public class UISearchPlugin extends AbstractUIPlugin {
 		super.start(context);
 		plugin = this;
 		X10Constants.initializeDefaultValues(getPreferenceStore());
+		fMembersOrderPreferenceCache= new MembersOrderPreferenceCache();
+		fMembersOrderPreferenceCache.install(getPreferenceStore());
 	}
 
 	/*
@@ -68,6 +73,11 @@ public class UISearchPlugin extends AbstractUIPlugin {
 		if (fTypeFilter != null) {
 			fTypeFilter.dispose();
 			fTypeFilter = null;
+		}
+		
+		if (fMembersOrderPreferenceCache != null) {
+			fMembersOrderPreferenceCache.dispose();
+			fMembersOrderPreferenceCache= null;
 		}
 		
 		plugin = null;
@@ -133,6 +143,11 @@ public class UISearchPlugin extends AbstractUIPlugin {
 		if (fImageDescriptorRegistry == null)
 			fImageDescriptorRegistry= new ImageDescriptorRegistry();
 		return fImageDescriptorRegistry;
+	}
+	
+	public synchronized MembersOrderPreferenceCache getMemberOrderPreferenceCache() {
+		// initialized on startup
+		return fMembersOrderPreferenceCache;
 	}
 	
 	/**

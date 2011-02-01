@@ -13,9 +13,7 @@ package x10dt.ui.navigator.internal;
 import org.eclipse.imp.editor.ProblemsLabelDecorator;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceFolder;
-
-import x10dt.search.ui.typeHierarchy.SearchUtils;
-import x10dt.search.ui.typeHierarchy.X10ElementImageDescriptor;
+import org.eclipse.imp.utils.BuildPathUtils;
 
 
 /**
@@ -42,7 +40,7 @@ public class TreeHierarchyLayoutProblemsDecorator extends ProblemsLabelDecorator
 	}
 
 	protected int computePackageAdornmentFlags(ISourceFolder fragment) {
-		if (!fIsFlatLayout && !SearchUtils.isDefaultPackage(fragment.getName())) {
+		if (!fIsFlatLayout && !BuildPathUtils.isDefaultPackage(fragment.getName())) {
 			return super.computeAdornmentFlags(fragment.getResource());
 		}
 		return super.computeAdornmentFlags(fragment);

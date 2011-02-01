@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Widget;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.progress.UIJob;
 
-import x10dt.search.ui.typeHierarchy.SearchUtils;
 import x10dt.ui.navigator.UINavigatorPlugin;
 import x10dt.ui.navigator.preferences.PreferenceConstants;
 
@@ -428,7 +427,7 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 					curr= getFolded(children, curr);
 				}
 				result.add(curr);
-			} else if (fragment == null && SearchUtils.isDefaultPackage(curr.getName())) {
+			} else if (fragment == null && BuildPathUtils.isDefaultPackage(curr.getName())) {
 				result.add(curr);
 			}
 		}
