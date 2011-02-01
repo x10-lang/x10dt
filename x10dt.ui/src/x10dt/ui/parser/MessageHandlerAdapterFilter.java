@@ -2,11 +2,11 @@ package x10dt.ui.parser;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.jdt.core.IJavaProject;
 
 import x10.parser.X10SemanticRules.MessageHandler;
-import x10dt.core.builder.BuildPathUtils;
 
 public class MessageHandlerAdapterFilter implements lpg.runtime.IMessageHandler {
 	private final IMessageHandler fIMPHandler;

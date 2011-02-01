@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -19,7 +20,6 @@ import polyglot.frontend.Source;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10dt.core.X10DTCorePlugin;
-import x10dt.core.builder.BuildPathUtils;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 
