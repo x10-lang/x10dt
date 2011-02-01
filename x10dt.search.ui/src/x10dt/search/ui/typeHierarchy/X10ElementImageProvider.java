@@ -23,6 +23,7 @@ import org.eclipse.imp.model.ISourceRoot;
 import org.eclipse.imp.model.IWorkspaceModel;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.runtime.ImageDescriptorRegistry;
+import org.eclipse.imp.ui.DecoratingLabelProvider.IElementImageProvider;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -42,7 +43,7 @@ import x10dt.search.ui.typeHierarchy.SearchUtils.Flags;
 /**
  * Default strategy of the Java plugin for the construction of Java element icons.
  */
-public class X10ElementImageProvider {
+public class X10ElementImageProvider implements IElementImageProvider {
 	
 	/**
 	 * Flags for the JavaImageLabelProvider:
@@ -111,9 +112,9 @@ public class X10ElementImageProvider {
 			return getJavaImageDescriptor((IX10Element) element, flags);
 		} else if (element instanceof IFile) {
 			IFile file= (IFile) element;
-			if (file.getFileExtension().equals("x10")) {
-				return getCUResourceImageDescriptor(file, flags); // image for a CU not on the build path
-			}
+//			if (file.getFileExtension().equals("x10")) {
+//				return getCUResourceImageDescriptor(file, flags); // image for a CU not on the build path
+//			}
 			return getWorkbenchImageDescriptor(file, flags);
 		} else if (element instanceof IAdaptable) {
 			return getWorkbenchImageDescriptor((IAdaptable) element, flags);
@@ -268,8 +269,6 @@ public class X10ElementImageProvider {
 				return X10PluginImages.DESC_OBJS_JAVA_MODEL;
 			}
 			
-			// ignore. Must be a new, yet unknown Java element
-			// give an advanced IWorkbenchAdapter the chance
 			IResource resource = element.getResource();
 			
 			if(resource != null)

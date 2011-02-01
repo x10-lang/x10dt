@@ -539,4 +539,11 @@
             type="java.lang.Object">
       </propertyTester>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.entityImageDecorator">
+      <entityImageDecorator
+            class="x10dt.ui.editor.X10EntityImageDecorator"
+            language="X10">
+      </entityImageDecorator>
+   </extension>
 </plugin>

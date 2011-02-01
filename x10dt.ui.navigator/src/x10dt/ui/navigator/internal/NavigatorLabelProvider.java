@@ -12,13 +12,14 @@ package x10dt.ui.navigator.internal;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.imp.model.ISourceEntity;
+import org.eclipse.imp.ui.ElementLabels;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.StyledString;
-import org.eclipse.search.internal.ui.text.BasicElementLabels;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMemento;
@@ -41,15 +42,16 @@ import x10dt.ui.navigator.internal.IExtensionStateConstants.Values;
 public class NavigatorLabelProvider implements ICommonLabelProvider, IStyledLabelProvider {
 
 	private final long LABEL_FLAGS = X10ElementLabels.DEFAULT_QUALIFIED
-			| X10ElementLabels.ROOT_POST_QUALIFIED
-			| X10ElementLabels.APPEND_ROOT_PATH
-			| X10ElementLabels.M_PARAMETER_TYPES
-			| X10ElementLabels.M_PARAMETER_NAMES
-			| X10ElementLabels.M_APP_RETURNTYPE
-			| X10ElementLabels.M_EXCEPTIONS
-			| X10ElementLabels.F_APP_TYPE_SIGNATURE
-			| X10ElementLabels.T_TYPE_PARAMETERS;
+	| ElementLabels.ROOT_POST_QUALIFIED
+	| ElementLabels.APPEND_ROOT_PATH
+	| ElementLabels.M_PARAMETER_TYPES
+	| ElementLabels.M_PARAMETER_NAMES
+	| ElementLabels.M_APP_RETURNTYPE
+	| ElementLabels.M_EXCEPTIONS
+	| ElementLabels.F_APP_TYPE_SIGNATURE
+	| ElementLabels.T_TYPE_PARAMETERS;
 
+	
 	private PackageExplorerLabelProvider delegeteLabelProvider;
 
 	private PackageExplorerContentProvider fContentProvider;
@@ -155,8 +157,8 @@ public class NavigatorLabelProvider implements ICommonLabelProvider, IStyledLabe
 	// Taken from StatusBarUpdater
 
 	private String formatMessage(Object element) {
-//		if (element instanceof IJavaElement) {
-//			return formatJavaElementMessage((IJavaElement) element);
+//		if (element instanceof ISourceEntity) {
+//			return formatJavaElementMessage((ISourceEntity) element);
 //		} else 
 			if (element instanceof IResource) {
 			return formatResourceMessage((IResource) element);
@@ -164,17 +166,17 @@ public class NavigatorLabelProvider implements ICommonLabelProvider, IStyledLabe
 		return ""; //$NON-NLS-1$
 	}
 
-//	private String formatJavaElementMessage(IJavaElement element) {
+//	private String formatJavaElementMessage(ISourceEntity element) {
 //		return X10ElementLabels.getElementLabel(element, LABEL_FLAGS);
 //	}
 
 	private String formatResourceMessage(IResource element) {
 		IContainer parent = element.getParent();
 		if (parent != null && parent.getType() != IResource.ROOT)
-			return BasicElementLabels.getResourceName(element.getName()) + X10ElementLabels.CONCAT_STRING
-					+ BasicElementLabels.getPathLabel(parent.getFullPath(), false);
+			return element.getName() + X10ElementLabels.CONCAT_STRING
+					+ parent.getFullPath();
 		else
-			return BasicElementLabels.getResourceName(element.getName());
+			return element.getName();
 	}
 
 	public void restoreState(IMemento memento) {

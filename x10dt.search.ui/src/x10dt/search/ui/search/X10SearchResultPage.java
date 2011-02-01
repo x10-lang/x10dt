@@ -1,24 +1,19 @@
 package x10dt.search.ui.search;
 
 
-import java.net.URI;
-
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.editor.EditorUtility;
+import org.eclipse.imp.ui.DecoratingLabelProvider;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
 import org.eclipse.search.ui.text.Match;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
+
 import x10dt.search.core.elements.IMemberInfo;
 import x10dt.search.ui.typeHierarchy.SearchUtils;
 import x10dt.search.ui.typeHierarchy.X10ElementLabels;
-import x10dt.search.ui.typeHierarchy.X10LabelProvider;
 
 
 
@@ -59,8 +54,8 @@ public class X10SearchResultPage extends AbstractTextSearchViewPage {
 	@Override
 	protected void configureTableViewer(TableViewer viewer) {
 		viewer.setUseHashlookup(true);
-		X10LabelProvider lp = new X10SearchLabelProvider();
-		lp.setTextFlags(X10ElementLabels.ALL_POST_QUALIFIED);
+		ILabelProvider lp = new X10SearchLabelProvider();
+		((DecoratingLabelProvider)lp).setTextFlags(X10ElementLabels.ALL_POST_QUALIFIED);
 		viewer.setLabelProvider(lp);
 		fContentProvider=new X10SearchTableContentProvider(this);
 		viewer.setContentProvider(fContentProvider);

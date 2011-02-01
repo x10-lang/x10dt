@@ -24,7 +24,7 @@ public class DecoratingLabelProvider extends ColoringLabelProvider {
 	 * decorator extension point).
 	 * @param labelProvider the label provider to decorate
 	 */
-	public DecoratingLabelProvider(X10LabelProvider labelProvider, Language lang) {
+	public DecoratingLabelProvider(AppearanceAwareLabelProvider labelProvider, Language lang) {
 		this(labelProvider, true, lang);
 	}
 
@@ -35,7 +35,7 @@ public class DecoratingLabelProvider extends ColoringLabelProvider {
 	 * 	@param labelProvider the label provider to decorate
 	 * @param errorTick show error ticks
 	 */
-	public DecoratingLabelProvider(X10LabelProvider labelProvider, boolean errorTick, Language lang) {
+	public DecoratingLabelProvider(AppearanceAwareLabelProvider labelProvider, boolean errorTick, Language lang) {
 		this(labelProvider, errorTick, true, lang);
 	}
 
@@ -47,7 +47,7 @@ public class DecoratingLabelProvider extends ColoringLabelProvider {
 	 * @param errorTick show error ticks
 	 * @param flatPackageMode configure flat package mode
 	 */
-	public DecoratingLabelProvider(X10LabelProvider labelProvider, boolean errorTick, boolean flatPackageMode, Language lang) {
+	public DecoratingLabelProvider(AppearanceAwareLabelProvider labelProvider, boolean errorTick, boolean flatPackageMode, Language lang) {
 		super(labelProvider, PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator(), DecorationContext.DEFAULT_CONTEXT);
 		if (errorTick) {
 			labelProvider.addLabelDecorator(new ProblemsLabelDecorator(lang));
