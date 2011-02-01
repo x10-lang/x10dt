@@ -29,10 +29,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
 import org.osgi.framework.Bundle;
 
@@ -167,7 +169,7 @@ public final class ProjectUtils {
       
       final IProjectDescription description = project.getDescription();
       description.setNatureIds(new String[] {
-        backEndNature, SmapiProjectNature.k_natureID, JavaCore.NATURE_ID                        
+        backEndNature, SmapiProjectNature.k_natureID                        
       });
       
       final IPath srcPath = new Path('/' + name + "/src"); //$NON-NLS-1$
@@ -179,12 +181,15 @@ public final class ProjectUtils {
       
       project.setDescription(description, null);
       
-      final IJavaProject javaProject = JavaCore.create(project);
-      
-      final List<IClasspathEntry> entries = new ArrayList<IClasspathEntry>();
-      entries.add(JavaCore.newSourceEntry(srcPath));
-      entries.add(JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID)));
-      javaProject.setRawClasspath(entries.toArray(new IClasspathEntry[entries.size()]), binPath, null);
+      try {
+		  final ISourceProject javaProject = ModelFactory.create(project);
+		  final List<IPathEntry> entries = new ArrayList<IPathEntry>();
+		  entries.add(ModelFactory.createSourceEntry(srcPath, null));
+		  entries.add(ModelFactory.createContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID)));
+		  javaProject.setBuildPath(LanguageRegistry.findLanguage("X10"), entries, binPath, null);
+		} catch (ModelException e) {
+			throw ModelFactory.createCoreException(e);
+		}
     }
     return project;
   }
