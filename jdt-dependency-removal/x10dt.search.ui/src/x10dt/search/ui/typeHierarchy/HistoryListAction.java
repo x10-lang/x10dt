@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.ui.wizards.fields.DialogField;
 import org.eclipse.imp.ui.wizards.fields.IListAdapter;
 import org.eclipse.imp.ui.wizards.fields.ListDialogField;
@@ -65,7 +67,8 @@ public class HistoryListAction extends Action {
 				}
 			};
 
-			fHistoryList= new ListDialogField(adapter, buttonLabels, new X10LabelProvider());
+			
+			fHistoryList= new ListDialogField(adapter, buttonLabels, ServiceFactory.getInstance().getLabelProvider(LanguageRegistry.findLanguage("X10")));
 			fHistoryList.setLabelText(TypeHierarchyMessages.HistoryListDialog_label);
 			fHistoryList.setElements(Arrays.asList(elements));
 

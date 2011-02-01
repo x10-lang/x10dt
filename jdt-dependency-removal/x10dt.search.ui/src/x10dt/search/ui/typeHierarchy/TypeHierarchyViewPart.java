@@ -26,6 +26,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.editor.EditorUtility;
 import org.eclipse.imp.editor.GenerateActionGroup;
 import org.eclipse.imp.editor.OpenEditorActionGroup;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.ui.IViewPartInputProvider;
 import org.eclipse.imp.utils.SelectionUtil;
 import org.eclipse.jface.action.IMenuListener;
@@ -41,6 +43,7 @@ import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.IBasicPropertyConstants;
+import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -168,7 +171,7 @@ public class TypeHierarchyViewPart extends ViewPart implements ITypeHierarchyVie
 	private ViewForm fMethodViewerViewForm;
 
 	private CLabel fMethodViewerPaneLabel;
-	private X10LabelProvider fPaneLabelProvider;
+	private ILabelProvider fPaneLabelProvider;
 	private Composite fParent;
 
 	private ToggleViewAction[] fViewActions;
@@ -248,7 +251,7 @@ public class TypeHierarchyViewPart extends ViewPart implements ITypeHierarchyVie
 //		fToggleLinkingAction= new ToggleLinkingAction(this);
 //		fToggleLinkingAction.setActionDefinitionId(IWorkbenchCommandConstants.NAVIGATE_TOGGLE_LINK_WITH_EDITOR);
 
-		fPaneLabelProvider= new X10LabelProvider();
+		fPaneLabelProvider= ServiceFactory.getInstance().getLabelProvider(LanguageRegistry.findLanguage("X10"));
 
 		fFocusOnSelectionAction= new FocusOnSelectionAction(this);
 

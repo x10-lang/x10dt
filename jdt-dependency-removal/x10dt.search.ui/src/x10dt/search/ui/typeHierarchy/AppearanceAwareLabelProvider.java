@@ -11,14 +11,18 @@ package x10dt.search.ui.typeHierarchy;
  *******************************************************************************/
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.preferences.PreferenceConstants;
+import org.eclipse.imp.ui.ElementLabels;
+import org.eclipse.imp.ui.PreferenceAwareLabelProvider;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
-import org.eclipse.jface.viewers.LabelProviderChangedEvent;
-import org.eclipse.ui.IEditorRegistry;
-import org.eclipse.ui.IPropertyListener;
-import org.eclipse.ui.PlatformUI;
 
 import x10dt.search.ui.UISearchPlugin;
 
@@ -27,14 +31,16 @@ import x10dt.search.ui.UISearchPlugin;
  * JavaUILabelProvider that respects settings from the Appearance preference page.
  * Triggers a viewer update when a preference changes.
  */
-public class AppearanceAwareLabelProvider extends X10LabelProvider implements IPropertyChangeListener, IPropertyListener {
+public class AppearanceAwareLabelProvider extends PreferenceAwareLabelProvider {
 
-	public final static long DEFAULT_TEXTFLAGS= X10ElementLabels.ROOT_VARIABLE | X10ElementLabels.T_TYPE_PARAMETERS | X10ElementLabels.M_PARAMETER_TYPES |
-		X10ElementLabels.M_APP_TYPE_PARAMETERS | X10ElementLabels.M_APP_RETURNTYPE  | X10ElementLabels.REFERENCED_ROOT_POST_QUALIFIED;
+	private ArrayList<String> prefs;
+	private Map<String, Long> masks;
+	
+	public final static long DEFAULT_TEXTFLAGS= ElementLabels.ROOT_VARIABLE | ElementLabels.T_TYPE_PARAMETERS | ElementLabels.M_PARAMETER_TYPES |
+		ElementLabels.M_APP_TYPE_PARAMETERS | ElementLabels.M_APP_RETURNTYPE  | ElementLabels.REFERENCED_ROOT_POST_QUALIFIED;
 	public final static int DEFAULT_IMAGEFLAGS= X10ElementImageProvider.OVERLAY_ICONS;
 	
-	private long fTextFlagMask;
-	private int fImageFlagMask;
+	
 
 	/**
 	 * Constructor for AppearanceAwareLabelProvider.
@@ -42,10 +48,7 @@ public class AppearanceAwareLabelProvider extends X10LabelProvider implements IP
 	 * @param imageFlags Flags defined in <code>JavaElementImageProvider</code>.
 	 */
 	public AppearanceAwareLabelProvider(long textFlags, int imageFlags) {
-		super(textFlags, imageFlags);
-		initMasks();
-		UISearchPlugin.getDefault().getPreferenceStore().addPropertyChangeListener(this);
-		PlatformUI.getWorkbench().getEditorRegistry().addPropertyListener(this);
+		super(ServiceFactory.getInstance().getLabelProvider(LanguageRegistry.findLanguage("X10")), new X10ElementImageProvider(), textFlags, imageFlags);
 	}
 
 	/**
@@ -54,72 +57,41 @@ public class AppearanceAwareLabelProvider extends X10LabelProvider implements IP
 	public AppearanceAwareLabelProvider() {
 		this(DEFAULT_TEXTFLAGS, DEFAULT_IMAGEFLAGS);
 	}
+	
+	
 
-	private void initMasks() {
-		IPreferenceStore store= UISearchPlugin.getDefault().getPreferenceStore();
-		fTextFlagMask= -1;
-		if (!store.getBoolean(X10Constants.APPEARANCE_METHOD_RETURNTYPE)) {
-			fTextFlagMask ^= X10ElementLabels.M_APP_RETURNTYPE;
+	@Override
+	protected List<String> getTextPreferences() {
+		if(prefs == null)
+		{
+			prefs = new ArrayList<String>();
+			prefs.add(X10Constants.APPEARANCE_METHOD_RETURNTYPE);
+			prefs.add(X10Constants.APPEARANCE_METHOD_TYPEPARAMETERS);
+			prefs.add(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES);
+			prefs.add(X10Constants.APPEARANCE_CATEGORY);
+			
+			masks = new HashMap<String, Long>();
+			masks.put(X10Constants.APPEARANCE_METHOD_RETURNTYPE, Long.parseLong("" + X10ElementLabels.M_APP_RETURNTYPE));
+			masks.put(X10Constants.APPEARANCE_METHOD_TYPEPARAMETERS, Long.parseLong("" + X10ElementLabels.M_APP_TYPE_PARAMETERS));
+			masks.put(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES, Long.parseLong("" + X10ElementLabels.P_COMPRESSED));
+			masks.put(X10Constants.APPEARANCE_CATEGORY, Long.parseLong("" + X10ElementLabels.ALL_CATEGORY));
+			
 		}
-		if (!store.getBoolean(X10Constants.APPEARANCE_METHOD_TYPEPARAMETERS)) {
-			fTextFlagMask ^= X10ElementLabels.M_APP_TYPE_PARAMETERS;
-		}
-		if (!store.getBoolean(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES)) {
-			fTextFlagMask ^= X10ElementLabels.P_COMPRESSED;
-		}
-		if (!store.getBoolean(X10Constants.APPEARANCE_CATEGORY)) {
-			fTextFlagMask ^= X10ElementLabels.ALL_CATEGORY;
-		}
-
-		fImageFlagMask= -1;
+		return prefs;
 	}
 
-	/*
-	 * @see IPropertyChangeListener#propertyChange(PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent event) {
-		String property= event.getProperty();
-		if (property.equals(X10Constants.APPEARANCE_METHOD_RETURNTYPE)
-				|| property.equals(X10Constants.APPEARANCE_METHOD_TYPEPARAMETERS)
-				|| property.equals(X10Constants.APPEARANCE_CATEGORY)
-				|| property.equals(PreferenceConstants.APPEARANCE_PKG_NAME_PATTERN_FOR_PKG_VIEW)
-				|| property.equals(PreferenceConstants.APPEARANCE_COMPRESS_PACKAGE_NAMES)) {
-			initMasks();
-			LabelProviderChangedEvent lpEvent= new LabelProviderChangedEvent(this, null); // refresh all
-			fireLabelProviderChanged(lpEvent);
-		}
+	@Override
+	protected List<String> getImagePreferences() {
+		return Collections.emptyList();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.IPropertyListener#propertyChanged(java.lang.Object, int)
-	 */
-	public void propertyChanged(Object source, int propId) {
-		if (propId == IEditorRegistry.PROP_CONTENTS) {
-			fireLabelProviderChanged(new LabelProviderChangedEvent(this, null)); // refresh all
-		}
+	@Override
+	protected IPreferenceStore getPreferenceStore(String preference) {
+		return UISearchPlugin.getDefault().getPreferenceStore();
 	}
 
-	/*
-	 * @see IBaseLabelProvider#dispose()
-	 */
-	public void dispose() {
-		UISearchPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(this);
-		PlatformUI.getWorkbench().getEditorRegistry().removePropertyListener(this);
-		super.dispose();
+	@Override
+	protected long getMask(String preference) {
+		return masks.get(preference);
 	}
-
-	/*
-	 * @see JavaUILabelProvider#evaluateImageFlags()
-	 */
-	protected int evaluateImageFlags(Object element) {
-		return getImageFlags() & fImageFlagMask;
-	}
-
-	/*
-	 * @see JavaUILabelProvider#evaluateTextFlags()
-	 */
-	protected long evaluateTextFlags(Object element) {
-		return getTextFlags() & fTextFlagMask;
-	}
-
 }

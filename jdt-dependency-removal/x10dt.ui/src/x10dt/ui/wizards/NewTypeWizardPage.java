@@ -90,8 +90,8 @@ import x10dt.search.ui.typeHierarchy.ModelUtil;
 import x10dt.search.ui.typeHierarchy.SearchUtils;
 import x10dt.search.ui.typeHierarchy.SearchUtils.Flags;
 import x10dt.search.ui.typeHierarchy.TextFieldNavigationHandler;
-import x10dt.search.ui.typeHierarchy.X10LabelProvider;
 import x10dt.search.ui.typeHierarchy.X10PluginImages;
+import x10dt.ui.editor.X10LabelProvider;
 import x10dt.ui.utils.X10Utils;
 
 

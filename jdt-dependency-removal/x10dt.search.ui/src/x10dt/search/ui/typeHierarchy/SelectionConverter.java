@@ -17,6 +17,8 @@ import java.util.Iterator;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.language.ServiceFactory;
 import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
@@ -396,7 +398,7 @@ public class SelectionConverter {
 		
 //		int flags= JavaElementLabelProvider.SHOW_DEFAULT | JavaElementLabelProvider.SHOW_QUALIFIED | JavaElementLabelProvider.SHOW_ROOT;
 
-		ElementListSelectionDialog dialog= new ElementListSelectionDialog(shell, new X10LabelProvider());
+		ElementListSelectionDialog dialog= new ElementListSelectionDialog(shell, ServiceFactory.getInstance().getLabelProvider(LanguageRegistry.findLanguage("X10")));
 		dialog.setTitle(title);
 		dialog.setMessage(message);
 		dialog.setElements(elements);

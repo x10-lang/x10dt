@@ -16,26 +16,23 @@
 package x10dt.ui.editor;
 
 import java.lang.reflect.Field;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.imp.editor.ModelTreeNode;
-import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceEntity;
-import org.eclipse.imp.services.ILabelProvider;
+import org.eclipse.imp.ui.DecoratingLabelProvider;
 import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
-import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
 
@@ -58,6 +55,8 @@ import x10.ast.TypeDecl_c;
 import x10.ast.X10Loop;
 import x10.parser.X10SemanticRules.JPGPosition;
 import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.ui.typeHierarchy.X10ElementImageProvider;
+import x10dt.search.ui.typeHierarchy.X10ElementLabels;
 import x10dt.search.ui.typeHierarchy.X10PluginImages;
 import x10dt.ui.X10DTUIPlugin;
 
@@ -70,9 +69,8 @@ import x10dt.ui.X10DTUIPlugin;
  * bookkeeping.
  * @author Beth Tibbitts
  */
-public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyledLabelProvider {
-    private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
-
+public class X10LabelProvider extends DecoratingLabelProvider {
+    
     private static ImageRegistry sImageRegistry= X10DTUIPlugin.getInstance().getImageRegistry();
 
     public static final String DEFAULT_AST_IMAGE_NAME= "default_ast";
@@ -90,13 +88,13 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     private static Image COMPILATION_UNIT_ERROR_IMAGE;
     private static Image ALIAS_IMAGE;
 
-    public static final String PROJECT_NORMAL_IMAGE_NAME= "projectNormal";
-    public static final String PROJECT_WARNING_IMAGE_NAME= "projectWarning";
-    public static final String PROJECT_ERROR_IMAGE_NAME= "projectError";
+//    public static final String PROJECT_NORMAL_IMAGE_NAME= "projectNormal";
+//    public static final String PROJECT_WARNING_IMAGE_NAME= "projectWarning";
+//    public static final String PROJECT_ERROR_IMAGE_NAME= "projectError";
 
-    private static Image PROJECT_NORMAL_IMAGE;
-    private static Image PROJECT_WARNING_IMAGE;
-    private static Image PROJECT_ERROR_IMAGE;
+//    private static Image PROJECT_NORMAL_IMAGE;
+//    private static Image PROJECT_WARNING_IMAGE;
+//    private static Image PROJECT_ERROR_IMAGE;
     
     //================== PORT1.7 Images moved here from Outliner
     
@@ -188,46 +186,58 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     }
 
     private static Image[] CU_IMAGES= { COMPILATION_UNIT_ERROR_IMAGE, COMPILATION_UNIT_WARNING_IMAGE, COMPILATION_UNIT_NORMAL_IMAGE, COMPILATION_UNIT_NORMAL_IMAGE };
-    private static Image[] PROJECT_IMAGES= { PROJECT_ERROR_IMAGE, PROJECT_WARNING_IMAGE, PROJECT_NORMAL_IMAGE, PROJECT_NORMAL_IMAGE };
+//    private static Image[] PROJECT_IMAGES= { PROJECT_ERROR_IMAGE, PROJECT_WARNING_IMAGE, PROJECT_NORMAL_IMAGE, PROJECT_NORMAL_IMAGE };
 
     private Language fX10Language= LanguageRegistry.findLanguage("x10");
 
+    public X10LabelProvider()
+    {
+    	this(X10ElementLabels.ALL_DEFAULT, X10ElementImageProvider.OVERLAY_ICONS);
+    }
+    
+    public X10LabelProvider(long textFlags, int imageFlags)
+    {
+    	super(null, new X10ElementImageProvider(), textFlags, imageFlags);
+    }
+    
     public Image getImage(Object o) {
         if (o instanceof IResource || o instanceof ISourceEntity) {
-            IResource res= (o instanceof ISourceEntity) ? ((ISourceEntity) o).getResource() : (IResource) o;
-            return getErrorTicksFromMarkers(res);
+            return super.getImage(o);
         }
-
-        Node node= (o instanceof ModelTreeNode) ?
-                (Node) ((ModelTreeNode) o).getASTNode() :
-                        (Node) o;
-
-        if (node instanceof PackageNode) {
-            return _DESC_OBJS_PACKDECL;
         
-        } else if (node instanceof ClassDecl) {
-            ClassDecl cd= (ClassDecl) node;
-            return cd.flags().flags().isInterface() ? _DESC_OBJS_CFILEINT : _DESC_OBJS_CFILECLASS;//PORT1.7 flags()->flags().flags()
-        
-        } else if (node instanceof FieldDecl) {
-            FieldDecl fd= (FieldDecl) node;
-            return getImageFromQualifiers(fd.flags().flags(), FIELD_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
-        
-        } else if (node instanceof ProcedureDecl) {
-            ProcedureDecl pd= (ProcedureDecl) node;
-            return getImageFromQualifiers(pd.flags().flags(), MISC_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
-        
-        } else if (node instanceof Async || node instanceof AtEach ||
-                /*node instanceof Future ||*/ node instanceof Finish || node instanceof Atomic ||
-                node instanceof Next) {
-            return _DESC_MISC_DEFAULT;
-        
-        } else if (node instanceof New) {//PORT1.7 ArrayConstructor->New (Nate: "with a Closure as an argument")
-            return _DESC_MISC_DEFAULT;
-        
-        } else if (node instanceof TypeDecl_c){
-        	return ALIAS_IMAGE;
-        }
+        else if(o instanceof Node)
+		{
+	        Node node= (o instanceof ModelTreeNode) ?
+	                (Node) ((ModelTreeNode) o).getASTNode() :
+	                        (Node) o;
+	
+	        if (node instanceof PackageNode) {
+	            return _DESC_OBJS_PACKDECL;
+	        
+	        } else if (node instanceof ClassDecl) {
+	            ClassDecl cd= (ClassDecl) node;
+	            return cd.flags().flags().isInterface() ? _DESC_OBJS_CFILEINT : _DESC_OBJS_CFILECLASS;//PORT1.7 flags()->flags().flags()
+	        
+	        } else if (node instanceof FieldDecl) {
+	            FieldDecl fd= (FieldDecl) node;
+	            return getImageFromQualifiers(fd.flags().flags(), FIELD_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
+	        
+	        } else if (node instanceof ProcedureDecl) {
+	            ProcedureDecl pd= (ProcedureDecl) node;
+	            return getImageFromQualifiers(pd.flags().flags(), MISC_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
+	        
+	        } else if (node instanceof Async || node instanceof AtEach ||
+	                /*node instanceof Future ||*/ node instanceof Finish || node instanceof Atomic ||
+	                node instanceof Next) {
+	            return _DESC_MISC_DEFAULT;
+	        
+	        } else if (node instanceof New) {//PORT1.7 ArrayConstructor->New (Nate: "with a Closure as an argument")
+	            return _DESC_MISC_DEFAULT;
+	        
+	        } else if (node instanceof TypeDecl_c){
+	        	return ALIAS_IMAGE;
+	        }
+		}
         return DEFAULT_AST_IMAGE;
     }
 
@@ -262,9 +272,9 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
                 return selectDecoratedImage(res, CU_IMAGES);
             }
         }
-        if (res instanceof IProject) {
-            return selectDecoratedImage(res, PROJECT_IMAGES);
-        }
+//        if (res instanceof IProject) {
+//            return selectDecoratedImage(res, PROJECT_IMAGES);
+//        }
         return null;
     }
 
@@ -280,91 +290,122 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     }
 
     public String getText(Object element) {
-		if (element instanceof ITypeInfo) {
-			return ((ITypeInfo) element).getName();
-		}
-    	
-        Node node= (element instanceof ModelTreeNode) ?
-	        (Node) ((ModelTreeNode) element).getASTNode():
-                (Node) element;
-
-        if (node instanceof PackageNode) {
-            PackageNode pNode = (PackageNode) node;
-            
-			String pnName = pNode.package_().get().fullName().toString();
-			return pnName; //PORT1.7  package_()->get()
-        } else if (node instanceof ClassDecl) {
-            ClassDecl cd= (ClassDecl) node;
-            return filter(cd.name().id().toString());//PORT1.7 name() no longer returns a string: name()->name().id().toString()
-        } else if (node instanceof FieldDecl) {
-            FieldDecl fd= (FieldDecl) node;
-            return filter(fd.name() + " : " + fd.type());
-        } else if (node instanceof ProcedureDecl) {
-    	    ProcedureDecl pd= (ProcedureDecl) node;
-            StringBuffer buff= new StringBuffer();
-
-    	    if (node instanceof ConstructorDecl) {
-    	        // Front-end replaces "this" with the containing class name, so handle this case specially
-				buff.append("this");
-    	    } else {
-                buff.append(pd.name().id().toString());//PORT1.7 note that ProcedureDecl.name() re-added 10/1/08 by Nate
-    	    }
-
-    	    List<Formal> formals= pd.formals();
-    	    buff.append("(");
-    	    for (Iterator<Formal> iter = formals.iterator(); iter.hasNext();) {
-				Formal formal =  iter.next();
-				buff.append(formal.type().toString());
-				if (iter.hasNext())
-					buff.append(", ");
+		String result= X10ElementLabels.getTextLabel(element, getTextFlags());
+		if (result.length() == 0)
+		{
+			if (element instanceof ITypeInfo) {
+				return ((ITypeInfo) element).getName();
 			}
-    	    buff.append(")");
-    	    return filter(buff.toString());
-        } else if (node instanceof Async) {
-            Async a= (Async) node;
-            return "async";
-        } else if (node instanceof AtEach) {
-            AtEach ae= (AtEach) node;
-            return "ateach (" + sourceText(ae.domain()) + ")";
-        } else if (node instanceof Atomic) {
-            Atomic at= (Atomic) node;
-            return "atomic {" + sourceText(at.body()) + "}";
-        } else if (node instanceof Finish) {
-            return "finish";
-//      } else if (node instanceof Future) {
-//          Future f= (Future) node;
-//          return "future " + f.body();
-        } else if (node instanceof Next) {
-            return "next";
-        } else if (node instanceof X10Loop) {
-            X10Loop loop= (X10Loop) node;
-            String text = "for(" + sourceText(loop.formal()) +
-                          " : " + sourceText(loop.domain()) + ")";
-            return filter(text);
-        } else if (node instanceof Call) {
-            Call call = (Call) node;
-            if (call.name().toString().equals("force") && call.arguments().size() == 0) {
-                return "force()";
-            }
-            String temp = node.getClass().getName()+": "+node.toString();//PORT1.7 what is this thing? find out later
-            return temp;
-        } else if (node instanceof TypeDecl_c){  // type definition a.k.a. alias
-        	TypeDecl_c td=(TypeDecl_c)node;
-        	String tdName= td.name().toString();
-        	return tdName;
-        }
-//        else if (node instanceof New) {//PORT1.7 ArrayConstructor -> New w/ Closure arg
-//        	New newThing = (New)node;//PORT1.7 ArrayConstruct vs New
-//        	if(newThing.type().isArray() && newThing.body()!=null ) {
-//        		ArrayType atype = (ArrayType)newThing.type();
-//        		return "new " + atype.base() + "[" + sourceText(ac.distribution()) + "]";//PORT1.7 arrayconstructor.arrayBaseType()-> ArrayType.base();
-//        	}
-//            
-//            
-//        }
-        
-        return "???";
-    }
+			
+			else if(element instanceof ISourceEntity)
+			{
+				return ((ISourceEntity) element).getName();
+			}
+	    	
+			else if(element instanceof Node)
+			{
+		        Node node= (element instanceof ModelTreeNode) ?
+			        (Node) ((ModelTreeNode) element).getASTNode():
+		                (Node) element;
+	
+		        if (node instanceof PackageNode) {
+		            PackageNode pNode = (PackageNode) node;
+		            
+					String pnName = pNode.package_().get().fullName().toString();
+					return pnName; //PORT1.7  package_()->get()
+		        } else if (node instanceof ClassDecl) {
+		            ClassDecl cd= (ClassDecl) node;
+		            return filter(cd.name().id().toString());//PORT1.7 name() no longer returns a string: name()->name().id().toString()
+		        } else if (node instanceof FieldDecl) {
+		            FieldDecl fd= (FieldDecl) node;
+		            return filter(fd.name() + " : " + fd.type());
+		        } else if (node instanceof ProcedureDecl) {
+		    	    ProcedureDecl pd= (ProcedureDecl) node;
+		            StringBuffer buff= new StringBuffer();
+	
+		    	    if (node instanceof ConstructorDecl) {
+		    	        // Front-end replaces "this" with the containing class name, so handle this case specially
+						buff.append("this");
+		    	    } else {
+		                buff.append(pd.name().id().toString());//PORT1.7 note that ProcedureDecl.name() re-added 10/1/08 by Nate
+		    	    }
+	
+		    	    List<Formal> formals= pd.formals();
+		    	    buff.append("(");
+		    	    for (Iterator<Formal> iter = formals.iterator(); iter.hasNext();) {
+						Formal formal =  iter.next();
+						buff.append(formal.type().toString());
+						if (iter.hasNext())
+							buff.append(", ");
+					}
+		    	    buff.append(")");
+		    	    return filter(buff.toString());
+		        } else if (node instanceof Async) {
+		            Async a= (Async) node;
+		            return "async";
+		        } else if (node instanceof AtEach) {
+		            AtEach ae= (AtEach) node;
+		            return "ateach (" + sourceText(ae.domain()) + ")";
+		        } else if (node instanceof Atomic) {
+		            Atomic at= (Atomic) node;
+		            return "atomic {" + sourceText(at.body()) + "}";
+		        } else if (node instanceof Finish) {
+		            return "finish";
+	//	      } else if (node instanceof Future) {
+	//	          Future f= (Future) node;
+	//	          return "future " + f.body();
+		        } else if (node instanceof Next) {
+		            return "next";
+		        } else if (node instanceof X10Loop) {
+		            X10Loop loop= (X10Loop) node;
+		            String text = "for(" + sourceText(loop.formal()) +
+		                          " : " + sourceText(loop.domain()) + ")";
+		            return filter(text);
+		        } else if (node instanceof Call) {
+		            Call call = (Call) node;
+		            if (call.name().toString().equals("force") && call.arguments().size() == 0) {
+		                return "force()";
+		            }
+		            String temp = node.getClass().getName()+": "+node.toString();//PORT1.7 what is this thing? find out later
+		            return temp;
+		        } else if (node instanceof TypeDecl_c){  // type definition a.k.a. alias
+		        	TypeDecl_c td=(TypeDecl_c)node;
+		        	String tdName= td.name().toString();
+		        	return tdName;
+		        }
+	//	        else if (node instanceof New) {//PORT1.7 ArrayConstructor -> New w/ Closure arg
+	//	        	New newThing = (New)node;//PORT1.7 ArrayConstruct vs New
+	//	        	if(newThing.type().isArray() && newThing.body()!=null ) {
+	//	        		ArrayType atype = (ArrayType)newThing.type();
+	//	        		return "new " + atype.base() + "[" + sourceText(ac.distribution()) + "]";//PORT1.7 arrayconstructor.arrayBaseType()-> ArrayType.base();
+	//	        	}
+	//	            
+	//	            
+	//	        }
+			}
+	        else if(element instanceof IStorage)
+			{
+				result= fStorageLabelProvider.getText(element);
+			}
+	        
+	        result = "???";	
+		}
+		
+		return decorateText(result, element);
+	}
+
+	public StyledString getStyledText(Object element) {
+		StyledString string= X10ElementLabels.getStyledTextLabel(element, (getTextFlags() | X10ElementLabels.COLORIZE));
+		if (string.length() == 0 && (element instanceof IStorage)) {
+			string= new StyledString(fStorageLabelProvider.getText(element));
+		}
+		String decorated= decorateText(string.getString(), element);
+		if (decorated != null) {
+			return StyledCellLabelProvider.styleDecoratedString(decorated, StyledString.DECORATIONS_STYLER, string);
+		}
+		return string;
+	}
+    
 
     private String sourceText(Node n) {
         return ((JPGPosition) n.position()).toText();
@@ -374,21 +415,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
         return name.replaceAll("\n", "").replaceAll("\\{amb\\}", "");
     }
 
-    public void addListener(ILabelProviderListener listener) {
-        fListeners.add(listener);
-    }
-
-    public void dispose() { }
-
     public boolean isLabelProperty(Object element, String property) {
         return false;
     }
-
-    public void removeListener(ILabelProviderListener listener) {
-        fListeners.remove(listener);
-    }
-
-	public StyledString getStyledText(Object element) {
-		return new StyledString(getText(element));
-	}
 }
