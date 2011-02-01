@@ -1,12 +1,10 @@
 package x10dt.search.ui.search;
 
 import static x10dt.search.ui.search.SearchPatternData.ALL_OCCURRENCES;
-import static x10dt.search.ui.search.SearchPatternData.CONSTRUCTOR;
 import static x10dt.search.ui.search.SearchPatternData.DECLARATIONS;
 import static x10dt.search.ui.search.SearchPatternData.FIELD;
 import static x10dt.search.ui.search.SearchPatternData.IMPLEMENTORS;
 import static x10dt.search.ui.search.SearchPatternData.METHOD;
-import static x10dt.search.ui.search.SearchPatternData.PACKAGE;
 import static x10dt.search.ui.search.SearchPatternData.READ_ACCESSES;
 import static x10dt.search.ui.search.SearchPatternData.REFERENCES;
 import static x10dt.search.ui.search.SearchPatternData.SPECIFIC_REFERENCES;
