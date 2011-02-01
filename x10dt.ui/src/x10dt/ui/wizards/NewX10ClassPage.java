@@ -406,9 +406,10 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 		try {
 			final String type = getTypeName();
 			final IPackageFragment pack = getPackageFragment();
+			final String fullyQualifiedType = pack.getElementName() == "" ? type : pack.getElementName() + "." + type;
 			final IResource project = pack.getResource().getProject();
 			final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
-			final ITypeInfo[] results = X10SearchEngine.getTypeInfo(scope, type, new NullProgressMonitor());
+			final ITypeInfo[] results = X10SearchEngine.getTypeInfo(scope, fullyQualifiedType, new NullProgressMonitor());
 			if (results.length > 0) { 
 				status.setError(NewWizardMessages.NewTypeWizardPage_error_TypeNameExists);
 				return status;
