@@ -61,14 +61,7 @@ final class IndexingCompiler {
         // --- Overridden methods
         
         public List<Goal> goals(final Job job) {
-          final List<Goal> goals = new ArrayList<Goal>();
-          goals.add(Parsed(job));
-          goals.add(ImportTableInitialized(job));
-          goals.add(TypesInitialized(job));
-          goals.add(PreTypeCheck(job));
-          goals.add(TypeChecked(job));
-          goals.add(End(job));
-          return goals;
+           return super.typecheckSourceGoals(job);
         }
         
       };
