@@ -52,6 +52,7 @@ import org.eclipse.imp.ui.wizards.fields.StringButtonDialogField;
 import org.eclipse.imp.ui.wizards.fields.StringButtonStatusDialogField;
 import org.eclipse.imp.ui.wizards.fields.StringDialogField;
 import org.eclipse.imp.ui.wizards.utils.LayoutUtil;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.imp.utils.LoggingUtils;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -468,13 +469,24 @@ public abstract class NewTypeWizardPage extends NewContainerWizardPage {
 			// evaluate the enclosing type
 			project= elem.getProject();
 			pack= (ISourceFolder) elem.getAncestor(ISourceFolder.class);
+			if(pack != null)
+			{
+				ISourceRoot root = (ISourceRoot)pack.getAncestor(ISourceRoot.class);
+				if(root != null)
+				{
+					pack = root.getSourceFolder(BuildPathUtils.getPackageName(root, pack.getResource()));
+				}
+			}
 			
 			ICompilationUnit cu= (ICompilationUnit) elem.getAncestor(ICompilationUnit.class);
 			if (cu != null) {
 				final ArrayList<ClassType> x10Types = new ArrayList<ClassType>();
 		          try {
-		            X10Utils.collectX10MainTypes(x10Types, cu, null);
-		            enclosingType = SearchUtils.getType(cu.getProject().getRawProject(), x10Types.get(0).fullName().toString());
+		            X10Utils.collectX10MainTypes(x10Types, cu, new NullProgressMonitor());
+		            if(x10Types.size() > 0)
+		            {
+		            	enclosingType = SearchUtils.getType(cu.getProject().getRawProject(), x10Types.get(0).fullName().toString());
+		            }
 		          } catch (CoreException e) {
 		            LoggingUtils.log(e);
 		          } catch (InterruptedException e) {
@@ -1034,6 +1046,7 @@ public abstract class NewTypeWizardPage extends NewContainerWizardPage {
 	public void setPackageFragment(ISourceFolder pack, boolean canBeModified) {
 		fCurrPackage= pack;
 		fCanModifyPackage= canBeModified;
+		
 		String str= (pack == null) ? "" : pack.getName(); //$NON-NLS-1$
 		fPackageDialogField.setText(str);
 		updateEnableState();
