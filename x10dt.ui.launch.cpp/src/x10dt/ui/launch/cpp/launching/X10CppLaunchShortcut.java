@@ -123,7 +123,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
   
   // --- Overridden methods
   
-  protected final void updateLaunchConfig(ILaunchConfigurationWorkingCopy config) throws CoreException {
+  protected void updateLaunchConfig(ILaunchConfigurationWorkingCopy config) throws CoreException {
     final String projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
