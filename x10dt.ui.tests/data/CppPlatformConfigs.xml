@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<platformConfigs> 
+
+    <config> 
+        <configName> Local Standalone </configName> 
+        <description> local host using standalone runtime </description> 
+        
+        <useLocalConnection> yes</useLocalConnection> 
+        
+        <target> 
+            <osType> </osType>      
+            <architectureType> </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+       
+        <commInterface> 
+            <interfaceType> Standalone </interfaceType> 
+            <interfaceMode> Launch </interfaceMode> 
+       </commInterface> 
+        
+        <x10> 
+            <numPlaces> 4 </numPlaces> 
+       </x10> 
+                
+   </config> 
+<!--
+    <config> 
+         <configName> Local Sockets </configName> 
+        <description> local host using sockets runtime </description> 
+        
+        <useLocalConnection> yes</useLocalConnection> 
+        
+        <target> 
+            <osType> </osType>      
+            <architectureType> </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+       
+        <commInterface> 
+            <interfaceType> Sockets </interfaceType> 
+            <interfaceMode> Launch </interfaceMode> 
+       </commInterface> 
+        
+        <x10> 
+            <numPlaces> 4 </numPlaces> 
+       </x10> 
+        
+   </config> 
+
+    <config> 
+        <configName> Linux 32-bit x86 </configName> 
+        <description> remote Linux VM </description> 
+        
+        <useLocalConnection> no </useLocalConnection> 
+        
+        <target> 
+            <osType> Linux </osType>      
+            <architectureType> x86 </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+     
+        <commInterface> 
+            <interfaceType> Open MPI </interfaceType> 
+            <interfaceMode> Launch </interfaceMode> 
+        </commInterface> 
+         
+        <x10> 
+            <numPlaces> 4 </numPlaces> 
+        </x10> 
+       
+        <remoteConnection> 
+            <remoteHostName> VMRoot </remoteHostName> 
+            <remoteHostURL> 9.12.178.129 </remoteHostURL> 
+            <remoteHostPort> 22 </remoteHostPort> 
+            <remoteHostUser> root </remoteHostUser> 
+            <usePassword> no </usePassword> 
+            <remoteHostPassword>  </remoteHostPassword> 
+            
+            <portForwarding> 
+                <usePortForwarding> no </usePortForwarding> 
+                <portForwardingTimeout> </portForwardingTimeout> 
+                <portForwardingLocalAddress> </portForwardingLocalAddress> 
+            </portForwarding> 
+            
+            <remotePlatform> 
+                <outputFolder> /root/x10/sandbox </outputFolder> 
+                <useSelectedPGAS> no </useSelectedPGAS> 
+                <remoteDistribution> /root/x10/x10-trunk/x10.dist </remoteDistribution> 
+                <remotePGASDist> </remotePGASDist> 
+           </remotePlatform> 
+       </remoteConnection> 
+   </config> 
+-->
+</platformConfigs> 
