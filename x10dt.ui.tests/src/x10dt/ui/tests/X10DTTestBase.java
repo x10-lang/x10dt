@@ -16,9 +16,22 @@
 
 package x10dt.ui.tests;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import junit.framework.Assert;
+
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.SWT;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.eclipse.finder.waits.WaitForView;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
@@ -26,21 +39,31 @@ import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
 import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCTabItem;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotRadio;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTableItem;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
+import org.eclipse.ui.IViewReference;
+import org.hamcrest.Matcher;
+import org.junit.Test;
+import org.osgi.framework.Bundle;
 
 import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
+import x10dt.tests.services.swbot.constants.PlatformConfConstants;
+import x10dt.tests.services.swbot.constants.ViewConstants;
 import x10dt.tests.services.swbot.constants.WizardConstants;
+import x10dt.tests.services.swbot.utils.ProblemsViewUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.tests.waits.X10DT_Conditions;
 
 /**
@@ -53,6 +76,133 @@ public class X10DTTestBase {
   public static SWTWorkbenchBot topLevelBot;
   
   public enum BackEndType {javaBackEnd, cppBackEnd};
+
+  //maps Comminterface Mode and Type enums to/from strings
+  public static class CommInterface {
+	  //create the Mode enum and map each enum to a string
+	  public enum Mode {Profile	("Profile"),
+						Debug	("Debug"),
+						Launch	("Launch");
+		  Mode(String key) { this.key = key; }	 //constructor sets the string in
+		  private final String key;				 // private field 'key'
+		  public String getKey() { return key; } //use enum to get string
+	  };
+	  // now go the other way - map a string key to an enum value
+	  private static Map<String, Mode> modeMap = new HashMap<String, Mode>();
+	  public static Mode getMode(String s) { return modeMap.get(s); } //use string to get enum
+	  static {
+		  for (Mode t : Mode.values()) {
+			  modeMap.put(t.getKey(), t);	//initialize map
+		  }
+	  }
+
+	  //create the Mode enum and map each enum to a string
+	  public enum Type {Sockets			("Sockets"),		
+						IBM_LoadLeveler	("IBM LoadLeveler"),		
+						Standalone		("Standalone"),		
+						IBM_Parallel_Environment("IBM Parallel Environment"),		
+						Open_MPI		("Open MPI"),		
+						MPICH2			("MPICH2");
+		  Type(String key) { this.key = key; }   //constructor sets the string in
+		  private final String key;              // private field 'key'          
+		  public String getKey() { return key; } //use enum to get string        
+	  };
+	  // now go the other way - map a string key to an enum value
+	  private static Map<String, Type> typeMap = new HashMap<String, Type>();
+	  public static Type getType(String s) { return typeMap.get(s); } //use string to get enum
+	  static {
+		  for (Type t : Type.values()) {
+			  typeMap.put(t.getKey(), t);
+		  }
+	  }
+  }
+  
+  //maps Architecture Type enum to/from strings
+  public static class Architecture {
+	  //create the Mode enum and map each enum to a string
+	  public enum Type {x86("x86"), 
+		  				Power("Power");
+		  Type(String key) { this.key = key; }   //constructor sets the string in
+		  private final String key;              // private field 'key'          
+		  public String getKey() { return key; } //use enum to get string        
+	  };
+	  // now go the other way - map a string key to an enum value
+	  private static Map<String, Type> typeMap = new HashMap<String, Type>();
+	  public static Type get(String s) { return typeMap.get(s); } //use string to get enum
+	  static {
+		  for (Type t : Type.values()) {
+			  typeMap.put(t.getKey(), t);
+		  }
+		  typeMap.put("i386",	Type.x86  ); //additional string reported by mac os x
+	  }
+  }
+  
+  //maps OS Type enum to/from strings
+  public static class OS {
+	  //create the Mode enum and map each enum to a string
+	  public enum Type {WINDOWS("WINDOWS"	),
+					    LINUX  ("LINUX"		),
+					    AIX    ("AIX"		),
+					    UNIX   ("UNIX"		),
+					    MAC    ("MAC"		);
+		  Type(String key) { this.key = key; }   //constructor sets the string in
+		  private final String key;              // private field 'key'          
+		  public String getKey() { return key; } //use enum to get string        
+	  };
+	  // now go the other way - map a string key to an enum value
+	  private static Map<String, Type> typeMap = new HashMap<String, Type>();
+	  public static Type get(String s) { return typeMap.get(s.toUpperCase()); } //use string to get enum
+	  static {
+		  for (Type t : Type.values()) {
+			  typeMap.put(t.getKey(), t);
+		  }
+		  typeMap.put("MAC OS X",	Type.MAC ); //additional string reported by mac os x
+	  }
+  }
+  
+  /*
+   * Use this class to provide the platform configuration settings
+   */
+//TODO: 	Use for a single call to setCppPlatformConnectionConfig, which in turn calls setCppPlatformCompilationConfig
+//
+  public class PlatformConfig {
+
+	  public boolean useLocalConnection;
+	  public String  projectName;
+	  public String  configName;
+	  public String  description;
+	  
+	  // target settings
+	  public OS.Type  			os;
+	  public Architecture.Type	arch;
+	  public Boolean 			set64bit;
+
+	  // x10 settings
+	  public Integer			numPlaces;
+
+	  // remote connection settings
+	  public String  remoteHostName;
+	  public String  remoteHostURL;
+	  public Integer remoteHostPort;
+	  public String  remoteHostUser;
+	  public boolean usePassword;
+	  public String  remoteHostPassword;
+
+	  // Communications interface
+	  public CommInterface.Type interfaceType;
+	  public CommInterface.Mode interfaceMode;
+
+	  // Port forwarding settings
+	  public boolean usePortForwarding;
+	  public String  portForwardingTimeout;
+	  public String  portForwardingLocalAddress;
+
+	  // remote compilation settings
+	  public String  outputFolder;
+	  public boolean useSelectedPGAS;
+	  public String  remoteDistribution;
+	  public String  remotePGASDist;
+  }
 
   /**
    * Saves dirty editors and resets the workbench.
@@ -305,18 +455,20 @@ public class X10DTTestBase {
 
   //Set up CPP backend run configuration and launch application
   //
-  public static void createAndRunCPPBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) throws X10DT_Test_Exception
+  public static void createAndRunCPPBackEndLaunchConfig(String launchName, String projectName, String mainTypeName) //throws X10DT_Test_Exception
   {
 	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
 	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
 
-	  try {
+//	  try {
 		  // Open the X10 Run Configuration dialog
 		  dialogContextMsg = " the '" + LaunchConstants.RUN_CONF_DIALOG_TITLE + "' dialog";
 
 		  operationMsg = "access the '" + LaunchConstants.RUN_MENU +":"+ LaunchConstants.RUN_CONFS_MENU_ITEM +"' menu";
-		  topLevelBot.menu(LaunchConstants.RUN_MENU).menu(LaunchConstants.RUN_CONFS_MENU_ITEM).click();
-
+		  SWTBotMenu runMenu = topLevelBot.menu(LaunchConstants.RUN_MENU);
+		  SWTBotMenu runConfsMenu = runMenu.menu(LaunchConstants.RUN_CONFS_MENU_ITEM);
+		  runConfsMenu.click();
+		  
 		  // Wait for the Run Configuration dialog to open
 		  operationMsg = "find" + dialogContextMsg;
 		  topLevelBot.waitUntil(Conditions.shellIsActive(LaunchConstants.RUN_CONF_DIALOG_TITLE));
@@ -351,11 +503,11 @@ public class X10DTTestBase {
 		  //click the RUN button
 		  operationMsg = "click the '" + LaunchConstants.RUN_BUTTON + "' button in" + dialogContextMsg;
 		  configsBot.button(LaunchConstants.RUN_BUTTON).click();
-	  }
-	  catch (Exception e)
-	  {
-		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
-	  }
+//	  }
+//	  catch (Exception e)
+//	  {
+//		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
+//	  }
   }
 
   //
@@ -727,5 +879,208 @@ public class X10DTTestBase {
 	  }
 
 	  return found;
+  }
+  
+  /*
+   * C++ back end X10 Platform Configuration
+   * 
+   */
+  
+  /**
+   * Generic c++ platform configuration editor.
+   * This method sets the C++ Compilation and Linking tab
+   * Control specifics through method arguments
+   */
+  
+  //NB: This must be called AFTER the local/remote selection is made in the Connection and Communication Interface tab
+  //
+  public void setCppPlatformCompilationConfig(String projectName, PlatformConfig platformSetup)
+  {
+//TODO: consolidate this with compilation tab by passing editorBot from caller
+    topLevelBot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).bot().tree().expandNode(projectName)
+       .expandNode(PlatformConfConstants.PLATFORM_CONF_FILE).doubleClick();
+    
+    final SWTBot editorBot = topLevelBot.editorByTitle(PlatformConfConstants.PLATFORM_CONF_FILE).bot();
+
+    //open the C++ Compilation and Linking tab
+	editorBot.cTabItem(PlatformConfConstants.CPP_COMPILATION_LINKING_TAB).activate();
+    //Set target operating system
+	editorBot.comboBoxWithLabel(PlatformConfConstants.CPP_OS_COMBO_BOX).setSelection(platformSetup.os.getKey());
+	//set target cpu architecture
+    editorBot.comboBoxWithLabel(PlatformConfConstants.CPP_ARCHITECTURE_COMBO_BOX).setSelection(platformSetup.arch.getKey());
+    
+    //set or reset 64-bit architecture option
+    SWTBotCheckBox checkBox64bit = editorBot.checkBox(PlatformConfConstants.CPP_64_BIT_CHECKBOX);
+    if (platformSetup.set64bit) {
+    	checkBox64bit.select();
+    } else {
+    	checkBox64bit.deselect();
+    }
+    
+    //
+    // NB: Currently leaving "MPI compile/link..." checkbox, 
+    // and the complier options, archiver options, and linker options groups
+    // at default settings
+
+    //
+    //Set up paths for a remote host
+    if ( ! platformSetup.useLocalConnection) {
+    	editorBot.textWithLabel(PlatformConfConstants.REMOTE_OUTPUT_FOLDER_TEXTBOX).setText(platformSetup.outputFolder);
+    	editorBot.textWithLabel(PlatformConfConstants.X10_DISTRIBUTION_PATH_TEXTBOX).setText(platformSetup.remoteDistribution);
+    	
+    	SWTBotCheckBox checkBoxUseX10PGAS = editorBot.checkBox(PlatformConfConstants.CPP_USE_X10_DIST_PGAS);
+    	if (platformSetup.useSelectedPGAS) {	//set up to use specific PGAS distribution
+    		checkBoxUseX10PGAS.deselect();
+    		editorBot.textWithLabel(PlatformConfConstants.PGAS_DISTRIBUTION_PATH_TEXTBOX).setText(platformSetup.remotePGASDist);
+    	}
+    	else {		//use the PGAS distribution provided with the X10 distribution
+    		checkBoxUseX10PGAS.select();
+    	}
+    }
+    
+	//Validate Configuration in setCppPlatformConnectionConfig
+	//Save Configuration in setCppPlatformConnectionConfig
+
+  }
+
+  /**
+   * Generic c++ platform configuration editor.
+   * This method sets the C++ Compilation and Linking tab
+   * Control specifics through method arguments
+   * 
+   */
+  
+  //NB: Call this BEFORE calling setCppPlatformCompilationConfig
+  //
+  public void setCppPlatformConnectionConfig(String projectName, PlatformConfig	 platformSetup)
+  {
+	  //MNake sure we're in the X10 perspective before getting started
+	  topLevelBot.perspectiveByLabel("X10").activate();
+
+	  //TODO: consolidate this with compilation tab by passing editorBot from caller
+	  topLevelBot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).bot().tree()
+	  		.expandNode(projectName)
+	  			.expandNode(PlatformConfConstants.PLATFORM_CONF_FILE).doubleClick();
+
+	  final SWTBot editorBot = topLevelBot.editorByTitle(PlatformConfConstants.PLATFORM_CONF_FILE).bot();
+
+	  //open the C++ Connection and Communication tab
+	  editorBot.cTabItem(PlatformConfConstants.CPP_CONNECTION_COMMUNICATION_TAB).activate();
+
+	  //set configuration name
+	  editorBot.comboBoxWithLabel(PlatformConfConstants.PLATFORM_CONFIGURATION_NAME).setText(platformSetup.configName);
+	  //set configuration description
+	  editorBot.textWithLabel(PlatformConfConstants.PLATFORM_CONFIGURATION_DESCRIPTION).setText(platformSetup.description);
+
+	  //Set interprocess communication type
+	  editorBot.comboBoxWithLabel(PlatformConfConstants.CPP_INTERPROCESS_TYPE).setSelection(platformSetup.interfaceType.getKey());
+	  //Set interprocess communication mode
+	  editorBot.comboBoxWithLabel(PlatformConfConstants.CPP_INTERPROCESS_MODE).setSelection(platformSetup.interfaceMode.getKey());
+
+	  if (platformSetup.useLocalConnection)
+	  {
+		  editorBot.radio(PlatformConfConstants.LOCAL_CONNECTION).click();	//well, *that* was easy.
+	  }
+	  else { //set up connection to a remote host (a lot less easy)
+
+		  editorBot.radio(PlatformConfConstants.REMOTE_CONNECTION).click();	//but *this* is going to be less easy.		  
+		  editorBot.button(PlatformConfConstants.ADD_BUTTON).click();
+
+		  editorBot.sleep(1000);
+
+//		  SWTBotTable remoteHostTableBot = editorBot.tableInGroup(PlatformConfConstants.WORKSPACE_PERSISTED_GROUP);
+//		  SWTBotTableItem remoteNameItem = remoteHostTableBot.getTableItem(1);
+		  final SWTBotTableItem remoteNameItem = editorBot.tableInGroup(PlatformConfConstants.WORKSPACE_PERSISTED_GROUP).getTableItem(0);
+
+//		  for (int c = 0; c < platformSetup.remoteHostName.length(); c++) {
+//			  remoteNameItem.pressShortcut(SWT.NONE, platformSetup.remoteHostName.charAt(c));
+//		  }
+
+
+
+		  remoteNameItem.pressShortcut(SWT.CR, SWT.LF);
+		  editorBot.sleep(100);
+
+		  editorBot.textWithLabel(PlatformConfConstants.HOST_TEXT_LABEL).setText(platformSetup.remoteHostURL); //$NON-NLS-1$
+		  editorBot.textWithLabel(PlatformConfConstants.USER_TEXT_LABEL).setText(platformSetup.remoteHostUser); //$NON-NLS-1$
+
+		  if (platformSetup.remoteHostPort > 0) {	//if caller specified a port number.  otherwise, leave it as the default port number
+			  editorBot.spinnerWithLabel(PlatformConfConstants.HOST_PORT_LABEL).setSelection(platformSetup.remoteHostPort); //$NON-NLS-1$
+		  }
+
+		  if (platformSetup.usePassword) {
+			  editorBot.radio(PlatformConfConstants.PASSWORD_RADIO_BUTTON).click();
+			  editorBot.textWithLabel(PlatformConfConstants.PASSWORD_TEXT_LABEL).setText(platformSetup.remoteHostPassword);
+		  }
+		  else {	//use public key authentication
+			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
+			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
+			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
+			  final String privateKeyFile = String.format("%s/.ssh/id_rsa", System.getProperty("user.home")); //$NON-NLS-1$ //$NON-NLS-2$
+			  editorBot.textWithLabel(PlatformConfConstants.PRIVATE_KEY_FILE_LABEL).setText(privateKeyFile);
+		  }
+
+		  SWTBotCheckBox checkBoxPortForwarding = editorBot.checkBox(PlatformConfConstants.PORT_FORWARDING_CHECKBOX);
+		  if (platformSetup.usePortForwarding) {
+			  checkBoxPortForwarding.select();
+			  editorBot.textWithLabel(PlatformConfConstants.PORT_FORWARDING_TIMEOUT).setText(platformSetup.portForwardingTimeout.toString());
+			  editorBot.textWithLabel(PlatformConfConstants.PORT_FORWARDING_LOCAL_ADDR).setText(platformSetup.portForwardingLocalAddress);
+		  }
+		  else {	//don't do port forwarding
+			  checkBoxPortForwarding.deselect();
+		  }
+		  
+		  editorBot.button(PlatformConfConstants.VALIDATE_BUTTON).click();
+		  editorBot.sleep(8000); // Leave the time to make the connection.
+
+	  }
+	  editorBot.cTabItem(PlatformConfConstants.CPP_COMPILATION_LINKING_TAB).activate();
+	  //
+	  //    	final String tempDir = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
+	  //    	final String outputFolder = String.format("%s/test", tempDir); //$NON-NLS-1$
+	  //    	editorBot.textWithLabel(PlatformConfConstants.OUTPUT_FOLDER_TEXT_LABEL).setText(outputFolder);
+	  //    	final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
+	  //    	final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
+	  //    	final String x10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
+	  //    	editorBot.textWithLabel(PlatformConfConstants.X10_DIST_TEXT_LABEL).setText(x10DistLoc);
+
+	  setCppPlatformCompilationConfig(projectName, platformSetup);
+
+	  editorBot.toolbarButton(PlatformConfConstants.VALIDATE_PLATFORM_TOOLTIP_BT).click();
+
+	  // The Progress Configuration dialog will open.  Wait for it to go away
+	  topLevelBot.waitUntil(Conditions.shellIsActive(PlatformConfConstants.CPP_VALIDATION_PROGESS_DLG));
+	  SWTBotShell progressShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_PROGESS_DLG);
+	  progressShell.activate();
+	  
+	  int timeoutCount = 12;	//loops waits 5 sec, we'll loop 12 times = 1 min
+	  boolean stillWaiting = true;
+	  while ((stillWaiting) && (0 < timeoutCount--)) {
+		  try {
+			  topLevelBot.waitUntil(Conditions.shellCloses(progressShell), 5000, 500); //did it go away yet?  Huh?  Huh?
+			  stillWaiting = false;		//At last!
+		  }
+		  catch (TimeoutException e) {	//Awww...!! The validation is *still* running!
+			  try {	//well, let's just hope that the error dialog didn't open
+				  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
+				  //rats!! it opened.
+				  //it's modal. Unless we click 'OK', we'll have to wait for the overall junit timeout
+				  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
+				  Assert.fail("Errors occurred in X10 Platform configuration validation");
+			  }
+			  catch (WidgetNotFoundException eWNF) { //this is a good thing.  It means that the error dialog didn't pop up.
+				  //Keep waiting for progress dialog to go away
+			  }
+		  }
+	  }
+	  
+	  if (stillWaiting) { //yawnnnnn...
+		  Assert.fail("X10 Platform configuration validation failed to complete");
+	  }
+
+	  editorBot.toolbarButton(PlatformConfConstants.SAVE_PLATFORM_TOOLTIP_BT).click();
+	  editorBot.sleep(6000);
+
+	  Assert.assertEquals(0, ProblemsViewUtils.getErrorMessages(topLevelBot).length);
   }
 }
