@@ -458,7 +458,7 @@ public abstract class NewTypeWizardPage extends NewContainerWizardPage {
 	 * null</code> if no selection was available
 	 */
 	protected void initTypePage(ISourceEntity elem) {
-		String initSuperclass= "java.lang.Object"; //$NON-NLS-1$
+		String initSuperclass= "x10.lang.Object"; //$NON-NLS-1$
 		ArrayList initSuperinterfaces= new ArrayList(5);
 
 		ISourceProject project= null;
