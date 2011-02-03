@@ -23,9 +23,17 @@ public final class PlatformConfConstants {
   
   public static final String SAVE_PLATFORM_TOOLTIP_BT = "Save Configuration"; //$NON-NLS-1$
   
+  public static final String VALIDATE_PLATFORM_TOOLTIP_BT = "Validate Configuration"; //$NON-NLS-1$
+
   // --- Connection
+
+  public static final String PLATFORM_CONFIGURATION_NAME = "Configuration name"; //$NON-NLS-1$
+
+  public static final String PLATFORM_CONFIGURATION_DESCRIPTION = "Description"; //$NON-NLS-1$
   
   public static final String REMOTE_CONNECTION = "Remote connection"; //$NON-NLS-1$
+  
+  public static final String LOCAL_CONNECTION = "Local connection"; //$NON-NLS-1$
   
   public static final String ADD_BUTTON = "Add"; //$NON-NLS-1$
   
@@ -35,6 +43,8 @@ public final class PlatformConfConstants {
   
   public static final String HOST_TEXT_LABEL = "Host"; //$NON-NLS-1$
   
+  public static final String HOST_PORT_LABEL = "Port"; //$NON-NLS-1$
+
   public static final String USER_TEXT_LABEL = "User"; //$NON-NLS-1$
   
   public static final String PASSWORD_RADIO_BUTTON = "Password based authentication"; //$NON-NLS-1$
@@ -45,12 +55,43 @@ public final class PlatformConfConstants {
   
   public static final String PASSWORD_TEXT_LABEL = "Password"; //$NON-NLS-1$
   
+  public static final String PORT_FORWARDING_CHECKBOX = "Use port forwarding"; //$NON-NLS-1$
+
+  public static final String PORT_FORWARDING_TIMEOUT = "Connection timeout"; //$NON-NLS-1$
+
+  public static final String PORT_FORWARDING_LOCAL_ADDR = "Local address"; //$NON-NLS-1$
+
   // --- C++ Compilation and Linking
   
   public static final String OUTPUT_FOLDER_TEXT_LABEL = "Output folder"; //$NON-NLS-1$
-  
+
   public static final String X10_DIST_TEXT_LABEL = "X10 distribution"; //$NON-NLS-1$
-  
+
+  public static final String CPP_OS_COMBO_BOX = "Operating System"; //$NON-NLS-1$
+
+  public static final String CPP_ARCHITECTURE_COMBO_BOX = "Architecture"; //$NON-NLS-1$
+
+  public static final String CPP_64_BIT_CHECKBOX = "64-bit";
+
+  public static final String REMOTE_OUTPUT_FOLDER_TEXTBOX = "Output folder"; //$NON-NLS-1$
+
+  public static final String X10_DISTRIBUTION_PATH_TEXTBOX = "X10 distribution"; //$NON-NLS-1$
+
+  public static final String PGAS_DISTRIBUTION_PATH_TEXTBOX = "PGAS distribution"; //$NON-NLS-1$
+
+  public static final String CPP_USE_X10_DIST_PGAS = "Use PGAS distribution provided with X10 distribution"; //$NON-NLS-1$
+
+  public static final String CPP_CONNECTION_COMMUNICATION_TAB = "Connection and Communication Interface"; //$NON-NLS-1$
+
+  public static final String CPP_INTERPROCESS_TYPE = "Type"; //$NON-NLS-1$
+
+  public static final String CPP_INTERPROCESS_MODE = "Mode"; //$NON-NLS-1$
+
+public static final String CPP_VALIDATION_PROGESS_DLG = "Progress Information";
+
+public static final String CPP_VALIDATION_FAILURE_DLG = "Validation Failure";
+
+
   // --- Private code
   
   private PlatformConfConstants() {}
