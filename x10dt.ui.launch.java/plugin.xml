@@ -273,4 +273,13 @@
             id="x10dt.ui.launch.java.launching.x10LaunchShortcut.debug">
       </command>
    </extension>
+   <extension
+         point="org.eclipse.ptp.services.core.providers">
+      <provider
+            class="x10dt.ui.launch.java.launching.rms.MultiVMServiceProvider"
+            id="x10dt.ui.launch.java.provider"
+            name="MultiVM"
+            serviceId="org.eclipse.ptp.core.LaunchService">
+      </provider>
+   </extension>
 </plugin>
