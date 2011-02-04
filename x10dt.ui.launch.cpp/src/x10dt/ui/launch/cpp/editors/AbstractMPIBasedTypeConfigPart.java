@@ -75,10 +75,10 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     
     final Collection<Control> dependentToolCmdsControls = new ArrayList<Control>();
     this.fLaunchCmdText = SWTFormUtils.createLabelAndText(toolsCommandsGroup, LaunchMessages.RMCP_LaunchLabel, toolkit, 
-                                                          dependentToolCmdsControls, 3);
+                                                          dependentToolCmdsControls, 3, SWT.NONE);
     
     this.fDebugCmdText = SWTFormUtils.createLabelAndText(toolsCommandsGroup, LaunchMessages.RMCP_DebugLabel, toolkit, 
-                                                         dependentToolCmdsControls, 3);
+                                                         dependentToolCmdsControls, 3, SWT.NONE);
     final Collection<Control> discoverCmdControls = new ArrayList<Control>();
     this.fDiscoverCmdText = SWTFormUtils.createLabelAndText(toolsCommandsGroup, LaunchMessages.RMCP_DiscoverLabel, 
                                                             toolkit, discoverCmdControls);

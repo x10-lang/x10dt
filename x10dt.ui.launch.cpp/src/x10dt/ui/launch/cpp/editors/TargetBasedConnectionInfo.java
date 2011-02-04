@@ -58,10 +58,6 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
     return this.fTargetConfig.getKeyPassphrase();
   }
 
-  public String getPassword() {
-    return this.fTargetConfig.getLoginPassword();
-  }
-
   public int getPort() {
     return this.fTargetConfig.getConnectionPort();
   }
@@ -116,11 +112,6 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   
   public void setPassphrase(final String passphrase) {
     this.fTargetConfig.setKeyPassphrase(passphrase);
-    this.fIsDirty = true;
-  }
-
-  public void setPassword(final String password) {
-    this.fTargetConfig.setLoginPassword(password);
     this.fIsDirty = true;
   }
 

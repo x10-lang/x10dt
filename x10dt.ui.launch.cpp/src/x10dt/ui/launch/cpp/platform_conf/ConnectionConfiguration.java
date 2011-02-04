@@ -37,7 +37,6 @@ final class ConnectionConfiguration implements IConnectionConf {
     final ControlAttributes controlAttr = new ConfigFactory().getAttributes();
     controlAttr.setBoolean(ConfigFactory.ATTR_LOCALHOST_SELECTION, this.fIsLocal);
     controlAttr.setString(ConfigFactory.ATTR_LOGIN_USERNAME, this.fUserName);
-    controlAttr.setString(ConfigFactory.ATTR_LOGIN_PASSWORD, this.fPassword);
     controlAttr.setInt(ConfigFactory.ATTR_CONNECTION_PORT, this.fPort);
     controlAttr.setString(ConfigFactory.ATTR_CONNECTION_ADDRESS, this.fHostName);
     controlAttr.setString(ConfigFactory.ATTR_KEY_PATH, this.fPrivateKeyFile);

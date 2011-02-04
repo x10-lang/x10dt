@@ -51,10 +51,6 @@ final class DefaultConnectionInfo implements IConnectionInfo {
     return this.fTargetConfig.getKeyPassphrase();
   }
 
-  public String getPassword() {
-    return this.fTargetConfig.getLoginPassword();
-  }
-
   public int getPort() {
     return this.fTargetConfig.getConnectionPort();
   }
@@ -105,10 +101,6 @@ final class DefaultConnectionInfo implements IConnectionInfo {
   
   public void setPassphrase(final String passphrase) {
     this.fTargetConfig.setKeyPassphrase(passphrase);
-  }
-
-  public void setPassword(final String password) {
-    this.fTargetConfig.setLoginPassword(password);
   }
 
   public void setPort(final int port) {

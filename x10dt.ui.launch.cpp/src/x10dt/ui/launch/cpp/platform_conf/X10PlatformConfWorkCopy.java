@@ -43,6 +43,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fSource.fConnectionConf.applyChanges(this.fConnectionConf);
     this.fSource.fCommInterfaceFact.applyChanges(super.fCommInterfaceFact);
     this.fSource.fCppCompilationConf.applyChanges(this.fCppCompilationConf);
+    this.fSource.fDebuggingInfoConf.applyChanges(this.fDebuggingInfoConf);
     this.fIsDirty = false;
   }
   
@@ -265,11 +266,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
-  public void setPassword(final String password) {
-    super.fConnectionConf.fPassword = password;
-    updateDirtyFlag();
-  }
-  
   public void setPort(final int port) {
     super.fConnectionConf.fPort = port;
     updateDirtyFlag();
@@ -476,6 +472,18 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
     final LoadLevelerConf conf = (LoadLevelerConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fTemplateOpt = templateOpt;
+    updateDirtyFlag();
+  }
+  
+  // --- IDebuggingInfoConf's setter methods
+  
+  public void setDebuggerFolder(final String folder) {
+    super.fDebuggingInfoConf.fDebuggerFolder = folder;
+    updateDirtyFlag();
+  }
+  
+  public void setDebuggingPort(final int port) {
+    super.fDebuggingInfoConf.fPort = port;
     updateDirtyFlag();
   }
   

@@ -59,6 +59,7 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fConnectionConf = new ConnectionConfiguration();
     this.fCppCompilationConf = new CppCompilationConfiguration();
     this.fCommInterfaceFact = new CommInterfaceFactory();
+    this.fDebuggingInfoConf = new DebuggingInfoConf();
     this.fConfFile = confFile;
     try {
 			if (isNonEmpty(confFile)) {
@@ -73,11 +74,12 @@ class X10PlatformConf implements IX10PlatformConf {
 		}
   }
   
-  X10PlatformConf(final IServiceProvider serviceProvider, IFile confFile) {
+  X10PlatformConf(final IServiceProvider serviceProvider, final IFile confFile) {
     final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) serviceProvider;
     this.fConnectionConf = new ConnectionConfiguration(rmConf);
     this.fCppCompilationConf = new CppCompilationConfiguration();
     this.fCommInterfaceFact = new CommInterfaceFactory(rmConf);
+    this.fDebuggingInfoConf = new DebuggingInfoConf();
     this.fConfFile = confFile;
     // RMF One could pull the C++ compile/link cmds, X10 distrib loc, etc. from the conf file, but
     // then those settings might not be applicable to the host identified by the IServiceProvider.
@@ -94,7 +96,7 @@ class X10PlatformConf implements IX10PlatformConf {
   // --- Interface methods implementation
 
   public final IFile getConfFile() {
-      return fConfFile;
+      return this.fConfFile;
   }
 
   public final IX10PlatformConfWorkCopy createWorkingCopy() {
@@ -111,6 +113,10 @@ class X10PlatformConf implements IX10PlatformConf {
   
   public final ICppCompilationConf getCppCompilationConf() {
     return this.fCppCompilationConf;
+  }
+  
+  public final IDebuggingInfoConf getDebuggingInfoConf() {
+    return this.fDebuggingInfoConf;
   }
   
   public final String getDescription() {
@@ -227,6 +233,12 @@ class X10PlatformConf implements IX10PlatformConf {
       platformTag.createChild(COMP_VALIDATION_ERR_MSG_TAG).putTextData(this.fCppCompilationConf.fValidationErrorMsg);
     }
     
+    final IMemento debuggingTag = platformTag.createChild(DEBUGGING_TAG);
+    if (hasData(this.fDebuggingInfoConf.fDebuggerFolder)) {
+      debuggingTag.createChild(DEBUGGER_FOLDER_TAG).putTextData(this.fDebuggingInfoConf.fDebuggerFolder);
+    }
+    debuggingTag.createChild(DEBUGGING_PORT_TAG).putTextData(String.valueOf(this.fDebuggingInfoConf.fPort));
+    
     platformTag.save(writer);
   }
   
@@ -270,7 +282,7 @@ class X10PlatformConf implements IX10PlatformConf {
     
     final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
     final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
-    final IProject project = fConfFile.getProject();
+    final IProject project = this.fConfFile.getProject();
 
     final IDefaultCPPCommands defaultCPPCommands;
 
@@ -330,6 +342,7 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fConnectionConf = new ConnectionConfiguration(source.fConnectionConf);
     this.fCommInterfaceFact = new CommInterfaceFactory(source.fCommInterfaceFact);
     this.fCppCompilationConf = new CppCompilationConfiguration(source.fCppCompilationConf);
+    this.fDebuggingInfoConf = new DebuggingInfoConf(source.fDebuggingInfoConf);
     this.fConfFile = source.fConfFile;
   }
   
@@ -465,6 +478,15 @@ class X10PlatformConf implements IX10PlatformConf {
     final String compStatus = getTextDataValue(cppCmdsMemento, COMP_VALIDATION_STATUS_TAG);
     this.fCppCompilationConf.fValidationStatus = (compStatus == null) ? UNKNOWN: EValidationStatus.valueOf(compStatus);
     this.fCppCompilationConf.fValidationErrorMsg = getTextDataValue(cppCmdsMemento, COMP_VALIDATION_ERR_MSG_TAG);
+    
+    final IMemento debuggingMemento = platformMemento.getChild(DEBUGGING_TAG);
+    if (debuggingMemento != null) {
+      this.fDebuggingInfoConf.fDebuggerFolder = getTextDataValue(debuggingMemento, DEBUGGER_FOLDER_TAG);
+      final String port = getTextDataValue(debuggingMemento, DEBUGGING_PORT_TAG);
+      if (port != null) {
+        this.fDebuggingInfoConf.fPort = Integer.parseInt(port);
+      }
+    }
   }
   
   private void load(final IMemento ciMemento, final OpenMPIInterfaceConf ciConf) {
@@ -609,6 +631,8 @@ class X10PlatformConf implements IX10PlatformConf {
   
   final CommInterfaceFactory fCommInterfaceFact;
   
+  final DebuggingInfoConf fDebuggingInfoConf;
+  
   
   private static final String ID_TAG = "id"; //$NON-NLS-1$
     
@@ -718,5 +742,12 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String COMP_VALIDATION_STATUS_TAG = "compilation-validation-status"; //$NON-NLS-1$
   
   private static final String COMP_VALIDATION_ERR_MSG_TAG = "compilation-validation-error"; //$NON-NLS-1$
+  
+  
+  private static final String DEBUGGING_TAG = "debugging"; //$NON-NLS-1$
+  
+  private static final String DEBUGGER_FOLDER_TAG = "debugger-folder"; //$NON-NLS-1$
+  
+  private static final String DEBUGGING_PORT_TAG = "debugging-port"; //$NON-NLS-1$
   
 }

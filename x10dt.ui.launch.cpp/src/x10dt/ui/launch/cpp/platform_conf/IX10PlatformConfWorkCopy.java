@@ -116,8 +116,6 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setPassphrase(final String passphrase);
   
-  public void setPassword(final String password);
-  
   public void setPort(final int port);
   
   public void setPrivateKeyFile(final String privateKeyFile);
@@ -187,5 +185,11 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setTemplateFilePath(final String templateFilePath);
   
   public void setTemplateOption(final ELLTemplateOpt templateOpt);
+  
+  // --- IDebuggingInfoConf's setter methods
+  
+  public void setDebuggerFolder(final String folder);
+  
+  public void setDebuggingPort(final int port);
   
 }

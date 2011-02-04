@@ -61,7 +61,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     getSection().setText(LaunchMessages.XPCP_CompilationLinkingSection);
     getSection().setDescription(LaunchMessages.XPCP_CompilationLinkingSectionDescr);
     final TableWrapData twData = new TableWrapData(TableWrapData.FILL_GRAB);
-    twData.rowspan = 2;
+    twData.rowspan = 3;
     getSection().setLayoutData(twData);
     
     createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit());

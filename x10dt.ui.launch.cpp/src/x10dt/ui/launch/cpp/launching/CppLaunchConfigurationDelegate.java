@@ -81,6 +81,7 @@ import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
+import x10dt.ui.launch.cpp.platform_conf.IDebuggingInfoConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
@@ -315,6 +316,10 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     } finally {
       monitor.done();
     }
+  }
+  
+  protected final IDebuggingInfoConf getDebuggingInfoConf() {
+    return this.fX10PlatformConf.getDebuggingInfoConf();
   }
   
   protected final String getExecutablePath() {

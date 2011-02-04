@@ -30,6 +30,7 @@ final class X10CompilationConfigurationPage extends X10FormPage {
     
     managedForm.addPart(new RemoteOutputFolderSectionPart(form.getBody(), this));
     managedForm.addPart(new X10DistributionSectionPart(form.getBody(), this));
+    managedForm.addPart(new DebuggingSectionPart(form.getBody(), this));
   }
   
   public void dispose() {
