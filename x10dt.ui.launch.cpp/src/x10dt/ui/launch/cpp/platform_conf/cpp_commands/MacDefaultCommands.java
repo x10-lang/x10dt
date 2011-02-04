@@ -50,7 +50,7 @@ final class MacDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   }
 
   public String getLinkingLibraries() {
-    return String.format("-lx10 -lgc %s -ldl -lm -lpthread -Wl,-rpath -Wl,${X10-DIST}/lib -Wl,-rpath -Wl,${X10-DIST}", //$NON-NLS-1$
+    return String.format("-lx10 -lgc %s -ldl -lm -lpthread -Wl,-rpath -Wl,${X10-DIST}/lib -Wl,-rpath -Wl,${X10-DIST}/stdlib/lib -Wl,-rpath -Wl,${X10-DIST}", //$NON-NLS-1$
                          getTransportLibrary());
   }
 

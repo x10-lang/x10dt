@@ -50,7 +50,7 @@ final class LinuxDefaultCommands extends AbstractDefaultCPPCommands implements I
   }
 
   public String getLinkingLibraries() {
-    return String.format("-lx10 -lgc %s -ldl -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib -Wl,-export-dynamic -lrt", //$NON-NLS-1$
+    return String.format("-lx10 -lgc %s -ldl -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib -Wl,--rpath -Wl,${X10-DIST}/stdlib/lib -Wl,-export-dynamic -lrt", //$NON-NLS-1$
                          getTransportLibrary());
   }
 

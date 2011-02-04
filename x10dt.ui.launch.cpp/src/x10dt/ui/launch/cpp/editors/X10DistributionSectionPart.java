@@ -264,5 +264,5 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
   private Collection<Control> fPGASControls;
   
   
-  private static final String INCLUDE_X10RT_PATH= "include/x10rt.h"; //$NON-NLS-1$
+  private static final String INCLUDE_X10RT_PATH= "stdlib/include/x10rt.h"; //$NON-NLS-1$
 }

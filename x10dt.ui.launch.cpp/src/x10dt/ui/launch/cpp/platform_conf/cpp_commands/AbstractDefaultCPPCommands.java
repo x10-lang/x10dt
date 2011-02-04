@@ -27,7 +27,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   // --- Code for descendants
   
   protected final String addNoChecksOptions(final String command) {
-    if (fCompilerOptions.x10_config.NO_CHECKS) {
+    if (this.fCompilerOptions.x10_config.NO_CHECKS) {
       return command + " -DNO_CHECKS"; //$NON-NLS-1$
     } else {
       return command;
@@ -35,7 +35,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   }
   
   protected final String addOptimizeOptions(final String command) {
-    if (fCompilerOptions.x10_config.OPTIMIZE) {
+    if (this.fCompilerOptions.x10_config.OPTIMIZE) {
       return command + " -O2 -DNDEBUG -DNO_PLACE_CHECKS -finline-functions"; //$NON-NLS-1$
     } else {
       return command;
