@@ -24,20 +24,33 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.IStatusHandler;
+import org.eclipse.debug.core.model.IBreakpoint;
+import org.eclipse.imp.language.Language;
+import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
+import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.ISourceProject;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.utils.BuildPathUtils;
+import org.eclipse.jdt.internal.launching.LaunchingMessages;
+import org.eclipse.jdt.internal.launching.LaunchingPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IVMInstall;
-import org.eclipse.jdt.launching.IVMInstall2;
 import org.eclipse.jdt.launching.IVMRunner;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.launching.VMRunnerConfiguration;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
@@ -57,30 +70,54 @@ import x10dt.ui.X10DTUIPlugin;
  */
 public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurationDelegate {
 	/** Suffix that is appended to user class to get main x10 executable class - e.g. to make Hello$Main */
-	static final String USER_MAIN_SUFFIX="$Main";
+	static final String USER_MAIN_SUFFIX="$$Main";
 
-    @Override
-	public IVMInstall getVMInstall(final ILaunchConfiguration configuration) throws CoreException {
-		IVMInstall vm = super.getVMInstall(configuration);
-
-		if (vm instanceof IVMInstall2) {
-			IVMInstall2 vm2 = (IVMInstall2) vm;
-			if (!vm2.getJavaVersion().startsWith("1.5") && !vm2.getJavaVersion().startsWith("1.6")) {
-				Display.getDefault().asyncExec(new Runnable() {
-					public void run() {
-						Shell shell = X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow().getShell();
-						String projectName = "";
-						try {
-							projectName = configuration.getAttribute("org.eclipse.jdt.launching.PROJECT_ATTR", "");
-						} catch (CoreException e) {
-						}
-						MessageDialog.openError(shell, "Launch Error", "Project '" + projectName + "' must use a Java 5.0 runtime.");
-					}
-				});
-				return null;
-			}
+	private IProject[] fOrderedProjects;
+	
+	public IVMInstall verifyVMInstall(ILaunchConfiguration configuration) {
+		return JavaRuntime.getDefaultVMInstall();
+	}
+	
+	protected File getDefaultWorkingDirectory(ILaunchConfiguration configuration) throws CoreException {
+		// default working directory is the project if this config has a project
+		ISourceProject jp = getJavaProjectFromConfig(configuration);
+		if (jp != null) {
+			IProject p = jp.getRawProject();
+			return p.getLocation().toFile();
 		}
-		return vm;
+		return null;
+	}
+	
+	public Map getVMSpecificAttributesMap(ILaunchConfiguration configuration)
+	throws CoreException {
+		return null;
+	}
+	
+	public String[] getClasspath(ILaunchConfiguration configuration)
+	throws CoreException {
+		Language lang = LanguageRegistry.findLanguage("X10");
+		ISourceProject jp = getJavaProjectFromConfig(configuration);
+		List<String> userEntries = new ArrayList<String>(10);
+		try {
+			for(IPathEntry entry :  jp.getResolvedBuildPath(lang, true))
+			{
+				if(entry.getEntryType() != PathEntryType.SOURCE_FOLDER)
+				{
+					userEntries.add(entry.getRawPath().toString());
+				}
+			}
+		} catch (ModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		IPath path = jp.getOutputLocation(lang);
+		userEntries.add(jp.getRawProject().getLocation().append(path.removeFirstSegments(1)).toString());
+		return (String[]) userEntries.toArray(new String[userEntries.size()]);
+	}
+	
+	public String[] getBootpath(ILaunchConfiguration configuration)
+	throws CoreException {
+		return null;
 	}
 
     /**
@@ -326,7 +363,95 @@ public class X10LaunchConfigurationDelegate extends AbstractJavaLaunchConfigurat
 
 		monitor.done();
 	}
-    private String printArray(String[] arg) {
+    
+    
+    public boolean superPreLaunchCheck(ILaunchConfiguration configuration, String mode, IProgressMonitor monitor) throws CoreException {
+		if (!saveBeforeLaunch(configuration, mode, monitor)) {
+			return false;
+		}
+		if (mode.equals(ILaunchManager.RUN_MODE) && configuration.supportsMode(ILaunchManager.DEBUG_MODE)) {
+			IBreakpoint[] breakpoints= getBreakpoints(configuration);
+            if (breakpoints == null) {
+                return true;
+            }
+			for (int i = 0; i < breakpoints.length; i++) {
+				if (breakpoints[i].isEnabled()) {
+					IStatusHandler prompter = DebugPlugin.getDefault().getStatusHandler(promptStatus);
+					if (prompter != null) {
+						boolean launchInDebugModeInstead = ((Boolean)prompter.handleStatus(switchToDebugPromptStatus, configuration)).booleanValue();
+						if (launchInDebugModeInstead) { 
+							return false; //kill this launch
+						} 
+					}
+					// if no user prompt, or user says to continue (no need to check other breakpoints)
+					return true;
+				}
+			}
+		}	
+		// no enabled breakpoints... continue launch
+		return true;
+	}
+    
+    /*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.debug.core.model.LaunchConfigurationDelegate#getBuildOrder(org.eclipse.debug.core.ILaunchConfiguration,
+	 *      java.lang.String)
+	 */
+	protected IProject[] getBuildOrder(ILaunchConfiguration configuration,
+			String mode) throws CoreException {
+		return fOrderedProjects;
+	}
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.eclipse.debug.core.model.LaunchConfigurationDelegate#getProjectsForProblemSearch(org.eclipse.debug.core.ILaunchConfiguration,
+	 *      java.lang.String)
+	 */
+	protected IProject[] getProjectsForProblemSearch(
+			ILaunchConfiguration configuration, String mode)
+			throws CoreException {
+		return fOrderedProjects;
+	}
+	
+    @Override
+	public boolean preLaunchCheck(ILaunchConfiguration configuration,
+			String mode, IProgressMonitor monitor) throws CoreException {
+    	// build project list
+		if (monitor != null) {
+			monitor.subTask(LaunchingMessages.AbstractJavaLaunchConfigurationDelegate_20); 
+		}
+		fOrderedProjects = null;
+		ISourceProject javaProject = getJavaProjectFromConfig(configuration);
+		if (javaProject != null) {
+			fOrderedProjects = computeReferencedBuildOrder(new IProject[]{javaProject
+					.getRawProject()});
+		}
+		// do generic launch checks
+		return superPreLaunchCheck(configuration, mode, monitor);
+	}
+    
+    
+    
+    private static ISourceProject getJavaProjectFromConfig(ILaunchConfiguration configuration) throws CoreException {
+		String projectName = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, (String)null);
+		if ((projectName == null) || (projectName.trim().length() < 1)) {
+			return null;
+		}
+		ISourceProject javaProject = BuildPathUtils.getProject(projectName);
+		if (javaProject != null && javaProject.getRawProject().exists() && !javaProject.getRawProject().isOpen()) {
+			abort(MessageFormat.format(LaunchingMessages.JavaRuntime_28, new String[] {configuration.getName(), projectName}), IJavaLaunchConfigurationConstants.ERR_PROJECT_CLOSED, null);
+		}
+		if ((javaProject == null) || !javaProject.getRawProject().exists()) {
+			abort(MessageFormat.format(LaunchingMessages.JavaRuntime_Launch_configuration__0__references_non_existing_project__1___1, new String[] {configuration.getName(), projectName}), IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT, null);
+		}
+		return javaProject;
+	}
+    
+    private static void abort(String message, int code, Throwable exception) throws CoreException {
+		throw new CoreException(new Status(IStatus.ERROR, LaunchingPlugin.getUniqueIdentifier(), code, message, exception));
+	}
+	private String printArray(String[] arg) {
     	StringBuffer buf = new StringBuffer();
     	buf.append("[");
     	for (String a : arg) {
