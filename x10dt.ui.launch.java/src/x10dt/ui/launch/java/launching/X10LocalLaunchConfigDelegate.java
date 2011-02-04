@@ -40,9 +40,9 @@ final class X10LocalLaunchConfigDelegate extends AbstractJavaLaunchConfiguration
   
   // --- Internal services
   
-  File getX10DistHostLauncherDir() throws CoreException {
+  File getX10DistHostLauncherDir(final String fileName) throws CoreException {
     final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
-    final URL url = x10DistBundle.getResource("launchers"); //$NON-NLS-1$
+    final URL url = x10DistBundle.getResource(fileName);
     try {
       return new File(FileLocator.resolve(url).getFile());
     } catch (IOException except) {

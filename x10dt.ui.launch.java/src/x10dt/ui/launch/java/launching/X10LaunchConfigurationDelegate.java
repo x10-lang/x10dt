@@ -220,7 +220,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
   private IPath getExecutablePath(final String x10DistFolder, final String rmServicesId, 
                                   final String confName) throws CoreException {
     if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmServicesId)) {
-      return new Path(new File(this.fLocalConfDelegate.getX10DistHostLauncherDir(), "X10Launcher").getAbsolutePath()); //$NON-NLS-1$
+      return new Path(this.fLocalConfDelegate.getX10DistHostLauncherDir("bin/X10Launcher").getAbsolutePath()); //$NON-NLS-1$
     }
     final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmServicesId);
     final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
