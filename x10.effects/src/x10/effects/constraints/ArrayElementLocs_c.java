@@ -32,10 +32,7 @@ public class ArrayElementLocs_c extends RigidTerm_c implements ArrayElementLocs 
 		
 	}
 	public ArrayLocs generalize(XVar x) {
-	    // XTerm.hasVar() disappeared; for now, be conservative and always generalize a(i) to a(*)
-        return Effects.makeArrayLocs(array());
-	    // TODO Once hasVar() is back, re-enable the following
-//		return (index.hasVar(x)) ? Effects.makeArrayLocs(array()) : null;
+		return (index.hasVar(x)) ? Effects.makeArrayLocs(array()) : null;
 	}
 	public boolean disjointFrom(Locs other, XConstraint c){
 		if (other instanceof ArrayLocs) {
