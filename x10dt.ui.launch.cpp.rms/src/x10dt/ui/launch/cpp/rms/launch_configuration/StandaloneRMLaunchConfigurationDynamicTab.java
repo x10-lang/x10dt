@@ -7,8 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.rms.launch_configuration;
 
-import static x10dt.ui.launch.cpp.rms.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
-import static x10dt.ui.launch.cpp.rms.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +37,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 
-import x10dt.ui.launch.cpp.rms.Messages;
-import x10dt.ui.launch.cpp.rms.RMSActivator;
+import x10dt.ui.launch.cpp.rms.CppRMSActivator;
+import x10dt.ui.launch.rms.core.Messages;
 
 
 final class StandaloneRMLaunchConfigurationDynamicTab implements IRMLaunchConfigurationDynamicTab {
@@ -93,7 +93,7 @@ final class StandaloneRMLaunchConfigurationDynamicTab implements IRMLaunchConfig
       final int numPlaces = configuration.getAttribute(ATTR_NUM_PLACES, DEFAULT_NUM_PLACES);
       attrs.add(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
     } catch (IllegalValueException except) {
-      throw new CoreException(new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, Messages.SRMLCDT_InvalidPlacesNb, except));
+      throw new CoreException(new Status(IStatus.ERROR, CppRMSActivator.PLUGIN_ID, Messages.SRMLCDT_InvalidPlacesNb, except));
     }
 
     return attrs.toArray(new IAttribute<?,?,?>[attrs.size()]);

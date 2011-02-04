@@ -16,6 +16,7 @@ import org.eclipse.ptp.services.ui.IServiceProviderContributor;
 import org.eclipse.swt.widgets.Composite;
 
 /**
+ * Shallow implementation of configuration of the Standalone service provider.
  * 
  * @author egeay
  */

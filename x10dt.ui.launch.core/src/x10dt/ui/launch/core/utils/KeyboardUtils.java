@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation.                                         *
+1 * Copyright (c) 2010 IBM Corporation.                                         *
  * All rights reserved. This program and the accompanying materials            *
  * are made available under the terms of the Eclipse Public License v1.0       *
  * which accompanies this distribution, and is available at                    *
@@ -40,7 +40,7 @@ public final class KeyboardUtils {
       
       public void keyReleased(final KeyEvent event) {
         if ((this.fTimerThread == null) || (! this.fTimerThread.isAlive())) {
-          this.fTimerThread = new TimerThread(runnable, time);
+          this.fTimerThread = new TimerThread(runnable, time, control);
           this.fTimerThread.start();
         } else {
           this.fTimerThread.setShouldBeReseted(false);
@@ -59,6 +59,56 @@ public final class KeyboardUtils {
       
     });
 
+  }
+  
+  // --- Private classes
+  
+  private static final class TimerThread extends Thread {
+    
+    TimerThread(final Runnable runnableAction, final int time, final Control control) {
+      super("Keyboard Timer Thread"); //$NON-NLS-1$
+      this.fRunnableAction = runnableAction;
+      this.fTime = time;
+      this.fControl = control;
+    }
+    
+    // --- Overridden methods
+    
+    public void run() {
+      while (! this.fControl.isDisposed()) {
+        try {
+          Thread.sleep(this.fTime);
+        } catch (InterruptedException except) {
+        }
+        if (! this.fShouldSleepAgain && ! this.fIsReseted && ! this.fControl.isDisposed()) {
+          this.fRunnableAction.run();
+          break;
+        }
+        this.fShouldSleepAgain = false;
+      }
+    }
+    
+    // --- Internal services
+
+    void setShouldBeReseted(final boolean resetFlag) {
+      this.fIsReseted = resetFlag;
+      if (resetFlag) {
+        this.fShouldSleepAgain = true;
+      }
+    }
+    
+    // --- Fields
+    
+    private final Runnable fRunnableAction;
+    
+    private final int fTime;
+    
+    private final Control fControl;
+    
+    private boolean fIsReseted;
+    
+    private boolean fShouldSleepAgain;
+    
   }
   
   // --- Private code

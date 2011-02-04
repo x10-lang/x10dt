@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 
 /**
@@ -49,6 +50,18 @@ public class LaunchImages {
   // --- Public services
   
   /**
+   * Creates the descriptor for a given image file name. This version caches the image in the {@link ImageRegistry}.
+   * 
+   * @param imagePath The relative path to the image for which one wants the descriptor.
+   * @return A non-null instance of {@link ImageDescriptor}.
+   */
+  public static ImageDescriptor createManaged(final String imagePath) {
+    final ImageDescriptor descriptor = createUnmanaged(imagePath);
+    fImageRegistry.put(imagePath, descriptor);
+    return descriptor;
+  }
+  
+  /**
    * Creates the descriptor for a given image file name. This version does not cache the image in the {@link ImageRegistry}.
    * 
    * @param imagePath The relative path to the image for which one wants the descriptor.
@@ -81,5 +94,28 @@ public class LaunchImages {
     }
     return null;
   }
+  
+  /**
+   * Returns the image for the path transmitted if any exists with this key.
+   * 
+   * @param imagePath The path representing the key to access the image.
+   * @return A non-null image if the path is within the image registry, <b>null</b> otherwise.
+   */
+  public static Image getImage(final String imagePath) {
+    return fImageRegistry.get(imagePath);
+  }
+  
+  /**
+   * Removes the image from the image registry. It will have no effect if the image path is not part of the image registry.
+   * 
+   * @param imagePath The path representing the key to access the image.
+   */
+  public static void removeImage(final String imagePath) {
+    fImageRegistry.remove(imagePath);
+  }
+  
+  // --- Fields
+  
+  private static final ImageRegistry fImageRegistry = new ImageRegistry();
 
 }

@@ -22,6 +22,8 @@ import org.eclipse.ptp.rmsystem.AbstractRuntimeResourceManager;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.rtsystem.IRuntimeSystem;
 
+import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
+
 /**
  * Defines the resource manager implementation for X10 Standalone transport.
  * 

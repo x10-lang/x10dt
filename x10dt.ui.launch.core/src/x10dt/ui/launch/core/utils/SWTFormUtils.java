@@ -164,7 +164,7 @@ public class SWTFormUtils {
    * @return The non-null Text widget created.
    */
   public static Text createLabelAndText(final Composite parent, final String labelText, final FormToolkit toolkit) {
-    return createLabelAndText(parent, labelText, toolkit, null, 1);
+    return createLabelAndText(parent, labelText, toolkit, null, 1, SWT.NONE);
   }
   
   /**
@@ -179,7 +179,7 @@ public class SWTFormUtils {
    */
   public static Text createLabelAndText(final Composite parent, final String labelText, final FormToolkit toolkit,
                                         final Collection<Control> controlContainer) {
-    return createLabelAndText(parent, labelText, toolkit, controlContainer, 1);
+    return createLabelAndText(parent, labelText, toolkit, controlContainer, 1, SWT.NONE);
   }
   
   /**
@@ -195,7 +195,7 @@ public class SWTFormUtils {
    */
   public static Text createLabelAndText(final Composite parent, final String labelText, final FormToolkit toolkit,
                                         final int textHeightFactor) {
-    return createLabelAndText(parent, labelText, toolkit, null, textHeightFactor);
+    return createLabelAndText(parent, labelText, toolkit, null, textHeightFactor, SWT.NONE);
   }
   
   /**
@@ -208,10 +208,12 @@ public class SWTFormUtils {
    * controls. Can be useful for enabling/disabling of groups of controls easily.
    * @param textHeightFactor The height factor to consider for the text widget. A value of 1 will create the default height
    * value based on the font size. A value of 2 will multiply this default value by 2, and so on.
+   * @param textStyle End-user text style.
    * @return The non-null Text widget created.
    */
   public static Text createLabelAndText(final Composite parent, final String labelText, final FormToolkit toolkit,
-                                        final Collection<Control> controlContainer, final int textHeightFactor) {
+                                        final Collection<Control> controlContainer, final int textHeightFactor,
+                                        final int textStyle) {
     final Composite composite = toolkit.createComposite(parent);
     final boolean isTableWrapLayout = parent.getLayout() instanceof TableWrapLayout;
     composite.setFont(parent.getFont());
@@ -238,7 +240,7 @@ public class SWTFormUtils {
       controlContainer.add(label);
     }
     final int style = (textHeightFactor == 1) ? SWT.NONE : SWT.WRAP;
-    final Text text = toolkit.createText(composite, null /* value */, style);
+    final Text text = toolkit.createText(composite, null /* value */, style | textStyle);
     if (isTableWrapLayout) {
       final TableWrapData gd = new TableWrapData(TableWrapData.FILL_GRAB);
       if (textHeightFactor > 1) {

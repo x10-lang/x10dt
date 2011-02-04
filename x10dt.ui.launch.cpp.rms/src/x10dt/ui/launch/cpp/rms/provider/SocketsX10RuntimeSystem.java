@@ -7,35 +7,21 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.rms.provider;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
-import org.eclipse.ptp.remote.core.IRemoteProcess;
-import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 
-import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.cpp.rms.Messages;
-import x10dt.ui.launch.cpp.rms.RMSActivator;
-import x10dt.ui.launch.cpp.rms.launch_configuration.LaunchAttributes;
+import x10dt.ui.launch.rms.core.launch_configuration.LaunchAttributes;
+import x10dt.ui.launch.rms.core.provider.AbstractX10RuntimeSystem;
+import x10dt.ui.launch.rms.core.provider.AbstractX10RuntimeSystemJob;
+import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
+import x10dt.ui.launch.rms.core.provider.IX10RuntimeSystem;
+import x10dt.ui.launch.rms.core.provider.SSHValidationJob;
 
 
 final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements IX10RuntimeSystem {
@@ -46,8 +32,8 @@ final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements 
 
   // --- Abstract methods implementation
   
-  protected Job createCheckRequirementsJob(final IProgressMonitor monitor, final Collection<String> hostNames) {
-    return new SSHValidationJob(monitor, hostNames);
+  protected Job createCheckRequirementsJob(final String hostName, final IProgressMonitor monitor) {
+    return new SSHValidationJob(this, hostName, monitor);
   }
   
   protected Job createRuntimeSystemJob(final String jobID, final String queueID, 
@@ -88,133 +74,6 @@ final class SocketsX10RuntimeSystem extends AbstractX10RuntimeSystem implements 
       }
     }
 
-  }
-  
-  private final class SSHValidationJob extends Job {
-    
-    SSHValidationJob(final IProgressMonitor mainMonitor, final Collection<String> hostNames) {
-      super(Messages.SXRS_SSHValidationTaskName);
-      this.fMainMonitor = mainMonitor;
-      this.fHostNames = hostNames;
-    }
-
-    // --- Abstract methods implementation
-    
-    protected IStatus run(final IProgressMonitor monitor) {
-      this.fMainMonitor.beginTask(null, this.fHostNames.size());
-      this.fMainMonitor.subTask(Messages.SXRS_ValidatesSSHTaskName);
-      // Tries checking from the first machine in the list.
-      final String hostName = this.fHostNames.iterator().next();
-      final List<String> command = new ArrayList<String>();
-      command.add("ssh"); //$NON-NLS-1$
-      command.add(hostName);
-      command.add("hostname"); //$NON-NLS-1$
-
-      final IRemoteProcessBuilder processBuilder = createProcessBuilder(command, null /* workingDirectory */);
-      IRemoteProcess initProcess = null;
-      try {
-        initProcess = processBuilder.start();
-      } catch (IOException except) {
-        return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, NLS.bind(Messages.SXRS_ProcessStartError,
-                                                                          getCommandString(command)), except);
-      }
-
-      final IRemoteProcess process = initProcess;
-      final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-      final Future<String> stderrExecService = executorService.submit(new Callable<String>() {
-
-        public String call() {
-          final StringBuilder errBuilder = new StringBuilder();
-          final BufferedReader stderr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-          try {
-            String line = null;
-            int i = 0;
-            while ((line = stderr.readLine()) != null) {
-              if (i == 1) {
-                errBuilder.append('\n');
-              } else {
-                i = 1;
-              }
-              errBuilder.append(line);
-            }
-          } catch (IOException except) {
-            // Simply forgets.
-          }
-          return errBuilder.toString();
-        }
-
-      });
-
-      final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-      scheduledExecutor.schedule(new Runnable() {
-
-        public void run() {
-          if (! process.isCompleted()) {
-            process.destroy();
-          }
-          scheduledExecutor.shutdown();
-        }
-
-      }, 3, TimeUnit.SECONDS);
-      try {
-        while (!process.isCompleted() && !this.fMainMonitor.isCanceled()) {
-          try {
-            synchronized (this) {
-              wait(200);
-            }
-          } catch (InterruptedException except) {
-            // Simply forgets.
-          }
-        }
-
-        if (process.exitValue() != 0) {
-          String error = Constants.EMPTY_STR;
-          try {
-            error = stderrExecService.get();
-          } catch (Exception except) {
-            // Simply forgets.
-          }
-          if (error.length() == 0) {
-            return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, NLS.bind(Messages.SXRS_ValidationError,
-                                                                              getCommandString(command)));
-          } else {
-            return new Status(IStatus.ERROR, RMSActivator.PLUGIN_ID, NLS.bind(Messages.SXRS_SSHValidationErrorWithErrOutput,
-                                                                              getCommandString(command), error));
-          }
-        }
-      } finally {
-        stderrExecService.cancel(true);
-        process.destroy();
-        executorService.shutdown();
-        this.fMainMonitor.worked(1);
-      }
-      this.fMainMonitor.done();
-      return Status.OK_STATUS;
-    }
-    
-    // --- Private code
-    
-    private String getCommandString(final List<String> command) {
-      final StringBuilder sb = new StringBuilder();
-      int i = 0;
-      for (final String cmd : command) {
-        if (i == 1) {
-          sb.append(' ');
-        } else {
-          i = 1;
-        }
-        sb.append(cmd);
-      }
-      return sb.toString();
-    }
-    
-    // --- Fields
-    
-    private final IProgressMonitor fMainMonitor;
-    
-    private final Collection<String> fHostNames;
-    
   }
 
 }
