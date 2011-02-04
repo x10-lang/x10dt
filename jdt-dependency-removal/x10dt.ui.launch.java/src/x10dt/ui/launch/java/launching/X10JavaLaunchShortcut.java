@@ -50,7 +50,7 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
                                                   final Pair<ClassType, ISourceEntity> type) {
-    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getName());
+    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getProject().getName());
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
     
     try {
