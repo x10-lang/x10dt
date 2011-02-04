@@ -151,7 +151,7 @@ public final class X10Utils {
   private static Set<IPath> collectPathEntries(final ISourceProject project) throws ModelException {
     final Set<IPath> container = new HashSet<IPath>();
     final IWorkspaceRoot root = project.getResource().getWorkspace().getRoot();
-    for (final IPathEntry cpEntry : project.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
+    for (final IPathEntry cpEntry : project.getResolvedBuildPath(LanguageRegistry.findLanguage("X10"), true)) {
       collectCpEntries(container, cpEntry, root);
     }
     return container;

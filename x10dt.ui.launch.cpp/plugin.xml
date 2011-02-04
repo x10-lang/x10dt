@@ -175,9 +175,11 @@
                               <test property="x10dt.ui.hasMain"></test>
                            </adapt>
                         </or>
-                        <test property="org.eclipse.debug.ui.projectNature"
-                              value="x10dt.ui.launch.cpp.x10nature">
-                        </test>
+                        <adapt type="org.eclipse.core.resources.IResource">
+                           <test property="org.eclipse.debug.ui.projectNature" 
+                                 value="x10dt.ui.launch.cpp.x10nature">
+                           </test>
+                        </adapt>
                      </and>
                   </iterate>
                </with>
