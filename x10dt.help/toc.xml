@@ -263,6 +263,35 @@
 	<topic label="Changes" href="html/langref/changelog.html"/>
 	<topic label="Options" href="html/langref/options.html"/>
 </topic>
+
+<!--
+<topic label="X10 Language Reference (Proposed)" href="html/lgref/toc.html">
+	<topic label="Summary"  href="html/lgref/first.htm"/> 
+	<topic label="Introduction"  href="html/lgref/Intro.htm"/> 
+	<topic label="Overview of X10"  href="html/lgref/Overview.htm"/>
+	<topic label="Lexical structure"  href="html/lgref/Lex.htm"/> 
+	<topic label="Types" href="html/lgref/Types.htm"/>
+	<topic label="Names and packages" href="html/lgref/Packages.htm"/>
+	<topic label="Interfaces" href="html/lgref/Interfaces.htm"/>
+	<topic label="Classes" href="html/lgref/Classes.htm"/> 
+	<topic label="Structs" href="html/lgref/Structs.htm"/> 
+	<topic label="Functions" href="html/lgref/Functions.htm"/> 
+	<topic label="Expressions" href="html/lgref/Expressions.htm"/> 
+	<topic label="Statements" href="html/lgref/Statements.htm"/> 
+	<topic label="Places" href="html/lgref/Places.htm"/> 
+	<topic label="Activities" href="html/lgref/Activities.htm"/> 
+	<topic label="Clocks" href="html/lgref/Clocks.htm"/> 
+	<topic label="Local and Distributed Arrays" href="html/lgref/Arrays.htm"/> 
+	<topic label="Annotations" href="html/lgref/Annotations.htm"/> 
+	<topic label="Native Code Integration" href="html/lgref/extern.htm"/> 
+	<topic label="Definite Assignment" href="html/lgref/DefiniteAssignment.htm"/>
+	<topic label="Grammar" href="html/lgref/grammar.htm"/>
+	<topic label="References" href="html/lgref/refs.html"/>
+	<topic label="Changes" href="html/lgref/changelog.htm"/>
+	<topic label="Options" href="html/lgref/options.html"/> 
+</topic>
+-->
+
 <topic label="What&apos;s new" href="html/whatsNew/whatsnew-2.1.html"/>
 
 <!--
