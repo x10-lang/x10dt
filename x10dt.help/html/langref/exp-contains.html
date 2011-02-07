@@ -22,26 +22,37 @@
 
 
 <div class="p"><!----></div>
-<em>
+<em>  
 <table>
-
-<tr><td align="right">RelationalExp ::= RangeExp </td></tr>
-<tr><td align="right">&#124; SubtypeConstraint </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&lt;</b> RangeExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&#62;</b> RangeExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&lt;=</b> RangeExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&#62;=</b> RangeExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>instanceof</b> Type </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>in</b> ShiftExp </td></tr>
+<tr><td align="right">RelationalExp ::=RelationalExp <b>in</b> ShiftExp </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The expression <b>p in r</b> tests if a value <b>p</b> is in a collection
-<b>r</b>; it evaluates to <b>r.contains(p)</b>.
-The collection <b>r</b>
-must be of type <b>Collection[T]</b> and the value <b>p</b> must
-be of type <b>T</b>.
+<b>in</b> is a binary operator, definable in &#167;.  It is
+conventionally used for checking containment.
+
+<div class="p"><!----></div>
+The built-in type <b>Region</b> provides <b>in</b>, testing whether a
+<b>Point</b> is in the region: 
+<pre>
+assert [3] in 1..10;
+assert !([10] in 1..3);
+</pre>
+
+<div class="p"><!----></div>
+Other types can provide them as well:
+<pre>
+class Cont {
+   operator this in (Int) = true;
+   operator (String) in this = false;
+   static operator (Cont) in (b:Boolean) = b;
+   static def example() {
+      val c:Cont = new Cont();
+      assert c in 4 &amp;&amp; !(&#246;dd" in c) &amp;&amp; (c in true);
+   }
+}
+</pre>
 
 <div class="p"><!----></div>
 

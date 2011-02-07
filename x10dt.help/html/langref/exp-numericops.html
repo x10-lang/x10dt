@@ -36,7 +36,13 @@ for any struct.
 
 <div class="p"><!----></div>
 Promoting a numeric value to a longer numeric type preserves the sign of the
-value.  For example, <b>(255 as UByte) as UInt</b> is 255.  
+value.  For example, <b>(255 as UByte) as UInt</b> is 255. 
+
+<div class="p"><!----></div>
+Most of these operations can be defined on user-defined types as well.  While
+it is good practice to keep such operations consistent with the numeric
+operations whenever possible, the compiler neither enforces nor assumes any
+particular semantics of user-defined operations. 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc9.1">

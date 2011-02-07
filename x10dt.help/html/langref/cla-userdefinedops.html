@@ -273,32 +273,35 @@ addition to add it to <b>x</b>.
 </a>
 X10 allows types to implement the subscripting / function application
 operator, and indexed assignment.  The <b>Array</b>-like classes take advantage
-of both of these in <b>a(i) = a(i) + 1</b>.  Unlike unary and binary operators,
-subscripting and indexed assignment are done by methods, <b>apply</b> and
-<b>set</b> respectively.
+of both of these in <b>a(i) = a(i) + 1</b>.  
 
 <div class="p"><!----></div>
-<b>a(b,c,d)</b> is short for the method call <b>a.apply(b,c,d)</b>.  Since it is
-possible to overload methods, the application syntax can be overloaded.  For
+<b>a(b,c,d)</b>
+is an operator call, to an operator defined with 
+<b>public operator this(b:B, c:C, d:D)</b>.  It may be overloaded.
+For
 example, an ordered dictionary structure could allow subscripting by numbers
-with <b>def apply(i:Int)</b>, and by string-valued keys with 
-<b>def apply(s:String)</b>.  
+with <b>public operator this(i:Int)</b>, and by string-valued keys with 
+<b>public operator this(s:String)</b>.  
 
 <div class="p"><!----></div>
-<b>a(i)=b</b> is short for the method call <b>a.set(b,i)</b>, with one or more
-indices <b>i</b>. (This has a
-possibly surprising consequence for the order of evaluation: in <b>a(i)=b</b>,
-as in <b>a.set(b,i)</b>, <b>a</b> is evaluated first, then <b>b</b>, and finally
-<b>i</b>.)  Again, it is possible to overload <b>set</b> to provide a variety of
-subscripting operations.  Each <b>set</b> method must have a corresponding
-<b>apply</b> method; that is, <b>a(i,j)=b</b> is only defined when <b>a(i,j)</b>
-is defined, despite the fact that <b>a(i,j)=b</b> does not evaluate <b>a(i,j)</b>.
+<b>a(i,j)=b</b> is an <b>operator</b> as well, with zero or more indices
+<b>i,j</b>.  It may also be overloaded. 
+
+<div class="p"><!----></div>
+The update operations <b>a(i) += b</b> are defined to be the 
+same as the corresponding <b>a(i) = a(i) + b</b>.  This applies for all arities
+of arguments, and all types.  Of course to use this, both the application and
+assignment <b>operator</b>s must be defined.cd
 
 <div class="p"><!----></div>
 The <b>Oddvec</b> class of somewhat peculiar vectors illustrates this.
 <b>a()</b> returns a string representation of the oddvec, which probably should
-be done by <b>toString()</b> instead.  <b>a(i)</b> picks out one of the three
-coordinates of <b>a</b>, which is sensible.  <b>a(i)=b</b> assigns to one of the
+be done by <b>toString()</b> instead.  
+<b>a(i)</b> picks out one of the three
+coordinates of <b>a</b>, which is sensible.  
+<b>a()=b</b> sets all the coordinates of <b>a</b> to <b>b</b>.
+<b>a(i)=b</b> assigns to one of the
 coordinates.  <b>a(i,j)=b</b> assigns different values to <b>a(i)</b> and
 <b>a(j)</b>, purely for the sake of the example.
 
@@ -306,13 +309,19 @@ coordinates.  <b>a(i,j)=b</b> assigns different values to <b>a(i)</b> and
 <pre>
 class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=&#62;0);
-  public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
-  public def apply(i:Int) = v(i);
-  public def apply(i:Int, j:Int) = [v(i),v(j)];
-  public def set(newval:Int, i:Int) = {v(i) = newval;}
-  public def set(newval:Int, i:Int, j:Int) = {
+  public operator this () = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
+  public operator this () = (newval: Int) { 
+    for(p in v.region) v(p) = newval;
+  }
+  public operator this(i:Int) = v(i);
+  public operator this(i:Int, j:Int) = [v(i),v(j)];
+  public operator this(i:Int) = (newval:Int) = {v(i) = newval;}
+  public operator this(i:Int, j:Int) = (newval:Int) = {
        v(i) = newval; v(j) = newval+1;} 
-  // ... 
+  public def example() {
+    this(1) = 6;   assert this(1) == 6;
+    this(1) += 7;  assert this(1) == 13;
+  }
 </pre>
 
 <div class="p"><!----></div>

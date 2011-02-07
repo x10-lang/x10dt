@@ -21,7 +21,9 @@
 4</a>&nbsp;&nbsp;Expression statement</h2>
 
 <div class="p"><!----></div>
-<em>  
+
+<em>
+  
 <table>
 
 <tr><td align="right">ExpStatement ::= StatementExp <b>;</b> </td></tr>
@@ -36,9 +38,13 @@
 </em>
 
 <div class="p"><!----></div>
-The expression statement evaluates an expression.  The value of the expression
-is not used.
-Side effects of the expression occur.  
+The expression statement evaluates an expression. The value of the expression
+is not used. Side effects of the expression occur, and may produce results
+used by following statements. Indeed, statement expressions which terminate
+without side effects cannot have any visible effect on the results of the
+computation. 
+
+<div class="p"><!----></div>
 <pre>
 class StmtEx {
   def this() { x10.io.Console.OUT.println("New StmtEx made");  }
@@ -51,9 +57,14 @@ class StmtEx {
   }
 }
 </pre>
-Only selected forms of expression can appear in expression
-statements: assignments, increments, decrements, method invocations, and
-constructor invocations. 
+
+
+<div class="p"><!----></div>
+Only selected forms of expression can appear in expression statements:
+assignments, increments, decrements, method invocations, and constructor
+invocations. Most other forms of expression, such as literals and variable and
+field references, cannot have side effects and are thus pointless as
+expression statements.
 
 <div class="p"><!----></div>
 

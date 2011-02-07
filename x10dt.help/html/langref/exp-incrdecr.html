@@ -28,15 +28,17 @@
 The operators <b>++</b> and <b>--</b> increment and decrement
 a variable, respectively.  
 <b>x++</b> and <b>++x</b> both increment <b>x</b>, just as the statement 
-<b>x += 1</b> would, and similarly for <b>-</b>.  
+<b>x += 1</b> would, and similarly for <b>--</b>.  
 
 <div class="p"><!----></div>
 The difference between the two is the return value.  
-<b>++x</b> returns the <em>new</em> value of <b>x</b>, after incrementing.
-<b>x++</b> returns the <em>old</em> value of <b>, before incrementing.</b>
+<b>++x</b> and <b>--x</b> return the <em>new</em> value of <b>x</b>, after
+incrementing or decrementing.
+<b>x++</b> and <b>x--</b> return the <em>old</em> value of <b>x</b>, before
+incrementing or decrementing.
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> This currently only works for numeric types.</em>
+<b><b>Limitation: </b> This currently only works for numeric types.</b>
 
 <div class="p"><!----></div>
 

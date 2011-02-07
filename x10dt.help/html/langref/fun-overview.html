@@ -97,7 +97,9 @@ Within this function, <b>this</b> is bound to the result of evaluating {e}.
 
 <div class="p"><!----></div>
 Function types may be used in <b>implements</b> clauses of class
-definitions. Instances of such classes may be used as functions of the
+definitions. Suitable operator definitions must be supplied, with 
+"public operator this(x1:T1, &#8230;, xn:Tn)" declarations.
+Instances of such classes may be used as functions of the
 given type.  Indeed, an object may behave like any (fixed) number of
 functions, since the class it is an instance of may implement any
 (fixed) number of function types.
@@ -109,8 +111,8 @@ pairs of <b>Int</b>s.
 class Funny implements (Boolean) =&#62; Int, 
                        (Int, Int) =&#62; Int
 {
-  public def apply(Boolean) = 1;
-  public def apply(x:Int, y:Int) = 10*x+y;
+  public operator this(Boolean) = 1;
+  public operator this(x:Int, y:Int) = 10*x+y;
   static def example() {
     val f &lt;: Funny  = new Funny();
     assert f(true) == 1; // (Boolean)=&#62;Int behavior

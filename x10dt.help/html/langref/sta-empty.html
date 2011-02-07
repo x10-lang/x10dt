@@ -21,15 +21,22 @@
 1</a>&nbsp;&nbsp;Empty statement</h2>
 
 <div class="p"><!----></div>
-The empty statement <b>;</b> does nothing.  It is useful when a
-loop header is evaluated for its side effects.  For example,
-the following code sums the elements of a 1-dimensional array.
+The empty statement <b>;</b> does nothing.  
 
 <div class="p"><!----></div>
+Sometimes, the syntax of X10 requires a statement in some position, but you do
+not actually want to do any computation there.   
+The following code searches the array <b>a</b> for the value <b>v</b>, assumed
+to appear somewhere in <b>a</b>, and returns the index at which it was found.  
+There is no computation to do in the loop body, so we use an empty statement
+there. 
 <pre>
-var sum: Int = 0;
-for (var i: Int = 0; i &lt; a.size; i++, sum += a(i))
-    ;
+static def search[T](a: Array[T](1), v: T):Int {
+  var i : Int;
+  for(i = a.region.min(0); a(i) != v; i++)
+     ;
+  return i;
+}
 </pre>
 
 <div class="p"><!----></div>

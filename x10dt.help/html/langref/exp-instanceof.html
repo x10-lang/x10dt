@@ -29,7 +29,9 @@ X10 permits types to be used in an in instanceof expression
 to determine whether an object is an instance of the given type:
 
 <div class="p"><!----></div>
+
 <em>
+  
 <table>
 
 <tr><td align="right">RelationalExp ::= RangeExp </td></tr>
@@ -63,7 +65,7 @@ However, it is a static error if <b>e</b> cannot possibly be an instance of
 String</b> is a static error, rather than an expression always returning false. 
 
 <div class="p"><!----></div>
-<em>Limitation</em>
+<b>Limitation: </b>
 X10 does not currently handle <b>instanceof</b> of generics in the way you
 might expect.  For example, <b>r instanceof Array[Int{self != 0}]</b> does
 not test that every element of <b>r</b> is non-zero; instead, the compiler

@@ -25,10 +25,10 @@
 
 
 <div class="p"><!----></div>
-<em>
+<em>  
 <table>
-<tr><td align="right">EqualityExp    ::= RelationalExp </td></tr>
-<tr><td align="right">
+<tr><td align="right">EqualityExp    ::= RelationalExp =</td></tr>
+<tr><td align="right">%&lt;FROM #(prod:EqualityExp)#
     &#124; EqualityExp <b>==</b> RelationalExp</td></tr>
 <tr><td align="right">&#124; EqualityExp <b>!=</b> RelationalExp</td></tr>
 <tr><td align="right">&#124; Type  <b>==</b> Type </td></tr>
@@ -76,9 +76,26 @@ is true iff <b>a==b</b> is false.
 
 <div class="p"><!----></div>
 The predicates <b>==</b> and <b>!=</b> may not be overridden by the programmer.
-Note that <b>a==b</b> is a form of <em>stable equality</em>; that is, the result of
-the equality operation is not affected by the mutable state of the program,
-after evaluation of <b>a</b> and <b>b</b>. 
+
+<div class="p"><!----></div>
+<b>==</b> provides a <em>stable</em> notion of equality.  If two values are
+<b>==</b> at any time, they remain <b>==</b> forevermore, regardless of what
+happens to the mutable state of the program. 
+
+<div class="p"><!----></div>
+Regardless of the values and types of <b>a</b> and <b>b</b>, 
+or the behavior of <b>any_code_at_all</b> (which may, indeed, be
+any code at all-not just a method call), the value of 
+<b>a==b</b> does not change: 
+<pre>
+val a = something();
+val b = something_else();
+val eq1 = (a == b);
+any_code_at_all();
+val eq2 = (a == b);
+assert eq1 == eq2;
+</pre>
+
 
 <div class="p"><!----></div>
 

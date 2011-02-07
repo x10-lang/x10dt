@@ -19,7 +19,15 @@
 <body>
  <h2><a name="tth_sEc17">
 17</a>&nbsp;&nbsp;Try-catch statement</h2>
-<em>  
+
+
+
+
+
+<div class="p"><!----></div>
+
+<em>
+  
 <table>
 
 <tr><td align="right">TryStatement ::= <b>try</b> Block Catches </td></tr>
@@ -30,6 +38,8 @@
 <tr><td align="right">Finally ::= <b>finally</b> Block </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
+
+<div class="p"><!----></div>
 Exceptions are handled with a <b>try</b> statement.
 A <b>try</b> statement consists of a <b>try</b> block, zero or more
 <b>catch</b> blocks, and an optional <b>finally</b> block.
@@ -59,6 +69,26 @@ exception is rethrown.
 <div class="p"><!----></div>
 The parameter of a <b>catch</b> block has the block as scope.  It shadows other
 variables of the same name.
+
+<div class="p"><!----></div>
+The <b>example()</b> method below executes without any assertion errors
+<pre>
+class Exn extends Throwable{}
+class SubExn(n:Int) extends Exn{}
+class Example {
+  static def example() {
+    var correct : Boolean = false;
+    try {
+       throw new SubExn(4);
+    }
+    catch (e : SubExn{n==1}) { assert false; }
+    catch (e : Exn)          { correct = true; }
+    catch (e : SubExn)       { assert false; }
+    catch (e : Throwable)    { assert false; }
+    assert correct; 
+  }
+}
+</pre>
 
 <div class="p"><!----></div>
 

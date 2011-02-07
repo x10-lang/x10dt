@@ -23,9 +23,8 @@
 
 <div class="p"><!----></div>
 
-  
-  
 <em>
+  
 <table>
 
 <tr><td align="right">AssertStatement ::= <b>assert</b> Exp <b>;</b> </td></tr>
@@ -41,7 +40,7 @@ false, throws an <b>x10.lang.Error</b> exception with <b>F</b>'s value attached
 to it. 
 
 <div class="p"><!----></div>
-For example, 
+The following code compiles properly.  
 <pre>
 class Example {
   public static def main(argv:Array[String](1)) {
@@ -51,10 +50,12 @@ class Example {
 }
 </pre>
 
-compiles properly, but prints a stack trace starting with 
+However, when run, it 
+prints a stack trace starting with 
 <pre>
 x10.lang.Error: Changed my mind about a
 </pre>
+
 
 <div class="p"><!----></div>
 

@@ -24,7 +24,9 @@
 
 
 <div class="p"><!----></div>
+
 <em>
+  
 <table>
 
 <tr><td align="right">SubtypeConstraint ::= Type  <b>&lt;:</b> Type  </td></tr>
@@ -33,16 +35,17 @@
 </em>
 
 <div class="p"><!----></div>
-The subtyping expression  evaluates to <b>true</b>
+The subtyping expression  evaluates to <b>true</b> if
 "T<sub>1</sub>" is a subtype of "T<sub>2</sub>".
 
 <div class="p"><!----></div>
-The expression  evaluates to <b>true</b>
+The expression  evaluates to <b>true</b> if
 "T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
 
 <div class="p"><!----></div>
 The expression "T<sub>1</sub> == T<sub>2</sub>"
-evaluates to  <b>true</b>  is a subtype of  and
+evaluates to  <b>true</b> if 
+"T<sub>1</sub>" is a subtype of "T<sub>2</sub>" and
 if "T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
 
 <div class="p"><!----></div>
@@ -59,6 +62,7 @@ class OrderedList[T]{T &lt;: x10.util.Ordered[T]} {
   // ...
 }
 </pre>
+
 
 <div class="p"><!----></div>
 

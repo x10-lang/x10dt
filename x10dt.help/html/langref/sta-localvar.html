@@ -24,7 +24,9 @@
 
 
 <div class="p"><!----></div>
-<em> 
+  
+<em>
+  
 <table>
 
 <tr><td align="right">LocalVariableDeclStatement ::= LocalVariableDecl <b>;</b> </td></tr>
@@ -40,11 +42,10 @@
 
 <div class="p"><!----></div>
 Short-lived variables are introduced by local variables declarations, as
-described in &#167;5. Local variables may be declared only
+described in &#167;. Local variables may be declared only
 within a block statement (&#167;). The scope of a local variable
 declaration is the statement itself and the subsequent statements in the
-block.  Variables declared in such statements shadow variables of the same
-name declared elsewhere.
+block. 
 <pre>
   if (a &#62; 1) {
      val b = a/2;
@@ -55,6 +56,8 @@ name declared elsewhere.
 </pre>
 
 <div class="p"><!----></div>
+Variables declared in such statements shadow variables of the same
+name declared elsewhere.
 A local variable of a given name, say <b>x</b>, cannot shadow another local
 variable or parameter named <b>x</b> unless there is an intervening method or
 closure declaration, or unless the inner <b>x</b> is declared inside an
@@ -73,20 +76,20 @@ class Shadow{
      this.x = x; 
   }
   def example(y:Int) {
-     val x = &#223;hadow field";
-     // ERROR: val y = &#223;hadow param";
+     val x = &#223;hadows a field";
+     // ERROR: val y = &#223;hadows a param";
      val z = "local";
      for (a in [1,2,3]) {
-        // ERROR: val x = "can't shadow";
+        // ERROR: val x = "can't shadow local var";
      }
      async {
-        val x = &#223;hadow through async";
+        val x = "can shadow through async";
      }        
      at (here) {
-        val x = &#223;hadow through at";
+        val x = "can shadow through at";
      }        
      val f = () =&#62; { 
-       val x = &#223;hadow through closure";
+       val x = "can shadow through closure";
        x
      };
   }

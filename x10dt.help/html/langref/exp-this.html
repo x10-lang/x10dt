@@ -18,26 +18,16 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;<b>this</b></h2>
+2</a>&nbsp;&nbsp;<tt>this</tt></h2>
 
 
 
 <div class="p"><!----></div>
-<em>
+<em>  
 <table>
-
-<tr><td align="right">Primary ::= <b>here</b> </td></tr>
-<tr><td align="right">&#124; <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b> </td></tr>
-<tr><td align="right">&#124; Literal </td></tr>
-<tr><td align="right">&#124; <b>self</b> </td></tr>
+<tr><td align="right">Primary ::= <b>this</b> () </td></tr>
 <tr><td align="right">&#124; <b>this</b> </td></tr>
 <tr><td align="right">&#124; ClassName <b>.</b> <b>this</b> </td></tr>
-<tr><td align="right">&#124; <b>(</b> Exp <b>)</b> </td></tr>
-<tr><td align="right">&#124; ClassInstCreationExp </td></tr>
-<tr><td align="right">&#124; FieldAccess </td></tr>
-<tr><td align="right">&#124; MethodInvocation </td></tr>
-<tr><td align="right">&#124; MethodSelection </td></tr>
-<tr><td align="right">&#124; OperatorFunction </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -52,7 +42,9 @@ where there is an instance of the class under consideration.
 Within an inner class, <b>this</b> may be qualified with the
 name of a lexically enclosing class.  In this case, it
 represents an instance of that enclosing class.  
-For example, <b>Outer</b> is a class containing <b>Inner</b>.  Each instance of
+
+<div class="p"><!----></div>
+<b>Outer</b> is a class containing <b>Inner</b>.  Each instance of
 <b>Inner</b> has a reference <b>Outer.this</b> to the <b>Outer</b> involved in its
 creation.  <b>Inner</b> has access to the fields of <b>Outer.this</b>, as seen
 in the <b>outerThree</b> and <b>alwaysTrue</b> methods.  Note that <b>Inner</b>
@@ -68,6 +60,7 @@ class Outer {
   }
 }
 </pre>
+
 
 <div class="p"><!----></div>
 The type of a <b>this</b> expression is the

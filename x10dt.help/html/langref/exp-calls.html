@@ -35,7 +35,9 @@
 
 
 <div class="p"><!----></div>
+
 <em>
+  
 <table>
 
 <tr><td align="right">MethodInvocation ::= MethodPrimaryPrefix <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
@@ -56,45 +58,65 @@ A <em>MethodInvocation</em> may be to either a <b>static</b> method, an
 instance method, or a closure.
 
 <div class="p"><!----></div>
-The syntax is ambiguous; the target must be type-checked to determine if it is
-the name of a method or if it refers to a field containing a closure. It is a
-static error if a call may resolve to both a closure call or to a method call.
-<pre>
-class Callsome {
-  static val closure = () =&#62; 1;
-  static def method () = 2;
-  static val closureEvaluated = Callsome.closure();
-  static val methodEvaluated = Callsome.method();
-}
-</pre>
-However, adding a static method called <b>closure</b> makes <b>Callsome.closure()</b>
-ambiguous: it could be a call to the closure, or to the static method: 
+The syntax for method invocations is ambiguous. <b>ob.m()</b> could either be
+the invocation of a method named <b>m</b> on object <b>ob</b>, or the
+application of a function held in a field <b>ob.m</b>. The target <b>ob</b> must
+be type-checked to determine which of these it is.  It is a static error if
+both cases are possible after type checking.
 
 <div class="p"><!----></div>
+<pre>
+class Callsome {
+  static val closure : () =&#62; Int = () =&#62; 1;
+  static def method()            = 2;
+  static def example() {
+     assert Callsome.closure() == 1;
+     assert Callsome.method()  == 2;
+  } 
+}
+</pre>
+However, adding a static method [mis]named <b>closure</b> makes
+<b>Callsome.closure()</b> 
+ambiguous: it could be a call to the closure, or to the static method: 
 <pre>
   static def closure () = 3;
   // ERROR: static errory = Callsome.closure();
 </pre>
 
+
 <div class="p"><!----></div>
-A closure call &#235;(...)" is shorthand for a method call
-&#235;.apply(...)". 
+The application form <b>e(f,g)</b>, when <b>e</b> evaluates to an object or
+struct, invokes the application <b>operator</b>, 
+defined in the form 
+<pre>
+public operator this(f:F, g:G) = "value";
+</pre>
 
 <div class="p"><!----></div>
 Method selection rules are given in &#167;.
 
 <div class="p"><!----></div>
-It is a static error if a method's <em>Guard</em> is not satisfied by the
-caller.  For example: 
+It is a static error if a method's <em>Guard</em> is not statically
+satisfied by the 
+caller.  
+
+<div class="p"><!----></div>
+In this example, a <b>DivideBy</b> object provides the service of dividing
+numbers by <b>denom</b> - so long as <b>denom</b> is not zero. 
+In the <b>example</b> method, <b>this.div(100)</b>  is not allowed; there is no
+guarantee that <b>denom != 0</b>.  Casting <b>this</b> to a type 
+whose constraint implies <b>denom != 0</b> permits the method call.
 <pre>
 class DivideBy(denom:Int) {
-  def doIt(numer:Int){denom != 0} = numer / denom;
+  def div(numer:Int){denom != 0} = numer / denom;
   def example() {
-     //ERROR: denom might be zero: this.doIt(100); 
-     (this as DivideBy{self.denom != 0}).doIt(100);
+     val thisCast = (this as DivideBy{self.denom != 0});
+     thisCast.div(100);
+     //ERROR: this.div(100); 
   }
 }
 </pre>
+
 
 <div class="p"><!----></div>
 

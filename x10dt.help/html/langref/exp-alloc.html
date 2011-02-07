@@ -30,7 +30,9 @@
 
 
 <div class="p"><!----></div>
+
 <em>
+  
 <table>
 
 <tr><td align="right">ClassInstCreationExp ::= <b>new</b> TypeName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
@@ -67,13 +69,14 @@ specified in &#167;<a href="#MethodInvocationSubstitution">6</a>.
 
 <div class="p"><!----></div>
 It is illegal to allocate an instance of an <b>abstract</b> class.
-It is illegal to allocate an instance of a class or to invoke a
+The usual visibility rules apply to allocations: 
+it is illegal to allocate an instance of a class or to invoke a
 constructor that is not visible at
 the allocation expression.
 
 <div class="p"><!----></div>
-Note that instantiating a struct type uses function application syntax, not
-<b>new</b>.  As structs do not have subclassing, there is no need or
+Note that instantiating a struct type can use function application syntax; 
+<b>new</b> is optional.  As structs do not have subclassing, there is no need or
 possibility of a <em>ClassBody</em>.
 
 <div class="p"><!----></div>

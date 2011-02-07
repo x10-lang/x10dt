@@ -24,7 +24,9 @@
 
 
 <div class="p"><!----></div>
-<em>  
+
+<em>
+  
 <table>
 
 <tr><td align="right">ReturnStatement ::= <b>return</b> Exp<sup>?</sup>&nbsp;<b>;</b> </td></tr>
@@ -33,9 +35,22 @@
 
 <div class="p"><!----></div>
 Methods and closures may return values using a return statement.
-If the method's return type is expliclty declared <b>void</b>,
+If the method's return type is explicitely declared <b>void</b>,
 the method must return without a value; otherwise, it must return
 a value of the appropriate type.
+
+<div class="p"><!----></div>
+The following code illustrates returning values from a closure and a method.
+The <b>return</b> inside of <b>closure</b> returns from <b>closure</b>, not from
+<b>method</b>.  
+<pre>
+def method(x:Int) {
+  val closure = (y:Int) =&#62; {return x+y;}; 
+  val res = closure(0);
+  assert res == x;
+  return res == x;
+}
+</pre>
 
 <div class="p"><!----></div>
 

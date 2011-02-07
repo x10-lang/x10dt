@@ -21,18 +21,24 @@
 3</a>&nbsp;&nbsp;Local variables</h2>
 
 <div class="p"><!----></div>
+
 <em>
+  
 <table>
 
-<tr><td align="right">Id ::= identifier </td></tr>
+<tr><td align="right">Id ::= identifier = </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 A local variable expression consists simply of the name of the local variable,
 field of the current object, formal parameter in scope, etc. It evaluates to
-the value of the local variable. <b>n</b> in the second line below is a local
-variable expression. 
+the value of the local variable. 
+
+<div class="p"><!----></div>
+<b>n</b> in the second line below is a local
+variable expression.  The <b>n</b> in the first line is not; it is part of a
+local variable declaration.
 <pre>
 val n = 22;
 val m = n + 56;
