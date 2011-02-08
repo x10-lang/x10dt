@@ -18,11 +18,11 @@ import x10.effects.constraints.LocalLocs;
  * @author vj
  */
 public class BaseTests extends TestCase {
-    LocalLocs l1 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l1")));
-    LocalLocs l2 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l2")));
-    LocalLocs l3 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l3")));
-    LocalLocs l4 = Effects.makeLocalLocs(XTerms.makeLocal(XTerms.makeName("l4")));
-    
+    LocalLocs l1 = Effects.makeLocalLocs(new XLocal("l1"));
+    LocalLocs l2 = Effects.makeLocalLocs(new XLocal("l2"));
+    LocalLocs l3 = Effects.makeLocalLocs(new XLocal("l3"));
+    LocalLocs l4 = Effects.makeLocalLocs(new XLocal("l4"));
+
 	public BaseTests() {
 		super("BaseTests");
 	}
@@ -227,10 +227,10 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test13() throws Throwable {
-		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
-		FieldLocs Lf = Effects.makeFieldLocs(L, XTerms.makeName("f"));
-		XLocal M = XTerms.makeLocal(XTerms.makeName("M"));
-		FieldLocs Mf = Effects.makeFieldLocs(M, XTerms.makeName("f"));
+		XLocal L = new XLocal("L");
+		FieldLocs Lf = Effects.makeFieldLocs(L, "f");
+		XLocal M = new XLocal("M");
+		FieldLocs Mf = Effects.makeFieldLocs(M, "f");
 		Effect e1 = new Effect_c(Effects.FUN);	
 		e1.addRead(Lf);
 
@@ -249,9 +249,9 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test14() throws Throwable {
-		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
+		XLocal L = new XLocal("L");
 		ArrayElementLocs L1 = Effects.makeArrayElementLocs(L, XTerms.makeLit(1));
-		XLocal M = XTerms.makeLocal(XTerms.makeName("M"));
+		XLocal M = new XLocal("M");
 		ArrayElementLocs M1 = Effects.makeArrayElementLocs(M, XTerms.makeLit(1));
 		Effect e1 = new Effect_c(Effects.FUN);	
 		e1.addRead(L1);
@@ -271,9 +271,9 @@ public class BaseTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test15() throws Throwable {
-		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
-		XLocal One = XTerms.makeLocal(XTerms.makeName("1"));
-		XLocal Two = XTerms.makeLocal(XTerms.makeName("2"));
+		XLocal L = new XLocal("L");
+		XLocal One = new XLocal("1");
+		XLocal Two = new XLocal("2");
 		ArrayElementLocs L1 = Effects.makeArrayElementLocs(L, One);
 		ArrayElementLocs L2 = Effects.makeArrayElementLocs(L, Two);
 		Effect e1 = new Effect_c(Effects.FUN);	
@@ -290,8 +290,8 @@ public class BaseTests extends TestCase {
 	}
 
 	public void test16() throws Throwable {
-		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
-		XLocal A = XTerms.makeLocal(XTerms.makeName("A"));
+		XLocal L = new XLocal("L");
+		XLocal A = new XLocal("A");
 		ArrayLocs L1 = Effects.makeArrayLocs(L);
 		LocalLocs Al = Effects.makeLocalLocs(A);
 		ArrayElementLocs LA = Effects.makeArrayElementLocs(L, A);
@@ -313,8 +313,8 @@ public class BaseTests extends TestCase {
 	}
 
 	public void test17() throws Throwable {
-		XLocal L = XTerms.makeLocal(XTerms.makeName("L"));
-		XLocal A = XTerms.makeLocal(XTerms.makeName("A"));
+		XLocal L = new XLocal("L");
+		XLocal A = new XLocal("A");
 		ArrayLocs L1 = Effects.makeArrayLocs(L);
 		LocalLocs Al = Effects.makeLocalLocs(A);
 		ArrayElementLocs LA = Effects.makeArrayElementLocs(L, A);
