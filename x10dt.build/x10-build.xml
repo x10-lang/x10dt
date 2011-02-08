@@ -140,7 +140,8 @@
     <ant antfile="${x10.build.loc}/x10.dist.host/exportPlugin.xml" dir="${x10.build.loc}/x10.dist.host" target="build.jars" />
   </target>
 
-  <target name="transfer-x10-release" if="x10.release.based">
+  <target name="transfer-x10-release" if="x10.release.based"
+          description="Copies the contents of a given platform fragment from the tarball into the right spot in the transformedRepos">
     <property name="dist.dir" value="${x10.release.build.base}/${x10.tarballs.release.tag}"/>
     <property name="file.name" value="x10-${x10.tarballs.release.tag}_${os}.tgz"/>
     <property name="dist.file" value="${dist.dir}/${file.name}" />
@@ -167,9 +168,7 @@
     </svn>
 
     <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}">
-      <fileset dir="/tmp/x10-${zip.release.tag}_${os}">
-        <include name="**/**" />
-      </fileset>
+      <fileset dir="/tmp/x10-${zip.release.tag}_${os}"/>
     </copy>
     <delete dir="/tmp/x10-${zip.release.tag}_${os}" />
     <!-- Remove anything that shouldn't be in the deployed fragment. Mostly this consists
@@ -179,7 +178,7 @@
       <fileset dir="${transformedRepoLocation}/plugins/${fragment-dir-name}" >
         <include name=".project" />
         <include name=".classpath" />
-        <include name=".settings" />
+        <include name=".settings/**" />
       </fileset>
     </delete>
     <loadfile srcfile="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF" 
