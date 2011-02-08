@@ -1,0 +1,87 @@
+#ifndef __X10_ARRAY_RECTLAYOUT_STRUCT_H
+#define __X10_ARRAY_RECTLAYOUT_STRUCT_H
+
+#include <x10aux/config.h>
+#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+
+#define X10_LANG_INT_STRUCT_H_NODEPS
+#include <x10/lang/Int.struct_h>
+#undef X10_LANG_INT_STRUCT_H_NODEPS
+namespace x10 { namespace array { 
+template<class FMGL(T)> class Array;
+} } 
+namespace x10 { namespace array { 
+class RectLayout_methods;
+} } 
+namespace x10 { namespace array { 
+
+class RectLayout  {
+    public:
+    RTT_H_DECLS_STRUCT
+    
+    typedef x10::array::RectLayout_methods _METHODS;
+    
+    x10::array::RectLayout* operator->() { return this; }
+    
+    x10_int FMGL(rank);
+    
+    static x10aux::itable_entry _itables[2];
+    
+    x10aux::itable_entry* _getITables() { return _itables; }
+    
+    static x10aux::itable_entry _iboxitables[2];
+    
+    x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
+    
+    x10_int FMGL(size);
+    
+    x10aux::ref<x10::array::Array<x10_int> > FMGL(min);
+    
+    x10_int FMGL(min0);
+    
+    x10_int FMGL(min1);
+    
+    x10_int FMGL(min2);
+    
+    x10_int FMGL(min3);
+    
+    x10aux::ref<x10::array::Array<x10_int> > FMGL(delta);
+    
+    x10_int FMGL(delta0);
+    
+    x10_int FMGL(delta1);
+    
+    x10_int FMGL(delta2);
+    
+    x10_int FMGL(delta3);
+    
+    
+    static void _serialize(x10::array::RectLayout this_, x10aux::serialization_buffer& buf);
+    
+    static x10::array::RectLayout _deserialize(x10aux::deserialization_buffer& buf) {
+        x10::array::RectLayout this_;
+        this_->_deserialize_body(buf);
+        return this_;
+    }
+    
+    void _deserialize_body(x10aux::deserialization_buffer& buf);
+    x10_boolean equals(x10aux::ref<x10::lang::Any>);
+    
+    x10_boolean equals(x10::array::RectLayout);
+    
+    x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+    
+    x10_boolean _struct_equals(x10::array::RectLayout);
+    
+    x10aux::ref<x10::lang::String> toString();
+    
+    x10_int hashCode();
+    
+    
+};
+
+} } 
+#endif // X10_ARRAY_RECTLAYOUT_STRUCT_H
+

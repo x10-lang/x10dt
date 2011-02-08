@@ -1,0 +1,62 @@
+#ifndef __X10_UTIL_TEAM_STRUCT_H
+#define __X10_UTIL_TEAM_STRUCT_H
+
+#include <x10aux/config.h>
+#include <x10aux/ref.h>
+#include <x10aux/RTT.h>
+#include <x10aux/serialization.h>
+
+#define X10_LANG_INT_STRUCT_H_NODEPS
+#include <x10/lang/Int.struct_h>
+#undef X10_LANG_INT_STRUCT_H_NODEPS
+namespace x10 { namespace util { 
+class Team_methods;
+} } 
+namespace x10 { namespace util { 
+
+class Team  {
+    public:
+    RTT_H_DECLS_STRUCT
+    
+    typedef x10::util::Team_methods _METHODS;
+    
+    x10::util::Team* operator->() { return this; }
+    
+    static x10aux::itable_entry _itables[2];
+    
+    x10aux::itable_entry* _getITables() { return _itables; }
+    
+    static x10aux::itable_entry _iboxitables[2];
+    
+    x10aux::itable_entry* _getIBoxITables() { return _iboxitables; }
+    
+    x10_int FMGL(id);
+    
+    
+    static void _serialize(x10::util::Team this_, x10aux::serialization_buffer& buf);
+    
+    static x10::util::Team _deserialize(x10aux::deserialization_buffer& buf) {
+        x10::util::Team this_;
+        this_->_deserialize_body(buf);
+        return this_;
+    }
+    
+    void _deserialize_body(x10aux::deserialization_buffer& buf);
+    x10_boolean equals(x10aux::ref<x10::lang::Any>);
+    
+    x10_boolean equals(x10::util::Team);
+    
+    x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+    
+    x10_boolean _struct_equals(x10::util::Team);
+    
+    x10aux::ref<x10::lang::String> toString();
+    
+    x10_int hashCode();
+    
+    
+};
+
+} } 
+#endif // X10_UTIL_TEAM_STRUCT_H
+
