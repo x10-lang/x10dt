@@ -141,14 +141,16 @@
   </target>
 
   <target name="transfer-x10-release" if="x10.release.based">
-    <property name="dist.file" value="${x10.release.build.base}/${x10.tarballs.release.tag}/x10-${x10.tarballs.release.tag}_${os}.tgz" />
+    <property name="dist.dir" value="${x10.release.build.base}/${x10.tarballs.release.tag}"/>
+    <property name="file.name" value="x10-${x10.tarballs.release.tag}_${os}.tgz"/>
+    <property name="dist.file" value="${dist.dir}/${file.name}" />
     <fail message="Could not find ${dist.file}">
       <condition>
-        <resourcecount when="greater" count="0">
+        <resourcecount when="equal" count="0">
           <restrict>
             <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
-            <fileset dir="${x10.release.build.base}/${x10.tarballs.release.tag}">
-              <include name="x10-${x10.tarballs.release.tag}_${os}.tgz" />
+            <fileset dir="${dist.dir}">
+              <include name="${file.name}" />
             </fileset>
           </restrict>
         </resourcecount>
@@ -166,8 +168,7 @@
 
     <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}">
       <fileset dir="/tmp/x10-${zip.release.tag}_${os}">
-        <include name="include/**" />
-        <include name="lib/**" />
+        <include name="**/**" />
       </fileset>
     </copy>
     <delete dir="/tmp/x10-${zip.release.tag}_${os}" />
@@ -175,10 +176,10 @@
          of source entities like the .project, .classpath, etc. files that got pulled in
          by the SVN checkout above. -->
     <delete includeemptydirs="true">
-      <fileset dir="${transformedRepoLocation}/plugins/${fragment-dir-name}" defaultexcludes="false">
-        <exclude name="lib/**" />
-        <exclude name="include/**" />
-        <exclude name="META-INF/**" />
+      <fileset dir="${transformedRepoLocation}/plugins/${fragment-dir-name}" >
+        <include name=".project" />
+        <include name=".classpath" />
+        <include name=".settings" />
       </fileset>
     </delete>
     <loadfile srcfile="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF" 
@@ -197,28 +198,32 @@
   <target name="get-expand-fragment-tarball" unless="omit.x10.fragment.tarballs">
     <fail message="Could not find ${dist.file}">
       <condition>
-        <resourcecount when="greater" count="0">
+        <resourcecount when="equal" count="0">
           <restrict>
             <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
             <fileset dir="${x10.build.base}/${svn.info.lastRev}">
-              <include name="x10-tlib_${svn.info.lastRev}_${os}.tgz" />
+              <include name="x10-tib_${svn.info.lastRev}_${os}.tgz" />
             </fileset>
           </restrict>
         </resourcecount>
       </condition>
     </fail>
     <!-- Get the platform tarball's contents into a temp directory -->
-    <untar src="${dist.file}" dest="/tmp/x10-tlib_${svn.info.lastRev}_${os}" compression="gzip" />
+    <untar src="${dist.file}" dest="/tmp/x10-tib_${svn.info.lastRev}_${os}" compression="gzip" />
     <copy todir="${x10.compiler.dist}/${fragment-dir-name}">
-      <fileset dir="/tmp/x10-tlib_${svn.info.lastRev}_${os}">
-        <include name="include/**" />
-        <include name="lib/**" />
+      <fileset dir="/tmp/x10-tib_${svn.info.lastRev}_${os}">
+        <include name="**/**" />
       </fileset>
     </copy>
-    <delete dir="/tmp/x10-tlib_${svn.info.lastRev}_${os}" />
+    <delete dir="/tmp/x10-tib_${svn.info.lastRev}_${os}" />
   </target>
 
-  <target name="transfer-tools-branch-build" depends="set-dist-file-loc,get-expand-fragment-tarball" unless="x10.release.based">
+  <target name="transfer-tools-branch-build" unless="x10.release.based">
+    <antcall>
+      <!-- Execute both targets in the same antcall, so the dist.file setting persists from one to the other -->
+      <target name="set-dist-file-loc"/>
+      <target name="get-expand-fragment-tarball"/>
+    </antcall>
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
     <!-- Add to the fragment directory the necessary bits from the source project.
          This is really just for the bundle fragment's MANIFEST.MF. -->
@@ -231,10 +236,10 @@
          of source entities like the .project, .classpath, etc. files that got pulled in
          by the SVN checkout above. -->
     <delete includeemptydirs="true">
-      <fileset dir="${x10.compiler.dist}/${fragment-dir-name}" defaultexcludes="false">
-        <exclude name="lib/**" />
-        <exclude name="include/**" />
-        <exclude name="META-INF/**" />
+      <fileset dir="${x10.compiler.dist}/${fragment-dir-name}" >
+        <include name=".project" />
+        <include name=".classpath" />
+        <include name=".settings" />
       </fileset>
     </delete>
     <loadfile srcfile="${x10.compiler.dist}/${fragment-dir-name}/META-INF/MANIFEST.MF" 
