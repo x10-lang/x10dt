@@ -75,10 +75,6 @@ import x10dt.ui.utils.LaunchUtils;
 
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
 
-  CppApplicationTab(final CommunicationInterfaceTab commIntfTab) {
-    this.fCommIntfTab = commIntfTab;
-  }
-
   // --- Interface methods implementation
 
   public void createControl(final Composite parent) {
@@ -166,8 +162,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
             if (this.fX10PlatformConf != null) {
               final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
               if (errors == 0) {
-                this.fCommIntfTab.setLaunchConfiguration(configuration);
-                this.fCommIntfTab.platformConfSelected(this.fX10PlatformConf);
+                for (final ILaunchTabPlatformConfServices services : this.fPConfServices) {
+                  services.setLaunchConfiguration(configuration);
+                  services.platformConfSelected(this.fX10PlatformConf);
+                }
               }
             }
           }
@@ -241,6 +239,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
     }
     return true;
+  }
+  
+  // --- Internal services
+  
+  void setPlatformConfServices(final Collection<ILaunchTabPlatformConfServices> pConfServices) {
+    this.fPConfServices = pConfServices;
   }
 
   // --- Private code
@@ -405,7 +409,9 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
             final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
             if (errors == 0) {
               CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-              CppApplicationTab.this.fCommIntfTab.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
+              for (final ILaunchTabPlatformConfServices services : CppApplicationTab.this.fPConfServices) {
+                services.platformConfSelected(CppApplicationTab.this.fX10PlatformConf); 
+              }
             }
           }
         }
@@ -503,7 +509,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
 
   // --- Fields
 
-  private final CommunicationInterfaceTab fCommIntfTab;
+  private Collection<ILaunchTabPlatformConfServices> fPConfServices;
 
   private Text fProjectText;
 
