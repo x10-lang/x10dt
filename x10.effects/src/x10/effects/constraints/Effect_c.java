@@ -162,11 +162,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	
 		Effect e1 = substitute( x1, x), e2 = substitute(x2, x);
 		XConstraint c2 = c.copy();
-		try {
-			c2.addDisBinding(x1, x2);
-		} catch (XFailure z) {
-			// should never happen
-		}
+		c2.addDisBinding(x1, x2);
 
 		boolean result = e1.commutesWith(e2,  c2);
 		return result;
@@ -204,14 +200,10 @@ public boolean commutesWith(Effect e, XConstraint c) {
             e2 = e2.substitute(x2, x);
         }
         XConstraint c2 = c.copy();
-        try {
-            for(Pair<XEQV,XEQV> freshVar: freshVars) {
-                XEQV x1= freshVar.fst;
-                XEQV x2= freshVar.snd;
-                c2.addDisBinding(x1, x2);
-            }
-        } catch (XFailure z) {
-            // should never happen
+        for(Pair<XEQV,XEQV> freshVar: freshVars) {
+            XEQV x1= freshVar.fst;
+            XEQV x2= freshVar.snd;
+            c2.addDisBinding(x1, x2);
         }
 
         boolean result = e1.commutesWith(e2,  c2);

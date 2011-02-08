@@ -33,7 +33,6 @@ import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
 import x10dt.refactoring.analysis.ReachingDefsVisitor;
 import x10dt.refactoring.effects.EffectsVisitor;
-import x10dt.refactoring.effects.XVarDefWrapper;
 import x10dt.refactoring.utils.NodePathComputer;
 import x10dt.ui.parser.CompilerDelegate;
 import x10dt.ui.parser.ExtensionInfo;
@@ -147,13 +146,13 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
 
             if (explodedVars.size() > 0) {
                 List<XLocal> loopLocals= new ArrayList<XLocal>(explodedVars.size() + 1);
-                loopLocals.add(XTerms.makeLocal(new XVarDefWrapper(loopVar.localDef())));
+                loopLocals.add(new XLocal(loopVar.localDef()));
                 for(Formal explodedVar: explodedVars) {
-                    loopLocals.add(XTerms.makeLocal(new XVarDefWrapper(explodedVar.localDef())));
+                    loopLocals.add(new XLocal(explodedVar.localDef()));
                 }
                 commutes= bodyEff.commutesWithForall(loopLocals);
             } else {
-                XLocal loopLocal= XTerms.makeLocal(new XVarDefWrapper(loopVar.localDef()));
+                XLocal loopLocal= new XLocal(loopVar.localDef());
 
                 commutes= bodyEff.commutesWithForall(loopLocal);
             }

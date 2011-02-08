@@ -1,20 +1,19 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XName;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
 
 public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 
-	XName fieldName;
-	public FieldLocs_c(XTerm o, XName f) {
+	String fieldName;
+	public FieldLocs_c(XTerm o, String f) {
 		super(o);
 		this.fieldName=f;
 	}
 	
-	public XName field() { return fieldName;}
+	public String field() { return fieldName;}
 	
 	public Locs substitute(XTerm t, XVar s) {
 		XTerm old = designator();

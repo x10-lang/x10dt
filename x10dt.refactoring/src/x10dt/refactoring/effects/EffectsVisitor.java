@@ -31,6 +31,7 @@ import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.ContainerType;
 import polyglot.types.Flags;
+import polyglot.types.LocalDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -44,8 +45,8 @@ import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.effects.constraints.ArrayElementLocs;
 import x10.effects.constraints.Effect;
 import x10.effects.constraints.Effects;
@@ -153,11 +154,11 @@ public class EffectsVisitor extends NodeVisitor {
     private Locs computeLocFor(Expr expr) {
         if (expr instanceof Local) {
             Local local= (Local) expr;
-            LocalLocs ll= Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local)));
+            LocalLocs ll= Effects.makeLocalLocs(new XLocal(local));
             return ll;
         } else if (expr instanceof Field) {
             Field field= (Field) expr;
-            FieldLocs fl= Effects.makeFieldLocs(createTermForReceiver(field.target()), new XVarDefWrapper(field));
+            FieldLocs fl= Effects.makeFieldLocs(createTermForReceiver(field.target()), field.toString());
             return fl;
         } else if (expr instanceof SettableAssign) {
             SettableAssign sa = (SettableAssign) expr;
@@ -258,7 +259,7 @@ public class EffectsVisitor extends NodeVisitor {
         } else {
             Effect rhsEff= fEffects.get(rhs);
             Effect writeEff= Effects.makeEffect(Effects.FUN);
-            writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
+            writeEff.addWrite(Effects.makeLocalLocs(new XLocal(l)));
             result= followedBy(rhsEff, writeEff);
         }
         return result;
@@ -273,7 +274,7 @@ public class EffectsVisitor extends NodeVisitor {
         if (((Flags) fi.flags()).isValue()) {
             Effect rhsEff= fEffects.get(rhs);
             Effect writeEff= Effects.makeEffect(Effects.FUN);
-            writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target), new XVarDefWrapper(fi.def())));
+            writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target), fi.def().toString()));
             result= followedBy(rhsEff, writeEff);
         } else {
             return Effects.makeBottomEffect();
@@ -314,7 +315,7 @@ public class EffectsVisitor extends NodeVisitor {
     private Locs computeLocFor(VarDecl vd) {
         if (vd instanceof LocalDecl) {
             LocalDecl localDecl = (LocalDecl) vd;
-            return Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(localDecl.varDef())));
+            return Effects.makeLocalLocs(new XLocal(localDecl.varDef()));
         }
         throw new UnsupportedOperationException("Don't know how to make a Locs for " + vd);
     }
@@ -324,14 +325,14 @@ public class EffectsVisitor extends NodeVisitor {
     // ============
     private Effect computeEffect(Local local) {
         Effect result= Effects.makeEffect(Effects.FUN);
-        result.addRead(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(local))));
+        result.addRead(Effects.makeLocalLocs(new XLocal(local)));
         return result;
     }
 
     private Effect computeEffect(Field field) {
         Receiver rcvr= field.target();
         Effect result= Effects.makeEffect(Effects.FUN);
-        result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr), new XVarDefWrapper(field)));
+        result.addRead(Effects.makeFieldLocs(createTermForReceiver(rcvr), field.toString()));
         return result;
     }
 
@@ -458,7 +459,7 @@ public class EffectsVisitor extends NodeVisitor {
         // It isn't quite correct to use universal quantification for that...
         Formal loopVar= forLoop.formal();
 
-        return bodyEff.forall(XTerms.makeLocal(new XVarDefWrapper(loopVar.localDef())));
+        return bodyEff.forall(new XLocal(loopVar.localDef()));
     }
 
     private Effect computeEffect(Block b) throws XFailure {
@@ -481,13 +482,13 @@ public class EffectsVisitor extends NodeVisitor {
     private Effect removeLocalVarsFromEffect(List<LocalDecl> decls, Effect effect) {
         Effect result= effect;
         for(LocalDecl ld: decls) {
-            XVarDefWrapper localName = new XVarDefWrapper(ld.localDef());
+            LocalDef localDef= ld.localDef();
             if (((Flags) ld.flags().flags()).isValue()) {
                 Expr init= ld.init();
                 XTerm initTerm= createTermForExpr(init);
-                result= result.exists(XTerms.makeLocal(localName), initTerm);
+                result= result.exists(new XLocal(localDef), initTerm);
             } else {
-                result= result.exists(Effects.makeLocalLocs(XTerms.makeLocal(localName)));
+                result= result.exists(Effects.makeLocalLocs(new XLocal(localDef)));
             }
         }
         return result;

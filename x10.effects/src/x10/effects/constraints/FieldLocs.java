@@ -1,6 +1,5 @@
 package x10.effects.constraints;
 
-import x10.constraint.XName;
 import x10.constraint.XTerm;
 
 /**
@@ -11,6 +10,5 @@ import x10.constraint.XTerm;
  */
 public interface FieldLocs extends Locs, RigidTerm {
 	XTerm obj();
-	XName field();
-
+	String field();
 }

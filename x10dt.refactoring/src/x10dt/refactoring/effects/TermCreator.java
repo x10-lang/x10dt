@@ -32,50 +32,49 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.SettableAssign;
-import x10.constraint.XName;
-import x10.constraint.XNameWrapper;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class TermCreator {
-        private static Map<Unary.Operator,XName> sUnaryOpMap= new HashMap<Unary.Operator,XName>();
+        private static Map<Unary.Operator,String> sUnaryOpMap= new HashMap<Unary.Operator,String>();
         static {
-            sUnaryOpMap.put(Unary.BIT_NOT, new XNameWrapper<Unary.Operator>(Unary.BIT_NOT));
-            sUnaryOpMap.put(Unary.NEG, new XNameWrapper<Unary.Operator>(Unary.NEG));
-            sUnaryOpMap.put(Unary.NOT, new XNameWrapper<Unary.Operator>(Unary.NOT));
-            sUnaryOpMap.put(Unary.POS, new XNameWrapper<Unary.Operator>(Unary.POS));
-            sUnaryOpMap.put(Unary.BIT_NOT, new XNameWrapper<Unary.Operator>(Unary.BIT_NOT));
+            sUnaryOpMap.put(Unary.BIT_NOT, Unary.BIT_NOT.toString());
+            sUnaryOpMap.put(Unary.NEG, Unary.NEG.toString());
+            sUnaryOpMap.put(Unary.NOT, Unary.NOT.toString());
+            sUnaryOpMap.put(Unary.POS, Unary.POS.toString());
+            sUnaryOpMap.put(Unary.BIT_NOT, Unary.BIT_NOT.toString());
         }
 
-        private static Map<Binary.Operator,XName> sBinaryOpMap= new HashMap<Binary.Operator,XName>();
+        private static Map<Binary.Operator,String> sBinaryOpMap= new HashMap<Binary.Operator,String>();
         static {
-            sBinaryOpMap.put(Binary.ADD, new XNameWrapper<Binary.Operator>(Binary.ADD));
-            sBinaryOpMap.put(Binary.BIT_AND, new XNameWrapper<Binary.Operator>(Binary.BIT_AND));
-            sBinaryOpMap.put(Binary.BIT_OR, new XNameWrapper<Binary.Operator>(Binary.BIT_OR));
-            sBinaryOpMap.put(Binary.BIT_XOR, new XNameWrapper<Binary.Operator>(Binary.BIT_XOR));
-            sBinaryOpMap.put(Binary.COND_AND, new XNameWrapper<Binary.Operator>(Binary.COND_AND));
-            sBinaryOpMap.put(Binary.COND_OR, new XNameWrapper<Binary.Operator>(Binary.COND_OR));
-            sBinaryOpMap.put(Binary.DIV, new XNameWrapper<Binary.Operator>(Binary.DIV));
-            sBinaryOpMap.put(Binary.EQ, new XNameWrapper<Binary.Operator>(Binary.EQ));
-            sBinaryOpMap.put(Binary.GE, new XNameWrapper<Binary.Operator>(Binary.GE));
-            sBinaryOpMap.put(Binary.GT, new XNameWrapper<Binary.Operator>(Binary.GT));
-            sBinaryOpMap.put(Binary.LE, new XNameWrapper<Binary.Operator>(Binary.LE));
-            sBinaryOpMap.put(Binary.LT, new XNameWrapper<Binary.Operator>(Binary.LT));
-            sBinaryOpMap.put(Binary.MOD, new XNameWrapper<Binary.Operator>(Binary.MOD));
-            sBinaryOpMap.put(Binary.MUL, new XNameWrapper<Binary.Operator>(Binary.MUL));
-            sBinaryOpMap.put(Binary.NE, new XNameWrapper<Binary.Operator>(Binary.NE));
-            sBinaryOpMap.put(Binary.SHL, new XNameWrapper<Binary.Operator>(Binary.SHL));
-            sBinaryOpMap.put(Binary.SHR, new XNameWrapper<Binary.Operator>(Binary.SHR));
-            sBinaryOpMap.put(Binary.SUB, new XNameWrapper<Binary.Operator>(Binary.SUB));
-            sBinaryOpMap.put(Binary.USHR, new XNameWrapper<Binary.Operator>(Binary.USHR));
+            sBinaryOpMap.put(Binary.ADD, Binary.ADD.toString());
+            sBinaryOpMap.put(Binary.BIT_AND, Binary.BIT_AND.toString());
+            sBinaryOpMap.put(Binary.BIT_OR, Binary.BIT_OR.toString());
+            sBinaryOpMap.put(Binary.BIT_XOR, Binary.BIT_XOR.toString());
+            sBinaryOpMap.put(Binary.COND_AND, Binary.COND_AND.toString());
+            sBinaryOpMap.put(Binary.COND_OR, Binary.COND_OR.toString());
+            sBinaryOpMap.put(Binary.DIV, Binary.DIV.toString());
+            sBinaryOpMap.put(Binary.EQ, Binary.EQ.toString());
+            sBinaryOpMap.put(Binary.GE, Binary.GE.toString());
+            sBinaryOpMap.put(Binary.GT, Binary.GT.toString());
+            sBinaryOpMap.put(Binary.LE, Binary.LE.toString());
+            sBinaryOpMap.put(Binary.LT, Binary.LT.toString());
+            sBinaryOpMap.put(Binary.MOD, Binary.MOD.toString());
+            sBinaryOpMap.put(Binary.MUL, Binary.MUL.toString());
+            sBinaryOpMap.put(Binary.NE, Binary.NE.toString());
+            sBinaryOpMap.put(Binary.SHL, Binary.SHL.toString());
+            sBinaryOpMap.put(Binary.SHR, Binary.SHR.toString());
+            sBinaryOpMap.put(Binary.SUB, Binary.SUB.toString());
+            sBinaryOpMap.put(Binary.USHR, Binary.USHR.toString());
         }
 
-        private XName getNameFor(Binary.Operator op) {
+        private String getNameFor(Binary.Operator op) {
             return sBinaryOpMap.get(op);
         }
 
-        private XName getNameFor(Unary.Operator op) {
+        private String getNameFor(Unary.Operator op) {
             return sUnaryOpMap.get(op);
         }
 
@@ -115,7 +114,7 @@ public class TermCreator {
                     Receiver target= field.target();
                     Id name= field.name();
 
-                    fTermMap.put(old, XTerms.makeField((XVar) fTermMap.get(target), new XVarDefWrapper(field)));
+                    fTermMap.put(old, XTerms.makeFakeField((XVar) fTermMap.get(target), field));
                 } else if (old instanceof Local) {
                     Local local = (Local) old;
                     Type localType= local.type();
@@ -128,7 +127,7 @@ public class TermCreator {
                         fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(local)));
                     }
                     */
-                    fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(local)));
+                    fTermMap.put(old, new XLocal(local));
                     
                 } else if (old instanceof Binary) {
                     Binary binary = (Binary) old;
@@ -166,18 +165,18 @@ public class TermCreator {
                     FieldInstance fi= fa.fieldInstance();
                     Receiver target= fa.target();
 
-                    fTermMap.put(old, XTerms.makeField((XVar) fTermMap.get(target), new XVarDefWrapper(fi.def())));
+                    fTermMap.put(old, XTerms.makeFakeField((XVar) fTermMap.get(target), fi.def()));
                 } else if (old instanceof LocalAssign) {
                     LocalAssign la= (LocalAssign) old;
                     Local l= la.local();
 
-                    fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(l)));
+                    fTermMap.put(old, new XLocal(l));
                 } else if (old instanceof Special) {
                     Special special = (Special) old;
                     if (special.kind() == Special.SUPER) {
-                        fTermMap.put(old, XTerms.makeLocal(XTerms.makeName("super")));
+                        fTermMap.put(old, new XLocal("super"));
                     } else {
-                        fTermMap.put(old, XTerms.makeLocal(XTerms.makeName("this")));
+                        fTermMap.put(old, new XLocal("this"));
                     }
                 } else if (old instanceof Id) {
                     // do nothing

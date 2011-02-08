@@ -1,7 +1,6 @@
 package x10.effects.constraints;
 
 import x10.constraint.XLocal;
-import x10.constraint.XName;
 import x10.constraint.XTerm;
 
 /**
@@ -86,7 +85,7 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static FieldLocs makeFieldLocs(XTerm o, XName field) {
+	public static FieldLocs makeFieldLocs(XTerm o, String field) {
 		return new FieldLocs_c(o, field);
 	}
 	
