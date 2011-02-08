@@ -318,7 +318,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     for (final IFile file : sourcesToCompile) {
       CoreResourceUtils.deleteBuildMarkers(file);
     }
-    CoreResourceUtils.deleteBuildMarkers(getProject(), IResource.DEPTH_INFINITE);
+    CoreResourceUtils.deleteBuildMarkers(getProject(), IResource.DEPTH_ZERO);
   }
 
   private void collectSourceFilesToCompile(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,
