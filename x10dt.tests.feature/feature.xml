@@ -2,7 +2,7 @@
 <feature
       id="x10dt.tests.feature"
       label="X10DT Tests Feature"
-      version="2.1.1.qualifier">
+      version="2.1.2.qualifier">
 
    <includes
          id="x10dt.feature"
@@ -183,7 +183,6 @@
          id="x10.dist"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="true"/>
+         version="0.0.0"/>
 
 </feature>
