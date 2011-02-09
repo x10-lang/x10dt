@@ -113,8 +113,8 @@ final class ResourceManagerHelper {
         }
       }
     }
-    final IServiceProvider serviceProvider = new MultiVMServiceProvider();
     final IServiceProviderDescriptor descriptor = service.getProviderDescriptor(SERVICE_DESCRIPTOR_ID);
+    final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(descriptor);
     serviceProvider.setDescriptor(descriptor);
     final IX10RMConfiguration rmConf = (IX10RMConfiguration) serviceProvider;
     
