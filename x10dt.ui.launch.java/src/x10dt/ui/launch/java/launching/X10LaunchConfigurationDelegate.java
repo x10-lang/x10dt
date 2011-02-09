@@ -16,6 +16,7 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -219,13 +220,21 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   private IPath getExecutablePath(final String x10DistFolder, final String rmServicesId, 
                                   final String confName) throws CoreException {
-    if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmServicesId)) {
-      return new Path(this.fLocalConfDelegate.getX10DistHostLauncherDir("bin/X10Launcher").getAbsolutePath()); //$NON-NLS-1$
-    }
     final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmServicesId);
     final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
     final IRemoteConnection connection = rmConnManager.getConnection(confName);
     final IRemoteFileManager rmFileManager = remoteServices.getFileManager(connection);
+    
+    if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmServicesId)) {
+      final String x10Launcher = this.fLocalConfDelegate.getX10DistHostLauncherDir("bin/X10Launcher").getAbsolutePath(); //$NON-NLS-1$
+      final IFileStore x10LauncherFStore = rmFileManager.getResource(x10Launcher);
+      final IFileInfo x10LauncherFInfo = x10LauncherFStore.fetchInfo();
+      if (! x10LauncherFInfo.getAttribute(EFS.ATTRIBUTE_EXECUTABLE)) {
+        x10LauncherFInfo.setAttribute(EFS.ATTRIBUTE_EXECUTABLE, true);
+        x10LauncherFStore.putInfo(x10LauncherFInfo, EFS.SET_ATTRIBUTES, null /* monitor */);
+      }
+      return new Path(x10Launcher); 
+    }
     
     final IPath x10 = new Path(x10DistFolder).append("bin").append("x10"); //$NON-NLS-1$ //$NON-NLS-2$
     final IFileStore x10FileStore = rmFileManager.getResource(x10.toString());
