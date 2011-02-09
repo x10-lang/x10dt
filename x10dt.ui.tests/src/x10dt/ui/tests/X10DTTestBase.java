@@ -218,6 +218,7 @@ public class X10DTTestBase {
    * Call this from your derived test classes' @BeforeClass-decorated method.
    */
   public static void BeforeClass() {
+	  //don't change the keyboard strategy unless you're having problems. Otherwise, stick with the default
 //    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
     SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // TODO remove this ?
@@ -945,8 +946,8 @@ public class X10DTTestBase {
 
 		  final SWTBotTableItem remoteNameItem = editorBot.tableInGroup(PlatformConfConstants.WORKSPACE_PERSISTED_GROUP).getTableItem(0);
 
-		  for (int c = 0; c < platformSetup.remoteHostName.length(); c++) {
-			  remoteNameItem.pressShortcut(SWT.NONE, platformSetup.remoteHostName.charAt(c));
+		  for (int c = 0; c < platformSetup.connectionName.length(); c++) {
+			  remoteNameItem.pressShortcut(SWT.NONE, platformSetup.connectionName.charAt(c));
 		  }
 		  remoteNameItem.pressShortcut(SWT.CR, SWT.LF);
 
@@ -960,13 +961,11 @@ public class X10DTTestBase {
 		  }
 
 		  if (platformSetup.usePassword) {
-			  editorBot.radio(PlatformConfConstants.PASSWORD_RADIO_BUTTON).click();
+			  editorBot.checkBox(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).deselect();
 			  editorBot.textWithLabel(PlatformConfConstants.PASSWORD_TEXT_LABEL).setText(platformSetup.remoteHostPassword);
 		  }
 		  else {	//use public key authentication
-			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
-			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
-			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
+			  editorBot.checkBox(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).select();
 			  final String privateKeyFile = String.format("%s/.ssh/id_rsa", System.getProperty("user.home")); //$NON-NLS-1$ //$NON-NLS-2$
 			  editorBot.textWithLabel(PlatformConfConstants.PRIVATE_KEY_FILE_LABEL).setText(privateKeyFile);
 		  }
