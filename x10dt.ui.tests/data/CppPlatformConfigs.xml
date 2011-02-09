@@ -2,52 +2,6 @@
 <platformConfigs> 
 
     <config> 
-        <configName> Local Standalone </configName> 
-        <description> local host using standalone runtime </description> 
-        
-        <useLocalConnection> yes</useLocalConnection> 
-        
-        <target> 
-            <osType> </osType>      
-            <architectureType> </architectureType> 
-            <set64BitSpace> no </set64BitSpace> 
-       </target> 
-       
-        <commInterface> 
-            <interfaceType> Standalone </interfaceType> 
-            <interfaceMode> Launch </interfaceMode> 
-       </commInterface> 
-        
-        <x10> 
-            <numPlaces> 4 </numPlaces> 
-       </x10> 
-                
-   </config> 
-<!--
-    <config> 
-         <configName> Local Sockets </configName> 
-        <description> local host using sockets runtime </description> 
-        
-        <useLocalConnection> yes</useLocalConnection> 
-        
-        <target> 
-            <osType> </osType>      
-            <architectureType> </architectureType> 
-            <set64BitSpace> no </set64BitSpace> 
-       </target> 
-       
-        <commInterface> 
-            <interfaceType> Sockets </interfaceType> 
-            <interfaceMode> Launch </interfaceMode> 
-       </commInterface> 
-        
-        <x10> 
-            <numPlaces> 4 </numPlaces> 
-       </x10> 
-        
-   </config> 
-
-    <config> 
         <configName> Linux 32-bit x86 </configName> 
         <description> remote Linux VM </description> 
         
@@ -69,8 +23,8 @@
         </x10> 
        
         <remoteConnection> 
-            <remoteHostName> VMRoot </remoteHostName> 
-            <remoteHostURL> 9.12.178.129 </remoteHostURL> 
+            <connectionName> VMRoot </connectionName> 
+            <remoteHostName> 9.12.178.129 </remoteHostName> 
             <remoteHostPort> 22 </remoteHostPort> 
             <remoteHostUser> root </remoteHostUser> 
             <usePassword> no </usePassword> 
@@ -89,6 +43,81 @@
                 <remotePGASDist> </remotePGASDist> 
            </remotePlatform> 
        </remoteConnection> 
+   </config>
+    
+<!--
+    <config> 
+        <configName> Local Standalone </configName> 
+        <description> local host using standalone runtime </description> 
+        
+        <useLocalConnection> yes</useLocalConnection> 
+        
+        <target> 
+            <osType> </osType>      
+            <architectureType> </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+       
+        <commInterface> 
+            <interfaceMode> Launch </interfaceMode> 
+            <interfaceType> Standalone </interfaceType> 
+       </commInterface> 
+        
+        <x10> 
+            <numPlaces> 4 </numPlaces> 
+       </x10> 
+                
    </config> 
+-->
+    <config> 
+        <configName> Local Sockets </configName> 
+        <description> local host using sockets runtime </description> 
+        
+        <useLocalConnection> yes </useLocalConnection> 
+        
+        <target> 
+            <osType> </osType>      
+            <architectureType> </architectureType> 
+            <set64BitSpace> no </set64BitSpace> 
+       </target> 
+       
+        <commInterface> 
+            <interfaceMode> Launch </interfaceMode> 
+            <interfaceType> Sockets </interfaceType> 
+            
+            <mpich2Config>      <!-- only include this node if you're using it -->
+                <useDefaultCommands> yes </useDefaultCommands>
+                <useDefaultLocation> yes </useDefaultLocation>
+                <!-- TODO: design the MPICH2 config schema -->
+            </mpich2Config>
+            
+            <openMPIConfig>      <!-- only include this node if you're using it -->
+                <useDefaultCommands> yes </useDefaultCommands>
+                <useDefaultLocation> yes </useDefaultLocation>
+                <!-- TODO: design the Open MPI config schema -->
+            </openMPIConfig>
+            
+            <openMPIConfig>      <!-- only include this node if you're using it -->
+                <useDefaultCommands> yes </useDefaultCommands>
+                <useDefaultLocation> yes </useDefaultLocation>
+                <!-- TODO: design the Open MPI config schema -->
+            </openMPIConfig>
+            
+            <ibmParallelConfig>      <!-- only include this node if you're using it -->
+                 <!-- TODO: design the IBM Parallel config schema -->
+            </ibmParallelConfig>
+            
+            <ibmLoadLevelerConfig>      <!-- only include this node if you're using it -->
+                 <!-- TODO: design the IBM Load Leveler config schema -->
+            </ibmLoadLevelerConfig>
+            
+       </commInterface> 
+        
+       <x10> 
+            <numPlaces> 4 </numPlaces> 
+       </x10> 
+        
+   </config> 
+<!--
 -->
 </platformConfigs> 
