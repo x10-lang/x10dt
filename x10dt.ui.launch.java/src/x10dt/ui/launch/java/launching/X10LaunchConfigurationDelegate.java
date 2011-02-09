@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
@@ -145,6 +146,12 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
   }
     
   // --- Private code
+  
+  private void addWinWMArgs(final StringBuilder stringBuilder) {
+    if (Platform.OS_WIN32.equals(Platform.getOS())) {
+      stringBuilder.append(' ').append(X10RT_IMPL_VMARG);
+    }
+  }
   
   private String buildClassPath(final ILaunchConfiguration configuration) throws CoreException {
     final StringBuilder sb = new StringBuilder();
@@ -297,7 +304,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
           sb.append(' ');
         }
         if (vmArg.startsWith(JAVA_LIB_PATH_OPT)) {
-          sb.append("-libpath=").append(vmArg.substring(JAVA_LIB_PATH_OPT.length())); //$NON-NLS-1$
+          sb.append("-libpath=\"").append(vmArg.substring(JAVA_LIB_PATH_OPT.length())).append('"'); //$NON-NLS-1$
         } else {
           if (sb.length() > 0) {
             sb.append(' ');
@@ -336,10 +343,12 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
           }
           sb.append(vmArg);
         }
+        addWinWMArgs(sb);
         return sb.toString();
       } else {
         final StringBuilder sb = new StringBuilder(vmArgs);
-        sb.append(' ').append(JAVA_LIB_PATH_OPT).append(x10LibDir);
+        sb.append(' ').append(JAVA_LIB_PATH_OPT).append('"').append(x10LibDir).append('"');
+        addWinWMArgs(sb);
         return sb.toString();
       }
     }
@@ -415,5 +424,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
   
   
   private static final String JAVA_LIB_PATH_OPT = "-Djava.library.path="; //$NON-NLS-1$
+  
+  private static final String X10RT_IMPL_VMARG = "-DX10RT_IMPL=disabled"; //$NON-NLS-1$
 
 }
