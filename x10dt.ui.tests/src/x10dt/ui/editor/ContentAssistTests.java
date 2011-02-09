@@ -91,7 +91,8 @@ public class ContentAssistTests extends X10DTEditorTestBase {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
+	  //don't change the keyboard strategy unless you're having problems. Otherwise, stick with the default
+//    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
     SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // Long timeout needed for first project creation//TODO need it ?
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);

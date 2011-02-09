@@ -63,7 +63,8 @@ public class JavaBackEndSmokeTest extends X10DTTestBase {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
+	  //don't change the keyboard strategy unless you're having problems. Otherwise, stick with the default
+//    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
