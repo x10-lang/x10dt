@@ -181,8 +181,8 @@ public class X10DTTestBase {
 	  public Integer			numPlaces;
 
 	  // remote connection settings
+	  public String  connectionName;
 	  public String  remoteHostName;
-	  public String  remoteHostURL;
 	  public Integer remoteHostPort;
 	  public String  remoteHostUser;
 	  public boolean usePassword;
@@ -218,7 +218,7 @@ public class X10DTTestBase {
    * Call this from your derived test classes' @BeforeClass-decorated method.
    */
   public static void BeforeClass() {
-    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
+//    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
     SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS; // TODO remove this ?
 
@@ -663,56 +663,48 @@ public class X10DTTestBase {
   //Open up the 'Open X10 Type...' dialog and look for a type declaration
   public static boolean openX10Type(String typeName, String searchString, Integer expectedRows)  throws X10DT_Test_Exception
   {
-	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
-	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
 
 	  boolean found = false;	//assume the worst
 
-	  try {
 		  // Open the X10 Type dialog
-		  operationMsg = "access the '" +
-		  					WizardConstants.NAVIGATE_MENU +":"+ WizardConstants.OPEN_X10_TYPE_ITEM +"' menu";
 		  topLevelBot.menu(WizardConstants.NAVIGATE_MENU).menu(WizardConstants.OPEN_X10_TYPE_ITEM).click();
 
-		  // create a context message identifying the dialog
-		  dialogContextMsg = " the '" + WizardConstants.OPEN_X10_TYPE_DIALOG_TITLE + "' dialog";
-		  
 		  //Set up a shell for the X10 Type Dialog
-		  operationMsg = "find" + dialogContextMsg;
 		  SWTBotShell x10TypeShell = topLevelBot.shell(WizardConstants.OPEN_X10_TYPE_DIALOG_TITLE);
 		  x10TypeShell.activate();
 		  SWTBot x10TypeBot = x10TypeShell.bot();
 
 		  // find the text box for the search patterns, and set the search string
-		  operationMsg = "set the '" + WizardConstants.X10_TYPE_SEARCH_PATTERN + "'text box in" + dialogContextMsg;
 		  x10TypeBot.textWithLabel(WizardConstants.X10_TYPE_SEARCH_PATTERN).setText(searchString);
 
-			  //find the list box for the types we found
-		  operationMsg = "find the '" + WizardConstants.X10_TYPE_SEARCH_LISTBOX + "' list box in" + dialogContextMsg;
-		  SWTBotTable typeList = x10TypeBot.tableWithLabel(WizardConstants.X10_TYPE_SEARCH_LISTBOX);
+		  x10TypeBot.sleep(4000);
 
-		  operationMsg = "waiting for the '" + WizardConstants.X10_TYPE_SEARCH_LISTBOX + "' list box to fill, in" + dialogContextMsg;
-		  try {
-			  x10TypeBot.waitUntil(Conditions.tableHasRows(typeList, expectedRows), 2000);	//give it a few seconds to find at least 
-			  																		// as many things as we're looking for.
-			  																		// benignly time-out if it doesn't find that many
-		  }
-		  catch (TimeoutException e) {
-			  //not a big deal - it just means we didn't find a match, and we'll return false
-			  System.out.println("timed out waiting for the type list to populate"); /*debug*/
-		  }
+			  //find the list box for the types we found
+		  SWTBotTable typeList = x10TypeBot.tableWithLabel(WizardConstants.X10_TYPE_SEARCH_LISTBOX);
 		  
-		  // look for the expected type in the list
+		  int rowCount = 0;
+		  boolean done = false;
+		  do {
+			  try {
+				  x10TypeBot.waitUntil(X10DT_Conditions.tableHasMinimumRows(typeList, expectedRows), 2000);	//give it a few seconds to find at least 
+			  }									// as many things as we're looking for. benignly time-out if it doesn't find that many
+			  catch (TimeoutException e) {
+				  //not a big deal - it just means we didn't find a match, and we'll return false
+				  System.out.println("timed out waiting for the type list to populate"); /*debug*/
+			  }
+			  //just to be on the safe side, we'll continue to wait until nothing more is being added to the table 
+			  done = (rowCount == typeList.rowCount()); //done when what we got now == what we had before
+			  rowCount = typeList.rowCount();												
+			  x10TypeBot.sleep(1000);
+		  } while (!done);
 		  
 		  //Check that we found the expected number of matching items
-		  int rowCount = typeList.rowCount();
-		  if (rowCount < expectedRows) {
-			  throw new Exception("expected to find " + expectedRows + ", found " + rowCount + " rows");			  
-		  }
+		  Assert.assertTrue("expected to find " + expectedRows + ", found " + rowCount + " rows", (rowCount >= expectedRows));			  
 		  
+		  // look for the expected type in the list	  
 		  //See if we found the type we're looking for
-		  operationMsg = "find X10 type '" + typeName + "' by searching on '" + searchString + "' in" + dialogContextMsg;
 		  int i=0;
+		  found = false;
 		  while ((!found) && (i < rowCount))
 		  {
 			  String tableItemText = typeList.getTableItem(i).getText();
@@ -726,76 +718,52 @@ public class X10DTTestBase {
 			  i++;
 		  }
 
-		  if (!found) {	// throw a regular exception if we don't find anything 
-			  			// (the X10DT_Test_Exception error message gets properly assembled by doing it this way)
-			  throw new Exception(((rowCount == 0) ?  "Type list is empty":"No match found in list"));
-		  }
+		  Assert.assertTrue(((rowCount == 0) ?  "Type list is empty":"No match found in list"), found);
 
 		  //that's enough for now.  find the OK button
-		  operationMsg = "find the '" + WizardConstants.OK_BUTTON + "' button in" + dialogContextMsg;
 		  SWTBotButton okButton = x10TypeBot.button(WizardConstants.OK_BUTTON);
 		  okButton.click();
 		  
 		  topLevelBot.waitUntil(Conditions.shellCloses(x10TypeShell));
-	  }
-	  catch (Exception e)
-	  {
-		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
-	  }
 
 	  return found;
   }
 
   //Open up the 'Search' dialog and search for an X10 type declaration
-  public static boolean searchForX10Type(String typeName, String searchString, Integer expectedRows)  throws X10DT_Test_Exception
+  public static boolean searchForX10Type(String typeName, String searchString, Integer expectedRows)
   {
-	  String operationMsg = null;			//string describing the current operation, for use in constructing error messages
-	  String dialogContextMsg = null;		//string identifying the current dialog context, for use in constructing error messages
 
 	  boolean found = false;	//assume the worst
 
-	  try {
 		  // Open the Search dialog
-		  dialogContextMsg = " the '" + WizardConstants.SEARCH_DIALOG_TITLE + "' dialog";
-
-		  operationMsg = "select the '" + WizardConstants.SEARCH_MENU +":"+ WizardConstants.SEARCH_MENU_ITEM +"' menu";
 		  topLevelBot.menu(WizardConstants.SEARCH_MENU).menu(WizardConstants.SEARCH_MENU_ITEM).click();
 		  
 		  //Set up a shell for the Search Dialog
-		  operationMsg = "create shell for" + dialogContextMsg;
 		  SWTBotShell x10SearchShell = topLevelBot.shell(WizardConstants.SEARCH_DIALOG_TITLE);
 		  x10SearchShell.activate();
 		  SWTBot x10SearchBot = x10SearchShell.bot();
 
 		  // activate out the X10 Search tab
-		  operationMsg = "activate the '" + WizardConstants.X10_SEARCH_TAB + "' tab in " + dialogContextMsg;
 		  x10SearchBot.tabItem(WizardConstants.X10_SEARCH_TAB).activate();
 		  
 		  // Fill in the search string field
-		  operationMsg = "fill in the '" + WizardConstants.X10_SEARCH_FIELD + "' field in" + dialogContextMsg;  
 		  x10SearchBot.comboBoxWithLabel(WizardConstants.X10_SEARCH_FIELD).setText(searchString);
 
 		  // check the 'search for type' box
-		  operationMsg = "check the '" + WizardConstants.X10_SEARCH_FOR_TYPE_RADIO + "' checkbox in group '" +
-		  			WizardConstants.X10_SEARCH_FOR_GROUP + "' in" + dialogContextMsg;
 		  x10SearchBot.radioInGroup(WizardConstants.X10_SEARCH_FOR_TYPE_RADIO, WizardConstants.X10_SEARCH_FOR_GROUP).click();
 
 		  // click the 'Search' button
-		  operationMsg = "click the '" + WizardConstants.SEARCH_BUTTON + "' button in" + dialogContextMsg;
 		  x10SearchBot.button(WizardConstants.SEARCH_BUTTON).click();
 
 		  //wait for the search dialog to go away
 		  x10SearchBot.waitUntil(Conditions.shellCloses(x10SearchShell));
 
 		  //find the Search View
-		  dialogContextMsg = " the '" + WizardConstants.SEARCH_VIEW_TITLE + "' View";
-		  operationMsg = "find" + dialogContextMsg;
 		  SWTBotView searchView = topLevelBot.viewByTitle(WizardConstants.SEARCH_VIEW_TITLE);
 		  SWTBot searchViewBot = searchView.bot();
 		  searchView.setFocus();
 
 		  //find the type list in the search view
-		  operationMsg = "find the search list box in" + dialogContextMsg;
 		  SWTBotTable typeList = null;
 		  
 		  //ok, this is annoying. We can't simply assume that the table is going to be at index 0,
@@ -817,13 +785,12 @@ public class X10DTTestBase {
 			  }
 		  }
 		  
-		  operationMsg = "see the search list become filled" + dialogContextMsg;
 		  Integer waitLoop = 30;
 		  System.out.println("\n    find X10 type '" + typeName + "' by searching on '" + searchString + "'");
 
 		  do {
 			  try {
-				  searchViewBot.waitUntil(Conditions.tableHasRows(typeList, expectedRows), 2000);	//give it a few seconds to find something.
+				  searchViewBot.waitUntil(X10DT_Conditions.tableHasMinimumRows(typeList, expectedRows), 2000);	//give it a few seconds to find something.
 			  }
 			  catch (TimeoutException e) {
 				  //not a big deal - it just means we didn't find a match, and we'll return false
@@ -841,12 +808,9 @@ public class X10DTTestBase {
 		  
 		  //Check that we found the expected number of matching items
 		  int rowCount = typeList.rowCount();
-		  if (rowCount < expectedRows) {
-			  throw new Exception("expected to find " + expectedRows + ", found " + rowCount + " rows");			  
-		  }
+		  Assert.assertTrue("expected to find " + expectedRows + ", found " + rowCount + " rows", (rowCount >= expectedRows));			  
 		  
 		  //See if we found the type we're looking for
-		  operationMsg = "find X10 type '" + typeName + "' by searching on '" + searchString + "' in" + dialogContextMsg;
 		  int i=0;
 		  found = false;
 		  while ((!found) && (i < rowCount))
@@ -864,19 +828,10 @@ public class X10DTTestBase {
 			  i++;
 		  }
 		  
-		  if (!found) {	// throw a regular exception if we don't find anything 
-			  		// (the X10DT_Test_Exception error message gets properly assembled by doing it this way)
-			  throw new Exception(((rowCount == 0) ?  "Type list is empty":"No match found in list"));
-		  }
+		  Assert.assertTrue(((rowCount == 0) ?  "Type list is empty":"No match found in list"), found);
 
-		  operationMsg = "clear search view by clicking toolbar button '" + WizardConstants.REMOVE_ALL_MATCHES_BUTTON + "' in" + dialogContextMsg;
 		  searchView.setFocus();
 		  searchView.toolbarPushButton(WizardConstants.REMOVE_ALL_MATCHES_BUTTON).click();	//reset search window for the next time around
-	  }
-	  catch (Exception e)
-	  {
-		  throw new X10DT_Test_Exception("Failed to " + operationMsg + "'.\n        Reason: " + e.getMessage());
-	  }
 
 	  return found;
   }
@@ -954,14 +909,14 @@ public class X10DTTestBase {
   //
   public void setCppPlatformConnectionConfig(String projectName, PlatformConfig	 platformSetup)
   {
-	  //MNake sure we're in the X10 perspective before getting started
+	  //Make sure we're in the X10 perspective before getting started
 	  topLevelBot.perspectiveByLabel("X10").activate();
 
 	  //TODO: consolidate this with compilation tab by passing editorBot from caller
 	  topLevelBot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).bot().tree()
 	  		.expandNode(projectName)
 	  			.expandNode(PlatformConfConstants.PLATFORM_CONF_FILE).doubleClick();
-
+	  
 	  final SWTBot editorBot = topLevelBot.editorByTitle(PlatformConfConstants.PLATFORM_CONF_FILE).bot();
 
 	  //open the C++ Connection and Communication tab
@@ -981,27 +936,23 @@ public class X10DTTestBase {
 	  {
 		  editorBot.radio(PlatformConfConstants.LOCAL_CONNECTION).click();	//well, *that* was easy.
 	  }
-	  else { //set up connection to a remote host (a lot less easy)
+	  else { //set up connection to a remote host
 
 		  editorBot.radio(PlatformConfConstants.REMOTE_CONNECTION).click();	//but *this* is going to be less easy.		  
 		  editorBot.button(PlatformConfConstants.ADD_BUTTON).click();
 
 		  editorBot.sleep(1000);
 
-//		  SWTBotTable remoteHostTableBot = editorBot.tableInGroup(PlatformConfConstants.WORKSPACE_PERSISTED_GROUP);
-//		  SWTBotTableItem remoteNameItem = remoteHostTableBot.getTableItem(1);
 		  final SWTBotTableItem remoteNameItem = editorBot.tableInGroup(PlatformConfConstants.WORKSPACE_PERSISTED_GROUP).getTableItem(0);
 
-//		  for (int c = 0; c < platformSetup.remoteHostName.length(); c++) {
-//			  remoteNameItem.pressShortcut(SWT.NONE, platformSetup.remoteHostName.charAt(c));
-//		  }
-
-
-
+		  for (int c = 0; c < platformSetup.remoteHostName.length(); c++) {
+			  remoteNameItem.pressShortcut(SWT.NONE, platformSetup.remoteHostName.charAt(c));
+		  }
 		  remoteNameItem.pressShortcut(SWT.CR, SWT.LF);
+
 		  editorBot.sleep(100);
 
-		  editorBot.textWithLabel(PlatformConfConstants.HOST_TEXT_LABEL).setText(platformSetup.remoteHostURL); //$NON-NLS-1$
+		  editorBot.textWithLabel(PlatformConfConstants.HOST_TEXT_LABEL).setText(platformSetup.remoteHostName); //$NON-NLS-1$
 		  editorBot.textWithLabel(PlatformConfConstants.USER_TEXT_LABEL).setText(platformSetup.remoteHostUser); //$NON-NLS-1$
 
 		  if (platformSetup.remoteHostPort > 0) {	//if caller specified a port number.  otherwise, leave it as the default port number
