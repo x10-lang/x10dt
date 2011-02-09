@@ -12,6 +12,7 @@ package x10dt.ui.tests.waits;
 
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.waits.ICondition;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 
@@ -59,6 +60,22 @@ public abstract class X10DT_Conditions {
 	 */
 	public static ICondition viewHasText(SWTBotView view) {
 		return new ViewHasText(view);
+	}
+
+	/**
+	 * Gets the condition for checking tables have a minimum number of rows. Useful in cases where the table is
+	 * populated continuously from a non UI thread.
+	 *
+	 * @param table the table
+	 * @param rowCount the minimum number of rows that the table must have, in order for {@link ICondition#test()} to evaluate
+	 *            to <code>true</code>.
+	 * @return <code>true</code> if the table has the number of rows specified. Otherwise <code>false</code>.
+	 * @throws IllegalArgumentException Thrown if the row count is less then 1.
+	 * @throws NullPointerException Thrown if the tree is <code>null</code>.
+	 */
+
+	public static ICondition tableHasMinimumRows(SWTBotTable table, int rowCount) {
+		return new TableHasMinimumRows(table, rowCount);
 	}
 
 }
