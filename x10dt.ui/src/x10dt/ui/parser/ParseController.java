@@ -12,6 +12,7 @@
 package x10dt.ui.parser;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
@@ -50,6 +51,7 @@ import x10.parser.X10SemanticRules;
 import x10.visit.InstanceInvariantChecker;
 import x10.visit.PositionInvariantChecker;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.ui.X10DTUIPlugin;
 
 public class ParseController extends SimpleLPGParseController {
 	/**
@@ -139,11 +141,12 @@ public class ParseController extends SimpleLPGParseController {
 
             fCompiler= new CompilerDelegate(fMonitor, handler, proj, sourcePath, fViolationHandler); // Create the compiler
             fCompiler.compile(streams);
+    	} catch (FileNotFoundException e) {
+    	    // do nothing - presumably the file just got deleted...
         } catch (IOException e) {
-            throw new Error(e);
+            X10DTUIPlugin.log(e);
         } catch (CoreException e) {
-        	//TODO: check that this is right -- MV.
-        	throw new Error(e);
+            X10DTUIPlugin.log(e);
         } finally {
         
             // RMF 8/2/2006 - retrieve the AST, token stream and lex stream, if they exist; front-end semantic
