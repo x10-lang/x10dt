@@ -575,7 +575,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   
   private void updateBrowseButtonsEnablement(final boolean enabled) {
     for (final Button button : this.fBrowseBts) {
-      button.setEnabled(enabled);
+      button.setEnabled(this.fLocalConnBt.getSelection() ? false : enabled);
     }
   }
   
