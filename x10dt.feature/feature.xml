@@ -77,15 +77,17 @@
          id="org.eclipse.imp.runtime"
          version="0.0.0"/>
 
-   <requires>
-      <import plugin="org.eclipse.imp.pdb"/>
-      <import plugin="org.eclipse.imp.pdb.values"/>
-      <import feature="org.eclipse.cdt"/>
-      <import plugin="com.ibm.wala.cast"/>
-      <import plugin="com.ibm.wala.cast.java"/>
-      <import plugin="com.ibm.wala.core"/>
-      <import plugin="com.ibm.wala.shrike"/>
-   </requires>
+   <includes
+         id="org.eclipse.imp.analysis"
+         version="0.0.0"/>
+
+   <includes
+         id="wala.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.cdt"
+         version="0.0.0"/>
 
    <plugin
          id="x10.compiler"
