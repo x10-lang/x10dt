@@ -31,11 +31,21 @@ public final class LaunchConstants {
 
   public static final String RUN_BUTTON = "Run"; //$NON-NLS-1$
 
+  public static final String CPP_LAUNCH_CONFIG_NUM_PLACES = "Number of places:"; //$NON-NLS-1$
+
   // --- Java back-end specific
 
   public static final String JAVA_BACK_END_LAUNCH_CONFIG_TYPE= "X10 Application (Java back-end)"; //$NON-NLS-1$
 
   public static final String JAVA_BACK_END_PROJECT_DIALOG_NAME_FIELD = "Name:"; //$NON-NLS-1$
+
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB= "Main"; //$NON-NLS-1$
+
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_PROJECT= "Project:"; //$NON-NLS-1$
+
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS= "Main class:"; //$NON-NLS-1$
+
+  public static final String JAVA_BACK_END_LAUNCH_CONFIG_PLACES_TAB = "Places and Hosts"; //$NON-NLS-1$
 
   // --- C++ back-end specific
 
@@ -48,7 +58,7 @@ public final class LaunchConstants {
   // therefore the numeric shortcuts, seem unreliable.
   public static final Pattern RUN_AS_X10_APPLICATION_CPP_BACK_END_PAT= Pattern.compile("(&[1-9] &)?X10 application \\(C\\+\\+ back-end\\).*"); //$NON-NLS-1$
 
-  public static final Pattern RUN_AS_X10_APPLICATION_JAVA_BACK_END_PAT= Pattern.compile("(&[1-9] )?X10 Application \\(Java back-end\\).*");
+  public static final Pattern RUN_AS_X10_APPLICATION_JAVA_BACK_END_PAT= Pattern.compile("(&[1-9] )?X10 Application \\(Java back-end\\).*"); //$NON-NLS-1$
 
   public static final String CPP_LAUNCH_CONFIG_APPLICATION_TAB = "Application"; //$NON-NLS-1$
 
@@ -56,11 +66,7 @@ public final class LaunchConstants {
 
   public static final String CPP_LAUNCH_CONFIG_MAIN_CLASS = "Main class"; //$NON-NLS-1$
 
-  public static final String JAVA_BACK_END_LAUNCH_CONFIG_MAIN_TAB= "Main"; //$NON-NLS-1$
-
-  public static final String JAVA_BACK_END_LAUNCH_CONFIG_PROJECT= "Project:"; //$NON-NLS-1$
-
-  public static final String JAVA_BACK_END_LAUNCH_CONFIG_MAIN_CLASS= "Main class:"; //$NON-NLS-1$
+  public static final String CPP_LAUNCH_CONFIG_COMM_INTERFACE_TAB = "Communication Interface"; //$NON-NLS-1$
 
   // --- Private code
 
