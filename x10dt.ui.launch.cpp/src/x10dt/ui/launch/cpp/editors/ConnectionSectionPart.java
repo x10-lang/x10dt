@@ -162,6 +162,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   
   private void addListeners(final IManagedForm managedForm, final Button localConnBt, final Button remoteConnBt, 
                             final Button validateBt, final Text hostText, final Spinner portText, final Text userNameText, 
+                            final Button passwordAuthBt, final Label passwordLabel, final Text passwordText, 
                             final Button privateKeyFileAuthBt, final Text privateKeyText, final Button browseBt, 
                             final Text passphraseText, final Collection<Control> firstGroupControls, 
                             final Button portForwarding, final Text localAddress, final Spinner connectionTimeoutSpinner,
@@ -295,16 +296,55 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       }
       
     });
+    passwordAuthBt.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        passwordLabel.setEnabled(passwordAuthBt.getSelection());
+        passwordText.setEnabled(passwordAuthBt.getSelection());
+        final IConnectionInfo curConnInfo = getCurrentConnectionInfo();
+        if (curConnInfo != null) {
+          if (curConnInfo.isPasswordBasedAuth() != passwordAuthBt.getSelection()) {
+            notifyConnectionUnknownStatus(curConnInfo);
+          }
+          curConnInfo.setIsPasswordBasedFlag(passwordAuthBt.getSelection());
+        }
+        for (final Control control : keyFileControls) {
+          control.setEnabled(privateKeyFileAuthBt.getSelection());
+        }
+        handleEmptyTextValidation(privateKeyText, LaunchMessages.RMCP_PrivateKeyFileLabel);
+        
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
+          updateConnectionConf();
+          updateDirtyState(managedForm);
+          setPartCompleteFlag(hasCompleteInfo());
+        }
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    passwordText.addModifyListener(new ModifyListener() {
+      
+      public void modifyText(final ModifyEvent event) {
+        final IConnectionInfo curConnInfo = getCurrentConnectionInfo();
+        if (curConnInfo != null) {
+          if (! curConnInfo.getPassword().equals(passwordText.getText().trim())) {
+            notifyConnectionUnknownStatus(curConnInfo);
+          }
+          curConnInfo.setPassword(passwordText.getText().trim());
+        }
+        if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
+          updateConnectionConf();
+          updateDirtyState(managedForm);
+        }
+      }
+      
+    });
     privateKeyFileAuthBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        final IConnectionInfo curConnInfo = getCurrentConnectionInfo();
-        if (curConnInfo != null) {
-          if (curConnInfo.isPasswordBasedAuth() != privateKeyFileAuthBt.getSelection()) {
-            notifyConnectionUnknownStatus(curConnInfo);
-          }
-          curConnInfo.setIsPasswordBasedFlag(! privateKeyFileAuthBt.getSelection());
-        }
         for (final Control control : keyFileControls) {
           control.setEnabled(privateKeyFileAuthBt.getSelection());
         }
@@ -502,7 +542,25 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fUserNameText = SWTFormUtils.createLabelAndText(groupCompo, LaunchMessages.RMCP_UserLabel, toolkit, 
                                                          secondGroupControls);
     
-    this.fPrivateKeyFileAuthBt = toolkit.createButton(groupCompo, LaunchMessages.RMCP_PublickKeyAuthBt, SWT.CHECK);
+    this.fPasswordAuthBt = toolkit.createButton(groupCompo, LaunchMessages.RMCP_PasswordBasedAuthBt, SWT.RADIO);
+    this.fPasswordAuthBt.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    secondGroupControls.add(this.fPasswordAuthBt);
+    
+    final Composite passwordCompo = toolkit.createComposite(groupCompo);
+    passwordCompo.setFont(getSection().getFont());
+    final TableWrapLayout tableWrapLayout = new TableWrapLayout();
+    tableWrapLayout.numColumns = 2;
+    passwordCompo.setLayout(tableWrapLayout);
+    passwordCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    
+    this.fPasswordLabel = toolkit.createLabel(passwordCompo, LaunchMessages.RMCP_PasswordLabel, SWT.WRAP);
+    this.fPasswordLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+    secondGroupControls.add(this.fPasswordLabel);
+    this.fPasswordText = toolkit.createText(passwordCompo, null /* value */, SWT.PASSWORD);
+    this.fPasswordText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    secondGroupControls.add(this.fPasswordText);
+
+    this.fPrivateKeyFileAuthBt = toolkit.createButton(groupCompo, LaunchMessages.RMCP_PublickKeyAuthBt, SWT.RADIO);
     this.fPrivateKeyFileAuthBt.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     secondGroupControls.add(this.fPrivateKeyFileAuthBt);
     
@@ -514,7 +572,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     final Button browseBt = pair.second;
     
     this.fPassphraseText = SWTFormUtils.createLabelAndText(groupCompo, LaunchMessages.RMCP_PassphraseLabel, toolkit, 
-                                                           keyFileControls, 1, SWT.PASSWORD);
+                                                           keyFileControls);
     
     final Label separator2 = new Label(groupCompo, SWT.SEPARATOR | SWT.SHADOW_OUT | SWT.HORIZONTAL);
     separator2.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
@@ -559,9 +617,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     initializeControls(firstGroupControls, secondGroupControls, keyFileControls, tableInput);
     
     addListeners(managedForm, this.fLocalConnBt, this.fRemoteConnBt, this.fValidateButton,
-                 this.fHostText, this.fPortText, this.fUserNameText, this.fPrivateKeyFileAuthBt, this.fPrivateKeyFileText, 
-                 browseBt, this.fPassphraseText, firstGroupControls, this.fUsePortForwardingBt, this.fLocalAddressText, 
-                 this.fConnectionTimeoutSpinner, secondGroupControls, keyFileControls, localAddressControls);
+                 this.fHostText, this.fPortText, this.fUserNameText, this.fPasswordAuthBt, this.fPasswordLabel, 
+                 this.fPasswordText, this.fPrivateKeyFileAuthBt, this.fPrivateKeyFileText, browseBt, this.fPassphraseText,
+                 firstGroupControls, this.fUsePortForwardingBt, this.fLocalAddressText, this.fConnectionTimeoutSpinner,
+                 secondGroupControls, keyFileControls, localAddressControls);
     
     getSection().setClient(sectionClient);
   }
@@ -830,7 +889,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           
           if ((connectionInfo.getValidationStatus() == EValidationStatus.FAILURE) ||
               (connectionInfo.getValidationStatus() == EValidationStatus.ERROR)) {
-            ConnectionSectionPart.this.fErrorLabel.setText(connectionInfo.getErrorMessage());
+            ConnectionSectionPart.this.fErrorLabel.setText(processJSchMessage(connectionInfo.getErrorMessage()));
           } else {
             ConnectionSectionPart.this.fErrorLabel.setText(Constants.EMPTY_STR);
           }
@@ -856,9 +915,13 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fHostText.setText(connectionInfo.getHostName());
     this.fPortText.setSelection(connectionInfo.getPort());
     this.fUserNameText.setText(connectionInfo.getUserName());
+    this.fPasswordAuthBt.setSelection(connectionInfo.isPasswordBasedAuth());
+    this.fPasswordAuthBt.notifyListeners(SWT.Selection, new Event());
     this.fPrivateKeyFileAuthBt.setSelection(! connectionInfo.isPasswordBasedAuth());
     this.fPrivateKeyFileAuthBt.notifyListeners(SWT.Selection, new Event());
-    if (! connectionInfo.isPasswordBasedAuth()) {
+    if (connectionInfo.isPasswordBasedAuth()) {
+      this.fPasswordText.setText(connectionInfo.getPassword());
+    } else {
       this.fPrivateKeyFileText.setText(connectionInfo.getPrivateKeyFile());
       this.fPassphraseText.setText(connectionInfo.getPassphrase());
     }
@@ -960,6 +1023,16 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fUsePortForwardingBt.setSelection(connectionConf.shouldUsePortForwarding());
   }
   
+  private String processJSchMessage(final String message) {
+    if ("Auth cancel".equals(message)) { //$NON-NLS-1$
+      return LaunchMessages.RMCP_PasswordCheckCanceled;
+    } else if ("Auth fail".equals(message)) { //$NON-NLS-1$
+      return LaunchMessages.RMCP_PasswordCheckFailed;
+    } else {
+      return message;
+    }
+  }
+  
   private void notifyConnectionUnknownStatus(final IConnectionInfo connectionInfo) {
     if (this.fCurrentConnection == connectionInfo) {
       for (final IX10PlatformValidationListener listener : this.fValidationListeners) {
@@ -973,8 +1046,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fHostText.setText(Constants.EMPTY_STR);
     this.fPortText.setSelection(22);
     this.fUserNameText.setText(Constants.EMPTY_STR);
+    this.fPasswordAuthBt.setSelection(true);
     this.fPrivateKeyFileAuthBt.setSelection(false);
     this.fPrivateKeyFileAuthBt.notifyListeners(SWT.Selection, new Event());
+    this.fPasswordText.setText(Constants.EMPTY_STR);
     this.fPrivateKeyFileText.setText(Constants.EMPTY_STR);
     this.fPassphraseText.setText(Constants.EMPTY_STR);
     this.fConnectionTimeoutSpinner.setSelection(5);
@@ -986,7 +1061,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     getPlatformConf().setPort(this.fCurrentConnection.getPort());
     getPlatformConf().setUserName(this.fCurrentConnection.getUserName());
     getPlatformConf().setIsPasswordBasedAuthenticationFlag(this.fCurrentConnection.isPasswordBasedAuth());
-    if (! this.fCurrentConnection.isPasswordBasedAuth()) {
+    if (this.fCurrentConnection.isPasswordBasedAuth()) {
+      getPlatformConf().setPassword(this.fCurrentConnection.getPassword());
+    } else {
       getPlatformConf().setPrivateKeyFile(this.fCurrentConnection.getPrivateKeyFile());
       getPlatformConf().setPassphrase(this.fCurrentConnection.getPassphrase());
     }
@@ -1115,7 +1192,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           ConnectionInfoValidationListener.this.fConnectionInfo.setErrorMessage(exception.getMessage());
           ConnectionSectionPart.this.fTableViewer.update(ConnectionInfoValidationListener.this.fConnectionInfo, null);
           if (ConnectionInfoValidationListener.this.fShouldDeriveInfo) {
-            ConnectionSectionPart.this.fErrorLabel.setText(exception.getMessage());
+            ConnectionSectionPart.this.fErrorLabel.setText(processJSchMessage(exception.getMessage()));
           }
           notifyConnectionChanged();
         }
@@ -1169,10 +1246,12 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     // --- Private code
     
     private void notifyConnectionChanged() {
-      for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-        listener.connectionChanged(ConnectionSectionPart.this.fLocalConnBt.getSelection(), 
-                                   this.fConnectionInfo.getName(), this.fConnectionInfo.getValidationStatus(), 
-                                   this.fShouldDeriveInfo);
+      if (ConnectionSectionPart.this.fCurrentConnection == this.fConnectionInfo) {
+        for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
+          listener.connectionChanged(ConnectionSectionPart.this.fLocalConnBt.getSelection(), 
+                                     this.fConnectionInfo.getName(), this.fConnectionInfo.getValidationStatus(), 
+                                     this.fShouldDeriveInfo);
+        }
       }
     }
     
@@ -1195,6 +1274,12 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   private Spinner fPortText;
   
   private Text fUserNameText;
+  
+  private Button fPasswordAuthBt;
+  
+  private Label fPasswordLabel;
+  
+  private Text fPasswordText;
   
   private Button fPrivateKeyFileAuthBt;
   

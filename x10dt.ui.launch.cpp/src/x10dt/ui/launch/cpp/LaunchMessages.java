@@ -364,6 +364,14 @@ public class LaunchMessages extends NLS {
   public static String RMCP_NameColumn;
 
   public static String RMCP_PassphraseLabel;
+  
+  public static String RMCP_PasswordBasedAuthBt;
+
+  public static String RMCP_PasswordCheckCanceled;
+
+  public static String RMCP_PasswordCheckFailed;
+
+  public static String RMCP_PasswordLabel;
 
   public static String RMCP_PeriodLabel;
 

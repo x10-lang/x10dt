@@ -43,7 +43,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fSource.fConnectionConf.applyChanges(this.fConnectionConf);
     this.fSource.fCommInterfaceFact.applyChanges(super.fCommInterfaceFact);
     this.fSource.fCppCompilationConf.applyChanges(this.fCppCompilationConf);
-    this.fSource.fDebuggingInfoConf.applyChanges(this.fDebuggingInfoConf);
     this.fIsDirty = false;
   }
   
@@ -263,6 +262,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setPassphrase(final String passphrase) {
     super.fConnectionConf.fPassphrase = passphrase;
+    updateDirtyFlag();
+  }
+  
+  public void setPassword(final String password) {
+    super.fConnectionConf.fPassword = password;
     updateDirtyFlag();
   }
   
