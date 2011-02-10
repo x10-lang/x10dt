@@ -80,7 +80,6 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
       
       public void modifyText(final ModifyEvent event) {
         getPlatformConf().setDebuggerFolder(debuggerFolderText.getText());
-        handleEmptyTextValidation(debuggerFolderText, LaunchMessages.DSP_DebuggerFolder);
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
       }
@@ -149,7 +148,6 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     
     final IDebuggingInfoConf debuggingInfoConf = getPlatformConf().getDebuggingInfoConf();
     this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
-    handleEmptyTextValidation(this.fDebuggerFolderText, LaunchMessages.DSP_DebuggerFolder);
     this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
   }
   
