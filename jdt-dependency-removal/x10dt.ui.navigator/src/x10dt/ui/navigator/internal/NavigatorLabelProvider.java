@@ -27,7 +27,6 @@ import org.eclipse.ui.navigator.ICommonContentExtensionSite;
 import org.eclipse.ui.navigator.ICommonLabelProvider;
 import org.eclipse.ui.navigator.IExtensionStateModel;
 
-import x10dt.search.ui.typeHierarchy.X10ElementLabels;
 import x10dt.ui.navigator.internal.IExtensionStateConstants.Values;
 
 /**
@@ -41,7 +40,7 @@ import x10dt.ui.navigator.internal.IExtensionStateConstants.Values;
  */
 public class NavigatorLabelProvider implements ICommonLabelProvider, IStyledLabelProvider {
 
-	private final long LABEL_FLAGS = X10ElementLabels.DEFAULT_QUALIFIED
+	private final long LABEL_FLAGS = ElementLabels.DEFAULT_QUALIFIED
 	| ElementLabels.ROOT_POST_QUALIFIED
 	| ElementLabels.APPEND_ROOT_PATH
 	| ElementLabels.M_PARAMETER_TYPES
@@ -167,13 +166,13 @@ public class NavigatorLabelProvider implements ICommonLabelProvider, IStyledLabe
 	}
 
 //	private String formatJavaElementMessage(ISourceEntity element) {
-//		return X10ElementLabels.getElementLabel(element, LABEL_FLAGS);
+//		return ElementLabels.getElementLabel(element, LABEL_FLAGS);
 //	}
 
 	private String formatResourceMessage(IResource element) {
 		IContainer parent = element.getParent();
 		if (parent != null && parent.getType() != IResource.ROOT)
-			return element.getName() + X10ElementLabels.CONCAT_STRING
+			return element.getName() + ElementLabels.CONCAT_STRING
 					+ parent.getFullPath();
 		else
 			return element.getName();

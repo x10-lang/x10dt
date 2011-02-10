@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.ui.ElementLabels;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.swt.graphics.Image;
@@ -25,7 +26,6 @@ import org.eclipse.ui.IWorkingSet;
 
 import x10dt.search.ui.typeHierarchy.AppearanceAwareLabelProvider;
 import x10dt.search.ui.typeHierarchy.X10ElementImageProvider;
-import x10dt.search.ui.typeHierarchy.X10ElementLabels;
 
 /**
  * Provides the labels for the Package Explorer.
@@ -44,7 +44,7 @@ public class PackageExplorerLabelProvider extends AppearanceAwareLabelProvider {
 	private PackageExplorerProblemsDecorator fProblemDecorator;
 
 	public PackageExplorerLabelProvider(PackageExplorerContentProvider cp) {
-		super(DEFAULT_TEXTFLAGS | X10ElementLabels.P_COMPRESSED | X10ElementLabels.ALL_CATEGORY, DEFAULT_IMAGEFLAGS | X10ElementImageProvider.SMALL_ICONS);
+		super(DEFAULT_TEXTFLAGS | ElementLabels.P_COMPRESSED | ElementLabels.ALL_CATEGORY, DEFAULT_IMAGEFLAGS | X10ElementImageProvider.SMALL_ICONS);
 
 		fProblemDecorator= new PackageExplorerProblemsDecorator();
 		addLabelDecorator(fProblemDecorator);

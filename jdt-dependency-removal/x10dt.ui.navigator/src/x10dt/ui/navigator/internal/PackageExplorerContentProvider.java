@@ -10,6 +10,7 @@
  *******************************************************************************/
 package x10dt.ui.navigator.internal;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -19,25 +20,35 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.BuildPathChangeEvent;
+import org.eclipse.imp.model.IBuildPathChangeListener;
+import org.eclipse.imp.model.IBuildPathDelta;
+import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.IPathEntry;
 import org.eclipse.imp.model.IPathEntry.PathEntryType;
+import org.eclipse.imp.model.IPathEntryContent.PathEntryContentType;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.model.ISourceFolder;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.model.IWorkspaceModel;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.ui.StandardElementContentProvider;
 import org.eclipse.imp.ui.navigator.ClassPathContainer;
 import org.eclipse.imp.ui.navigator.PackageFragmentRootContainer;
 import org.eclipse.imp.utils.BuildPathUtils;
+import org.eclipse.imp.utils.LoggingUtils;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
+import org.eclipse.jface.viewers.IBasicPropertyConstants;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.widgets.Control;
@@ -60,7 +71,7 @@ import x10dt.ui.navigator.preferences.PreferenceConstants;
  *
  * @see org.eclipse.jdt.ui.StandardJavaElementContentProvider
  */
-public class PackageExplorerContentProvider extends StandardElementContentProvider implements /*IElementChangedListener,*/ IPropertyChangeListener {
+public class PackageExplorerContentProvider extends StandardElementContentProvider implements IBuildPathChangeListener, IPropertyChangeListener {
 
 	protected static final int ORIGINAL= 0;
 	protected static final int PARENT= 1 << 0;
@@ -103,21 +114,21 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 	/* (non-Javadoc)
 	 * Method declared on IElementChangedListener.
 	 */
-//	public void elementChanged(final ElementChangedEvent event) {
-//		final ArrayList runnables= new ArrayList();
-//		try {
-//			// 58952 delete project does not update Package Explorer [package explorer]
-//			// if the input to the viewer is deleted then refresh to avoid the display of stale elements
-//			if (inputDeleted(runnables))
-//				return;
-//
-//			processDelta(event.getDelta(), runnables);
-//		} catch (ModelException e) {
-//			JavaPlugin.log(e);
-//		} finally {
-//			executeRunnables(runnables);
-//		}
-//	}
+	public void buildPathChanged(final BuildPathChangeEvent event) {
+		final ArrayList runnables= new ArrayList();
+		try {
+			// 58952 delete project does not update Package Explorer [package explorer]
+			// if the input to the viewer is deleted then refresh to avoid the display of stale elements
+			if (inputDeleted(runnables))
+				return;
+
+			processDelta(event.getDelta(), runnables);
+		} catch (ModelException e) {
+			LoggingUtils.log(e);
+		} finally {
+			executeRunnables(runnables);
+		}
+	}
 
 	protected final void executeRunnables(final Collection runnables) {
 
@@ -189,8 +200,8 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 	private boolean inputDeleted(Collection runnables) {
 		if (fInput == null)
 			return false;
-//		if (fInput instanceof ISourceEntity && ((ISourceEntity) fInput).exists())
-//			return false;
+		if (fInput instanceof ISourceEntity && ((ISourceEntity) fInput).getResource().exists())
+			return false;
 		if (fInput instanceof IResource && ((IResource) fInput).exists())
 			return false;
 //		if (fInput instanceof WorkingSetModel)
@@ -206,7 +217,7 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 	 */
 	public void dispose() {
 		super.dispose();
-//		JavaCore.removeElementChangedListener(this);
+		ModelFactory.getModelRoot().removeBuildPathChangeListener(this);
 		UINavigatorPlugin.getDefault().getPreferenceStore().removePropertyChangeListener(this);
 	}
 
@@ -241,7 +252,7 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 		// hierarchical package mode
 		ArrayList result= new ArrayList();
 
-		getHierarchicalPackageChildren((ISourceRoot) fragment.getParent(), fragment, result);
+		getHierarchicalPackageChildren((ISourceRoot) fragment.getAncestor(ISourceRoot.class), fragment, result);
 		Object[] nonPackages= super.getPackageContent(fragment);
 		if (result.isEmpty())
 			return nonPackages;
@@ -275,8 +286,8 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 
 	public Object[] getChildren(Object parentElement) {
 		try {
-//			if (parentElement instanceof IWorkspaceModel)
-//				return concatenate(getJavaProjects((IWorkspaceModel)parentElement), getNonJavaProjects((IJavaModel)parentElement));
+			if (parentElement instanceof IWorkspaceModel)
+				return /*concatenate(*/getJavaProjects((IWorkspaceModel)parentElement)/*, getNonJavaProjects((IJavaModel)parentElement)/*);*/;
 
 			if (parentElement instanceof PackageFragmentRootContainer)
 				return getContainerPackageFragmentRoots((PackageFragmentRootContainer)parentElement);
@@ -398,11 +409,11 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 		super.inputChanged(viewer, oldInput, newInput);
 		fViewer= (TreeViewer)viewer;
-//		if (oldInput == null && newInput != null) {
-//			JavaCore.addElementChangedListener(this);
-//		} else if (oldInput != null && newInput == null) {
-//			JavaCore.removeElementChangedListener(this);
-//		}
+		if (oldInput == null && newInput != null) {
+			ModelFactory.getModelRoot().addBuildPathChangeListener(this, null);
+		} else if (oldInput != null && newInput == null) {
+			ModelFactory.getModelRoot().removeBuildPathChangeListener(this);
+		}
 		fInput= newInput;
 	}
 
@@ -449,7 +460,7 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 				if (element instanceof ISourceFolder) {
 					if (fFoldPackages) {
 						ISourceFolder fragment= (ISourceFolder) element;
-						ISourceRoot root= (ISourceRoot) fragment.getParent();
+						ISourceRoot root= (ISourceRoot) fragment.getAncestor(ISourceRoot.class);
 						element= getFolded(root.getChildren(), fragment);
 					}
 					result.add(element);
@@ -458,9 +469,30 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 		}
 	}
 
-	public Object getHierarchicalPackageParent(ISourceFolder child) {
-		String name= child.getName();
-		ISourceRoot parent= (ISourceRoot) child.getAncestor(ISourceRoot.class);
+	public Object getHierarchicalPackageParent(Object object) {
+		ISourceRoot parent= null;
+		String name = null;
+		if(object instanceof IResource)
+		{
+			try
+			{
+				name= ((IResource)object).getName();
+				ISourceEntity child = ModelFactory.open(((IResource)object).getParent());
+				parent = (ISourceRoot) child.getAncestor(ISourceRoot.class);
+			}
+			catch(ModelException e)
+			{
+				return null;
+			}
+		}
+		
+		else 
+		{
+			ISourceEntity child = (ISourceEntity)object;
+			name= child.getName();
+			parent= (ISourceRoot) child.getAncestor(ISourceRoot.class);
+		}
+		 
 		int index= name.lastIndexOf('.');
 		if (index != -1) {
 			String realParentName= name.substring(0, index);
@@ -531,7 +563,255 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 	}
 
 	// ------ delta processing ------
+	
+	private boolean processDeltaForDelete(IResource resource, IBuildPathDelta delta, Collection runnables) throws ModelException
+	{
+		int kind= delta.getKind();
+		int flags= delta.getFlags();
+		
+		if (!(resource instanceof IWorkspaceRoot) && !(resource instanceof IProject)) {
+			IProject proj= resource.getProject();
+			if (proj == null || !proj.isOpen()) // TODO: Not needed if parent already did the 'open' check!
+				return false;
+		}
+		
+		if (resource instanceof IFolder) {
+			if (!fIsFlatLayout) {
+				if (kind == IBuildPathDelta.REMOVED) {
+					final Object parent = getHierarchicalPackageParent(resource);
+//					if (parent instanceof ISourceRoot) {
+//						postRemove(resource,  runnables);
+//						return false;
+//					} else {
+						postRefresh(internalGetParent(parent), GRANT_PARENT, resource, runnables);
+						return true;
+//					}
+				}
+				
+				handleAffectedChildren(delta, resource, runnables);
+				return false;
+			}
+		}
 
+		if (kind == IBuildPathDelta.REMOVED) {
+			Object parent= internalGetParent(resource);
+			if (resource instanceof ISourceFolder) {
+				// refresh package fragment root to allow filtering empty (parent) packages: bug 72923
+				if (fViewer.testFindItem(parent) != null)
+					postRefresh(parent, PARENT, resource, runnables);
+				return true;
+				
+//			} else if (element instanceof ISourceRoot
+//					&& ((ISourceRoot)element).getContentType() != PathEntryContentType.SOURCE) {
+//				// libs and class folders can show up twice (in library container and as resource at original location)
+//				if (resource != null)
+//					postRemove(resource, runnables);
+			}
+
+			postRemove(resource, runnables);
+			if (parent instanceof ISourceFolder)
+				postUpdateIcon((ISourceFolder)parent, runnables);
+			// we are filtering out empty subpackages, so we
+			// a package becomes empty we remove it from the viewer.
+			if (isPackageFragmentEmpty((ISourceFolder)parent)) {
+				if (fViewer.testFindItem(parent) != null)
+					postRefresh(internalGetParent(parent), GRANT_PARENT, resource, runnables);
+				return true;
+			}
+			return false;
+		}
+
+		handleAffectedChildren(delta, resource, runnables);
+		return false;
+	}
+	
+	private boolean processDeltaForEntity(ISourceEntity element, IBuildPathDelta delta, Collection runnables) throws ModelException
+	{
+		int kind= delta.getKind();
+		int flags= delta.getFlags();
+		
+		if (!(element instanceof IWorkspaceModel) && !(element instanceof ISourceProject)) {
+			ISourceProject proj= element.getProject();
+			if (proj == null || !proj.getRawProject().isOpen()) // TODO: Not needed if parent already did the 'open' check!
+				return false;
+		}
+
+		if (element instanceof ISourceFolder) {
+			if ((flags & (IBuildPathDelta.F_CONTENT | IBuildPathDelta.F_CHILDREN)) == IBuildPathDelta.F_CONTENT) {
+				if (!fIsFlatLayout) {
+					Object parent = getHierarchicalPackageParent((ISourceFolder) element);
+					if (!(parent instanceof ISourceRoot)) {
+						postRefresh(internalGetParent(parent), GRANT_PARENT, element, runnables);
+						return true;
+					}
+				}
+				// content change, without children info (for example resource added/removed to class folder package)
+				postRefresh(internalGetParent(element), PARENT, element, runnables);
+				return true;
+			}
+
+			if (!fIsFlatLayout) {
+				if (kind == IBuildPathDelta.ADDED) {
+					final Object parent = getHierarchicalPackageParent((ISourceFolder) element);
+					if (parent instanceof ISourceRoot) {
+						if (fFoldPackages) {
+							postRefresh(parent, PARENT, element, runnables);
+							return true;
+						} else {
+							postAdd(parent, element, runnables);
+							return false;
+						}
+					} else {
+						postRefresh(internalGetParent(parent), GRANT_PARENT, element, runnables);
+						return true;
+					}
+				}
+				handleAffectedChildren(delta, element, runnables);
+				return false;
+			}
+		}
+
+		if (element instanceof ICompilationUnit) {
+			ICompilationUnit cu= (ICompilationUnit) element;
+			
+			if (!getProvideMembers() && kind == IBuildPathDelta.CHANGED) {
+				return false;
+			}
+
+			if (kind == IBuildPathDelta.CHANGED && !isStructuralCUChange(flags)) {
+				return false; // test moved ahead
+			}
+
+			if (!isOnClassPath(cu)) { // TODO: isOnClassPath expensive! Should be put after all cheap tests
+				return false;
+			}
+
+		}
+
+		if (element instanceof ISourceProject) {
+			// handle open and closing of a project
+			if ((flags & (IBuildPathDelta.F_CLOSED | IBuildPathDelta.F_OPENED)) != 0) {
+				postRefresh(element, ORIGINAL, element, runnables);
+				return false;
+			}
+			// if the class path has changed we refresh the entire project
+			if ((flags & IBuildPathDelta.F_RESOLVED_CLASSPATH_CHANGED) != 0) {
+				postRefresh(element, ORIGINAL, element, runnables);
+				return false;
+			}
+			// if added it could be that the corresponding IProject is already shown. Remove it first.
+			// bug 184296
+			if (kind == IBuildPathDelta.ADDED) {
+				postRemove(element.getResource(), runnables);
+				postAdd(element.getParent(), element, runnables);
+				return false;
+			}
+		}
+
+		if (kind == IBuildPathDelta.REMOVED) {
+			Object parent= internalGetParent(element);
+			if (element instanceof ISourceFolder) {
+				// refresh package fragment root to allow filtering empty (parent) packages: bug 72923
+				if (fViewer.testFindItem(parent) != null)
+					postRefresh(parent, PARENT, element, runnables);
+				return true;
+				
+			} else if (element instanceof ISourceRoot
+					&& ((ISourceRoot)element).getContentType() != PathEntryContentType.SOURCE) {
+				// libs and class folders can show up twice (in library container and as resource at original location)
+				IResource resource= element.getResource();
+				if (resource != null)
+					postRemove(resource, runnables);
+			}
+
+			postRemove(element, runnables);
+			if (parent instanceof ISourceFolder)
+				postUpdateIcon((ISourceFolder)parent, runnables);
+			// we are filtering out empty subpackages, so we
+			// a package becomes empty we remove it from the viewer.
+			if (isPackageFragmentEmpty(element.getParent())) {
+				if (fViewer.testFindItem(parent) != null)
+					postRefresh(internalGetParent(parent), GRANT_PARENT, element, runnables);
+				return true;
+			}
+			return false;
+		}
+
+		if (kind == IBuildPathDelta.ADDED) {
+			Object parent= internalGetParent(element);
+			// we are filtering out empty subpackages, so we
+			// have to handle additions to them specially.
+			if (parent instanceof ISourceFolder) {
+				Object grandparent= internalGetParent(parent);
+				// 1GE8SI6: ITPJUI:WIN98 - Rename is not shown in Packages View
+				// avoid posting a refresh to an invisible parent
+				if (parent.equals(fInput)) {
+					postRefresh(parent, PARENT, element, runnables);
+				} else {
+					// refresh from grandparent if parent isn't visible yet
+					if (fViewer.testFindItem(parent) == null)
+						postRefresh(grandparent, GRANT_PARENT, element, runnables);
+					else {
+						postRefresh(parent, PARENT, element, runnables);
+					}
+				}
+				return true;
+			} else {
+				if (element instanceof ISourceRoot
+						&& ((ISourceRoot)element).getContentType() != PathEntryContentType.SOURCE) {
+					// libs and class folders can show up twice (in library container or under project, and as resource at original location)
+					IResource resource= element.getResource();
+					if (resource != null) {
+						Object resourceParent= super.internalGetParent(resource);
+						if (resourceParent != null) {
+							ISourceProject proj= element.getProject();
+							if (fShowLibrariesNode || !resourceParent.equals(proj)) {
+								postAdd(resourceParent, resource, runnables);
+							}
+						}
+					}
+				}
+				postAdd(parent, element, runnables);
+			}
+		}
+
+		if (element instanceof ICompilationUnit /* || element == ISourceEntity.CLASS_FILE*/) {
+			if (kind == IBuildPathDelta.CHANGED) {
+				// isStructuralCUChange already performed above
+				postRefresh(element, ORIGINAL, element, runnables);
+			}
+			return false;
+		}
+
+		if (element instanceof ISourceRoot) {
+			// the contents of an external JAR or class folder has changed
+			if ((flags & IBuildPathDelta.F_ARCHIVE_CONTENT_CHANGED) != 0) {
+				postRefresh(element, ORIGINAL, element, runnables);
+				return false;
+			}
+			if ((flags & (IBuildPathDelta.F_CONTENT | IBuildPathDelta.F_CHILDREN)) == IBuildPathDelta.F_CONTENT) {
+				// content change, without children info (for example resource added/removed to class folder package)
+				postRefresh(internalGetParent(element), PARENT, element, runnables);
+				return true;
+			}
+
+			// the source attachment of a JAR has changed
+			if ((flags & (IBuildPathDelta.F_SOURCEATTACHED | IBuildPathDelta.F_SOURCEDETACHED)) != 0)
+				postUpdateIcon(element, runnables);
+
+			if (isClassPathChange(delta)) {
+				 // throw the towel and do a full refresh of the affected java project.
+				postRefresh(element.getProject(), PROJECT, element, runnables);
+				return true;
+			}
+		}
+
+		handleAffectedChildren(delta, element, runnables);
+		return false;
+	}
+	
+	
+	
 	/**
 	 * Processes a delta recursively. When more than two children are affected the
 	 * tree is fully refreshed starting at this node.
@@ -542,291 +822,188 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 	 * to be processed
 	 * @throws ModelException thrown when the access to an element failed
 	 */
-//	private boolean processDelta(ISourceEntityDelta delta, Collection runnables) throws ModelException {
-//
-//		int kind= delta.getKind();
-//		int flags= delta.getFlags();
-//		ISourceEntity element= delta.getElement();
-//		int elementType= element.getElementType();
-//
-//
-//		if (elementType != ISourceEntity.JAVA_MODEL && elementType != ISourceEntity.JAVA_PROJECT) {
-//			ISourceProject proj= element.getJavaProject();
-//			if (proj == null || !proj.getProject().isOpen()) // TODO: Not needed if parent already did the 'open' check!
-//				return false;
-//		}
-//
-//		if (elementType == ISourceEntity.PACKAGE_FRAGMENT) {
-//			if ((flags & (ISourceEntityDelta.F_CONTENT | ISourceEntityDelta.F_CHILDREN)) == ISourceEntityDelta.F_CONTENT) {
-//				if (!fIsFlatLayout) {
-//					Object parent = getHierarchicalPackageParent((ISourceFolder) element);
-//					if (!(parent instanceof ISourceRoot)) {
-//						postRefresh(internalGetParent(parent), GRANT_PARENT, element, runnables);
-//						return true;
-//					}
-//				}
-//				// content change, without children info (for example resource added/removed to class folder package)
-//				postRefresh(internalGetParent(element), PARENT, element, runnables);
-//				return true;
+	private boolean processDelta(IBuildPathDelta delta, Collection runnables) throws ModelException {
+		IPath path= delta.getElement();
+		
+		IWorkspaceRoot root = (IWorkspaceRoot)ModelFactory.getModelRoot().getResource();
+		path = path.makeRelativeTo(root.getLocation());
+		IResource resource = root.findMember(path);
+		
+		// external to workspace
+		if(resource == null)
+		{
+			File file = new File(path.toString());
+//			if(file.isDirectory())
+//			{
+//				return processDeltaForEntity(new SourceFolder(), delta, runnables);
 //			}
-//
-//			if (!fIsFlatLayout) {
-//				if (kind == ISourceEntityDelta.REMOVED) {
-//					final Object parent = getHierarchicalPackageParent((ISourceFolder) element);
-//					if (parent instanceof ISourceRoot) {
-//						postRemove(element,  runnables);
-//						return false;
-//					} else {
-//						postRefresh(internalGetParent(parent), GRANT_PARENT, element, runnables);
-//						return true;
-//					}
-//				} else if (kind == ISourceEntityDelta.ADDED) {
-//					final Object parent = getHierarchicalPackageParent((ISourceFolder) element);
-//					if (parent instanceof ISourceRoot) {
-//						if (fFoldPackages) {
-//							postRefresh(parent, PARENT, element, runnables);
-//							return true;
-//						} else {
-//							postAdd(parent, element, runnables);
-//							return false;
-//						}
-//					} else {
-//						postRefresh(internalGetParent(parent), GRANT_PARENT, element, runnables);
-//						return true;
-//					}
-//				}
-//				handleAffectedChildren(delta, element, runnables);
-//				return false;
+//			
+//			else if(file.extension().equals())
+//			{
+//				return processDeltaForEntity(new SourceFolder(), delta, runnables);
 //			}
-//		}
-//
-//		if (elementType == ISourceEntity.COMPILATION_UNIT) {
-//			ICompilationUnit cu= (ICompilationUnit) element;
-//			if (!JavaModelUtil.isPrimary(cu)) {
-//				return false;
+//			
+//			else
+//			{
+//				BuildPathUtils.getSourceRoot()
+//				return processDeltaForEntity(new SourceRoot(), delta, runnables);
 //			}
-//
-//			if (!getProvideMembers() && cu.isWorkingCopy() && kind == ISourceEntityDelta.CHANGED) {
-//				return false;
-//			}
-//
-//			if (kind == ISourceEntityDelta.CHANGED && !isStructuralCUChange(flags)) {
-//				return false; // test moved ahead
-//			}
-//
-//			if (!isOnClassPath(cu)) { // TODO: isOnClassPath expensive! Should be put after all cheap tests
-//				return false;
-//			}
-//
-//		}
-//
-//		if (elementType == ISourceEntity.JAVA_PROJECT) {
-//			// handle open and closing of a project
-//			if ((flags & (ISourceEntityDelta.F_CLOSED | ISourceEntityDelta.F_OPENED)) != 0) {
-//				postRefresh(element, ORIGINAL, element, runnables);
-//				return false;
-//			}
-//			// if the class path has changed we refresh the entire project
-//			if ((flags & ISourceEntityDelta.F_RESOLVED_CLASSPATH_CHANGED) != 0) {
-//				postRefresh(element, ORIGINAL, element, runnables);
-//				return false;
-//			}
-//			// if added it could be that the corresponding IProject is already shown. Remove it first.
-//			// bug 184296
-//			if (kind == ISourceEntityDelta.ADDED) {
-//				postRemove(element.getResource(), runnables);
-//				postAdd(element.getParent(), element, runnables);
-//				return false;
-//			}
-//		}
-//
-//		if (kind == ISourceEntityDelta.REMOVED) {
-//			Object parent= internalGetParent(element);
-//			if (element instanceof ISourceFolder) {
-//				// refresh package fragment root to allow filtering empty (parent) packages: bug 72923
-//				if (fViewer.testFindItem(parent) != null)
-//					postRefresh(parent, PARENT, element, runnables);
-//				return true;
-//				
-//			} else if (element instanceof ISourceRoot
-//					&& ((ISourceRoot)element).getKind() != ISourceRoot.K_SOURCE) {
-//				// libs and class folders can show up twice (in library container and as resource at original location)
-//				IResource resource= element.getResource();
-//				if (resource != null)
-//					postRemove(resource, runnables);
-//			}
-//
-//			postRemove(element, runnables);
-//			if (parent instanceof ISourceFolder)
-//				postUpdateIcon((ISourceFolder)parent, runnables);
-//			// we are filtering out empty subpackages, so we
-//			// a package becomes empty we remove it from the viewer.
-//			if (isPackageFragmentEmpty(element.getParent())) {
-//				if (fViewer.testFindItem(parent) != null)
-//					postRefresh(internalGetParent(parent), GRANT_PARENT, element, runnables);
-//				return true;
-//			}
-//			return false;
-//		}
-//
-//		if (kind == ISourceEntityDelta.ADDED) {
-//			Object parent= internalGetParent(element);
-//			// we are filtering out empty subpackages, so we
-//			// have to handle additions to them specially.
-//			if (parent instanceof ISourceFolder) {
-//				Object grandparent= internalGetParent(parent);
-//				// 1GE8SI6: ITPJUI:WIN98 - Rename is not shown in Packages View
-//				// avoid posting a refresh to an invisible parent
-//				if (parent.equals(fInput)) {
-//					postRefresh(parent, PARENT, element, runnables);
-//				} else {
-//					// refresh from grandparent if parent isn't visible yet
-//					if (fViewer.testFindItem(parent) == null)
-//						postRefresh(grandparent, GRANT_PARENT, element, runnables);
-//					else {
-//						postRefresh(parent, PARENT, element, runnables);
-//					}
-//				}
-//				return true;
-//			} else {
-//				if (element instanceof ISourceRoot
-//						&& ((ISourceRoot)element).getKind() != ISourceRoot.K_SOURCE) {
-//					// libs and class folders can show up twice (in library container or under project, and as resource at original location)
-//					IResource resource= element.getResource();
-//					if (resource != null) {
-//						Object resourceParent= super.internalGetParent(resource);
-//						if (resourceParent != null) {
-//							ISourceProject proj= element.getJavaProject();
-//							if (fShowLibrariesNode || !resourceParent.equals(proj)) {
-//								postAdd(resourceParent, resource, runnables);
-//							}
-//						}
-//					}
-//				}
-//				postAdd(parent, element, runnables);
-//			}
-//		}
-//
-//		if (elementType == ISourceEntity.COMPILATION_UNIT || elementType == ISourceEntity.CLASS_FILE) {
-//			if (kind == ISourceEntityDelta.CHANGED) {
-//				// isStructuralCUChange already performed above
-//				postRefresh(element, ORIGINAL, element, runnables);
-//			}
-//			return false;
-//		}
-//
-//		if (elementType == ISourceEntity.PACKAGE_FRAGMENT_ROOT) {
-//			// the contents of an external JAR or class folder has changed
-//			if ((flags & ISourceEntityDelta.F_ARCHIVE_CONTENT_CHANGED) != 0) {
-//				postRefresh(element, ORIGINAL, element, runnables);
-//				return false;
-//			}
-//			if ((flags & (ISourceEntityDelta.F_CONTENT | ISourceEntityDelta.F_CHILDREN)) == ISourceEntityDelta.F_CONTENT) {
-//				// content change, without children info (for example resource added/removed to class folder package)
-//				postRefresh(internalGetParent(element), PARENT, element, runnables);
-//				return true;
-//			}
-//
-//			// the source attachment of a JAR has changed
-//			if ((flags & (ISourceEntityDelta.F_SOURCEATTACHED | ISourceEntityDelta.F_SOURCEDETACHED)) != 0)
-//				postUpdateIcon(element, runnables);
-//
-//			if (isClassPathChange(delta)) {
-//				 // throw the towel and do a full refresh of the affected java project.
-//				postRefresh(element.getJavaProject(), PROJECT, element, runnables);
-//				return true;
-//			}
-//		}
-//
-//		handleAffectedChildren(delta, element, runnables);
-//		return false;
-//	}
-//
-//	private static boolean isStructuralCUChange(int flags) {
-//		// No refresh on working copy creation (F_PRIMARY_WORKING_COPY)
-//		return (flags & ISourceEntityDelta.F_CHILDREN) != 0 || (flags & (ISourceEntityDelta.F_CONTENT | ISourceEntityDelta.F_FINE_GRAINED)) == ISourceEntityDelta.F_CONTENT;
-//	}
-//
-//	/* package */ void handleAffectedChildren(ISourceEntityDelta delta, ISourceEntity element, Collection runnables) throws ModelException {
-//		int count= 0;
-//
-//		IResourceDelta[] resourceDeltas= delta.getResourceDeltas();
-//		if (resourceDeltas != null) {
-//			for (int i= 0; i < resourceDeltas.length; i++) {
-//				int kind= resourceDeltas[i].getKind();
-//				if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED) {
-//					count++;
-//				}
-//			}
-//		}
-//		ISourceEntityDelta[] affectedChildren= delta.getAffectedChildren();
-//		for (int i= 0; i < affectedChildren.length; i++) {
-//			int kind= affectedChildren[i].getKind();
-//			if (kind == ISourceEntityDelta.ADDED || kind == ISourceEntityDelta.REMOVED) {
-//				count++;
-//			}
-//		}
-//
-//		if (count > 1) {
-//			// more than one child changed, refresh from here downwards
-//			if (element instanceof ISourceFolder) {
-//				// a package fragment might become non empty refresh from the parent
-//				ISourceEntity parent= (ISourceEntity) internalGetParent(element);
-//				// 1GE8SI6: ITPJUI:WIN98 - Rename is not shown in Packages View
-//				// avoid posting a refresh to an invisible parent
-//				if (element.equals(fInput)) {
-//					postRefresh(element, ORIGINAL, element, runnables);
-//				} else {
-//					postRefresh(parent, PARENT, element, runnables);
-//				}
+			return false;
+		}
+		
+		// entity deleted
+		else if(!resource.exists())
+		{
+			return processDeltaForDelete(resource, delta, runnables);
+		}
+		
+		else
+		{
+			ISourceEntity element = ModelFactory.open(resource);
+			return processDeltaForEntity(element, delta, runnables);
+		}
+	}
+
+	private static boolean isStructuralCUChange(int flags) {
+		// No refresh on working copy creation (F_PRIMARY_WORKING_COPY)
+		return (flags & IBuildPathDelta.F_CHILDREN) != 0 || (flags & (IBuildPathDelta.F_CONTENT | IBuildPathDelta.F_FINE_GRAINED)) == IBuildPathDelta.F_CONTENT;
+	}
+
+	/* package */ void handleAffectedChildren(IBuildPathDelta delta, ISourceEntity element, Collection runnables) throws ModelException {
+		int count= 0;
+
+		IResourceDelta[] resourceDeltas= delta.getResourceDeltas();
+		if (resourceDeltas != null) {
+			for (int i= 0; i < resourceDeltas.length; i++) {
+				int kind= resourceDeltas[i].getKind();
+				if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED) {
+					count++;
+				}
+			}
+		}
+		IBuildPathDelta[] affectedChildren= delta.getAffectedChildren();
+		for (int i= 0; i < affectedChildren.length; i++) {
+			int kind= affectedChildren[i].getKind();
+			if (kind == IBuildPathDelta.ADDED || kind == IBuildPathDelta.REMOVED) {
+				count++;
+			}
+		}
+
+		if (count > 1) {
+			// more than one child changed, refresh from here downwards
+			if (element instanceof ISourceFolder) {
+				// a package fragment might become non empty refresh from the parent
+				ISourceEntity parent= (ISourceEntity) internalGetParent(element);
+				// 1GE8SI6: ITPJUI:WIN98 - Rename is not shown in Packages View
+				// avoid posting a refresh to an invisible parent
+				if (element.equals(fInput)) {
+					postRefresh(element, ORIGINAL, element, runnables);
+				} else {
+					postRefresh(parent, PARENT, element, runnables);
+				}
+			} else if (element instanceof ISourceRoot) {
+				Object toRefresh= internalGetParent(element);
+				postRefresh(toRefresh, ORIGINAL, toRefresh, runnables);
+			} else {
+				postRefresh(element, ORIGINAL, element, runnables);
+			}
+			return;
+		}
+		if (resourceDeltas != null) {
+			for (int i= 0; i < resourceDeltas.length; i++) {
+				if (processResourceDelta(resourceDeltas[i], element, runnables)) {
+					return; // early return, element got refreshed
+				}
+			}
+		}
+		for (int i= 0; i < affectedChildren.length; i++) {
+			if (processDelta(affectedChildren[i], runnables)) {
+				return; // early return, element got refreshed
+			}
+		}
+	}
+
+	
+	/* package */ void handleAffectedChildren(IBuildPathDelta delta, IResource element, Collection runnables) throws ModelException {
+		int count= 0;
+
+		IResourceDelta[] resourceDeltas= delta.getResourceDeltas();
+		if (resourceDeltas != null) {
+			for (int i= 0; i < resourceDeltas.length; i++) {
+				int kind= resourceDeltas[i].getKind();
+				if (kind == IResourceDelta.ADDED || kind == IResourceDelta.REMOVED) {
+					count++;
+				}
+			}
+		}
+		IBuildPathDelta[] affectedChildren= delta.getAffectedChildren();
+		for (int i= 0; i < affectedChildren.length; i++) {
+			int kind= affectedChildren[i].getKind();
+			if (kind == IBuildPathDelta.ADDED || kind == IBuildPathDelta.REMOVED) {
+				count++;
+			}
+		}
+
+		if (count > 1) {
+			// more than one child changed, refresh from here downwards
+			if (element instanceof IFolder) {
+				// a package fragment might become non empty refresh from the parent
+				ISourceEntity parent= (ISourceEntity) internalGetParent(element);
+				// 1GE8SI6: ITPJUI:WIN98 - Rename is not shown in Packages View
+				// avoid posting a refresh to an invisible parent
+				if (element.equals(fInput)) {
+					postRefresh(element, ORIGINAL, element, runnables);
+				} else {
+					postRefresh(parent, PARENT, element, runnables);
+				}
 //			} else if (element instanceof ISourceRoot) {
 //				Object toRefresh= internalGetParent(element);
 //				postRefresh(toRefresh, ORIGINAL, toRefresh, runnables);
-//			} else {
-//				postRefresh(element, ORIGINAL, element, runnables);
-//			}
-//			return;
-//		}
-//		if (resourceDeltas != null) {
-//			for (int i= 0; i < resourceDeltas.length; i++) {
-//				if (processResourceDelta(resourceDeltas[i], element, runnables)) {
-//					return; // early return, element got refreshed
-//				}
-//			}
-//		}
-//		for (int i= 0; i < affectedChildren.length; i++) {
-//			if (processDelta(affectedChildren[i], runnables)) {
-//				return; // early return, element got refreshed
-//			}
-//		}
-//	}
-//
-//	protected void processAffectedChildren(ISourceEntityDelta[] affectedChildren, Collection runnables) throws ModelException {
-//		for (int i= 0; i < affectedChildren.length; i++) {
-//			processDelta(affectedChildren[i], runnables);
-//		}
-//	}
-//
-//	private boolean isOnClassPath(ICompilationUnit element) {
-//		ISourceProject project= element.getJavaProject();
-//		if (project == null || !project.exists())
-//			return false;
+			} else {
+				postRefresh(element, ORIGINAL, element, runnables);
+			}
+			return;
+		}
+		if (resourceDeltas != null) {
+			for (int i= 0; i < resourceDeltas.length; i++) {
+				if (processResourceDelta(resourceDeltas[i], element, runnables)) {
+					return; // early return, element got refreshed
+				}
+			}
+		}
+		for (int i= 0; i < affectedChildren.length; i++) {
+			if (processDelta(affectedChildren[i], runnables)) {
+				return; // early return, element got refreshed
+			}
+		}
+	}
+	protected void processAffectedChildren(IBuildPathDelta[] affectedChildren, Collection runnables) throws ModelException {
+		for (int i= 0; i < affectedChildren.length; i++) {
+			processDelta(affectedChildren[i], runnables);
+		}
+	}
+
+	private boolean isOnClassPath(ICompilationUnit element) {
+		ISourceProject project= element.getProject();
+		if (project == null || !project.getResource().exists())
+			return false;
 //		return project.isOnClasspath(element);
-//	}
-//
-//	/**
-//	 * Updates the package icon
-//	 * @param element the element to update
-//	 * @param runnables the resulting view changes as runnables (type {@link Runnable})
-//	 */
-//	 private void postUpdateIcon(final ISourceEntity element, Collection runnables) {
-//		 runnables.add(new Runnable() {
-//			public void run() {
-//				// 1GF87WR: ITPUI:ALL - SWTEx + NPE closing a workbench window.
-//				fViewer.update(element, new String[]{IBasicPropertyConstants.P_IMAGE});
-//			}
-//		});
-//	 }
+		return true;
+	}
+
+	/**
+	 * Updates the package icon
+	 * @param element the element to update
+	 * @param runnables the resulting view changes as runnables (type {@link Runnable})
+	 */
+	 private void postUpdateIcon(final Object element, Collection runnables) {
+		 runnables.add(new Runnable() {
+			public void run() {
+				// 1GF87WR: ITPUI:ALL - SWTEx + NPE closing a workbench window.
+				fViewer.update(element, new String[]{IBasicPropertyConstants.P_IMAGE});
+			}
+		});
+	 }
 
 	/**
 	 * Process a resource delta.
@@ -847,24 +1024,24 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 
 		// this could be optimized by handling all the added children in the parent
 		if ((status & IResourceDelta.REMOVED) != 0) {
-//			if (parent instanceof ISourceFolder) {
-//				// refresh one level above to deal with empty package filtering properly
-//				postRefresh(internalGetParent(parent), PARENT, parent, runnables);
-//				return true;
-//			} else {
+			if (parent instanceof ISourceFolder) {
+				// refresh one level above to deal with empty package filtering properly
+				postRefresh(internalGetParent(parent), PARENT, parent, runnables);
+				return true;
+			} else {
 				postRemove(resource, runnables);
 				return false;
-//			}
+			}
 		}
 		if ((status & IResourceDelta.ADDED) != 0) {
-//			if (parent instanceof ISourceFolder) {
-//				// refresh one level above to deal with empty package filtering properly
-//				postRefresh(internalGetParent(parent), PARENT, parent, runnables);
-//				return true;
-//			} else {
+			if (parent instanceof ISourceFolder) {
+				// refresh one level above to deal with empty package filtering properly
+				postRefresh(internalGetParent(parent), PARENT, parent, runnables);
+				return true;
+			} else {
 				postAdd(parent, resource, runnables);
 				return false;
-//			}
+			}
 		}
 		if ((status & IResourceDelta.CHANGED) != 0) {
 			if ((flags & IResourceDelta.TYPE) != 0) {
@@ -909,8 +1086,8 @@ public class PackageExplorerContentProvider extends StandardElementContentProvid
 	private void postRefresh(Object root, int relation, Object affectedElement, Collection runnables) {
 		// JFace doesn't refresh when object isn't part of the viewer
 		// Therefore move the refresh start down to the viewer's input
-//		if (isParent(root, fInput) || root instanceof IJavaModel)
-//			root= fInput;
+		if (isParent(root, fInput) || root instanceof IWorkspaceModel || root instanceof IWorkspaceRoot)
+			root= fInput;
 		List toRefresh= new ArrayList(1);
 		toRefresh.add(root);
 		augmentElementToRefresh(toRefresh, relation, affectedElement);
