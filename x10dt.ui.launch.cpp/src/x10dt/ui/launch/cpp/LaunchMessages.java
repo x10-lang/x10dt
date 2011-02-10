@@ -525,6 +525,8 @@ public class LaunchMessages extends NLS {
 
   public static String XPCPP_NoResManagerStartedError;
 
+  public static String XPCP_DebuggerFolderNotFound;
+
   // --- Private code
 
   private static final String BUNDLE_NAME = "x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$

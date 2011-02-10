@@ -22,11 +22,13 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
+import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IDebuggingInfoConf;
 
@@ -79,7 +81,9 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     debuggerFolderText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        getPlatformConf().setDebuggerFolder(debuggerFolderText.getText());
+        String folderText= debuggerFolderText.getText();
+
+        getPlatformConf().setDebuggerFolder(folderText);
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
       }
@@ -149,6 +153,29 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     final IDebuggingInfoConf debuggingInfoConf = getPlatformConf().getDebuggingInfoConf();
     this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
     this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
+
+    KeyboardUtils.addDelayedActionOnControl(this.fDebuggerFolderText, new Runnable() {
+        
+        public void run() {
+          getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
+            
+            public void run() {
+              // If the field is non-empty, check that the specified folder doesn't exist.
+              // We only do the check when the field is non-empty, so that users that don't
+              // want to use the debugger aren't forced into supplying this info.
+              String folderText = fDebuggerFolderText.getText();
+              if (folderText.length() > 0) {
+                handlePathValidation(fDebuggerFolderText, LaunchMessages.DSP_DebuggerFolder);
+              } else {
+                getFormPage().getManagedForm().getMessageManager().removeMessages();
+                ((SharedHeaderFormEditor) getFormPage().getEditor()).getHeaderForm().getMessageManager().removeMessages();
+              }
+            }
+            
+          });
+        }
+        
+      });
   }
   
   // --- Fields
