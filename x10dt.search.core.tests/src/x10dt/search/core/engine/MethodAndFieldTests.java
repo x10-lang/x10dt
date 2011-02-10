@@ -62,8 +62,8 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
     assertLocation(thisMthdInfo[0].getLocation(), INTEGRATE_LOC, 25, 25);
     assertPath(PROJECT_NAME, INTEGRATE_LOC, thisMthdInfo[0].getCompilationUnit().getPath());
     assertEquals(INTEGRATE_CLASS, thisMthdInfo[0].getDeclaringType().getName());
-    assertTrue(thisMthdInfo[0].isConstructor());
-    assertEquals(VOID, thisMthdInfo[0].getReturnType().getName());
+    assertTrue("Constructor is not marked a constructor", thisMthdInfo[0].isConstructor());
+    assertEquals("Return type of this() should be void", VOID, thisMthdInfo[0].getReturnType().getName());
     
     final IMethodInfo[] recEvalInfo = X10SearchEngine.getMethodInfos(scope, INTEGRATE_CLASS, "recEval", nullMonitor);
     assertEquals(1, recEvalInfo.length);
@@ -76,10 +76,10 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
     assertEquals(DOUBLE, recEvalInfo[0].getParameters()[2].getName());
     assertEquals(DOUBLE, recEvalInfo[0].getParameters()[3].getName());
     assertEquals(DOUBLE, recEvalInfo[0].getParameters()[4].getName());
-    assertTrue((recEvalInfo[0].getX10FlagsCode() & X10FlagsEncoder.X10.PRIVATE.getCode()) != 0);
+    assertTrue("Method recEval should be marked private", (recEvalInfo[0].getX10FlagsCode() & X10FlagsEncoder.X10.PRIVATE.getCode()) != 0);
     
     final IMethodInfo[] allMethods = X10SearchEngine.getAllMatchingMethodInfo(scope, INTEGRATE_CLASS, ".*", true, nullMonitor);
-    assertEquals(4, allMethods.length);
+    assertEquals("Incorrect # of methods found on class " + INTEGRATE_CLASS, 4, allMethods.length);
   }
   
   // --- Fields
