@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -53,10 +52,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
@@ -66,7 +62,6 @@ import polyglot.frontend.ZipResource;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.dialogs.DialogsFactory;
 
 
 final class X10FactGenerator implements IFactGenerator, IFactUpdater {
@@ -130,33 +125,8 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
               if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
                 typeManager.createIndexingFile(factBase, factContext);
               }
-              if (fFailedResources.contains(resource)) {
-                fFailedResources.remove(resource);
-                if (fFailedResources.isEmpty()) {
-                  PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                    public void run() {
-                      final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                      MessageDialog.openInformation(shell, Messages.XFG_IndexStatusDialogTitle,
-                                                    Messages.XFG_IndexerStatusDialogMsg);
-                    }
-                  });
-                }
-              }
             } catch (Throwable except) {
               SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
-              final Throwable exception = except;
-              if (fFailedResources.isEmpty()) {
-                fFailedResources.add(resource);
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                  public void run() {
-                    final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                    DialogsFactory.createErrorBuilder()
-                                  .setDetailedMessage(exception)
-                                  .createAndOpen(shell, Messages.XFG_IndexingProblemDialogTitle,
-                                                 NLS.bind(Messages.XFG_IndexingProblemDialogMsg, resource.getLocation()));
-                  }
-                });
-              }
             } finally {
               typeManager.clearWriter();
             }
@@ -381,9 +351,6 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   private final IndexingCompiler fIndexingCompiler;
   
   private final SearchDBTypes fSearchDBTypes;
-  
-  
-  private static Set<IResource> fFailedResources = new HashSet<IResource>();
   
   
   private static final String JAR_EXT = "jar"; //$NON-NLS-1$
