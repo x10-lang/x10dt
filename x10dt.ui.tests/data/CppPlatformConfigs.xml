@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?> 
 <platformConfigs> 
-
+<!--
     <config> 
         <configName> Linux 32-bit x86 </configName> 
         <description> remote Linux VM </description> 
@@ -12,15 +12,15 @@
             <architectureType> x86 </architectureType> 
             <set64BitSpace> no </set64BitSpace> 
        </target> 
+          
+        <x10> 
+            <numPlaces> 8 </numPlaces> 
+        </x10> 
      
         <commInterface> 
-            <interfaceType> Open MPI </interfaceType> 
+            <interfaceType> Sockets </interfaceType> 
             <interfaceMode> Launch </interfaceMode> 
         </commInterface> 
-         
-        <x10> 
-            <numPlaces> 4 </numPlaces> 
-        </x10> 
        
         <remoteConnection> 
             <connectionName> VMRoot </connectionName> 
@@ -35,17 +35,20 @@
                 <portForwardingTimeout> </portForwardingTimeout> 
                 <portForwardingLocalAddress> </portForwardingLocalAddress> 
             </portForwarding> 
-            
+
             <remotePlatform> 
                 <outputFolder> /root/x10/sandbox </outputFolder> 
                 <useSelectedPGAS> no </useSelectedPGAS> 
                 <remoteDistribution> /root/x10/x10-trunk/x10.dist </remoteDistribution> 
                 <remotePGASDist> </remotePGASDist> 
+                <debuggerFolder> /root/x10/sandbox/debug </debuggerFolder> 
+                <debuggingPort> 8888 </debuggingPort> 
            </remotePlatform> 
+
        </remoteConnection> 
    </config>
-    
-<!--
+-->
+
     <config> 
         <configName> Local Standalone </configName> 
         <description> local host using standalone runtime </description> 
@@ -58,17 +61,16 @@
             <set64BitSpace> no </set64BitSpace> 
        </target> 
        
-        <commInterface> 
-            <interfaceMode> Launch </interfaceMode> 
-            <interfaceType> Standalone </interfaceType> 
-       </commInterface> 
-        
         <x10> 
             <numPlaces> 4 </numPlaces> 
        </x10> 
                 
-   </config> 
--->
+        <commInterface> 
+            <interfaceMode> Launch </interfaceMode> 
+            <interfaceType> Standalone </interfaceType> 
+       </commInterface>    
+    </config> 
+
     <config> 
         <configName> Local Sockets </configName> 
         <description> local host using sockets runtime </description> 
@@ -80,6 +82,10 @@
             <architectureType> </architectureType> 
             <set64BitSpace> no </set64BitSpace> 
        </target> 
+         
+       <x10> 
+            <numPlaces> 8 </numPlaces> 
+       </x10> 
        
         <commInterface> 
             <interfaceMode> Launch </interfaceMode> 
@@ -97,12 +103,6 @@
                 <!-- TODO: design the Open MPI config schema -->
             </openMPIConfig>
             
-            <openMPIConfig>      <!-- only include this node if you're using it -->
-                <useDefaultCommands> yes </useDefaultCommands>
-                <useDefaultLocation> yes </useDefaultLocation>
-                <!-- TODO: design the Open MPI config schema -->
-            </openMPIConfig>
-            
             <ibmParallelConfig>      <!-- only include this node if you're using it -->
                  <!-- TODO: design the IBM Parallel config schema -->
             </ibmParallelConfig>
@@ -113,11 +113,6 @@
             
        </commInterface> 
         
-       <x10> 
-            <numPlaces> 4 </numPlaces> 
-       </x10> 
-        
    </config> 
-<!--
--->
+
 </platformConfigs> 
