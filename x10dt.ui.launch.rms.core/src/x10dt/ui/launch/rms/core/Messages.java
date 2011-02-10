@@ -16,7 +16,11 @@ import org.eclipse.osgi.util.NLS;
  */
 @SuppressWarnings("all")
 public class Messages extends NLS {
-  
+
+  public static String AI_RCInfo;
+
+  public static String AI_RCWarning;
+
   public static String AXRS_ConnNotFound;
 
   public static String AXRS_defaultQueueName;
@@ -51,6 +55,50 @@ public class Messages extends NLS {
 
   public static String AXRSJ_SuccessfulRunMsg;
 
+  public static String ConfigurationPage_LabelLocalhost;
+
+  public static String ConfigurationPage_LabelRemoteHost;
+
+  public static String ConfigurationPage_LabelHideAdvancedOptions;
+
+  public static String ConfigurationPage_LabelHostAddress;
+
+  public static String ConfigurationPage_LabelHostPort;
+
+  public static String ConfigurationPage_LabelIsPasswordBased;
+
+  public static String ConfigurationPage_LabelIsPublicKeyBased;
+
+  public static String ConfigurationPage_LabelPassphrase;
+
+  public static String ConfigurationPage_LabelPassword;
+
+  public static String ConfigurationPage_LabelPublicKeyPath;
+
+  public static String ConfigurationPage_LabelPublicKeyPathButton;
+
+  public static String ConfigurationPage_LabelUserName;
+
+  public static String ConfigurationPage_LabelTimeout;
+
+  public static String ConfigurationPage_LabelShowAdvancedOptions;
+
+  public static String ConfigurationPage_LabelPublicKeyPathTitle;
+
+  public static String ConfigurationPage_ConnectionFrameTitle;
+
+  public static String ConfigurationPage_DefaultTargetName;
+
+  public static String ConfigurationPage_DialogDescription;
+
+  public static String ConfigurationPage_DialogTitle;
+
+  public static String ConfigurationPage_LabelTargetName;
+
+  public static String ConfigurationPage_LabelSystemWorkspace;
+
+  public static String ConfigurationPage_CipherType;
+
   public static String LA_SocketsHostFileDescr;
 
   public static String LA_SocketsHostFileName;
@@ -58,7 +106,7 @@ public class Messages extends NLS {
   public static String LA_SocketsHostListDescr;
 
   public static String LA_SocketsHostListName;
-  
+
   public static String SRMLCDT_AddBt;
 
   public static String SRMLCDT_AtLeastOneHostNameMsg;
@@ -82,11 +130,11 @@ public class Messages extends NLS {
   public static String SRMLCDT_PageInitializationError;
 
   public static String SRMLCDT_PlacesNumber;
-  
+
   public static String SRMLCDT_RemoveBt;
 
   public static String SRMLCDT_SelectHostFileDialogTitle;
-  
+
   public static String SXRS_ProcessStartError;
 
   public static String SXRS_ValidatesSSHTaskName;
@@ -96,16 +144,24 @@ public class Messages extends NLS {
   public static String SXRS_SSHValidationErrorWithErrOutput;
 
   public static String SXRS_SSHValidationTaskName;
-  
+
   // --- Private code
+
+  public static String TC_Connecting;
+
+  public static String TC_ConnNotOpen;
+
+  public static String TC_NoPauseAction;
+
+  public static String TC_NoResumeFromPause;
 
   private Messages() {
   }
-  
+
   // --- Fields
-  
+
   private static final String BUNDLE_NAME = "x10dt.ui.launch.rms.core.messages"; //$NON-NLS-1$
-  
+
   static {
     NLS.initializeMessages(BUNDLE_NAME, Messages.class);
   }
