@@ -60,7 +60,7 @@ public abstract class NonEssentialElementsFilter extends ViewerFilter {
 				boolean isHierarchicalLayout= !fStateModel.getBooleanProperty(IExtensionStateConstants.Values.IS_LAYOUT_FLAT);
 				try {
 					ISourceFolder fragment = (ISourceFolder) element;
-					if (isHierarchicalLayout && !BuildPathUtils.isDefaultPackage(fragment.getName()) && Utils.hasSubpackages(fragment)) {
+					if (isHierarchicalLayout && !BuildPathUtils.isDefaultPackage(fragment.getName()) && BuildPathUtils.hasSubpackages(fragment)) {
 						return hasFilteredChildren((StructuredViewer) viewer, fragment);
 					}
 				} catch (ModelException e) {

@@ -29,11 +29,15 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.language.LanguageRegistry;
+import org.eclipse.imp.model.IPathEntry;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ISourceRoot;
+import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.dialogs.Dialog;
@@ -132,7 +136,7 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
     doStatusUpdate();
   }
 
-  public void createType(IProgressMonitor monitor) throws CoreException, InterruptedException {
+  public void createType(IProgressMonitor monitor) throws ModelException, CoreException, InterruptedException {
     ISourceFolder pkgFrag = this.getPackageFragment();
     String superClass = this.getSuperClass();
     List<String> superIntfs = this.getSuperInterfaces();
@@ -146,19 +150,23 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
    * editor on the newly created file.
    */
   private void doCreateType(String typeName, ISourceFolder pkgFrag, String superClass, List<String> superIntfs,
-                            IProgressMonitor monitor) throws CoreException {
+                            IProgressMonitor monitor) throws CoreException, ModelException {
     monitor.beginTask("Creating " + typeName, 2);
-    if (!pkgFrag.getResource().exists()) {
-      String pkgName = pkgFrag.getName();
-      ISourceRoot root = this.getPackageFragmentRoot();
+    if (pkgFrag == null) {
+        String pkgName = getPackageText();
+        ISourceRoot root = this.getPackageFragmentRoot();
 
-      try {
-		pkgFrag = root.createSourceFolder(pkgName, true, null);
-	   } catch (ModelException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	  }
-    }
+        if (!root.getResource().exists()) {
+            ISourceProject javaProject= getJavaProject();
+            IPathEntry newEntry= ModelFactory.createSourceEntry(new Path(getPackageFragmentRootText()).makeAbsolute(), null);
+            List<IPathEntry> entries= javaProject.getBuildPath(fLanguage);
+            entries.add(newEntry);
+            javaProject.setBuildPath(fLanguage, entries, new NullProgressMonitor());
+
+            root= (ISourceRoot) ModelFactory.create(javaProject.getRawProject().getWorkspace().getRoot().getFolder(newEntry.getRawPath()));
+        }
+        pkgFrag = root.createSourceFolder(pkgName, true, monitor);
+      }
     IResource resource = pkgFrag.getResource();
     IContainer container = (IContainer) resource;
 
@@ -217,12 +225,18 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
     }
 
     ISourceFolder pack = getPackageFragment();
+	IContainer packCont = null;
+	if (pack == null) {
+		ISourceRoot root = getPackageFragmentRoot();
+		packCont = ((IContainer) root.getResource()).getFolder(new Path(
+				getPackageText().replace('.', '/')));
+	} else {
+		packCont = (IContainer) pack.getResource();
+	}
 
-    if (pack != null) {
-      IContainer packCont;
-      packCont = (IContainer) pack.getResource();
-      return packCont.getFile(new Path(getTypeName() + ".x10"));
-    }
-    return null;
+	if (packCont != null) {
+		return packCont.getFile(new Path(getTypeName() + ".x10"));
+	}
+	return null;
   }
 }

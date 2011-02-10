@@ -21,6 +21,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.model.ModelFactory;
+import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.ui.wizards.NewElementWizard;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.INewWizard;
@@ -57,7 +59,11 @@ public class NewX10InterfaceWizard extends NewElementWizard implements INewWizar
    * @see org.eclipse.jdt.internal.ui.wizards.NewElementWizard#finishPage(org.eclipse.core.runtime.IProgressMonitor)
    */
   protected void finishPage(IProgressMonitor monitor) throws InterruptedException, CoreException {
-    fPage.createType(monitor); // use the full progress monitor
+	  try {
+			fPage.createType(monitor); // use the full progress monitor
+		} catch (ModelException e) {
+			throw ModelFactory.createCoreException(e);
+		}
   }
 
   /*

@@ -371,22 +371,27 @@ public class NewX10ClassPage extends NewTypeWizardPage {
    * @return A resource or null if the page contains illegal values.
    * @since 3.0
    */
-  public IResource getModifiedResource() {
-    ITypeInfo enclosing = getEnclosingType();
+	public IResource getModifiedResource() {
+		ITypeInfo enclosing = getEnclosingType();
+		if (enclosing != null) {
+			return SearchUtils.getResource(enclosing);
+		}
 
-    if (enclosing != null) {
-      return SearchUtils.getResource(enclosing);
-    }
+		ISourceFolder pack = getPackageFragment();
+		IContainer packCont = null;
+		if (pack == null) {
+			ISourceRoot root = getPackageFragmentRoot();
+			packCont = ((IContainer) root.getResource()).getFolder(new Path(
+					getPackageText().replace('.', '/')));
+		} else {
+			packCont = (IContainer) pack.getResource();
+		}
 
-    ISourceFolder pack = getPackageFragment();
-
-    if (pack != null) {
-      IContainer packCont;
-      packCont = (IContainer) pack.getResource();
-      return packCont.getFile(new Path(getTypeName() + ".x10"));
-    }
-    return null;
-  }
+		if (packCont != null) {
+			return packCont.getFile(new Path(getTypeName() + ".x10"));
+		}
+		return null;
+	}
   
 	/**
 	 * Hook method that gets called when the type name has changed. The method validates the
@@ -430,7 +435,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
 	private boolean typeExists(ITypeInfo[] types, String path){
 		for(int i = 0; i < types.length; i++){
 			String typePath = types[i].getLocation().getURI().getPath();
-			int index = typePath.lastIndexOf(File.separator);
+			int index = typePath.lastIndexOf('/');
 			typePath = typePath.substring(0, index);
 			if (typePath.equals(path)){
 				return true;

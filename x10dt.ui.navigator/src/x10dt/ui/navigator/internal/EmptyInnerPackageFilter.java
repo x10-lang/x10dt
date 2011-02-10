@@ -32,7 +32,7 @@ public class EmptyInnerPackageFilter extends ViewerFilter {
 			try {
 				if (BuildPathUtils.isDefaultPackage(pkg.getName()))
 					return pkg.getChildren().length > 0;
-				return !Utils.hasSubpackages(pkg) || pkg.getChildren().length > 0 /*|| (pkg.getNonJavaResources().length > 0)*/;
+				return !BuildPathUtils.hasSubpackages(pkg) || pkg.getChildren().length > 0 /*|| (pkg.getNonJavaResources().length > 0)*/;
 			} catch (ModelException e) {
 				return false;
 			}

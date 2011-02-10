@@ -130,12 +130,16 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
               }
               
               private boolean hasX10Container(final ISourceProject javaProject) throws ModelException {
-                for (final IPathEntry cpEntry : javaProject.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
-                  if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(cpEntry.getRawPath().toString())) {
-                    return true;
-                  }
-                }
-                return false;
+            	  if(javaProject != null)
+            	  {
+            		  for (final IPathEntry cpEntry : javaProject.getBuildPath(LanguageRegistry.findLanguage("X10"))) {
+                        if (X10DTCoreConstants.X10_CONTAINER_ENTRY_ID.equals(cpEntry.getRawPath().toString())) {
+                        return true;
+                      }
+                    }
+            	  }
+                
+                  return false;
               }
               
             });

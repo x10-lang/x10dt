@@ -28,8 +28,7 @@
 				<or>
 					<adapt type="org.eclipse.core.resources.IProject" >
 				      <or>
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+				         <test property="org.eclipse.imp.anyLanguage" />
 				      </or>
 					</adapt>
 					<instanceof	value="org.eclipse.core.resources.IResource" />
@@ -66,8 +65,7 @@
 						<and>
 							<instanceof value="org.eclipse.core.resources.IResource" />
 							<or>
-						         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-						         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+						         <test property="org.eclipse.imp.anyLanguage" />
 						    </or>
 						</and>
 						<instanceof value="org.eclipse.imp.model.ISourceEntity" />
@@ -88,8 +86,7 @@
 						<and>
 							<instanceof value="org.eclipse.core.resources.IProject" />
           					<or>
-						         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-						         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+						         <test property="org.eclipse.imp.anyLanguage" />
 						    </or>
 						</and>
 						<instanceof value="org.eclipse.imp.model.ISourceEntity" />
@@ -143,8 +140,7 @@
 		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
 		           <adapt type="org.eclipse.core.resources.IProject">
 		              <or>
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+				         <test property="org.eclipse.imp.anyLanguage" />
 					  </or>
 		           </adapt>
 		           <test property="x10dt.ui.perspectiveId" value="x10dt.ui.perspective" />
@@ -160,8 +156,7 @@
 		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
 		           <adapt type="org.eclipse.core.resources.IProject">
 		              <or>
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+				         <test property="org.eclipse.imp.anyLanguage" />
 					  </or>
 		           </adapt>
 		           <test property="x10dt.ui.perspectiveId" value="x10dt.ui.perspective" />
@@ -177,8 +172,7 @@
 		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
 		           <adapt type="org.eclipse.core.resources.IProject">
 		              <or>
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+				         <test property="org.eclipse.imp.anyLanguage" />
 					  </or>
 		           </adapt>
 		        </or>
@@ -193,8 +187,7 @@
 		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
 		           <adapt type="org.eclipse.core.resources.IProject">
 		              <or>
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+				         <test property="org.eclipse.imp.anyLanguage" />
 					  </or>
 		           </adapt>
 		        </or>
@@ -209,8 +202,7 @@
 		           <instanceof value="org.eclipse.imp.model.ISourceEntity"/>
 		           <adapt type="org.eclipse.core.resources.IProject">
 		              <or>
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-				         <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+				         <test property="org.eclipse.imp.anyLanguage" />
 					  </or>
 		           </adapt>
 		        </or>
@@ -226,8 +218,7 @@
 						<instanceof value="org.eclipse.imp.model.ISourceRoot"/> 
 						<adapt type="org.eclipse.core.resources.IProject">
 							<or>
-						       <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.java.x10nature" />
-						       <test property="org.eclipse.core.resources.projectNature" value="x10dt.ui.launch.cpp.x10nature" />
+						       <test property="org.eclipse.imp.anyLanguage" />
 							</or>
 						</adapt>
 					</or>
