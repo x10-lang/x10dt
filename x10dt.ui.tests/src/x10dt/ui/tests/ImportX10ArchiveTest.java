@@ -62,6 +62,7 @@ import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.ViewConstants;
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
+import x10dt.ui.tests.X10DTTestBase.TypeSearchInfo;
 import x10dt.ui.tests.utils.EditorMatcher;
 import x10dt.ui.tests.waits.X10DT_Conditions;
 
@@ -71,48 +72,41 @@ import x10dt.ui.tests.waits.X10DT_Conditions;
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ImportX10ArchiveTest extends X10DTTestBase {
 
-	private static final String CLASS_NAME = "QSort";  //$NON-NLS-1$
+	private static final String CLASS_NAME = "QSort";  //$NON-NLS-1$					//imported class name
 
-	private static final String CLASS_SRCFILE_NAME = CLASS_NAME + ".x10"; //$NON-NLS-1$
+	private static final String CLASS_SRCFILE_NAME = CLASS_NAME + ".x10"; //$NON-NLS-1$	//imported source file name
 
-	private static final String ARCHIVE_NAME = "ArchiveTestFile.zip"; //$NON-NLS-1$	// specify file at top level of this workspace
+	private static final String ARCHIVE_NAME = "ArchiveTestFile.zip"; //$NON-NLS-1$		// archive file name
 	
-	private static final String PROJECT_NAME_JAVABACK = "ArchiveTest_JBack"; //$NON-NLS-1$	//will be created as a new empty project to accept the import
-	private static final String PROJECT_NAME_CPPBACK = "ArchiveTest_CPPBack"; //$NON-NLS-1$	//will be created as a new empty project to accept the import
+	private static final String PROJECT_NAME_JAVABACK = "ArchiveTest_JBack"; //$NON-NLS-1$	//new empty Java backend project to accept the import
+	private static final String PROJECT_NAME_CPPBACK = "ArchiveTest_CPPBack"; //$NON-NLS-1$	//new empty C++ backend project to accept the import
 
+	//we expect to see this console output when we run the imported archive
 	public static final List<String> EXPECTED_OUTPUT = Arrays.asList(	"size of array: 1000",
 																		"array is now sorted", 
 																		"++++++ Test succeeded spectacularly!"
 																	);
 	
-	private static class TypeSearchInfo {
-		TypeSearchInfo(String searchString, String typeName, Integer expectToFind, String fileName, String typeDeclaration) {
-			this.searchString = searchString;
-			this.typeName = typeName;
-			this.fileName = fileName;
-			this.typeDeclaration = typeDeclaration;
-			this.expectToFind = expectToFind;
-			}
-		String	searchString;
-		String	typeName;
-		String	typeDeclaration;
-		String	fileName;
-		Integer	expectToFind;
-	}
-	
+	//static initialization of TypeSearchInfo 
+	//		/*search*/					-	The search string
+	//		/*type*/					- 	The type we're looking for
+	//		/*# to find*/				-	The minimum number of search results we're looking for
+	//		/*file*/					-	The source file where we're expecting to find the type
+	//		/*expected declaration*/	-	The expected type declaration text in the source file
 	public static final List<TypeSearchInfo> declarationCheckList = Arrays.asList
 	(
-								/*search*/	/*type*/	 /*# to find*/	/*file*/			/*expected declaration*/
-			new TypeSearchInfo("QS*",		"QSortable",	2,			"QSort.x10",		"public class QSortable(theArray: SortableArray)"),
-			new TypeSearchInfo("Pos*",		"Position",		1,			"TriangleTest.x10",	"class Position(x: Int, y: Int)"),
-			new TypeSearchInfo("Ar*",		"Array",		5,			"Array.x10",		"public final class Array[T] ("),
-			new TypeSearchInfo("Ar*",		"ArrayList",	5,			"ArrayList.x10",	"public class ArrayList[T] extends AbstractCollection[T] implements List[T] {"),
-			new TypeSearchInfo("QSort*",	"QSort",		2,			"QSort.x10",		"public class QSort")
+							/*search*/	/*type*/	 /*# to find*/	/*file*/			/*expected declaration*/
+		new TypeSearchInfo("QS*",		"QSortable",	2,			"QSort.x10",		"public class QSortable(theArray: SortableArray)"								),
+		new TypeSearchInfo("Pos*",		"Position",		1,			"TriangleTest.x10",	"class Position(x: Int, y: Int)"												),
+		new TypeSearchInfo("Ar*",		"Array",		5,			"Array.x10",		"public final class Array[T] ("													),
+		new TypeSearchInfo("Ar*",		"ArrayList",	5,			"ArrayList.x10",	"public class ArrayList[T] extends AbstractCollection[T] implements List[T] {"	),
+		new TypeSearchInfo("QSort*",	"QSort",		2,			"QSort.x10",		"public class QSort"															)
 	);
 
 
   @BeforeClass
   public static void beforeClass() throws Exception {
+	  //just use the default strategy. In MacOS 10.5 (at least) the SWT strategy breaks the pressShortcut call in setCppPlatformConnectionConfig
 //    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
@@ -130,6 +124,7 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
     SWTBotUtils.saveAllDirtyEditors(topLevelBot);
   }
   
+  //
   @Test
   public void importCPPArchiveTest() throws Exception {
 	  importArchiveTest(BackEndType.cppBackEnd);
@@ -147,6 +142,8 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 	  String projectName = (backEnd == BackEndType.javaBackEnd)?PROJECT_NAME_JAVABACK:PROJECT_NAME_CPPBACK;
 	  String launchName = projectName;
 	  String archivePath = null;
+	  
+	  int numPlaces = 4;		//number of places to specify when running the imported project
 	  
 	  // Locate the archive file in the file system - get the full file path
 	  ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
@@ -185,39 +182,37 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 	  // Check that the type indexer is working
 	  //
 	  // first, look for a few types by using the 'Open X10 Type...' dialog 
-//	  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
-//	  {
-//		  TypeSearchInfo searchSet = it.next();
-//		  //look for a specific source class
-//		  openX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
-//		  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
-//	  }
-//	  // now, do it all over again by looking for a few types using the X10 Search dialog 
-//	  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
-//	  {
-//		  TypeSearchInfo searchSet = it.next();
-//		  //look for a specific source class
-//		  searchForX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
-//		  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
-//	  }
+	  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
+	  {
+		  TypeSearchInfo searchSet = it.next();
+		  //look for a specific source class
+		  openX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
+		  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
+	  }
+	  // now, do it all over again by looking for a few types using the X10 Search dialog 
+	  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
+	  {
+		  TypeSearchInfo searchSet = it.next();
+		  //look for a specific source class
+		  searchForX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
+		  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
+	  }
 	  
 	  //
 	  // run the program
 	  //
-	  if (backEnd == BackEndType.javaBackEnd) {
-		  createAndRunJavaBackEndLaunchConfig(launchName, projectName, CLASS_NAME);
+	  if (backEnd == BackEndType.javaBackEnd) {	//run with Java back end
+		  createAndRunJavaBackEndLaunchConfig(launchName, projectName, CLASS_NAME, numPlaces);
 
 		  //Well, let's see if it worked
 		  // verify that the actual output matches the expected output
 		  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT); //$NON-NLS-1$
 		  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
 	  }
-	  else {
+	  else {	// run with C++ back end
 		  ConfigureAndRunCpp(projectName,"CppPlatformConfigs.xml");
 		  //ConfigureAndRunCpp already calls verifyConsoleOutput, so we don't have to do it here
 	  }
-
-
   }
 
 /*
@@ -269,7 +264,7 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 			  matches = firstExpectedLine.equals(actualLine.next());
 		  }
 		  
-		  Assert.assertTrue("Could not find an output line to match'" + currentExpectedLine + "'", matches);
+		  Assert.assertTrue("Could not find an output line to match'" + firstExpectedLine + "'", matches);
 
 		  //OK, so we found a match to the expected starting line
 		  //loop and compare actual and expected one line at a time
@@ -290,7 +285,6 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 
 	  }
 
-
 	  return matches;
   }
 
@@ -300,14 +294,20 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
   private Boolean verifySourceLine(String fileName, String expectedText)
   {
 	  Boolean matches = false;
-
+	  
 	  SWTBotEclipseEditor fArchiveFileEditor = topLevelBot.editorByTitle(fileName).toTextEditor();
 
-	  String actualText = fArchiveFileEditor.getTextOnCurrentLine();
-	  matches = expectedText.equals(actualText.trim());
+	  int timeout = 20;	//wait for up to 10 sec (20 * 500ms) for editor window to become active 
+	  while (( ! fArchiveFileEditor.isActive()) && (--timeout != 0))
+	  	topLevelBot.sleep(500);
+
+//	  while ((!matches) && (--timeout != 0)) {
+//		  topLevelBot.sleep(500);  //wait a little longer for it to jump to the right line
+		  matches = expectedText.equals(fArchiveFileEditor.getTextOnCurrentLine().trim());
+//	  }
 
 	  Assert.assertTrue("Expected source line does not match actual source line in file '" + fileName +  "':" +
-			  "\n    actual: '" + actualText + 
+			  "\n    actual: '" + fArchiveFileEditor.getTextOnCurrentLine() + 
 			  "'\n    expected: '" + expectedText + "'", matches);
 
 	  return matches;
@@ -319,95 +319,104 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
    */
   
   //  one or more C++ backend platform configurations are loaded from an xml file. A run is made for each one
-  public Boolean ConfigureAndRunCpp(String projectName, String xmlFileName) {
+  public Boolean ConfigureAndRunCpp(String projectName, String xmlFileName) throws IOException {
 
 	  Document xmlConfigurations = loadXML(xmlFileName);
 
-
 	  NodeList xmlConfigList = xmlConfigurations.getElementsByTagName("config");
 
-	  for (int xmlConfigNum = 0; xmlConfigNum < xmlConfigList.getLength(); xmlConfigNum++)
-	  {
-		  PlatformConfig platformConfig = new PlatformConfig();
-		  Node xmlConfigNode = xmlConfigList.item(xmlConfigNum);
-		  Element xmlConfigElement = (Element) xmlConfigNode;
+	  for (int xmlConfigNum = 0; xmlConfigNum < xmlConfigList.getLength(); xmlConfigNum++) {
 
-		  platformConfig.projectName = projectName;
-		  platformConfig.configName = getTagString("configName", xmlConfigElement);
-		  platformConfig.description = getTagString("description", xmlConfigElement);
+		  try {
+			  PlatformConfig platformConfig = new PlatformConfig();
+			  Node xmlConfigNode = xmlConfigList.item(xmlConfigNum);
+			  Element xmlConfigElement = (Element) xmlConfigNode;
 
-		  platformConfig.useLocalConnection = getTagBoolean("useLocalConnection", xmlConfigElement);
+			  platformConfig.projectName = projectName;
+			  platformConfig.configName = getTagString("configName", xmlConfigElement);
+			  platformConfig.description = getTagString("description", xmlConfigElement);
 
-		  //target configuration
-		  NodeList xmlTargetNode = xmlConfigElement.getElementsByTagName("target");			  
-		  Element xmlTargetElement = (Element) xmlTargetNode.item(0);
-		  platformConfig.os = OS.get(getTagString("osType", xmlTargetElement));
-		  platformConfig.arch = Architecture.get(getTagString("architectureType", xmlTargetElement));	  
-		  platformConfig.set64bit = getTagBoolean("set64BitSpace", xmlTargetElement);				  
+			  platformConfig.useLocalConnection = getTagBoolean("useLocalConnection", xmlConfigElement);
 
-		  //x10 configuration
-		  NodeList xmlX10Node = xmlConfigElement.getElementsByTagName("x10");			  
-		  Element xmlX10Element = (Element) xmlX10Node.item(0);
-		  platformConfig.numPlaces = getTagInteger("numPlaces", xmlX10Element);
+			  //target configuration
+			  NodeList xmlTargetNode = xmlConfigElement.getElementsByTagName("target");			  
+			  Element xmlTargetElement = (Element) xmlTargetNode.item(0);
+			  platformConfig.os = OS.get(getTagString("osType", xmlTargetElement));
+			  platformConfig.arch = Architecture.get(getTagString("architectureType", xmlTargetElement));	  
+			  platformConfig.set64bit = getTagBoolean("set64BitSpace", xmlTargetElement);				  
 
-		  //communication interface configuration
-		  NodeList xmlCommNode = xmlConfigElement.getElementsByTagName("commInterface");			  
-		  Element xmlCommElement = (Element) xmlCommNode.item(0);
-		  platformConfig.interfaceType = CommInterface.getType(getTagString("interfaceType", xmlCommElement));    
-		  platformConfig.interfaceMode = CommInterface.getMode(getTagString("interfaceMode", xmlCommElement));
+			  //x10 configuration
+			  NodeList xmlX10Node = xmlConfigElement.getElementsByTagName("x10");			  
+			  Element xmlX10Element = (Element) xmlX10Node.item(0);
+			  platformConfig.numPlaces = getTagInteger("numPlaces", xmlX10Element);
+
+			  //communication interface configuration
+			  NodeList xmlCommNode = xmlConfigElement.getElementsByTagName("commInterface");			  
+			  Element xmlCommElement = (Element) xmlCommNode.item(0);
+			  platformConfig.interfaceType = CommInterface.getType(getTagString("interfaceType", xmlCommElement));    
+			  platformConfig.interfaceMode = CommInterface.getMode(getTagString("interfaceMode", xmlCommElement));
 
 
-		  if (platformConfig.useLocalConnection) {			//running on local machine
-			  // replace whatever os and arch we got from xml with the local report from Java
-			  platformConfig.os = OS.get(System.getProperty("os.name"));
-			  platformConfig.arch = Architecture.get(System.getProperty("os.arch"));
+			  if (platformConfig.useLocalConnection) {			//running on local machine
+				  // replace whatever os and arch we got from xml with the local report from Java
+				  platformConfig.os = OS.get(System.getProperty("os.name"));
+				  platformConfig.arch = Architecture.get(System.getProperty("os.arch"));
+			  }
+			  else	{ //use remote connection
+
+				  //remote connection configuration
+				  NodeList xmlRemoteNode = xmlConfigElement.getElementsByTagName("remoteConnection");			  
+				  Element xmlRemoteElement = (Element) xmlRemoteNode.item(0);
+				  platformConfig.connectionName 	= getTagString("connectionName", xmlRemoteElement);     
+				  platformConfig.remoteHostName 	= getTagString("remoteHostName", xmlRemoteElement);    
+				  platformConfig.remoteHostPort 	= getTagInteger("remoteHostPort", xmlRemoteElement);    
+				  platformConfig.remoteHostUser 	= getTagString("remoteHostUser", xmlRemoteElement);    
+				  platformConfig.usePassword 		= getTagBoolean("usePassword", xmlRemoteElement);      
+				  platformConfig.remoteHostPassword = getTagString("remoteHostPassword", xmlRemoteElement);
+
+				  //Port forwarding settings
+				  NodeList xmlPortNode = xmlConfigElement.getElementsByTagName("portForwarding");			  
+				  Element xmlPortElement = (Element) xmlPortNode.item(0);
+				  platformConfig.usePortForwarding        	= getTagBoolean("usePortForwarding", xmlPortElement);    
+				  platformConfig.portForwardingTimeout    	= getTagString("portForwardingTimeout", xmlPortElement);    
+				  platformConfig.portForwardingLocalAddress	= getTagString("portForwardingLocalAddress", xmlPortElement);      
+
+				  //Remote compilation settings
+				  NodeList xmlCompileNode = xmlConfigElement.getElementsByTagName("remotePlatform");
+				  Element xmlCompileElement = (Element) xmlCompileNode.item(0);
+				  if (xmlCompileElement != null)
+				  {
+					  platformConfig.outputFolder       = getTagString("outputFolder", xmlCompileElement);
+					  platformConfig.useSelectedPGAS    = getTagBoolean("useSelectedPGAS", xmlCompileElement);      
+					  platformConfig.remoteDistribution = getTagString("remoteDistribution", xmlCompileElement);    
+					  platformConfig.remotePGASDist     = getTagString("remotePGASDist", xmlCompileElement);    
+					  platformConfig.debuggerFolder 	= getTagString("debuggerFolder", xmlCompileElement);    
+					  platformConfig.debuggingPort     	= getTagInteger("debuggingPort", xmlCompileElement); 
+				  }
+			  } //if using remote connection
+
+
+			  setCppPlatformConnectionConfig(projectName, platformConfig);
+
+			  //run the program
+			  createAndRunCPPBackEndLaunchConfig(platformConfig.configName, projectName, CLASS_NAME, platformConfig.numPlaces);			  
+
+			  //Well, let's see if it worked
+			  //It's going to pop up the Parallel Runtime perspective, so let's get a handle to that
+			  topLevelBot.perspectiveByLabel("Parallel Runtime").activate();
+
+			  // verify that the actual output matches the expected output
+			  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT); //$NON-NLS-1$
+			  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
+
+			  //Go back to the X10 perspective
+			  topLevelBot.perspectiveByLabel("X10").activate();
+
 		  }
-		  else	{ //use remote connection
-
-			  //remote connection configuration
-			  NodeList xmlRemoteNode = xmlConfigElement.getElementsByTagName("remoteConnection");			  
-			  Element xmlRemoteElement = (Element) xmlRemoteNode.item(0);
-			  platformConfig.connectionName 	= getTagString("connectionName", xmlRemoteElement);     
-			  platformConfig.remoteHostName 	= getTagString("remoteHostName", xmlRemoteElement);    
-			  platformConfig.remoteHostPort 	= getTagInteger("remoteHostPort", xmlRemoteElement);    
-			  platformConfig.remoteHostUser 	= getTagString("remoteHostUser", xmlRemoteElement);    
-			  platformConfig.usePassword 		= getTagBoolean("usePassword", xmlRemoteElement);      
-			  platformConfig.remoteHostPassword = getTagString("remoteHostPassword", xmlRemoteElement);
-
-			  //Port forwarding settings
-			  NodeList xmlPortNode = xmlConfigElement.getElementsByTagName("portForwarding");			  
-			  Element xmlPortElement = (Element) xmlPortNode.item(0);
-			  platformConfig.usePortForwarding        	= getTagBoolean("usePortForwarding", xmlPortElement);    
-			  platformConfig.portForwardingTimeout    	= getTagString("portForwardingTimeout", xmlPortElement);    
-			  platformConfig.portForwardingLocalAddress	= getTagString("portForwardingLocalAddress", xmlPortElement);      
-
-			  //Remote compilation settings
-			  NodeList xmlCompileNode = xmlConfigElement.getElementsByTagName("remotePlatform");			  
-			  Element xmlCompileElement = (Element) xmlCompileNode.item(0);
-			  platformConfig.outputFolder       = getTagString("outputFolder", xmlCompileElement);
-			  platformConfig.useSelectedPGAS    = getTagBoolean("useSelectedPGAS", xmlCompileElement);      
-			  platformConfig.remoteDistribution = getTagString("remoteDistribution", xmlCompileElement);    
-			  platformConfig.remotePGASDist     = getTagString("remotePGASDist", xmlCompileElement);    
-		  } //if using remote connection
-
-
-		  setCppPlatformConnectionConfig(projectName, platformConfig);
-
-		  //run the program
-		  createAndRunCPPBackEndLaunchConfig(platformConfig.configName, projectName, CLASS_NAME);			  
-
-
-		  //Well, let's see if it worked
-		  //It's going to pop up the Parallel Runtime perspective, so let's get a handle to that
-		  topLevelBot.perspectiveByLabel("Parallel Runtime").activate();
-
-		  // verify that the actual output matches the expected output
-		  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT); //$NON-NLS-1$
-		  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
-
-		  //Go back to the X10 perspective
-		  topLevelBot.perspectiveByLabel("X10").activate();
-
+		  catch (Exception e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
 	  }
 	  return true;
   }
