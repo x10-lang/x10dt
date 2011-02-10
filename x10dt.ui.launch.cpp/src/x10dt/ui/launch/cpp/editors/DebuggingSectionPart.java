@@ -56,7 +56,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     }
     if (! isLocal) {
       getPlatformConf().setDebuggerFolder(this.fDebuggerFolderText.getText().trim());
-      getPlatformConf().setPort(this.fPortSpinner.getSelection());
+      getPlatformConf().setDebuggingPort(this.fPortSpinner.getSelection());
     }
     this.fBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
     setPartCompleteFlag(hasCompleteInfo());
@@ -81,9 +81,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     debuggerFolderText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        String folderText= debuggerFolderText.getText();
-
-        getPlatformConf().setDebuggerFolder(folderText);
+        getPlatformConf().setDebuggerFolder(debuggerFolderText.getText());
         setPartCompleteFlag(hasCompleteInfo());
         updateDirtyState(managedForm);
       }
@@ -155,27 +153,27 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
 
     KeyboardUtils.addDelayedActionOnControl(this.fDebuggerFolderText, new Runnable() {
-        
-        public void run() {
-          getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
-            
-            public void run() {
-              // If the field is non-empty, check that the specified folder doesn't exist.
-              // We only do the check when the field is non-empty, so that users that don't
-              // want to use the debugger aren't forced into supplying this info.
-              String folderText = fDebuggerFolderText.getText();
-              if (folderText.length() > 0) {
-                handlePathValidation(fDebuggerFolderText, LaunchMessages.DSP_DebuggerFolder);
-              } else {
-                getFormPage().getManagedForm().getMessageManager().removeMessages();
-                ((SharedHeaderFormEditor) getFormPage().getEditor()).getHeaderForm().getMessageManager().removeMessages();
-              }
+
+      public void run() {
+        getFormPage().getEditorSite().getShell().getDisplay().asyncExec(new Runnable() {
+
+          public void run() {
+            // If the field is non-empty, check that the specified folder doesn't exist.
+            // We only do the check when the field is non-empty, so that users that don't
+            // want to use the debugger aren't forced into supplying this info.
+            String folderText = DebuggingSectionPart.this.fDebuggerFolderText.getText();
+            if (folderText.length() > 0) {
+              handlePathValidation(DebuggingSectionPart.this.fDebuggerFolderText, LaunchMessages.DSP_DebuggerFolder);
+            } else {
+              getFormPage().getManagedForm().getMessageManager().removeMessages();
+              ((SharedHeaderFormEditor) getFormPage().getEditor()).getHeaderForm().getMessageManager().removeMessages();
             }
-            
-          });
-        }
-        
-      });
+          }
+
+        });
+      }
+
+    });
   }
   
   // --- Fields
