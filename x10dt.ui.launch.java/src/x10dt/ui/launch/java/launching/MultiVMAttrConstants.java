@@ -26,6 +26,8 @@ public final class MultiVMAttrConstants {
   
   static final String ATTR_IS_PASSWORD_BASED = Activator.PLUGIN_ID + ".mvm.is_password_based"; //$NON-NLS-1$
   
+  static final String ATTR_PASSWORD = Activator.PLUGIN_ID + ".mvm.password"; //$NON-NLS-1$
+  
   static final String ATTR_PRIVATE_KEY_FILE = Activator.PLUGIN_ID + ".mvm.private_key_file"; //$NON-NLS-1$
   
   static final String ATTR_PASSPHRASE = Activator.PLUGIN_ID + ".mvm.passphrase"; //$NON-NLS-1$

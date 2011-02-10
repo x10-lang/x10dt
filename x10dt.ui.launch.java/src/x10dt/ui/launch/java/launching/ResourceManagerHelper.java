@@ -15,7 +15,7 @@ import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_IS_PASSWO
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_LOCAL_ADDRESS;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PASSPHRASE;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PORT;
-import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PRIVATE_KEY_FILE;
+import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.*;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_TIMEOUT;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_USERNAME;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_USE_PORT_FORWARDING;
@@ -63,6 +63,7 @@ final class ResourceManagerHelper {
     this.fPort = 0;
     this.fUserName = null;
     this.fIsPasswordBased = false;
+    this.fPassword = null;
     this.fPrivateKeyFile = null;
     this.fPassphrase = null;
     this.fTimeout = 0;
@@ -71,14 +72,16 @@ final class ResourceManagerHelper {
   }
   
   ResourceManagerHelper(final String name, final String hostName, final int port, final String userName, 
-                         final boolean isPasswordBased, final String privateKeyFile, final String passphrase,
-                         final String localAddress, final int timeout, final boolean usePortForwarding) {
+                         final boolean isPasswordBased, final String password, final String privateKeyFile, 
+                         final String passphrase, final String localAddress, final int timeout, 
+                         final boolean usePortForwarding) {
     this.fIsLocal = false;
     this.fName = name;
     this.fHostName = hostName;
     this.fPort = port;
     this.fUserName = userName;
     this.fIsPasswordBased = isPasswordBased;
+    this.fPassword = isPasswordBased ? password : null;
     this.fPrivateKeyFile = isPasswordBased ? null : privateKeyFile;
     this.fPassphrase = isPasswordBased ? null : passphrase;
     this.fLocalAddress = localAddress;
@@ -93,6 +96,7 @@ final class ResourceManagerHelper {
     this.fPort = configuration.getAttribute(ATTR_PORT, 22);
     this.fUserName = configuration.getAttribute(ATTR_USERNAME, Constants.EMPTY_STR);
     this.fIsPasswordBased = configuration.getAttribute(ATTR_IS_PASSWORD_BASED, true);
+    this.fPassword = configuration.getAttribute(ATTR_PASSWORD, (String) null);
     this.fPrivateKeyFile = configuration.getAttribute(ATTR_PRIVATE_KEY_FILE, Constants.EMPTY_STR);
     this.fPassphrase = configuration.getAttribute(ATTR_PASSPHRASE, Constants.EMPTY_STR);
     this.fLocalAddress = configuration.getAttribute(ATTR_LOCAL_ADDRESS, Constants.EMPTY_STR);
@@ -164,7 +168,6 @@ final class ResourceManagerHelper {
       final String id = EnvironmentPlugin.getDefault().getEnvironmentUniqueID();
       targetElement = new TargetElement(targetTypeElement, this.fName, new HashMap<String, String>(), id);
       targetTypeElement.addElement((TargetElement) targetElement);
-      rmConnManager.getConnections();
     } else {
       if (targetElement.getControl().query() != ITargetStatus.STOPPED) {
         targetElement.getControl().kill(new NullProgressMonitor());     
@@ -172,8 +175,6 @@ final class ResourceManagerHelper {
     }
     
     updateControlAttributes(targetElement.getControl().getConfig());
-    
-    targetElement.getControl().create(new NullProgressMonitor());
     
     rmConnManager.getConnections(); // Side effect of creating connection.
   }
@@ -195,6 +196,7 @@ final class ResourceManagerHelper {
     targetConfig.setLoginUsername(this.fUserName);
     targetConfig.setConnectionPort(this.fPort);
     targetConfig.setPasswordAuth(this.fIsPasswordBased);
+    targetConfig.setLoginPassword(this.fPassword);
     targetConfig.setKeyPath(this.fPrivateKeyFile);
     targetConfig.setKeyPassphrase(this.fPassphrase);
     targetConfig.setConnectionTimeout(this.fTimeout);
@@ -245,6 +247,8 @@ final class ResourceManagerHelper {
   private final String fUserName;
   
   private final boolean fIsPasswordBased;
+  
+  private final String fPassword;
   
   private final String fPrivateKeyFile;
   

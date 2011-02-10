@@ -18,6 +18,10 @@ public class Messages extends NLS {
 
   public static String VMLT_BrowseBt;
 
+  public static String VMLT_CheckConnBt;
+
+  public static String VMLT_Checking;
+
   public static String VMLT_ConnStatus;
 
   public static String VMLT_HostLabel;
@@ -32,9 +36,13 @@ public class Messages extends NLS {
 
   public static String VMLT_PassphraseLabel;
 
+  public static String VMLT_PasswordAuthBt;
+
   public static String VMLT_PasswordCheckCanceled;
 
   public static String VMLT_PasswordCheckFailed;
+
+  public static String VMLT_PasswordLabel;
 
   public static String VMLT_PortFrwdLabel;
 
@@ -55,6 +63,8 @@ public class Messages extends NLS {
   public static String VMLT_SelectRemoteOutputFolder;
 
   public static String VMLT_SelectX10Dist;
+
+  public static String VMLT_ShutdownError;
 
   public static String VMLT_TabName;
 

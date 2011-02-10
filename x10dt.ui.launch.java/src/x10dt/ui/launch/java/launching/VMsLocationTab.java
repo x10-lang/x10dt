@@ -14,6 +14,7 @@ import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_IS_LOCAL;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_IS_PASSWORD_BASED;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_LOCAL_ADDRESS;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PASSPHRASE;
+import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PASSWORD;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PORT;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PRIVATE_KEY_FILE;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_REMOTE_OUTPUT_FOLDER;
@@ -32,9 +33,11 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
@@ -63,17 +66,16 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchImages;
-import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.java.LaunchJavaImages;
 import x10dt.ui.launch.java.Messages;
@@ -87,6 +89,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     LaunchJavaImages.createManaged(LaunchJavaImages.VMS_LOCATION);
     LaunchImages.createManaged(LaunchImages.RM_STOPPED);
     LaunchImages.createManaged(LaunchImages.RM_STARTED);
+    LaunchImages.createManaged(LaunchImages.RM_STARTING);
     LaunchImages.createManaged(LaunchImages.RM_ERROR);
   }
   
@@ -129,6 +132,8 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
         if (! targetConfig.isPasswordAuth()) {
           configuration.setAttribute(ATTR_PRIVATE_KEY_FILE, targetConfig.getKeyPath());
           configuration.setAttribute(ATTR_PASSPHRASE, targetConfig.getKeyPassphrase());
+        } else {
+          configuration.setAttribute(ATTR_PASSWORD, targetConfig.getLoginPassword());
         }
         configuration.setAttribute(ATTR_TIMEOUT, targetConfig.getConnectionTimeout());
       } catch (CoreException except) {
@@ -143,10 +148,16 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
       this.fHostText.setText(configuration.getAttribute(ATTR_HOST, Constants.EMPTY_STR));
       this.fPortText.setSelection(configuration.getAttribute(ATTR_PORT, 22));
       this.fUserNameText.setText(configuration.getAttribute(ATTR_USERNAME, Constants.EMPTY_STR));
-      this.fPrivateKeyFileAuthBt.setSelection(! configuration.getAttribute(ATTR_IS_PASSWORD_BASED, true));
+      this.fPasswordBasedAuthBt.setSelection(configuration.getAttribute(ATTR_IS_PASSWORD_BASED, true));
+      this.fPrivateKeyFileAuthBt.setSelection(! this.fPasswordBasedAuthBt.getSelection());
       if (this.fPrivateKeyFileAuthBt.getSelection()) {
         this.fPrivateKeyFileText.setText(configuration.getAttribute(ATTR_PRIVATE_KEY_FILE, Constants.EMPTY_STR));
         this.fPassphraseText.setText(configuration.getAttribute(ATTR_PASSPHRASE, Constants.EMPTY_STR));
+      } else {
+        final String password = configuration.getAttribute(ATTR_PASSWORD, (String) null);
+        if (password != null) {
+          this.fPasswordText.setText(password);
+        }
       }
       this.fUsePortForwardingBt.setSelection(configuration.getAttribute(ATTR_USE_PORT_FORWARDING, false));
       this.fConnectionTimeoutSpinner.setSelection(configuration.getAttribute(ATTR_TIMEOUT, 1000));
@@ -175,6 +186,8 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
       if (this.fPrivateKeyFileAuthBt.getSelection()) {
         configuration.setAttribute(ATTR_PRIVATE_KEY_FILE, this.fPrivateKeyFileText.getText());
         configuration.setAttribute(ATTR_PASSPHRASE, this.fPassphraseText.getText());
+      } else {
+        configuration.setAttribute(ATTR_PASSWORD, this.fPasswordText.getText());
       }
       configuration.setAttribute(ATTR_USE_PORT_FORWARDING, this.fUsePortForwardingBt.getSelection());
       configuration.setAttribute(ATTR_TIMEOUT, this.fConnectionTimeoutSpinner.getSelection());
@@ -194,6 +207,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     LaunchJavaImages.removeImage(LaunchJavaImages.VMS_LOCATION);
     LaunchImages.removeImage(LaunchImages.RM_STOPPED);
     LaunchImages.removeImage(LaunchImages.RM_STARTED);
+    LaunchImages.removeImage(LaunchImages.RM_STARTING);
     LaunchImages.removeImage(LaunchImages.RM_ERROR);
     super.dispose();
   }
@@ -234,7 +248,8 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   // --- Private code
 
   private void addConnectionWidgetsListeners(final Collection<Control> remoteControls, final Button browseFileButton,
-                                             final Button outputFolderBrowseBt, final Button x10DistFolderBrowseBt) {
+                                             final Button outputFolderBrowseBt, final Button x10DistFolderBrowseBt,
+                                             final Button checkButton) {
     this.fLocalConnBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -242,13 +257,9 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
           for (final Control control : remoteControls) {
             control.setEnabled(false);
           }
-          getShell().getDisplay().asyncExec(new Runnable() {
-            
-            public void run() {
-              updateResourceManager();
-            }
-            
-          });
+          browseFileButton.setEnabled(false);
+          outputFolderBrowseBt.setEnabled(false);
+          updateResourceManager();
           updateLaunchConfigurationDialog();
         }
       }
@@ -265,13 +276,9 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
           for (final Control control : remoteControls) {
             control.setEnabled(true);
           }
-          getShell().getDisplay().asyncExec(new Runnable() {
-            
-            public void run() {
-              updateResourceManager();
-            }
-            
-          });
+          browseFileButton.setEnabled(false);
+          outputFolderBrowseBt.setEnabled(false);
+          updateResourceManager();
           updateLaunchConfigurationDialog();
         }
       }
@@ -281,16 +288,10 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
       }
       
     });
-    this.fUsePortForwardingBt.addSelectionListener(new SelectionListener() {
+    checkButton.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        getShell().getDisplay().asyncExec(new Runnable() {
-          
-          public void run() {
-            updateResourceManager();
-          }
-          
-        });
+        updateResourceManager();
         updateLaunchConfigurationDialog();
       }
       
@@ -303,21 +304,13 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     this.fHostText.addModifyListener(modifyListener);
     this.fPortText.addModifyListener(modifyListener);
     this.fUserNameText.addModifyListener(modifyListener);
+    this.fPasswordText.addModifyListener(modifyListener);
     this.fPrivateKeyFileText.addModifyListener(modifyListener);
     this.fPassphraseText.addModifyListener(modifyListener);
     this.fConnectionTimeoutSpinner.addModifyListener(modifyListener);
     this.fLocalAddressText.addModifyListener(modifyListener);
     this.fRemoteOutputFolderText.addModifyListener(modifyListener);
     this.fX10DistributionText.addModifyListener(modifyListener);
-    
-    final Runnable updateRMRunnable = new UpdateResourceManagerRunnable(getShell());
-    KeyboardUtils.addDelayedActionOnControl(this.fHostText, updateRMRunnable);
-    KeyboardUtils.addDelayedActionOnControl(this.fPortText, updateRMRunnable);
-    KeyboardUtils.addDelayedActionOnControl(this.fUserNameText, updateRMRunnable);
-    KeyboardUtils.addDelayedActionOnControl(this.fPrivateKeyFileText, updateRMRunnable);
-    KeyboardUtils.addDelayedActionOnControl(this.fPassphraseText, updateRMRunnable);
-    KeyboardUtils.addDelayedActionOnControl(this.fConnectionTimeoutSpinner, updateRMRunnable);
-    KeyboardUtils.addDelayedActionOnControl(this.fLocalAddressText, updateRMRunnable);
     
     browseFileButton.addSelectionListener(new SelectionListener() {
       
@@ -372,25 +365,27 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     
     final Composite marginCompo = new Composite(parent, SWT.NONE);
     marginCompo.setFont(parent.getFont());
-    final GridLayout marginGLayout = new GridLayout(2, false);
+    final GridLayout marginGLayout = new GridLayout(3, false);
     marginGLayout.marginLeft = 15;
     marginCompo.setLayout(marginGLayout);
     marginCompo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    
+    final Collection<Control> remoteControls = new ArrayList<Control>();
+    
+    final Button checkButton = createPushButton(marginCompo, Messages.VMLT_CheckConnBt, null /* image */);
+    remoteControls.add(checkButton);
     
     final Label connLabel = new Label(marginCompo, SWT.NONE);
     connLabel.setText(Messages.VMLT_ConnStatus);
     connLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
     this.fStatusLabel = new CLabel(marginCompo, SWT.NONE);
-    this.fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    this.fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
     this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STOPPED));
-    this.fStatusLabel.setForeground(getShell().getDisplay().getSystemColor(SWT.COLOR_RED));
-    
-    final Collection<Control> remoteControls = new ArrayList<Control>();
     
     final Group remoteGroup = new Group(marginCompo, SWT.NONE);
     remoteGroup.setFont(parent.getFont());
     remoteGroup.setLayout(new GridLayout(4, false));
-    remoteGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
+    remoteGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 3, 1));
     
     this.fHostText = createLabelAndText(remoteGroup, Messages.VMLT_HostLabel, new GridData(SWT.FILL, SWT.NONE, true, false),
                                         SWT.BORDER, remoteControls);
@@ -407,8 +402,23 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     remoteControls.add(this.fPortText);
     
     this.fUserNameText = createLabelAndText(remoteGroup, Messages.VMLT_UserLabel, remoteControls);
+    
+    this.fPasswordBasedAuthBt = createRadioButton(remoteGroup, Messages.VMLT_PasswordAuthBt);
+    this.fPasswordBasedAuthBt.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1));
+    remoteControls.add(this.fPasswordBasedAuthBt);
+    
+    final Composite passwordCompo = new Composite(remoteGroup, SWT.NONE);
+    passwordCompo.setFont(remoteGroup.getFont());
+    final GridLayout passwordGLayout = new GridLayout(1, false);
+    passwordGLayout.marginLeft = 15;
+    passwordCompo.setLayout(passwordGLayout);
+    passwordCompo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1));
+    
+    this.fPasswordText = createLabelAndText(passwordCompo, Messages.VMLT_PasswordLabel,
+                                            new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1), 
+                                            SWT.BORDER | SWT.PASSWORD, remoteControls);
 
-    this.fPrivateKeyFileAuthBt = createCheckButton(remoteGroup, Messages.VMLT_PublicKeyAutBt);
+    this.fPrivateKeyFileAuthBt = createRadioButton(remoteGroup, Messages.VMLT_PublicKeyAutBt);
     this.fPrivateKeyFileAuthBt.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1));
     remoteControls.add(this.fPrivateKeyFileAuthBt);
     
@@ -447,18 +457,18 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     
     final Pair<Text,Button> pair2 = createLabelTextAndPushButton(marginCompo, Messages.VMLT_RemoteOutputFolder, 
                                                                  Messages.VMLT_BrowseBt,
-                                                                 new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1),
+                                                                 new GridData(SWT.FILL, SWT.NONE, true, false, 3, 1),
                                                                  remoteControls);
     this.fRemoteOutputFolderText = pair2.first;
     this.fBrowseBts[0] = pair2.second;
     
     final Pair<Text,Button> pair3 = createLabelTextAndPushButton(marginCompo, Messages.VMLT_X10Dist, Messages.VMLT_BrowseBt,
-                                                                 new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1),
+                                                                 new GridData(SWT.FILL, SWT.NONE, true, false, 3, 1),
                                                                  remoteControls);
     this.fX10DistributionText = pair3.first;
     this.fBrowseBts[1] = pair3.second;
     
-    addConnectionWidgetsListeners(remoteControls, pair.second, pair2.second, pair3.second);
+    addConnectionWidgetsListeners(remoteControls, pair.second, pair2.second, pair3.second, checkButton);
     
     this.fLocalConnBt.setSelection(true);
     this.fLocalConnBt.notifyListeners(SWT.Selection, new Event());
@@ -552,14 +562,18 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   }
    
   private boolean hasAllConnectionInfo() {
-    if ((this.fHostText.getText().length() > 0) && (this.fUserNameText.getText().length() > 0)) {
-      if (this.fPrivateKeyFileAuthBt.getSelection()) {
-        return (this.fPrivateKeyFileText.getText().length() > 0);
-      } else {
-        return true;
-      }
+    if (this.fLocalConnBt.getSelection()) {
+      return true;
     } else {
-      return false;
+      if ((this.fHostText.getText().length() > 0) && (this.fUserNameText.getText().length() > 0)) {
+        if (this.fPrivateKeyFileAuthBt.getSelection()) {
+          return (this.fPrivateKeyFileText.getText().length() > 0);
+        } else {
+          return true;
+        }
+      } else {
+        return false;
+      }
     }
   }
   
@@ -580,45 +594,97 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   }
   
   private void updateResourceManager() {
-    if ((this.fLaunchConfigName != null) && this.fLocalConnBt.getSelection() || hasAllConnectionInfo()) {
-      try {
-        final ResourceManagerHelper rmHelper;
-        if (this.fLocalConnBt.getSelection()) {
-          rmHelper = new ResourceManagerHelper(this.fLaunchConfigName);
-        } else {
-          rmHelper = new ResourceManagerHelper(this.fLaunchConfigName, this.fHostText.getText(), this.fPortText.getSelection(), 
-                                               this.fUserNameText.getText(), ! this.fPrivateKeyFileAuthBt.getSelection(), 
-                                               this.fPrivateKeyFileText.getText(), this.fPassphraseText.getText(), 
-                                               this.fLocalAddressText.getText(), this.fConnectionTimeoutSpinner.getSelection(),
-                                               this.fUsePortForwardingBt.getSelection());
-        }
-        if (this.fResourceManager == null) {
-          this.fResourceManager = rmHelper.createResourceManager();
-        } else {
-          updateResourceManagerContents(rmHelper);
-        }
-        
-        this.fResourceManager.startUp(new NullProgressMonitor());
-        
-        if (this.fLocalConnBt.getSelection()) {
-          this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STOPPED));
-          this.fStatusLabel.setText(Constants.EMPTY_STR);
-        } else {
-          this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STARTED));
-          this.fStatusLabel.setText(Constants.EMPTY_STR);
-        }
-        this.fPlacesAndHostsTab.setResourceManager(this.fResourceManager);
-        updateBrowseButtonsEnablement(true);
-      } catch (CoreException except) {
-        this.fStatusLabel.setText(processJSchMessage(except.getMessage()));
-        this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_ERROR));
-        updateBrowseButtonsEnablement(false);
+    if (! this.fRMUpdateRunning && (this.fLaunchConfigName != null) && hasAllConnectionInfo()) {
+      final ResourceManagerHelper rmHelper;
+      if (this.fLocalConnBt.getSelection()) {
+        rmHelper = new ResourceManagerHelper(this.fLaunchConfigName);
+      } else {
+        rmHelper = new ResourceManagerHelper(this.fLaunchConfigName, this.fHostText.getText(), this.fPortText.getSelection(),
+                                             this.fUserNameText.getText(), !this.fPrivateKeyFileAuthBt.getSelection(),
+                                             this.fPasswordText.getText(), this.fPrivateKeyFileText.getText(),
+                                             this.fPassphraseText.getText(), this.fLocalAddressText.getText(),
+                                             this.fConnectionTimeoutSpinner.getSelection(),
+                                             this.fUsePortForwardingBt.getSelection());
       }
+      if (this.fRemoteConnBt.getSelection()) {
+        this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STARTING));
+        this.fStatusLabel.setText(Messages.VMLT_Checking);
+      }
+      
+      final Display display = getShell().getDisplay();
+
+      new Thread(new Runnable() {
+
+        public void run() {
+          VMsLocationTab.this.fRMUpdateRunning = true;
+          try {
+            final CoreException[] exception = new CoreException[1];
+            display.syncExec(new Runnable() {
+
+              public void run() {
+                try {
+                  if (VMsLocationTab.this.fResourceManager == null) {
+                    VMsLocationTab.this.fResourceManager = rmHelper.createResourceManager();
+                  } else {
+                    updateResourceManagerContents(rmHelper);
+                  }
+                } catch (CoreException except) {
+                  exception[0] = except;
+                }
+              }
+              
+            });
+            if (exception[0] != null) {
+              throw exception[0];
+            }
+            
+            VMsLocationTab.this.fResourceManager.startUp(new NullProgressMonitor());
+
+            if (VMsLocationTab.this.fLocalConnBt.isDisposed() || VMsLocationTab.this.fStatusLabel.isDisposed()) {
+              return;
+            }
+            display.syncExec(new Runnable() {
+
+              public void run() {
+                if (VMsLocationTab.this.fLocalConnBt.getSelection()) {
+                  VMsLocationTab.this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STOPPED));
+                  VMsLocationTab.this.fStatusLabel.setText(Constants.EMPTY_STR);
+                } else {
+                  VMsLocationTab.this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STARTED));
+                  VMsLocationTab.this.fStatusLabel.setText(Constants.EMPTY_STR);
+                }
+                updateBrowseButtonsEnablement(true);
+              }
+
+            });
+
+            VMsLocationTab.this.fPlacesAndHostsTab.setResourceManager(VMsLocationTab.this.fResourceManager);
+          } catch (final CoreException except) {
+            if (! VMsLocationTab.this.fStatusLabel.isDisposed()) {
+              display.syncExec(new Runnable() {
+
+                public void run() {
+                  VMsLocationTab.this.fStatusLabel.setText(processJSchMessage(except.getMessage()));
+                  VMsLocationTab.this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_ERROR));
+                  updateBrowseButtonsEnablement(false);
+                }
+
+              });
+            }
+          }
+          VMsLocationTab.this.fRMUpdateRunning = false;
+        }
+
+      }).start();
     }
   }
   
   private void updateResourceManagerContents(final ResourceManagerHelper rmHelper) throws CoreException {
     this.fResourceManager.shutdown();
+    
+    if (this.fRemoteConnBt.isDisposed() || this.fLocalAddressText.isDisposed() || this.fUsePortForwardingBt.isDisposed()) {
+      return;
+    }
     
     final IResourceManagerControl rmControl = (IResourceManagerControl) this.fResourceManager;
     final IX10RMConfiguration rmConf = (IX10RMConfiguration) rmControl.getConfiguration();
@@ -651,32 +717,38 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     // --- Interface methods implementation
     
     public void modifyText(final ModifyEvent event) {
+      if ((VMsLocationTab.this.fResourceManager != null) &&
+          (VMsLocationTab.this.fResourceManager.getState() == State.STARTING)) {
+        final Display display = getShell().getDisplay();
+        new Thread(new Runnable() {
+          
+          public void run() {
+            try {
+              VMsLocationTab.this.fResourceManager.shutdown();
+              display.syncExec(new Runnable() {
+
+                public void run() {
+                  VMsLocationTab.this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STOPPED));
+                  VMsLocationTab.this.fStatusLabel.setText(Constants.EMPTY_STR);
+                }
+                
+              });
+            } catch (final CoreException except) {
+              display.syncExec(new Runnable() {
+
+                public void run() {
+                  VMsLocationTab.this.fStatusLabel.setText(NLS.bind(Messages.VMLT_ShutdownError, except.getMessage()));
+                  VMsLocationTab.this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_ERROR));
+                }
+                
+              });
+            }
+          }
+          
+        }).start();
+      }
       updateLaunchConfigurationDialog();
     }
-    
-  }
-  
-  private final class UpdateResourceManagerRunnable implements Runnable {
-    
-    UpdateResourceManagerRunnable(final Shell shell) {
-      this.fShell = shell;
-    }
-
-    // --- Interface methods implementation
-    
-    public void run() {
-      this.fShell.getDisplay().asyncExec(new Runnable() {
-
-        public void run() {
-          updateResourceManager();
-        }
-        
-      });
-    }
-    
-    // --- Fields
-    
-    private final Shell fShell;
     
   }
   
@@ -698,6 +770,10 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   
   private Text fUserNameText;
   
+  private Button fPasswordBasedAuthBt;
+  
+  private Text fPasswordText;
+  
   private Button fPrivateKeyFileAuthBt;
   
   private Text fPrivateKeyFileText;
@@ -718,4 +794,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   
   private Text fX10DistributionText;
   
+  private boolean fRMUpdateRunning;
+    
 }
