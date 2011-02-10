@@ -19,7 +19,6 @@ import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.remotetools.environment.generichost.core.ConfigFactory;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 
@@ -27,6 +26,7 @@ import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.CodingUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
+import x10dt.ui.launch.rms.core.environment.ConfigFactory;
 
 
 final class ConnectionConfiguration implements IConnectionConf {
@@ -156,8 +156,7 @@ final class ConnectionConfiguration implements IConnectionConf {
       .append("\nPrivate key file: ").append(this.fPrivateKeyFile) //$NON-NLS-1$
       .append("\nPassphrase: ").append(this.fPassphrase) //$NON-NLS-1$
       .append("\nTime out: ").append(this.fTimeout) //$NON-NLS-1$
-      .append("\nUse Port Forwarding: ").append(this.fUsePortForwarding) //$NON-NLS-1$
-      .append("\nTimeout: ").append(this.fTimeout); //$NON-NLS-1$
+      .append("\nUse Port Forwarding: ").append(this.fUsePortForwarding); //$NON-NLS-1$
     return sb.toString();
   }
   

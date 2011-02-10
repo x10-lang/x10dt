@@ -9,12 +9,12 @@ package x10dt.ui.launch.cpp.editors;
 
 import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.remotetools.environment.generichost.core.ConfigFactory;
-import org.eclipse.ptp.remotetools.environment.generichost.core.TargetConfig;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.rms.core.environment.ConfigFactory;
+import x10dt.ui.launch.rms.core.environment.TargetConfig;
 
 
 final class DefaultConnectionInfo implements IConnectionInfo {
@@ -49,6 +49,10 @@ final class DefaultConnectionInfo implements IConnectionInfo {
 
   public String getPassphrase() {
     return this.fTargetConfig.getKeyPassphrase();
+  }
+
+  public String getPassword() {
+    return this.fTargetConfig.getLoginPassword();
   }
 
   public int getPort() {
@@ -101,6 +105,10 @@ final class DefaultConnectionInfo implements IConnectionInfo {
   
   public void setPassphrase(final String passphrase) {
     this.fTargetConfig.setKeyPassphrase(passphrase);
+  }
+
+  public void setPassword(final String password) {
+    this.fTargetConfig.setLoginPassword(password);
   }
 
   public void setPort(final int port) {

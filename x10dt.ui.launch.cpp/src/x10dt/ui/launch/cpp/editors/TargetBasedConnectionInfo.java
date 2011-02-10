@@ -12,10 +12,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.remotetools.environment.generichost.core.TargetConfig;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.rms.core.environment.TargetConfig;
 
 
 final class TargetBasedConnectionInfo implements IConnectionInfo {
@@ -56,6 +56,10 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
 
   public String getPassphrase() {
     return this.fTargetConfig.getKeyPassphrase();
+  }
+
+  public String getPassword() {
+    return this.fTargetConfig.getLoginPassword();
   }
 
   public int getPort() {
@@ -112,6 +116,11 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   
   public void setPassphrase(final String passphrase) {
     this.fTargetConfig.setKeyPassphrase(passphrase);
+    this.fIsDirty = true;
+  }
+
+  public void setPassword(final String password) {
+    this.fTargetConfig.setLoginPassword(password);
     this.fIsDirty = true;
   }
 

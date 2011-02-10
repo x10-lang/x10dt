@@ -29,6 +29,8 @@ interface IConnectionInfo {
   String getName();
   
   String getPassphrase();
+  
+  String getPassword();
  
   int getPort();
   
@@ -53,6 +55,8 @@ interface IConnectionInfo {
   void setName(final String name);
   
   void setPassphrase(final String passphrase);
+  
+  void setPassword(final String password);
   
   void setPort(final int port);
   
