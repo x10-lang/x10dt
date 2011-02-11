@@ -138,8 +138,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
   }
   
   private boolean hasCompleteInfo() {
-    final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
-    return isLocal || this.fDebuggerFolderText.getText().trim().length() > 0;
+    return true;
   }
   
   private void initializeControls() {
