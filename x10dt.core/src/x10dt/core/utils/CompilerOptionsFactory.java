@@ -7,7 +7,6 @@ import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.frontend.ExtensionInfo;
-
 import x10.X10CompilerOptions;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
@@ -34,9 +33,14 @@ public class CompilerOptionsFactory {
             X10DTCorePlugin.getInstance().logException("Error checking for X10 project nature", e);
             options = new X10CompilerOptions(null);
         }
-
         final IPreferencesService prefService = new PreferencesService(project, X10DTCorePlugin.kLanguageName);
+        setOptions(prefService, options);
+        return options;
 
+        
+    }
+    
+    public static void setOptions(IPreferencesService prefService, X10CompilerOptions options){
         options.x10_config.DEBUG = true;
 
         final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
@@ -60,10 +64,13 @@ public class CompilerOptionsFactory {
             }
         }
         // Optimization prefs update
+        setOptionsNoCodeGen(prefService, options);
+
+    }
+    
+    public static void setOptionsNoCodeGen(IPreferencesService prefService, X10CompilerOptions options){
         options.x10_config.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
         options.x10_config.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
         options.x10_config.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
-
-        return options;
     }
 }

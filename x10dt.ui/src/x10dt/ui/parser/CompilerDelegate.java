@@ -59,6 +59,7 @@ import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
+import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
 
@@ -330,9 +331,11 @@ public class CompilerDelegate {
             List<IPath> projectSrcLoc = getProjectSrcPath();
             String projectSrcPath = pathListToPathString(projectSrcLoc);
             opts.x10_config.CHECK_INVARIANTS= (fViolationHandler != null);
-            opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", "-commandlineonly",
+            opts.parseCommandLine(new String[] { "-c", "-commandlineonly",
                     "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
             }, new HashSet<String>());
+            final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
+            CompilerOptionsFactory.setOptionsNoCodeGen(prefService, opts);
         } catch (UsageError e) {
             if (!e.getMessage().equals("must specify at least one source file")) {
                 X10DTUIPlugin.getInstance().writeErrorMsg(e.getMessage());

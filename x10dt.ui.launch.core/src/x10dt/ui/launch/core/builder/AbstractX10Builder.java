@@ -60,6 +60,7 @@ import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
+import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
@@ -181,13 +182,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final Set<IProject> dependentProjects = new HashSet<IProject>();
       collectSourceFilesToCompile(sourcesToCompile, nativeFiles, deletedSources, this.fProjectWrapper, dependentProjects,
                                   createNativeFilesFilter(), shouldBuildAll, subMonitor.newChild(5));
+      clearMarkers(sourcesToCompile); // --- This needs to happen before filter because we need to clear markers on files that have been recently excluded from the class path.
       filter(sourcesToCompile);
       if (subMonitor.isCanceled()) {
         return null;
       }
-
-      clearMarkers(sourcesToCompile);
-      
+     
       final ISchedulingRule rule = MultiRule.combine(getSchedulingRule(sourcesToCompile), 
     		  										 MultiRule.combine(getSchedulingRule(nativeFiles), getSchedulingRule(deletedSources)));
       final IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -283,13 +283,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     options.assertions = true;
     options.classpath = classPath;
     options.output_classpath = options.classpath;
-    options.serialize_type_info = false;
     options.output_directory = new File(localOutputDir);
     options.source_path = sourcePath;
     options.compile_command_line_only = true;
 
     final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
     options.assertions = prefService.getBooleanPreference(X10Constants.P_PERMITASSERT);
+    CompilerOptionsFactory.setOptions(prefService, (X10CompilerOptions) options);
   }
 
   // --- Private code
@@ -330,6 +330,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       final IProject project = javaProject.getProject();
 
+      final Set<Object> fullBuildSet  = new HashSet<Object>();
       final IResourceDelta resourceDelta = getDelta(project);
       if (resourceDelta != null) {
         resourceDelta.accept(new IResourceDeltaVisitor() {
@@ -343,6 +344,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             }
             if (delta.getResource().getType() == IResource.FILE) {
               final IFile file = (IFile) delta.getResource();
+              if (isClassPathFile(file)){
+            	  fullBuildSet.add(new Object()); // --- If the classpath has been changed, then we need to do a full build.
+              }
               if (isX10File(file)) {
                 if (delta.getKind() == IResourceDelta.REMOVED) {
                   deletedSources.add(file);
@@ -360,7 +364,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
         });
       }
-
+      final boolean buildAll = !fullBuildSet.isEmpty() || fullBuild; 
       final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
       final boolean conservativeBuild = prefService.getBooleanPreference(X10Constants.P_CONSERVATIVEBUILD);
 
@@ -373,7 +377,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             final IFile file = (IFile) resource;
             if (isX10File(file)) {
               final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
-              if (fullBuild || (generatedFile == null)) {
+              if (buildAll || (generatedFile == null)) {
                 sourcesToCompile.add(file);
 
                 if (!resource.getProject().equals(project)) {
@@ -389,7 +393,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       };
 
-      if (fullBuild || conservativeBuild) {
+      if (buildAll || conservativeBuild) {
         final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
           if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
@@ -617,6 +621,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());
+  }
+  
+  private boolean isClassPathFile(final IFile file) {
+	    return file.getName().equals(".classpath");
   }
   
 	private String getOptions(Options options) {
