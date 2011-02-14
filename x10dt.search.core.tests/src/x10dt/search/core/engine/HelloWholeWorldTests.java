@@ -74,16 +74,13 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     
     final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, HELLOWORLD_CLASS, ".*", false, 
                                                                            new NullProgressMonitor());
-    assertEquals(2, methods.length);
+    assertEquals(1, methods.length);
     
     assertLocation(methods[0].getLocation(), HELLOWORLD_LOC, 19, 23);
     assertEquals("main", methods[0].getName());
     assertEquals(1, methods[0].getParameters().length);
     assertEquals(ARRAY_TYPE, methods[0].getParameters()[0].getName());
     assertEquals(VOID_TYPE, methods[0].getReturnType().getName());
-    
-    assertEquals("this", methods[1].getName());
-    assertEquals(0, methods[1].getParameters().length);
   }
   
   @Test public void testHelloWholeWorldMethods2() throws Exception {

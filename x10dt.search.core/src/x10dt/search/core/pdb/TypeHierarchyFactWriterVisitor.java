@@ -12,6 +12,7 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllMethods;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeHierarchy;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.IStatus;
@@ -37,7 +38,7 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
   // --- Overridden methods
   
   public NodeVisitor enter(final Node node) {
-    if (node instanceof ClassDecl) {
+    if (node instanceof ClassDecl && !node.position().isCompilerGenerated()) {
       final ClassDecl classDecl = (ClassDecl) node;
       final ClassDef classDef = classDecl.classDef();
       final ClassType classType = classDef.asType();
@@ -55,23 +56,40 @@ final class TypeHierarchyFactWriterVisitor extends FactWriterVisitor {
       
       final List<MethodDef> methodDefs = classDef.methods();
       final List<ConstructorDef> constructorDefs = classDef.constructors();
-      final IValue[] methods = new IValue[methodDefs.size() + constructorDefs.size()];
+      IValue[] methods = new IValue[methodDefs.size() + constructorDefs.size()];
       int i = -1;
       for (final MethodDef methodDef : methodDefs) {
+        if (methodDef.position().isCompilerGenerated()) {
+          continue;
+        }
         methods[++i] = createMethodValue(methodDef);
       }
       for (final ConstructorDef constructorDef : constructorDefs) {
+        if (constructorDef.position().isCompilerGenerated()) {
+          continue;
+        }
         methods[++i] = createConstructorValue(constructorDef);
       }
-      insertValue(X10_AllMethods, getValueFactory().tuple(typeNameValue, getValueFactory().list(methods)));
+      if (i >= 0) {
+        // If there were compiler-generated methods, the array is shorter than we first thought
+        if (i != methods.length-1) { methods = Arrays.copyOfRange(methods, 0, i+1); }
+        insertValue(X10_AllMethods, getValueFactory().tuple(typeNameValue, getValueFactory().list(methods)));
+      }
       
       final List<FieldDef> fieldDefs = classDef.fields();
-      final IValue[] fields = new IValue[fieldDefs.size()];
+      IValue[] fields = new IValue[fieldDefs.size()];
       i = -1;
       for (final FieldDef fieldDef : fieldDefs) {
+        if (fieldDef.position().isCompilerGenerated()) {
+          continue;
+        }
         fields[++i] = createFieldValue(fieldDef);
       }
-      insertValue(X10_AllFields, getValueFactory().tuple(typeNameValue, getValueFactory().list(fields)));
+      if (i >= 0) {
+        // If there were compiler-generated fields, the array is shorter than we first thought
+        if (i != fields.length-1) { fields = Arrays.copyOfRange(fields, 0, i+1); }
+        insertValue(X10_AllFields, getValueFactory().tuple(typeNameValue, getValueFactory().list(fields)));
+      }
       
       final TypeNode superTypeNode = classDecl.superClass();
       final ClassType superClass;
