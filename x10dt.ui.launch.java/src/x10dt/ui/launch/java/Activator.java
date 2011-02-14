@@ -8,6 +8,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
+import org.eclipse.ptp.launch.PTPLaunchPlugin;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
@@ -106,6 +107,8 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 		super.start(context);
 		final ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 		manager.addLaunchConfigurationListener(this);
+		// Let's activate magically the PTP core plugin to avoid some late ClassCircularityError !?
+		PTPLaunchPlugin.getDefault();
 		plugin = this;
 	}
 
