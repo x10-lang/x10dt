@@ -517,8 +517,6 @@ public class LaunchMessages extends NLS {
 
   public static String XPCP_RemoteOutputFolderSectionDescr;
 
-  public static String XPCP_UseMPILibForDebugger;
-
   public static String XPCP_UseX10DistLoc;
 
   public static String XPCP_X10DistLabel;

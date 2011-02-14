@@ -46,6 +46,10 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     return this.fArchitecture;
   }
   
+  protected final ETransport getTransport() {
+    return this.fTransport;
+  }
+  
   protected String getTransportCompilerOption() {
     switch (this.fTransport) {
       case LAPI:
@@ -64,7 +68,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
       case LAPI:
         return "-lupcrts_lapi"; //$NON-NLS-1$
       case MPI:
-        return "-lx10rt_pgas_sockets"; //$NON-NLS-1$
+    	return "-lx10rt_mpi"; //$NON-NLS-1$
       case SOCKETS:
         return "-lx10rt_sockets"; //$NON-NLS-1$
       case STANDALONE:
@@ -83,6 +87,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   }
   
   // --- Fields
+  
   private final X10CompilerOptions fCompilerOptions;
   
   private final boolean fIs64Arch;

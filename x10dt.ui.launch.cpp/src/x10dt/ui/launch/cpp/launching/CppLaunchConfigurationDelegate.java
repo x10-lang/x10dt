@@ -50,8 +50,6 @@ import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration;
-import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfigurationDefaults;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
@@ -68,14 +66,12 @@ import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
-import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.UIUtils;
 import x10dt.ui.launch.core.utils.X10BuilderUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IDebuggingInfoConf;
@@ -101,7 +97,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
 
       final IProject project = verifyProject(configuration);
       if (!monitor.isCanceled() && shouldProcessToLinkStep(project) &&
-          createExecutable(configuration, project, mode, new SubProgressMonitor(monitor, 5)) == 0) {
+          createExecutable(configuration, project, new SubProgressMonitor(monitor, 5)) == 0) {
         // Then, performs the launch.
         if (!monitor.isCanceled()) {
           monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
@@ -113,7 +109,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     }
   }
   
-  protected final int createExecutable(final ILaunchConfiguration configuration, final IProject project, final String mode,
+  protected final int createExecutable(final ILaunchConfiguration configuration, final IProject project,
                                        final IProgressMonitor monitor) throws CoreException {
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
     try {
@@ -161,20 +157,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       final List<String> command = new ArrayList<String>();
       final String linker = this.fTargetOpHelper.getTargetSystemPath(cppCompConf.getLinker());
 
-      final ICommunicationInterfaceConf ciConf = this.fX10PlatformConf.getCommunicationInterfaceConf();
-      final boolean openMPITransport = ciConf.getServiceTypeId().equals(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID);
-      final String hostList = configuration.getAttribute(OpenMPILaunchConfiguration.ATTR_HOSTLIST, Constants.EMPTY_STR);
-      final boolean useHostFile = configuration.getAttribute(OpenMPILaunchConfiguration.ATTR_USEHOSTFILE, 
-                                                             OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTFILE);
-      final String[] hosts = hostList.split(" "); //$NON-NLS-1$
-      final boolean useX10RTMPI = "debug".equals(mode) || (openMPITransport && (useHostFile || (hosts.length > 1))); //$NON-NLS-1$
-
-      if (useX10RTMPI) {
-        // !! Hack to switch into using the MPI library for the debugger rather than PGAS sockets.
-        command.add(linker.replace("g++", "mpicxx")); //$NON-NLS-1$ //$NON-NLS-2$
-      } else {
-        command.add(linker);
-      }
+      command.add(linker);
       command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingOpts(true)));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(mainCppFileIncludePath));
@@ -190,14 +173,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       }
       command.add("-l" + project.getName()); //$NON-NLS-1$
       final List<String> linkingLibs = X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs(true));
-      if (useX10RTMPI) {
-        // !! Hack to switch into using the MPI library for the debugger rather than PGAS sockets.
-        for (final String linkingLib : linkingLibs) {
-          command.add(linkingLib.replace("-lx10rt_pgas_sockets", "-lx10rt_mpi")); //$NON-NLS-1$ //$NON-NLS-2$
-        }
-      } else {
-        command.addAll(linkingLibs);
-      }
+      command.addAll(linkingLibs);
 
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
@@ -242,6 +218,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     }
   }
 
+  @SuppressWarnings("null")
   protected AttributeManager getAttributeManager(final ILaunchConfiguration configuration, final String mode,
                                                  final IProgressMonitor monitor) throws CoreException {
     try {

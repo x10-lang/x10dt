@@ -28,9 +28,9 @@ final class LinuxDefaultCommands extends AbstractDefaultCPPCommands implements I
   public String getArchivingOpts() {
     return "cq"; //$NON-NLS-1$
   }
-
+  
   public String getCompiler() {
-    return "g++"; //$NON-NLS-1$
+    return (getTransport() == ETransport.MPI) ? "mpicxx" : "g++"; //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   public String getCompilerOptions() {
