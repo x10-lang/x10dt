@@ -72,17 +72,26 @@
                id="x10dt.ui.cpp.launch.NewX10Project">
          </newWizardShortcut>rdShortcut>
       </perspectiveExtension>
+   </extension>   
+   <extension
+		 point="org.eclipse.debug.core.launchConfigurationTypes">
+	  <launchConfigurationType
+			id="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
+			modes="run,debug"
+			name="%launch.config.cpp.name">
+	  </launchConfigurationType>
    </extension>
    <extension
-         point="org.eclipse.debug.core.launchConfigurationTypes">
-      <launchConfigurationType
-            delegate="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
-            id="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
-            modes="run"
-            name="%launch.config.cpp.name"
-            sourceLocatorId="x10dt.ui.cpp.launch.SourceLocator"
-            sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">
-      </launchConfigurationType>
+	     point="org.eclipse.debug.core.launchDelegates">
+	  <launchDelegate
+			id="x10dt.ui.cpp.launch.X10LaunchConfigurationDelegate"
+			delegate="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
+			type="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
+			modes="run"
+			sourceLocatorId="x10dt.ui.cpp.launch.SourceLocator"
+			sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer" 
+			description="%launch.config.cpp.name">
+	  </launchDelegate>
    </extension>
    <extension
          point="org.eclipse.debug.ui.launchConfigurationTabGroups">
