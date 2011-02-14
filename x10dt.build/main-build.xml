@@ -26,15 +26,17 @@
 
   <!-- The set of properties sent to sub-Ant builds -->
   <propertyset id="properties-set">
-    <propertyref name="release"/>
-    <propertyref name="skipDirector"/>
-    <propertyref name="skipMirroring"/>
-    <propertyref name="configs"/>
     <propertyref name="builder"/>
     <propertyref name="build.folder"/>
     <propertyref name="build.loc"/>
     <propertyref name="buildLabel"/>
+    <propertyref name="configs"/>
     <propertyref name="no.jars.signing"/>
+    <propertyref name="product"/>
+    <propertyref name="release"/>
+    <propertyref name="skipDirector"/>
+    <propertyref name="skipMirroring"/>
+    <propertyref name="topLevelElementId"/>
     <propertyref name="x10.tag"/>
   </propertyset>
 
