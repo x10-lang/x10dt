@@ -7,7 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
-import static x10dt.ui.launch.core.utils.PTPConstants.*;
+import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
@@ -17,7 +17,6 @@ import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import x10dt.ui.launch.core.utils.EnumUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
@@ -49,17 +48,10 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   public void initializeToDefaultValues(final IProject project) {
     AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
     if (ciConf == null) {
-      final boolean isWindows = EnumUtils.getLocalOS() == ETargetOS.WINDOWS;
-      final String ciType = isWindows ? MPICH2_SERVICE_PROVIDER_ID : SOCKETS_SERVICE_PROVIDER_ID;
-      ciConf = super.fCommInterfaceFact.getOrCreate(ciType);
-      super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-      ciConf.fServiceTypeId = ciType;
+      ciConf = super.fCommInterfaceFact.getOrCreate(SOCKETS_SERVICE_PROVIDER_ID);
+      super.fCommInterfaceFact.defineCurrentCommInterfaceType(SOCKETS_SERVICE_PROVIDER_ID);
+      ciConf.fServiceTypeId = SOCKETS_SERVICE_PROVIDER_ID;
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
-      if (isWindows) {
-        final MessagePassingInterfaceConf mpiConf = (MessagePassingInterfaceConf) ciConf;
-        mpiConf.fDefaultIntallLocation = true;
-        mpiConf.fDefaultToolCmds = true;
-      }
     }
     if (this.fConnectionConf.fIsLocal) {
       initLocalCppCompilationCommands();

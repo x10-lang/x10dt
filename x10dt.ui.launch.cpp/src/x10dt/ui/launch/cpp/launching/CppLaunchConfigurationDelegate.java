@@ -8,7 +8,6 @@
 package x10dt.ui.launch.cpp.launching;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,7 +35,6 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.AttributeManager;
-import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPJob;
 import org.eclipse.ptp.core.elements.IPQueue;
@@ -52,7 +50,6 @@ import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.rm.mpi.mpich2.core.MPICH2LaunchAttributes;
 import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfigurationDefaults;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
@@ -251,34 +248,50 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       final AttributeManager attrMgr = new AttributeManager();
 
       // Collects attributes from Resource tab
-      final IAttribute<?, ?, ?>[] resourceAttributes = getResourceAttributes(configuration, mode);
-      if (this.fIsCygwin) {
-        final StringBuilder pathBuilder = new StringBuilder();
-        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
-        if (ldLibPathValue != null) {
-          pathBuilder.append(ldLibPathValue);
-        }
-        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations()) {
-          if (pathBuilder.length() > 0) {
-            pathBuilder.append(File.pathSeparatorChar);
-          }
-          pathBuilder.append(x10Lib);
-        }
-
-        // In the case of MPICH-2 we need to add it via 'gpath' option.
-        for (int i = 0; i < resourceAttributes.length; ++i) {
-          if (MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().equals(resourceAttributes[i].getDefinition())) {
-            final String curValue = resourceAttributes[i].getValueAsString();
-            final StringBuilder newArgs = new StringBuilder();
-            newArgs.append("-gpath '").append(pathBuilder.toString()).append("' ").append(curValue); //$NON-NLS-1$//$NON-NLS-2$
-            resourceAttributes[i] = MPICH2LaunchAttributes.getLaunchArgumentsAttributeDefinition().create(newArgs.toString());
-          }
-        }
-      }
-      attrMgr.addAttributes(resourceAttributes);
+      attrMgr.addAttributes(getResourceAttributes(configuration, mode));
 
       // Collects attributes from Environment tab
-      final String[] envArr = getEnvironmentToAppend(configuration);
+      String[] envArr = getEnvironmentToAppend(configuration);
+      if (this.fIsCygwin) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(PATH_ENV).append('=');
+        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
+        int k = 0;
+        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations()) {
+          if (k > 0) {
+            sb.append(';');
+          } else {
+            k = 1;
+          }
+          sb.append(x10Lib.replace('/', '\\'));
+        }
+        if (ldLibPathValue != null) {
+          sb.append(';').append(ldLibPathValue);
+        }
+        
+        int pathIndex = -1;
+        if (envArr != null) {
+          final String pathEnvStart = PATH_ENV + '=';
+          for (int i = 0; i < envArr.length; ++i) {
+            if ((envArr[i] != null) && envArr[i].startsWith(pathEnvStart)) {
+              pathIndex = i;
+              break;
+            }
+          }
+        }
+        
+        if (pathIndex == -1) {
+          final String[] newArray = new String[(envArr == null) ? 1 : envArr.length + 1];
+          newArray[0] = sb.toString();
+          if (envArr != null) {
+            System.arraycopy(envArr, 0, newArray, 1, envArr.length);
+          }
+          envArr = newArray;
+        } else {
+          sb.append(';').append(envArr[pathIndex]);
+          envArr[pathIndex] = sb.toString();
+        }
+      }
       if (envArr != null) {
         attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
       }
@@ -298,7 +311,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
 
       final String path = programPath.removeLastSegments(1).toString();
       if (path != null) {
-        attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(protectPath(path)));
+        attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
       }
 
       // Collects attributes from Arguments tab
@@ -499,11 +512,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
                                                   this.fX10PlatformConf.getName())));
     }
   }
-
-  private String protectPath(final String path) {
-    return path.replace(" ", "\\ "); //$NON-NLS-1$ //$NON-NLS-2$
-  }
-
+  
   private void searchForMatchingGeneratedFile(final Collection<IFileStore> matches, final IFileStore dirStore,
                                               final String curDir, final String pkgName, final String typeName,
                                               final IProgressMonitor monitor) throws CoreException {
@@ -555,7 +564,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
 
   private static final String LIB_OPT = "-L"; //$NON-NLS-1$
 
-  private static final String PATH_ENV = "PATH"; //$NON-NLS-1$
+  private static final String PATH_ENV = "Path"; //$NON-NLS-1$
 
   private static final String PACKAGE_SEP = "."; //$NON-NLS-1$
 
