@@ -5,9 +5,8 @@
 In order to run X10 on Linux, you need to satisfy the follow pre-requisites.
 <h2>Prereqs</h2>
 <ul>
-	<li>gcc/g++ 4.2.x or higher</li>
-	<li>java 1.5.0_x or higher</li>
-	<li>open MPI 1.3.3 or higher</li>
+	<li>gcc/g++ 4.2.x or higher (for the X10 C++ backend)</li>
+	<li>java 1.5.0_x or higher (for the X10 Java backend)</li>
 </ul>
 
 <h4>gcc/g++</h4>
@@ -50,37 +49,8 @@ JAVA_HOME=/usr/java/jdk1.5.0_11
 export JAVA_HOME
 </pre>
 
-<h4>openmpi</h4>
-OpenMPI is often not included with Linux. To check do the following
-<pre>
-	whereis mpirun
-	mpirun -version
-</pre>
-In the case of Fedora 9, you should download version 1.3.x or later from the openmpi web site -
-http://www.open-mpi.org/software/ompi/
-<p>
-You should retrieve the openmpi-1.3.3.tar file or later version and unpack it.
-<pre>
-	tar -xvf openmpi-1.3.3.tar
-</pre>
-This will create an openmpi-1.3.3 directory.  Now you need to compile and
-install openmpi using the following command sequence.
-<pre>
-	cd openmpi-1.3.3
-	./configure --prefix=/usr/local
-	
-  ...lots of output...
-	
-	make all
-	make install
-</pre>
-Note that the configure script supports a lot of different command line options. 
-For example, the --prefix option in the above example tells Open MPI to install under the directory /usr/local/. 
-
-</p>
-
 <h2>Getting started</h2>
-You need to download the X10 2.1 distribution for your platform,
+You need to download the X10 2.1.2 distribution for your platform,
 <pre>
 AIX/Power
 Linux/Power (SLES11)
@@ -90,8 +60,8 @@ Linux/x86_64 (RHEL5)
 MacOS/x86 and x86_64
 </pre>
 in this case Linux/x86.
-The Common PGAS runtime is inlcuded in the download.
-Go to the <a href="http://x10.codehaus.org/X10+2.1.0+Release">X10 release 2.1 (http://x10.codehaus.org/X10+2.1.0+Release)</a> and download
+The Sockets runtime is inlcuded in the download.
+Go to the <a href="http://x10.codehaus.org/X10+2.1.2+Release">X10 release 2.1.2 (http://x10.codehaus.org/X10+2.1.2+Release)</a> and download
 the X10 distribution.  This will be usually stored in your "Downloads" directory depending on how
 your browser is configured. You should modify Firefox on Linux to ask you where to download files.
 You should check periodically for new releases at http://x10.codehaus.org/X10+Releases.
@@ -106,7 +76,7 @@ available. Note that you may have to use the "sudo" command to get access.
 	cd local
 	mkdir x10
 	cd x10
-	mkdir 2.1
+	mkdir 2.1.2
 </pre>
 
 Make all of these directories accessible by everyone
@@ -120,10 +90,10 @@ Now copy the x10 distribution that you downloaded to x10dist directory and unpac
 	cd /usr
 	cd local
 	cd x10
-	cd 2.1
-	cp ~/Downloads/x10-2.1.0_linux_x86.gz .
-	gunzip x10-2.1.0_linux_x86.gz
-	tar -xvf x10-2.1.0_linux_x86
+	cd 2.1.2
+	cp ~/Downloads/x10-2.1.2_linux_x86.gz .
+	gunzip x10-2.1.2_linux_x86.gz
+	tar -xvf x10-2.1.2_linux_x86
 </pre>
 
 <p>
@@ -134,7 +104,7 @@ to your path.  You can also define aliases here, etc.
 Here is a sample .bash_profile
 <pre>
 .bash_profile
-PATH=/usr/java/jdk1.5.0_11/bin:/usr/local/x10/2.1/bin:$PATH
+PATH=/usr/java/jdk1.5.0_11/bin:/usr/local/x10/2.1.2/bin:$PATH
 export PATH
 </pre>
 
@@ -150,7 +120,7 @@ working directory
 	cd x10
 	mkdir HelloWorld
 	cd HelloWorld
-	cp /usr/local/x10/2.1/samples/HelloWorld.x10 .
+	cp /usr/local/x10/2.1.2/samples/HelloWorld.x10 .
 </pre>
 <h4>java backend</h4>
 To compile the this program with the java backend you would enter
@@ -204,51 +174,45 @@ system, so you can also enter the following command to run an x10 program
 At this point, you may want to compile the other sample programs from the "samples"
 directory.  Then you can begin creating your own programs.
 
-<h4>Running x10 programs in more than 1 place</h4>
-<ul>
-<li>
-To run the compiled X10 executable in one place, invoke
-<pre>
-    bin/runx10 ./&lt;class_name&gt;
-</pre>
-<li>
-To run in multiple places on Linux, run "bin/manager", and then invoke 
-<pre>
-    bin/launcher -t &lt;nplaces&gt; ./&lt;class_name&gt;
-</pre>
+<h4>Running x10 programs using <tt>Sockets</tt> backend</h4>
 <p>
-The basic idea is the following.
-<ol>
-<li>Make a hostlist.txt containing A and B on separate lines
-	<ul>
-	<li> A
-	<li> B
-	</ul>
-<li>In one window/console/xterm run the command manager hostlist.txt
-<li>In a different window/console do: launcher -t 2 HelloWholeWorld
-</ol>
+The sockets transport replaces <tt>pgas_sockets</tt> (which is closed-source, and requires some setup), and is currently the default backend if you don't compile with the "-x10rt" flag. You set an environment variable <tt>X10_NPLACES</tt> to specify the number of places. If this is not set, it defaults to 1 place on the local machine, and prints a warning. 
+There are two ways to specify the machines to run on: 
+<ul>
+<li>Set the environment variable <tt>X10_HOSTFILE</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. 
+<li>Set the environment variable <tt>X10_HOSTLIST</tt>, to a comma-separated list of hostnames, without spaces. This environment variable is checked only if <tt>X10_HOSTFILE</tt> was not set. 
+</ul>
+Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>X10_NPROCS=4</tt> and <tt>X10_HOSTLIST=host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost, and prints a warning. You can set <tt>X10_HOSTLIST=localhost</tt> to get the same effect without warning. 
+If you're running on more than one machine, you should have public/private key ssh authentication set up, so you can ssh from one machine to another without getting a password prompt. You should also have your executable and hostfile available in the same location on every machine listed in the hostfile. You compile your program with "-x10rt sockets", and with ssh in place, and the environment variables set, you run your executable. You don't have to launch from one of the machines in the hostfile, but you do need to have the ssh authentication set up between the machine you launch from and the first machine in the list. 
+<p>
+The sockets backend supports gdb debugging through the <tt>X10LAUNCHER_DEBUG</tt> environment variable. The value of this has two forms: 
+<ul>
+<li>"place:port", where place is the place that you want to be debugged or the string "all", and port is the port number that you want gdbserver to use. This launches the runtime for the specified place under gdbserver, which allows you to connect to the remote runtime with your local gdb session. See <a href="http://www.delorie.com/gnu/docs/gdb/gdb_134.html">this link</a> for more details. If you specify "all" for the place, then all places will be started under gdbserver at the specified port. Be aware that if you have multiple places running on the same machine, then this will cause port number conflicts. 
+<li>"place", where place is either the place that you want to be debugged, or the string "all". Setting this to a number causes the specified place to be launched under gdb in a new xterm. For example, setting <tt>X10LAUNCHER_DEBUG=0</tt> will cause the x10 runtime for place 0 to be started in a gdb session in a new xterm, while other places run normally. Setting this to "all" will cause all runtimes to execute in separate gdb xterms. Each xterm is given a title showing which place it is running so you can keep track. 
+</ul>
+If you are running on triloka, please be sure to ssh to each machine in your hostlist to ensure that GSA is mounted and you don't get a password prompt. More than once I've forgotten to do this, and the program appears to hang, when under the covers it's waiting at a password prompt. 
+<p>
+It's possible to run without the launcher, and start up each place manually. To do this, you need to set the X10LAUNCHER_RUNTIME, X10_PLACE, and X10LAUNCHER_FORCEPORTS environment variables, which would normally be set by the launcher. For example: 
+<ul>
+
+<li>// Launch three places on triloka1-3, all using port 7001: 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=0 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka1 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=1 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka2 
+<li>X10LAUNCHER_RUNTIME=true X10_PLACE=2 X10_NPLACES=3 X10LAUNCHER_FORCEPORTS=7001,7001,7001 X10_HOSTLIST=triloka1,triloka2,triloka3 // run on triloka3 
+</ul>
+Please note that currently, the Sockets backend will not work in an environment with mixed POWER and x86 hardware, due to different endianness. 
+<p>
+
+<h4>Running with <tt>Standalone</tt> backend</h4>
+<p>
+Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one environment variable "X10_NPLACES", which should be set to the number of places. If not set, it defaults to 1 and prints a warning. The standalone has transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, just compile with "-x10rt standalone", set the environment variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
+<p>
+Debugging under standalone is relatively easy, since all places are forked off from the main process, and gdb can be configured to follow these forks. 
+
 <p>
 It helps a lot to have passwordless ssh working between the machine
 where the manager process is running and the compute nodes.
-<p>
-When you do (3) you should see some output in the manager window
-telling you that jobs are starting stopping.
-</p>
-<li>
-To run in multiple places on AIX, run
-<pre>
-  "LAPI_USE_SHMEM=yes poe ./&lt;class_name&gt; -procs &lt;nplaces&gt; -hostfile HOSTFILE".
-</pre>
-  See "man poe" for additional options and the format of HOSTFILE.
-<br><br>
-<li>
-If you have mpi available, you can use mpirun to run in multiple places.
-  Details will vary depending on the exact syntax of the mpirun command,
-  but something like this should work:
-<pre>  
-  mpirun -hostfile &lt;hosts&gt; -n &lt;nplaces&gt; ./&lt;class_name&gt;
-</pre>
-</ul>
+
 
 
 <h4>Compiler options</h4>
