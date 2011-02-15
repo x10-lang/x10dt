@@ -199,7 +199,7 @@
     </antcall>
   </target>
 
-  <target name="clean-build-label" if="release">
+  <target name="clean-build-label" if="publish.release">
     <delete includeemptydirs="true">
       <fileset dir="${x10dtBuildDirectory}/${buildLabel}">
         <include name="*.zip"/>
