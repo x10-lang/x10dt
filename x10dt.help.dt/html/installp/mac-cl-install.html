@@ -5,9 +5,8 @@
 In order to run X10 on OS X Leopard, you need to satisfy the following pre-requisites.
 <h2>Prereqs</h2>
 <ul>
-	<li>gcc/g++ 4.0.x or higher</li>
-	<li>java 1.5.0_x or higher</li>
-	<li>Open MPI 1.2.x or higher</li>
+	<li>gcc/g++ 4.2.x or higher (for the X10 C++ backend)</li>
+	<li>java 1.5.0_x or higher (for the X10 Java backend)</li>
 </ul>
 Fortunately, Mac OS X Leopard provides most of these as part of its environment. Although
 you may have to download the development environment called Xcode to get the compiler tools.
@@ -48,15 +47,16 @@ click on this and follow the instructions to install the Xcode tools.
 You should let this install to the default folder "Developer". When the
 installation is complete, check the installation as described above.
 <p> 
-2) You can download Xcode from Apple's Developer Connection (ADC) site. 
-<a href="https://connect.apple.com/cgi-bin/WebObjects/MemberSite.woa/303/wo/3K14hrg1ACiF2P18GAizqThJ6TZ/0.0">Developer Connection Member Site</a> 
+2) You can download Xcode from  
+<a href="http://developer.apple.com/">Apple's Developer Connection (ADC) site</a>.
 This method insures that you will get the latest Xcode version whereas 
 method 1 may be an earlier version available at the time of packaging the
 Leopard installation DVD.
 <P>
-To access this site, you may have to signup for an ADC id. Once you are
-logged into the member site, you should select the "Downloads" area
-and then select "Developer Tools" on the right hand side from the Downloads area. 
+To access this site, you may have to signup for an ADC id. 
+You should select the "Resources" link near the top and
+then select "Developer Downloads" under the Mac OS X section. 
+Then you select "Developer Tools" under the "Downloads" section on the right. 
 You should scroll until you find "Xcode 3.1.4 Developer Tools"
 which is the version for Leopard. You should note that "Xcode 3.2.1 Developer Tools"
 is the version for Snow Leopard. 
@@ -157,27 +157,7 @@ under
 /System/Library/Frameworks/JavaVM.framework/Versions
 If you are up to date with patches, you will also find java 1.6 here.
 If you want to switch to java 1.6, you can change the links to "Current" and
-"CurrentJDK" in the JavaVM.framworks versions directory.  See chapter XX.
-
-<h4>Open MPI</h4>
-OpenMPI is also included with OS X. You can verify the location and version
-with the following commands
-<pre>
-whereis mpirun
-mpirun -version</li>
-</pre>
-
-You should see something similar to this
-
-<pre>
-$ whereis mpirun
-/usr/bin/mpirun
-</pre>
-
-<pre>
-$ mpirun -version
-mpirun (Open MPI) 1.2.3
-</pre>
+"CurrentJDK" in the JavaVM.framworks versions directory.
 
 
 <h2>Comments</h2>

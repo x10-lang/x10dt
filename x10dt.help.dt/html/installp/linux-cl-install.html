@@ -5,9 +5,8 @@
 In order to run X10 on Linux, you need to satisfy the follow pre-requisites.
 <h2>Prereqs</h2>
 <ul>
-	<li>gcc/g++</li>
-	<li>java</li>
-	<li>open MPI</li>
+	<li>gcc/g++ 4.2.x or higher (for the X10 C++ backend)</li>
+	<li>java 1.5.0_x or higher (for the X10 Java backend)</li>
 </ul>
 
 <h4>gcc/g++</h4>
@@ -50,34 +49,6 @@ JAVA_HOME=/usr/java/jdk1.5.0_11
 export JAVA_HOME
 </pre>
 
-<h4>openmpi</h4>
-OpenMPI is often not included with Linux. To check do the following
-<pre>
-	whereis mpirun
-	mpirun -version
-</pre>
-In the case of Fedora 9, you should download version 1.3.x or later from the openmpi web site -
-http://www.open-mpi.org/software/ompi/
-<p>
-You should retrieve the openmpi-1.3.3.tar file or later version and unpack it.
-<pre>
-	tar -xvf openmpi-1.3.3.tar
-</pre>
-This will create an openmpi-1.3.3 directory.  Now you need to compile and
-install openmpi using the following command sequence.
-<pre>
-	cd openmpi-1.3.3
-	./configure --prefix=/usr/local
-	
-  ...lots of output...
-	
-	make all
-	make install
-</pre>
-Note that the configure script supports a lot of different command line options. 
-For example, the --prefix option in the above example tells Open MPI to install under the directory /usr/local/. 
-
-</p>
 
 <h2>Comments</h2>
 Comments and suggestions are welcome. 

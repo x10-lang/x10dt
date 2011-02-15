@@ -5,9 +5,8 @@
 In order to run X10 on Windows, you need to satisfy the follow pre-requisites.
 <h2>Prereqs</h2>
 <ul>
-	<li>gcc/g++</li>
-	<li>java</li>
-	<li>open MPI / mpich2</li>
+	<li>gcc/g++ 4.2.x or higher (for the X10 C++ backend)</li>
+	<li>java 1.5.0_x or higher (for the X10 Java backend)</li>
 </ul>
 
 <a name="gcc-prereq">
@@ -37,12 +36,10 @@ Once the installation is complete you should double check that the Windows PATH
 environment variable has been updated to include the following directories:
 <ul>
 <li>C:\cygwin\bin</li>
-<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
 </ul>
 <p>
 Once the installation is complete you will be in the cygwin directory, and you
-can start cygwin by running "cygwin.bat".  Then you should run "mpd &". 
-MPD is the MPICH daemon, which controls/runs/stops the proccesses on your machine.
+can start cygwin by running "cygwin.bat".  
 <p>
 We have also supplied another batch file called "addpkg.bat" which can be used
 to download additional packages.  For example, you might want to download and 
@@ -103,15 +100,6 @@ Select any other packages that you may want. Note any dependencies will be downl
 Utils - util-linux 2.14.1
 </pre>
 
-<p>
-Once the installation is complete you should update the Windows PATH
-environment variable  to include the following directories:
-<ul>
-<li>C:\cygwin\bin</li>
-<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
-</ul>
-
-
 <a name="java-prereq">
 <h3>java</h3>
 Java is not included by default with Windows. However, nost people will have installed one already.
@@ -148,68 +136,6 @@ Java HotSpot(TM) Client VM (build 1.5.0_11-b03, mixed mode)
 $ echo $JAVA_HOME
 C:\jdk1.5.0_15
 </pre>
-
-<a name="openmpi-prereq">
-<h3>openmpi / mpich2</h3>
-OpenMPI is not include with Windows.
-We have created a version of MPICH2 for Windows on the codehaus site that should be downloaded
-and installed in the cygwin directory.
-<p>
-<a name="batch-mpich">
-<h5>MPICH batch install</h5>
-If you have used the batch installation of cygwin, you can bypass the next section
-and proceed to <a href="#getting-started">getting started</a> section.
-<p>
-<a name="interactive-mpich">
-<h5>MPICH interactive install</h5>
-Start the cygwin setup again and add this as a Cygwin mirror.
-You'll have to run Cygwin setup with -X (command line, or through a shortcut) 
-to make it avoid checking signatures.
-<pre>
-http://dist.codehaus.org/x10/x10dt/2.0/cygwin/
-</pre>
-If you do not ignore signatures, you will get this error:
-<pre>
-Unable to get http://dist.codehaus.org/x10/x10dt/2.0/cygwin/setup.ini.sig from 
-<http://dist.codehaus.org/x10/x10dt/2.0/cygwin>
-</pre>
-The following package should be selected
-<pre>
-Base - 1.2.1-2 - mpich2: A high performance...
-</pre>
-Click next to install.
-</p>
-After it is installed you will find mpirun and other commands in
-/usr/contrib/mpich2-1.1.1p1/bin
-<p>
-If you see the following error using mpirun
-<pre>
-cd /usr/contrib/mpich2-1.1.1p1/bin
-./mpirun
-/usr/bin/env: python2.5: No such file or directory
-</pre>
-you need to restart the cygwin setup, select your mirror, and make sure the following package is installed.
-<pre>
-Python - 2.5.5-1 - python: Python language interpreter
-</pre>
-
-<p>
-Then you should modify your .bash_profile file to contain this directory in the PATH
-<pre>
-.bash_profile
-PATH=/usr/contrib/mpich2-1.2.1/bin:${PATH}
-export PATH
-</pre>
-
-<p>
-Once the installation is complete you should update the Windows PATH
-environment variable  to include the following directories:
-<ul>
-<li>C:\cygwin\bin</li>
-<li>C:\cygwin\usr\contrib\mpich2-1.2.1\bin</li>
-</ul>
-
-<a name="getting-started">
 
 <h2>Comments</h2>
 Comments and suggestions are welcome. 
