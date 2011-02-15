@@ -163,7 +163,7 @@
     <!-- Add to the fragment directory the necessary bits from the source project.
          This is really just for the bundle fragment's MANIFEST.MF. -->
     <svn username="anonymous">
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
+      <export srcUrl="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
                 revision="${x10dt.revision}" destPath="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
     </svn>
 
@@ -227,7 +227,7 @@
     <!-- Add to the fragment directory the necessary bits from the source project.
          This is really just for the bundle fragment's MANIFEST.MF. -->
     <svn username="anonymous">
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
+      <export srcUrl="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/${fragment-name}" 
                   revision="${x10dt.revision}" destPath="${x10.compiler.dist}/${fragment-dir-name}" />
     </svn>
 

@@ -114,22 +114,21 @@
 
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
-      <iu id="org.eclipse.imp.pdb" />
-      <iu id="org.eclipse.imp.pdb.values" />
-      
+      <iu id="org.eclipse.imp.analysis.feature.group" />
+
       <iu id="wala.feature.feature.group"/>
 
       <slicingOptions followStrict="true" includeOptional="false"/>
     </p2.mirror>
-  	
+
     <unzip dest="${build.folder}/dependencies">
       <patternset>
-        <include name="utils_core.jar"/>
+        <include name="utils_core.jar" />
       </patternset>
       <fileset dir="${repoBaseLocation}/mirror/plugins">
         <include name="org.eclipse.ptp.utils.core_*.jar"/>
       </fileset>
-   </unzip>
+    </unzip>
   </target>
 
   <!-- ===================================================================== -->

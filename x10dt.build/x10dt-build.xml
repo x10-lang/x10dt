@@ -114,7 +114,7 @@
 
   <target name="post-build" unless="skipMirroring">
     <!--    <antcall target="sign-jars" /> -->
-  	<!-- Publish the resulting update site on orquesta -->
+    <!-- Publish the resulting update site on orquesta -->
     <p2.publish.featuresAndBundles
         repository="file:/${orquesta.update.site.loc}"
         publishArtifacts="true"
@@ -143,7 +143,7 @@
     </loadfile>
     <echo message="${properties.replaced}" file="${build.folder}/x10dt/plugin.properties" />
 
-  	<!-- Pick up results of x10-build, which has already run before this entire target -->
+    <!-- Pick up results of x10-build, which has already run before this entire target -->
     <p2.publish.featuresAndBundles
           metadataRepository="file:${repoBaseLocation}/compiler"
           artifactRepository="file:${repoBaseLocation}/compiler"
