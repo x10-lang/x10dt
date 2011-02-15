@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import polyglot.ast.ClassDecl;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.MethodDef;
 
@@ -48,13 +49,18 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
     insertValue(X10_AllTypes, tuple);
 
     final List<MethodDef> methodDefs = classDef.methods();
-    IValue[] methods = new IValue[methodDefs.size()];
+    final List<ConstructorDef> constructorDefs = classDef.constructors();
+    IValue[] methods = new IValue[methodDefs.size() + constructorDefs.size()];
     int i = -1;
     for (final MethodDef methodDef : methodDefs) {
-      if (methodDef.position().isCompilerGenerated()) {
-        continue;
+      if (! methodDef.position().isCompilerGenerated()) {
+        methods[++i] = createMethodValue(methodDef);
       }
-      methods[++i] = createMethodValue(methodDef);
+    }
+    for (final ConstructorDef constructorDef : constructorDefs) {
+      if (! constructorDef.position().isCompilerGenerated()) {
+        methods[++i] = createConstructorValue(constructorDef);
+      }
     }
     if (i >= 0) {
       // If there were compiler-generated methods, the array is shorter than we first thought
