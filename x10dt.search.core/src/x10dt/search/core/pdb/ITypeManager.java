@@ -42,9 +42,10 @@ public interface ITypeManager {
   /**
    * Creates an X10 {@link NodeVisitor} that will be responsible for writing the data of interest for the current type.
    * 
+   * @param scopeTypeName The scope type name for the fact writer.
    * @return A non-null visitor instance.
    */
-  public FactWriterVisitor createNodeVisitor();
+  public NodeVisitor createNodeVisitor(final String scopeTypeName);
   
   /**
    * Transfers the data in the "writer" within the fact database.

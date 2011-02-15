@@ -7,76 +7,30 @@
  *******************************************************************************/
 package x10dt.search.core.pdb;
 
-import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllFields;
-import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllMethods;
-import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
-
-import java.util.Arrays;
-import java.util.List;
-
-import org.eclipse.imp.pdb.facts.ITuple;
-import org.eclipse.imp.pdb.facts.IValue;
-
 import polyglot.ast.ClassDecl;
 import polyglot.ast.Node;
-import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
-import polyglot.types.FieldDef;
-import polyglot.types.MethodDef;
 import polyglot.visit.NodeVisitor;
+import x10dt.search.core.facts.FactWriterFactory;
+import x10dt.search.core.facts.IFactWriter;
 
 
-final class AllMembersFactWriterVisitor extends FactWriterVisitor {
+final class AllMembersFactWriterVisitor extends NodeVisitor {
+  
+  AllMembersFactWriterVisitor(final String scopeTypeName) {
+    this.fFactWriter = FactWriterFactory.createAllMembersFactWriter(scopeTypeName);
+  }
   
   // --- Overridden methods
   
   public NodeVisitor enter(final Node node) {
     if (node instanceof ClassDecl && !node.position().isCompilerGenerated()) {
-      final ClassDef classDef = ((ClassDecl) node).classDef();
-      final ClassType classType = classDef.asType();
-      final IValue typeNameValue = createTypeName(classType.fullName().toString());
-      final ITuple tuple;
-      if (classDef.outer() == null) {
-        tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
-                                        createModifiersCodeValue(classType.flags()));
-      } else {
-        final IValue outerTypeNameValue = createTypeName(classDef.outer().get().asType().fullName().toString());
-        tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
-                                        createModifiersCodeValue(classType.flags()), outerTypeNameValue);
-      }
-      insertValue(X10_AllTypes, tuple);
-      
-      final List<MethodDef> methodDefs = classDef.methods();
-      IValue[] methods = new IValue[methodDefs.size()];
-      int i = -1;
-      for (final MethodDef methodDef : methodDefs) {
-        if (methodDef.position().isCompilerGenerated()) {
-          continue;
-        }
-        methods[++i] = createMethodValue(methodDef);
-      }
-      if (i >= 0) {
-          // If there were compiler-generated methods, the array is shorter than we first thought
-          if (i != methods.length-1) { methods = Arrays.copyOfRange(methods, 0, i+1); }
-          insertValue(X10_AllMethods, getValueFactory().tuple(typeNameValue, getValueFactory().list(methods)));
-      }
-      
-      final List<FieldDef> fieldDefs = classDef.fields();
-      IValue[] fields = new IValue[fieldDefs.size()];
-      i = -1;
-      for (final FieldDef fieldDef : fieldDefs) {
-        if (fieldDef.position().isCompilerGenerated()) {
-          continue;
-        }
-        fields[++i] = createFieldValue(fieldDef);
-      }
-      if (i >= 0) {
-        // If there were compiler-generated fields, the array is shorter than we first thought
-        if (i != fields.length-1) { fields = Arrays.copyOfRange(fields, 0, i+1); }
-        insertValue(X10_AllFields, getValueFactory().tuple(typeNameValue, getValueFactory().list(fields)));
-      }
+      this.fFactWriter.writeFacts((ClassDecl) node);
     }
     return this;
   }
+  
+  // --- Fields
+  
+  private final IFactWriter fFactWriter;
   
 }

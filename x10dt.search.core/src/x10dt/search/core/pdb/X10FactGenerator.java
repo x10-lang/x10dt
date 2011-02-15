@@ -59,6 +59,7 @@ import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
+import polyglot.visit.NodeVisitor;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 import x10dt.ui.launch.core.Constants;
@@ -110,8 +111,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
             }
             typeManager.initWriter(factBase, factContext, resource);
 
-            final FactWriterVisitor visitor = typeManager.createNodeVisitor();
-            visitor.setScopeType(entry.getKey());
+            final NodeVisitor visitor = typeManager.createNodeVisitor(entry.getKey());
             try {
               for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
                                                                   entry.getValue())) {
