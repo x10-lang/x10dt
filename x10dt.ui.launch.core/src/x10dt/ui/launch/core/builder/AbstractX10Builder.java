@@ -160,6 +160,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
+      CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.XEQ_InternalCompilerErrorMsg, getProject().getName()),
+              IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
     } finally {
       monitor.done();
     }
