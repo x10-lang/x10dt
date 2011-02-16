@@ -9,6 +9,7 @@
 <body>
 <h1>FSSimpleDist</h1>
 <pre>
+
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -50,9 +51,7 @@ public class FSSimpleDist {
 
         finish {
 
-            for (var pp:int=0; pp < NUM_PLACES; pp++) {
-
-                val p = pp;
+            for ([p] in 0..(NUM_PLACES-1)) {
                 
                 async at(Place.place(p)) {
                     
@@ -60,17 +59,17 @@ public class FSSimpleDist {
                     val b = new Array[double](localSize);
                     val c = new Array[double](localSize);
                     
-                    for (var i:int=0; i < localSize; i++) {
+                    for (var i:int=0; i<localSize; i++) {
                         b(i) = 1.5 * (p*localSize+i);
                         c(i) = 2.5 * (p*localSize+i);
                     }
                     
-                    for (var j:int=0; j < NUM_TIMES; j++) {
+                    for ([j] in 0..(NUM_TIMES-1)) {
                         if (p==0) {
                         	val t = times as GlobalRef[Array[double](1)]{self.home==here};
                         	t()(j) = -now(); 
                         }
-                        for (var i:int=0; i < localSize; i++)
+                        for (var i:int=0; i<localSize; i++)
                             a(i) = b(i) + alpha*c(i);
                         if (p==0) {
                         	val t = times as GlobalRef[Array[double](1)]{self.home==here};
@@ -79,7 +78,7 @@ public class FSSimpleDist {
                     }
                     
                     // verification
-                    for (var i:int=0; i < localSize; i++)
+                    for (var i:int=0; i<localSize; i++)
                         if (a(i) != b(i) + alpha*c(i)) 
                             verified.set(false);
                 }
@@ -87,7 +86,7 @@ public class FSSimpleDist {
         }
 
         var min:double = 1000000;
-        for (var j:int=0; j < NUM_TIMES; j++)
+        for (var j:int=0; j<NUM_TIMES; j++)
             if (times()(j) < min)
                 min = times()(j);
         printStats(N, min, verified());
