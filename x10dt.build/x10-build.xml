@@ -54,6 +54,8 @@
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.dist" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.dist" />
 
+      <!-- We get the following X10DT plugin projects here b/c the exportPlugin.xml scripts in
+           the X10 core plugins above depend on buildCommon.xml and buildPluginCommon.xml. -->
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.update" 
                 revision="${x10dt.revision}" destPath="${x10.build.loc}/x10dt.update" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.feature" 

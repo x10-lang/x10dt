@@ -5,7 +5,7 @@
   <property file="build.properties" />
 
   <path id="launcher.path.ref">
-    <fileset dir="../eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+    <fileset dir="../builds/eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
   </path>
 
   <target name="x10dt-checkouts-existence">
@@ -66,7 +66,7 @@
 
   <target name="pre-build" unless="skipMirroring">
     <delete includeEmptyDirs="true">
-      <fileset dir="${orquesta.update.site.loc}" defaultexcludes="false">
+      <fileset dir="${publish.site.loc}" defaultexcludes="false">
         <include name="binary/**" />
         <include name="features/**" />
         <include name="plugins/**" />
@@ -78,7 +78,7 @@
   </target>
 
   <target name="sign-jars" unless="no.jars.signing">
-    <p2.process.artifacts repositoryPath="file:${orquesta.update.site.loc}">
+    <p2.process.artifacts repositoryPath="file:${publish.site.loc}">
       <sign alias="x10dt" keystore="${build.loc}/x10dt.keystore" keypass="x10-lang" 
             storepass="x10 Development Toolkit" />
       <plugin id="x10.compiler" version="0.0.0"/>
@@ -116,7 +116,7 @@
     <!--    <antcall target="sign-jars" /> -->
     <!-- Publish the resulting update site on orquesta -->
     <p2.publish.featuresAndBundles
-        repository="file:/${orquesta.update.site.loc}"
+        repository="file:/${publish.site.loc}"
         publishArtifacts="true"
         compress="true"
         source="${x10dtBuildDirectory}/buildRepo"/>
@@ -124,14 +124,14 @@
       <arg value="-application" />
       <arg value="org.eclipse.equinox.p2.publisher.CategoryPublisher" />
       <arg value="-metadataRepository" />
-      <arg value="file:${orquesta.update.site.loc}" />
+      <arg value="file:${publish.site.loc}" />
       <arg value="-categoryDefinition" />
       <arg value="file:${build.loc}/x10dt-category.xml" />
       <arg value="-categoryQualifier" />
       <arg value="-compress" />
     </java>
-    <zip destfile="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
-         basedir="${orquesta.update.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
+    <zip destfile="${publish.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
+         basedir="${publish.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
   </target>
 
   <target name="main" depends="x10dt-checkouts">

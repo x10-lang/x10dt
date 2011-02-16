@@ -1,12 +1,12 @@
 <project name="Main Build File for X10DT" basedir="." default="main">
 
-  <property name="build.folder" value="${build.loc}/../I${buildLabel}" />
+  <property name="build.folder" value="${build.loc}/../builds/I${buildLabel}" />
 
   <import file="utilities.xml" />
   <property file="common.properties" />
 
   <path id="launcher.path.ref">
-    <fileset dir="../eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+    <fileset dir="../builds/eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
   </path>
 
   <condition property="skipDirector">
@@ -24,7 +24,7 @@
     </and>
   </condition>
 
-  <!-- The set of properties sent to sub-Ant builds -->
+  <!-- The set of properties sent to sub-Ant builds spawned by PDE Build -->
   <propertyset id="properties-set">
     <propertyref name="builder"/>
     <propertyref name="build.folder"/>
@@ -33,6 +33,7 @@
     <propertyref name="configs"/>
     <propertyref name="no.jars.signing"/>
     <propertyref name="product"/>
+    <propertyref name="publish.site.loc"/>
     <propertyref name="release"/>
     <propertyref name="skipDirector"/>
     <propertyref name="skipMirroring"/>
@@ -43,12 +44,12 @@
   <!--- Building tasks -->
 
   <target name="clean-eclipse" if="clean.eclipse">
-    <delete dir="../eclipse" />
-    <delete dir="../delta-pack" />
+    <delete dir="../builds/eclipse" />
+    <delete dir="../builds/delta-pack" />
   </target>
 
   <target name="clean-x10dist" if="clean.x10dist">
-    <delete dir="../x10-build" />
+    <delete dir="${x10.build.loc}" />
   </target>
 
   <target name="check-log-file-existence">
@@ -117,7 +118,7 @@
 
   <target name="publish-update-site-link" unless="release">
     <antcall target="publishLink">
-      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/2.0/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
+      <param name="link.url" value="${publish.site.url}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
       <param name="link.label" value="Build ${buildLabel} is available on orquesta's update site." />
     </antcall>
   </target>
@@ -171,30 +172,30 @@
         <include name="*.zip"/>
       </fileset>
     </copy>
-    <unzip dest="${target.folder}" src="${orquesta.update.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip"/>
+    <unzip dest="${target.folder}" src="${publish.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip"/>
     <antcall target="publishLink">
-      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/2.0/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
+      <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
       <param name="link.label" value="Release ${buildLabel} update site zip." />
     </antcall>
     <antcall target="publishLink">
-      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}" />
+      <param name="link.url" value="${publish.site.url}/${buildLabel}" />
       <param name="link.label" value="Release ${buildLabel} update site url." />
     </antcall>
 
     <antcall target="publishLink">
-      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-linux.gtk.x86.zip" />
+      <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-${zip.release.tag}-linux.gtk.x86.zip" />
       <param name="link.label" value="All-In-One Linux GTK x86 Release ${buildLabel}." />
     </antcall>
     <antcall target="publishLink">
-      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-linux.gtk.x86_64.zip" />
+      <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-${zip.release.tag}-linux.gtk.x86_64.zip" />
       <param name="link.label" value="All-In-One Linux GTK x86_64 Release ${buildLabel}." />
     </antcall>
     <antcall target="publishLink">
-      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-macosx.cocoa.x86.zip" />
+      <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-${zip.release.tag}-macosx.cocoa.x86.zip" />
       <param name="link.label" value="All-In-One MacOS Cocoa x86 Release ${buildLabel}." />
     </antcall>
     <antcall target="publishLink">
-      <param name="link.url" value="http://orquesta.watson.ibm.com/x10dt/releases/${buildLabel}/x10dt-${zip.release.tag}-win32.win32.x86.zip" />
+      <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-${zip.release.tag}-win32.win32.x86.zip" />
       <param name="link.label" value="All-In-One Win32 x86 Release ${buildLabel}." />
     </antcall>
   </target>
@@ -485,6 +486,7 @@
   <!-- Main target -->
 
   <target name="main" depends="jazz-setup">
+    <echo message="basedir = ${basedir}"/>
     <antcall target="clean-eclipse" />
     <antcall target="clean-x10dist" />
 
