@@ -343,13 +343,17 @@ X10 has the following operator,  type constructor, and miscellaneous symbols.  (
 </pre>
 
 <div class="p"><!----></div>
-The precedence of the binary operators is as follows.  Earlier rows of the
+The precedence of the operators is as follows.  Earlier rows of the
 table have higher precedence than later rows, binding more tightly.  
-For example, <b>a+b*c&lt;d</b> parses as <b>(a+(b*c))&lt;d</b>.
+For example, <b>a+b*c&lt;d</b> parses as <b>(a+(b*c))&lt;d</b>, 
+and <b>-1 as Byte</b> parses as <b>-(1 as Byte)</b>. 
 
 <div class="p"><!----></div>
 
 <table>
+<tr><td align="left"><b>as T</b>, postfix <b>++</b>, postfix <b>--</b></td></tr>
+<tr><td align="left">unary <b>-</b>, unary <b>+</b>, prefix <b>++</b>, prefix <b>--</b></td></tr>
+<tr><td align="left"><b>!</b>, <b>&#126;</b></td></tr>
 <tr><td align="left"><b>? :</b> </td></tr>
 <tr><td align="left"><b>&#124;&#124;</b> </td></tr>
 <tr><td align="left"><b>&amp;&amp;</b> </td></tr>

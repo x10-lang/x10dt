@@ -40,7 +40,7 @@ interface Pushable(text:String, prio:Int){prio != 0} {
   static type Shove = Int;
   
 }
-class MessageButton(text:String, prio:Int){
+class MessageButton(text:String, prio:Int)
   implements Pushable{self.prio==Pushable.MAX_PRIO} {
   public def push() { 
     x10.io.Console.OUT.println(text + " pushed");
