@@ -276,7 +276,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
           for (final Control control : remoteControls) {
             control.setEnabled(true);
           }
-          browseFileButton.setEnabled(false);
+          browseFileButton.setEnabled(true);
           outputFolderBrowseBt.setEnabled(false);
           updateResourceManager();
           updateLaunchConfigurationDialog();
