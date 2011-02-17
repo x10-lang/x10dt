@@ -50,7 +50,7 @@ public class X10PerspectiveFactory implements IPerspectiveFactory {
     layout.addView(IPageLayout.ID_OUTLINE, IPageLayout.RIGHT, (float) 0.75, editorArea);
     layout.addActionSet(IDebugUIConstants.LAUNCH_ACTION_SET);
     layout.addActionSet(JavaUI.ID_ACTION_SET);
-    layout.addActionSet(JavaUI.ID_ELEMENT_CREATION_ACTION_SET);
+//    layout.addActionSet(JavaUI.ID_ELEMENT_CREATION_ACTION_SET);
     layout.addActionSet(IPageLayout.ID_NAVIGATE_ACTION_SET);
 
     // views - java
