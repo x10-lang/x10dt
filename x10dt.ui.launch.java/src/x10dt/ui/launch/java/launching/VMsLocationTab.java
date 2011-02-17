@@ -176,8 +176,10 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
 
   public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(ATTR_IS_LOCAL, this.fLocalConnBt.getSelection());
-    configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, 
-                               this.fResourceManager.getUniqueName());
+    if (this.fResourceManager != null) {
+      configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, 
+                                 this.fResourceManager.getUniqueName());
+    }
     if (! this.fLocalConnBt.getSelection()) {
       configuration.setAttribute(ATTR_HOST, this.fHostText.getText());
       configuration.setAttribute(ATTR_PORT, this.fPortText.getSelection());

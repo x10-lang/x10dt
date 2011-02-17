@@ -7,7 +7,6 @@
  *******************************************************************************/
 package x10dt.ui.launching;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -19,11 +18,22 @@ import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-
-final class X10FileElementWrapper implements IJavaElement {
+/**
+ * Adapts a given {@link IResource} into an {@link IJavaElement}.
+ * 
+ * <p>Should be used with care.
+ * 
+ * @author egeay
+ */
+public final class ResourceToJavaElementAdapter implements IJavaElement {
   
-  X10FileElementWrapper(final IFile x10File) {
-    this.fX10File = x10File;
+  /**
+   * Creates the adapter from the given {@link IResource} instance.
+   * 
+   * @param resource The resource to adapt into an {@link IJavaElement}.
+   */
+  public ResourceToJavaElementAdapter(final IResource resource) {
+    this.fResource = resource;
   }
   
   // --- Interface methods implementation
@@ -46,7 +56,7 @@ final class X10FileElementWrapper implements IJavaElement {
   }
 
   public IResource getCorrespondingResource() throws JavaModelException {
-    return this.fX10File;
+    return this.fResource;
   }
 
   public String getElementName() {
@@ -66,7 +76,7 @@ final class X10FileElementWrapper implements IJavaElement {
   }
 
   public IJavaProject getJavaProject() {
-    return JavaCore.create(this.fX10File.getProject());
+    return JavaCore.create(this.fResource.getProject());
   }
 
   public IOpenable getOpenable() {
@@ -86,7 +96,7 @@ final class X10FileElementWrapper implements IJavaElement {
   }
 
   public IResource getResource() {
-    return this.fX10File;
+    return this.fResource;
   }
 
   public ISchedulingRule getSchedulingRule() {
@@ -94,7 +104,7 @@ final class X10FileElementWrapper implements IJavaElement {
   }
 
   public IResource getUnderlyingResource() throws JavaModelException {
-    return this.fX10File;
+    return this.fResource;
   }
 
   public boolean isReadOnly() {
@@ -107,6 +117,6 @@ final class X10FileElementWrapper implements IJavaElement {
   
   // --- Fields
   
-  private final IFile fX10File;
+  private final IResource fResource;
 
 }

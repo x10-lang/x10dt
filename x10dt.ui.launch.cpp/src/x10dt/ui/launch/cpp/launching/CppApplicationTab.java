@@ -15,6 +15,7 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DI
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -33,6 +34,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
@@ -53,6 +56,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 import polyglot.types.ClassType;
@@ -71,6 +76,7 @@ import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
+import x10dt.ui.launching.ResourceToJavaElementAdapter;
 import x10dt.ui.utils.LaunchUtils;
 
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
@@ -124,10 +130,25 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-    configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
+    final IResource context = getCurrentSelectionContext();
+    if (context == null) {
+      configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
+      configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
+    } else {
+      configuration.setAttribute(ATTR_PROJECT_NAME, context.getProject().getName());
+      final IJavaElement[] scope = new IJavaElement[] { new ResourceToJavaElementAdapter(context) };
+      try {
+        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID,
+                                                                                getShell());
+        if (mainType != null) {
+          configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, mainType.first.fullName().toString());
+        }
+      } catch (Exception except) {
+        // Simply forgets.
+      }
+    }
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
-    configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
     configuration.setAttribute(ATTR_CONSOLE, true);
   }
 
@@ -335,6 +356,67 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     this.fProjectBt = createPushButton(group, LaunchMessages.CAT_BrowseButton, null /* image */);
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
   }
+  
+  private IResource getCurrentSelectionContext() {
+    final IWorkbenchWindow workbenchWindow = CppLaunchCore.getInstance().getWorkbench().getActiveWorkbenchWindow();
+    if (workbenchWindow != null) {
+      final IWorkbenchPage activePage = workbenchWindow.getActivePage();
+      if (activePage != null) {
+        final ISelection selection = activePage.getSelection();
+        if (selection instanceof IStructuredSelection) {
+          return getCurrentSelectionContext((IStructuredSelection) selection);
+        }
+      }
+    }
+    return null;
+  }
+  
+  private IResource getCurrentSelectionContext(final IStructuredSelection selection) {
+    final Object selectedObject;
+    if (selection.size() > 1) {
+      // Unless they have a common project, it doesn't really makes sense here.
+      IProject commonProject = null;
+      for (final Iterator<?> it = selection.iterator(); it.hasNext();) {
+        final Object element = it.next();
+        final IProject curPrj;
+        if (element instanceof IJavaElement) {
+          curPrj = ((IJavaElement) element).getJavaProject().getProject();
+        } else if (element instanceof IResource) {
+          curPrj = ((IResource) element).getProject();
+        } else {
+          curPrj = null;
+        }
+        if (commonProject == null) {
+          commonProject = curPrj;
+        } else if ((curPrj != null) && ! commonProject.equals(curPrj)) {
+          commonProject = null;
+          break;
+        }
+      }
+      selectedObject = commonProject;
+    } else {
+      selectedObject = selection.getFirstElement();
+    }
+    final IResource resource;
+    if (selectedObject instanceof IJavaElement) {
+      resource = ((IJavaElement) selectedObject).getResource();
+    } else if (selectedObject instanceof IResource) {
+      resource = (IResource) selectedObject;
+    } else {
+      resource = null;
+    }
+    if ((resource != null) && resource.exists()) {
+      final IProject project = resource.getProject();
+      try {
+        if (project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
+          return resource;
+        }
+      } catch (CoreException except) {
+        // Simply forgets.
+      }
+    }
+    return null;
+  }
 
   private ITargetOpHelper getTargetOpHelper() {
     final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
@@ -343,8 +425,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     return TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
   }
 
-  private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, final String name)
-                                                                                                                       throws CoreException {
+  private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, 
+                                          final String name) throws CoreException {
     final Listener[] listeners = text.getListeners(SWT.Modify);
     for (final Listener listener : listeners) {
       text.removeListener(SWT.Modify, listener);

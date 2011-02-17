@@ -54,7 +54,7 @@ public class X10LaunchablePropertyTester extends PropertyTester implements IProp
     if (X10_EXT.equals(file.getFileExtension())) {
       try {
         final Collection<ClassType> x10Types = new ArrayList<ClassType>();
-        X10Utils.collectX10MainTypes(x10Types, new X10FileElementWrapper(file), new NullProgressMonitor());
+        X10Utils.collectX10MainTypes(x10Types, new ResourceToJavaElementAdapter(file), new NullProgressMonitor());
         if (x10Types.size() == 0) {
           return false;
         } else {

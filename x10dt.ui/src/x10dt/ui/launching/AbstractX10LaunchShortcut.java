@@ -87,8 +87,8 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       final Iterator<?> it = structuredSelection.iterator();
       for (int i = 0, size = structuredSelection.size(); i < size; ++i) {
         final Object obj = it.next();
-        if (obj instanceof IFile) {
-          elements[i] = new X10FileElementWrapper((IFile) obj);
+        if (obj instanceof IResource) {
+          elements[i] = new ResourceToJavaElementAdapter((IFile) obj);
         } else {
           elements[i] = (IJavaElement) obj;
         }
@@ -100,7 +100,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   public final void launch(final IEditorPart editor, final String mode) {
     if (editor instanceof UniversalEditor) {
       final IFile file = ((IFileEditorInput) editor.getEditorInput()).getFile();
-      searchAndLaunch(new IJavaElement[] { new X10FileElementWrapper(file) }, mode);
+      searchAndLaunch(new IJavaElement[] { new ResourceToJavaElementAdapter(file) }, mode);
     }
   }
   
