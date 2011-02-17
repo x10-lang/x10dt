@@ -71,33 +71,46 @@ color: SlateGray;
   </tr>
  
   <tr> 
-    <td class="section_item">Global Search Feature</td> 
+    <td class="section_item">Multi-JVM support</td> 
     <td class="section_content">
-     	X10DT now provides an X10 global search feature (Search -> Search -> X10 Search tab) 
-     	that allows searching for occurrences of types, fields, and methods in a given scope.
+    <p>
+	For the C++ backend, there should be no changes (any changes are unintended bugs...)
+	</p>
+	<p>
+	For the Java backend, we are now compiling/running code so that each place is run in a separate JVM process.  
+	The main difference is that execution will 	default to a single place.  You use the run configuration variables (Number of places, host list, host file) 
+	to control multi-place launches as you do with the C++ backend and the sockets (default) runtime.
+    </p>
+    <p><img src="images/runConfigPlacesHosts.png"/></p>
     </td>
   </tr>
   
   <tr> 
-    <td class="section_item">X10 Distribution Verification</td> 
+    <td class="section_item">Sockets transport</td> 
     <td class="section_content">
-    	The x10_platform.conf editor now verifies that the user-supplied X10 distribution 
-    	location actually exists on the remote host, and performs a simple check to determine 
-    	whether that directory looks like a valid X10 distribution. If not, the editor will 
-    	indicate that with a message at the top of the form.
-    	<p><img src="images/verify-x10-dist.png"/></p>
+    	The sockets transport replaces <tt>pgas_sockets</tt> (which is closed-source, and requires some setup), and is currently the default backend if you don't compile with the "-x10rt" flag. 
+    	You can select the transport to use in the platform configuration file. The default is the sockets transport.
+    	<p><img src="images/platformConfigCommType.png"/></p>
+    <p>
+    	You set an run configuration variable <tt>Number of places</tt> to specify the number of places. If this is not set, it defaults to 1 place on the local machine, and prints a warning. 
+		There are two ways to specify the machines to run on: 
+	</p>
+	<ul>
+	<li>Set the run configuration variable <tt>host file</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. </li>
+	<li>Set the run configuration variable <tt>host list</tt>, to a list of hostnames, with one line per machine. This run configuration variable is checked only if <tt>host file</tt> was not set. </li>
+	</ul>
+	Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>number of places to 4</tt> and <tt>host list contains host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost, and prints a warning. You can set <tt>the list of hosts to localhost</tt> to get the same effect without warning. 
+	If you're running on more than one machine, you should have public/private key ssh authentication set up, so you can ssh from one machine to another without getting a password prompt. You should also have your executable and hostfile available in the same location on every machine listed in the hostfile. You don't have to launch from one of the machines in the hostfile, but you do need to have the ssh authentication set up between the machine you launch from and the first machine in the list. 
+	<p>
+	Please note that currently, the Sockets backend will not work in an environment with mixed POWER and x86 hardware, due to different endianness. 
+	</p>
+	<p><img src="images/runConfigCppPlacesHosts.png"/></p>
+
+	<h3>Running with Standalone backend </h3>
+	Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one run configuration variable "Number of places", which should be set to the number of places. If not set, it defaults to 1 and prints a warning. The standalone has transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, set the run configuration variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
+    <p><img src="images/runConfigPlacesStandalone.png"/></p>
+
     </td>
-  </tr>
-  
-  <tr> 
-    <td class="section_item">An Introduction to Programming With X10</td> 
-    <td class="section_content"> 
-	This is a draft of the Part I of the Guide. This draft focuses on core 
-	features of the X10 language and programming model. This Guide is a 
-	work-in-progress. We anticipate that a complete draft of Part I and 
-	a substantial part of Part II will be available in early first quarter 2011. 
-	The Guide is located under the X10 Help contents.
-    </td> 
   </tr>
 
 <!--   
