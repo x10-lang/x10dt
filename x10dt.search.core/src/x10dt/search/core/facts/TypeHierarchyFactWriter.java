@@ -14,9 +14,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.ast.ClassDecl;
-import polyglot.ast.TypeNode;
-import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.Type;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 
@@ -33,16 +32,14 @@ final class TypeHierarchyFactWriter extends AbstractFactWriter implements IFactW
   public void writeFacts(final ClassDecl classDecl) {
     this.fAllMembersFactWriter.writeFacts(classDecl);
     
-    final ClassDef classDef = classDecl.classDef();
-    final ClassType classType = classDef.asType();
+    final ClassType classType = classDecl.classDef().asType();
     final IValue typeNameValue = createTypeName(classType.fullName().toString());
 
-    final TypeNode superTypeNode = classDecl.superClass();
+    final Type superType = classType.superClass();
     final ClassType superClass;
-    if (superTypeNode == null) {
+    if (superType == null) {
       superClass = null;
     } else {
-      final polyglot.types.Type superType = superTypeNode.type();
       if (superType.isClass()) {
         superClass = superType.toClass();
       } else {
@@ -54,8 +51,7 @@ final class TypeHierarchyFactWriter extends AbstractFactWriter implements IFactW
       insertValue(X10_TypeHierarchy, getValueFactory().tuple(typeNameValue, createTypeName(superClass.fullName().toString())));
     }
 
-    for (final TypeNode interfaceTypeNode : classDecl.interfaces()) {
-      final polyglot.types.Type interfaceType = interfaceTypeNode.type();
+    for (final Type interfaceType : classType.interfaces()) {
       if ((interfaceType != null) && (interfaceType instanceof ClassType)) {
         insertValue(X10_TypeHierarchy,
                     getValueFactory().tuple(typeNameValue, createTypeName(((ClassType) interfaceType).fullName().toString())));
