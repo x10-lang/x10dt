@@ -11,7 +11,6 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllFields;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllMethods;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -65,7 +64,9 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
     if (i >= 0) {
       // If there were compiler-generated methods, the array is shorter than we first thought
       if (i != methods.length - 1) {
-        methods = Arrays.copyOfRange(methods, 0, i + 1);
+        IValue[] actualMethods = new IValue[i+1];
+        System.arraycopy(methods, 0, actualMethods, 0, i+1);
+        methods = actualMethods;
       }
       insertValue(X10_AllMethods, getValueFactory().tuple(typeNameValue, getValueFactory().list(methods)));
     }
@@ -82,7 +83,9 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
     if (i >= 0) {
       // If there were compiler-generated fields, the array is shorter than we first thought
       if (i != fields.length - 1) {
-        fields = Arrays.copyOfRange(fields, 0, i + 1);
+        IValue[] actualFields = new IValue[i+1];
+        System.arraycopy(fields, 0, actualFields, 0, i+1);
+        fields = actualFields;
       }
       insertValue(X10_AllFields, getValueFactory().tuple(typeNameValue, getValueFactory().list(fields)));
     }
