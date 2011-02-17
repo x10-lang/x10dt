@@ -15,9 +15,9 @@ import java.text.MessageFormat;
 
 import org.eclipse.imp.editor.ProblemsLabelDecorator;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.ModelFactory.ModelException;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jface.viewers.AbstractTreeViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -137,7 +137,7 @@ public class HierarchyInformationControl extends AbstractInformationControl {
 		});
 
 		fLabelProvider.setTextFlags(X10ElementLabels.ALL_DEFAULT | X10ElementLabels.T_POST_QUALIFIED);
-		fLabelProvider.addLabelDecorator(new ProblemsLabelDecorator(null));
+		fLabelProvider.addLabelDecorator(new ProblemsLabelDecorator(LanguageRegistry.findLanguage("X10")));
 		treeViewer.setLabelProvider(new ColoringLabelProvider(fLabelProvider));
 
 		treeViewer.getTree().addKeyListener(getKeyAdapter());
