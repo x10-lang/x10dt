@@ -10,11 +10,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -793,7 +795,7 @@ public class ExtractAsyncRefactoring extends Refactoring {
 			final Map<VarWithFirstUse, Set<VarWithFirstUse>> aliasInfo) {
 		// Since fPhi and fRho are instance fields, changing them in this
 		// method is visible outside of the method.
-		fPhi = new HashMap<Stmt, Set<Expr>>();
+		fPhi = new LinkedHashMap<Stmt, Set<Expr>>();
 		fRho = new HashMap<VarWithFirstUse, Boolean>();
 
 		// Used to track info flow changes
@@ -816,22 +818,28 @@ public class ExtractAsyncRefactoring extends Refactoring {
 
 		if (loop instanceof X10Loop) {
 			X10Loop xloop = (X10Loop) loop;
-			if (xloop.body() instanceof Block) {
-				Block xloop_body = (Block) xloop.body();
-				for (Object stmt : xloop_body.statements()) {
-					if (stmt instanceof Eval) {
-						Eval eval_stmt = (Eval) stmt;
-						if (eval_stmt.expr() instanceof Assign) {
-							assignStmts.add(eval_stmt);
-							internal_phi.put(eval_stmt, new HashSet<VarKey>());
-						}
-					} else if (stmt instanceof LocalDecl) {
-						assignStmts.add((LocalDecl) stmt);
-						internal_phi.put((LocalDecl) stmt,
-								new HashSet<VarKey>());
-					}
-				}
-			}
+			ExtractAssignStmtsVisitor assignmentExtractor = new ExtractAssignStmtsVisitor();
+			xloop.visit(assignmentExtractor);
+			assignStmts = assignmentExtractor.getAssignStmts();
+			// if (xloop.body() instanceof Block) {
+			// Block xloop_body = (Block) xloop.body();
+			// for (Object stmt : xloop_body.statements()) {
+			// if (stmt instanceof Eval) {
+			// Eval eval_stmt = (Eval) stmt;
+			// if (eval_stmt.expr() instanceof Assign) {
+			// assignStmts.add(eval_stmt);
+			// internal_phi.put(eval_stmt, new HashSet<VarKey>());
+			// }
+			// } else if (stmt instanceof LocalDecl) {
+			// assignStmts.add((LocalDecl) stmt);
+			// internal_phi.put((LocalDecl) stmt,
+			// new HashSet<VarKey>());
+			// }
+			// }
+			// }
+		} else {
+			ThrowableStatus
+					.createFatalErrorStatus("Refactoring analysis failed on non X10 loop.");
 		}
 
 		X10NodeFactory nf = (X10NodeFactory) ((ParseController) ed
@@ -842,6 +850,8 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// translate a statement from variables into varkeys
 		List<StmtKeys> stmtKeys = new LinkedList<StmtKeys>();
 		for (Stmt stmt : assignStmts) {
+			internal_phi.put(stmt, new HashSet<VarKey>());
+
 			Expr lval = null;
 			Expr rexpr = null;
 
@@ -1934,16 +1944,19 @@ public class ExtractAsyncRefactoring extends Refactoring {
 		// int endOffset = locator.getEndOffset(fPivot);
 
 		StringWriter loopWriter = new StringWriter();
+		List<Stmt> bodyStmts = Arrays
+				.asList(fPhi.keySet().toArray(new Stmt[0]));
 		if (lStmt instanceof X10Loop) {
 			X10Loop loop = (X10Loop) lStmt;
 			if (loop.body() instanceof Block) {
 				Block loopBody = (Block) loop.body();
-				List<Stmt> bodyStmts = (List<Stmt>) loopBody.statements();
 				int pivotIndex = bodyStmts.indexOf(fPivot);
 				if (pivotIndex < 0) {
 					ThrowableStatus
 							.createFatalErrorStatus("Pivot statement not found in body of the loop.");
 				}
+				LoopCarriedStmtVisitor lcs = new LoopCarriedStmtVisitor(
+						bodyStmts.subList(0, pivotIndex), fRho);
 				List<Stmt> block1Stmts = bodyStmts.subList(0, pivotIndex);
 				List<Stmt> block2Stmts = Collections.emptyList();
 
