@@ -79,8 +79,8 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
   // --- IPlatformConfChecker's interface methods implementation
 
   public String validateArchiving(final SubMonitor monitor) throws Exception {
-    final String archiver = fCompilationConf.getArchiver();
-    final String archivingOptions = fCompilationConf.getArchivingOpts(true);
+    final String archiver = this.fCompilationConf.getArchiver();
+    final String archivingOptions = this.fCompilationConf.getArchivingOpts(true);
 
     monitor.beginTask(null, 10);
     monitor.subTask(LaunchMessages.APCC_ArchivingTaskMsg);
@@ -95,12 +95,10 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
   }
   
   public String validateCompilation(final SubMonitor monitor) throws Exception {
-    final String compiler = fCompilationConf.getCompiler();
-    final String compilingOptions = fCompilationConf.getCompilingOpts(true);
-//  final String x10DistLoc = fCompilationConf.getX10DistribLocation();
-//  final String pgasDistLoc = fCompilationConf.getPGASLocation();
-    final String[] x10HeadersLocs = fCompilationConf.getX10HeadersLocations();
-    final String[] x10LibsLocs = fCompilationConf.getX10LibsLocations();
+    final String compiler = this.fCompilationConf.getCompiler();
+    final String compilingOptions = this.fCompilationConf.getCompilingOpts(true);
+    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations();
+    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations();
 
     monitor.beginTask(null, 20);
     monitor.subTask(LaunchMessages.APCC_CompilationTaskMsg);
@@ -135,11 +133,11 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
   }
 
   public String validateLinking(final SubMonitor monitor) throws Exception {
-    final String linker = fCompilationConf.getLinker();
-    final String linkingOptions = fCompilationConf.getLinkingOpts(true);
-    final String linkingLibs = fCompilationConf.getLinkingLibs(true);
-    final String[] x10HeadersLocs = fCompilationConf.getX10HeadersLocations();
-    final String[] x10LibsLocs = fCompilationConf.getX10LibsLocations();
+    final String linker = this.fCompilationConf.getLinker();
+    final String linkingOptions = this.fCompilationConf.getLinkingOpts(true);
+    final String linkingLibs = this.fCompilationConf.getLinkingLibs(true);
+    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations();
+    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations();
 
     monitor.beginTask(null, 20);
     monitor.subTask(LaunchMessages.APCC_LinkingTaskMsg);
@@ -154,6 +152,20 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
   }
   
   // --- Private code
+  
+  private void addMainMethodStub(final File file) {
+    try {
+      final X10CPPCompilerOptions options = (X10CPPCompilerOptions) CompilerOptionsFactory.createOptions(this.fProject);
+      final FileOutputStream fos = new FileOutputStream(file, true);
+      final String stubSource = MessagePassingCodeGenerator.createMainStub("Hello", options); //$NON-NLS-1$
+
+      fos.write(stubSource.getBytes());
+      fos.flush();
+      fos.close();
+    } catch (IOException except) {
+      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CppCompilationChecker_errorAppendingMainMethodStub, except);
+    }
+  }
   
   private Pair<String, String> compileX10File(final File testFilePath, final InputStream sourceInputStream, 
                                               final String workspaceDir, final String[] x10LibsLocs, 
@@ -234,20 +246,6 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
       }
     } finally {
       Globals.initialize(null);
-    }
-  }
-  
-  private void addMainMethodStub(File file) {
-    try {
-      X10CPPCompilerOptions options = (X10CPPCompilerOptions) CompilerOptionsFactory.createOptions(fProject);
-      FileOutputStream fos= new FileOutputStream(file, true);
-      String stubSource= MessagePassingCodeGenerator.createMainStub("Hello", options); //$NON-NLS-1$
-
-      fos.write(stubSource.getBytes());
-      fos.flush();
-      fos.close();
-    } catch (IOException e) {
-      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CppCompilationChecker_errorAppendingMainMethodStub, e);
     }
   }
 
