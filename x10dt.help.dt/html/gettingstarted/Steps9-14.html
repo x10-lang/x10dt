@@ -12,7 +12,6 @@ X10DT allows you to compile and run your programs on different machines with the
 
 <ul>
 <li><a href="#platform">The X10 Platform Configuration and Remote Launching</a></li>
-<li><a href="#debugger">Debugger Basics</a></li>
 </ul>
 
 <h2 id="platform">The X10 Platform Configuration and Remote Launching</h2>
@@ -30,21 +29,27 @@ If your settings are correct a green check mark will appear next to the
 name of the connection.
 
 <br><br>
-Change the <b>Connection Type</b> to <b>Open MPI</b> and keep the default settings that appear.
+Change the <b>Connection Type</b> to <b>Sockets</b> and keep the default settings that appear.
 
 <br><br>
 <img src="images/platformConfig1.png" border="0" />
 <br><br>
 
-Switch to the <b>C++ Compilation and Linking</b> tab. Specify the output folder in the home directory for the account you have chosen, and name
-your output folder <b>using your own name</b>. This is to ensure that different participants in the tutorial won't share output directories accidentally.
+Switch to the <b>C++ Compilation and Linking</b> tab. Specify the output folder in the home directory to use, and name
+your output folder appropriately. 
+<!--
+This is to ensure that different participants in the tutorial won't share output directories accidentally.
 For example, if you chose <b>tutorial01</b> for your account, then your output folder would be: 
-<br><br><b>/home/tutorial01/JohnDoe</b><br><br>
-In the <b>X10 Distribution</b> field, enter: <b>/opt/x10</b>. This will be automatically carried to the PGAS distribution field.
-
-<br>
+<br><br><b>/home/tutorial01/JohnDoe</b>
+<br><br>
+-->
+In the <b>X10 Distribution</b> field, enter the location of your X10 distribution. 
+This will be automatically carried to the PGAS distribution field.
+<br><br>
+<!--
 Be sure that the checkbox <b>Use MPI Library for Debugger</b> under <b>Compilation and Linking</b> is checked.
 <br><br>
+-->
 <img src="images/platformConfig2.png" border="0" />
 <br><br>
 
@@ -74,15 +79,18 @@ the name of the main type in the <b>Main class</b> field. You may use the <b>Sea
 <img src="images/runConfig.png" border="0" />
 <br><br>
 
-In the <b>Communication Interface</b> tab, in the <b>Basic Open MPI</b> section, enter the desired number of processes (needs to be >0). Check
-the <b>Host file</b> check box and enter (with <b>tutotrial01</b> replaced with your account):
+In the <b>Communication Interface</b> tab, enter the desired number of places (needs to be >0). Check either
+the <b>Host file</b> or <b>List of hosts</b> check box and enter the host file to use, or each host to use on a single line.):
 
+<!--
 <br><br><b>/home/tutorial01/.rhosts</b>
+-->
 
 <br><br>
 <img src="images/runConfig1.png" border="0" />
 <br><br>
 
+<!--
 Click on the <b>Advanced Open MPI</b> button, and check the check boxes labeled: <b>Use default arguments</b>, and <b>Use default parameters</b>.
 Occasionally, you may need to hit <b>Apply</b> when making these changes because the settings may be lost as you navigate through the tabs (a shortcoming
 that will be fixed in a future release).
@@ -90,11 +98,11 @@ that will be fixed in a future release).
 <br><br>
 <img src="images/runConfig2.png" border="0" />
 <br><br>
-
+-->
 
 When you are finished with the <b>Run Configurations</b> settings, and no tab shows any errors, hit <b>Apply</b> to save, and then hit <b>Run</b>.
 
-
+<!--
 <br><br>
 If this step fails for you, go to the <b>Resources Manager</b> pane in the <b>Parallel Runtime</b> perspective. Right click on the resource manager
 corresponding to your project, and select <b>Stop Resource Manager</b>. Click <b>OK</b> in the popup window. Then right click again on the
@@ -105,8 +113,9 @@ back to the run configurations (<b>Run -> Run Configurations...</b>) and selecti
 <br><br>
 <img src="images/resourceManager.png" border="0" />
 <br><br>
+-->
 
-
+<!--
 <h2 id="debugger">Debugger Basics</h2>
 
 To start working with the debugger, go to:
@@ -159,6 +168,7 @@ back to the debug configurations (<b>Run -> Debug Configurations...</b>) and sel
 <br><br>
 <img src="images/debugger.png" border="0" />
 <br><br>
+-->
 
 </body>
 </html>
