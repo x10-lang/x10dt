@@ -211,7 +211,6 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setMonitorCommand(ciType, monitorCmdText.getText().trim());
-        formPart.handleEmptyTextValidation(monitorCmdText, LaunchMessages.RMCP_MonitorLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -323,7 +322,6 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       this.fDebugCmdText.setText(ciConf.getDebugCommand().trim());
       formPart.handleEmptyTextValidation(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel);
       this.fMonitorCmdText.setText(ciConf.getMonitorCommand().trim());
-      formPart.handleEmptyTextValidation(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel);
     }
     this.fDiscoverCmdText.setText(ciConf.getDiscoverCommand().trim());
     formPart.handleEmptyTextValidation(this.fDiscoverCmdText, LaunchMessages.RMCP_DiscoverLabel);
