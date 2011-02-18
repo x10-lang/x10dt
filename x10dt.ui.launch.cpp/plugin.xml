@@ -89,8 +89,7 @@
 			type="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
 			modes="run"
 			sourceLocatorId="x10dt.ui.cpp.launch.SourceLocator"
-			sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer" 
-			description="%launch.config.cpp.name">
+			sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">
 	  </launchDelegate>
    </extension>
    <extension
@@ -104,11 +103,6 @@
                mode="run"
                perspective="org.eclipse.ptp.ui.PTPRunPerspective">
          </launchMode>
-<!--         <launchMode
-               description="%parallelLaunch.debug"
-               mode="debug"
-               perspective="org.eclipse.ptp.debug.ui.PTPDebugPerspective">
-         </launchMode> -->
       </launchConfigurationTabGroup>
    </extension>
    <extension
