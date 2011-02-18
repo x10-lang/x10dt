@@ -38,8 +38,6 @@ import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
-import x10dt.ui.launch.cpp.platform_conf.IMPICH2InterfaceConf;
-import x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
@@ -127,9 +125,8 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     final String projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-    final IResourceManager rsrcMgr = PTPConfUtils.findResourceManagerById(platformConf);
 
-    updateCommunicationInterfaceAttributes(platformConf.getCommunicationInterfaceConf(), config, rsrcMgr);
+    updateCommunicationInterfaceAttributes(platformConf.getCommunicationInterfaceConf(), config);
   }
   
   // --- Private code
@@ -181,34 +178,17 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
   }
   
   private void updateCommunicationInterfaceAttributes(final ICommunicationInterfaceConf commIntfConf,
-                                                      final ILaunchConfigurationWorkingCopy config,
-                                                      final IResourceManager rsrcMgr) throws CoreException {
+                                                      final ILaunchConfigurationWorkingCopy config) throws CoreException {
     final String serviceTypeId = commIntfConf.getServiceTypeId();
     if (serviceTypeId.equals(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID)) {
-      // Open MPI
-      if (isOpenMPILaunchConfig(config)) {
-        IOpenMPIInterfaceConf mpiConf = (IOpenMPIInterfaceConf) commIntfConf;
-
-        updateOpenMPIConfig(config, mpiConf);
-      } else {
+      if (! isOpenMPILaunchConfig(config)) {
         setOpenMPIDefaults(config);
       }
     } else if (serviceTypeId.equals(PTPConstants.MPICH2_SERVICE_PROVIDER_ID)) {
-      // MPICH
-      if (isMPICH2LaunchConfig(config)) {
-        IMPICH2InterfaceConf mpichConf = (IMPICH2InterfaceConf) commIntfConf;
-
-        updateMPICHConfig(config, mpichConf);
-      } else {
+      if (! isMPICH2LaunchConfig(config)) {
         setMPICNDefaults(config);
       }
     }
-  }
-  
-  private void updateMPICHConfig(final ILaunchConfigurationWorkingCopy workingCopy, final IMPICH2InterfaceConf mpichConf) {
-  }
-  
-  private void updateOpenMPIConfig(final ILaunchConfigurationWorkingCopy workingCopy, final IOpenMPIInterfaceConf mpiConf) {
   }
   
   // --- Fields
