@@ -10,13 +10,11 @@
  *******************************************************************************/
 package x10dt.search.ui.actions;
 
-import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.eclipse.ui.PlatformUI;
@@ -28,7 +26,6 @@ import x10dt.search.ui.dialogs.OpenTypeSelectionDialog;
 import x10dt.search.ui.typeHierarchy.OpenTypeHierarchyUtil;
 
 public class OpenTypeInHierarchyAction extends Action implements IWorkbenchWindowActionDelegate {
-
 	private IWorkbenchWindow fWindow;
 
 	public OpenTypeInHierarchyAction() {
@@ -55,11 +52,7 @@ public class OpenTypeInHierarchyAction extends Action implements IWorkbenchWindo
 		if (types != null && types.length > 0) {
 			ITypeInfo type= (ITypeInfo)types[0];
 			
-			IEditorPart part = fWindow.getActivePage().getActiveEditor();
-			if(part instanceof UniversalEditor)
-			{
-				OpenTypeHierarchyUtil.open(new ITypeInfo[] { type }, fWindow);
-			}
+			OpenTypeHierarchyUtil.open(new ITypeInfo[] { type }, fWindow);
 		}
 	}
 
