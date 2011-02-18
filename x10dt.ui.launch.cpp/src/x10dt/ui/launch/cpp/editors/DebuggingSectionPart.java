@@ -151,6 +151,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
     this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
 
+    final Text debuggerText = this.fDebuggerFolderText;
     KeyboardUtils.addDelayedActionOnControl(this.fDebuggerFolderText, new Runnable() {
 
       public void run() {
@@ -160,14 +161,14 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
             // If the field is non-empty, check that the specified folder doesn't exist.
             // We only do the check when the field is non-empty, so that users that don't
             // want to use the debugger aren't forced into supplying this info.
-            String folderText = DebuggingSectionPart.this.fDebuggerFolderText.getText();
-            if (folderText.length() > 0) {
-              handlePathValidation(DebuggingSectionPart.this.fDebuggerFolderText, LaunchMessages.DSP_DebuggerFolder);
+            if (debuggerText.getText().length() > 0) {
+              handlePathValidation(debuggerText, LaunchMessages.DSP_DebuggerFolder);
             } else {
-              getFormPage().getManagedForm().getMessageManager().removeMessages();
-              ((SharedHeaderFormEditor) getFormPage().getEditor()).getHeaderForm().getMessageManager().removeMessages();
+              final SharedHeaderFormEditor formEditor = (SharedHeaderFormEditor) getFormPage().getEditor();
+              formEditor.getHeaderForm().getMessageManager().removeMessage(debuggerText);
+              getFormPage().getManagedForm().getMessageManager().removeMessage(debuggerText, debuggerText);
             }
-          }
+           }
 
         });
       }
