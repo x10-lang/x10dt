@@ -168,7 +168,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
               formEditor.getHeaderForm().getMessageManager().removeMessage(debuggerText);
               getFormPage().getManagedForm().getMessageManager().removeMessage(debuggerText, debuggerText);
             }
-           }
+          }
 
         });
       }
