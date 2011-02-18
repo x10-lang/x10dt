@@ -49,7 +49,6 @@ public class CompilerOptionsFactory {
             // First initialize to default values.
             options.x10_config.CHECK_INVARIANTS = false;
             options.x10_config.ONLY_TYPE_CHECKING = false;
-            options.x10_config.NO_CHECKS = false;
             options.x10_config.FLATTEN_EXPRESSIONS = false;
             options.x10_config.WALA = false;
             options.x10_config.FINISH_ASYNCS = false;
@@ -62,6 +61,7 @@ public class CompilerOptionsFactory {
                     X10DTCorePlugin.getInstance().logException(NLS.bind("Could not initialize option ''{0}''.", opt), except);
                 }
             }
+            options.x10_config.NO_CHECKS = prefService.getBooleanPreference(X10Constants.P_DISABLECHECKING);
         }
         // Optimization prefs update
         setOptionsNoCodeGen(prefService, options);

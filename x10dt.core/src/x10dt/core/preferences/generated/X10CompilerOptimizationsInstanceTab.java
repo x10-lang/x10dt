@@ -54,7 +54,7 @@ public class X10CompilerOptimizationsInstanceTab extends InstancePreferencesTab 
 		BooleanFieldEditor DisableChecking = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
 			"instance", "DisableChecking", "Disable checking",
-			"",
+			"Disables the generation of all null, bounds, and place checks",
 			parent,
 			true, true,
 			true, false,
