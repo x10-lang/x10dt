@@ -23,6 +23,8 @@ public final class Constants {
   
   public static final String CLASS_EXT = ".class"; //$NON-NLS-1$
   
+  public static final String JAR_EXT = ".jar"; //$NON-NLS-1$
+  
   public static final String CC_EXT = ".cc"; //$NON-NLS-1$
   
   public static final String CPP_EXT = ".cpp"; //$NON-NLS-1$
@@ -39,7 +41,7 @@ public final class Constants {
   
   public static final String A_EXT = ".a"; //$NON-NLS-1$
   
-  public static final String X10_EXT = ".x10"; //$NON-NLS-1$  
+  public static final String X10_EXT = ".x10"; //$NON-NLS-1$
 
   // --- Constants for Launch Configuration
   

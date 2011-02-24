@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.core.utils;
 
+
 /**
  * Defines a thread that will wait for a customizable amount of time before taking some general action.
  * 
@@ -29,16 +30,16 @@ public final class TimerThread extends Thread {
   // --- Overridden methods
   
   public void run() {
-    for (;;) {
+    while (true) {
       try {
         Thread.sleep(this.fTime);
       } catch (InterruptedException except) {
-        continue;
       }
-      if (! this.fIsReseted) {
+      if (! this.fShouldSleepAgain && ! this.fIsReseted) {
         this.fRunnableAction.run();
         break;
       }
+      this.fShouldSleepAgain = false;
     }
   }
   
@@ -51,6 +52,9 @@ public final class TimerThread extends Thread {
    */
   public void setShouldBeReseted(final boolean resetFlag) {
     this.fIsReseted = resetFlag;
+    if (resetFlag) {
+      this.fShouldSleepAgain = true;
+    }
   }
   
   // --- Fields
@@ -60,5 +64,7 @@ public final class TimerThread extends Thread {
   private final int fTime;
   
   private boolean fIsReseted;
+  
+  private boolean fShouldSleepAgain;
   
 }
