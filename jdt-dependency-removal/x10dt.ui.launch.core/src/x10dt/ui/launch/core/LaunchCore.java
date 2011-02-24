@@ -19,22 +19,12 @@ import org.osgi.framework.BundleContext;
  * @author egeay
  */
 public class LaunchCore extends AbstractUIPlugin {
-  
+
   /**
    * Unique id for this plugin.
    */
   public static final String PLUGIN_ID = "x10dt.ui.launch.core"; //$NON-NLS-1$
-   
-  /**
-   * Id for the X10DT C++ Project Nature.
-   */
-  public static final String X10_CPP_PRJ_NATURE_ID = "x10dt.ui.launch.cpp.x10nature"; //$NON-NLS-1$
-  
-  /**
-   * Id for the X10DT Java Project Nature.
-   */
-  public static final String X10_PRJ_JAVA_NATURE_ID = "x10dt.ui.launch.java.x10nature"; //$NON-NLS-1$
-  
+
   // --- Public services
   
   /**
