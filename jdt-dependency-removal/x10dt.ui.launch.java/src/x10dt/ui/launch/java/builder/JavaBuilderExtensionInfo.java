@@ -33,6 +33,7 @@ public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
         return new X10CScheduler(this) {
             @Override
             public List<Goal> goals(Job job) {
+                // TODO Collect bookmarks after parsing - look for the Parsed() goal and insert new goal after that
                 List<Goal> goals = super.goals(job);
                 Goal endGoal = goals.get(goals.size() - 1);
                 if (!(endGoal.name().equals("End"))) {

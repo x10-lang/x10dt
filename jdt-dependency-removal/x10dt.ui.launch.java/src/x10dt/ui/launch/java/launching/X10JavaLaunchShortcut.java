@@ -10,7 +10,7 @@ package x10dt.ui.launch.java.launching;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 
-import java.net.URL;
+import java.util.Arrays;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -23,12 +23,14 @@ import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
+import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
+import org.eclipse.ptp.core.elements.IResourceManager;
 
 import polyglot.types.ClassType;
-import x10dt.core.utils.X10BundleUtils;
-import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.launch.core.LaunchCore;
+import x10dt.core.X10DTCorePlugin;
+import x10dt.ui.launch.java.Activator;
 import x10dt.ui.launch.java.Messages;
+import x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
 /**
@@ -45,7 +47,7 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   }
   
   protected String getProjectNatureId() {
-    return LaunchCore.X10_PRJ_JAVA_NATURE_ID;
+    return X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID;
   }
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
@@ -53,14 +55,18 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
     workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getProject().getName());
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
     
+    workingCopy.setAttribute(LaunchConfigConstants.ATTR_NUM_PLACES, 1);
+    workingCopy.setAttribute(LaunchConfigConstants.ATTR_USE_HOSTFILE, false);
+    workingCopy.setAttribute(LaunchConfigConstants.ATTR_HOSTLIST, Arrays.asList("localhost")); //$NON-NLS-1$
+    
+    workingCopy.setAttribute(MultiVMAttrConstants.ATTR_IS_LOCAL, true);
     try {
-      final URL x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
-      if (x10RuntimeURL != null) {
-        workingCopy.setAttribute(X10LaunchConfigAttributes.X10RuntimeAttributeID, x10RuntimeURL.getPath());
-      }
+      final IResourceManager resourceManager = new ResourceManagerHelper(workingCopy.getName()).createResourceManager();
+      workingCopy.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, 
+                               resourceManager.getUniqueName());
     } catch (CoreException except) {
-      X10DTUIPlugin.getInstance().getLog().log(new Status(IStatus.WARNING, X10DTUIPlugin.PLUGIN_ID, 
-                                                          Messages.XJS_X10RuntimeAccessError, except));
+      Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 
+                                                     Messages.XJLS_RMCreationError, except));
     }
   }
   
