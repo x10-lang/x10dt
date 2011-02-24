@@ -12,65 +12,28 @@
 
 package x10dt.ui.tests;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Arrays;
-import java.util.ListIterator;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
-import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
-import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
-import org.eclipse.swtbot.eclipse.finder.waits.WaitForView;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotEclipseEditor;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
-import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotWorkbenchPart;
-import org.eclipse.swtbot.swt.finder.SWTBot;
+
 import org.eclipse.swtbot.swt.finder.junit.SWTBotJunit4ClassRunner;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotCTabItem;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
-import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IViewReference;
-import org.hamcrest.Matcher;
-import org.junit.After;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.Assert;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-
 
 import x10dt.core.utils.Timeout;
-import x10dt.tests.services.swbot.constants.LaunchConstants;
-import x10dt.tests.services.swbot.constants.ViewConstants;
-import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
-import x10dt.ui.tests.X10DTTestBase.TypeSearchInfo;
-import x10dt.ui.tests.utils.EditorMatcher;
-import x10dt.ui.tests.waits.X10DT_Conditions;
 
 /**
  * @author lesniakr@us.ibm.com
  */
 @RunWith(SWTBotJunit4ClassRunner.class)
-public class ImportX10ArchiveTest extends X10DTTestBase {
+public class ImportX10ArchiveTest extends ImportX10Archive {
 
 	private static final String CLASS_NAME = "QSort";  //$NON-NLS-1$					//imported class name
 
@@ -80,6 +43,9 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 	
 	private static final String PROJECT_NAME_JAVABACK = "ArchiveTest_JBack"; //$NON-NLS-1$	//new empty Java backend project to accept the import
 	private static final String PROJECT_NAME_CPPBACK = "ArchiveTest_CPPBack"; //$NON-NLS-1$	//new empty C++ backend project to accept the import
+	
+	private static final int DEFAULT_CPP_NUM_PLACES = 4;	//default
+	private static final int JAVA_NUM_PLACES = 4;	//default
 
 	//we expect to see this console output when we run the imported archive
 	public static final List<String> EXPECTED_OUTPUT = Arrays.asList(	"size of array: 1000",
@@ -106,15 +72,14 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
 
   @BeforeClass
   public static void beforeClass() throws Exception {
-	  //just use the default strategy. In MacOS 10.5 (at least) the SWT strategy breaks the pressShortcut call in setCppPlatformConnectionConfig
-//    SWTBotPreferences.KEYBOARD_STRATEGY = "org.eclipse.swtbot.swt.finder.keyboard.SWTKeyboardStrategy"; //$NON-NLS-1$
     topLevelBot = new SWTWorkbenchBot();
     SWTBotUtils.closeWelcomeViewIfNeeded(topLevelBot);
     topLevelBot.perspectiveByLabel("X10").activate();
     SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
   }
-  @After
-  public void after() throws Exception {
+  
+  /* @  After */  //not using this as an After routine.  We'll call it explicitly when we're ready
+  public void clean() throws Exception {
     SWTBotUtils.closeAllEditors(topLevelBot);
     SWTBotUtils.closeAllShells(topLevelBot);
   }
@@ -123,347 +88,71 @@ public class ImportX10ArchiveTest extends X10DTTestBase {
   public static void afterClass() throws Exception {
     SWTBotUtils.saveAllDirtyEditors(topLevelBot);
   }
+
+  
+  
+/*
+ * Import archive into CPP back end project and test it
+ */
   
   //
   @Test
   public void importCPPArchiveTest() throws Exception {
-	  importArchiveTest(BackEndType.cppBackEnd);
+	  importArchive(BackEndType.cppBackEnd, PROJECT_NAME_CPPBACK, ARCHIVE_NAME, CLASS_SRCFILE_NAME);
   }
 
-  @Test
-  public void importJavaArchiveTest() throws Exception {
-	  importArchiveTest(BackEndType.javaBackEnd);	  
-  }
-
-
-  public void importArchiveTest(BackEndType backEnd) throws Exception {
-
-	  Boolean createHello = false;
-	  String projectName = (backEnd == BackEndType.javaBackEnd)?PROJECT_NAME_JAVABACK:PROJECT_NAME_CPPBACK;
-	  String launchName = projectName;
-	  String archivePath = null;
-	  
-	  int numPlaces = 4;		//number of places to specify when running the imported project
-	  
-	  // Locate the archive file in the file system - get the full file path
-	  ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
-	  URL archiveURL = cl.getResource(ARCHIVE_NAME);	//find the file
-	  if (archiveURL != null) {
-		  archivePath = FileLocator.toFileURL(archiveURL).getPath();	//turn the net URL into a file path
-		  System.out.println("full path to archive = " + archivePath);
-	  }
-	  else {
-		  Assert.fail("archive file '" + ARCHIVE_NAME + "' not found"); 		  
-	  }
-
-
-	  if (backEnd == BackEndType.javaBackEnd) {
-		  // create a java back end project to import the archive into
-		  createJavaBackEndProject(projectName, createHello);
-	  }
-	  else { // create a C++ back end project to import the archive into
-		  createCPPBackEndProject(projectName, createHello);
-	  }
-
-	  if (createHello) {
-		  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher("Hello.x10")));
-	  }
-
-	  //import the archive
-	  importArchiveToX10Project(archivePath, projectName + "/src", true);
-
-	  //open the imported file in an editor view
-	  openX10FileInEditor(projectName, CLASS_SRCFILE_NAME);
-
-	  //wait for the editor to open
-	  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(CLASS_SRCFILE_NAME)), 60000, 500);
-
-	  //
-	  // Check that the type indexer is working
-	  //
-	  // first, look for a few types by using the 'Open X10 Type...' dialog 
-	  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
-	  {
-		  TypeSearchInfo searchSet = it.next();
-		  //look for a specific source class
-		  openX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
-		  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
-	  }
-	  // now, do it all over again by looking for a few types using the X10 Search dialog 
-	  for (Iterator<TypeSearchInfo> it = declarationCheckList.iterator(); it.hasNext();)
-	  {
-		  TypeSearchInfo searchSet = it.next();
-		  //look for a specific source class
-		  searchForX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
-		  verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
-	  }
-	  
-	  //
-	  // run the program
-	  //
-	  if (backEnd == BackEndType.javaBackEnd) {	//run with Java back end
-		  createAndRunJavaBackEndLaunchConfig(launchName, projectName, CLASS_NAME, numPlaces);
-
-		  //Well, let's see if it worked
-		  // verify that the actual output matches the expected output
-		  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT); //$NON-NLS-1$
-		  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
-	  }
-	  else {	// run with C++ back end
-		  ConfigureAndRunCpp(projectName,"CppPlatformConfigs.xml");
-		  //ConfigureAndRunCpp already calls verifyConsoleOutput, so we don't have to do it here
-	  }
-  }
-
-/*
- * Verification routines
- */
-
-  //	Verify console output from application
   //
-  public static boolean verifyConsoleOutput(List<String> expectedLines) { //throws X10DT_Test_Exception {
-
-	  boolean matches = true;				//verification result. Assume the best!
-
-	  //used to synchronize expected text block with actual output
-	  int startAtLine = 0;					//First line number in actual output to begin compare operation
-	  String firstExpectedLine = null;		//Text of first expected output line
-
-	  //used in matching operation
-	  int currentLine = 0;					//Current line number in matching operation
-	  String currentActualLine = null;		//Text of current actual output line
-	  String currentExpectedLine = null;	//Text of current expected output line
-
-	  // look for the Console view, and check the output
-	  final Matcher<IViewReference> withPartName = WidgetMatcherFactory.withPartName(ViewConstants.CONSOLE_VIEW_NAME);
-	  final WaitForView waitForConsole = Conditions.waitForView(withPartName);
-
-	  topLevelBot.waitUntil(waitForConsole);
-
-	  //find the console view
-	  SWTBotView consoleView = new SWTBotView(waitForConsole.get(0), topLevelBot);
-	  //wait for some output to show up
-	  consoleView.bot().waitUntil(X10DT_Conditions.viewHasText(consoleView), 30000, 500);
-
-	  //load the text of the actual output
-	  List<String> actualLines = consoleView.bot().styledText().getLines();
-	  Iterator<String> actualLine = actualLines.listIterator(0);
-	  Iterator<String> expectedLine = expectedLines.listIterator(0);
-
-	  if (expectedLine.hasNext())  { //don't bother looking if there's nothing to find.
-
-		  //Before we start comparing actual output with expected output, there may be some
-		  // trace output from the runtime. We can skip over this by scanning for a line
-		  // which matches the first line we're expecting
-
-		  startAtLine = -1;	//we pre-increment this, so we'll start at one less
-		  matches = false;	// init starting condition
-		  firstExpectedLine = expectedLine.next();
-		  while (!matches && actualLine.hasNext()) {
-			  startAtLine++;
-			  matches = firstExpectedLine.equals(actualLine.next());
-		  }
-		  
-		  Assert.assertTrue("Could not find an output line to match'" + firstExpectedLine + "'", matches);
-
-		  //OK, so we found a match to the expected starting line
-		  //loop and compare actual and expected one line at a time
-		  currentLine = startAtLine;	// track for possible use in error message
-		  currentActualLine = "";		// track for possible use in error message
-		  currentExpectedLine = "";		// track for possible use in error message
-		  while (matches && expectedLine.hasNext() && actualLine.hasNext()) {
-			  currentLine++;
-			  currentActualLine = actualLine.next();
-			  currentExpectedLine = expectedLine.next();
-			  matches = currentActualLine.equals(currentExpectedLine);
-		  }
-		  
-		  //assert if everything didn't match properly
-		  Assert.assertTrue("Mismatch at line " + currentLine + 
-				  "\n    actual: '" + currentActualLine + 
-				  "\n    expected: '" + currentExpectedLine + "'", matches);
-
-	  }
-
-	  return matches;
-  }
-
-
-  //	Verify source line in editor
-  //
-  private Boolean verifySourceLine(String fileName, String expectedText)
-  {
-	  Boolean matches = false;
-	  
-	  SWTBotEclipseEditor fArchiveFileEditor = topLevelBot.editorByTitle(fileName).toTextEditor();
-
-	  int timeout = 20;	//wait for up to 10 sec (20 * 500ms) for editor window to become active 
-	  while (( ! fArchiveFileEditor.isActive()) && (--timeout != 0))
-	  	topLevelBot.sleep(500);
-
-//	  while ((!matches) && (--timeout != 0)) {
-//		  topLevelBot.sleep(500);  //wait a little longer for it to jump to the right line
-		  matches = expectedText.equals(fArchiveFileEditor.getTextOnCurrentLine().trim());
-//	  }
-
-	  Assert.assertTrue("Expected source line does not match actual source line in file '" + fileName +  "':" +
-			  "\n    actual: '" + fArchiveFileEditor.getTextOnCurrentLine() + 
-			  "'\n    expected: '" + expectedText + "'", matches);
-
-	  return matches;
-  }
+//  @Test
+//  public void test_CPPOpenType() throws Exception {
+//	  validateOpenType(declarationCheckList);
+//  }
+//  
+//  @Test
+//  public void test_CPPSearchType() throws Exception {
+//	  validateTypeSearch(declarationCheckList);
+//  }
   
-  /* 
-   * C++ back end platform configuration
-   * 
+  //
+  @Test
+  public void test_RunCPPBackend() throws Exception {	//run with CPP back end
+	  //use local platform config w/ sockets runtime
+	  ConfigureAndRunCppProject(PROJECT_NAME_CPPBACK, CLASS_NAME, DEFAULT_CPP_NUM_PLACES,
+			  "CppPlatformConfigs.xml", "localSocketsConfig",
+			  EXPECTED_OUTPUT);
+	  //ConfigureAndRunCppProject already calls verifyConsoleOutput, so we don't have to do it here
+  }
+
+  
+  /*
+   * Import archive into Java back end project and test it
    */
   
-  //  one or more C++ backend platform configurations are loaded from an xml file. A run is made for each one
-  public Boolean ConfigureAndRunCpp(String projectName, String xmlFileName) throws IOException {
+  @Test
+  public void importJavaArchiveTest() throws Exception {
 
-	  Document xmlConfigurations = loadXML(xmlFileName);
-
-	  NodeList xmlConfigList = xmlConfigurations.getElementsByTagName("config");
-
-	  for (int xmlConfigNum = 0; xmlConfigNum < xmlConfigList.getLength(); xmlConfigNum++) {
-
-		  try {
-			  PlatformConfig platformConfig = new PlatformConfig();
-			  Node xmlConfigNode = xmlConfigList.item(xmlConfigNum);
-			  Element xmlConfigElement = (Element) xmlConfigNode;
-
-			  platformConfig.projectName = projectName;
-			  platformConfig.configName = getTagString("configName", xmlConfigElement);
-			  platformConfig.description = getTagString("description", xmlConfigElement);
-
-			  platformConfig.useLocalConnection = getTagBoolean("useLocalConnection", xmlConfigElement);
-
-			  //target configuration
-			  NodeList xmlTargetNode = xmlConfigElement.getElementsByTagName("target");			  
-			  Element xmlTargetElement = (Element) xmlTargetNode.item(0);
-			  platformConfig.os = OS.get(getTagString("osType", xmlTargetElement));
-			  platformConfig.arch = Architecture.get(getTagString("architectureType", xmlTargetElement));	  
-			  platformConfig.set64bit = getTagBoolean("set64BitSpace", xmlTargetElement);				  
-
-			  //x10 configuration
-			  NodeList xmlX10Node = xmlConfigElement.getElementsByTagName("x10");			  
-			  Element xmlX10Element = (Element) xmlX10Node.item(0);
-			  platformConfig.numPlaces = getTagInteger("numPlaces", xmlX10Element);
-
-			  //communication interface configuration
-			  NodeList xmlCommNode = xmlConfigElement.getElementsByTagName("commInterface");			  
-			  Element xmlCommElement = (Element) xmlCommNode.item(0);
-			  platformConfig.interfaceType = CommInterface.getType(getTagString("interfaceType", xmlCommElement));    
-			  platformConfig.interfaceMode = CommInterface.getMode(getTagString("interfaceMode", xmlCommElement));
-
-
-			  if (platformConfig.useLocalConnection) {			//running on local machine
-				  // replace whatever os and arch we got from xml with the local report from Java
-				  platformConfig.os = OS.get(System.getProperty("os.name"));
-				  platformConfig.arch = Architecture.get(System.getProperty("os.arch"));
-			  }
-			  else	{ //use remote connection
-
-				  //remote connection configuration
-				  NodeList xmlRemoteNode = xmlConfigElement.getElementsByTagName("remoteConnection");			  
-				  Element xmlRemoteElement = (Element) xmlRemoteNode.item(0);
-				  platformConfig.connectionName 	= getTagString("connectionName", xmlRemoteElement);     
-				  platformConfig.remoteHostName 	= getTagString("remoteHostName", xmlRemoteElement);    
-				  platformConfig.remoteHostPort 	= getTagInteger("remoteHostPort", xmlRemoteElement);    
-				  platformConfig.remoteHostUser 	= getTagString("remoteHostUser", xmlRemoteElement);    
-				  platformConfig.usePassword 		= getTagBoolean("usePassword", xmlRemoteElement);      
-				  platformConfig.remoteHostPassword = getTagString("remoteHostPassword", xmlRemoteElement);
-
-				  //Port forwarding settings
-				  NodeList xmlPortNode = xmlConfigElement.getElementsByTagName("portForwarding");			  
-				  Element xmlPortElement = (Element) xmlPortNode.item(0);
-				  platformConfig.usePortForwarding        	= getTagBoolean("usePortForwarding", xmlPortElement);    
-				  platformConfig.portForwardingTimeout    	= getTagString("portForwardingTimeout", xmlPortElement);    
-				  platformConfig.portForwardingLocalAddress	= getTagString("portForwardingLocalAddress", xmlPortElement);      
-
-				  //Remote compilation settings
-				  NodeList xmlCompileNode = xmlConfigElement.getElementsByTagName("remotePlatform");
-				  Element xmlCompileElement = (Element) xmlCompileNode.item(0);
-				  if (xmlCompileElement != null)
-				  {
-					  platformConfig.outputFolder       = getTagString("outputFolder", xmlCompileElement);
-					  platformConfig.useSelectedPGAS    = getTagBoolean("useSelectedPGAS", xmlCompileElement);      
-					  platformConfig.remoteDistribution = getTagString("remoteDistribution", xmlCompileElement);    
-					  platformConfig.remotePGASDist     = getTagString("remotePGASDist", xmlCompileElement);    
-					  platformConfig.debuggerFolder 	= getTagString("debuggerFolder", xmlCompileElement);    
-					  platformConfig.debuggingPort     	= getTagInteger("debuggingPort", xmlCompileElement); 
-				  }
-			  } //if using remote connection
-
-
-			  setCppPlatformConnectionConfig(projectName, platformConfig);
-
-			  //run the program
-			  createAndRunCPPBackEndLaunchConfig(platformConfig.configName, projectName, CLASS_NAME, platformConfig.numPlaces);			  
-
-			  //Well, let's see if it worked
-			  //It's going to pop up the Parallel Runtime perspective, so let's get a handle to that
-			  topLevelBot.perspectiveByLabel("Parallel Runtime").activate();
-
-			  // verify that the actual output matches the expected output
-			  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT); //$NON-NLS-1$
-			  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
-
-			  //Go back to the X10 perspective
-			  topLevelBot.perspectiveByLabel("X10").activate();
-
-		  }
-		  catch (Exception e) {
-			  // TODO Auto-generated catch block
-			  e.printStackTrace();
-		  }
-	  }
-	  return true;
-  }
-  
-//  Load XML file with target platform configurations
-  public Document loadXML(String xmlFileName) { //throws ParserConfigurationException, IOException, Exception {
-
-	  File fXmlFile;
-
-	  DocumentBuilderFactory docFactory;
-	  DocumentBuilder docBuilder;
-	  Document doc = null;
-
-	  try {
-		  ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
-		  URL xmlFileURL = cl.getResource(xmlFileName);	//find the file
-		  fXmlFile = new File(FileLocator.toFileURL(xmlFileURL).getFile());
-
-		  docFactory = DocumentBuilderFactory.newInstance();
-		  docBuilder = docFactory.newDocumentBuilder();
-		  doc = docBuilder.parse(fXmlFile);
-		  doc.getDocumentElement().normalize();
-	  }
-	  catch (Exception e) {
-		  Assert.fail("exception in loadXML " + e.getMessage());		
-	  }
-	  return doc;
+	  clean();			//get rid of whatever mess the CPP tests left behind
+	  importArchive(BackEndType.javaBackEnd, PROJECT_NAME_JAVABACK, ARCHIVE_NAME, CLASS_SRCFILE_NAME);	  
   }
 
-  //well, isn't this annoying!
-  //I could tag everything as a text node, but that would make the xml file pretty ugly
-  private static String getTagString(String tag, Element element) {
-	  NodeList nList= element.getElementsByTagName(tag).item(0).getChildNodes();
-	  Node nValue = (Node) nList.item(0);
-	  if (nValue != null)
-		  return nValue.getNodeValue().trim();
-	  else
-		  return "";
-  }
+  //
+//  @Test
+//  public void test_JavaOpenType() throws Exception {
+//	  validateOpenType(declarationCheckList);
+//  }
+//
+//  @Test
+//  public void test_JavaSearchType() throws Exception {
+//	  validateTypeSearch(declarationCheckList);
+//  }
 
-  private static Integer getTagInteger(String tag, Element element) {
-	  String tagString = getTagString(tag, element);
-	  return tagString.equals("") ? 0 : Integer.valueOf(tagString);
-  }
+  //
+  @Test
+  public void test_RunJavaBackend() throws Exception {	//run with Java back end
+	  createAndRunJavaBackEndLaunchConfig(PROJECT_NAME_JAVABACK, PROJECT_NAME_JAVABACK, CLASS_NAME, JAVA_NUM_PLACES);
 
-  private static Boolean getTagBoolean(String tag, Element element) {
-	  return (getTagString(tag, element).equals("yes") ? true : false);
+	  //Well, let's see if it worked
+	  // verify that the actual output matches the expected output
+	  boolean match = verifyConsoleOutput(EXPECTED_OUTPUT); //$NON-NLS-1$
+	  Assert.assertTrue("test_RunJavaBackend: Console output does not match", match); //$NON-NLS-1$
   }
-
 }

@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import junit.framework.Assert;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -57,6 +60,10 @@ import org.eclipse.ui.IViewReference;
 import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
@@ -183,7 +190,6 @@ public class X10DTTestBase {
   public class PlatformConfig {
 
 	  public boolean useLocalConnection;
-	  public String  projectName;
 	  public String  configName;
 	  public String  description;
 	  
@@ -990,4 +996,58 @@ public class X10DTTestBase {
 
 	  Assert.assertEquals(0, ProblemsViewUtils.getErrorMessages(topLevelBot).length);
   }
+  
+/*
+ * 
+ * XML support
+ * 
+ * Load and access simple XML configuration files
+ * 
+ */
+  public static Document loadXML(String xmlFileName) { 
+
+	  File fXmlFile; 
+
+	  DocumentBuilderFactory docFactory;
+	  DocumentBuilder docBuilder;
+	  Document doc = null;
+
+	  try {
+//		  ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
+		  ClassLoader cl = X10DTTestBase.class.getClassLoader();		//archive file must be on the build path
+		  URL xmlFileURL = cl.getResource(xmlFileName);	//find the file 
+		  fXmlFile = new File(FileLocator.toFileURL(xmlFileURL).getFile());
+
+		  docFactory = DocumentBuilderFactory.newInstance();
+		  docBuilder = docFactory.newDocumentBuilder();
+		  doc = docBuilder.parse(fXmlFile);
+		  doc.getDocumentElement().normalize();
+	  }
+	  catch (Exception e) {
+		  Assert.fail("exception in loadXML " + e.getMessage());		
+	  }
+	  return doc;
+  }
+
+  //well, isn't this annoying!
+  //I could tag everything as a text node, but that would make the xml file pretty ugly
+  public static String getTagString(String tag, Element element) {
+	  NodeList nList= element.getElementsByTagName(tag).item(0).getChildNodes();
+	  Node nValue = (Node) nList.item(0);
+	  if (nValue != null)
+		  return nValue.getNodeValue().trim();
+	  else
+		  return "";
+  }
+
+  public static Integer getTagInteger(String tag, Element element) {
+	  String tagString = getTagString(tag, element);
+	  return tagString.equals("") ? 0 : Integer.valueOf(tagString);
+  }
+
+  public static Boolean getTagBoolean(String tag, Element element) {
+	  return (getTagString(tag, element).equals("yes") ? true : false);
+  }
+
+
 }
