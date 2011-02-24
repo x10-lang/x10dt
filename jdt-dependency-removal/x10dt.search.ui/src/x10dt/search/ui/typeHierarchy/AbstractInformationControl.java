@@ -67,6 +67,7 @@ import org.eclipse.ui.commands.IKeySequenceBinding;
 import org.eclipse.ui.commands.Priority;
 import org.eclipse.ui.keys.KeySequence;
 
+import x10dt.search.core.elements.IMemberInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
@@ -431,8 +432,8 @@ public abstract class AbstractInformationControl extends PopupDialog implements 
 		if (selectedElement != null) {
 			try {
 				dispose();
-				if (selectedElement instanceof ITypeInfo)
-					SearchUtils.openEditor((ITypeInfo) selectedElement);
+				if (selectedElement instanceof IMemberInfo)
+					SearchUtils.openEditor((IMemberInfo) selectedElement);
 			} catch (CoreException ex) {
 				UISearchPlugin.log(ex);
 			}

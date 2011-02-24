@@ -16,7 +16,6 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -36,7 +35,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
-import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 
 import x10dt.search.core.elements.IFieldInfo;
@@ -65,6 +63,8 @@ public final class X10SearchEngine {
    * <p>Note that there is no refresh action at this point. If one wants an updated version of it, a new one needs to be
    * created.
    * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
+   * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeName The type name to use for the type hierarchy.
    * @param monitor The monitor to use to report progress or cancel the operation.
@@ -81,6 +81,8 @@ public final class X10SearchEngine {
   /**
    * Returns all the field information that matches the Java regular expression identifying a potential set of field names
    * for a given type.
+   * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
    * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeName The type name that is needed to be located first.
@@ -100,6 +102,8 @@ public final class X10SearchEngine {
    * Returns all the field information that matches the Java regular expression identifying a potential set of field names
    * independently of the declaring type.
    * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
+   * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param fieldNameRegEx The regular expression identifying the field names to search for.
    * @param isCaseSensitive Indicates if the pattern matching is case sensitive or not.
@@ -116,6 +120,8 @@ public final class X10SearchEngine {
   /**
    * Returns all the method information that matches the Java regular expression identifying a potential set of method names
    * for a given type.
+   * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
    * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeName The type name that is needed to be located first.
@@ -135,6 +141,8 @@ public final class X10SearchEngine {
    * Returns all the method information that matches the Java regular expression identifying a potential set of method names
    * independently of the declaring type.
    * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
+   * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param methodNameRegEx The regular expression identifying the method names to search for.
    * @param isCaseSensitive Indicates if the pattern matching is case sensitive or not.
@@ -150,6 +158,8 @@ public final class X10SearchEngine {
   
   /**
    * Returns all the type information that matches the Java regular expression identifying a potential set of type names.
+   * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
    * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeNameRegEx The regular expression identifying the type names to search for.
@@ -167,6 +177,8 @@ public final class X10SearchEngine {
   /**
    * Returns the field info wrapper for a given type and field name.
    * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
+   * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeName The type name that is supposed to contain the field name.
    * @param fieldName The field name to look for.
@@ -183,6 +195,8 @@ public final class X10SearchEngine {
   /**
    * Returns the method info wrappers for a given type and method name.
    * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
+   * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeName The type name that is supposed to contain the method name(s).
    * @param methodName The method name to look for.
@@ -198,25 +212,25 @@ public final class X10SearchEngine {
   /**
    * Returns the type info wrapper for a given type name.
    * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
+   * 
    * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
    * @param typeName The type name to look for.
    * @param monitor The progress monitor to use to report progress or cancel the operation. Can be <b>null</b>.
    * @return A non-null but possibly empty array if we haven't found the type in the particular scope.
    * @throws InterruptedException Occurs if the operation get canceled.
-   * @throws ExecutionException Occurs if the search threw an exception.
    */
   public static ITypeInfo[] getTypeInfo(final IX10SearchScope searchScope, final String typeName,
-                                        final IProgressMonitor monitor) throws InterruptedException, ExecutionException {
+                                        final IProgressMonitor monitor) throws InterruptedException {
     return getTypeInfo(searchScope, new EqualsFilter(typeName), monitor);
   }
   
   // --- Private code
   
-  private static IFieldInfo createFieldInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
-                                            final ITypeInfo declaringTypeInfo,
+  private static IFieldInfo createFieldInfo(final ITuple tuple, final ISet[] allTypes, final ITypeInfo declaringTypeInfo,
                                             final IProgressMonitor monitor) throws InterruptedException {
     final String fieldTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
-    ITypeInfo fieldTypeInfo = findTypeInfo(factBase, context, fieldTypeName, monitor);
+    ITypeInfo fieldTypeInfo = findTypeInfo(allTypes, fieldTypeName, monitor);
     if (fieldTypeInfo == null) {
       fieldTypeInfo = new UnknownTypeInfo(fieldTypeName);
     }
@@ -224,15 +238,14 @@ public final class X10SearchEngine {
                          ((IInteger) tuple.get(3)).intValue(), declaringTypeInfo);
   }
   
-  private static IMethodInfo createMethodInfo(final ITuple tuple, final FactBase factBase, final IFactContext context,
-                                              final ITypeInfo declaringTypeInfo,
+  private static IMethodInfo createMethodInfo(final ITuple tuple, final ISet[] allTypes, final ITypeInfo declaringTypeInfo,
                                               final IProgressMonitor monitor) throws InterruptedException {
     final String returnTypeName = getBaseTypeName(((IString) tuple.get(2)).getValue());
     ITypeInfo returnTypeInfo;
     if (VoidTypeInfo.VOID_TYPE_NAME.equals(returnTypeName)) {
       returnTypeInfo = new VoidTypeInfo();
     } else {
-      returnTypeInfo = findTypeInfo(factBase, context, returnTypeName, monitor);
+      returnTypeInfo = findTypeInfo(allTypes, returnTypeName, monitor);
     }
     if (returnTypeInfo == null) {
       returnTypeInfo = new UnknownTypeInfo(returnTypeName);
@@ -242,7 +255,7 @@ public final class X10SearchEngine {
     int i = -1;
     for (final IValue paramValue : parameters) {
       final String paramTypeName = getBaseTypeName(((IString) paramValue).getValue());
-      paramInfos[++i] = findTypeInfo(factBase, context, paramTypeName, monitor);
+      paramInfos[++i] = findTypeInfo(allTypes, paramTypeName, monitor);
       if (paramInfos[i] == null) {
         paramInfos[i] = new UnknownTypeInfo(paramTypeName);
       }
@@ -251,22 +264,20 @@ public final class X10SearchEngine {
                           ((IInteger) tuple.get(4)).intValue(), declaringTypeInfo);
   }
   
-  private static boolean collectFieldInfo(final Collection<IFieldInfo> fieldInfos, final FactBase factBase, 
-                                          final IFactContext context, final String typeName, final String scopeTypeName, 
-                                          final IFilter<String> filter,  
+  private static boolean collectFieldInfo(final Collection<IFieldInfo> fieldInfos, final ISet allFields, final String typeName,
+                                          final IFilter<String> filter, final ISet currentScopeTypes, final ISet[] allTypes,
                                           final IProgressMonitor monitor) throws InterruptedException {
-    final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllFields, scopeTypeName, monitor);
-    if (allTypesValue != null) {
-      for (final IValue value : allTypesValue) {
+    if (allFields != null) {
+      for (final IValue value : allFields) {
         final ITuple tuple = (ITuple) value;
         if ((typeName == null) || ((IString) tuple.get(0)).getValue().equals(typeName)) {
           final String realTypeName = (typeName == null) ? ((IString) tuple.get(0)).getValue() : typeName;
-          final ITypeInfo typeInfo = findTypeInfo(factBase, context, realTypeName, scopeTypeName, monitor);
+          final ITypeInfo typeInfo = findTypeInfo(currentScopeTypes, realTypeName, monitor);
           final IList list = (IList) tuple.get(1);
           for (final IValue listElement : list) {
             final ITuple fieldTuple = (ITuple) listElement;
             if (filter.accepts(((IString) fieldTuple.get(1)).getValue())) {
-              fieldInfos.add(createFieldInfo(fieldTuple, factBase, context, typeInfo, monitor));
+              fieldInfos.add(createFieldInfo(fieldTuple, allTypes, typeInfo, monitor));
             }
           }
           return true;
@@ -276,22 +287,21 @@ public final class X10SearchEngine {
     return false;
   }
   
-  private static boolean collectMethodInfo(final Collection<IMethodInfo> methodInfos, final FactBase factBase, 
-                                           final IFactContext context, final String typeName, 
-                                           final String scopeTypeName, final IFilter<String> filter,
+  private static boolean collectMethodInfo(final Collection<IMethodInfo> methodInfos, final ISet allMethods, 
+                                           final String typeName,  final IFilter<String> filter,
+                                           final ISet currentScopeTypes, final ISet[] allTypes, 
                                            final IProgressMonitor monitor) throws InterruptedException {
-    final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, scopeTypeName, monitor);
-    if (allTypesValue != null) {
-      for (final IValue value : allTypesValue) {
+    if (allMethods != null) {
+      for (final IValue value : allMethods) {
         final ITuple tuple = (ITuple) value;
         if ((typeName == null) || ((IString) tuple.get(0)).getValue().equals(typeName)) {
           final String realTypeName = (typeName == null) ? ((IString) tuple.get(0)).getValue() : typeName;
-          final ITypeInfo typeInfo = findTypeInfo(factBase, context, realTypeName, scopeTypeName, monitor);
+          final ITypeInfo typeInfo = findTypeInfo(currentScopeTypes, realTypeName, monitor);
           final IList list = (IList) tuple.get(1);
           for (final IValue listElement : list) {
             final ITuple methodTuple = (ITuple) listElement;
             if (filter.accepts(((IString) methodTuple.get(1)).getValue())) {
-              methodInfos.add(createMethodInfo(methodTuple, factBase, context, typeInfo, monitor));
+              methodInfos.add(createMethodInfo(methodTuple, allTypes, typeInfo, monitor));
             }
           }
           return true;
@@ -301,13 +311,12 @@ public final class X10SearchEngine {
     return false;
   }
   
-  private static void collectTypeInfo(final Collection<ITypeInfo> typeInfos, final FactBase factBase, 
-                                      final IFactContext context, final IFilter<String> filter, 
-                                      final String scopeTypeName, final IX10SearchScope searchScope, 
+  private static void collectTypeInfo(final Collection<ITypeInfo> typeInfos, final ISet allTypes, 
+                                      final IFilter<String> filter,  final String scopeTypeName, 
+                                      final IX10SearchScope searchScope,  
                                       final IProgressMonitor monitor) throws InterruptedException {
-    final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllTypes, scopeTypeName, monitor);
-    if (allTypesValue != null) {
-      for (final IValue value : allTypesValue) {
+    if (allTypes != null) {
+      for (final IValue value : allTypes) {
         final ITuple tuple = (ITuple) value;
         final String name = ((IString) tuple.get(0)).getValue();
         final ISourceLocation sourceLoc = (ISourceLocation) tuple.get(1);
@@ -318,7 +327,7 @@ public final class X10SearchEngine {
             declaringType = null;
           } else {
             final IString declaringTypeName = (IString) tuple.get(3);
-            declaringType = findTypeInfo(factBase, context, declaringTypeName.getValue(), scopeTypeName, monitor);
+            declaringType = findTypeInfo(allTypes, declaringTypeName.getValue(), monitor);
           }
           typeInfos.add(new TypeInfo(name, sourceLoc, x10FlagsCode, declaringType));
         }
@@ -326,7 +335,19 @@ public final class X10SearchEngine {
     }
   }
   
+  private static ISet[] getAllTypeSets(final FactBase factBase, final IFactContext context, 
+                                    final IProgressMonitor monitor) throws InterruptedException {
+    final ISet[] allSets = new ISet[3];
+    allSets[0] = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllTypes, APPLICATION, monitor);
+    allSets[1] = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllTypes, LIBRARY, monitor);
+    allSets[2] = FactBaseUtils.getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), X10_AllTypes, RUNTIME, monitor);
+    return allSets;
+  }
+  
   private static String getBaseTypeName(final String typeName) {
+    if (typeName.charAt(0) == '[') {
+      return typeName;
+    }
     final int squareBracketIndex = typeName.indexOf('[');
     String baseTypeName = typeName;
     if (squareBracketIndex != -1) {
@@ -349,28 +370,33 @@ public final class X10SearchEngine {
       final ICountableIterable<IFactContext> searchContexts = searchScope.createSearchContexts();
       subMonitor.beginTask(null, 2 * searchContexts.getSize() + 1);
       
+      ISet[] allTypeSets = null;
       for (final IFactContext context : searchContexts) {
         if (subMonitor.isCanceled()) {
           throw new InterruptedException();
         }
+        allTypeSets = getAllTypeSets(factBase, context, subMonitor);
         if ((searchScope.getSearchMask() & X10SearchScope.APPLICATION) != 0) {
-          collectFieldInfo(fieldInfos, factBase, context, typeName, APPLICATION, filter, subMonitor.newChild(1));
+          final ISet allFields = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllFields, APPLICATION, monitor);
+          collectFieldInfo(fieldInfos, allFields, typeName, filter, allTypeSets[0], allTypeSets, subMonitor.newChild(1));
         }
         
         if (subMonitor.isCanceled()) {
           throw new InterruptedException();
         }
         if ((searchScope.getSearchMask() & X10SearchScope.LIBRARY) != 0) {
-          collectFieldInfo(fieldInfos, factBase, context, typeName, LIBRARY, filter, subMonitor.newChild(1));
+          final ISet allFields = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllFields, LIBRARY, monitor);
+          collectFieldInfo(fieldInfos, allFields, typeName, filter, allTypeSets[1], allTypeSets, subMonitor.newChild(1));
         }
       }
       
       if (subMonitor.isCanceled()) {
         throw new InterruptedException();
       }
-      if ((searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
-        collectFieldInfo(fieldInfos, factBase, WorkspaceContext.getInstance(), typeName, RUNTIME, filter,
-                          subMonitor.newChild(1));
+      if ((allTypeSets != null) && (searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
+        final ISet allFields = FactBaseUtils.getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), X10_AllFields, 
+                                                                 RUNTIME, monitor);
+        collectFieldInfo(fieldInfos, allFields, typeName, filter, allTypeSets[2], allTypeSets, subMonitor.newChild(1));
       }
     } finally {
       subMonitor.done();
@@ -388,28 +414,33 @@ public final class X10SearchEngine {
       final ICountableIterable<IFactContext> searchContexts = searchScope.createSearchContexts();
       subMonitor.beginTask(null, 2 * searchContexts.getSize() + 1);
       
+      ISet[] allTypeSets = null;
       for (final IFactContext context : searchContexts) {
         if (subMonitor.isCanceled()) {
           throw new InterruptedException();
         }
+        allTypeSets = getAllTypeSets(factBase, context, subMonitor);
         if ((searchScope.getSearchMask() & X10SearchScope.APPLICATION) != 0) {
-          collectMethodInfo(methodInfos, factBase, context, typeName, APPLICATION, filter, subMonitor.newChild(1));
+          final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, APPLICATION, monitor);
+          collectMethodInfo(methodInfos, allMethods, typeName, filter, allTypeSets[0], allTypeSets, subMonitor.newChild(1));
         }
         
         if (subMonitor.isCanceled()) {
           throw new InterruptedException();
         }
         if ((searchScope.getSearchMask() & X10SearchScope.LIBRARY) != 0) {
-          collectMethodInfo(methodInfos, factBase, context, typeName, LIBRARY, filter, subMonitor.newChild(1));
+          final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, LIBRARY, monitor);
+          collectMethodInfo(methodInfos, allMethods, typeName, filter, allTypeSets[1], allTypeSets, subMonitor.newChild(1));
         }
       }
       
       if (subMonitor.isCanceled()) {
         throw new InterruptedException();
       }
-      if ((searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
-        collectMethodInfo(methodInfos, factBase, WorkspaceContext.getInstance(), typeName, RUNTIME, filter,
-                          subMonitor.newChild(1));
+      if ((allTypeSets != null) && (searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
+        final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), X10_AllMethods, 
+                                                                  RUNTIME, monitor);
+        collectMethodInfo(methodInfos, allMethods, typeName, filter, allTypeSets[2], allTypeSets, subMonitor.newChild(1));
       }
     } finally {
       subMonitor.done();
@@ -427,28 +458,29 @@ public final class X10SearchEngine {
       final ICountableIterable<IFactContext> searchContexts = searchScope.createSearchContexts();
       subMonitor.beginTask(null, 2 * searchContexts.getSize() + 1);
       
+      ISet[] allTypeSets = null;
       for (final IFactContext context : searchContexts) {
         if (subMonitor.isCanceled()) {
           throw new InterruptedException();
         }
+        allTypeSets = getAllTypeSets(factBase, context, subMonitor);
         if ((searchScope.getSearchMask() & X10SearchScope.APPLICATION) != 0) {
-          collectTypeInfo(typeInfos, factBase, context, filter, APPLICATION, searchScope, subMonitor.newChild(1));
+          collectTypeInfo(typeInfos, allTypeSets[0], filter, APPLICATION, searchScope, subMonitor.newChild(1));
         }
         
         if (subMonitor.isCanceled()) {
           throw new InterruptedException();
         }
         if ((searchScope.getSearchMask() & X10SearchScope.LIBRARY) != 0) {
-          collectTypeInfo(typeInfos, factBase, context, filter, LIBRARY, searchScope, subMonitor.newChild(1));
+          collectTypeInfo(typeInfos, allTypeSets[1], filter, LIBRARY, searchScope, subMonitor.newChild(1));
         }
       }
       
       if (subMonitor.isCanceled()) {
         throw new InterruptedException();
       }
-      if ((searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
-        collectTypeInfo(typeInfos, factBase, WorkspaceContext.getInstance(), filter, RUNTIME, searchScope,
-                        subMonitor.newChild(1));
+      if ((allTypeSets != null) && (searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
+        collectTypeInfo(typeInfos, allTypeSets[2], filter, RUNTIME, searchScope, subMonitor.newChild(1));
       }
     } finally {
       subMonitor.done();
@@ -456,26 +488,24 @@ public final class X10SearchEngine {
     return typeInfos.toArray(new ITypeInfo[typeInfos.size()]);
   }
   
-  private static ITypeInfo findTypeInfo(final FactBase factBase, final IFactContext context, final String typeName,
+  private static ITypeInfo findTypeInfo(final ISet[] allTypes, final String typeName,
                                         final IProgressMonitor monitor) throws InterruptedException {
-    ITypeInfo typeInfo = findTypeInfo(factBase, context, typeName, APPLICATION, monitor);
+    if (typeName.charAt(0) == '[') {
+      return new ParameterTypeInfo(typeName.substring(1));
+    }
+    ITypeInfo typeInfo = findTypeInfo(allTypes[0], typeName, monitor);
     if (typeInfo != null) {
       return typeInfo;
     }
-    typeInfo = findTypeInfo(factBase, context, typeName, LIBRARY, monitor);
+    typeInfo = findTypeInfo(allTypes[1], typeName, monitor);
     if (typeInfo != null) {
       return typeInfo;
     }
-    typeInfo = findTypeInfo(factBase, WorkspaceContext.getInstance(), typeName, RUNTIME, monitor);
+    typeInfo = findTypeInfo(allTypes[2], typeName, monitor);
     if (typeInfo != null) {
       return typeInfo;
     }
-    // If we reach here, then the type must be accessible in project dependencies
-    if (context instanceof ProjectContext) {
-      return findTypeInfo(factBase, context, typeName, ((ProjectContext) context).getProject(), monitor);
-    } else {
-      return null;
-    }
+    return null;
   }
   
   private static ITypeInfo findTypeInfo(final FactBase factBase, final IFactContext context, final String typeName,
@@ -490,12 +520,10 @@ public final class X10SearchEngine {
     return null;
   }
   
-  private static ITypeInfo findTypeInfo(final FactBase factBase, final IFactContext context, final String typeName,
-                                        final String scopeTypeName, 
+  private static ITypeInfo findTypeInfo(final ISet allTypes, final String typeName, 
                                         final IProgressMonitor monitor) throws InterruptedException {
-    final ISet allTypesValue = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllTypes, scopeTypeName, monitor);
-    if (allTypesValue != null) {
-      for (final IValue value : allTypesValue) {
+    if (allTypes != null) {
+      for (final IValue value : allTypes) {
         final ITuple tuple = (ITuple) value;
         if (((IString) tuple.get(0)).getValue().equals(typeName)) {
           final ITypeInfo declaringType;
@@ -503,7 +531,7 @@ public final class X10SearchEngine {
             declaringType = null;
           } else {
             final IString declaringTypeName = (IString) tuple.get(3);
-            declaringType = findTypeInfo(factBase, context, declaringTypeName.getValue(), scopeTypeName, monitor);
+            declaringType = findTypeInfo(allTypes, declaringTypeName.getValue(), monitor);
           }
           return new TypeInfo(tuple, declaringType);
         }

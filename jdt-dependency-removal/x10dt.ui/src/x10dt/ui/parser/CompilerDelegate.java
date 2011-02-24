@@ -64,9 +64,9 @@ import x10.parser.X10SemanticRules;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.builder.BuildPathUtils;
 import x10dt.core.preferences.generated.X10Constants;
+import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.launch.core.LaunchCore;
 
 public class CompilerDelegate {
 	private class EditorErrorQueue extends AbstractErrorQueue {
@@ -141,8 +141,8 @@ public class CompilerDelegate {
     
 	private boolean isX10Project() {
 		try {
-			return fX10Project.getRawProject().hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID) ||
-			       fX10Project.getRawProject().hasNature(LaunchCore.X10_PRJ_JAVA_NATURE_ID);
+			return fX10Project.getRawProject().hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID) ||
+			       fX10Project.getRawProject().hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
 		} catch (CoreException e) {
 			X10DTUIPlugin.log(e);
 			return false;
@@ -284,7 +284,7 @@ public class CompilerDelegate {
 			        //
 			        IProject refProject= ResourcesPlugin.getWorkspace().getRoot().getProject(e.getRawPath().toPortableString());
 			        ISourceProject refJavaProject= ModelFactory.getProject(refProject);
-			        List<IPathEntry> refJavaCPEntries= refJavaProject.getBuildPath(language);
+			        List<IPathEntry> refJavaCPEntries= refJavaProject.getResolvedBuildPath(language, true);
 			        for(IPathEntry refJavaCPEntry:  refJavaCPEntries) {
 			            if (refJavaCPEntry.getEntryType() == PathEntryType.SOURCE_FOLDER) {
 			                srcPath.add(refJavaCPEntry.getRawPath());
@@ -344,9 +344,11 @@ public class CompilerDelegate {
             List<IPath> projectSrcLoc = getProjectSrcPath();
             String projectSrcPath = pathListToPathString(projectSrcLoc);
             opts.x10_config.CHECK_INVARIANTS= (fViolationHandler != null);
-            opts.parseCommandLine(new String[] { "-assert", "-noserial", "-c", "-commandlineonly",
+            opts.parseCommandLine(new String[] { "-c", "-commandlineonly",
                     "-cp", buildClassPathSpec(), "-sourcepath", projectSrcPath
             }, new HashSet<String>());
+            final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
+            CompilerOptionsFactory.setOptionsNoCodeGen(prefService, opts);
         } catch (UsageError e) {
             if (!e.getMessage().equals("must specify at least one source file")) {
                 X10DTUIPlugin.getInstance().writeErrorMsg(e.getMessage());

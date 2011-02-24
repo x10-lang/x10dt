@@ -31,12 +31,12 @@ public class LexerDelegate implements ILexer
 {
 	X10Lexer myLexer;
 
-        public LexerDelegate(String absFilePath) throws IOException {
-            this.myLexer = new X10Lexer(absFilePath);
-        }
-        public LexerDelegate(X10Lexer myLexer) {
-            this.myLexer = myLexer;
-        }
+	public LexerDelegate(String absFilePath) throws IOException {
+	    this.myLexer = new X10Lexer(absFilePath);
+	}
+	public LexerDelegate(X10Lexer myLexer) {
+	    this.myLexer = myLexer;
+	}
 	public int [] getKeywordKinds() { return myLexer.getKeywordKinds(); }
 	public LexStream getILexStream() { return (LexStream) myLexer.getILexStream(); }
 	public void initialize(char [] content, String filename) { myLexer.reset(content, filename); }

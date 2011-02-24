@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -57,20 +56,17 @@ import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.imp.utils.UnimplementedError;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
 
 import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
+import polyglot.visit.NodeVisitor;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.dialogs.DialogsFactory;
 
 
 final class X10FactGenerator implements IFactGenerator, IFactUpdater {
@@ -120,8 +116,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
             }
             typeManager.initWriter(factBase, factContext, resource);
 
-            final FactWriterVisitor visitor = typeManager.createNodeVisitor();
-            visitor.setScopeType(entry.getKey());
+            final NodeVisitor visitor = typeManager.createNodeVisitor(entry.getKey());
             try {
               for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
                                                                   entry.getValue())) {
@@ -135,33 +130,8 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
               if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
                 typeManager.createIndexingFile(factBase, factContext);
               }
-              if (fFailedResources.contains(resource)) {
-                fFailedResources.remove(resource);
-                if (fFailedResources.isEmpty()) {
-                  PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                    public void run() {
-                      final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                      MessageDialog.openInformation(shell, Messages.XFG_IndexStatusDialogTitle,
-                                                    Messages.XFG_IndexerStatusDialogMsg);
-                    }
-                  });
-                }
-              }
             } catch (Throwable except) {
               SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
-              final Throwable exception = except;
-              if (fFailedResources.isEmpty()) {
-                fFailedResources.add(resource);
-                PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
-                  public void run() {
-                    final Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-                    DialogsFactory.createErrorBuilder()
-                                  .setDetailedMessage(exception)
-                                  .createAndOpen(shell, Messages.XFG_IndexingProblemDialogTitle,
-                                                 NLS.bind(Messages.XFG_IndexingProblemDialogMsg, resource.getLocation()));
-                  }
-                });
-              }
             } finally {
               typeManager.clearWriter();
             }
@@ -197,8 +167,8 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
 
       case ARCHIVE:
         try {
-          final ISourceRoot pkgRoot = BuildPathUtils.getSourceRoot(javaProject, fLanguage, pathEntry.getRawPath());
-          if ((pkgRoot != null)) {
+          final ISourceRoot pkgRoot = BuildPathUtils.findSourceRoot(javaProject, pathEntry.getRawPath());
+          if ((pkgRoot != null) /*&& pkgRoot.exists()*/) {
             final File localFile;
             if (pkgRoot.isExternal()) {
               localFile = pathEntry.getRawPath().toFile();
@@ -230,28 +200,32 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       case PROJECT:
         final IResource projectResource = ResourcesPlugin.getWorkspace().getRoot().findMember(pathEntry.getRawPath());
         if ((projectResource != null) && projectResource.isAccessible()) {
-          final ISourceProject newJavaProject = ModelFactory.getProject((IProject) projectResource);
+          final ISourceProject newJavaProject = ModelFactory.create((IProject) projectResource);
           processEntries(context, wsRoot, newJavaProject.getBuildPath(fLanguage), newJavaProject, contextResource, false);
         }
         break;
 
       case VARIABLE:
     	List<IPathEntry> list = new ArrayList<IPathEntry>(1);
-    	list.add(pathEntry);
-        processEntries(context, wsRoot, list, javaProject, 
-                       contextResource, false);
+      	list.add(pathEntry);
+        processEntries(context, wsRoot, list, javaProject, contextResource, false);
         break;
       }
     }
   }
   
   private ContextWrapper processResource(final IResource resource) throws AnalysisException {
-    final ISourceProject javaProject = ModelFactory.getProject(resource.getProject());  
-    if (javaProject.getRawProject().exists() && resource.exists()) {
+	final ISourceProject javaProject = ModelFactory.getProject(resource.getProject());
+	if (javaProject.getRawProject().exists() && resource.exists()) {
+      if (resource.getType() == IResource.FILE) {
+        if ( ! X10_EXT.equals(((IFile) resource).getFileExtension())) {
+          return null;
+        }
+      }
       final ContextWrapper context = new ContextWrapper();
       final IWorkspaceRoot wsRoot = javaProject.getRawProject().getWorkspace().getRoot();
       try {
-        processEntries(context, wsRoot, javaProject.getBuildPath(fLanguage), javaProject, resource, false);
+    	processEntries(context, wsRoot, javaProject.getBuildPath(fLanguage), javaProject, resource, false);
       } catch (ModelException except) {
         throw new AnalysisException(NLS.bind(Messages.XFG_ResourceAccessError, resource.getFullPath()), except);
       }
@@ -385,13 +359,9 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   private final SearchDBTypes fSearchDBTypes;
   
   
-  private static Set<IResource> fFailedResources = new HashSet<IResource>();
-  
-  
   private static final String JAR_EXT = "jar"; //$NON-NLS-1$
   
   private static final String X10_EXT = "x10"; //$NON-NLS-1$
-  
-  private Language fLanguage;
 
+  private Language fLanguage;
 }

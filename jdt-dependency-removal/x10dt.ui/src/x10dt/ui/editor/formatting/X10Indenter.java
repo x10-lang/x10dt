@@ -724,8 +724,7 @@ public class X10Indenter {
 		boolean matchCase= false;
 
 		// account for un-indentation characters already typed in, but after position
-		// if they are on a line by themselves, the indentation gets adjusted
-		// accordingly
+		// if they are on a line by themselves, the indentation gets adjusted accordingly
 		//
 		// also account for a dangling else
 		if (offset < fDocument.getLength()) {
@@ -749,7 +748,7 @@ public class X10Indenter {
 					case Symbols.TokenLBRACE: // for opening-brace-on-new-line style
 						if (bracelessBlockStart && !fPrefs.prefIndentBracesForBlocks)
 							unindent= true;
-						else if ((prevToken == Symbols.TokenCOLON || prevToken == Symbols.TokenEQUAL || prevToken == Symbols.TokenRBRACKET) && !fPrefs.prefIndentBracesForArrays)
+						else if ((prevToken == Symbols.TokenCOLON || prevToken == Symbols.TokenEQUAL/* || prevToken == Symbols.TokenRBRACKET*/) && !fPrefs.prefIndentBracesForArrays)
 							unindent= true;
 						else if (!bracelessBlockStart && fPrefs.prefIndentBracesForMethods)
 							indent= true;
@@ -853,6 +852,7 @@ public class X10Indenter {
 		nextToken();
 		switch (fToken) {
 			case Symbols.TokenGREATERTHAN:
+			case Symbols.TokenRBRACKET: // RMF 18 Jan 2010: this ']' ends either an expression or a type argument list
 			case Symbols.TokenRBRACE:
 				// skip the block and fall through
 				// if we can't complete the scope, reset the scan position

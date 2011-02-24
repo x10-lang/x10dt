@@ -13,6 +13,7 @@ package x10dt.search.ui.typeHierarchy;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -23,6 +24,7 @@ import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.ISourcePositionLocator;
+import org.eclipse.imp.ui.typeHierarchy.ITypeHierarchyProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -36,9 +38,12 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 import polyglot.ast.ClassDecl;
+import polyglot.ast.Formal;
+import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.IMethodInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.ui.UISearchPlugin;
 
@@ -108,20 +113,20 @@ public class SelectionConverter {
 
 	}
 
-	public static ITypeInfo[] codeResolveOrInputForked(UniversalEditor editor) throws InvocationTargetException, InterruptedException {
-		ITypeInfo input= getInput(editor);
+	public static IMemberInfo[] codeResolveOrInputForked(UniversalEditor editor) throws InvocationTargetException, InterruptedException {
+		IMemberInfo input= getInput(editor);
 		if (input == null)
 			return EMPTY_RESULT;
 
 		ITextSelection selection= (ITextSelection)editor.getSelectionProvider().getSelection();
-		ITypeInfo[] result= performForkedCodeResolve(input, selection);
+		IMemberInfo[] result= performForkedCodeResolve(input, selection);
 		if (result.length == 0) {
-			result= new ITypeInfo[] {input};
+			result= new IMemberInfo[] {input};
 		}
 		return result;
 	}
 
-	public static ITypeInfo[] codeResolve(UniversalEditor editor) throws Exception {
+	public static IMemberInfo[] codeResolve(UniversalEditor editor) throws Exception {
 		return codeResolve(editor, true);
 	}
 
@@ -134,11 +139,11 @@ public class SelectionConverter {
 	 * @throws Exception thrown when the type root can not be accessed
 	 * @since 3.2
 	 */
-	public static ITypeInfo[] codeResolve(UniversalEditor editor, boolean primaryOnly) throws Exception {
-		ITypeInfo input= getInput(editor, primaryOnly);
-		if (input != null)
-			return codeResolve(input, (ITextSelection) editor.getSelectionProvider().getSelection());
-		return EMPTY_RESULT;
+	public static IMemberInfo[] codeResolve(UniversalEditor editor, boolean primaryOnly) throws Exception {
+		return new IMemberInfo[] {getInput(editor, primaryOnly)};
+//		if (input != null)
+//			return codeResolve(input, (ITextSelection) editor.getSelectionProvider().getSelection());
+//		return EMPTY_RESULT;
 	}
 
 	/**
@@ -153,14 +158,14 @@ public class SelectionConverter {
 	 *             cancelation by throwing this exception
 	 * @since 3.2
 	 */
-	public static ITypeInfo[] codeResolveForked(UniversalEditor editor, boolean primaryOnly) throws InvocationTargetException, InterruptedException {
-		ITypeInfo input= getInput(editor, primaryOnly);
+	public static IMemberInfo[] codeResolveForked(UniversalEditor editor, boolean primaryOnly) throws InvocationTargetException, InterruptedException {
+		IMemberInfo input= getInput(editor, primaryOnly);
 		if (input != null)
 			return performForkedCodeResolve(input, (ITextSelection) editor.getSelectionProvider().getSelection());
 		return EMPTY_RESULT;
 	}
 
-	public static ITypeInfo getElementAtOffset(UniversalEditor editor) throws Exception {
+	public static IMemberInfo getElementAtOffset(UniversalEditor editor) throws Exception {
 		return getElementAtOffset(editor, true);
 	}
 
@@ -174,7 +179,7 @@ public class SelectionConverter {
 	 *             while accessing its corresponding resource
 	 * @since 3.2
 	 */
-	public static ITypeInfo getElementAtOffset(UniversalEditor editor, boolean primaryOnly) throws Exception {
+	public static IMemberInfo getElementAtOffset(UniversalEditor editor, boolean primaryOnly) throws Exception {
 		return getInput(editor, primaryOnly);
 //		if (input != null)
 //			return getElementAtOffset(input, (ITextSelection) editor.getSelectionProvider().getSelection());
@@ -182,17 +187,18 @@ public class SelectionConverter {
 	}
 
 	public static ITypeInfo getTypeAtOffset(UniversalEditor editor) throws Exception {
-		ITypeInfo element= SelectionConverter.getElementAtOffset(editor);
-//		ITypeInfo type= (ITypeInfo)element.getAncestor(ITypeInfo.class);
+		IMemberInfo element= SelectionConverter.getElementAtOffset(editor);
+		
+		ITypeInfo type= SearchUtils.getOuterTypeInfo(element);
 //		if (type == null) {
 //			ICompilationUnit unit= SelectionConverter.getInputAsCompilationUnit(editor);
 //			if (unit != null)
 //				type= unit.findPrimaryType();
 //		}
-		return element;
+		return type;
 	}
 
-	public static ITypeInfo getInput(UniversalEditor editor) {
+	public static IMemberInfo getInput(UniversalEditor editor) {
 		return getInput(editor, true);
 	}
 
@@ -242,7 +248,6 @@ public class SelectionConverter {
 		return info;
 	}
 	
-	
 	/**
 	 * Returns the input element of the given editor
 	 *
@@ -251,7 +256,7 @@ public class SelectionConverter {
 	 * @return the type root which is the editor input
 	 * @since 3.2
 	 */
-	private static ITypeInfo getInput(UniversalEditor editor,
+	private static IMemberInfo getInput(UniversalEditor editor,
 			boolean primaryOnly) {
 		if (editor == null)
 			return null;
@@ -266,7 +271,7 @@ public class SelectionConverter {
 		return getInput(proj, editor.getParseController(), editor.getSelectedRegion().getOffset());
 	}
 
-	public static ITypeInfo getInputAsTypeRoot(UniversalEditor editor) {
+	public static IMemberInfo getInputAsTypeRoot(UniversalEditor editor) {
 		return SelectionConverter.getInput(editor);
 	}
 
@@ -284,7 +289,7 @@ public class SelectionConverter {
 //		return null;
 //	}
 
-	private static ITypeInfo[] performForkedCodeResolve(final ITypeInfo input, final ITextSelection selection) throws InvocationTargetException, InterruptedException {
+	private static IMemberInfo[] performForkedCodeResolve(final IMemberInfo input, final ITextSelection selection) throws InvocationTargetException, InterruptedException {
 		final class CodeResolveRunnable implements IRunnableWithProgress {
 			ITypeInfo[] result;
 			public void run(IProgressMonitor monitor) throws InvocationTargetException {
@@ -300,7 +305,7 @@ public class SelectionConverter {
 		return runnable.result;
 	}
 
-	public static ITypeInfo[] codeResolve(ITypeInfo input, ITextSelection selection) throws Exception {
+	public static ITypeInfo[] codeResolve(IMemberInfo input, ITextSelection selection) throws Exception {
 //			if (input instanceof ICodeAssist) {
 //				if (input instanceof ICompilationUnit) {
 //					JavaModelUtil.reconcile((ICompilationUnit) input);

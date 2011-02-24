@@ -1,8 +1,5 @@
 package x10dt.search.core;
 
-import static x10dt.ui.launch.core.LaunchCore.X10_CPP_PRJ_NATURE_ID;
-import static x10dt.ui.launch.core.LaunchCore.X10_PRJ_JAVA_NATURE_ID;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -34,9 +31,12 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.IStartup;
 import org.osgi.framework.BundleContext;
 
+import x10dt.core.X10DTCorePlugin;
 import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.search.core.pdb.SearchDBTypes;
 import x10dt.search.core.pdb.X10FactTypeNames;
+
+import static x10dt.core.X10DTCorePlugin.*;
 
 /**
  * Main class being notified of the plugin life cycle.
@@ -126,7 +126,7 @@ public class SearchCoreActivator extends Plugin implements IStartup, IResourceCh
               }
               
               private boolean hasRightNature() throws CoreException {
-                return project.hasNature(X10_CPP_PRJ_NATURE_ID) || project.hasNature(X10_PRJ_JAVA_NATURE_ID);
+                return project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID) || project.hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
               }
               
               private boolean hasX10Container(final ISourceProject javaProject) throws ModelException {

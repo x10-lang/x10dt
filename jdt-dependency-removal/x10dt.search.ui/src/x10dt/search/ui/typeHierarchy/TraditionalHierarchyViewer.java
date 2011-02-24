@@ -108,10 +108,12 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 //						res.add(getType(classes[i]));
 //					}
 //				} else {
-					if(SearchUtils.hasFlag(X10.INTERFACE, input.getX10FlagsCode())) {
+					if (SearchUtils.hasFlag(X10.INTERFACE, input.getX10FlagsCode())) {
 						res.add(input);
 					} else if (isAnonymousFromInterface(input)) {
 						res.add(hierarchy.getInterfaces(input.getName())[0]);
+					} else if (isObject(input)) {
+					    res.add(input);
 					} else {
 						ITypeInfo[] roots= hierarchy.getAllSuperClasses(input.getName());
 						for (int i= 0; i < roots.length; i++) {

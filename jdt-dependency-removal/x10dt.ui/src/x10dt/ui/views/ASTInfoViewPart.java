@@ -24,13 +24,11 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.text.Document;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.TextViewer;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -48,7 +46,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
+import polyglot.ast.TypeNode;
+import polyglot.types.Named;
 import polyglot.types.Type;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.parser.ParseController;
@@ -223,6 +224,25 @@ public class ASTInfoViewPart extends ViewPart implements ISelectionChangedListen
 					reportNodeTypes(sb, root, node);
 					sb.append('\n');
 
+					if (node instanceof TypeNode) {
+                        TypeNode typeNode= (TypeNode) node;
+                        sb.append("Type name: ");
+                        sb.append(typeNode.toString());
+                        sb.append('\n');
+                        sb.append('\n');
+					} else if (node instanceof Named) {
+					    Named named = (Named) node;
+					    sb.append("Type name: ");
+					    sb.append(named.name().toString());
+                        sb.append('\n');
+                        sb.append('\n');
+					} else if (node instanceof Id) {
+					    Id id = (Id) node;
+					    sb.append("Identifier: ");
+					    sb.append(id.toString());
+                        sb.append('\n');
+					    sb.append('\n');
+					}
 					Object referent= reportRef(sb, node);
 
 					sb.append('\n');

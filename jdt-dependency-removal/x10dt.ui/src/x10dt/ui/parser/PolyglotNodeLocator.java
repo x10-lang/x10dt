@@ -175,7 +175,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             NodeVisitor v = this;
             if (n instanceof MethodDecl) {
             	md = (MethodDecl) n;
-            	v = (NodeVisitor) this.copy();
+            	v = (NodeVisitor) shallowCopy();
             }
 
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
@@ -220,7 +220,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
             NodeVisitor v = this;
             if (n instanceof ClassDecl) {
             	cd = (ClassDecl) n;
-            	v = (NodeVisitor) this.copy();
+            	v = (NodeVisitor) shallowCopy();
             }
 
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.

@@ -258,7 +258,7 @@ public class NewX10ClassPage extends NewTypeWizardPage {
   public void createType(IProgressMonitor monitor) throws ModelException, CoreException, InterruptedException {
     ISourceFolder pkgFrag = this.getPackageFragment();
     String superClass = this.getSuperClass();
-    List/* <String> */superIntfs = this.getSuperInterfaces();
+    List<String> superIntfs = this.getSuperInterfaces();
     String typeName = this.getTypeName();
 
     doCreateType(typeName, pkgFrag, superClass, superIntfs, monitor);

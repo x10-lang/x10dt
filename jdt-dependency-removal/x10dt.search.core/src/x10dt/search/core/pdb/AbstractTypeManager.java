@@ -83,7 +83,8 @@ abstract class AbstractTypeManager implements ITypeManager {
   
   private String getVersion(final Bundle bundle) {
     final Version version = bundle.getVersion();
-    return String.format("%d.%d.%d", version.getMajor(), version.getMinor(), version.getMicro()); //$NON-NLS-1$
+    return String.format("%d.%d.%d.%s", version.getMajor(), version.getMinor(), version.getMicro(), //$NON-NLS-1$
+                         version.getQualifier());
   }
   
   // --- Fields
