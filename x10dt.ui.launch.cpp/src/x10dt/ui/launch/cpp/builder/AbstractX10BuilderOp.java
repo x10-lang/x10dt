@@ -38,6 +38,9 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -142,12 +145,23 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         if (monitor.isCanceled()) {
           return;
         }
-        final String rootName = sourceFile.getFullPath().removeFileExtension().lastSegment();
-        
-        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + CC_EXT).toString()), nullMonitor);
-        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + H_EXT).toString()), nullMonitor);
-        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + INC_EXT).toString()), nullMonitor);
-        deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + O_EXT).toString()), nullMonitor);
+        String rootName = null;
+        final IJavaProject javaProject = JavaCore.create(this.fProject);
+        for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
+          if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            if (cpEntry.getPath().isPrefixOf(sourceFile.getFullPath())) {
+              rootName = sourceFile.getFullPath().removeFirstSegments(cpEntry.getPath().segmentCount())
+                                   .removeFileExtension().toString();
+              break;
+            }
+          }
+        }
+        if (rootName != null) {
+          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + CC_EXT).toString()), nullMonitor);
+          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + H_EXT).toString()), nullMonitor);
+          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + INC_EXT).toString()), nullMonitor);
+          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + O_EXT).toString()), nullMonitor);
+        }
       
         monitor.worked(1);
       }
