@@ -61,13 +61,6 @@ public interface IConnectionConf {
   public String getPassphrase();
   
   /**
-   * Returns the password to use for login identification.
-   * 
-   * @return A non-null, possibly empty, string.
-   */
-  public String getPassword();
-  
-  /**
    * Returns the port to consider for accessing the remote machine.
    * 
    * @return A natural number.

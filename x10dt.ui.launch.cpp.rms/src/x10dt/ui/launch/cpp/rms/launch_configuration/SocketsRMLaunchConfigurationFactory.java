@@ -14,6 +14,7 @@ import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 
 import x10dt.ui.launch.cpp.rms.provider.SocketsResourceManager;
+import x10dt.ui.launch.rms.core.launch_configuration.X10EnvVarsConfDynamicTab;
 
 /**
  * Provides the implementation for dynamic configuration tabs for the X10 Sockets Resource Manager.
@@ -30,7 +31,7 @@ public final class SocketsRMLaunchConfigurationFactory extends AbstractRMLaunchC
 
   protected IRMLaunchConfigurationDynamicTab doCreate(final IResourceManager resourceManager,
                                                       final ILaunchConfigurationDialog launchDialog) throws CoreException {
-    return new SocketsRMLaunchConfigurationDynamicTab();
+    return new X10EnvVarsConfDynamicTab();
   }
 
 }

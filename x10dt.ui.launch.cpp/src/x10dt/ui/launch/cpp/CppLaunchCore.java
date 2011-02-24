@@ -43,7 +43,6 @@ import org.osgi.framework.BundleContext;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
-import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
@@ -305,7 +304,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     this.fProjectToPlatform = new HashMap<IProject, IX10PlatformConf>(projects.length);
     for (final IProject curProject : projects) {
       try {
-        if (curProject.isOpen() && curProject.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+        if (curProject.isOpen() && curProject.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
           this.fProjectToPlatform.put(curProject, X10PlatformConfFactory.load(curProject));
         }
       } catch (CoreException except) {

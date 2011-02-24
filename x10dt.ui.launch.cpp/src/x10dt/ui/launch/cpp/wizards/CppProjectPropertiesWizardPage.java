@@ -9,7 +9,7 @@ package x10dt.ui.launch.cpp.wizards;
 
 import org.eclipse.imp.ui.wizards.NewProjectWizardPageOne;
 
-import x10dt.ui.launch.core.LaunchCore;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.wizards.X10ProjectPropertiesWizardPage;
 
 final class CppProjectPropertiesWizardPage extends
@@ -22,6 +22,6 @@ final class CppProjectPropertiesWizardPage extends
 	// --- Overridden methods
 
 	protected String[] getNatureIds() {
-		return new String[] { LaunchCore.X10_CPP_PRJ_NATURE_ID };
+		return new String[] { X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID };
 	}
 }

@@ -27,7 +27,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   // --- Code for descendants
   
   protected final String addNoChecksOptions(final String command) {
-    if (fCompilerOptions.x10_config.NO_CHECKS) {
+    if (this.fCompilerOptions.x10_config.NO_CHECKS) {
       return command + " -DNO_CHECKS"; //$NON-NLS-1$
     } else {
       return command;
@@ -35,7 +35,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   }
   
   protected final String addOptimizeOptions(final String command) {
-    if (fCompilerOptions.x10_config.OPTIMIZE) {
+    if (this.fCompilerOptions.x10_config.OPTIMIZE) {
       return command + " -O2 -DNDEBUG -DNO_PLACE_CHECKS -finline-functions"; //$NON-NLS-1$
     } else {
       return command;
@@ -44,6 +44,10 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
   protected final EArchitecture getArchitecture() {
     return this.fArchitecture;
+  }
+  
+  protected final ETransport getTransport() {
+    return this.fTransport;
   }
   
   protected String getTransportCompilerOption() {
@@ -64,7 +68,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
       case LAPI:
         return "-lupcrts_lapi"; //$NON-NLS-1$
       case MPI:
-        return "-lx10rt_pgas_sockets"; //$NON-NLS-1$
+    	return "-lx10rt_mpi"; //$NON-NLS-1$
       case SOCKETS:
         return "-lx10rt_sockets"; //$NON-NLS-1$
       case STANDALONE:
@@ -83,6 +87,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   }
   
   // --- Fields
+  
   private final X10CompilerOptions fCompilerOptions;
   
   private final boolean fIs64Arch;

@@ -889,7 +889,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           
           if ((connectionInfo.getValidationStatus() == EValidationStatus.FAILURE) ||
               (connectionInfo.getValidationStatus() == EValidationStatus.ERROR)) {
-            ConnectionSectionPart.this.fErrorLabel.setText(connectionInfo.getErrorMessage());
+            ConnectionSectionPart.this.fErrorLabel.setText(processJSchMessage(connectionInfo.getErrorMessage()));
           } else {
             ConnectionSectionPart.this.fErrorLabel.setText(Constants.EMPTY_STR);
           }
@@ -1021,6 +1021,16 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     
     this.fLocalAddressText.setText(connectionConf.getLocalAddress());
     this.fUsePortForwardingBt.setSelection(connectionConf.shouldUsePortForwarding());
+  }
+  
+  private String processJSchMessage(final String message) {
+    if ("Auth cancel".equals(message)) { //$NON-NLS-1$
+      return LaunchMessages.RMCP_PasswordCheckCanceled;
+    } else if ("Auth fail".equals(message)) { //$NON-NLS-1$
+      return LaunchMessages.RMCP_PasswordCheckFailed;
+    } else {
+      return message;
+    }
   }
   
   private void notifyConnectionUnknownStatus(final IConnectionInfo connectionInfo) {
@@ -1182,7 +1192,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           ConnectionInfoValidationListener.this.fConnectionInfo.setErrorMessage(exception.getMessage());
           ConnectionSectionPart.this.fTableViewer.update(ConnectionInfoValidationListener.this.fConnectionInfo, null);
           if (ConnectionInfoValidationListener.this.fShouldDeriveInfo) {
-            ConnectionSectionPart.this.fErrorLabel.setText(exception.getMessage());
+            ConnectionSectionPart.this.fErrorLabel.setText(processJSchMessage(exception.getMessage()));
           }
           notifyConnectionChanged();
         }
@@ -1236,10 +1246,12 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     // --- Private code
     
     private void notifyConnectionChanged() {
-      for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
-        listener.connectionChanged(ConnectionSectionPart.this.fLocalConnBt.getSelection(), 
-                                   this.fConnectionInfo.getName(), this.fConnectionInfo.getValidationStatus(), 
-                                   this.fShouldDeriveInfo);
+      if (ConnectionSectionPart.this.fCurrentConnection == this.fConnectionInfo) {
+        for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
+          listener.connectionChanged(ConnectionSectionPart.this.fLocalConnBt.getSelection(), 
+                                     this.fConnectionInfo.getName(), this.fConnectionInfo.getValidationStatus(), 
+                                     this.fShouldDeriveInfo);
+        }
       }
     }
     

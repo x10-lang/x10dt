@@ -37,7 +37,7 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   public String getCompiler() {
     return "mpCC_r"; //$NON-NLS-1$
   }
-
+  
   public String getCompilerOptions() {
     final String cmpOpts = String.format("-g %s -qsuppress=1540-0809:1500-029 -qrtti=all -DX10_USE_BDWGC", //$NON-NLS-1$
                                          getTransportCompilerOption());
@@ -65,5 +65,5 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
       return addNoChecksOptions(addOptimizeOptions(linkOpts));
     }
   }
-
+  
 }

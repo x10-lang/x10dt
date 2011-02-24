@@ -8,12 +8,12 @@ import org.osgi.framework.BundleContext;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class RMSActivator extends AbstractUIPlugin {
+public class CppRMSActivator extends AbstractUIPlugin {
 
   /**
    * Unique id for this plugin.
    */
-	public static final String PLUGIN_ID = "x10dt.ui.launch.cpp.rm.sockets"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "x10dt.ui.launch.cpp.rms"; //$NON-NLS-1$
 	
 	// --- Public services
 	
@@ -22,7 +22,7 @@ public class RMSActivator extends AbstractUIPlugin {
    * 
    * @return A non-null value if the plugin is activated, or <b>null</b> if it is stopped.
    */
-	public static RMSActivator getInstance() {
+	public static CppRMSActivator getInstance() {
 	  return fPlugin;
 	}
 	
@@ -109,6 +109,6 @@ public class RMSActivator extends AbstractUIPlugin {
   
   // --- Fields
   
-  private static RMSActivator fPlugin;
+  private static CppRMSActivator fPlugin;
 
 }

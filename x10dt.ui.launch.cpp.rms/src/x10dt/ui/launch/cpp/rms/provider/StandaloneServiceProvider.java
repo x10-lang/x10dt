@@ -16,6 +16,7 @@ import org.eclipse.ptp.services.core.IServiceProviderWorkingCopy;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.cpp.rms.Messages;
+import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
 
 /**
  * Service provider implements for the X10 Standalone resource manager control.

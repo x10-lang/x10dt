@@ -5,15 +5,27 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui.launch.cpp.rms.provider;
+package x10dt.ui.launch.cpp.platform_conf;
 
-
-enum EX10JobStatus {
+/**
+ * Encapsulates information for the debugging experience.
+ * 
+ * @author egeay
+ */
+public interface IDebuggingInfoConf {
   
-  OK,
+  /**
+   * Returns the folder path containing the debugger instance. 
+   * 
+   * @return A non-null string but possibly empty.
+   */
+  public String getDebuggerFolder();
   
-  CANCEL,
-  
-  ERROR;
+  /**
+   * Returns the port to use for the communication between the client and the remote debugger instance.
+   * 
+   * @return A positive number.
+   */
+  public int getPort();
 
 }

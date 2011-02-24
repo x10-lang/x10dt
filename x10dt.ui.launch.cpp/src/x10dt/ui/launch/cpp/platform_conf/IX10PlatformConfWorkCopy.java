@@ -188,4 +188,10 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setTemplateOption(final ELLTemplateOpt templateOpt);
   
+  // --- IDebuggingInfoConf's setter methods
+  
+  public void setDebuggerFolder(final String folder);
+  
+  public void setDebuggingPort(final int port);
+  
 }

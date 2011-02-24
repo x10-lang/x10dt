@@ -43,6 +43,10 @@ final class ReferencedPlatformConf implements IX10PlatformConf {
   public ICppCompilationConf getCppCompilationConf() {
     return this.fSource.getCppCompilationConf();
   }
+  
+  public IDebuggingInfoConf getDebuggingInfoConf() {
+    return this.fSource.getDebuggingInfoConf();
+  }
 
   public String getDescription() {
     return this.fSource.getDescription();

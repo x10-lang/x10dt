@@ -94,9 +94,10 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
     final String x10DistLoc = getX10DistribLocation();
     final String pgasLoc = getPGASLocation();
     if (x10DistLoc.equals(pgasLoc)) {
-      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc) };
+      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc), String.format(STDLIB_INCLUDE_FORMAT, x10DistLoc) };
     } else {
-      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc), String.format(INCLUDE_FORMAT, pgasLoc) };
+      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc), 
+                            String.format(INCLUDE_FORMAT, pgasLoc) };
     }
   }
 
@@ -104,7 +105,8 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
     final String x10DistLoc = getX10DistribLocation();
     final String pgasLoc = getPGASLocation();
     if (x10DistLoc.equals(pgasLoc)) {
-      return new String[] { String.format(LIB_FORMAT, x10DistLoc) };
+      return new String[] { String.format(LIB_FORMAT, x10DistLoc), String.format(STDLIB_FORMAT, x10DistLoc),
+                            String.format(STDLIB_LIB_FORMAT, x10DistLoc) };
     } else {
       return new String[] { String.format(LIB_FORMAT, x10DistLoc), String.format(LIB_FORMAT, pgasLoc) };
     }
@@ -235,6 +237,12 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   
   private static final String INCLUDE_FORMAT = "%s/include"; //$NON-NLS-1$
   
+  private static final String STDLIB_INCLUDE_FORMAT = "%s/stdlib/include"; //$NON-NLS-1$
+  
   private static final String LIB_FORMAT = "%s/lib"; //$NON-NLS-1$
+  
+  private static final String STDLIB_FORMAT = "%s/stdlib"; //$NON-NLS-1$
+  
+  private static final String STDLIB_LIB_FORMAT = "%s/stdlib/lib"; //$NON-NLS-1$
 
 }

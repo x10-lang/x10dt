@@ -13,21 +13,18 @@ import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.language.Language;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.IPathEntry;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
-import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.jface.window.IShellProvider;
 
+import x10dt.core.X10DTCorePlugin;
 import x10dt.core.utils.X10DTCoreConstants;
-import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
 import x10dt.ui.launch.core.dialogs.DialogsFactory;
-import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
@@ -43,7 +40,7 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   // --- Interface methods implementation
   
   public String getProjectNatureId() {
-    return LaunchCore.X10_CPP_PRJ_NATURE_ID;
+    return X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID;
   }
   
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) {

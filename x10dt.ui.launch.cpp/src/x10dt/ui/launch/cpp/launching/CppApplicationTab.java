@@ -12,8 +12,10 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -21,6 +23,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
@@ -28,7 +31,10 @@ import org.eclipse.debug.ui.StringVariableSelectionDialog;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
@@ -49,12 +55,16 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 import polyglot.types.ClassType;
+import x10dt.core.X10DTCorePlugin;
+import x10dt.ui.Messages;
+import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.editor.X10LabelProvider;
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
@@ -66,12 +76,10 @@ import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
+import x10dt.ui.launching.ResourceToJavaElementAdapter;
+import x10dt.ui.utils.LaunchUtils;
 
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
-
-  CppApplicationTab(final CommunicationInterfaceTab commIntfTab) {
-    this.fCommIntfTab = commIntfTab;
-  }
 
   // --- Interface methods implementation
 
@@ -122,10 +130,25 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-    configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
+    final IResource context = getCurrentSelectionContext();
+    if (context == null) {
+      configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
+      configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
+    } else {
+      configuration.setAttribute(ATTR_PROJECT_NAME, context.getProject().getName());
+      final ISourceEntity[] scope = new ISourceEntity[] { new ResourceToJavaElementAdapter(context) };
+      try {
+        final Pair<ClassType, ISourceEntity> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID,
+                                                                                getShell());
+        if (mainType != null) {
+          configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, mainType.first.fullName().toString());
+        }
+      } catch (Exception except) {
+        // Simply forgets.
+      }
+    }
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
-    configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
     configuration.setAttribute(ATTR_CONSOLE, true);
   }
 
@@ -160,8 +183,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
             if (this.fX10PlatformConf != null) {
               final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
               if (errors == 0) {
-                this.fCommIntfTab.setLaunchConfiguration(configuration);
-                this.fCommIntfTab.platformConfSelected(this.fX10PlatformConf);
+                for (final ILaunchTabPlatformConfServices services : this.fPConfServices) {
+                  services.setLaunchConfiguration(configuration);
+                  services.platformConfSelected(this.fX10PlatformConf);
+                }
               }
             }
           }
@@ -191,7 +216,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           return false;
         }
         try {
-          if (!project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+          if (!project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
             setErrorMessage(NLS.bind(LaunchMessages.CAT_NoCPPProjectNature, projectName));
             return false;
           }
@@ -235,6 +260,12 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
     }
     return true;
+  }
+  
+  // --- Internal services
+  
+  void setPlatformConfServices(final Collection<ILaunchTabPlatformConfServices> pConfServices) {
+    this.fPConfServices = pConfServices;
   }
 
   // --- Private code
@@ -325,6 +356,67 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     this.fProjectBt = createPushButton(group, LaunchMessages.CAT_BrowseButton, null /* image */);
     this.fProjectBt.addSelectionListener(new ProjectBtSelectionListener());
   }
+  
+  private IResource getCurrentSelectionContext() {
+    final IWorkbenchWindow workbenchWindow = CppLaunchCore.getInstance().getWorkbench().getActiveWorkbenchWindow();
+    if (workbenchWindow != null) {
+      final IWorkbenchPage activePage = workbenchWindow.getActivePage();
+      if (activePage != null) {
+        final ISelection selection = activePage.getSelection();
+        if (selection instanceof IStructuredSelection) {
+          return getCurrentSelectionContext((IStructuredSelection) selection);
+        }
+      }
+    }
+    return null;
+  }
+  
+  private IResource getCurrentSelectionContext(final IStructuredSelection selection) {
+    final Object selectedObject;
+    if (selection.size() > 1) {
+      // Unless they have a common project, it doesn't really makes sense here.
+      IProject commonProject = null;
+      for (final Iterator<?> it = selection.iterator(); it.hasNext();) {
+        final Object element = it.next();
+        final IProject curPrj;
+        if (element instanceof ISourceEntity) {
+          curPrj = ((ISourceEntity) element).getProject().getRawProject();
+        } else if (element instanceof IResource) {
+          curPrj = ((IResource) element).getProject();
+        } else {
+          curPrj = null;
+        }
+        if (commonProject == null) {
+          commonProject = curPrj;
+        } else if ((curPrj != null) && ! commonProject.equals(curPrj)) {
+          commonProject = null;
+          break;
+        }
+      }
+      selectedObject = commonProject;
+    } else {
+      selectedObject = selection.getFirstElement();
+    }
+    final IResource resource;
+    if (selectedObject instanceof ISourceEntity) {
+      resource = ((ISourceEntity) selectedObject).getResource();
+    } else if (selectedObject instanceof IResource) {
+      resource = (IResource) selectedObject;
+    } else {
+      resource = null;
+    }
+    if ((resource != null) && resource.exists()) {
+      final IProject project = resource.getProject();
+      try {
+        if (project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
+          return resource;
+        }
+      } catch (CoreException except) {
+        // Simply forgets.
+      }
+    }
+    return null;
+  }
 
   private ITargetOpHelper getTargetOpHelper() {
     final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
@@ -333,8 +425,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     return TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
   }
 
-  private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, final String name)
-                                                                                                                       throws CoreException {
+  private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, 
+                                          final String name) throws CoreException {
     final Listener[] listeners = text.getListeners(SWT.Modify);
     for (final Listener listener : listeners) {
       text.removeListener(SWT.Modify, listener);
@@ -377,7 +469,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       final IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
       final Collection<IProject> projects = new ArrayList<IProject>(allProjects.length);
       for (final IProject project : allProjects) {
-        if (project.isOpen() && project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+        if (project.isOpen() && project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
           projects.add(project);
         }
       }
@@ -395,11 +487,13 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       try {
         if (name.length() > 0) {
           final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
-          if (project.exists() && project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID)) {
+          if (project.exists() && project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
             final int errors = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
             if (errors == 0) {
               CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
-              CppApplicationTab.this.fCommIntfTab.platformConfSelected(CppApplicationTab.this.fX10PlatformConf);
+              for (final ILaunchTabPlatformConfServices services : CppApplicationTab.this.fPConfServices) {
+                services.platformConfSelected(CppApplicationTab.this.fX10PlatformConf); 
+              }
             }
           }
         }
@@ -435,36 +529,35 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       } else {
         boolean hasValidNature = false;
         try {
-          hasValidNature = project.hasNature(LaunchCore.X10_CPP_PRJ_NATURE_ID);
+          hasValidNature = project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID);
         } catch (CoreException except) {
           // Do nothing.
         }
         scope = hasValidNature ? new ISourceEntity[] { ModelFactory.getProject(project) } : null;
       }
-//      try {
-        final Pair<ClassType, ISourceEntity> mainType = null;
-//        	LaunchUtils.findMainType(scope, LaunchCore.X10_CPP_PRJ_NATURE_ID,
-//                                                                                getShell());
+      try {
+        final Pair<ClassType, ISourceEntity> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID,
+                                                                                getShell());
         if (mainType != null) {
           CppApplicationTab.this.fMainTypeText.setText(mainType.first.fullName().toString());
           if (scope == null) {
             CppApplicationTab.this.fProjectText.setText(mainType.second.getProject().getName());
           }
         }
-//      } catch (InvocationTargetException except) {
-//        if (except.getTargetException() instanceof CoreException) {
-//          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg,
-//                                ((CoreException) except.getTargetException()).getStatus());
-//          CppLaunchCore.log(((CoreException) except.getTargetException()).getStatus());
-//        } else {
-//          final IStatus status = new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, Messages.AXLS_MainTypeSearchInternalError,
-//                                            except.getTargetException());
-//          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
-//          CppLaunchCore.log(status);
-//        }
-//      } catch (InterruptedException except) {
-//        // Do nothing.
-//      }
+      } catch (InvocationTargetException except) {
+        if (except.getTargetException() instanceof CoreException) {
+          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg,
+                                ((CoreException) except.getTargetException()).getStatus());
+          CppLaunchCore.log(((CoreException) except.getTargetException()).getStatus());
+        } else {
+          final IStatus status = new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, Messages.AXLS_MainTypeSearchInternalError,
+                                            except.getTargetException());
+          ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
+          CppLaunchCore.log(status);
+        }
+      } catch (InterruptedException except) {
+        // Do nothing.
+      }
       updateLaunchConfigurationDialog();
     }
 
@@ -498,7 +591,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
 
   // --- Fields
 
-  private final CommunicationInterfaceTab fCommIntfTab;
+  private Collection<ILaunchTabPlatformConfServices> fPConfServices;
 
   private Text fProjectText;
 

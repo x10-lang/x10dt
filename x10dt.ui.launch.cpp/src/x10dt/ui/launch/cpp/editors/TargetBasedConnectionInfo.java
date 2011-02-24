@@ -12,10 +12,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.remotetools.environment.generichost.core.TargetConfig;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.rms.core.environment.TargetConfig;
 
 
 final class TargetBasedConnectionInfo implements IConnectionInfo {
