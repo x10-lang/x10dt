@@ -437,6 +437,29 @@ public class SearchUtils {
 		return null;
 	}
 	
+	public static IMethodInfo[] getMethods(ITypeInfo type, String methodName)
+	{
+		try {
+			IResource res = getResource(type);
+			IX10SearchScope scope = null;
+			if (res == null) {
+				scope = SearchScopeFactory
+						.createWorkspaceScope(X10SearchScope.ALL);
+			}
+
+			else {
+				scope = SearchScopeFactory.createSelectiveScope(
+						X10SearchScope.ALL, res);
+			}
+
+			return X10SearchEngine.getMethodInfos(scope,
+					type.getName(), methodName,
+					new NullProgressMonitor());
+		} catch (Exception e) {
+			return new IMethodInfo[0];
+		}
+	}
+	
 	public static IMethodInfo[] getMethods(ITypeInfo type)
 	{
 		try {

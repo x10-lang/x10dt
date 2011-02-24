@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.search.core.pdb;
+package x10dt.search.core.facts;
 
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_FieldName;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_MethodName;
@@ -28,57 +28,52 @@ import polyglot.types.Flags;
 import polyglot.types.MethodDef;
 import polyglot.types.Ref;
 import polyglot.util.Position;
-import polyglot.visit.NodeVisitor;
+import x10.types.ParameterType;
 import x10dt.search.core.Messages;
+import x10dt.search.core.pdb.ITypeManager;
+import x10dt.search.core.pdb.SearchDBTypes;
+import x10dt.search.core.pdb.X10FactTypeNames;
+import x10dt.search.core.pdb.X10FlagsEncoder;
 
-/**
- * Provides services for facts writing and defines a base for all fact writers that need to browse final AST nodes in order
- * to create the appropriate indexing information.
- * 
- * @author egeay
- */
-public class FactWriterVisitor extends NodeVisitor {
-  
-  protected FactWriterVisitor() {
+
+
+abstract class AbstractFactWriter implements IFactWriter {
+
+  protected AbstractFactWriter(final String scopeTypeName) {
     this.fValueFactory = ValueFactory.getInstance();
     this.fTypeName = SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_TypeName);
     this.fMethodName = SearchDBTypes.getInstance().getType(X10_MethodName);
     this.fFieldName = SearchDBTypes.getInstance().getType(X10_FieldName);
     this.fIntType = TypeFactory.getInstance().integerType();
+    this.fScopeTypeName = scopeTypeName;
     
     this.fVoidType = createTypeName("x10.lang.Void"); //$NON-NLS-1$
     this.fThisMethodName = this.fMethodName.make(this.fValueFactory, "this"); //$NON-NLS-1$
   }
   
-  // --- Public services
-  
-  /**
-   * Defines the current scope type.
-   * 
-   * @param scopeTypeName The name defining the scope type.
-   */
-  public final void setScopeType(final String scopeTypeName) {
-    this.fScopeTypeName = scopeTypeName;
-  }
-  
-  // --- Code for implementers
+  // --- Code for sub-classes
   
   protected final IValue createConstructorValue(final ConstructorDef methodDef) {
     final List<Ref<? extends polyglot.types.Type>> formalTypes = methodDef.formalTypes();
     final IValue[] args = new IValue[formalTypes.size()];
     int i = -1;
     for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createTypeName(formalType.get().toString());
+      if (formalType.get() instanceof ParameterType) {
+        args[++i] = createTypeName('[' + formalType.get().toString());
+      } else {
+        args[++i] = createTypeName(formalType.get().toString());
+      }
     }
     return getValueFactory().tuple(getSourceLocation(methodDef.position()), this.fThisMethodName, this.fVoidType,  
                                    getValueFactory().list(args), createModifiersCodeValue(methodDef.flags()));
   }
   
   protected final IValue createFieldValue(final FieldDef fieldDef) {
+    final polyglot.types.Type fieldType = fieldDef.asInstance().type();
+    final String fieldTypeName = (fieldType instanceof ParameterType) ? '[' + fieldType.toString() : fieldType.toString();
     return getValueFactory().tuple(getSourceLocation(fieldDef.position()), 
                                    this.fFieldName.make(getValueFactory(), fieldDef.name().toString()),
-                                   createTypeName(fieldDef.asInstance().type().toString()),
-                                   createModifiersCodeValue(fieldDef.flags()));
+                                   createTypeName(fieldTypeName), createModifiersCodeValue(fieldDef.flags()));
   }
   
   protected final IValue createMethodValue(final MethodDef methodDef) {
@@ -86,11 +81,22 @@ public class FactWriterVisitor extends NodeVisitor {
     final IValue[] args = new IValue[formalTypes.size()];
     int i = -1;
     for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createTypeName(formalType.get().toString());
+      if (formalType.get() instanceof ParameterType) {
+        args[++i] = createTypeName('[' + formalType.get().toString());
+      } else {
+        args[++i] = createTypeName(formalType.get().toString());
+      }
+    }
+    final polyglot.types.Type returnType = methodDef.returnType().get();
+    final String returnTypeName;
+    if (returnType instanceof ParameterType) {
+      returnTypeName = '[' + returnType.toString();
+    } else {
+      returnTypeName = returnType.toString();
     }
     return getValueFactory().tuple(getSourceLocation(methodDef.position()),
                                    this.fMethodName.make(getValueFactory(), methodDef.name().toString()),
-                                   createTypeName(methodDef.returnType().get().toString()), getValueFactory().list(args),
+                                   createTypeName(returnTypeName), getValueFactory().list(args),
                                    createModifiersCodeValue(methodDef.flags()));
   }
   

@@ -546,4 +546,12 @@
             language="X10">
       </entityImageDecorator>
    </extension>
+   <extension
+         point="org.eclipse.imp.runtime.typeHierarchyContentProvider">
+      <typeHierarchyContentProvider
+            class="x10dt.ui.typeHierarchy.X10TypeHierarchyProvider"
+            id="x10dt.ui.typeHierarchyContentProvider"
+            language="X10">
+      </typeHierarchyContentProvider>
+   </extension>
 </plugin>

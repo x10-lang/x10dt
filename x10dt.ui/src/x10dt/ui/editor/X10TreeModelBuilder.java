@@ -28,14 +28,13 @@ import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TopLevelDecl;
+import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
 import x10.ast.Finish;
 import x10.ast.Next;
 import x10.ast.X10Loop;
-import polyglot.util.Position;
-import polyglot.visit.NodeVisitor;
 
 public class X10TreeModelBuilder extends TreeModelBuilderBase {
     private static final int PACKAGE_CATEGORY= 0;
@@ -112,13 +111,13 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
         protected Collection bypass;
 
         public HaltingVisitor bypassChildren(Node n) {
-            HaltingVisitor v = (HaltingVisitor) copy();
+            HaltingVisitor v = (HaltingVisitor) shallowCopy();
             v.bypassParent = n;
             return v;
         }
 
         public HaltingVisitor visitChildren() {
-            HaltingVisitor v = (HaltingVisitor) copy();
+            HaltingVisitor v = (HaltingVisitor) shallowCopy();
             v.bypassParent = null;
             v.bypass = null;
             return v;
@@ -127,7 +126,7 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
         public HaltingVisitor bypass(Node n) {
             if (n == null) return this;
 
-            HaltingVisitor v = (HaltingVisitor) copy();
+            HaltingVisitor v = (HaltingVisitor) shallowCopy();
 
             // FIXME: Using a collection is expensive, but is hopefully not
             // often used.
@@ -146,7 +145,7 @@ public class X10TreeModelBuilder extends TreeModelBuilderBase {
         public HaltingVisitor bypass(Collection c) {
             if (c == null) return this;
 
-            HaltingVisitor v = (HaltingVisitor) copy();
+            HaltingVisitor v = (HaltingVisitor) shallowCopy();
 
             // FIXME: Using a collection is expensive, but is hopefully not
             // often used.

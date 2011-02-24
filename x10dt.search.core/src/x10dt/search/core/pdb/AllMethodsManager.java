@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.osgi.util.NLS;
 
+import polyglot.visit.NodeVisitor;
 import x10dt.search.core.Messages;
 
 
@@ -44,8 +45,8 @@ final class AllMethodsManager extends AbstractTypeManager implements ITypeManage
     createIndexingFile(factBase.queryFact(new FactKey(getType(), factContext)));
   }
   
-  public FactWriterVisitor createNodeVisitor() {
-    return new AllMembersFactWriterVisitor();
+  public NodeVisitor createNodeVisitor(final String scopeTypeName) {
+    return new AllMembersFactWriterVisitor(scopeTypeName);
   }
   
   public void writeDataInFactBase(final FactBase factBase, final IFactContext factContext) {

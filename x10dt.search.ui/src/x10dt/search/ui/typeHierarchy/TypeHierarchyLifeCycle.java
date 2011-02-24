@@ -25,6 +25,7 @@ import x10dt.search.core.elements.IMemberInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.ITypeHierarchy;
 import x10dt.search.core.engine.X10SearchEngine;
+import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
 
@@ -115,39 +116,20 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 
 	private ITypeHierarchy createTypeHierarchy(IMemberInfo element, IProgressMonitor pm) throws Exception {
 		if (element instanceof ITypeInfo) {
-			if (fIsSuperTypesOnly) {
-				ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), element.getName(), pm);
-				return X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL),h.getSuperClass(element.getName()).getName(), pm);
+		  final IX10SearchScope scope;
+      if (element.getCompilationUnit() == null) {
+        scope = SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL);
+      } else {
+        scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, element.getCompilationUnit().getResource());
+      }
+			if (this.fIsSuperTypesOnly) {
+				final ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), element.getName(), pm);
+				return X10SearchEngine.createTypeHierarchy(scope, h.getSuperClass(element.getName()).getName(), pm);
 			} else {
-				return X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL),element.getName(), pm);
+				return X10SearchEngine.createTypeHierarchy(scope, element.getName(), pm);
 			}
 		}
 		return null;
-//		else {
-//			IRegion region= new Region();
-//			if (element instanceof ISourceProject) {
-//				// for projects only add the contained source folders
-//				IPackageFragmentRoot[] roots= ((ISourceProject) element).getPackageFragmentRoots();
-//				for (int i= 0; i < roots.length; i++) {
-//					if (!roots[i].isExternal()) {
-//						region.add(roots[i]);
-//					}
-//				}
-//			} else if (element.getElementType() == ITypeInfo.PACKAGE_FRAGMENT) {
-//				IPackageFragmentRoot[] roots= element.getJavaProject().getPackageFragmentRoots();
-//				String name= element.getElementName();
-//				for (int i= 0; i < roots.length; i++) {
-//					IPackageFragment pack= roots[i].getPackageFragment(name);
-//					if (pack.exists()) {
-//						region.add(pack);
-//					}
-//				}
-//			} else {
-//				region.add(element);
-//			}
-//			ISourceProject jproject= element.getJavaProject();
-//			return jproject.newTypeHierarchy(region, pm);
-//		}
 	}
 
 

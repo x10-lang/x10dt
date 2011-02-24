@@ -79,7 +79,7 @@ public final class LaunchUtils {
     final MainClassesWrapper jeMainClasses = findMainTypes(elements, PlatformUI.getWorkbench().getProgressService());
     final int numberOfTypes = jeMainClasses.numberOfTypes();
     if (numberOfTypes == 0) {
-      final MessageBox msgBox = new MessageBox(Display.getCurrent().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
+      final MessageBox msgBox = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
       msgBox.setText(Messages.LU_MainTypeSearchResult);
       msgBox.setMessage(Messages.LU_NoMainTypeFound);
       msgBox.open();
