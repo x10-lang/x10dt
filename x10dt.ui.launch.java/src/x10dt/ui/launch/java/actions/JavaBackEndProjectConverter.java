@@ -20,7 +20,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.window.IShellProvider;
 
-import x10dt.ui.launch.core.LaunchCore;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
 import x10dt.ui.launch.java.Activator;
 
@@ -34,7 +34,7 @@ public final class JavaBackEndProjectConverter implements IBackEndX10ProjectConv
   // --- Interface methods implementation
   
   public String getProjectNatureId() {
-    return LaunchCore.X10_PRJ_JAVA_NATURE_ID;
+    return X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID;
   }
   
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) {

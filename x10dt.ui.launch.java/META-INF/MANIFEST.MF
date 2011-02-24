@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Java back-end
 Bundle-SymbolicName: x10dt.ui.launch.java;singleton:=true
-Bundle-Version: 2.1.1.qualifier
+Bundle-Version: 2.1.2.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: x10dt.ui.launch.java.Activator
 Require-Bundle: org.eclipse.core.filesystem,
@@ -25,7 +25,19 @@ Require-Bundle: org.eclipse.core.filesystem,
  x10dt.ui,
  org.eclipse.jdt.debug.ui,
  org.eclipse.ui.ide,
- org.eclipse.ui.cheatsheets
+ org.eclipse.ui.cheatsheets,
+ org.eclipse.ptp.services.ui,
+ org.eclipse.ptp.services.core,
+ org.eclipse.ptp.core,
+ x10dt.ui.launch.rms.core,
+ org.eclipse.ptp.remote.core,
+ org.eclipse.ptp.remote.remotetools.core,
+ org.eclipse.ptp.remotetools.environment.core,
+ org.eclipse.ptp.rm.core,
+ org.eclipse.ptp.launch,
+ org.eclipse.ptp.remote.ui,
+ org.eclipse.ptp.debug.core,
+ org.eclipse.ptp.utils.core
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: x10dt.ui.launch.java,
