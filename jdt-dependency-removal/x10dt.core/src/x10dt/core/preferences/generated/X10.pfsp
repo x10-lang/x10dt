@@ -64,7 +64,10 @@ page X10.Compiler {
 page X10.Compiler.Optimizations {
     fields {
         boolean Optimize            { defvalue false; }
-        boolean DisableChecking     { defvalue false; }
+        boolean DisableChecking     {
+            tooltip "Disables the generation of all null, bounds, and place checks";
+         	   defvalue false;
+	     	   }
     }
 }
 
