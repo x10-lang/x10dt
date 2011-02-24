@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?> 
+
+  <!DOCTYPE platformConfigs [ 
+    <!ATTLIST config 
+        id ID #IMPLIED 
+    > 
+  ]>
+   
 <platformConfigs> 
-<!--
-    <config> 
+
+    <config id="ber
+    "> 
         <configName> Linux 32-bit x86 </configName> 
         <description> remote Linux VM </description> 
         
@@ -47,9 +55,8 @@
 
        </remoteConnection> 
    </config>
--->
 
-    <config> 
+    <config id="localStandaloneConfig"> 
         <configName> Local Standalone </configName> 
         <description> local host using standalone runtime </description> 
         
@@ -71,7 +78,7 @@
        </commInterface>    
     </config> 
 
-    <config> 
+    <config id="localSocketsConfig"> 
         <configName> Local Sockets </configName> 
         <description> local host using sockets runtime </description> 
         
