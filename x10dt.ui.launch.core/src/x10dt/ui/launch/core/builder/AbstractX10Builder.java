@@ -431,13 +431,15 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<File> sourcesToCompile,
                                      final SubMonitor monitor) throws CoreException {
-    monitor.beginTask(null, 100);
-
     if (! sourcesToCompile.isEmpty()) {
+      monitor.beginTask(null, 100);
+      
       builderOp.transfer(sourcesToCompile, monitor.newChild(10));
       if (builderOp.compile(monitor.newChild(70))) {
         builderOp.archive(monitor.newChild(20));
       }
+    } else {
+      builderOp.archive(monitor);
     }
   }
 
