@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -48,8 +49,10 @@ import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import x10.ExtensionInfo;
+import x10cpp.X10CPPCompilerOptions;
 import x10cpp.visit.MessagePassingCodeGenerator;
 import x10dt.core.builder.StreamSource;
+import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.utils.CollectionUtils;
 import x10dt.ui.launch.core.utils.FileUtils;
@@ -60,20 +63,25 @@ import x10dt.ui.launch.core.utils.X10BuilderUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.X10CppBuilder;
+import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.utils.PTPUtils;
 
 
 final class CppCompilationChecker implements ICppCompilationChecker {
   
-  CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConnection) {
+CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConnection, ICppCompilationConf compilationConf, IProject project) {
     this.fRemoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmServicesId);
     this.fRemoteConnection = rmConnection;
+    this.fCompilationConf = compilationConf;
+    this.fProject = project;
   }
   
   // --- IPlatformConfChecker's interface methods implementation
 
-  public String validateArchiving(final String archiver, final String archivingOptions, 
-                                  final SubMonitor monitor) throws Exception {
+  public String validateArchiving(final SubMonitor monitor) throws Exception {
+    final String archiver = this.fCompilationConf.getArchiver();
+    final String archivingOptions = this.fCompilationConf.getArchivingOpts(true);
+
     monitor.beginTask(null, 10);
     monitor.subTask(LaunchMessages.APCC_ArchivingTaskMsg);
     
@@ -86,9 +94,12 @@ final class CppCompilationChecker implements ICppCompilationChecker {
     }
   }
   
-  public String validateCompilation(final String compiler, final String compilingOptions,
-                                    final String x10DistLoc, final String pgasDistLoc, final String[] x10HeadersLocs,
-                                    final String[] x10LibsLocs, final SubMonitor monitor) throws Exception {
+  public String validateCompilation(final SubMonitor monitor) throws Exception {
+    final String compiler = this.fCompilationConf.getCompiler();
+    final String compilingOptions = this.fCompilationConf.getCompilingOpts(true);
+    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations();
+    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations();
+
     monitor.beginTask(null, 20);
     monitor.subTask(LaunchMessages.APCC_CompilationTaskMsg);
     
@@ -121,9 +132,13 @@ final class CppCompilationChecker implements ICppCompilationChecker {
     }
   }
 
-  public String validateLinking(final String linker, final String linkingOptions, final String linkingLibs, 
-                                final String[] x10HeadersLocs, final String[] x10LibsLocs, 
-                                final SubMonitor monitor) throws Exception {
+  public String validateLinking(final SubMonitor monitor) throws Exception {
+    final String linker = this.fCompilationConf.getLinker();
+    final String linkingOptions = this.fCompilationConf.getLinkingOpts(true);
+    final String linkingLibs = this.fCompilationConf.getLinkingLibs(true);
+    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations();
+    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations();
+
     monitor.beginTask(null, 20);
     monitor.subTask(LaunchMessages.APCC_LinkingTaskMsg);
     
@@ -137,6 +152,20 @@ final class CppCompilationChecker implements ICppCompilationChecker {
   }
   
   // --- Private code
+  
+  private void addMainMethodStub(final File file) {
+    try {
+      final X10CPPCompilerOptions options = (X10CPPCompilerOptions) CompilerOptionsFactory.createOptions(this.fProject);
+      final FileOutputStream fos = new FileOutputStream(file, true);
+      final String stubSource = MessagePassingCodeGenerator.createMainStub("Hello", options); //$NON-NLS-1$
+
+      fos.write(stubSource.getBytes());
+      fos.flush();
+      fos.close();
+    } catch (IOException except) {
+      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CppCompilationChecker_errorAppendingMainMethodStub, except);
+    }
+  }
   
   private Pair<String, String> compileX10File(final File testFilePath, final InputStream sourceInputStream, 
                                               final String workspaceDir, final String[] x10LibsLocs, 
@@ -217,19 +246,6 @@ final class CppCompilationChecker implements ICppCompilationChecker {
       }
     } finally {
       Globals.initialize(null);
-    }
-  }
-  
-  private void addMainMethodStub(File file) {
-    try {
-      FileOutputStream fos= new FileOutputStream(file, true);
-      String stubSource= MessagePassingCodeGenerator.createMainStub("Hello"); //$NON-NLS-1$
-
-      fos.write(stubSource.getBytes());
-      fos.flush();
-      fos.close();
-    } catch (IOException e) {
-      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CppCompilationChecker_errorAppendingMainMethodStub, e);
     }
   }
 
@@ -486,7 +502,10 @@ final class CppCompilationChecker implements ICppCompilationChecker {
   }
   
   // --- Fields
-  
+  private final ICppCompilationConf fCompilationConf;
+
+  private IProject fProject;
+
   private final IRemoteServices fRemoteServices;
   
   private final IRemoteConnection fRemoteConnection;

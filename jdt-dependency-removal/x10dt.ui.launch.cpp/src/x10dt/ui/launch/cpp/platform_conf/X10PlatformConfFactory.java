@@ -42,9 +42,10 @@ public final class X10PlatformConfFactory {
    * Creates a platform configuration from a given PTP service provider.
    * 
    * @param serviceProvider The service provider to consider.
+   * @param confFile The underlying configuration file storing the platform information. 
    * @return A non-null implementation of {@link IX10PlatformConf}.
    */
-  public static IX10PlatformConf createFromProvider(final IServiceProvider serviceProvider, IFile confFile) {
+  public static IX10PlatformConf createFromProvider(final IServiceProvider serviceProvider, final IFile confFile) {
     return new X10PlatformConf(serviceProvider, confFile);
   }
   

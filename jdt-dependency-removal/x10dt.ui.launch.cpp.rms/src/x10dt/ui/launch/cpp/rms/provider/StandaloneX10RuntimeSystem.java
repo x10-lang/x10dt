@@ -7,7 +7,6 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.rms.provider;
 
-import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
@@ -15,6 +14,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
+
+import x10dt.ui.launch.rms.core.provider.AbstractX10RuntimeSystem;
+import x10dt.ui.launch.rms.core.provider.AbstractX10RuntimeSystemJob;
+import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
+import x10dt.ui.launch.rms.core.provider.IX10RuntimeSystem;
 
 
 final class StandaloneX10RuntimeSystem extends AbstractX10RuntimeSystem implements IX10RuntimeSystem {
@@ -25,7 +29,7 @@ final class StandaloneX10RuntimeSystem extends AbstractX10RuntimeSystem implemen
 
   // --- Abstract methods implementation
   
-  protected Job createCheckRequirementsJob(final IProgressMonitor monitor, final Collection<String> hostNames) {
+  protected Job createCheckRequirementsJob(final String hostName, final IProgressMonitor monitor) {
     // No checking to be done.
     return null;
   }

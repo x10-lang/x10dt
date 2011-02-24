@@ -36,7 +36,6 @@ import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
-import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
@@ -61,7 +60,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     getSection().setText(LaunchMessages.XPCP_CompilationLinkingSection);
     getSection().setDescription(LaunchMessages.XPCP_CompilationLinkingSectionDescr);
     final TableWrapData twData = new TableWrapData(TableWrapData.FILL_GRAB);
-    twData.rowspan = 2;
+    twData.rowspan = 3;
     getSection().setLayoutData(twData);
     
     createClient(formPage.getManagedForm(), formPage.getManagedForm().getToolkit());
@@ -91,8 +90,6 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     final String osName = this.fOSCombo.getItem(this.fOSCombo.getSelectionIndex());
     final ETargetOS targetOS = (ETargetOS) this.fOSCombo.getData(osName);
     
-    this.fDebugBt.setEnabled(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId));
-    
     updateCompilationCommands(this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
                               this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, 
                               architecture, targetOS);
@@ -121,7 +118,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   private void addListeners(final IManagedForm managedForm, final Text compilerText, final Text compilingOptsText,
                             final Text archiverText, final Text archivingOptsText, final Text linkerText, 
                             final Text linkingOptsText, final Text linkingLibsText, final Button bitsArchBt,
-                            final Combo osCombo, final Combo archCombo, final Button debugBt) {
+                            final Combo osCombo, final Combo archCombo) {
 		compilerText.addModifyListener(new ModifyListener() {
 			public void modifyText(final ModifyEvent event) {
 			  handleEmptyTextValidation(compilerText, LaunchMessages.XPCP_CompilerLabel);
@@ -253,23 +250,6 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       }
       
     });
-    debugBt.addSelectionListener(new SelectionListener() {
-      
-      public void widgetSelected(final SelectionEvent event) {
-        final String archName = archCombo.getItem(archCombo.getSelectionIndex());
-        final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
-        final String osName = osCombo.getItem(osCombo.getSelectionIndex());
-        final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
-        
-        updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
-                                  linkingOptsText, linkingLibsText, bitsArchBt, architecture, targetOs);
-      }
-      
-      public void widgetDefaultSelected(final SelectionEvent event) {
-        widgetSelected(event);
-      }
-      
-    });
   }
   
   private void checkCompilerVersion(final Text compilerText, final Combo osCombo, final Combo archCombo) {
@@ -334,12 +314,6 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     
     this.fBitsArchBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_64BitsArchitectureBt, SWT.CHECK);
     
-    this.fDebugBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_UseMPILibForDebugger, SWT.CHECK);
-    this.fDebugBt.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE, 1, 3));
-    this.fDebugBt.setSelection(false);
-    final String serviceTypeId = getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId();
-    this.fDebugBt.setEnabled(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId));
-    
     final Group compilingGroup = new Group(sectionClient, SWT.NONE);
     compilingGroup.setFont(sectionClient.getFont());
     compilingGroup.setLayout(new TableWrapLayout());
@@ -387,7 +361,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     
     addListeners(managedForm, this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
                  this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, this.fOSCombo,
-                 this.fArchCombo, this.fDebugBt);
+                 this.fArchCombo);
 
     getSection().setClient(sectionClient);
   }
@@ -446,13 +420,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     this.fLinkingLibsText.setText(cppCompConf.getLinkingLibs(false));
     handleEmptyTextValidation(this.fLinkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel);
 
-    this.fBitsArchBt.setSelection(cppCompConf.getBitsArchitecture() == EBitsArchitecture.E64Arch);
-    
-    if (this.fDebugBt.isEnabled() && this.fDebugBt.getSelection()) {
-      updateCompilationCommands(this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
-                                this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, 
-                                cppCompConf.getArchitecture(), cppCompConf.getTargetOS());
-    }
+    this.fBitsArchBt.setSelection(cppCompConf.getBitsArchitecture() == EBitsArchitecture.E64Arch);    
   }
   
   private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
@@ -567,12 +535,6 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkerText.setText(defaultCPPCommands.getLinker());
     linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
     linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
-    
-    if (this.fDebugBt.isEnabled() && this.fDebugBt.getSelection()) {
-      compilerText.setText(MPICXX);
-      linkerText.setText(MPICXX);
-      linkingLibsText.setText(this.fLinkingLibsText.getText().replace(X10RT_PGAS_SOCKETS, X10RT_MPI));
-    }
   }
   
   // --- Private classes
@@ -670,8 +632,6 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   private Button fArchiverBrowseBt;
   
   private Button fLinkerBrowseBt;
-  
-  private Button fDebugBt;
 
   
   
@@ -692,11 +652,5 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   private static final String PPC = "ppc"; //$NON-NLS-1$
   
   private static final String A64BITS = "64"; //$NON-NLS-1$
-  
-  private static final String MPICXX = "mpicxx"; //$NON-NLS-1$
-  
-  private static final String X10RT_MPI = "-lx10rt_mpi"; //$NON-NLS-1$
-  
-  private static final String X10RT_PGAS_SOCKETS = "-lx10rt_pgas_sockets"; //$NON-NLS-1$
-  
+    
 }

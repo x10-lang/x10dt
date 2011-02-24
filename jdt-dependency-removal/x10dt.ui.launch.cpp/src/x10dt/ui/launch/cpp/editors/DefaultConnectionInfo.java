@@ -9,12 +9,12 @@ package x10dt.ui.launch.cpp.editors;
 
 import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.remotetools.environment.generichost.core.ConfigFactory;
-import org.eclipse.ptp.remotetools.environment.generichost.core.TargetConfig;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
+import x10dt.ui.launch.rms.core.environment.ConfigFactory;
+import x10dt.ui.launch.rms.core.environment.TargetConfig;
 
 
 final class DefaultConnectionInfo implements IConnectionInfo {

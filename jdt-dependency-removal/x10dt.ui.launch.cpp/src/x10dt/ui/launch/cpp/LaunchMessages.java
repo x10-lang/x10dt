@@ -191,13 +191,21 @@ public class LaunchMessages extends NLS {
 
   public static String CPPB_TransferTaskName;
 
-public static String CppCompilationChecker_errorAppendingMainMethodStub;
+  public static String CppCompilationChecker_errorAppendingMainMethodStub;
   
   public static String CSP_ConnTimeout;
 
   public static String CSP_LocalAddress;
 
   public static String CSP_UsePortFwrd;
+
+  public static String DSP_DebuggerFolder;
+
+  public static String DSP_DebuggingPort;
+
+  public static String DSP_DebuggingSectionDescr;
+
+  public static String DSP_DebuggingSectionName;
 
   public static String ES_CompileTaskName;
   
@@ -335,8 +343,12 @@ public static String CppCompilationChecker_errorAppendingMainMethodStub;
   public static String RMCP_NameColumn;
 
   public static String RMCP_PassphraseLabel;
-
+  
   public static String RMCP_PasswordBasedAuthBt;
+
+  public static String RMCP_PasswordCheckCanceled;
+
+  public static String RMCP_PasswordCheckFailed;
 
   public static String RMCP_PasswordLabel;
 
@@ -484,8 +496,6 @@ public static String CppCompilationChecker_errorAppendingMainMethodStub;
 
   public static String XPCP_RemoteOutputFolderSectionDescr;
 
-  public static String XPCP_UseMPILibForDebugger;
-
   public static String XPCP_UseX10DistLoc;
 
   public static String XPCP_X10DistLabel;
@@ -499,6 +509,8 @@ public static String CppCompilationChecker_errorAppendingMainMethodStub;
   public static String XPCP_X10PConfPageName;
 
   public static String XPCPP_NoResManagerStartedError;
+
+  public static String XPCP_DebuggerFolderNotFound;
 
   // --- Private code
 

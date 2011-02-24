@@ -30,7 +30,7 @@ final class CygwinDefaultCommands extends AbstractDefaultCPPCommands implements 
   }
 
   public String getCompiler() {
-    return "g++-4"; //$NON-NLS-1$
+    return (getTransport() == ETransport.MPI) ? "mpicxx" : "g++-4"; //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   public String getCompilerOptions() {

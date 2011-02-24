@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
+import static x10dt.ui.launch.core.utils.PTPConstants.*;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -299,8 +301,9 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
 	for (final IServiceProviderDescriptor providerDescriptor : serviceProviders) {
       final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(providerDescriptor);
       if (serviceProvider instanceof IRemoteResourceManagerConfiguration) {
+        final String rmId = ((IRemoteResourceManagerConfiguration) serviceProvider).getResourceManagerId();
     	  if ((cppCompilationConf.getTargetOS() != ETargetOS.WINDOWS) || ! isLocal ||
-    		  (((IRemoteResourceManagerConfiguration) serviceProvider).getResourceManagerId().equals(PTPConstants.MPICH2_SERVICE_PROVIDER_ID))) {
+    		  SOCKETS_SERVICE_PROVIDER_ID.equals(rmId) || STANDALONE_SERVICE_PROVIDER_ID.equals(rmId)) {
     	    final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);
     	    if (typeConfPart != null) {
     	      this.fCITypeCombo.add(providerDescriptor.getName());

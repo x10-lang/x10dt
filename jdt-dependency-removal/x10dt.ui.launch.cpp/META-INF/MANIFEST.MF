@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT UI Launch
 Bundle-SymbolicName: x10dt.ui.launch.cpp;singleton:=true
-Bundle-Version: 2.1.1.qualifier
+Bundle-Version: 2.1.2.qualifier
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: org.eclipse.core.filesystem,
@@ -18,7 +18,6 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.ptp.remote.remotetools.core,
  org.eclipse.ptp.remote.ui,
  org.eclipse.ptp.remotetools.environment.core,
- org.eclipse.ptp.remotetools.environment.generichost,
  org.eclipse.ptp.rm.core,
  org.eclipse.ptp.rm.ibm.ll.core,
  org.eclipse.ptp.rm.ibm.pe.core,
@@ -34,7 +33,8 @@ Require-Bundle: org.eclipse.core.filesystem,
  x10.compiler,
  x10dt.core,
  x10dt.ui,
- x10dt.ui.launch.core
+ x10dt.ui.launch.core,
+ x10dt.ui.launch.rms.core
 Bundle-Activator: x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: x10-users@lists.sourceforge.net

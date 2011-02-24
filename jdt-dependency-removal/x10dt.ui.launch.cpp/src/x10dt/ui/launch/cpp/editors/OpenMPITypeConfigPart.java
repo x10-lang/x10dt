@@ -12,7 +12,6 @@ import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_DISCO
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_LAUNCH_CMD;
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_PERIODIC_MONITOR_CMD;
 import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_PERIODIC_MONITOR_TIME;
-import static org.eclipse.ptp.rm.core.AbstractToolsPreferenceManager.PREFS_REMOTE_INSTALL_PATH;
 
 import org.eclipse.ptp.core.Preferences;
 import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPlugin;
@@ -165,9 +164,6 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
                                                         prefix + PREFS_PERIODIC_MONITOR_CMD));
     super.fPeriodicTimeSpinner.setSelection(Preferences.getInt(OpenMPIPlugin.getUniqueIdentifier(),
                                                                prefix + PREFS_PERIODIC_MONITOR_TIME));
-    // RMF 30 Nov 2010 - Don't change the install location just b/c the user specified another MPI version
-//    super.fInstallLocText.setText(Preferences.getString(OpenMPIPlugin.getUniqueIdentifier(),
-//                                                        prefix + PREFS_REMOTE_INSTALL_PATH));
   }
   
   // --- Fields

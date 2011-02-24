@@ -44,7 +44,7 @@ import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 
 
 final class CommunicationInterfaceTab extends LaunchConfigurationTab 
-                                      implements ILaunchConfigurationTab {
+                                      implements ILaunchConfigurationTab, ILaunchTabPlatformConfServices {
   
   CommunicationInterfaceTab() {
     this.fRMDynamicTabs = new HashMap<IResourceManager, IRMLaunchConfigurationDynamicTab>();
@@ -103,7 +103,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     }
   }
   
-  // --- ICppApplicationTabListener's interface methods implementation
+  // --- ILaunchTabPlatformConfServices's interface methods implementation
   
   public void platformConfSelected(final IX10PlatformConf platformConf) {
     try {

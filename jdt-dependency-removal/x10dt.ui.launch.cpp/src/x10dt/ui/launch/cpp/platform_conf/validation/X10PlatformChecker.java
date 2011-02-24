@@ -181,26 +181,15 @@ final class X10PlatformChecker implements IX10PlatformChecker {
       }
       
       final String rmServicesId = platformConf.getConnectionConf().isLocal() ? LOCAL_CONN_SERVICE_ID : REMOTE_CONN_SERVICE_ID;
-      final ICppCompilationChecker checker = new CppCompilationChecker(rmServicesId, this.fRemoteConnection);
-      
       final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
+      final ICppCompilationChecker checker = new CppCompilationChecker(rmServicesId, this.fRemoteConnection, cppCompConf, platformConf.getConfFile().getProject());
       
       try {
-        final String returnCompilMsg = checker.validateCompilation(cppCompConf.getCompiler(), 
-                                                                   cppCompConf.getCompilingOpts(true), 
-                                                                   cppCompConf.getX10DistribLocation(), 
-                                                                   cppCompConf.getPGASLocation(),
-                                                                   cppCompConf.getX10HeadersLocations(), 
-                                                                   cppCompConf.getX10LibsLocations(), subMonitor.newChild(10));
+        final String returnCompilMsg = checker.validateCompilation(subMonitor.newChild(10));
         if (returnCompilMsg == null) {
-          final String returnArchivingMsg = checker.validateArchiving(cppCompConf.getArchiver(), 
-                                                                      cppCompConf.getArchivingOpts(true), 
-                                                                      subMonitor.newChild(3));
+          final String returnArchivingMsg = checker.validateArchiving(subMonitor.newChild(3));
           if (returnArchivingMsg == null) {
-            final String returnLinkMsg = checker.validateLinking(cppCompConf.getLinker(), cppCompConf.getLinkingOpts(true), 
-                                                                 cppCompConf.getLinkingLibs(true), 
-                                                                 cppCompConf.getX10HeadersLocations(),
-                                                                 cppCompConf.getX10LibsLocations(), subMonitor.newChild(7));
+            final String returnLinkMsg = checker.validateLinking(subMonitor.newChild(7));
             if (returnLinkMsg == null) {
               platformConf.setCppConfValidationStatus(EValidationStatus.VALID);
               for (final IX10PlatformValidationListener listener : this.fListeners) {

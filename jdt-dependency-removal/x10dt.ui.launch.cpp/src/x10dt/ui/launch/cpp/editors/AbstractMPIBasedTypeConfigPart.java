@@ -75,10 +75,10 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     
     final Collection<Control> dependentToolCmdsControls = new ArrayList<Control>();
     this.fLaunchCmdText = SWTFormUtils.createLabelAndText(toolsCommandsGroup, LaunchMessages.RMCP_LaunchLabel, toolkit, 
-                                                          dependentToolCmdsControls, 3);
+                                                          dependentToolCmdsControls, 3, SWT.NONE);
     
     this.fDebugCmdText = SWTFormUtils.createLabelAndText(toolsCommandsGroup, LaunchMessages.RMCP_DebugLabel, toolkit, 
-                                                         dependentToolCmdsControls, 3);
+                                                         dependentToolCmdsControls, 3, SWT.NONE);
     final Collection<Control> discoverCmdControls = new ArrayList<Control>();
     this.fDiscoverCmdText = SWTFormUtils.createLabelAndText(toolsCommandsGroup, LaunchMessages.RMCP_DiscoverLabel, 
                                                             toolkit, discoverCmdControls);
@@ -211,7 +211,6 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       
       public void modifyText(final ModifyEvent event) {
         x10PlatformConf.setMonitorCommand(ciType, monitorCmdText.getText().trim());
-        formPart.handleEmptyTextValidation(monitorCmdText, LaunchMessages.RMCP_MonitorLabel);
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
       }
@@ -323,7 +322,6 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
       this.fDebugCmdText.setText(ciConf.getDebugCommand().trim());
       formPart.handleEmptyTextValidation(this.fDebugCmdText, LaunchMessages.RMCP_DebugLabel);
       this.fMonitorCmdText.setText(ciConf.getMonitorCommand().trim());
-      formPart.handleEmptyTextValidation(this.fMonitorCmdText, LaunchMessages.RMCP_MonitorLabel);
     }
     this.fDiscoverCmdText.setText(ciConf.getDiscoverCommand().trim());
     formPart.handleEmptyTextValidation(this.fDiscoverCmdText, LaunchMessages.RMCP_DiscoverLabel);

@@ -30,7 +30,7 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   }
 
   public String getCompiler() {
-    return "g++"; //$NON-NLS-1$
+    return (getTransport() == ETransport.MPI) ? "mpicxx" : "g++"; //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   public String getCompilerOptions() {
@@ -48,7 +48,7 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   }
 
   public String getLinkingLibraries() {
-    return String.format("-lx10 %s -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib", getTransportLibrary()); //$NON-NLS-1$
+    return String.format("-lx10 %s -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib -Wl,--rpath -Wl,${X10-DIST}/stdlib/lib", getTransportLibrary()); //$NON-NLS-1$
   }
 
   public String getLinkingOptions() {

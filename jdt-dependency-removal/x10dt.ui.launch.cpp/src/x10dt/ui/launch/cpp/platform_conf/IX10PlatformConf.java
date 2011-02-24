@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IFile;
  * <li>Finally, the "Compilation and Linking" configuration is useful for providing the commands to compile and link the
  * generated C++ files. See {@link ICppCompilationConf}.</li>
  * </ul>
+ * A fourth one optionally can be defined to provide information for the debugging experience.
  * 
  * <p>One can get implementation(s) of that interface via {@link X10PlatformConfFactory} factory method(s).
  * 
@@ -69,6 +70,13 @@ public interface IX10PlatformConf {
    * @return A non-null object.
    */
   public ICppCompilationConf getCppCompilationConf();
+  
+  /**
+   * Returns potentially the debugging information part.
+   * 
+   * @return A non-null object.
+   */
+  public IDebuggingInfoConf getDebuggingInfoConf();
   
   /**
    * Returns a description for the current X10 platform configuration. It is clearly an optional parameter.
