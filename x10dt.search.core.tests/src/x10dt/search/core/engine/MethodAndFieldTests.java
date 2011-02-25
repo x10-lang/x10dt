@@ -50,14 +50,14 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
     assertPath(PROJECT_NAME, INTEGRATE_LOC, typeInfo[0].getCompilationUnit().getPath());
     assertNull(typeInfo[0].getDeclaringType());
 
-    final IFieldInfo fieldInfo = X10SearchEngine.getFieldInfo(scope, INTEGRATE_CLASS, "epsilon", nullMonitor);
+    final IFieldInfo fieldInfo = X10SearchEngine.getFieldInfo(scope, typeInfo[0], "epsilon", nullMonitor);
     assertNotNull(fieldInfo);
     assertLocation(fieldInfo.getLocation(), INTEGRATE_LOC, 21, 21);
     assertPath(PROJECT_NAME, INTEGRATE_LOC, fieldInfo.getCompilationUnit().getPath());
     assertEquals(INTEGRATE_CLASS, fieldInfo.getDeclaringType().getName());
     assertEquals(DOUBLE, fieldInfo.getFieldTypeInfo().getName());
     
-    final IMethodInfo[] thisMthdInfo = X10SearchEngine.getMethodInfos(scope, INTEGRATE_CLASS, "this", nullMonitor);
+    final IMethodInfo[] thisMthdInfo = X10SearchEngine.getMethodInfos(scope, typeInfo[0], "this", nullMonitor);
     assertEquals(1, thisMthdInfo.length);
     assertLocation(thisMthdInfo[0].getLocation(), INTEGRATE_LOC, 25, 25);
     assertPath(PROJECT_NAME, INTEGRATE_LOC, thisMthdInfo[0].getCompilationUnit().getPath());
@@ -65,7 +65,7 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
     assertTrue("Constructor is not marked a constructor", thisMthdInfo[0].isConstructor());
     assertEquals("Return type of this() should be void", VOID, thisMthdInfo[0].getReturnType().getName());
     
-    final IMethodInfo[] recEvalInfo = X10SearchEngine.getMethodInfos(scope, INTEGRATE_CLASS, "recEval", nullMonitor);
+    final IMethodInfo[] recEvalInfo = X10SearchEngine.getMethodInfos(scope, typeInfo[0], "recEval", nullMonitor);
     assertEquals(1, recEvalInfo.length);
     assertLocation(recEvalInfo[0].getLocation(), INTEGRATE_LOC, 31, 47);
     assertFalse(recEvalInfo[0].isConstructor());
@@ -78,7 +78,7 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
     assertEquals(DOUBLE, recEvalInfo[0].getParameters()[4].getName());
     assertTrue("Method recEval should be marked private", (recEvalInfo[0].getX10FlagsCode() & X10FlagsEncoder.X10.PRIVATE.getCode()) != 0);
     
-    final IMethodInfo[] allMethods = X10SearchEngine.getAllMatchingMethodInfo(scope, INTEGRATE_CLASS, ".*", true, nullMonitor);
+    final IMethodInfo[] allMethods = X10SearchEngine.getAllMatchingMethodInfo(scope, typeInfo[0], ".*", true, nullMonitor);
     assertEquals("Incorrect # of methods found on class " + INTEGRATE_CLASS, 4, allMethods.length);
   }
   
@@ -92,6 +92,6 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
   
   private static final String DOUBLE = "x10.lang.Double";
   
-  private static final String VOID = "x10.lang.Void";
+  private static final String VOID = "void";
 
 }

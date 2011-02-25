@@ -13,7 +13,6 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
 import polyglot.ast.ClassDecl;
@@ -35,17 +34,8 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
   public void writeFacts(final ClassDecl classDecl) {
     final ClassDef classDef = classDecl.classDef();
     final ClassType classType = classDef.asType();
-    final IValue typeNameValue = createTypeName(classType.fullName().toString());
-    final ITuple tuple;
-    if (classDef.outer() == null) {
-      tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
-                                      createModifiersCodeValue(classType.flags()));
-    } else {
-      final IValue outerTypeNameValue = createTypeName(classDef.outer().get().asType().fullName().toString());
-      tuple = getValueFactory().tuple(typeNameValue, getSourceLocation(classType.position()),
-                                      createModifiersCodeValue(classType.flags()), outerTypeNameValue);
-    }
-    insertValue(X10_AllTypes, tuple);
+    final IValue x10Type = createType(classType);
+    insertValue(X10_AllTypes, x10Type);
 
     final List<MethodDef> methodDefs = classDef.methods();
     final List<ConstructorDef> constructorDefs = classDef.constructors();
@@ -68,7 +58,7 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
         System.arraycopy(methods, 0, actualMethods, 0, i+1);
         methods = actualMethods;
       }
-      insertValue(X10_AllMethods, getValueFactory().tuple(typeNameValue, getValueFactory().list(methods)));
+      insertValue(X10_AllMethods, getValueFactory().tuple(x10Type, getValueFactory().list(methods)));
     }
 
     final List<FieldDef> fieldDefs = classDef.fields();
@@ -87,7 +77,7 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
         System.arraycopy(fields, 0, actualFields, 0, i+1);
         fields = actualFields;
       }
-      insertValue(X10_AllFields, getValueFactory().tuple(typeNameValue, getValueFactory().list(fields)));
+      insertValue(X10_AllFields, getValueFactory().tuple(x10Type, getValueFactory().list(fields)));
     }
   }
 

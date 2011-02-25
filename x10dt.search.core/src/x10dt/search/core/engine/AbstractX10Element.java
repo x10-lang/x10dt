@@ -31,7 +31,7 @@ abstract class AbstractX10Element implements IX10Element {
       return false;
     }
     final IX10Element rhsObj = (IX10Element) rhs;
-    return this.fLocation.equals(rhsObj.getLocation()); 
+    return (this.fLocation == null) ? (rhsObj.getLocation() == null) : this.fLocation.equals(rhsObj.getLocation()); 
   }
   
   public int hashCode() {

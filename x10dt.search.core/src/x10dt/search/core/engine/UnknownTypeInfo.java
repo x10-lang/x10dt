@@ -55,6 +55,25 @@ final class UnknownTypeInfo implements ITypeInfo {
     return null;
   }
   
+  // --- Overridden methods
+  
+  public boolean equals(final Object rhs) {
+    if ((rhs == null) || rhs.getClass() != getClass()) {
+      return false;
+    }
+    return this.fTypeName.equals(((UnknownTypeInfo) rhs).fTypeName);
+  }
+  
+  public int hashCode() {
+    return this.fTypeName.hashCode();
+  }
+  
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append("<Unknown type>: ").append(this.fTypeName); //$NON-NLS-1$
+    return sb.toString();
+  }
+  
   // --- Fields
   
   private final String fTypeName;

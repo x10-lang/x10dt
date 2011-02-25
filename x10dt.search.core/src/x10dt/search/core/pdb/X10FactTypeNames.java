@@ -35,20 +35,20 @@ public final class X10FactTypeNames {
   public static final String X10_FieldName = "x10.fieldName"; //$NON-NLS-1$
   
   /**
-   * Fact type name identifying X10 type as a tuple of ({@value #X10_TypeName}, {@link ISourceLocation}, int,
+   * Fact type name identifying X10 type as a tuple of ({@value #X10_TypeName}, [{@link ISourceLocation}], [int],
    * [{@value #X10_TypeName}]).
    */
   public static final String X10_Type = "x10.type"; //$NON-NLS-1$
   
   /**
    * Fact type name identifying X10 method as a tuple of 
-   * ({@link #X10_MethodName}, {@link #X10_TypeName}, list({@link #X10_TypeName}), {@link ISourceLocation}, int).
+   * ({@link ISourceLocation}, {@link #X10_MethodName}, {@link #X10_Type}, list({@link #X10_Type}), int).
    */
   public static final String X10_Method = "x10.method"; //$NON-NLS-1$
   
   /**
    * Fact type name identifying X10 field as a tuple of 
-   * ({@link #X10_FieldName}, {@link #X10_TypeName}, {@link ISourceLocation}, int).
+   * ({@link ISourceLocation}, {@link #X10_FieldName}, {@link #X10_Type}, int).
    */
   public static final String X10_Field = "x10.field"; //$NON-NLS-1$
   
@@ -61,19 +61,19 @@ public final class X10FactTypeNames {
   
   /**
    * Fact type name identifying all X10 methods defined for an X10 type as a binary relation of a subset of
-   * ({@link #X10_TypeName} X list({@link #X10_Method}).
+   * ({@link #X10_Type} X list({@link #X10_Method}).
    */
   public static final String X10_AllMethods = "x10.type.methods"; //$NON-NLS-1$
   
   /**
    * Fact type name identifying all X10 fields defined for an X10 type as a binary relation of a subset of
-   * ({@link #X10_TypeName} X list({@link #X10_Field}).
+   * ({@link #X10_Type} X list({@link #X10_Field}).
    */
   public static final String X10_AllFields = "x10.type.fields"; //$NON-NLS-1$
   
   /**
    * Fact type name identifying an X10 type hierarchy as a binary relation of a subset of 
-   * {@value #X10_TypeName} X {@value #X10_TypeName}.
+   * {@value #X10_Type} X {@value #X10_Type}.
    */
   public static final String X10_TypeHierarchy = "x10.typeHierarchy"; //$NON-NLS-1$
   

@@ -30,17 +30,17 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
-import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.indexing.IndexManager;
-import org.eclipse.osgi.util.NLS;
 
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
@@ -54,17 +54,18 @@ import x10dt.ui.launch.core.utils.ICountableIterable;
 
 final class TypeHierarchy implements ITypeHierarchy {
   
-  TypeHierarchy(final IX10SearchScope searchScope, final String typeName, 
+  TypeHierarchy(final IX10SearchScope searchScope, final ITypeInfo typeInfo, 
                 final IProgressMonitor monitor) throws InterruptedException {
     if (monitor.isCanceled()) {
       throw new InterruptedException();
     }
     
-    this.fClassToSuperClass = new HashMap<String, ITypeInfo>();
-    this.fTypeToSuperInterfaces = new HashMap<String, Set<ITypeInfo>>();
-    this.fTypeToSubInterfaces = new HashMap<String, Set<ITypeInfo>>();
-    this.fTypeToSubClasses = new HashMap<String, Set<ITypeInfo>>();
+    this.fClassToSuperClass = new HashMap<ITypeInfo, ITypeInfo>();
+    this.fTypeToSuperInterfaces = new HashMap<ITypeInfo, Set<ITypeInfo>>();
+    this.fTypeToSubInterfaces = new HashMap<ITypeInfo, Set<ITypeInfo>>();
+    this.fTypeToSubClasses = new HashMap<ITypeInfo, Set<ITypeInfo>>();
     this.fAllTypes = new HashSet<ITypeInfo>();
+    this.fMainType = typeInfo;
 
     final FactBase factBase = FactBase.getInstance();
     final Job buildJob = new Job(Messages.TH_BuildTHJobName) {
@@ -109,17 +110,12 @@ final class TypeHierarchy implements ITypeHierarchy {
         }
         
         try {
-          final Type typeNameType = SearchDBTypes.getInstance().getType(X10_TypeName);
-          final IValue typeNameValue = typeNameType.make(ValueFactory.getInstance(), typeName);
-          
           buildHierarchy(union(allTypesAppValue, allTypesLibValue, allTypesRuntimeValue),
                          union(typeHierarchyAppValue, typeHierarchyLibValue, typeHierarchyRuntimeValue),
-                         typeNameValue, new SubProgressMonitor(monitor, 20));
+                         new SubProgressMonitor(monitor, 20));
           return Status.OK_STATUS;
         } catch (InterruptedException except) {
           return new Status(IStatus.CANCEL, SearchCoreActivator.PLUGIN_ID, Messages.TH_SearchCanceled);
-        } catch (TypeHierarchyException except) {
-          return new Status(IStatus.ERROR, SearchCoreActivator.PLUGIN_ID, except.getMessage());
         }
       }
       
@@ -130,13 +126,8 @@ final class TypeHierarchy implements ITypeHierarchy {
   
   // --- Interface methods implementation
 
-  public boolean contains(final String typeName) {
-    for (final ITypeInfo typeInfo : this.fAllTypes) {
-      if (typeName.equals(typeInfo.getName())) {
-        return true;
-      }
-    }
-    return false;
+  public boolean contains(final ITypeInfo typeInfo) {
+    return this.fAllTypes.contains(typeInfo);
   }
   
   public ITypeInfo[] getAllClasses() {
@@ -159,60 +150,60 @@ final class TypeHierarchy implements ITypeHierarchy {
     return interfaces.toArray(new ITypeInfo[interfaces.size()]);
   }
   
-  public ITypeInfo[] getAllSubClasses(final String typeName) {
+  public ITypeInfo[] getAllSubClasses(final ITypeInfo typeInfo) {
     final Set<ITypeInfo> subClasses = new HashSet<ITypeInfo>();
-    collectMapElements(this.fTypeToSubClasses, subClasses, typeName);
+    collectMapElements(this.fTypeToSubClasses, subClasses, typeInfo);
     return subClasses.toArray(new ITypeInfo[subClasses.size()]);
   }
   
-  public ITypeInfo[] getAllSubTypes(final String typeName) {
+  public ITypeInfo[] getAllSubTypes(final ITypeInfo typeInfo) {
     final Set<ITypeInfo> subTypes = new HashSet<ITypeInfo>();
-    collectMapElements(this.fTypeToSubClasses, subTypes, typeName);
-    collectMapElements(this.fTypeToSubInterfaces, subTypes, typeName);
+    collectMapElements(this.fTypeToSubClasses, subTypes, typeInfo);
+    collectMapElements(this.fTypeToSubInterfaces, subTypes, typeInfo);
     return subTypes.toArray(new ITypeInfo[subTypes.size()]);
   }
   
-  public ITypeInfo[] getAllSuperClasses(final String typeName) {
+  public ITypeInfo[] getAllSuperClasses(final ITypeInfo typeInfo) {
     final Collection<ITypeInfo> superClasses = new ArrayList<ITypeInfo>();
-    collectAllSuperClasses(superClasses, typeName);
+    collectAllSuperClasses(superClasses, typeInfo);
     return superClasses.toArray(new ITypeInfo[superClasses.size()]);
   }
   
-  public ITypeInfo[] getAllSuperInterfaces(final String typeName) {
+  public ITypeInfo[] getAllSuperInterfaces(final ITypeInfo typeInfo) {
     final Set<ITypeInfo> superTypes = new HashSet<ITypeInfo>();
-    collectMapElements(this.fTypeToSuperInterfaces, superTypes, typeName);
-    String name = typeName;    
-    while (name != null) {
-      final ITypeInfo superClass = this.fClassToSuperClass.get(name);      
+    collectMapElements(this.fTypeToSuperInterfaces, superTypes, typeInfo);
+    ITypeInfo curTypeInfo = typeInfo;    
+    while (curTypeInfo != null) {
+      final ITypeInfo superClass = this.fClassToSuperClass.get(curTypeInfo);
       if (superClass != null) {
-        name = superClass.getName();
-        collectMapElements(this.fTypeToSuperInterfaces, superTypes, name);
+        curTypeInfo = superClass;
+        collectMapElements(this.fTypeToSuperInterfaces, superTypes, curTypeInfo);
       } else {
-        name = null;
+        curTypeInfo = null;
       }
     }
     return superTypes.toArray(new ITypeInfo[superTypes.size()]);
   }
   
-  public ITypeInfo[] getAllSuperTypes(final String typeName) {
+  public ITypeInfo[] getAllSuperTypes(final ITypeInfo typeInfo) {
     final Set<ITypeInfo> superTypes = new HashSet<ITypeInfo>();
-    collectMapElements(this.fTypeToSuperInterfaces, superTypes, typeName);
-    String name = typeName;    
-    while (name != null) {
-      final ITypeInfo superClass = this.fClassToSuperClass.get(name);      
+    collectMapElements(this.fTypeToSuperInterfaces, superTypes, typeInfo);
+    ITypeInfo curTypeInfo = typeInfo; 
+    while (curTypeInfo != null) {
+      final ITypeInfo superClass = this.fClassToSuperClass.get(curTypeInfo);      
       if (superClass != null) {
         superTypes.add(superClass);
-        name = superClass.getName();
-        collectMapElements(this.fTypeToSuperInterfaces, superTypes, name);
+        curTypeInfo = superClass;
+        collectMapElements(this.fTypeToSuperInterfaces, superTypes, curTypeInfo);
       } else {
-        name = null;
+        curTypeInfo = null;
       }
     }
     return superTypes.toArray(new ITypeInfo[superTypes.size()]);
   }
   
-  public ITypeInfo[] getInterfaces(final String typeName) {
-    final Set<ITypeInfo> interfaces = this.fTypeToSuperInterfaces.get(typeName);
+  public ITypeInfo[] getInterfaces(final ITypeInfo typeInfo) {
+    final Set<ITypeInfo> interfaces = this.fTypeToSuperInterfaces.get(typeInfo);
     if (interfaces == null) {
       return new ITypeInfo[0];
     } else {
@@ -220,15 +211,15 @@ final class TypeHierarchy implements ITypeHierarchy {
     }
   }
   
-  public ITypeInfo[] getSubTypes(final String typeName) {
+  public ITypeInfo[] getSubTypes(final ITypeInfo typeInfo) {
     final Set<ITypeInfo> subTypes = new HashSet<ITypeInfo>();
-    final Set<ITypeInfo> subClasses = this.fTypeToSubClasses.get(typeName);
+    final Set<ITypeInfo> subClasses = this.fTypeToSubClasses.get(typeInfo);
     if (subClasses != null) {
       for (final ITypeInfo subClass : subClasses) {
         subTypes.add(subClass);
       }
     }
-    final Set<ITypeInfo> subInterfaces = this.fTypeToSubInterfaces.get(typeName);
+    final Set<ITypeInfo> subInterfaces = this.fTypeToSubInterfaces.get(typeInfo);
     if (subInterfaces != null) {
       for (final ITypeInfo subInterface : subInterfaces) {
         subTypes.add(subInterface);
@@ -237,18 +228,17 @@ final class TypeHierarchy implements ITypeHierarchy {
     return subTypes.toArray(new ITypeInfo[subTypes.size()]);
   }
   
-  public ITypeInfo getSuperClass(final String typeName) {
-    final ITypeInfo typeInfo = this.fClassToSuperClass.get(typeName);
-    return (typeInfo == null) ? null : typeInfo;
+  public ITypeInfo getSuperClass(final ITypeInfo typeInfo) {
+    return this.fClassToSuperClass.get(typeInfo);
   }
   
-  public ITypeInfo[] getSuperTypes(final String typeName) {
+  public ITypeInfo[] getSuperTypes(final ITypeInfo typeInfo) {
     final Set<ITypeInfo> superTypes = new HashSet<ITypeInfo>();
-    final ITypeInfo superClass = this.fClassToSuperClass.get(typeName);
+    final ITypeInfo superClass = this.fClassToSuperClass.get(typeInfo);
     if (superClass != null) {
       superTypes.add(superClass);
     }
-    final Set<ITypeInfo> superInterfaces = this.fTypeToSuperInterfaces.get(typeName);
+    final Set<ITypeInfo> superInterfaces = this.fTypeToSuperInterfaces.get(typeInfo);
     if (superInterfaces != null) {
       for (final ITypeInfo superInterface : superInterfaces) {
         superTypes.add(superInterface);
@@ -263,7 +253,7 @@ final class TypeHierarchy implements ITypeHierarchy {
     
   // --- Private code
   
-  private void addToMap(final Map<String, Set<ITypeInfo>> container, final String key, final ITypeInfo value) {
+  private void addToMap(final Map<ITypeInfo, Set<ITypeInfo>> container, final ITypeInfo key, final ITypeInfo value) {
     final Set<ITypeInfo> set = container.get(key);
     if (set == null) {
       final Set<ITypeInfo> newSet = new HashSet<ITypeInfo>();
@@ -274,19 +264,22 @@ final class TypeHierarchy implements ITypeHierarchy {
     }
   }
   
-  private void buildHierarchy(final ISet allTypes, final ISet globalTypeHierarchy, final IValue typeNameValue,
-                              final IProgressMonitor monitor) throws InterruptedException, TypeHierarchyException {
-    final ITypeInfo mainTypeInfo = getTypeInfo(allTypes, ((IString) typeNameValue).getValue());
-    if (mainTypeInfo == null) {
-      throw new TypeHierarchyException(NLS.bind(Messages.TH_MainTypeInfoError, typeNameValue));
-    }
-    this.fMainType = mainTypeInfo;
-    
+  private void buildHierarchy(final ISet allTypes, final ISet globalTypeHierarchy, 
+                              final IProgressMonitor monitor) throws InterruptedException {
     final Queue<IValue> subTypesWork = new LinkedList<IValue>();
     final Queue<IValue> superTypesWork = new LinkedList<IValue>();
     
-    subTypesWork.add(typeNameValue);
-    superTypesWork.add(typeNameValue);
+    final IValueFactory valueFactory = ValueFactory.getInstance();
+    final IValue typeName = SearchDBTypes.getInstance().getType(X10_TypeName).make(valueFactory, this.fMainType.getName());
+    final ISourceLocation sourceLoc = this.fMainType.getLocation();
+    final IValue location = valueFactory.sourceLocation(sourceLoc.getURI(), sourceLoc.getOffset(), sourceLoc.getLength(), 
+                                                        sourceLoc.getBeginLine(), sourceLoc.getEndLine(), 
+                                                        sourceLoc.getBeginColumn(), sourceLoc.getEndColumn());
+    final IValue modifier = TypeFactory.getInstance().integerType().make(valueFactory, this.fMainType.getX10FlagsCode());
+    final IValue typeTuple = valueFactory.tuple(typeName, location, modifier);
+    
+    subTypesWork.add(typeTuple);
+    superTypesWork.add(typeTuple);
     
     final SubMonitor progress = SubMonitor.convert(monitor);
     progress.subTask(Messages.TH_BuildTHTaskName);
@@ -319,48 +312,48 @@ final class TypeHierarchy implements ITypeHierarchy {
   }
 
   private void buildHierarchy(final ISet allTypes, final ITuple tuple) {
-    final String typeName = ((IString) tuple.get(0)).getValue();
-    final String parentTypeName = ((IString) tuple.get(1)).getValue();
+    final ITuple type = (ITuple) tuple.get(0);
+    final ITuple parentType = (ITuple) tuple.get(1);
 
-    final ITypeInfo type = getTypeInfo(allTypes, typeName);
+    final ITypeInfo typeInfo = X10SearchEngine.findTypeInfo(allTypes, type);
     if (type != null) {
-      this.fAllTypes.add(type);
-      final ITypeInfo parentType = getTypeInfo(allTypes, parentTypeName);
-      if (parentType != null) {
-        this.fAllTypes.add(parentType);
+      this.fAllTypes.add(typeInfo);
+      final ITypeInfo parentTypeInfo = X10SearchEngine.findTypeInfo(allTypes, parentType);
+      if (parentTypeInfo != null) {
+        this.fAllTypes.add(parentTypeInfo);
 
-        if ((X10.INTERFACE.getCode() & type.getX10FlagsCode()) != 0) {
-          addToMap(this.fTypeToSuperInterfaces, typeName, parentType);
-          addToMap(this.fTypeToSubInterfaces, parentTypeName, type);
+        if ((X10.INTERFACE.getCode() & typeInfo.getX10FlagsCode()) != 0) {
+          addToMap(this.fTypeToSuperInterfaces, typeInfo, parentTypeInfo);
+          addToMap(this.fTypeToSubInterfaces, parentTypeInfo, typeInfo);
         } else {
-          if ((X10.INTERFACE.getCode() & parentType.getX10FlagsCode()) != 0) {
-            addToMap(this.fTypeToSuperInterfaces, typeName, parentType);
-            addToMap(this.fTypeToSubClasses, parentTypeName, type);
+          if ((X10.INTERFACE.getCode() & parentTypeInfo.getX10FlagsCode()) != 0) {
+            addToMap(this.fTypeToSuperInterfaces, typeInfo, parentTypeInfo);
+            addToMap(this.fTypeToSubClasses, parentTypeInfo, typeInfo);
           } else {
-            this.fClassToSuperClass.put(typeName, parentType);
-            addToMap(this.fTypeToSubClasses, parentTypeName, type);
+            this.fClassToSuperClass.put(typeInfo, parentTypeInfo);
+            addToMap(this.fTypeToSubClasses, parentTypeInfo, typeInfo);
           }
         }
       }
     }
   }
   
-  private void collectAllSuperClasses(final Collection<ITypeInfo> container, final String typeName) {
-    final ITypeInfo superClass = this.fClassToSuperClass.get(typeName);
+  private void collectAllSuperClasses(final Collection<ITypeInfo> container, final ITypeInfo typeInfo) {
+    final ITypeInfo superClass = this.fClassToSuperClass.get(typeInfo);
     if (superClass != null) {
       container.add(superClass);
-      collectAllSuperClasses(container, superClass.getName());
+      collectAllSuperClasses(container, superClass);
     }
   }
   
-  private void collectMapElements(final Map<String, Set<ITypeInfo>> map, final Set<ITypeInfo> container, 
-                                  final String typeName) {
-    final Set<ITypeInfo> set = map.get(typeName);
+  private void collectMapElements(final Map<ITypeInfo, Set<ITypeInfo>> map, final Set<ITypeInfo> container, 
+                                  final ITypeInfo typeInfo) {
+    final Set<ITypeInfo> set = map.get(typeInfo);
     if (set != null) {
       for (final ITypeInfo element : set) {
         if (! container.contains(element)) {
           container.add(element);
-          collectMapElements(map, container, element.getName());
+          collectMapElements(map, container, element);
         }
       }
     }
@@ -370,23 +363,6 @@ final class TypeHierarchy implements ITypeHierarchy {
                                    final String scopeTypeName) {
     return (ISet) factBase.queryFact(new FactKey(SearchDBTypes.getInstance().getType(parametricTypeName, scopeTypeName), 
                                                  context));
-  }
-  
-  private ITypeInfo getTypeInfo(final ISet allTypes, final String typeName) {
-    for (final IValue value : allTypes) {
-      final ITuple tuple = (ITuple) value;
-      if (((IString) tuple.get(0)).getValue().equals(typeName)) {
-        final ITypeInfo declaringType;
-        if (tuple.arity() < 4) {
-          declaringType = null;
-        } else {
-          final IString declaringTypeName = (IString) tuple.get(3);
-          declaringType = getTypeInfo(allTypes, declaringTypeName.getValue());
-        }
-        return new TypeInfo(tuple, declaringType);
-      }
-    }
-    return null;
   }
   
   private <T extends ISet> T union(final T ... sets) {
@@ -405,15 +381,15 @@ final class TypeHierarchy implements ITypeHierarchy {
   
   // --- Fields
   
-  private ITypeInfo fMainType;
+  private final ITypeInfo fMainType;
   
-  private final Map<String, ITypeInfo> fClassToSuperClass;
+  private final Map<ITypeInfo, ITypeInfo> fClassToSuperClass;
   
-  private final Map<String, Set<ITypeInfo>> fTypeToSuperInterfaces;
+  private final Map<ITypeInfo, Set<ITypeInfo>> fTypeToSuperInterfaces;
   
-  private final Map<String, Set<ITypeInfo>> fTypeToSubClasses;
+  private final Map<ITypeInfo, Set<ITypeInfo>> fTypeToSubClasses;
   
-  private final Map<String, Set<ITypeInfo>> fTypeToSubInterfaces;
+  private final Map<ITypeInfo, Set<ITypeInfo>> fTypeToSubInterfaces;
   
   private final Set<ITypeInfo> fAllTypes;
   

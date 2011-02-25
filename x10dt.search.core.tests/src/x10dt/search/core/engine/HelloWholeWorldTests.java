@@ -53,7 +53,10 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_NAME);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
-    final IMethodInfo[] mainMethods = X10SearchEngine.getMethodInfos(scope, HELLOWORLD_CLASS, "main", 
+    final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    assertEquals(1, typeInfo.length);
+    
+    final IMethodInfo[] mainMethods = X10SearchEngine.getMethodInfos(scope, typeInfo[0], "main", 
                                                                      new NullProgressMonitor());
     assertEquals(1, mainMethods.length);
     assertLocation(mainMethods[0].getLocation(), HELLOWORLD_LOC, 19, 23);
@@ -63,7 +66,7 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     assertPath(PROJECT_NAME, HELLOWORLD_LOC, mainMethods[0].getCompilationUnit().getPath());
     assertEquals(HELLOWORLD_CLASS, mainMethods[0].getDeclaringType().getName());
     
-    final IFieldInfo[] fields = X10SearchEngine.getAllMatchingFieldInfo(scope, HELLOWORLD_CLASS, ".*", false, 
+    final IFieldInfo[] fields = X10SearchEngine.getAllMatchingFieldInfo(scope, typeInfo[0], ".*", false, 
                                                                         new NullProgressMonitor());
     assertEquals(0, fields.length);
   }
@@ -72,7 +75,10 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_NAME);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
-    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, HELLOWORLD_CLASS, ".*", false, 
+    final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    assertEquals(1, typeInfo.length);
+    
+    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, typeInfo[0], ".*", false, 
                                                                            new NullProgressMonitor());
     assertEquals(1, methods.length);
     
@@ -87,7 +93,10 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_NAME);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
-    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, HELLOWORLD_CLASS, "m.*", false, 
+    final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    assertEquals(1, typeInfo.length);
+    
+    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, typeInfo[0], "m.*", false, 
                                                                            new NullProgressMonitor());
     assertEquals(1, methods.length);
     assertLocation(methods[0].getLocation(), HELLOWORLD_LOC, 19, 23);
@@ -100,7 +109,10 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_NAME);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
-    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, HELLOWORLD_CLASS, "ma.*", false, 
+    final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    assertEquals(1, typeInfo.length);
+    
+    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, typeInfo[0], "ma.*", false, 
                                                                            new NullProgressMonitor());
     assertEquals(1, methods.length);
     assertLocation(methods[0].getLocation(), HELLOWORLD_LOC, 19, 23);
@@ -113,7 +125,10 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_NAME);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
-    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, HELLOWORLD_CLASS, "mai.*", false, 
+    final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    assertEquals(1, typeInfo.length);
+    
+    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, typeInfo[0], "mai.*", false, 
                                                                            new NullProgressMonitor());
     assertEquals(1, methods.length);
     assertLocation(methods[0].getLocation(), HELLOWORLD_LOC, 19, 23);
@@ -126,7 +141,10 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(PROJECT_NAME);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
-    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, HELLOWORLD_CLASS, "main.*", false, 
+    final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, HELLOWORLD_CLASS, new NullProgressMonitor());
+    assertEquals(1, typeInfo.length);
+    
+    final IMethodInfo[] methods = X10SearchEngine.getAllMatchingMethodInfo(scope, typeInfo[0], "main.*", false, 
                                                                            new NullProgressMonitor());
     assertEquals(1, methods.length);
     assertLocation(methods[0].getLocation(), HELLOWORLD_LOC, 19, 23);

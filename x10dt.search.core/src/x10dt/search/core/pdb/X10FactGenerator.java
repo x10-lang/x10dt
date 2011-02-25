@@ -238,13 +238,16 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
     } else {
       curResource = contextResource;
     }
-    if (curResource != null) {
+    if ((curResource != null) && curResource.exists()) {
       try {
         curResource.accept(new IResourceVisitor() {
           
           public boolean visit(final IResource resource) throws CoreException {
             if (resource.getType() == IResource.FILE) {
               final IFile file = (IFile) resource;
+//              if (! file.isSynchronized(IResource.DEPTH_ZERO)) {
+//                file.refreshLocal(IResource.DEPTH_ZERO, null);
+//              }
               final IPath location  = file.getLocation();
               if (location != null) {
                 final File localFile = location.toFile();
@@ -257,6 +260,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
                   }
                 }
               }
+              return false;
             }
             return true;
           }

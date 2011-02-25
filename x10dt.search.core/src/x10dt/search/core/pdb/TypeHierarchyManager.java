@@ -13,7 +13,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.pdb.analysis.AnalysisException;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.db.FactBase;
@@ -64,7 +63,7 @@ final class TypeHierarchyManager extends AbstractTypeManager implements ITypeMan
   
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
-    final Set<IString> typesToRemove = new HashSet<IString>();
+    final Set<ITuple> typesToRemove = new HashSet<ITuple>();
     ((AllTypesManager) this.fAllTypesManager).initWriter(factBase, factContext, resource, typesToRemove);
     
     super.fWriter = getType().writer(ValueFactory.getInstance());

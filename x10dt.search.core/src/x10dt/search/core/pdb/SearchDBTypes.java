@@ -103,11 +103,11 @@ public final class SearchDBTypes {
                                                typeFactory.tupleType(typeName, typeFactory.sourceLocationType(),
                                                                      typeFactory.integerType(), typeName));
     final Type x10Method = typeFactory.aliasType(this.fTypeStore, X10_Method, 
-                                                 typeFactory.tupleType(typeFactory.sourceLocationType(), methodName, typeName,
-                                                                       typeFactory.listType(typeName), 
+                                                 typeFactory.tupleType(typeFactory.sourceLocationType(), methodName, x10Type,
+                                                                       typeFactory.listType(x10Type), 
                                                                        typeFactory.integerType()));
     final Type x10Field = typeFactory.aliasType(this.fTypeStore, X10_Field,
-                                                typeFactory.tupleType(typeFactory.sourceLocationType(), fieldName, typeName,
+                                                typeFactory.tupleType(typeFactory.sourceLocationType(), fieldName, x10Type,
                                                                       typeFactory.integerType()));
     
     final Type application = typeFactory.aliasType(this.fTypeStore, APPLICATION, typeFactory.stringType());
@@ -118,11 +118,11 @@ public final class SearchDBTypes {
     
     final Type allTypes = typeFactory.aliasType(this.fTypeStore, X10_AllTypes, typeFactory.setType(x10Type), scopeType);
     final Type allMethods = typeFactory.aliasType(this.fTypeStore, X10_AllMethods, 
-                                                  typeFactory.relType(typeName, typeFactory.listType(x10Method)), scopeType);
+                                                  typeFactory.relType(x10Type, typeFactory.listType(x10Method)), scopeType);
     final Type allFields = typeFactory.aliasType(this.fTypeStore, X10_AllFields, 
-                                                 typeFactory.relType(typeName, typeFactory.listType(x10Field)), scopeType);
+                                                 typeFactory.relType(x10Type, typeFactory.listType(x10Field)), scopeType);
     final Type typeHierarchy = typeFactory.aliasType(this.fTypeStore, X10_TypeHierarchy, 
-                                                     typeFactory.relType(typeName, typeName), scopeType);
+                                                     typeFactory.relType(x10Type, x10Type), scopeType);
     
     this.fScopedTypeToManager = new HashMap<Pair<String,String>, ITypeManager>(6);
     

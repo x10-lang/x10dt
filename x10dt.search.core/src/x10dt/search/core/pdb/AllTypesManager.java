@@ -15,7 +15,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.pdb.analysis.AnalysisException;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.db.FactBase;
@@ -72,7 +71,7 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
 
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
-    initWriter(factBase, factContext, resource, new HashSet<IString>());
+    initWriter(factBase, factContext, resource, new HashSet<ITuple>());
   }
   
   public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
@@ -84,7 +83,7 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
   // --- Internal services
   
   void initWriter(final FactBase factBase, final IFactContext factContext, final IResource resource, 
-                  final Set<IString> typesToRemove) throws AnalysisException {
+                  final Set<ITuple> typesToRemove) throws AnalysisException {
     initWriter();
     
     final IFactKey key = new FactKey(getType(), factContext);
@@ -104,7 +103,7 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
       for (final IValue value : currentSet) {
         final ITuple tuple = (ITuple) value;
         if (tupleFilter.accepts(tuple)) {
-          typesToRemove.add((IString) tuple.get(0));
+          typesToRemove.add(tuple);
         } else {
           getWriter().insert(value);
         }

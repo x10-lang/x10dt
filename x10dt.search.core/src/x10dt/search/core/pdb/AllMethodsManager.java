@@ -13,7 +13,6 @@ import java.util.Set;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.pdb.analysis.AnalysisException;
 import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.db.FactBase;
@@ -59,7 +58,7 @@ final class AllMethodsManager extends AbstractTypeManager implements ITypeManage
 
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
-    initWriter(factBase, factContext, new HashSet<IString>());
+    initWriter(factBase, factContext, new HashSet<ITuple>());
   }
   
   public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
@@ -69,7 +68,7 @@ final class AllMethodsManager extends AbstractTypeManager implements ITypeManage
   // --- Internal services
   
   void initWriter(final FactBase factBase, final IFactContext factContext, 
-                  final Set<IString> typesToRemove) throws AnalysisException {
+                  final Set<ITuple> typesToRemove) throws AnalysisException {
     initWriter();
     
     final IFactKey key = new FactKey(getType(), factContext);
