@@ -632,7 +632,7 @@ public class X10ElementLabelComposer extends ElementLabelComposer{
 
 		if (getFlag(flags, X10ElementLabels.T_FULLY_QUALIFIED)) {
 			ISourceFolder pack= SearchUtils.getSourceFolder(type);
-			if (!BuildPathUtils.isDefaultPackage(pack.getName())) {
+			if (pack != null && !BuildPathUtils.isDefaultPackage(pack.getName())) {
 				appendPackageFragmentLabel(pack, (flags & QUALIFIER_FLAGS));
 				fBuffer.append('.');
 			}

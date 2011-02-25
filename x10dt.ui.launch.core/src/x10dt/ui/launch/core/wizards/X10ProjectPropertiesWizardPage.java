@@ -99,7 +99,7 @@ public class X10ProjectPropertiesWizardPage extends CapabilityConfigurationPage 
   }
 
   private boolean checkClasspath() {
-    IPathEntry[] cpEntries= getRawClassPath();
+    IPathEntry[] cpEntries= getRawBuildPath();
     for(IPathEntry entry: cpEntries) {
         if (entry.getEntryType() == PathEntryType.SOURCE_FOLDER) {
             return true;
@@ -193,7 +193,7 @@ public class X10ProjectPropertiesWizardPage extends CapabilityConfigurationPage 
       final List<IPathEntry> cpEntries = new ArrayList<IPathEntry>();
 
       final IWorkspaceRoot root = project.getWorkspace().getRoot();
-      final IPathEntry[] sourceClasspathEntries = this.fFirstPage.getSourceClasspathEntries();
+      final IPathEntry[] sourceClasspathEntries = this.fFirstPage.getSourceBuildPathEntries();
       for (int i = 0; i < sourceClasspathEntries.length; i++) {
         final IPath path = sourceClasspathEntries[i].getRawPath();
         if (path.segmentCount() > 1) {
