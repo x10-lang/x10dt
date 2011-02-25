@@ -28,8 +28,10 @@
     <property name="unzipped.swtbot"            value="${swtbot.folder}/eclipse" />
     <property name="unzipped.headless"          value="${headless.folder}/eclipse" />
 	                                        
-    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/plugins" />
-    <property name="helios.plugins.dir"         value="${unzipped.helios}/plugins" />
+<!--    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/dropins/plugins" />  -->
+<!--    <property name="helios.plugins.dir"         value="${unzipped.helios}/dropins/plugins" />      -->
+    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/plugins" />   
+    <property name="helios.plugins.dir"         value="${unzipped.helios}/plugins" />       
     <property name="swtbot.plugins.dir"         value="${unzipped.swtbot}/plugins" />
     <property name="headless.plugins.dir"       value="${unzipped.headless}/plugins" />
                                                 
@@ -213,25 +215,53 @@
 <!-- Targets for running tests on all-in-one release build of x10dt -->
 <!--  -->
 
-    <target name="test_all-in-one" depends="setOS,setArch,build-x10dt-ui-tests,setup_all-in-one">
-    
-    	<subant target="swtbot-test" genericantfile="library.xml" >
-    		<fileset dir="${headless.plugins.dir}" includes="**/*.xml" />
-            <property name="eclipse-home"        value="${unzipped.all-in-one}" />
-            <property name="data-dir"            value="${swtbot.testlib.dir}/eclipse-data" />
-            <property name="plugin-name"         value="${x10dt.ui.tests}" />
-            <property name="classname"           value="${testname}" />
-            <property name="testProduct"         value="${x10dtname}.product" />
-            <property name="plugin-path"         value="${all-in-one.plugins.dir}/" />
-            <property name="junit-report-output" value="${swtbot.testlib.dir}" />    
-            <property name="vmargs"              value="-XX:MaxPermSize=256m -Xmx1500m" />
-            <property name="os"                  value="${os}" />    
-            <property name="ws"                  value="${ws}" />    
+
+<!-- these are a couple of convenience targets for debugging purposes.             --> 
+<!-- eventually need to get rid of these two and restore the real "test_all-in-one -->	
+	<target name="test_all-in-one_no-download" depends="setOS,setArch,build-x10dt-ui-tests">
+		<antcall target="run_all-in-one_test" />
+    </target>
+  	
+    <target name="test_all-in-one" depends="init_smoketest,setOS,setArch,build-x10dt-ui-tests,setup_all-in-one">
+        <antcall target="run_all-in-one_test" />
+    </target>
+    	
+<!--  this is the real target declaration  <target name="test_all-in-one" depends="setOS,setArch,build-x10dt-ui-tests,setup_all-in-one"> -->
+	<target name="run_all-in-one_test" >
+
+        <property name="eclipse-home"        value="${unzipped.all-in-one}" />
+        <property name="data-dir"            value="${swtbot.testlib.dir}/eclipse-data" />
+        <property name="plugin-name"         value="${x10dt.ui.tests}" />
+        <property name="classname"           value="${testname}" />
+        <property name="testProduct"         value="${x10dtname}.product" />
+        <property name="plugin-path"         value="${all-in-one.plugins.dir}" />
+        <property name="junit-report-output" value="${swtbot.testlib.dir}" />    
+        <property name="vmargs"              value="-XX:MaxPermSize=256m -Xmx1500m" />
+        <property name="os"                  value="${os}" />    
+        <property name="ws"                  value="${ws}" />    
+        <property name="arch"                value="${arch}" />
+		<antcall target="echo_test_params" />
+		
+		<mkdir dir="${swtbot.testlib.dir}/eclipse-data" />
+		
+    	<subant target="swtbot-test" antfile="library.xml" verbose="true" >
+    		<fileset dir="${all-in-one.plugins.dir}" includes="*headless*/library.xml" />                          
+            <property name="eclipse-home"        value="${eclipse-home}" />
+            <property name="data-dir"            value="${data-dir}" />
+            <property name="plugin-name"         value="${plugin-name}" />
+            <property name="classname"           value="${classname}" />
+            <property name="testProduct"         value="${testProduct}" />
+            <property name="plugin-path"         value="${plugin-path}" />
+            <property name="junit-report-output" value="${junit-report-output}" />
+            <property name="vmargs"              value="${vmargs}" />
+            <property name="os"                  value="${os}" />
+            <property name="ws"                  value="${ws}" />
             <property name="arch"                value="${arch}" />
     	</subant>
     </target>
     
     <target name="setup_all-in-one" depends="unzip_all-in-one_archive,get_all-in-one_dependencies">
+        <mkdir dir="${all-in-one.plugins.dir}"/>
         <echo message="Copying ${x10dt.ui.tests.dir}/plugins to ${all-in-one.plugins.dir}"/>
         <copy todir="${all-in-one.plugins.dir}" failonerror="false">
             <fileset dir="${x10dt.ui.tests.dir}" includes="**/*.jar" />
@@ -289,22 +319,33 @@
 <!--  -->
 
     <target name="test-helios-update" depends="setOS,setArch,build-x10dt-ui-tests,setup_helios"> 
+    	
         <property name="eclipse-home"        value="${unzipped.helios}" />
         <property name="data-dir"            value="${swtbot.testlib.dir}/eclipse-data" />
         <property name="plugin-name"         value="${x10dt.ui.tests}" />
         <property name="classname"           value="${testname}" />
         <property name="testProduct"         value="${eclipsename}.product" />
         <property name="plugin-path"         value="${helios-plugins-dir}/" />
-        <property name="junit-report-output" value="${swtbot.testlib.dir}" />
-        
-        <property name="vmargs" value="-XX:MaxPermSize=256m -Xmx1500m" />
-        
-        <echo message="os is ${os}" />
-        <echo message="ws is ${ws}" />
-        <echo message="arch is ${arch}" />
-        
-        <subant target="swtbot-test" genericantfile="library.xml" >
-               <fileset dir="${headless.plugins.dir}" includes="**/*.xml" />
+        <property name="junit-report-output" value="${swtbot.testlib.dir}" />     
+        <property name="vmargs"              value="-XX:MaxPermSize=256m -Xmx1500m" />         
+        <property name="os"                  value="${os}" />    
+        <property name="ws"                  value="${ws}" />    
+        <property name="arch"                value="${arch}" />
+        <antcall target="echo_test_params" />
+    	
+        <subant target="swtbot-test" antfile="library.xml" >
+            <fileset dir="${helios.plugins.dir}" />
+            <property name="eclipse-home"        value="${eclipse-home}" />
+            <property name="data-dir"            value="${data-dir}" />
+            <property name="plugin-name"         value="${plugin-name}" />
+            <property name="classname"           value="${classname}" />
+            <property name="testProduct"         value="${testProduct}" />
+            <property name="plugin-path"         value="${plugin-path}" />
+            <property name="junit-report-output" value="${junit-report-output}" />
+            <property name="vmargs"              value="${vmargs}" />
+            <property name="os"                  value="${os}" />
+            <property name="ws"                  value="${ws}" />
+            <property name="arch"                value="${arch}" />
         </subant>
     </target>
     
@@ -360,23 +401,23 @@
         <available property="helios.folder.present" file="${helios.folder}"/>
         <fail message="Unable to delete directory ${helios.folder} " if="helios.folder.present"/>
     </target>
-    
-    
-    <target name="install_swtbot_jars" >
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.apache.log4j_1.2.13.v200903072027.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.compare_3.5.100.I20100526-0800.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.compare.core_3.5.100.I20100526-0800.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.swtbot.eclipse.core_2.0.1.20101106_1831-73ca7af-dev-e36.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.swtbot.eclipse.finder_2.0.1.20101106_1831-73ca7af-dev-e36.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.swtbot.swt.finder_2.0.1.20101106_1831-73ca7af-dev-e36.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.swtbot.eclipse.ui_2.0.1.20101106_1831-73ca7af-dev-e36.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.eclipse.swtbot.junit4_x_2.0.1.20101106_1831-73ca7af-dev-e36.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest_1.1.0.v20090501071000.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.library_1.1.0.v20090501071000.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.integration_1.1.0.v20090501071000.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.hamcrest.text_1.1.0.v20090501071000.jar"/>
-        <pathelement location="${ECLIPSE_HOME}/plugins/org.junit_4.8.1.v4_8_1_v20100427-1100/junit.jar"/>
-    </target>
 
+	<!--  -->
+	<!-- Miscellaneous targets -->
+	<!--  -->
+
+	<target name="echo_test_params" >
+        <echo message="eclipse-home        is ${eclipse-home}       " />
+        <echo message="data-dir            is ${data-dir}           " />
+        <echo message="plugin-name         is ${plugin-name}        " />
+        <echo message="classname           is ${classname}          " />
+        <echo message="testProduct         is ${testProduct}        " />
+        <echo message="plugin-path         is ${plugin-path}        " />
+        <echo message="junit-report-output is ${junit-report-output}" />
+        <echo message="vmargs              is ${vmargs}             " />
+        <echo message="os                  is ${os}                 " />
+        <echo message="ws                  is ${ws}                 " />
+        <echo message="arch                is ${arch}               " />
+	</target>
+	
 </project>
