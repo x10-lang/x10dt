@@ -84,9 +84,9 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   public void update(final FactBase factBase, final Type type, final IFactContext context, 
                      final IResource resource) throws AnalysisException {
     if (context instanceof ISourceEntityContext) {
-      final ContextWrapper sourceContext = processResource(resource);
-      if (sourceContext != null) {
-        final Set<Map.Entry<String, Collection<Source>>> entries = sourceContext.getSourceEntrySet();
+      final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
+      if (cmpOptBuilder != null) {
+        final Set<Map.Entry<String, Collection<Source>>> entries = cmpOptBuilder.getSourceEntrySet();
         if (entries.isEmpty()) {
           final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
           try {
@@ -113,7 +113,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
 
             final NodeVisitor visitor = typeManager.createNodeVisitor(entry.getKey());
             try {
-              for (final Job job : this.fIndexingCompiler.compile(sourceContext.getClassPath(), sourceContext.getSourcePath(),
+              for (final Job job : this.fIndexingCompiler.compile(cmpOptBuilder.getClassPath(), cmpOptBuilder.getSourcePath(),
                                                                   entry.getValue())) {
                 if (job.ast() != null) {
                   job.ast().visit(visitor);
@@ -144,19 +144,19 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
     return indexingFile.exists();
   }
   
-  private void processEntries(final ContextWrapper context, final IWorkspaceRoot wsRoot, final IClasspathEntry[] entries, 
-                              final IJavaProject javaProject, final IResource contextResource,
+  private void processEntries(final CompilerOptionsBuilder cmpOptBuilder, final IWorkspaceRoot wsRoot, 
+                              final IClasspathEntry[] entries, final IJavaProject javaProject, final IResource contextResource,
                               final boolean isInRuntime) throws JavaModelException, AnalysisException {
     for (final IClasspathEntry pathEntry : entries) {
       switch (pathEntry.getEntryKind()) {
       case IClasspathEntry.CPE_SOURCE:
         if (pathEntry.getPath().isRoot()) {
-          context.addToSourcePath(pathEntry.getPath().toFile());
+          cmpOptBuilder.addToSourcePath(pathEntry.getPath().toFile());
         } else {
-          context.addToSourcePath(wsRoot.getLocation().append(pathEntry.getPath()).toFile());
+          cmpOptBuilder.addToSourcePath(wsRoot.getLocation().append(pathEntry.getPath()).toFile());
         }
         if (pathEntry.getPath().segmentCount() > 1) {
-          processSourceFolder(context, wsRoot.getFolder(pathEntry.getPath()), wsRoot, contextResource);
+          processSourceFolder(cmpOptBuilder, wsRoot.getFolder(pathEntry.getPath()), contextResource);
         }
         break;
 
@@ -170,9 +170,9 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
             } else {
               localFile = pkgRoot.getResource().getLocation().toFile();
             }
-            context.addToClassPath(localFile.getAbsolutePath());
+            cmpOptBuilder.addToClassPath(localFile.getAbsolutePath());
             if (isInRuntime) {
-              context.addToSourcePath(localFile);
+              cmpOptBuilder.addToSourcePath(localFile);
             }
             final ZipFile zipFile;
             if (JAR_EXT.equals(pathEntry.getPath().getFileExtension())) {
@@ -180,7 +180,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
             } else {
               zipFile = new ZipFile(localFile);
             }
-            processLibrary(context, zipFile, localFile, contextResource, isInRuntime);
+            processLibrary(cmpOptBuilder, zipFile, localFile, contextResource, isInRuntime);
           }
         } catch (IOException except) {
           throw new AnalysisException(NLS.bind(Messages.XFG_JarReadingError, pathEntry.getPath()), except);
@@ -189,26 +189,27 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
 
       case IClasspathEntry.CPE_CONTAINER:
         final IClasspathContainer cpContainer = JavaCore.getClasspathContainer(pathEntry.getPath(), javaProject);
-        processEntries(context, wsRoot, cpContainer.getClasspathEntries(), javaProject, contextResource, true);
+        processEntries(cmpOptBuilder, wsRoot, cpContainer.getClasspathEntries(), javaProject, contextResource, true);
         break;
 
       case IClasspathEntry.CPE_PROJECT:
         final IResource projectResource = ResourcesPlugin.getWorkspace().getRoot().findMember(pathEntry.getPath());
         if ((projectResource != null) && projectResource.isAccessible()) {
           final IJavaProject newJavaProject = JavaCore.create((IProject) projectResource);
-          processEntries(context, wsRoot, newJavaProject.getRawClasspath(), newJavaProject, contextResource, false);
+          processEntries(cmpOptBuilder, wsRoot, newJavaProject.getRawClasspath(), newJavaProject, contextResource, false);
         }
         break;
 
       case IClasspathEntry.CPE_VARIABLE:
-        processEntries(context, wsRoot, new IClasspathEntry[] { JavaCore.getResolvedClasspathEntry(pathEntry) }, javaProject, 
+        processEntries(cmpOptBuilder, wsRoot, new IClasspathEntry[] { JavaCore.getResolvedClasspathEntry(pathEntry) }, 
+                       javaProject, 
                        contextResource, false);
         break;
       }
     }
   }
   
-  private ContextWrapper processResource(final IResource resource) throws AnalysisException {
+  private CompilerOptionsBuilder processResource(final IResource resource) throws AnalysisException {
     final IJavaProject javaProject = JavaCore.create(resource.getProject());  
     if (javaProject.exists()) {
       if (resource.getType() == IResource.FILE) {
@@ -216,26 +217,26 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
           return null;
         }
       }
-      final ContextWrapper context = new ContextWrapper();
+      final CompilerOptionsBuilder cmpOptBuilder = new CompilerOptionsBuilder();
       final IWorkspaceRoot wsRoot = javaProject.getProject().getWorkspace().getRoot();
       try {
-        processEntries(context, wsRoot, javaProject.getRawClasspath(), javaProject, resource, false);
+        processEntries(cmpOptBuilder, wsRoot, javaProject.getRawClasspath(), javaProject, resource, false);
       } catch (CoreException except) {
         throw new AnalysisException(NLS.bind(Messages.XFG_ResourceAccessError, resource.getFullPath()), except);
       }
-      return context;
+      return cmpOptBuilder;
     } else {
       return null;
     }
   }
   
-  private void processSourceFolder(final ContextWrapper context, final IFolder folder, final IWorkspaceRoot wsRoot,
+  private void processSourceFolder(final CompilerOptionsBuilder cmpOptBuilder, final IFolder srcFolder, 
                                    final IResource contextResource) throws AnalysisException {
     final IResource curResource;
     if (contextResource.getType() == IResource.PROJECT) {
-      curResource = folder;
+      curResource = srcFolder;
     } else {
-      curResource = wsRoot.findMember(contextResource.getFullPath());
+      curResource = contextResource;
     }
     if (curResource != null) {
       try {
@@ -244,15 +245,12 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
           public boolean visit(final IResource resource) throws CoreException {
             if (resource.getType() == IResource.FILE) {
               final IFile file = (IFile) resource;
-              if (! file.isSynchronized(IResource.DEPTH_ZERO)) {
-                file.refreshLocal(IResource.DEPTH_ZERO, null);
-              }
               final IPath location  = file.getLocation();
               if (location != null) {
                 final File localFile = location.toFile();
                 if (localFile.exists() && X10_EXT.equals(file.getFileExtension())) {
                   try {
-                    context.addSource(X10FactTypeNames.APPLICATION, new FileSource(new FileResource(localFile)));
+                    cmpOptBuilder.addSource(X10FactTypeNames.APPLICATION, new FileSource(new FileResource(localFile)));
                   } catch (IOException except) {
                     // It can't occur since we already have tested for existence.
                     SearchCoreActivator.log(IStatus.ERROR, null, except);
@@ -270,15 +268,15 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
     }
   }
   
-  private void processLibrary(final ContextWrapper context, final ZipFile zipFile, final File file, 
+  private void processLibrary(final CompilerOptionsBuilder cmpOptBuilder, final ZipFile zipFile, final File file, 
                               final IResource contextResource, final boolean isInRuntime) throws IOException {
     if (contextResource.getType() == IResource.PROJECT) {
       final Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
       while (zipEntries.hasMoreElements()) {
         final ZipEntry entry = zipEntries.nextElement();
         if (entry.getName().endsWith(Constants.X10_EXT)) {
-          context.addSource(isInRuntime ? X10FactTypeNames.RUNTIME : X10FactTypeNames.LIBRARY,
-                            new FileSource(new ZipResource(file, zipFile, entry.getName())));
+          cmpOptBuilder.addSource(isInRuntime ? X10FactTypeNames.RUNTIME : X10FactTypeNames.LIBRARY,
+                                              new FileSource(new ZipResource(file, zipFile, entry.getName())));
         }
       }
     }
@@ -286,7 +284,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   
   // --- Private classes
   
-  private static final class ContextWrapper {
+  private static final class CompilerOptionsBuilder {
     
     // --- Internal services
     
