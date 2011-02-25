@@ -122,11 +122,12 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
       } else {
         scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, element.getCompilationUnit().getResource());
       }
+      final ITypeInfo typeInfo = (ITypeInfo) element;
 			if (this.fIsSuperTypesOnly) {
-				final ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), element.getName(), pm);
-				return X10SearchEngine.createTypeHierarchy(scope, h.getSuperClass(element.getName()).getName(), pm);
+				final ITypeHierarchy h = X10SearchEngine.createTypeHierarchy(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), typeInfo, pm);
+				return X10SearchEngine.createTypeHierarchy(scope, h.getSuperClass(typeInfo), pm);
 			} else {
-				return X10SearchEngine.createTypeHierarchy(scope, element.getName(), pm);
+				return X10SearchEngine.createTypeHierarchy(scope, typeInfo, pm);
 			}
 		}
 		return null;
@@ -235,7 +236,7 @@ public class TypeHierarchyLifeCycle implements ITypeHierarchyChangedListener { /
 //	}
 
 	private void processTypeDelta(ITypeInfo type, ArrayList changedTypes) {
-		if (getHierarchy().contains(type.getName())) {
+		if (getHierarchy().contains(type)) {
 			changedTypes.add(type);
 		}
 	}

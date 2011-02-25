@@ -352,7 +352,7 @@ public abstract class TypeHierarchyContentProvider implements ITreeContentProvid
 	}
 
 	protected final boolean isAnonymousFromInterface(ITypeInfo type) {
-		return isAnonymous(type) && fTypeHierarchy.getHierarchy().getInterfaces(type.getName()).length != 0;
+		return isAnonymous(type) && fTypeHierarchy.getHierarchy().getInterfaces(type).length != 0;
 	}
 
 	protected final boolean isObject(ITypeInfo type) {

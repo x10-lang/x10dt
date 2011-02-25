@@ -864,14 +864,14 @@ public class X10ElementLabelComposer {
 //				} else {
 					String supertypeName;
 				ITypeHierarchy hierarchy = X10SearchEngine.createTypeHierarchy(
-						SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), typeName, new NullProgressMonitor());
+						SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), type, new NullProgressMonitor());
 
 						
-					ITypeInfo[] superInterfaceSignatures= hierarchy.getAllSuperInterfaces(typeName);
+					ITypeInfo[] superInterfaceSignatures= hierarchy.getAllSuperInterfaces(type);
 					if (superInterfaceSignatures.length > 0) {
 						supertypeName= getSimpleTypeName(type, superInterfaceSignatures[0].getName());
 					} else {
-						supertypeName= getSimpleTypeName(type, hierarchy.getSuperClass(typeName).getName());
+						supertypeName= getSimpleTypeName(type, hierarchy.getSuperClass(type).getName());
 					}
 					typeName= MessageFormat.format(Messages.X10ElementLabels_anonym_type , supertypeName);
 //				}

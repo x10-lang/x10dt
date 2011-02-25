@@ -71,7 +71,7 @@ public class SubTypeHierarchyViewer extends TypeHierarchyViewer {
 		protected final void getTypesInHierarchy(ITypeInfo type, List res) {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
-				ITypeInfo[] types= hierarchy.getSubTypes(type.getName());
+				ITypeInfo[] types= hierarchy.getSubTypes(type);
 				if (isObject(type)) {
 					for (int i= 0; i < types.length; i++) {
 						ITypeInfo curr = null;
@@ -96,8 +96,8 @@ public class SubTypeHierarchyViewer extends TypeHierarchyViewer {
 		protected IMemberInfo getParentType(IMemberInfo type) {
 			try {
 				ITypeHierarchy hierarchy= getHierarchy();
-				if (hierarchy != null) {
-					return hierarchy.getSuperClass(type.getName());
+				if ((hierarchy != null) && (type instanceof ITypeInfo)) {
+					return hierarchy.getSuperClass((ITypeInfo) type);
 					// dont handle interfaces
 				}
 			} catch (Exception e) {

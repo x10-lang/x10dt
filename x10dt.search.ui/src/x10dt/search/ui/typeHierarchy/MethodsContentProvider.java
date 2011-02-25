@@ -98,7 +98,7 @@ public class MethodsContentProvider implements IStructuredContentProvider /*,IWo
 			try {
 				ITypeHierarchy hierarchy= fHierarchyLifeCycle.getHierarchy();
 				if (fShowInheritedMethods && hierarchy != null) {
-					ITypeInfo[] allSupertypes= hierarchy.getAllSuperTypes(type.getName());
+					ITypeInfo[] allSupertypes= hierarchy.getAllSuperTypes(type);
 					// sort in from last to first: elements with same name
 					// will show up in hierarchy order
 					for (int i= allSupertypes.length - 1; i >= 0; i--) {

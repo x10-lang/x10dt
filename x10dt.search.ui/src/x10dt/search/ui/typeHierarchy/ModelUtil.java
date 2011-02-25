@@ -450,12 +450,12 @@ public final class ModelUtil {
 //
 	public static boolean isSuperType(ITypeHierarchy hierarchy, ITypeInfo possibleSuperType, ITypeInfo type) {
 		// filed bug 112635 to add this method to ITypeHierarchy
-		ITypeInfo superClass= hierarchy.getSuperClass(type.getName());
+		ITypeInfo superClass= hierarchy.getSuperClass(type);
 		if (superClass != null && (possibleSuperType.equals(superClass) || isSuperType(hierarchy, possibleSuperType, superClass))) {
 			return true;
 		}
 		if (SearchUtils.hasFlag(X10.INTERFACE, possibleSuperType.getX10FlagsCode())) {
-			ITypeInfo[] superInterfaces= hierarchy.getAllSuperInterfaces(type.getName());
+			ITypeInfo[] superInterfaces= hierarchy.getAllSuperInterfaces(type);
 			for (int i= 0; i < superInterfaces.length; i++) {
 				ITypeInfo curr= superInterfaces[i];
 				if (possibleSuperType.equals(curr) || isSuperType(hierarchy, possibleSuperType, curr)) {

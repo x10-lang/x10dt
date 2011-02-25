@@ -439,7 +439,7 @@ public class SearchUtils {
 			}
 
 			return X10SearchEngine.getMethodInfos(scope,
-					type.getName(), methodName,
+					type, methodName,
 					new NullProgressMonitor());
 		} catch (Exception e) {
 			return new IMethodInfo[0];
@@ -462,7 +462,7 @@ public class SearchUtils {
 			}
 
 			return X10SearchEngine.getAllMatchingMethodInfo(scope,
-					type.getName(), getTypeRegex(""), false,
+					type, getTypeRegex(""), false,
 					new NullProgressMonitor());
 		} catch (Exception e) {
 			return new IMethodInfo[0];
@@ -485,7 +485,7 @@ public class SearchUtils {
 			}
 
 			return X10SearchEngine.getAllMatchingFieldInfo(scope,
-					type.getName(), getTypeRegex(""), false,
+					type, getTypeRegex(""), false,
 					new NullProgressMonitor());
 		} catch (Exception e) {
 			return new IFieldInfo[0];

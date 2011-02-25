@@ -87,10 +87,10 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 
 		private int getDepth(ITypeHierarchy hierarchy, ITypeInfo input) {
 			int count= 0;
-			ITypeInfo superType= hierarchy.getSuperClass(input.getName());
+			ITypeInfo superType= hierarchy.getSuperClass(input);
 			while (superType != null) {
 				count++;
-				superType= hierarchy.getSuperClass(superType.getName());
+				superType= hierarchy.getSuperClass(superType);
 			}
 			return count;
 		}
@@ -111,11 +111,11 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 					if (SearchUtils.hasFlag(X10.INTERFACE, input.getX10FlagsCode())) {
 						res.add(input);
 					} else if (isAnonymousFromInterface(input)) {
-						res.add(hierarchy.getInterfaces(input.getName())[0]);
+						res.add(hierarchy.getInterfaces(input)[0]);
 					} else if (isObject(input)) {
 					    res.add(input);
 					} else {
-						ITypeInfo[] roots= hierarchy.getAllSuperClasses(input.getName());
+						ITypeInfo[] roots= hierarchy.getAllSuperClasses(input);
 						for (int i= 0; i < roots.length; i++) {
 							ITypeInfo type = roots[i];
 							if (isObject(type)) {
@@ -137,7 +137,7 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 		protected final void getTypesInHierarchy(ITypeInfo type, List res) {
 			ITypeHierarchy hierarchy= getHierarchy();
 			if (hierarchy != null) {
-				ITypeInfo[] types= hierarchy.getSubTypes(type.getName());
+				ITypeInfo[] types= hierarchy.getSubTypes(type);
 				if (isObject(type)) {
 					for (int i= 0; i < types.length; i++) {
 						ITypeInfo curr= types[i];
@@ -168,8 +168,8 @@ public class TraditionalHierarchyViewer extends TypeHierarchyViewer {
 
 		protected IMemberInfo getParentType(IMemberInfo type) {
 			ITypeHierarchy hierarchy= getHierarchy();
-			if (hierarchy != null) {
-				return hierarchy.getSuperClass(type.getName());
+			if ((hierarchy != null) && (type instanceof ITypeInfo)) {
+				return hierarchy.getSuperClass((ITypeInfo) type);
 				// don't handle interfaces
 			}
 			return null;

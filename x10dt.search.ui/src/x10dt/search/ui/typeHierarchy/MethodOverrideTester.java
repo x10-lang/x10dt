@@ -125,7 +125,7 @@ public class MethodOverrideTester {
 		}
 
 		ITypeInfo type= overriding.getDeclaringType();
-		ITypeInfo superClass= fHierarchy.getSuperClass(type.getName());
+		ITypeInfo superClass= fHierarchy.getSuperClass(type);
 		if (superClass != null) {
 			IMethodInfo res= findOverriddenMethodInHierarchy(superClass, overriding);
 			if (res != null && !SearchUtils.hasFlag(X10.PRIVATE, res.getX10FlagsCode())) {
@@ -135,7 +135,7 @@ public class MethodOverrideTester {
 			}
 		}
 		if (!overriding.isConstructor()) {
-			ITypeInfo[] interfaces= fHierarchy.getAllSuperInterfaces(type.getName());
+			ITypeInfo[] interfaces= fHierarchy.getAllSuperInterfaces(type);
 			for (int i= 0; i < interfaces.length; i++) {
 				IMethodInfo res= findOverriddenMethodInHierarchy(interfaces[i], overriding);
 				if (res != null) {
@@ -159,7 +159,7 @@ public class MethodOverrideTester {
 		if (method != null) {
 			return method;
 		}
-		ITypeInfo superClass= fHierarchy.getSuperClass(type.getName());
+		ITypeInfo superClass= fHierarchy.getSuperClass(type);
 		if (superClass != null) {
 			IMethodInfo res=  findOverriddenMethodInHierarchy(superClass, overriding);
 			if (res != null) {
@@ -167,7 +167,7 @@ public class MethodOverrideTester {
 			}
 		}
 		if (!overriding.isConstructor()) {
-			ITypeInfo[] superInterfaces= fHierarchy.getAllSuperInterfaces(type.getName());
+			ITypeInfo[] superInterfaces= fHierarchy.getAllSuperInterfaces(type);
 			for (int i= 0; i < superInterfaces.length; i++) {
 				IMethodInfo res= findOverriddenMethodInHierarchy(superInterfaces[i], overriding);
 				if (res != null) {
@@ -402,18 +402,18 @@ public class MethodOverrideTester {
 				// code with errors
 			}
 		}
-		ITypeInfo superclassTypeSignature= fHierarchy.getSuperClass(instantiatedType.getName());
+		ITypeInfo superclassTypeSignature= fHierarchy.getSuperClass(instantiatedType);
 		if (superclassTypeSignature != null) {
 			String superTypeArguments= superclassTypeSignature.getName();
-			ITypeInfo superclass= fHierarchy.getSuperClass(instantiatedType.getName());
+			ITypeInfo superclass= fHierarchy.getSuperClass(instantiatedType);
 			if (superclass != null && !fTypeVariableSubstitutions.containsKey(superclass)) {
 				computeSubstitutions(superclass, instantiatedType, new String[]{superTypeArguments});
 			}
 		}
-		ITypeInfo[] superInterfacesTypeSignature= fHierarchy.getAllSuperInterfaces(instantiatedType.getName());
+		ITypeInfo[] superInterfacesTypeSignature= fHierarchy.getAllSuperInterfaces(instantiatedType);
 		int nInterfaces= superInterfacesTypeSignature.length;
 		if (nInterfaces > 0) {
-			ITypeInfo[] superInterfaces= fHierarchy.getAllSuperInterfaces(instantiatedType.getName());
+			ITypeInfo[] superInterfaces= fHierarchy.getAllSuperInterfaces(instantiatedType);
 			if (superInterfaces.length == nInterfaces) {
 				for (int i= 0; i < nInterfaces; i++) {
 					String superTypeArguments= superInterfacesTypeSignature[i].getName();
