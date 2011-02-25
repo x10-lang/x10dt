@@ -22,11 +22,14 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.EditorUtility;
+import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.model.ISourceFolder;
+import org.eclipse.imp.model.ISourceRoot;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.ui.UIMessages;
+import org.eclipse.imp.utils.BuildPathUtils;
 import org.eclipse.jface.text.Region;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.dialogs.SearchPattern;
@@ -267,12 +270,32 @@ public class SearchUtils {
 	{
 		try {
 			IResource resource = getResource(info);
-			ISourceEntity entity = ModelFactory.open(resource.getParent());
-			if(entity instanceof ISourceFolder)
+			if(resource == null)
 			{
-				return (ISourceFolder)entity;
+				URI uri = info.getLocation().getURI();
+				String scheme = uri.getSchemeSpecificPart();
+				if(uri.getScheme().equals("jar"))
+				{
+					String folder = scheme.substring(scheme.lastIndexOf(":") + 1, scheme.lastIndexOf("/"));
+					folder = folder.replace("/", ".");
+					scheme = scheme.substring(0, scheme.lastIndexOf(":"));
+					scheme = scheme.replace("file:", "");
+					
+					IPath path = new Path(scheme);
+					ISourceRoot root = BuildPathUtils.getSourceRoot(null, LanguageRegistry.findLanguage("X10"), path);
+					return root.getSourceFolder(folder);
+				}
+//				
+				
 			}
-			
+			else
+			{
+				ISourceEntity entity = ModelFactory.open(resource.getParent());
+				if(entity instanceof ISourceFolder)
+				{
+					return (ISourceFolder)entity;
+				}
+			}
 		} catch (ModelException e) {
 			// fall through
 		}

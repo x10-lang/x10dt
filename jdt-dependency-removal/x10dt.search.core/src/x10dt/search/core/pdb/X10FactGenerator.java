@@ -193,7 +193,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         break;
 
       case CONTAINER:
-        final IPathContainer cpContainer = PathContainerRegistry.getInstance().getClasspathContainer(pathEntry.getRawPath(), javaProject);
+        final IPathContainer cpContainer = PathContainerRegistry.getInstance().getBuildPathContainer(pathEntry.getRawPath(), javaProject);
         processEntries(context, wsRoot, cpContainer.getPathEntries(), javaProject, contextResource, true);
         break;
 
