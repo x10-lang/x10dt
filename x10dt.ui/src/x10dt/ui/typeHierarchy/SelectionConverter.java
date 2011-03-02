@@ -21,7 +21,6 @@ import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.parser.ISourcePositionLocator;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
@@ -34,15 +33,23 @@ import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
+import polyglot.ast.Call_c;
+import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassType;
+import polyglot.types.QName;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import x10.types.MethodInstance;
 import x10dt.search.core.elements.IMemberInfo;
 import x10dt.search.core.elements.IMethodInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.X10DTUIPlugin;
+import x10dt.ui.parser.PolyglotNodeLocator;
 
 
 public class SelectionConverter {
@@ -204,40 +211,45 @@ public class SelectionConverter {
 		IMemberInfo info = null;
 		try {
 			int offset = startOffset;
-			ISourcePositionLocator loc = parseController.getSourcePositionLocator();
+			PolyglotNodeLocator loc = (PolyglotNodeLocator)parseController.getSourcePositionLocator();
 			Object ast = parseController.getCurrentAst();
-			MethodDecl method = null;
+			MethodInstance method = null;
 			
-			while(info == null && offset > 0)
+			Object target = loc.findNode(ast, offset);
+			List<Node> nodes = loc.getPathToRoot((Node)ast, (Node)target);
+			//Collections.reverse(nodes);
+			
+			if(target instanceof ClassBody)
 			{
-				Object node = loc.findNode(ast, offset);
-				String typeName = null;
-				//Object targetNode = res.getLinkTarget(node, parseController);
-				//node = (targetNode == null) ? node : targetNode;
-
-				if(node instanceof TypeNode)
+				nodes.add((Node)loc.getParentNodeOf(target, ast));
+			}
+			
+			String typeName = null;
+			for(Node node : nodes)
+			{
+				if(node instanceof Call_c)
+				{
+					Call_c call = (Call_c)node;
+					if(call.name().equals(target))
+					{
+						method = call.methodInstance();
+						typeName = ((Type)method.def().container().get()).fullName().toString();
+					}
+				}
+				
+				else if(node instanceof TypeNode)
 				{
 					typeName = ((TypeNode)node).type().toString();
 				}
 				
 				else if(node instanceof MethodDecl)
 				{
-					method = ((MethodDecl)node);
+					method = ((MethodDecl)node).methodDef().asInstance();
 				}
 				
 				else if(node instanceof ClassDecl)
 				{
 					typeName = ((ClassDecl)node).classDef().fullName().toString();
-				}
-				
-				if(node instanceof Node)
-				{
-					offset = ((Node)node).position().offset() - 1;
-				}
-				
-				else
-				{
-					offset = -1;
 				}
 				
 				if(typeName != null)
@@ -257,8 +269,11 @@ public class SelectionConverter {
 							}
 						}
 					}
+					
+					typeName = null;
 				}
 			}
+			
 		} catch (Exception e) {
 			X10DTUIPlugin.log(e);
 		}
@@ -266,25 +281,42 @@ public class SelectionConverter {
 		return info;
 	}
 	
-	private static boolean isEqual(IMethodInfo methodInfo, MethodDecl methodDecl)
+	private static boolean isEqual(IMethodInfo methodInfo, MethodInstance methodInst)
 	{
-		List<Formal> formals = methodDecl.formals();
-		ITypeInfo[] params = methodInfo.getParameters();
-		
-		if(formals.size() == params.length)
-		{
-			for(int i = 0; i < methodDecl.formals().size(); i++)
+		try {
+			List<Type> formals = methodInst.formalTypes();
+			ITypeInfo[] params = methodInfo.getParameters();
+			
+			if(formals.size() == params.length)
 			{
-				if(!formals.get(i).type().toString().equals(params[i]))
+				final TypeSystem typeSystem = (TypeSystem) methodInst.typeSystem();
+				for(int i = 0; i < formals.size(); i++)
 				{
-					return false;
+					Type instType = typeSystem.forName(QName.make(null, ((ClassType)formals.get(i)).fullName().toString()));
+					Type infoType = typeSystem.forName(QName.make(null, params[i].getName()));
+					if(!infoType.isSubtype(instType, typeSystem.emptyContext()))
+					{
+						return false;
+					}
 				}
-			}
 
-			return true;
+				return true;
+			}
+		} catch (SemanticException e) {
+			X10DTUIPlugin.log(e);
 		}
 		
 		return false;
+		
+		
+		
+//        if (methodDecl.name().toString().equals(MAIN_METHOD_NAME) && methodDecl.flags().flags().isPublic() &&
+//            methodDecl.flags().flags().isStatic() && methodDecl.returnType().type().isVoid() &&
+//            (methodDecl.formals().size() == 1) && 
+//            
+        	
+        	
+        	
 	}
 	
 	

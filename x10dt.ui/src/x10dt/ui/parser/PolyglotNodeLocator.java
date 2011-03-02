@@ -11,6 +11,10 @@
 
 package x10dt.ui.parser;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
@@ -35,10 +39,42 @@ import polyglot.types.TypeObject;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 
-// TODO This should really derive from the Java ASTNodeLocator impl in org.eclipse.imp.java.core...
-// Or better yet, this implementation shouldn't be necessary at all, since Polyglot nodes all behave
-// the same wrt position access and the visitor interface.
+/**
+ * Implementation of {@link ISourcePositionLocator} for Polyglot ASTs.
+ * Provides a few additional API calls, e.g., getParentNodeOf() and
+ * getPathToRoot().
+ * @author rfuhrer
+ */
 public class PolyglotNodeLocator implements ISourcePositionLocator {
+    private static class PathSavingVisitor extends NodeVisitor {
+        private final Node fTarget;
+        private final List<Node> fPath = new LinkedList<Node>();
+        private boolean fHitTarget = false;
+
+        public PathSavingVisitor(Node target) {
+            fTarget = target;
+        }
+
+        @Override
+        public Node leave(Node old, Node n, NodeVisitor v) {
+            if (n == fTarget)
+                fHitTarget = true;
+            if (fHitTarget)
+                fPath.add(n);
+            return n;
+        }
+
+        public Node override(Node n) {
+            if (fHitTarget)
+                return n;
+            return null;
+        }
+
+        public List<Node> getPath() {
+            return fPath;
+        }
+    }
+
     private final Node[] fNode= new Node[1];
 
     private int fOffset;
@@ -415,6 +451,21 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
                 System.out.println("Selected node (type): " + fNode[0] + " (" + fNode[0].getClass().getName() + ")");
         }
         return fNode[0];
+    }
+
+    /**
+     * @return the list of Nodes from 'target' to 'root', in that order
+     */
+    public List<Node> getPathToRoot(final Node root, final Node target) {
+        PathSavingVisitor psv = new PathSavingVisitor(target);
+
+        root.visit(psv);
+
+        List<Node> result = new LinkedList<Node>();
+
+        result.addAll(psv.getPath());
+        //Collections.reverse(result);
+        return result;
     }
 
     public int getStartOffset(Object entity) {
