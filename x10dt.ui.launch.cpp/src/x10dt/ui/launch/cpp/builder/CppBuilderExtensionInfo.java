@@ -7,10 +7,15 @@
  *****************************************************************************/
 package x10dt.ui.launch.cpp.builder;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.frontend.Compiler;
+import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
@@ -18,13 +23,15 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.PostCompiled;
 import x10cpp.ExtensionInfo;
+import x10dt.ui.launch.core.builder.CheckPackageDeclVisitor;
 import x10dt.ui.launch.cpp.LaunchMessages;
 
 
 final class CppBuilderExtensionInfo extends ExtensionInfo {
   
-  CppBuilderExtensionInfo(final IProgressMonitor monitor) {
+  CppBuilderExtensionInfo(final IProgressMonitor monitor, IProject project) {
     this.fMonitor = monitor;
+    this.fProject = project;
   }
   
   // --- Overridden methods
@@ -42,6 +49,27 @@ final class CppBuilderExtensionInfo extends ExtensionInfo {
     }
     
     // --- Overridden methods
+    
+    @Override
+    public List<Goal> goals(Job job) {
+        List<Goal> goals = super.goals(job);
+        Goal endGoal = goals.get(goals.size() - 1);
+        if (!(endGoal.name().equals("End"))) {
+            throw new IllegalStateException("Not an End Goal?");
+        }
+        List<Goal> newGoals = new ArrayList<Goal>();
+        for(Goal goal: goals){
+        	if (goal.name().equals("CheckASTForErrors")){ // --- WARNING: FRAGILE CODE HERE!
+        		newGoals.add(PackageDeclGoal(job, fProject));
+        	}
+        	newGoals.add(goal);
+        }
+        return newGoals;
+    }
+    
+    protected Goal PackageDeclGoal(Job job, IProject project){
+    	return new ForgivingVisitorGoal("PackageDeclarationCheck", job, new CheckPackageDeclVisitor(job, project)).intern(this);
+    }
     
     public Goal CodeGenerated(final Job job) {
       CppBuilderExtensionInfo.this.fMonitor.subTask(LaunchMessages.ES_GeneratingCppCilesTaskName);
@@ -90,5 +118,6 @@ final class CppBuilderExtensionInfo extends ExtensionInfo {
   // --- Fields
   
   private final IProgressMonitor fMonitor;
+  private final IProject fProject;
 
 }

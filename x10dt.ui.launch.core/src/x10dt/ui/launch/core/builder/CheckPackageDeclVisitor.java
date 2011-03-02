@@ -17,8 +17,10 @@ import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.types.SemanticException;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
+import x10.errors.Errors;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
@@ -26,13 +28,12 @@ import x10dt.ui.launch.core.utils.CoreResourceUtils;
 public class CheckPackageDeclVisitor extends NodeVisitor {
     private final Job fJob;
     private final IProject fProject;
-    private final AbstractX10Builder fBuilder;
     private boolean fSeenPkg= false;
+ 
 
-    public CheckPackageDeclVisitor(Job job, IProject project, AbstractX10Builder builder) {
+    public CheckPackageDeclVisitor(Job job, IProject project) {
         fJob= job;
         fProject= project;
-        fBuilder = builder;
     }
     @Override
     public NodeVisitor begin() {
@@ -45,9 +46,7 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
     }
     private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
         if (!actualPkg.equals(declaredPkg)) {
-        	IFile file= fBuilder.getProject().getFile(fJob.source().path().substring(fBuilder.getProject().getLocation().toOSString().length()));
-        	CoreResourceUtils.addBuildMarkerTo(file, Messages.CPD_PackageDeclError, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL, 
-        	                                   file.getLocation().toString(), pos.line(), pos.offset(), pos.endOffset());
+        	Errors.issue(fJob, new SemanticException(Messages.CPD_PackageDeclError, pos));
         }
     }
 
@@ -78,6 +77,10 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
             pkgPath= srcPath;
         }
 
+        if (srcFileName.indexOf("/") != -1) {
+        	srcFileName = srcFileName.substring(srcFileName.lastIndexOf("/") + 1);
+        } 
+        
         IJavaProject javaProject = JavaCore.create(fProject);
         IClasspathEntry[] cpEntries;
 		try {
@@ -118,7 +121,8 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
     public void finish() {
         if (!fSeenPkg) { // No package decl -> implicitly in the default package
             Source src= fJob.source();
-            checkPackage("", determineActualPackage(src), new Position(src.path(), src.name(), 1, 1));
+            checkPackage("", determineActualPackage(src), new Position(src.path(), src.path(), 1, 1)); // --- WARNING: passing the path here for file !!!!!
         }
     }
+    
 }

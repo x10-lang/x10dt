@@ -2,6 +2,8 @@ package x10dt.ui.parser;
 
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
 import polyglot.frontend.Goal;
@@ -10,8 +12,8 @@ import polyglot.frontend.Scheduler;
 
 public class ParseExtensionInfo extends ExtensionInfo {
 	
-	public ParseExtensionInfo(Monitor monitor, IMessageHandler handler){
-		super(monitor, handler);
+	public ParseExtensionInfo(Monitor monitor, IMessageHandler handler, IProject project){
+		super(monitor, handler, project);
 	}
 
 	@Override

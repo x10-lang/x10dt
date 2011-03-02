@@ -9,8 +9,11 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.core.resources.IProject;
+
 
 import polyglot.frontend.Compiler;
+import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
@@ -18,6 +21,7 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.PostCompiled;
+import x10dt.ui.launch.core.builder.CheckPackageDeclVisitor;
 import x10dt.ui.launch.core.utils.UIUtils;
 
 public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
@@ -33,14 +37,23 @@ public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
         return new X10CScheduler(this) {
             @Override
             public List<Goal> goals(Job job) {
-                // TODO Collect bookmarks after parsing - look for the Parsed() goal and insert new goal after that
                 List<Goal> goals = super.goals(job);
                 Goal endGoal = goals.get(goals.size() - 1);
                 if (!(endGoal.name().equals("End"))) {
                     throw new IllegalStateException("Not an End Goal?");
                 }
-                //endGoal.addPrereq(new CollectBookmarksGoal(job, fBuilder));
-                return goals;
+                List<Goal> newGoals = new ArrayList<Goal>();
+                for(Goal goal: goals){
+                	if (goal.name().equals("CheckASTForErrors")){ // --- WARNING: FRAGILE CODE HERE!
+                		newGoals.add(PackageDeclGoal(job, fBuilder.getProject()));
+                	}
+                	newGoals.add(goal);
+                }
+                return newGoals;
+            }
+            
+            protected Goal PackageDeclGoal(Job job, IProject project){
+            	return new ForgivingVisitorGoal("PackageDeclarationCheck", job, new CheckPackageDeclVisitor(job, project)).intern(this);
             }
             
             protected Goal PostCompiled() {

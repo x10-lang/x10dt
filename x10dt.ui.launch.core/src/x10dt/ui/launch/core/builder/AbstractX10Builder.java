@@ -580,18 +580,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private void analyze(final Collection<Job> jobs) {
     computeDependencies(jobs);
     collectBookmarks(jobs);
-    checkPackageDeclarations(jobs);
   }
 
-  private void checkPackageDeclarations(final Collection<Job> jobs) {
-    for (final Job job : jobs) {
-      final CheckPackageDeclVisitor visitor = new CheckPackageDeclVisitor(job, this.fProjectWrapper.getProject(), this);
-      if (job.ast() != null) {
-        job.ast().visit(visitor.begin());
-        visitor.finish();
-      }
-    }
-  }
 
   private void collectBookmarks(final Collection<Job> jobs) {
     for (final Job job : jobs) {

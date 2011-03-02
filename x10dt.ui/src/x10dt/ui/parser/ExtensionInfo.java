@@ -12,6 +12,7 @@
 package x10dt.ui.parser;
 
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,10 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
+import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Parser;
@@ -31,6 +35,7 @@ import polyglot.frontend.Source;
 import polyglot.util.ErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
+import x10dt.ui.launch.core.builder.CheckPackageDeclVisitor;
 
 /**
  * Information about our extension of the polyglot compiler. This derives from
@@ -51,10 +56,12 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     protected final Map<Source,Job> fInterestingJobs = new HashMap<Source,Job>();
     private final Map<Source,X10SemanticRules> fInterestingParsers = new HashMap<Source,X10SemanticRules>();
     private final Map<Source,X10Lexer> fInterestingLexers = new HashMap<Source,X10Lexer>();
-
-    public ExtensionInfo(Monitor monitor, IMessageHandler handler) {
+    private final IProject project;
+    
+    public ExtensionInfo(Monitor monitor, IMessageHandler handler, IProject project) {
         this.monitor = monitor;
         this.handler = handler;
+        this.project = project;
     }
 
     public void setInterestingSources(Collection<Source> sources) {
@@ -80,7 +87,23 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 if (fInterestingSources.contains(job.source())) {
                 	fInterestingJobs.put(job.source(), job);
                 }
-                return super.semanticCheckSourceGoals(job);
+                List<Goal> goals =  super.semanticCheckSourceGoals(job);
+                List<Goal> newGoals = new ArrayList<Goal>();
+                if (project != null){
+                	for(Goal goal: goals){
+                		if (goal.name().equals("CheckASTForErrors")){ // --- WARNING: FRAGILE CODE HERE!
+                			newGoals.add(PackageDeclGoal(job, project));
+                		}
+                		newGoals.add(goal);
+                	}
+                	return newGoals;
+                }
+                return goals;
+            }
+            
+            
+            protected Goal PackageDeclGoal(Job job, IProject project){
+            	return new ForgivingVisitorGoal("PackageDeclarationCheck", job, new CheckPackageDeclVisitor(job, project)).intern(this);
             }
  
         };

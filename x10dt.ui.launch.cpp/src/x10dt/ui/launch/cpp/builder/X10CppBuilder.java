@@ -37,7 +37,7 @@ public final class X10CppBuilder extends AbstractX10Builder {
   
   public ExtensionInfo createExtensionInfo(final String classPath, final List<File> sourcePath, final String localOutputDir,
                                            final boolean withMainMethod, final IProgressMonitor monitor) {
-    final ExtensionInfo extInfo = new CppBuilderExtensionInfo(monitor);
+    final ExtensionInfo extInfo = new CppBuilderExtensionInfo(monitor, getProject());
     buildOptions(classPath, sourcePath, localOutputDir, (X10CPPCompilerOptions) extInfo.getOptions(), withMainMethod);
     return extInfo;
   }

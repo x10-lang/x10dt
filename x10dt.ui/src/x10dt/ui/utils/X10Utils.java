@@ -100,7 +100,7 @@ public final class X10Utils {
       }
     }
     
-    final ExtensionInfo extInfo = new ExtensionInfo(null /* monitor */, new ShallowMessageHander());
+    final ExtensionInfo extInfo = new ExtensionInfo(null /* monitor */, new ShallowMessageHander(), null);
     final X10CompilerOptions compilerOptions = (X10CompilerOptions) extInfo.getOptions();
     compilerOptions.assertions = true;
     compilerOptions.serialize_type_info = false;
