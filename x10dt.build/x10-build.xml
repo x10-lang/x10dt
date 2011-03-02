@@ -40,6 +40,7 @@
   </target>
 
   <target name="x10-checkouts" depends="x10-checkouts-existence" unless="are-plugins-present">
+    <echo message="Using SVN revision ${x10.revision} and tag ${x10.tag} for X10 core checkouts"/>
     <svn username="anonymous">
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.compiler" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.compiler" />
