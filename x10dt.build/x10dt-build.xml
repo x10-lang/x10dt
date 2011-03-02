@@ -30,6 +30,7 @@
   </target>
 
   <target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
+    <echo message="Using SVN revision ${x10dt.revision} and tag ${x10dt.tag} for X10DT project checkouts"/>
     <svn username="anonymous">
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt" />
@@ -130,7 +131,8 @@
       <arg value="-categoryQualifier" />
       <arg value="-compress" />
     </java>
-    <zip destfile="${publish.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
+    <mkdir dir="${publish.site.loc}/${buildLabel}"/>
+    <zip destfile="${publish.site.loc}/${buildLabel}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
          basedir="${publish.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
   </target>
 
