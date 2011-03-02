@@ -63,9 +63,21 @@ public class QuickFixAssistant extends DefaultQuickFixAssistant {
 					problem.getAttribute("CONSTRUCTOR", ""), problem.getAttribute("ARGUMENTS", "")));
 			break;
 		case 1004:
+			proposals.add(new MakeAbstractProposal(context, problem.getAttribute("CLASS", "")));
+			
+			if(proposals.size() > 0)
+			{
+				for(ICompletionProposal proposal : proposals)
+				{
+					if(proposal instanceof UnimplementedMethodProposal)
+					{
+						return;
+					}
+				}
+			}
+			
 			proposals.add(new UnimplementedMethodProposal(context));
 			
-			proposals.add(new MakeAbstractProposal(context, problem.getAttribute("CLASS", "")));
 			break;
 		default:
 		}

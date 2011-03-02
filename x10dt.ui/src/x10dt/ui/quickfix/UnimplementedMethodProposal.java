@@ -24,7 +24,6 @@ import org.eclipse.text.edits.TextEdit;
 
 import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
-import polyglot.ast.Expr;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
@@ -33,17 +32,17 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
-import polyglot.types.LocalDef;
+import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.visit.ContextVisitor;
 import x10.ExtensionInfo;
+import x10.ast.TypeParamNode;
 import x10.ast.X10NodeFactory_c;
 import x10.extension.X10Ext;
 import x10.types.MethodInstance;
-import x10.types.X10MethodDef;
 import x10dt.core.utils.HierarchyUtils;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.parser.PolyglotNodeLocator;
@@ -139,13 +138,15 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						
 						
 						List<TypeNode> typeList = new ArrayList<TypeNode>();
-						List<Expr> args = new ArrayList<Expr>();
+						//List<Expr> args = new ArrayList<Expr>();
 						
-						for (LocalDef f : ((X10MethodDef)mi.def()).formalNames()) {
-							TypeNode tn = factory.CanonicalTypeNode(EMPTY_POS, f.type());
+						
+						
+						for (int i = 0; i < mi.formalTypes().size(); i++) {
+							TypeNode tn = factory.CanonicalTypeNode(EMPTY_POS, mi.formalTypes().get(i));
 							typeList.add(tn);
-							formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), tn, factory.Id(null, f.name())));
-				            args.add(factory.Local(null, factory.Id(null, f.name())));
+							formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), tn, factory.Id(null, mi.formalNames().get(i).name())));
+				            //args.add(factory.Local(null, factory.Id(null, f.name())));
 				        }
 						
 						Block body = factory.Block(null);
@@ -172,7 +173,34 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						}
 						
 						body = body.append((Stmt)ret);
-						MethodDecl newMethodDecl = factory.MethodDecl(null, flags, returnType, factory.Id(null, mi.name()), formals, body);
+						
+						
+						TypeNode offerType = null;
+						if(mi.offerType() != null)
+						{
+							offerType = factory.CanonicalTypeNode(EMPTY_POS, mi.offerType().get());
+						}
+						
+						List<TypeParamNode> typeParams = new ArrayList<TypeParamNode>();
+						for(Type pType : mi.typeParameters())
+						{
+							typeParams.add(factory.TypeParamNode(null, factory.Id(null, pType.name())));
+						}
+						
+//						if(mi.guard() != null)
+//						{
+//							for(XTerm xterm : mi.guard().constraints())
+//							{
+//								
+//							}
+//						}
+						
+						String name = mi.name().toString();
+						if(name.equals("operator()"))
+						{
+							name = "operator this";
+						}
+						MethodDecl newMethodDecl = factory.X10MethodDecl(null, flags, returnType, factory.Id(null, name), typeParams, formals, null, offerType, body);
 						
 						StringWriter sw = new StringWriter();
 						CodeWriter cw = new SimpleCodeWriter(sw, 100) {
@@ -183,7 +211,14 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						
 						newMethodDecl.prettyPrint(cw, new CommentPrettyPrinter());
 						cw.flush();
-						edit.addChild(new InsertEdit(offset, sw.toString()));
+						
+						String buf = sw.toString();
+						if(name.equals("operator this"))
+						{
+							buf = buf.replace("def ", "");
+						}
+						
+						edit.addChild(new InsertEdit(offset, buf));
 						edit.addChild(new InsertEdit(offset, lineDelim));
 						edit.addChild(new InsertEdit(offset, lineDelim));
 					} catch (Exception e) {
