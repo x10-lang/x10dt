@@ -231,6 +231,14 @@ public class X10DTCorePlugin extends PluginBase implements IPreferenceChangeList
 
       X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
                      .addPreferenceChangeListener(this);
+
+      // Set some system properties so that the "Help" -> "About Eclipse" -> "Configuration"
+      // page shows what version of the X10 core projects was used to build the X10DT.
+      // The values below are formatted so that the X10DT build system can perform a
+      // substitution with the real tag/revision values. See the target x10dt-checkouts
+      // in the Ant build file x10dt.build/x10dt-build.xml.
+      System.setProperty("x10.core.tag", "%%x10.core.tag%%");
+      System.setProperty("x10.core.revision", "%%x10.core.revision%%");
     }
 
     /**
