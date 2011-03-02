@@ -38,7 +38,8 @@
     <propertyref name="skipDirector"/>
     <propertyref name="skipMirroring"/>
     <propertyref name="topLevelElementId"/>
-    <propertyref name="x10.tag"/>
+    <propertyref name="x10dt.tag"/>
+    <propertyref name="x10dt.revision"/>
   </propertyset>
 
   <!--- Building tasks -->
@@ -118,7 +119,7 @@
 
   <target name="publish-update-site-link" unless="release">
     <antcall target="publishLink">
-      <param name="link.url" value="${publish.site.url}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
+      <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
       <param name="link.label" value="Build ${buildLabel} is available on orquesta's update site." />
     </antcall>
   </target>
@@ -172,7 +173,7 @@
         <include name="*.zip"/>
       </fileset>
     </copy>
-    <unzip dest="${target.folder}" src="${publish.site.loc}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip"/>
+    <unzip dest="${target.folder}" src="${publish.site.loc}/${buildLabel}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip"/>
     <antcall target="publishLink">
       <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" />
       <param name="link.label" value="Release ${buildLabel} update site zip." />
@@ -499,7 +500,7 @@
       <param name="activityId" value="download-lpg" />
       <param name="xml.file" value="dependencies-repo.xml" />
     </antcall>
-    
+
     <antcall target="reportBuildActivity">
       <param name="activityId" value="build-x10-dist" />
       <param name="action.message" value="Build X10 distribution and X10DT fragments..." />
@@ -507,6 +508,9 @@
     <echo message="*** Build X10 distribution and X10DT fragments..." />
     <ant antfile="x10-build.xml"/>
 
+    <!-- Need to invoke the x10dt-build script via the Eclipse antRunner, since unlike
+         the x10build script, it uses p2 tasks and PDE Build, both of which require Ant
+         tasks defined in the Eclipse distribution. -->
     <antcall target="antRunner">
       <param name="action.message" value="Build X10DT..." />
       <param name="activityId" value="build-x10dt-dist" />
