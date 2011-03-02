@@ -21,17 +21,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
-import org.eclipse.imp.language.Language;
-import org.eclipse.imp.language.LanguageRegistry;
-import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.services.ILabelProvider;
-import org.eclipse.imp.utils.MarkerUtils;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -46,11 +38,9 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.FieldDecl;
 import polyglot.ast.Formal;
-import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.PackageNode;
 import polyglot.ast.ProcedureDecl;
-import polyglot.types.Flags;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.Atomic;
@@ -60,6 +50,7 @@ import x10.ast.TypeDecl_c;
 import x10.ast.X10Loop;
 import x10.parser.X10SemanticRules.JPGPosition;
 import x10dt.ui.X10DTUIPlugin;
+import x10dt.ui.typeHierarchy.X10ElementImageProvider;
 
 /**
  * Text and icon labels for X10 Outline View (and possibly others).<br>
@@ -74,85 +65,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     private Set<ILabelProviderListener> fListeners= new HashSet<ILabelProviderListener>();
 
     private static ImageRegistry sImageRegistry= X10DTUIPlugin.getInstance().getImageRegistry();
-
-    public static final String DEFAULT_AST_IMAGE_NAME= "default_ast";
-    private static Image DEFAULT_AST_IMAGE;
-
-    // TODO Shouldn't need all these images - use 1 generic image combined w/ 0+ decorations
-    public static final String COMPILATION_UNIT_NORMAL_IMAGE_NAME= "compilationUnitNormal";
-    public static final String COMPILATION_UNIT_WARNING_IMAGE_NAME= "compilationUnitWarning";
-    public static final String COMPILATION_UNIT_ERROR_IMAGE_NAME= "compilationUnitError";
-    /** Alias image used for type definitions */
-    public static final String ALIAS_IMAGE_NAME="alias";
-
-    private static Image COMPILATION_UNIT_NORMAL_IMAGE;
-    private static Image COMPILATION_UNIT_WARNING_IMAGE;
-    private static Image COMPILATION_UNIT_ERROR_IMAGE;
-    private static Image ALIAS_IMAGE;
-
-    public static final String PROJECT_NORMAL_IMAGE_NAME= "projectNormal";
-    public static final String PROJECT_WARNING_IMAGE_NAME= "projectWarning";
-    public static final String PROJECT_ERROR_IMAGE_NAME= "projectError";
-
-    private static Image PROJECT_NORMAL_IMAGE;
-    private static Image PROJECT_WARNING_IMAGE;
-    private static Image PROJECT_ERROR_IMAGE;
     
-    //================== PORT1.7 Images moved here from Outliner
-    
-    public static Image _DESC_ELCL_VIEW_MENU = JavaPluginImages.DESC_ELCL_VIEW_MENU.createImage();
-
-    /** Images for the default, private, protected, and public versions of fields */
-    public static Image _DESC_FIELD_DEFAULT = JavaPluginImages.DESC_FIELD_DEFAULT.createImage();
-    public static Image _DESC_FIELD_PRIVATE = JavaPluginImages.DESC_FIELD_PRIVATE.createImage();
-    public static Image _DESC_FIELD_PROTECTED = JavaPluginImages.DESC_FIELD_PROTECTED.createImage();
-    public static Image _DESC_FIELD_PUBLIC = JavaPluginImages.DESC_FIELD_PUBLIC.createImage();
-
-    /** Images for the default, private, protected, and public versions of miscellaneous objects */
-    public static Image _DESC_MISC_DEFAULT = JavaPluginImages.DESC_MISC_DEFAULT.createImage();
-    public static Image _DESC_MISC_PRIVATE = JavaPluginImages.DESC_MISC_PRIVATE.createImage();
-    public static Image _DESC_MISC_PROTECTED = JavaPluginImages.DESC_MISC_PROTECTED.createImage();
-    public static Image _DESC_MISC_PUBLIC = JavaPluginImages.DESC_MISC_PUBLIC.createImage();
-
-    public static Image _DESC_OBJS_CFILECLASS = JavaPluginImages.DESC_OBJS_CFILECLASS.createImage();
-    public static Image _DESC_OBJS_CFILEINT = JavaPluginImages.DESC_OBJS_CFILEINT.createImage();
-
-    /** Images for the default, private, protected, and public versions of objects */
-    public static Image _DESC_OBJS_INNER_CLASS_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_CLASS_DEFAULT.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_CLASS_PRIVATE.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_CLASS_PROTECTED.createImage();
-    public static Image _DESC_OBJS_INNER_CLASS_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage();
-
-
-    /** Images for the default, private, protected, and public versions of Interfaces */
-    public static Image _DESC_OBJS_INNER_INTERFACE_DEFAULT = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_DEFAULT.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PRIVATE = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PRIVATE.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PROTECTED = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PROTECTED.createImage();
-    public static Image _DESC_OBJS_INNER_INTERFACE_PUBLIC = JavaPluginImages.DESC_OBJS_INNER_INTERFACE_PUBLIC.createImage();
-
-
-
-    public static Image _DESC_OBJS_PACKDECL = JavaPluginImages.DESC_OBJS_PACKDECL.createImage();
-    
-    
-    public static Image[] FIELD_DESCS= {
-    	X10LabelProvider._DESC_FIELD_DEFAULT, X10LabelProvider._DESC_FIELD_PRIVATE, X10LabelProvider._DESC_FIELD_PROTECTED, X10LabelProvider._DESC_FIELD_PUBLIC
-        };  
-    public static Image[] MISC_DESCS= {
-    	X10LabelProvider._DESC_MISC_DEFAULT, X10LabelProvider._DESC_MISC_PRIVATE, X10LabelProvider._DESC_MISC_PROTECTED, X10LabelProvider._DESC_MISC_PUBLIC
-        };
-    public static Image[] INNER_CLASS_DESCS= {
-    	X10LabelProvider._DESC_OBJS_INNER_CLASS_DEFAULT, X10LabelProvider._DESC_OBJS_INNER_CLASS_PRIVATE, X10LabelProvider._DESC_OBJS_INNER_CLASS_PROTECTED, X10LabelProvider._DESC_OBJS_INNER_CLASS_PUBLIC
-        };
-    public static Image[] INNER_INTF_DESCS= {
-    	X10LabelProvider._DESC_OBJS_INNER_INTERFACE_DEFAULT, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PRIVATE, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PROTECTED, X10LabelProvider._DESC_OBJS_INNER_INTERFACE_PUBLIC
-        };
-    
-    public static final ImageDescriptor DESC_OVR_FOCUS= JavaPluginImages.DESC_OVR_FOCUS;
-	
-    
-    //===================
-
     static {
         // Retrieve all images and put them in the appropriately-named fields
         Class<?> myClass= X10LabelProvider.class;
@@ -187,97 +100,13 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
         }
     }
 
-    private static Image[] CU_IMAGES= { COMPILATION_UNIT_ERROR_IMAGE, COMPILATION_UNIT_WARNING_IMAGE, COMPILATION_UNIT_NORMAL_IMAGE, COMPILATION_UNIT_NORMAL_IMAGE };
-    private static Image[] PROJECT_IMAGES= { PROJECT_ERROR_IMAGE, PROJECT_WARNING_IMAGE, PROJECT_NORMAL_IMAGE, PROJECT_NORMAL_IMAGE };
-
-    private Language fX10Language= LanguageRegistry.findLanguage("x10");
-
+    
     public Image getImage(Object o) {
-        if (o instanceof IResource || o instanceof ISourceEntity) {
-            IResource res= (o instanceof ISourceEntity) ? ((ISourceEntity) o).getResource() : (IResource) o;
-            return getErrorTicksFromMarkers(res);
-        }
-
-        Node node= (o instanceof ModelTreeNode) ?
-                (Node) ((ModelTreeNode) o).getASTNode() :
-                        (Node) o;
-
-        if (node instanceof PackageNode) {
-            return _DESC_OBJS_PACKDECL;
-        
-        } else if (node instanceof ClassDecl) {
-            ClassDecl cd= (ClassDecl) node;
-            return cd.flags().flags().isInterface() ? _DESC_OBJS_CFILEINT : _DESC_OBJS_CFILECLASS;//PORT1.7 flags()->flags().flags()
-        
-        } else if (node instanceof FieldDecl) {
-            FieldDecl fd= (FieldDecl) node;
-            return getImageFromQualifiers(fd.flags().flags(), FIELD_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
-        
-        } else if (node instanceof ProcedureDecl) {
-            ProcedureDecl pd= (ProcedureDecl) node;
-            return getImageFromQualifiers(pd.flags().flags(), MISC_DESCS);//PORT1.7 flags()->flags().flags() (Flags vs FlagsNode)
-        
-        } else if (node instanceof Async || node instanceof AtEach ||
-                /*node instanceof Future ||*/ node instanceof Finish || node instanceof Atomic ||
-                node instanceof Next) {
-            return _DESC_MISC_DEFAULT;
-        
-        } else if (node instanceof New) {//PORT1.7 ArrayConstructor->New (Nate: "with a Closure as an argument")
-            return _DESC_MISC_DEFAULT;
-        
-        } else if (node instanceof TypeDecl_c){
-        	return ALIAS_IMAGE;
-        }
-        return DEFAULT_AST_IMAGE;
+    	X10ElementImageProvider x = new X10ElementImageProvider();
+    	return x.getImageLabel(o, X10ElementImageProvider.OVERLAY_ICONS);
     }
 
-    /**
-     * Get image based on the public/protected/private qualifier
-     * @param flags
-     * @param images
-     * @return
-     */
-    private Image getImageFromQualifiers(Flags flags, Image[] images) {
-        if (flags.isPrivate())
-            return images[1];
-        else if (flags.isProtected())
-            return images[2];
-        else if (flags.isPublic())
-            return images[3];
-        else
-            return images[0];
-    }
-
-    public Image getErrorTicksFromMarkers(IResource res) {
-        if (res instanceof IFile) {
-            IFile file= (IFile) res;
-            boolean found= false;
-
-            for (String ext : fX10Language.getFilenameExtensions()) {
-                if (ext.equals(file.getFileExtension())) {
-                    found= true;
-                }
-            }
-            if (found) {
-                return selectDecoratedImage(res, CU_IMAGES);
-            }
-        }
-        if (res instanceof IProject) {
-            return selectDecoratedImage(res, PROJECT_IMAGES);
-        }
-        return null;
-    }
-
-    private Image selectDecoratedImage(IResource res, Image[] images) {
-        int severity= MarkerUtils.getMaxProblemMarkerSeverity(res, IResource.DEPTH_ONE);
-
-        switch (severity) {
-        case IMarker.SEVERITY_ERROR: return images[0];
-        case IMarker.SEVERITY_WARNING: return images[1];
-        case IMarker.SEVERITY_INFO: return images[2];
-        default: return images[3];
-        }
-    }
+    
 
     public String getText(Object element) {
 		if (element instanceof IType) {

@@ -26,7 +26,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.console.IConsoleConstants;
 import org.eclipse.ui.progress.IProgressConstants;
 
-import x10dt.search.ui.typeHierarchy.X10Constants;
+import x10dt.ui.typeHierarchy.X10Constants;
 
 public class X10PerspectiveFactory implements IPerspectiveFactory {
   public void createInitialLayout(IPageLayout layout) {

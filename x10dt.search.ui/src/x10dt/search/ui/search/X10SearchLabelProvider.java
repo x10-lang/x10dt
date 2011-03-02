@@ -4,8 +4,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 
 import x10dt.search.core.elements.IMemberInfo;
-import x10dt.search.ui.typeHierarchy.SearchUtils;
-import x10dt.search.ui.typeHierarchy.X10LabelProvider;
+import x10dt.ui.typeHierarchy.SearchUtils;
+import x10dt.ui.typeHierarchy.X10LabelProvider;
 
 /**
  * This class provides labels for X10 search matches.

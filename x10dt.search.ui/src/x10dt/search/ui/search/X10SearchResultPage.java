@@ -10,9 +10,9 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.ui.PartInitException;
 
 import x10dt.search.core.elements.IMemberInfo;
-import x10dt.search.ui.typeHierarchy.SearchUtils;
-import x10dt.search.ui.typeHierarchy.X10ElementLabels;
-import x10dt.search.ui.typeHierarchy.X10LabelProvider;
+import x10dt.ui.typeHierarchy.SearchUtils;
+import x10dt.ui.typeHierarchy.X10ElementLabels;
+import x10dt.ui.typeHierarchy.X10LabelProvider;
 
 
 

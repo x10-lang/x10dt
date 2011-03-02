@@ -35,7 +35,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  x10dt.core,
  x10dt.search.core,
  x10dt.ui.launch.core,
- x10dt.search.ui
+ org.eclipse.ui.navigator
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-Activator: x10dt.ui.X10DTUIPlugin
 Export-Package: x10dt.ui,
@@ -44,5 +44,8 @@ Export-Package: x10dt.ui,
  x10dt.ui.launching,
  x10dt.ui.parser,
  x10dt.ui.perspective.actions,
+ x10dt.ui.typeHierarchy,
+ x10dt.ui.typeHierarchy.actions,
+ x10dt.ui.typeHierarchy.dialogs,
  x10dt.ui.utils
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

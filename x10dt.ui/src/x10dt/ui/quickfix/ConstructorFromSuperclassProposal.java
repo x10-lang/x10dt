@@ -35,8 +35,8 @@ import polyglot.visit.PrettyPrinter;
 import x10.ExtensionInfo;
 import x10.ast.X10NodeFactory_c;
 import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.editor.X10LabelProvider;
 import x10dt.ui.parser.PolyglotNodeLocator;
+import x10dt.ui.typeHierarchy.X10PluginImages;
 
 public class ConstructorFromSuperclassProposal extends CUCorrectionProposal {
 	IQuickFixInvocationContext context;
@@ -55,7 +55,7 @@ public class ConstructorFromSuperclassProposal extends CUCorrectionProposal {
 		this.context = context;
 		this.name = name;
 		this.arguments = arguments;
-		setImage(X10LabelProvider._DESC_OBJS_INNER_CLASS_PUBLIC);
+		setImage(X10PluginImages.DESC_OBJS_INNER_CLASS_PUBLIC.createImage());
 	}
 
 	@Override

@@ -14,9 +14,9 @@ import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-import x10dt.search.ui.typeHierarchy.HierarchyInformationControl;
-import x10dt.search.ui.typeHierarchy.TypeElementProvider;
 import x10dt.ui.editor.formatting.IX10Partitions;
+import x10dt.ui.typeHierarchy.HierarchyInformationControl;
+import x10dt.ui.typeHierarchy.TypeElementProvider;
 
 public class X10StructuredSourceViewerConfiguration extends StructuredSourceViewerConfiguration{
 	public X10StructuredSourceViewerConfiguration(IPreferenceStore prefStore, UniversalEditor editor) {

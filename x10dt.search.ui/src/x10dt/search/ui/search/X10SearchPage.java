@@ -47,7 +47,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 
 import x10dt.search.ui.Messages;
-import x10dt.search.ui.typeHierarchy.TextFieldNavigationHandler;
+import x10dt.ui.typeHierarchy.TextFieldNavigationHandler;
 
 /**
  * The X10SearchPage presents the search UI page to the user.

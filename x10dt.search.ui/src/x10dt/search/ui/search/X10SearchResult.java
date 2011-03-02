@@ -10,7 +10,7 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.ui.IEditorPart;
 
 import x10dt.search.core.elements.IMemberInfo;
-import x10dt.search.ui.typeHierarchy.SearchUtils;
+import x10dt.ui.typeHierarchy.SearchUtils;
 public class X10SearchResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
 
 	private final X10SearchQuery fQuery;

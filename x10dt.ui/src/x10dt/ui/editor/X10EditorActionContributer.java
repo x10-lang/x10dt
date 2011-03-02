@@ -7,8 +7,8 @@ import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.RetargetTextEditorAction;
 
-import x10dt.search.ui.Messages;
-import x10dt.search.ui.actions.EditorActionDefinitionIds;
+import x10dt.ui.typeHierarchy.Messages;
+import x10dt.ui.typeHierarchy.actions.EditorActionDefinitionIds;
 
 public class X10EditorActionContributer extends TextEditorActionContributor {
 

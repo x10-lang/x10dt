@@ -10,7 +10,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.contexts.IContextActivation;
 import org.eclipse.ui.contexts.IContextService;
 
-import x10dt.search.ui.typeHierarchy.X10Constants;
+import x10dt.ui.typeHierarchy.X10Constants;
 
 public class EarlyStartup implements IStartup {
 	public IContextService contextService;

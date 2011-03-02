@@ -391,26 +391,20 @@
                label="%OpenTypeInHierarchyAction.label"
                helpContextId="x10dt.ui.open_type_in_hierarchy_action"
                tooltip="%OpenTypeInHierarchyAction.tooltip"
-               class="x10dt.search.ui.actions.OpenTypeInHierarchyAction"
+               class="x10dt.ui.typeHierarchy.actions.OpenTypeInHierarchyAction"
                menubarPath="navigate/open.ext2"
                id="openTypeInHierarchy">
          </action>
          <action
                id="openType"
                toolbarPath="org.eclipse.search.searchActionSet/Search"
-               class="x10dt.search.ui.actions.OpenTypeAction"
+               class="x10dt.ui.typeHierarchy.actions.OpenTypeAction"
                definitionId="x10dt.ui.navigate.OpenType"
                icon="icons/opentype.gif"
                helpContextId="x10dt.ui.open_type_action"
                label="%OpenTypeAction.label"
                menubarPath="navigate/open.ext2"
                tooltip="%OpenTypeAction.tooltip">
-         </action>
-         <action
-               id="openTypeWarning"
-               class="x10dt.search.ui.actions.OpenTypeActionWarning"
-               definitionId="x10dt.ui.navigate.OpenTypeWarning"
-               label="%OpenTypeAction.label">
          </action>
          <action
                definitionId="x10dt.ui.navigate.OpenTypeHierarchy"
@@ -453,7 +447,7 @@
             name="%hierarchyViewName"
             icon="icons/class_hi.gif"
             category="x10dt.ui.developerTools"
-            class="x10dt.search.ui.typeHierarchy.TypeHierarchyViewPart"
+            class="x10dt.ui.typeHierarchy.TypeHierarchyViewPart"
             id="x10dt.ui.TypeHierarchy">
       </view>
    </extension>

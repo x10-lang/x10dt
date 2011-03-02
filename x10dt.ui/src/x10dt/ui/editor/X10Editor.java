@@ -15,11 +15,11 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.texteditor.TextOperationAction;
 
-import x10dt.search.ui.Messages;
-import x10dt.search.ui.actions.EditorActionDefinitionIds;
-import x10dt.search.ui.actions.OpenViewActionGroup;
-import x10dt.search.ui.typeHierarchy.X10Constants;
 import x10dt.ui.X10DTUIPlugin;
+import x10dt.ui.typeHierarchy.Messages;
+import x10dt.ui.typeHierarchy.X10Constants;
+import x10dt.ui.typeHierarchy.actions.EditorActionDefinitionIds;
+import x10dt.ui.typeHierarchy.actions.OpenViewActionGroup;
 
 public class X10Editor extends UniversalEditor {
 	private DefaultPartListener fRefreshContributions;
