@@ -15,11 +15,14 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllMethods;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_Field;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_FieldName;
+import static x10dt.search.core.pdb.X10FactTypeNames.X10_FieldRefs;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_Method;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_MethodName;
+import static x10dt.search.core.pdb.X10FactTypeNames.X10_MethodRefs;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_Type;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeHierarchy;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeName;
+import static x10dt.search.core.pdb.X10FactTypeNames.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -124,34 +127,87 @@ public final class SearchDBTypes {
     final Type typeHierarchy = typeFactory.aliasType(this.fTypeStore, X10_TypeHierarchy, 
                                                      typeFactory.relType(x10Type, x10Type), scopeType);
     
+    final Type methodRefsSetType = typeFactory.setType(typeFactory.tupleType(x10Method, typeFactory.sourceLocationType()));
+    final Type methodRefs = typeFactory.aliasType(this.fTypeStore, X10_MethodRefs, 
+                                                  typeFactory.relType(x10Method, methodRefsSetType, scopeType));
+    final Type fieldRefsSetType = typeFactory.setType(typeFactory.tupleType(x10Field, typeFactory.sourceLocationType()));
+    final Type fieldRefs = typeFactory.aliasType(this.fTypeStore, X10_FieldRefs, 
+                                                 typeFactory.relType(x10Field, fieldRefsSetType, scopeType));
+    final Type mthdToTypeRefsSetType = typeFactory.setType(typeFactory.tupleType(x10Type, typeFactory.sourceLocationType()));
+    final Type mthdToTypeRefs = typeFactory.aliasType(this.fTypeStore, X10_MethodToTypeRefs, 
+                                                      typeFactory.relType(x10Method, mthdToTypeRefsSetType, scopeType));
+    final Type typeToTypeRefsSetType = typeFactory.setType(typeFactory.tupleType(x10Type, typeFactory.sourceLocationType()));
+    final Type typeToTypeRefs = typeFactory.aliasType(this.fTypeStore, X10_TypeToTypeRefs, 
+                                                      typeFactory.relType(x10Type, typeToTypeRefsSetType, scopeType));
+    
     this.fScopedTypeToManager = new HashMap<Pair<String,String>, ITypeManager>(6);
     
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_MethodRefs, APPLICATION), 
+                                  new AllMembersManager(instantiate(methodRefs, scopeType, application)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_MethodRefs, LIBRARY), 
+                                  new AllMembersManager(instantiate(methodRefs, scopeType, library)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_MethodRefs, RUNTIME), 
+                                  new AllMembersManager(instantiate(methodRefs, scopeType, runtime)));
+    
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_FieldRefs, APPLICATION), 
+                                  new AllMembersManager(instantiate(fieldRefs, scopeType, application)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_FieldRefs, LIBRARY), 
+                                  new AllMembersManager(instantiate(fieldRefs, scopeType, library)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_FieldRefs, RUNTIME), 
+                                  new AllMembersManager(instantiate(fieldRefs, scopeType, runtime)));
+    
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_MethodToTypeRefs, APPLICATION), 
+                                  new AllMembersManager(instantiate(mthdToTypeRefs, scopeType, application)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_MethodToTypeRefs, LIBRARY), 
+                                  new AllMembersManager(instantiate(mthdToTypeRefs, scopeType, library)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_MethodToTypeRefs, RUNTIME), 
+                                  new AllMembersManager(instantiate(mthdToTypeRefs, scopeType, runtime)));
+    
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_TypeToTypeRefs, APPLICATION), 
+                                  new AllMembersManager(instantiate(typeToTypeRefs, scopeType, application)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_TypeToTypeRefs, LIBRARY), 
+                                  new AllMembersManager(instantiate(typeToTypeRefs, scopeType, library)));
+    this.fScopedTypeToManager.put(new Pair<String, String>(X10_TypeToTypeRefs, RUNTIME), 
+                                  new AllMembersManager(instantiate(typeToTypeRefs, scopeType, runtime)));
+    
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllMethods, APPLICATION), 
-                                  new AllMethodsManager(instantiate(allMethods, scopeType, application)));
+                                  new AllMembersManager(instantiate(allMethods, scopeType, application),
+                                                        getTypeManager(X10_MethodRefs, APPLICATION)));
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllMethods, LIBRARY), 
-                                  new AllMethodsManager(instantiate(allMethods, scopeType, library)));
+                                  new AllMembersManager(instantiate(allMethods, scopeType, library),
+                                                        getTypeManager(X10_MethodRefs, LIBRARY)));
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllMethods, RUNTIME), 
-                                  new AllMethodsManager(instantiate(allMethods, scopeType, runtime)));
+                                  new AllMembersManager(instantiate(allMethods, scopeType, runtime),
+                                                        getTypeManager(X10_MethodRefs, RUNTIME)));
     
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllFields, APPLICATION), 
-                                  new AllFieldsManager(instantiate(allFields, scopeType, application)));
+                                  new AllMembersManager(instantiate(allFields, scopeType, application),
+                                                        getTypeManager(X10_FieldRefs, APPLICATION)));
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllFields, LIBRARY), 
-                                  new AllFieldsManager(instantiate(allFields, scopeType, library)));
+                                  new AllMembersManager(instantiate(allFields, scopeType, library),
+                                                        getTypeManager(X10_FieldRefs, LIBRARY)));
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllFields, RUNTIME), 
-                                  new AllFieldsManager(instantiate(allFields, scopeType, runtime)));
+                                  new AllMembersManager(instantiate(allFields, scopeType, runtime),
+                                                        getTypeManager(X10_FieldRefs, RUNTIME)));
     
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllTypes, APPLICATION), 
                                   new AllTypesManager(instantiate(allTypes, scopeType, application),
                                                       getTypeManager(X10_AllMethods, APPLICATION),
-                                                      getTypeManager(X10_AllFields, APPLICATION)));
+                                                      getTypeManager(X10_AllFields, APPLICATION),
+                                                      getTypeManager(X10_MethodToTypeRefs, APPLICATION),
+                                                      getTypeManager(X10_TypeToTypeRefs, APPLICATION)));
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllTypes, LIBRARY), 
                                   new AllTypesManager(instantiate(allTypes, scopeType, library),
                                                       getTypeManager(X10_AllMethods, LIBRARY),
-                                                      getTypeManager(X10_AllFields, LIBRARY)));
+                                                      getTypeManager(X10_AllFields, LIBRARY),
+                                                      getTypeManager(X10_MethodToTypeRefs, LIBRARY),
+                                                      getTypeManager(X10_TypeToTypeRefs, LIBRARY)));
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_AllTypes, RUNTIME), 
                                   new AllTypesManager(instantiate(allTypes, scopeType, runtime),
                                                       getTypeManager(X10_AllMethods, RUNTIME),
-                                                      getTypeManager(X10_AllFields, RUNTIME)));
+                                                      getTypeManager(X10_AllFields, RUNTIME),
+                                                      getTypeManager(X10_MethodToTypeRefs, RUNTIME),
+                                                      getTypeManager(X10_TypeToTypeRefs, RUNTIME)));
     
     this.fScopedTypeToManager.put(new Pair<String, String>(X10_TypeHierarchy, APPLICATION), 
                                   new TypeHierarchyManager(instantiate(typeHierarchy, scopeType, application),

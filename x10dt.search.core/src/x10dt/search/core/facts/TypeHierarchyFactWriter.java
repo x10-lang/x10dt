@@ -13,7 +13,13 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.osgi.util.NLS;
 
+import polyglot.ast.Call;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.ConstructorCall;
+import polyglot.ast.Field;
+import polyglot.ast.MethodDecl;
+import polyglot.ast.New;
+import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.Type;
 import x10dt.search.core.Messages;
@@ -24,17 +30,17 @@ final class TypeHierarchyFactWriter extends AbstractFactWriter implements IFactW
   
   TypeHierarchyFactWriter(final String scopeTypeName) {
     super(scopeTypeName);
-    this.fAllMembersFactWriter = new AllMembersFactWriter(scopeTypeName);
+    this.fAllMembersFactWriter = new AllMembersFactWriter(scopeTypeName, true /* shouldComputeReferences */);
   }
 
   // --- Interface methods implementation
-
-  public void writeFacts(final ClassDecl classDecl) {
+  
+  public void classDeclVisitBegin(final ClassDecl classDecl) {
     final ClassType classType = classDecl.classDef().asType();
     if (! classType.position().isCompilerGenerated()) {
-      this.fAllMembersFactWriter.writeFacts(classDecl);
+      this.fAllMembersFactWriter.classDeclVisitBegin(classDecl);
 
-      final ITuple classTypeTuple = createType(classType);
+      final ITuple classTypeTuple = this.fAllMembersFactWriter.findOrCreateType(classType);
 
       final Type superType = classType.superClass();
       final ClassType superClass;
@@ -49,20 +55,54 @@ final class TypeHierarchyFactWriter extends AbstractFactWriter implements IFactW
         }
       }
       if ((superClass != null) && ! superClass.position().isCompilerGenerated()) {
-        insertValue(X10_TypeHierarchy, getValueFactory().tuple(classTypeTuple, createType(superClass)));
+        insertValue(X10_TypeHierarchy, 
+                    getValueFactory().tuple(classTypeTuple, this.fAllMembersFactWriter.findOrCreateType(superClass)));
       }
 
       for (final Type interfaceType : classType.interfaces()) {
         if ((interfaceType != null) && (interfaceType instanceof ClassType) &&
             ! interfaceType.position().isCompilerGenerated()) {
-          insertValue(X10_TypeHierarchy, getValueFactory().tuple(classTypeTuple, createType(interfaceType)));
+          insertValue(X10_TypeHierarchy, 
+                      getValueFactory().tuple(classTypeTuple, this.fAllMembersFactWriter.findOrCreateType(interfaceType)));
         }
       }
     }
   }
   
+  public void classDeclVisitEnd(final ClassDecl classDecl) {
+    this.fAllMembersFactWriter.classDeclVisitEnd(classDecl);
+  }
+  
+  public void methodDeclVisitBegin(final MethodDecl methodDecl) {
+    this.fAllMembersFactWriter.methodDeclVisitBegin(methodDecl);
+  }
+  
+  public void methodDeclVisitEnd(final MethodDecl methodDecl) {
+    this.fAllMembersFactWriter.methodDeclVisitEnd(methodDecl);
+  }
+  
+  public void visit(final Call methodCall) {
+    this.fAllMembersFactWriter.visit(methodCall);
+  }
+
+  public void visit(final New newCall) {
+    this.fAllMembersFactWriter.visit(newCall);
+  }
+
+  public void visit(final ConstructorCall ctorCall) {
+    this.fAllMembersFactWriter.visit(ctorCall);
+  }
+
+  public void visit(final Field fieldAccess) {
+    this.fAllMembersFactWriter.visit(fieldAccess);
+  }
+  
+  public void visit(final TypeNode typeNode) {
+    this.fAllMembersFactWriter.visit(typeNode);
+  }
+  
   // --- Fields
   
-  private final IFactWriter fAllMembersFactWriter;
+  private final AbstractFactWriter fAllMembersFactWriter;
 
 }

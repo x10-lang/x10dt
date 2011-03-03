@@ -12,7 +12,6 @@ import static x10dt.search.core.pdb.X10FactTypeNames.LIBRARY;
 import static x10dt.search.core.pdb.X10FactTypeNames.RUNTIME;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_AllTypes;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeHierarchy;
-import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,17 +29,12 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.indexing.IndexManager;
 
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
@@ -49,6 +43,7 @@ import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.core.pdb.SearchDBTypes;
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
+import x10dt.search.core.utils.PDBValueUtils;
 import x10dt.ui.launch.core.utils.ICountableIterable;
 
 
@@ -67,13 +62,13 @@ final class TypeHierarchy implements ITypeHierarchy {
     this.fAllTypes = new HashSet<ITypeInfo>();
     this.fMainType = typeInfo;
 
-    final FactBase factBase = FactBase.getInstance();
+    final FactBase factBase = SearchCoreActivator.getIndexer().getFactBase();
     final Job buildJob = new Job(Messages.TH_BuildTHJobName) {
       
       // --- Abstract methods implementation
       
       protected IStatus run(final IProgressMonitor jobMonitor) {
-        while (! IndexManager.isAvailable() && ! monitor.isCanceled())
+        while (! SearchCoreActivator.getIndexer().isAvailable() && ! monitor.isCanceled())
           ;
         if (monitor.isCanceled()) {
           return new Status(IStatus.CANCEL, SearchCoreActivator.PLUGIN_ID, Messages.TH_SearchCanceled);
@@ -269,14 +264,7 @@ final class TypeHierarchy implements ITypeHierarchy {
     final Queue<IValue> subTypesWork = new LinkedList<IValue>();
     final Queue<IValue> superTypesWork = new LinkedList<IValue>();
     
-    final IValueFactory valueFactory = ValueFactory.getInstance();
-    final IValue typeName = SearchDBTypes.getInstance().getType(X10_TypeName).make(valueFactory, this.fMainType.getName());
-    final ISourceLocation sourceLoc = this.fMainType.getLocation();
-    final IValue location = valueFactory.sourceLocation(sourceLoc.getURI(), sourceLoc.getOffset(), sourceLoc.getLength(), 
-                                                        sourceLoc.getBeginLine(), sourceLoc.getEndLine(), 
-                                                        sourceLoc.getBeginColumn(), sourceLoc.getEndColumn());
-    final IValue modifier = TypeFactory.getInstance().integerType().make(valueFactory, this.fMainType.getX10FlagsCode());
-    final IValue typeTuple = valueFactory.tuple(typeName, location, modifier);
+    final IValue typeTuple = PDBValueUtils.convert(this.fMainType);
     
     subTypesWork.add(typeTuple);
     superTypesWork.add(typeTuple);

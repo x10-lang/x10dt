@@ -24,10 +24,5 @@
          </signatureDescriptor>
       </analyzerFactory>
    </extension>
-   <extension
-         point="org.eclipse.ui.startup">
-      <startup
-            class="x10dt.search.core.SearchCoreActivator"></startup>
-   </extension>
 
 </plugin>

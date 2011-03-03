@@ -18,15 +18,16 @@ public final class FactWriterFactory {
    * Creates an implementation of {@link IFactWriter} that collects all types, methods and fields of a given class declaration.
    * 
    * @param scopeTypeName The scope type name to use for the fact writer.
+   * @param shouldComputeReferences Indicates if the references should also be collected or not.
    * @return A non-null implementation of {@link IFactWriter}.
    */
-  public static IFactWriter createAllMembersFactWriter(final String scopeTypeName) {
-    return new AllMembersFactWriter(scopeTypeName);
+  public static IFactWriter createAllMembersFactWriter(final String scopeTypeName, final boolean shouldComputeReferences) {
+    return new AllMembersFactWriter(scopeTypeName, shouldComputeReferences);
   }
   
   /**
    * Creates an implementation of {@link IFactWriter} that collects all types, methods and fields of a given class 
-   * declaration, as well as its superclass and interfaces.
+   * declaration with its references, as well as its superclass and interfaces.
    * 
    * @param scopeTypeName The scope type name to use for the fact writer.
    * @return A non-null implementation of {@link IFactWriter}.

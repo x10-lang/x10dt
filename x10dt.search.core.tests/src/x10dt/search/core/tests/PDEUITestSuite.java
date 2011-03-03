@@ -10,8 +10,10 @@ package x10dt.search.core.tests;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import x10dt.search.core.engine.FieldReferencesTests;
 import x10dt.search.core.engine.HelloWholeWorldTests;
 import x10dt.search.core.engine.MethodAndFieldTests;
+import x10dt.search.core.engine.MethodReferencesTests;
 import x10dt.search.core.engine.SearchScopeTests;
 import x10dt.search.core.engine.TypeHierarchyTests;
 
@@ -22,6 +24,6 @@ import x10dt.search.core.engine.TypeHierarchyTests;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ HelloWholeWorldTests.class, MethodAndFieldTests.class, SearchScopeTests.class, 
-                      TypeHierarchyTests.class })
+                      TypeHierarchyTests.class, MethodReferencesTests.class, FieldReferencesTests.class })
 public final class PDEUITestSuite {
 }

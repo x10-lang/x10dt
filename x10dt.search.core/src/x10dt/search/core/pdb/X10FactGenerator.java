@@ -39,13 +39,14 @@ import org.eclipse.imp.pdb.analysis.AnalysisException;
 import org.eclipse.imp.pdb.analysis.IFactGenerator;
 import org.eclipse.imp.pdb.analysis.IFactUpdater;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.ISourceEntityContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.utils.UnimplementedError;
+import org.eclipse.imp.pdb.indexing.IndexedDocumentDescriptor;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -71,18 +72,19 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
     this.fIndexingCompiler = new IndexingCompiler();
     this.fSearchDBTypes = searchDBTypes;
   }
-
+  
   // --- IFactGenerator's interface methods implementation
   
-  public void generate(final FactBase factBase, final Type type, final IFactContext context) throws AnalysisException {
-    // Should never be called by the indexer.
-    throw new UnimplementedError();
+  public IValue generate(final Type type, final IFactContext context, 
+                         final Map<IResource, IndexedDocumentDescriptor> workingCopies) {
+    return null;
   }
   
   // --- IFactUpdater's interface methods implementation
 
-  public void update(final FactBase factBase, final Type type, final IFactContext context, 
-                     final IResource resource) throws AnalysisException {
+  public void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource, 
+                     final int changeKind, 
+                     final Map<IResource, IndexedDocumentDescriptor> workingCopies) throws AnalysisException {
     if (context instanceof ISourceEntityContext) {
       final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
       if (cmpOptBuilder != null) {
@@ -134,6 +136,11 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         }
       }
     }
+  }
+  
+  public void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource, 
+                     final Map<IResource, IndexedDocumentDescriptor> workingCopies) throws AnalysisException {
+    
   }
   
   // --- Private code
@@ -245,9 +252,6 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
           public boolean visit(final IResource resource) throws CoreException {
             if (resource.getType() == IResource.FILE) {
               final IFile file = (IFile) resource;
-//              if (! file.isSynchronized(IResource.DEPTH_ZERO)) {
-//                file.refreshLocal(IResource.DEPTH_ZERO, null);
-//              }
               final IPath location  = file.getLocation();
               if (location != null) {
                 final File localFile = location.toFile();

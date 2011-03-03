@@ -77,6 +77,30 @@ public final class X10FactTypeNames {
    */
   public static final String X10_TypeHierarchy = "x10.typeHierarchy"; //$NON-NLS-1$
   
+  /**
+   * Fact type name identifying all X10 method references defined for an X10 method as a binary relation of a subset of
+   * ({@link #X10_Method} X set(({@link #X10_Method} X {@link ISourceLocation})).
+   */
+  public static final String X10_MethodRefs = "x10.method.references"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying all X10 field references defined for an X10 method as a binary relation of a subset of
+   * ({@link #X10_Method} X set(({@link #X10_Field} X {@link ISourceLocation})).
+   */
+  public static final String X10_FieldRefs = "x10.field.references"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying all X10 type references defined for an X10 method as a binary relation of a subset of
+   * ({@link #X10_Method} X set(({@link #X10_Type} X {@link ISourceLocation})).
+   */
+  public static final String X10_MethodToTypeRefs = "x10.method.type.references"; //$NON-NLS-1$
+  
+  /**
+   * Fact type name identifying all X10 type references defined for an X10 type as a binary relation of a subset of
+   * ({@link #X10_Type} X set(({@link #X10_Type} X {@link ISourceLocation})).
+   */
+  public static final String X10_TypeToTypeRefs = "x10.type.type.references"; //$NON-NLS-1$
+  
   // --- Scope
   
   /**

@@ -48,14 +48,6 @@ public interface ITypeManager {
   public NodeVisitor createNodeVisitor(final String scopeTypeName);
   
   /**
-   * Transfers the data in the "writer" within the fact database.
-   * 
-   * @param factBase The fact database instance to consider.
-   * @param factContext The context to use in order to identify uniquely the fact key for the current type.
-   */
-  public void writeDataInFactBase(final FactBase factBase, final IFactContext factContext);
-  
-  /**
    * Returns the current type managed by this manager.
    * 
    * @return A non-null {@link Type} instance.
@@ -69,11 +61,6 @@ public interface ITypeManager {
    * otherwise <b>null</b>.
    */
   public IWriter getWriter();
-  
-  /**
-   * Creates and initializes an empty writer for the current type.
-   */
-  public void initWriter();
   
   /**
    * Creates and initializes a writer from the previous state found in the fact database, and makes an appropriate update
@@ -95,5 +82,13 @@ public interface ITypeManager {
    * @param factContext The context to use in order to identify uniquely the fact key for the current type.
    */
   public void loadIndexingFile(final FactBase factBase, final IFactContext factContext);
+  
+  /**
+   * Transfers the data in the "writer" within the fact database.
+   * 
+   * @param factBase The fact database instance to consider.
+   * @param factContext The context to use in order to identify uniquely the fact key for the current type.
+   */
+  public void writeDataInFactBase(final FactBase factBase, final IFactContext factContext);
 
 }

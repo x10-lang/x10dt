@@ -19,54 +19,34 @@ import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.IFactKey;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.visit.NodeVisitor;
 import x10dt.search.core.Messages;
+import x10dt.search.core.facts.FactWriterFactory;
 
 
 
 final class TypeHierarchyManager extends AbstractTypeManager implements ITypeManager {
   
   TypeHierarchyManager(final Type type, final ITypeManager allTypesManager) {
-    super(type);
-    this.fAllTypesManager = allTypesManager;
+    super(type, allTypesManager);
+    this.fAllTypesManager = (AllTypesManager) allTypesManager;
   }
   
   // --- Interface methods implementation
   
-  public void clearWriter() {
-    this.fAllTypesManager.clearWriter();
-    super.fWriter = null;
-  }
-  
-  public void createIndexingFile(final FactBase factBase, final IFactContext factContext) {
-    this.fAllTypesManager.createIndexingFile(factBase, factContext);
-    createIndexingFile(factBase.queryFact(new FactKey(getType(), factContext)));
-  }
-  
   public NodeVisitor createNodeVisitor(final String scopeTypeName) {
-    return new TypeHierarchyFactWriterVisitor(scopeTypeName);
-  }
-  
-  public void writeDataInFactBase(final FactBase factBase, final IFactContext factContext) {
-    this.fAllTypesManager.writeDataInFactBase(factBase, factContext);
-    factBase.defineFact(new FactKey(getType(), factContext), getWriter().done());
-  }
-  
-  public final void initWriter() {
-    this.fAllTypesManager.initWriter();
-    super.fWriter = getType().writer(ValueFactory.getInstance());
+    return new FactWriterVisitor(FactWriterFactory.createTypeHierarchyFactWriter(scopeTypeName));
   }
   
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
-    final Set<ITuple> typesToRemove = new HashSet<ITuple>();
-    ((AllTypesManager) this.fAllTypesManager).initWriter(factBase, factContext, resource, typesToRemove);
+    initWriter();
     
-    super.fWriter = getType().writer(ValueFactory.getInstance());
+    final Set<ITuple> typesToRemove = new HashSet<ITuple>();
+    this.fAllTypesManager.initWriter(factBase, factContext, resource, typesToRemove);
     
     final IFactKey key = new FactKey(getType(), factContext);
     if (factBase.getAllKeys().contains(key)) {
@@ -83,13 +63,8 @@ final class TypeHierarchyManager extends AbstractTypeManager implements ITypeMan
     }
   }
   
-  public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
-    this.fAllTypesManager.loadIndexingFile(factBase, factContext);
-    loadIndexingFileForManagedType(factBase, factContext);
-  }
+  // --- Private code
   
-  // --- Fields
-  
-  private final ITypeManager fAllTypesManager;
+  private final AllTypesManager fAllTypesManager;
 
 }

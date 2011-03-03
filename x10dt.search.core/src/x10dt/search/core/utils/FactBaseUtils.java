@@ -13,8 +13,8 @@ import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.indexing.IndexManager;
 
+import x10dt.search.core.SearchCoreActivator;
 import x10dt.search.core.pdb.SearchDBTypes;
 
 /**
@@ -38,7 +38,7 @@ public final class FactBaseUtils {
    */
   public static ISet getFactBaseSetValue(final FactBase factBase, final Type type, final IFactContext context, 
                                          final IProgressMonitor monitor) throws InterruptedException {
-    while (! IndexManager.isAvailable() && ! monitor.isCanceled()) {
+    while (! SearchCoreActivator.getIndexer().isAvailable() && ! monitor.isCanceled()) {
       synchronized (Thread.currentThread()) {
         Thread.currentThread().wait(500);
       }

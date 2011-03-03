@@ -12,7 +12,9 @@ import static x10dt.search.core.pdb.X10FactTypeNames.X10_MethodName;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -29,6 +31,8 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.MethodDef;
 import polyglot.types.Ref;
+import polyglot.types.Type_c;
+import polyglot.types.UnknownType;
 import polyglot.util.Position;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
@@ -53,82 +57,16 @@ abstract class AbstractFactWriter implements IFactWriter {
     
     this.fVoidType = this.fValueFactory.tuple(createTypeName("void")); //$NON-NLS-1$
     this.fThisMethodName = this.fMethodName.make(this.fValueFactory, "this"); //$NON-NLS-1$
+    
+    this.fTypeToValue = new HashMap<polyglot.types.Type, ITuple>(128);
+    this.fMethodToValue = new HashMap<MethodDef, IValue>(512);
+    this.fCtorToValue = new HashMap<ConstructorDef, IValue>(128);
+    this.fFieldToValue = new HashMap<FieldDef, IValue>(256);
   }
   
   // --- Code for sub-classes
   
-  protected final IValue createConstructorValue(final ConstructorDef methodDef) {
-    final List<Ref<? extends polyglot.types.Type>> formalTypes = methodDef.formalTypes();
-    final IValue[] args = new IValue[formalTypes.size()];
-    int i = -1;
-    for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createType(formalType.get());
-    }
-    return getValueFactory().tuple(getSourceLocation(methodDef.position()), this.fThisMethodName, this.fVoidType,  
-                                   getValueFactory().list(args), createModifiersCodeValue(methodDef.flags()));
-  }
-  
-  protected final IValue createFieldValue(final FieldDef fieldDef) {
-    return getValueFactory().tuple(getSourceLocation(fieldDef.position()), 
-                                   this.fFieldName.make(getValueFactory(), fieldDef.name().toString()),
-                                   createType(fieldDef.asInstance().type()), createModifiersCodeValue(fieldDef.flags()));
-  }
-  
-  protected final IValue createMethodValue(final MethodDef methodDef) {
-    final List<Ref<? extends polyglot.types.Type>> formalTypes = methodDef.formalTypes();
-    final IValue[] args = new IValue[formalTypes.size()];
-    int i = -1;
-    for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createType(formalType.get());
-    }
-    return getValueFactory().tuple(getSourceLocation(methodDef.position()),
-                                   this.fMethodName.make(getValueFactory(), methodDef.name().toString()),
-                                   createType(methodDef.returnType().get()), getValueFactory().list(args),
-                                   createModifiersCodeValue(methodDef.flags()));
-  }
-  
-  protected final IValue createModifiersCodeValue(final Flags flags) {
-    return this.fIntType.make(this.fValueFactory, new X10FlagsEncoder(flags).getCode());
-  }
-  
-  protected final ITuple createType(final polyglot.types.Type type) {
-    if (type instanceof FunctionType) {
-      if (type.position().isCompilerGenerated()) {
-        return getValueFactory().tuple(createTypeName(type.toString()));
-      } else {
-        return getValueFactory().tuple(createTypeName(type.toString()), getSourceLocation(type.position()),
-                                       this.fIntType.make(this.fValueFactory, -1));
-      }
-    } else if (type instanceof ClassType) {
-      final ClassType classType = (ClassType) type;
-      if (classType.outer() == null) {
-        return getValueFactory().tuple(createTypeName(type.fullName().toString()), getSourceLocation(type.position()),
-                                       createModifiersCodeValue(classType.flags()));
-      } else {
-        final IValue outerTypeNameValue = createTypeName(classType.outer().fullName().toString());
-        return getValueFactory().tuple(createTypeName(type.fullName().toString()), getSourceLocation(type.position()),
-                                       createModifiersCodeValue(classType.flags()), outerTypeNameValue);
-      }
-    } else if (type instanceof ConstrainedType) {
-      return createType(((ConstrainedType) type).baseType().get());
-    } else if (type instanceof ParameterType) {
-      return getValueFactory().tuple(createTypeName('[' + type.fullName().toString()), getSourceLocation(type.position()), 
-                                     this.fIntType.make(this.fValueFactory, -1));
-    } else {
-      if (type.position() == null) {
-        return getValueFactory().tuple(createTypeName(type.fullName().toString()));
-      } else {
-        return getValueFactory().tuple(createTypeName(type.fullName().toString()), getSourceLocation(type.position()), 
-                                       this.fIntType.make(this.fValueFactory, -1));
-      }
-    }
-  }
-  
-  protected final IValue createTypeName(final String typeName) {
-    return this.fTypeName.make(this.fValueFactory, typeName);
-  }
-
-  protected final ISourceLocation getSourceLocation(final Position position) {
+  protected final ISourceLocation createSourceLocation(final Position position) {
     final StringBuilder scheme = new StringBuilder();
     if (position.file().contains(".jar:")) { //$NON-NLS-1$
       scheme.append("jar:"); //$NON-NLS-1$
@@ -149,16 +87,137 @@ abstract class AbstractFactWriter implements IFactWriter {
     }
   }
   
-  protected final ITypeManager getTypeManager(final String typeName) {
-    return SearchDBTypes.getInstance().getTypeManager(typeName, this.fScopeTypeName);
-  }
-  
   protected final IValueFactory getValueFactory() {
     return this.fValueFactory;
   }
   
+  protected final IValue findOrCreateField(final FieldDef fieldDef) {
+    final IValue value = this.fFieldToValue.get(fieldDef);
+    if (value == null) {
+      final IValue newValue = createFieldValue(fieldDef);
+      this.fFieldToValue.put(fieldDef, newValue);
+      return newValue;
+    } else {
+      return value;
+    }
+  }
+  
+  protected final IValue findOrCreateConstructor(final ConstructorDef ctorDef) {
+    final IValue value = this.fCtorToValue.get(ctorDef);
+    if (value == null) {
+      final IValue newValue = createConstructorValue(ctorDef);
+      this.fCtorToValue.put(ctorDef, newValue);
+      return newValue;
+    } else {
+      return value;
+    }
+  }
+  
+  protected final IValue findOrCreateMethod(final MethodDef methodDef) {
+    final IValue value = this.fMethodToValue.get(methodDef);
+    if (value == null) {
+      final IValue newValue = createMethodValue(methodDef);
+      this.fMethodToValue.put(methodDef, newValue);
+      return newValue;
+    } else {
+      return value;
+    }
+  }
+  
+  protected final ITuple findOrCreateType(final polyglot.types.Type type) {
+    final ITuple tuple = this.fTypeToValue.get(type);
+    if (tuple == null) {
+      final ITuple newTuple = createType(type);
+      this.fTypeToValue.put(type, newTuple);
+      return newTuple;
+    } else {
+      return tuple;
+    }
+  }
+  
   protected final void insertValue(final String typeName, final IValue ... values) {
     getTypeManager(typeName).getWriter().insert(values);
+  }
+  
+  // --- Private code
+  
+  private IValue createConstructorValue(final ConstructorDef methodDef) {
+    final List<Ref<? extends polyglot.types.Type>> formalTypes = methodDef.formalTypes();
+    final IValue[] args = new IValue[formalTypes.size()];
+    int i = -1;
+    for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
+      args[++i] = createType(formalType.get());
+    }
+    return getValueFactory().tuple(createSourceLocation(methodDef.position()), this.fThisMethodName, this.fVoidType,  
+                                   getValueFactory().list(args), createModifiersCodeValue(methodDef.flags()));
+  }
+  
+  private IValue createFieldValue(final FieldDef fieldDef) {
+    return getValueFactory().tuple(createSourceLocation(fieldDef.position()), 
+                                   this.fFieldName.make(getValueFactory(), fieldDef.name().toString()),
+                                   createType(fieldDef.asInstance().type()), createModifiersCodeValue(fieldDef.flags()));
+  }
+  
+  private IValue createMethodValue(final MethodDef methodDef) {
+    final List<Ref<? extends polyglot.types.Type>> formalTypes = methodDef.formalTypes();
+    final IValue[] args = new IValue[formalTypes.size()];
+    int i = -1;
+    for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
+      args[++i] = createType(formalType.get());
+    }
+    return getValueFactory().tuple(createSourceLocation(methodDef.position()),
+                                   this.fMethodName.make(getValueFactory(), methodDef.name().toString()),
+                                   createType(methodDef.returnType().get()), getValueFactory().list(args),
+                                   createModifiersCodeValue(methodDef.flags()));
+  }
+  
+  private IValue createModifiersCodeValue(final Flags flags) {
+    return this.fIntType.make(this.fValueFactory, new X10FlagsEncoder(flags).getCode());
+  }
+  
+  private ITuple createType(final polyglot.types.Type type) {
+    if (type instanceof FunctionType) {
+      if (type.position().isCompilerGenerated()) {
+        return getValueFactory().tuple(createTypeName(type.toString()));
+      } else {
+        return getValueFactory().tuple(createTypeName(type.toString()), createSourceLocation(type.position()),
+                                       this.fIntType.make(this.fValueFactory, -1));
+      }
+    } else if (type instanceof ClassType) {
+      final ClassType classType = (ClassType) type;
+      if (classType.outer() == null) {
+        return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
+                                       createModifiersCodeValue(classType.flags()));
+      } else {
+        final IValue outerTypeNameValue = createTypeName(classType.outer().fullName().toString());
+        return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
+                                       createModifiersCodeValue(classType.flags()), outerTypeNameValue);
+      }
+    } else if (type instanceof ConstrainedType) {
+      return createType(((ConstrainedType) type).baseType().get());
+    } else if (type instanceof ParameterType) {
+      return getValueFactory().tuple(createTypeName('[' + type.fullName().toString()), createSourceLocation(type.position()), 
+                                     this.fIntType.make(this.fValueFactory, -1));
+    } else {
+      if (type.position() == null) {
+        if (type instanceof UnknownType) {
+          return getValueFactory().tuple(createTypeName(((Type_c) type).typeToString()));
+        } else {
+          return getValueFactory().tuple(createTypeName(type.fullName().toString()));
+        }
+      } else {
+        return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()), 
+                                       this.fIntType.make(this.fValueFactory, -1));
+      }
+    }
+  }
+  
+  private IValue createTypeName(final String typeName) {
+    return this.fTypeName.make(this.fValueFactory, typeName);
+  }
+  
+  private ITypeManager getTypeManager(final String typeName) {
+    return SearchDBTypes.getInstance().getTypeManager(typeName, this.fScopeTypeName);
   }
   
   // --- Fields
@@ -176,6 +235,14 @@ abstract class AbstractFactWriter implements IFactWriter {
   private final IValue fVoidType;
   
   private final IValue fThisMethodName;
+  
+  private final Map<polyglot.types.Type, ITuple> fTypeToValue;
+  
+  private final Map<ConstructorDef, IValue> fCtorToValue;
+  
+  private final Map<MethodDef, IValue> fMethodToValue;
+  
+  private final Map<FieldDef, IValue> fFieldToValue;
   
   
   private String fScopeTypeName;

@@ -21,63 +21,31 @@ import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.IFactKey;
-import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.visit.NodeVisitor;
 import x10dt.search.core.Messages;
+import x10dt.search.core.facts.FactWriterFactory;
 import x10dt.ui.launch.core.utils.IFilter;
 
 
 
 final class AllTypesManager extends AbstractTypeManager implements ITypeManager {
   
-  AllTypesManager(final Type type, final ITypeManager allMethodsManager, final ITypeManager allFieldsManager) {
-    super(type);
-    this.fAllMethodsManager = allMethodsManager;
-    this.fAllFieldsManager = allFieldsManager;
+  AllTypesManager(final Type type, final ITypeManager ... dependentManagers) {
+    super(type, dependentManagers);
   }
   
   // --- Interface methods implementation
   
-  public void clearWriter() {
-    this.fAllMethodsManager.clearWriter();
-    this.fAllFieldsManager.clearWriter();
-    super.fWriter = null;
-  }
-  
-  public void createIndexingFile(final FactBase factBase, final IFactContext factContext) {
-    this.fAllMethodsManager.createIndexingFile(factBase, factContext);
-    this.fAllFieldsManager.createIndexingFile(factBase, factContext);
-    createIndexingFile(factBase.queryFact(new FactKey(getType(), factContext)));
-  }
-  
   public NodeVisitor createNodeVisitor(final String scopeTypeName) {
-    return new AllMembersFactWriterVisitor(scopeTypeName);
-  }
-  
-  public void writeDataInFactBase(final FactBase factBase, final IFactContext factContext) {
-    this.fAllMethodsManager.writeDataInFactBase(factBase, factContext);
-    this.fAllFieldsManager.writeDataInFactBase(factBase, factContext);
-    factBase.defineFact(new FactKey(getType(), factContext), getWriter().done());
-  }
-  
-  public final void initWriter() {
-    this.fAllMethodsManager.initWriter();
-    this.fAllFieldsManager.initWriter();
-    super.fWriter = getType().writer(ValueFactory.getInstance());
+    return new FactWriterVisitor(FactWriterFactory.createAllMembersFactWriter(scopeTypeName, true));
   }
 
   public void initWriter(final FactBase factBase, final IFactContext factContext, 
                          final IResource resource) throws AnalysisException {
     initWriter(factBase, factContext, resource, new HashSet<ITuple>());
-  }
-  
-  public void loadIndexingFile(final FactBase factBase, final IFactContext factContext) {
-    this.fAllMethodsManager.loadIndexingFile(factBase, factContext);
-    this.fAllFieldsManager.loadIndexingFile(factBase, factContext);
-    loadIndexingFileForManagedType(factBase, factContext);
   }
   
   // --- Internal services
@@ -110,8 +78,9 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
       }
     }
     
-    ((AllMethodsManager) this.fAllMethodsManager).initWriter(factBase, factContext, typesToRemove);
-    ((AllFieldsManager) this.fAllFieldsManager).initWriter(factBase, factContext, typesToRemove);
+    for (final ITypeManager typeManager : getDependentManagers()) {
+      ((AbstractTypeManager) typeManager).initWriter(factBase, factContext, typesToRemove);
+    }
   }
   
   // --- Private classes
@@ -153,11 +122,5 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
     private final URI fLocationURI;
     
   }
-  
-  // --- Fields
-  
-  private final ITypeManager fAllMethodsManager;
-  
-  private final ITypeManager fAllFieldsManager;
-
+    
 }
