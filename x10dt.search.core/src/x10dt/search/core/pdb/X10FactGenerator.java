@@ -28,6 +28,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -43,7 +44,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
-import org.eclipse.imp.pdb.facts.db.context.ISourceEntityContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.indexing.IndexedDocumentDescriptor;
@@ -85,62 +85,39 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   public void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource, 
                      final int changeKind, 
                      final Map<IResource, IndexedDocumentDescriptor> workingCopies) throws AnalysisException {
-    if (context instanceof ISourceEntityContext) {
+    if (changeKind == IResourceDelta.REMOVED) {
+      final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
+      try {
+        typeManager.initWriter(factBase, context, resource);
+        typeManager.writeDataInFactBase(factBase, context);
+      } finally {
+        typeManager.clearWriter();
+      }
+    } else {
       final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
       if (cmpOptBuilder != null) {
-        final Set<Map.Entry<String, Collection<Source>>> entries = cmpOptBuilder.getSourceEntrySet();
-        if (entries.isEmpty()) {
-          final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
-          try {
-            typeManager.initWriter(factBase, context, resource);
-            typeManager.writeDataInFactBase(factBase, context);
-          } finally {
-            typeManager.clearWriter();
-          }
-        } else {
-          for (final Map.Entry<String, Collection<Source>> entry : entries) {
-            final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
-
-            final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
-
-            if (RUNTIME.equals(entry.getKey())) {
-              typeManager.loadIndexingFile(factBase, factContext);
-
-              final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
-              if ((value != null) && !value.isEmpty()) {
-                continue; // We build the type info for the runtime context only one time.
-              }
-            }
-            typeManager.initWriter(factBase, factContext, resource);
-
-            final NodeVisitor visitor = typeManager.createNodeVisitor(entry.getKey());
-            try {
-              for (final Job job : this.fIndexingCompiler.compile(cmpOptBuilder.getClassPath(), cmpOptBuilder.getSourcePath(),
-                                                                  entry.getValue())) {
-                if (job.ast() != null) {
-                  job.ast().visit(visitor);
-                }
-              }
-
-              typeManager.writeDataInFactBase(factBase, factContext);
-
-              if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
-                typeManager.createIndexingFile(factBase, factContext);
-              }
-            } catch (Throwable except) {
-              SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
-            } finally {
-              typeManager.clearWriter();
-            }
-          }
-        }
+        update(factBase, type, context, resource, cmpOptBuilder, cmpOptBuilder.getSourceEntrySet());
       }
     }
   }
   
   public void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource, 
                      final Map<IResource, IndexedDocumentDescriptor> workingCopies) throws AnalysisException {
-    
+    final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
+    if (cmpOptBuilder != null) {
+      final Set<Map.Entry<String, Collection<Source>>> entries = cmpOptBuilder.getSourceEntrySet();
+      if (entries.isEmpty()) {
+        final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
+        try {
+          typeManager.initWriter(factBase, context, resource);
+          typeManager.writeDataInFactBase(factBase, context);
+        } finally {
+          typeManager.clearWriter();
+        }
+      } else {
+        update(factBase, type, context, resource, cmpOptBuilder, entries);
+      }
+    }
   }
   
   // --- Private code
@@ -286,6 +263,46 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
           cmpOptBuilder.addSource(isInRuntime ? X10FactTypeNames.RUNTIME : X10FactTypeNames.LIBRARY,
                                               new FileSource(new ZipResource(file, zipFile, entry.getName())));
         }
+      }
+    }
+  }
+  
+  private void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource,
+                      final CompilerOptionsBuilder cmpOptBuilder, 
+                      final Set<Map.Entry<String, Collection<Source>>> entries) throws AnalysisException {
+    for (final Map.Entry<String, Collection<Source>> entry : entries) {
+      final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
+
+      final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), entry.getKey());
+
+      if (RUNTIME.equals(entry.getKey())) {
+        typeManager.loadIndexingFile(factBase, factContext);
+
+        final ISet value = (ISet) factBase.queryFact(new FactKey(typeManager.getType(), factContext));
+        if ((value != null) && !value.isEmpty()) {
+          continue; // We build the type info for the runtime context only one time.
+        }
+      }
+      typeManager.initWriter(factBase, factContext, resource);
+
+      final NodeVisitor visitor = typeManager.createNodeVisitor(entry.getKey());
+      try {
+        for (final Job job : this.fIndexingCompiler.compile(cmpOptBuilder.getClassPath(), cmpOptBuilder.getSourcePath(),
+                                                            entry.getValue())) {
+          if (job.ast() != null) {
+            job.ast().visit(visitor);
+          }
+        }
+
+        typeManager.writeDataInFactBase(factBase, factContext);
+
+        if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
+          typeManager.createIndexingFile(factBase, factContext);
+        }
+      } catch (Throwable except) {
+        SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
+      } finally {
+        typeManager.clearWriter();
       }
     }
   }
