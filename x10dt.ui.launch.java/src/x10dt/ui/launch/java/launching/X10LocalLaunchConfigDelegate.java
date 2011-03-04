@@ -9,21 +9,18 @@ package x10dt.ui.launch.java.launching;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
-import org.osgi.framework.Bundle;
 
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.java.Activator;
 import x10dt.ui.launch.java.Messages;
@@ -41,20 +38,16 @@ final class X10LocalLaunchConfigDelegate extends AbstractJavaLaunchConfiguration
   // --- Internal services
   
   File getX10DistHostLauncherDir(final String fileName) throws CoreException {
-    final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
-    final URL url = x10DistBundle.getResource(fileName);
     try {
-      return new File(FileLocator.resolve(url).getFile());
+      return new File(X10BundleUtils.getX10DistHostResource(fileName).getFile());
     } catch (IOException except) {
       throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.XLCD_NoLaunchersDir, except));
     }
   }
   
   File getX10DistHostLibDir() throws CoreException {
-    final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
-    final URL url = x10DistBundle.getResource("lib"); //$NON-NLS-1$
     try {
-      return new File(FileLocator.resolve(url).getFile());
+      return new File(X10BundleUtils.getX10DistHostResource("lib").getFile()); //$NON-NLS-1$
     } catch (IOException except) {
       throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.XLCD_NoLibDir, except));
     }

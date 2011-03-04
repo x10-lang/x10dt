@@ -12,12 +12,9 @@ import static x10dt.tests.services.swbot.constants.WizardConstants.X10_PROJECT_C
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
 
 import junit.framework.Assert;
 
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.swt.SWT;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
@@ -34,8 +31,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.osgi.framework.Bundle;
 
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.PlatformConfConstants;
 import x10dt.tests.services.swbot.constants.ViewConstants;
@@ -44,7 +41,6 @@ import x10dt.tests.services.swbot.utils.PerspectiveUtils;
 import x10dt.tests.services.swbot.utils.ProblemsViewUtils;
 import x10dt.tests.services.swbot.utils.ProjectUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
-import x10dt.ui.launch.core.Constants;
 
 /**
  * Tests a local and remote (to localhost) launch of Hello World program with C++ back-end.
@@ -150,9 +146,7 @@ public final class LocalAndRemoteLaunchTest {
     final String tempDir = System.getProperty("java.io.tmpdir"); //$NON-NLS-1$
     final String outputFolder = String.format("%s/test", tempDir); //$NON-NLS-1$
     editorBot.textWithLabel(PlatformConfConstants.OUTPUT_FOLDER_TEXT_LABEL).setText(outputFolder);
-    final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
-    final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
-    final String x10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
+    final String x10DistLoc = new File(X10BundleUtils.getX10DistHostResource("include").getFile()).getParent(); //$NON-NLS-1$
     editorBot.textWithLabel(PlatformConfConstants.X10_DIST_TEXT_LABEL).setText(x10DistLoc);
     
     editorBot.toolbarButton(PlatformConfConstants.SAVE_PLATFORM_TOOLTIP_BT).click();

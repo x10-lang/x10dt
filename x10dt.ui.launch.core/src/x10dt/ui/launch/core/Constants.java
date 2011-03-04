@@ -51,8 +51,4 @@ public final class Constants {
   
   public static final QualifiedName EXEC_PATH = new QualifiedName(LaunchCore.PLUGIN_ID, "exec.path"); //$NON-NLS-1$
   
-  // --- Plugin ID
-  
-  public static final String X10_DIST_PLUGIN_ID = "x10.dist.host"; //$NON-NLS-1$
-  
 }

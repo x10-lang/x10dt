@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.URL;
 import java.util.Arrays;
 import java.util.UUID;
 
@@ -24,19 +23,16 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ui.IMemento;
 import org.eclipse.ui.WorkbenchException;
 import org.eclipse.ui.XMLMemento;
-import org.osgi.framework.Bundle;
 
-import x10dt.ui.launch.core.Constants;
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -319,10 +315,8 @@ class X10PlatformConf implements IX10PlatformConf {
   }
 
   protected final void initLocalX10DistribLocation() {
-    final Bundle x10DistBundle = Platform.getBundle(Constants.X10_DIST_PLUGIN_ID);
-    final URL url = x10DistBundle.getResource("include"); //$NON-NLS-1$
     try {
-      this.fCppCompilationConf.fX10DistLoc = new File(FileLocator.resolve(url).getFile()).getParent();
+      this.fCppCompilationConf.fX10DistLoc = new File(X10BundleUtils.getX10DistHostResource("include").getFile()).getParent(); //$NON-NLS-1$
       this.fCppCompilationConf.fPGASLoc = this.fCppCompilationConf.fX10DistLoc;
     } catch (IOException except) {
       // Let's forget.

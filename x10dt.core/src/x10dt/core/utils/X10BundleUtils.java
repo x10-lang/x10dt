@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.core.utils;
 
+import java.io.IOException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.CoreException;
@@ -41,6 +42,11 @@ public final class X10BundleUtils {
    * X10 Constraints Bundle unique id.
    */
   public static final String X10_CONSTRAINTS_BUNDLE_ID = "x10.constraints"; //$NON-NLS-1$
+  
+  /**
+   * X10 Dist Host Bundle unique id.
+   */
+  public static final String X10_DIST_HOST_BUNDLE_ID = "x10.dist.host"; //$NON-NLS-1$
 
   // --- Public services
 
@@ -62,6 +68,19 @@ public final class X10BundleUtils {
    */
   public static URL getX10ConstraintsURL() throws CoreException {
     return getBundleResourceURL(X10_CONSTRAINTS_BUNDLE_ID, OUTPUT_DIR);
+  }
+  
+  /**
+   * Returns a Java native URL for the resource location present within X10 Dist Host bundle.
+   * 
+   * @param resourcePath The resource path to look for relative to X10 Dist Host location.
+   * @return A non-null URL identifying the resource location.
+   * @throws IOException Occurs if the URL resolution failed.
+   */
+  public static URL getX10DistHostResource(final String resourcePath) throws IOException {
+    final Bundle x10DistBundle = Platform.getBundle(X10_DIST_HOST_BUNDLE_ID);
+    final URL url = x10DistBundle.getResource(resourcePath);
+    return FileLocator.resolve(url);
   }
 
   /**
