@@ -185,13 +185,17 @@ abstract class AbstractFactWriter implements IFactWriter {
       }
     } else if (type instanceof ClassType) {
       final ClassType classType = (ClassType) type;
-      if (classType.outer() == null) {
-        return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
-                                       createModifiersCodeValue(classType.flags()));
+      if (classType.position().isCompilerGenerated()) {
+        return getValueFactory().tuple(createTypeName(type.fullName().toString()));
       } else {
-        final IValue outerTypeNameValue = createTypeName(classType.outer().fullName().toString());
-        return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
-                                       createModifiersCodeValue(classType.flags()), outerTypeNameValue);
+        if (classType.outer() == null) {
+          return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
+                                         createModifiersCodeValue(classType.flags()));
+        } else {
+          final IValue outerTypeNameValue = createTypeName(classType.outer().fullName().toString());
+          return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
+                                         createModifiersCodeValue(classType.flags()), outerTypeNameValue);
+        }
       }
     } else if (type instanceof ConstrainedType) {
       return createType(((ConstrainedType) type).baseType().get());
@@ -199,7 +203,7 @@ abstract class AbstractFactWriter implements IFactWriter {
       return getValueFactory().tuple(createTypeName('[' + type.fullName().toString()), createSourceLocation(type.position()), 
                                      this.fIntType.make(this.fValueFactory, -1));
     } else {
-      if (type.position() == null) {
+      if ((type.position() == null) || type.position().isCompilerGenerated()) {
         if (type instanceof UnknownType) {
           return getValueFactory().tuple(createTypeName(((Type_c) type).typeToString()));
         } else {
