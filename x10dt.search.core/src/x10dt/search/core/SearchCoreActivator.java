@@ -39,6 +39,11 @@ public class SearchCoreActivator extends Plugin implements IResourceKeyFactory, 
    */
   public static final String PLUGIN_ID = "x10dt.search.core"; //$NON-NLS-1$
   
+  /**
+   * Constant identifying the job family identifier for the X10 indexer background job.
+   */
+  public static final Object FAMILY_X10_INDEXER = new Object();
+  
   // --- IResourceKeyFactory's interface methods implementation
   
   public IFactKey createKeyForResource(final IResource resource) {
@@ -157,7 +162,7 @@ public class SearchCoreActivator extends Plugin implements IResourceKeyFactory, 
   public void start(final BundleContext bundleContext) throws Exception {
     super.start(bundleContext);
     fPlugin = this;
-    fIndexer = new Indexer(Messages.SCA_IndexerName);
+    fIndexer = new Indexer(Messages.SCA_IndexerName, FAMILY_X10_INDEXER);
     fIndexer.initialize(0);
     fIndexer.manageKeysForProjects(this, this);
   }
