@@ -110,7 +110,16 @@ public final class WizardConstants {
   public static final String NEW_OTHER_SHELL= "New"; //$NON-NLS-1$
 
   public static final String QUICK_OUTLINE_SHELL= ""; // This value is really correct, at least for now //$NON-NLS-1$
+  
+  // --- Constants for Open Perspective dialog
 
+  public static final String WINDOW_MENU = "Window"; //$NON-NLS-1$
+
+  public static final String OPEN_PERSPECTIVE_MENU_ITEM = "Open Perspective"; //$NON-NLS-1$
+
+  public static final String OTHER_SUB_MENU_ITEM = "Other..."; //$NON-NLS-1$
+
+  public static final String OPEN_PERSPECTIVE_DIALOG = "Open Perspective"; //$NON-NLS-1$
   
   // --- Constants for Open Type dialog
   
@@ -145,8 +154,6 @@ public final class WizardConstants {
 
   public static final String X10_SEARCH_FOR_TYPE_RADIO = "Type";
 
-  public static final String SEARCH_VIEW_TITLE = "Search";
-
   public static final String SEARCH_MENU_ITEM = "Search...";
 
   public static final String REMOVE_ALL_MATCHES_BUTTON = "Remove All Matches";
@@ -161,7 +168,6 @@ public final class WizardConstants {
   public static final String DELETE_CONFIRMATION_SHELL = "Confirm Delete"; //$NON-NLS-1$
   
   public static final String DELETE_PROJECT_CONTENTS = "Delete project contents on disk (cannot be undone)"; //$NON-NLS-1$
-
 
   // --- Private code
   
