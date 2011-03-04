@@ -69,6 +69,13 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * Unique id for the C++ Builder.
    */
   public static final String BUILDER_ID = PLUGIN_ID + ".X10CppBuilder"; //$NON-NLS-1$
+  
+  /**
+   * Constant identifying the job family identifier for the X10 Platform Conf Validation background job.
+   */
+  public static final Object FAMILY_PLATFORM_CONF_VALIDATION = new Object();
+  
+  // --- IResourceChangeListener's interface methods implementation
 
   public void resourceChanged(final IResourceChangeEvent event) {
     if ((event.getType() != IResourceChangeEvent.POST_CHANGE) && (event.getType() != IResourceChangeEvent.POST_BUILD)) {
@@ -359,6 +366,12 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
         } else {
           return Status.OK_STATUS;
         }
+      }
+      
+      // --- Overridden methods
+      
+      public boolean belongsTo(final Object family) {
+        return family == FAMILY_PLATFORM_CONF_VALIDATION;
       }
 
     };
