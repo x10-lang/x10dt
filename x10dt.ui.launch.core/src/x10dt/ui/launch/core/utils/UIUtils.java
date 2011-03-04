@@ -9,6 +9,7 @@ package x10dt.ui.launch.core.utils;
 
 
 import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
@@ -89,7 +90,10 @@ public final class UIUtils {
       
       public void run() {
         try {
-          workbench.getActiveWorkbenchWindow().getActivePage().showView(viewId);
+          final IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+          if (workbenchWindow != null) {
+            workbenchWindow.getActivePage().showView(viewId);
+          }
         } catch (PartInitException except) {
           exception[0] = except;
         }
