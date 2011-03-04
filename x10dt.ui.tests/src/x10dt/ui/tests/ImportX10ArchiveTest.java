@@ -113,14 +113,14 @@ public class ImportX10ArchiveTest extends ImportX10Archive {
 //  }
   
   //
-  @Test
-  public void test_RunCPPBackend() throws Exception {	//run with CPP back end
-	  //use local platform config w/ sockets runtime
-	  ConfigureAndRunCppProject(PROJECT_NAME_CPPBACK, CLASS_NAME, DEFAULT_CPP_NUM_PLACES,
-			  "CppPlatformConfigs.xml", "localSocketsConfig",
-			  EXPECTED_OUTPUT);
-	  //ConfigureAndRunCppProject already calls verifyConsoleOutput, so we don't have to do it here
-  }
+//  @Test
+//  public void test_RunCPPBackend() throws Exception {	//run with CPP back end
+//	  //use local platform config w/ sockets runtime
+//	  ConfigureAndRunCppProject(PROJECT_NAME_CPPBACK, CLASS_NAME, DEFAULT_CPP_NUM_PLACES,
+//			  "CppPlatformConfigs.xml", "remoteLinuxSocketsConfig"/*"localSocketsConfig"*/,
+//			  EXPECTED_OUTPUT);
+//	  //ConfigureAndRunCppProject already calls verifyConsoleOutput, so we don't have to do it here
+//  }
 
   
   /*
