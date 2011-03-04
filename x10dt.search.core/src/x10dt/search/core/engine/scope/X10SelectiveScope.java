@@ -46,7 +46,7 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
     final Collection<IFactContext> searchContexts = new ArrayList<IFactContext>();
     for (final IResource resource : this.fResources) {
       final IProject project = resource.getProject();
-      if (project.exists()) {
+      if (project.isAccessible()) {
         try {
           searchContexts.add(new ProjectContext(ModelFactory.open(project)));
         } catch (ModelException except) {

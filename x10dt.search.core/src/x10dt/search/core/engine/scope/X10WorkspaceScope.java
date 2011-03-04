@@ -40,7 +40,7 @@ final class X10WorkspaceScope extends AbstractX10SearchScope implements IX10Sear
   public ICountableIterable<IFactContext> createSearchContexts() {
     final Collection<IFactContext> searchContexts = new ArrayList<IFactContext>();
     for (final IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-      if (project.exists()) {
+      if (project.isAccessible()) {
         try {
           searchContexts.add(new ProjectContext(ModelFactory.open(project)));
         } catch (ModelException except) {
