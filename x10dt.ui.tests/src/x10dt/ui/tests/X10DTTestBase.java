@@ -19,7 +19,10 @@ package x10dt.ui.tests;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -29,38 +32,49 @@ import junit.framework.Assert;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
+import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
+import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
+import org.eclipse.swtbot.eclipse.finder.waits.WaitForView;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
-import org.eclipse.swtbot.swt.finder.waits.Conditions;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCTabItem;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotList;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotMenu;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotRadio;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotShell;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTable;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTableItem;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotText;
+import org.eclipse.swtbot.swt.finder.widgets.SWTBotToolbarButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTree;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotTreeItem;
 import org.eclipse.swtbot.swt.finder.widgets.TimeoutException;
+import org.eclipse.ui.IViewReference;
+import org.hamcrest.Matcher;
+import org.junit.Test;
+import org.osgi.framework.Bundle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import x10dt.core.utils.Timeout;
-import x10dt.core.utils.X10BundleUtils;
+import x10dt.core.utils.X10BundleUtils; 
 import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.PlatformConfConstants;
 import x10dt.tests.services.swbot.constants.ViewConstants;
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.ProblemsViewUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.tests.waits.X10DT_Conditions;
 
 /**
@@ -196,6 +210,7 @@ public class X10DTTestBase {
 	  public String  remoteHostUser;
 	  public boolean usePassword;
 	  public String  remoteHostPassword;
+	  public String  remoteKeyFile;
 
 	  // Communications interface
 	  public CommInterface.Type interfaceType;
@@ -275,6 +290,28 @@ public class X10DTTestBase {
    */
   public static void waitForBuildToFinish() throws Exception {
     Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+  }
+  
+  /**
+   * This method changes to a Perspective via the Open Perspective dialog
+   * 
+   * @throws Exception
+   */
+  public static void openPerspective(SWTWorkbenchBot topLevelBot, String perspectiveName) throws IOException {
+
+	  // Open the Open Perspective dialog
+	  topLevelBot.menu(WizardConstants.WINDOW_MENU)
+	  				.menu(WizardConstants.OPEN_PERSPECTIVE_MENU_ITEM)
+	  					.menu(WizardConstants.OTHER_SUB_MENU_ITEM).click();
+
+	  SWTBotShell openPerspectiveShell = topLevelBot.shell(WizardConstants.OPEN_PERSPECTIVE_DIALOG);
+	  openPerspectiveShell.activate();
+	  SWTBot newPerspectiveBot = openPerspectiveShell.bot();
+
+	  // select the perspective name in the dialog
+	  newPerspectiveBot.table().select(perspectiveName);
+	  newPerspectiveBot.button(WizardConstants.OK_BUTTON).click();
+	  topLevelBot.perspectiveByLabel(perspectiveName).activate();
   }
   
   /*
@@ -586,15 +623,15 @@ public class X10DTTestBase {
 
 	  //Navigate down the package tree to find the project
 	  SWTBotTree packageTree = packageExplorerBot.tree();
-	  packageExplorerBot.waitUntil(X10DT_Conditions.treeHasNode(packageTree, projName), 10000);  
+	  packageExplorerBot.waitUntil(X10DT_Conditions.treeHasNode(packageTree, projName), 10000, 500);  
 	  SWTBotTreeItem projectFolder = packageTree.expandNode(projName);
 
 	  //Find the src folder
-	  packageExplorerBot.waitUntil(X10DT_Conditions.treeNodeHasItem(projectFolder, "src"), 10000);
+	  packageExplorerBot.waitUntil(X10DT_Conditions.treeNodeHasItem(projectFolder, "src"), 10000, 500);
 	  SWTBotTreeItem srcFolder = projectFolder.expandNode("src");
 
 	  //find the file
-	  packageExplorerBot.waitUntil(X10DT_Conditions.treeNodeHasItem(srcFolder, fileName), 10000);
+	  packageExplorerBot.waitUntil(X10DT_Conditions.treeNodeHasItem(srcFolder, fileName), 10000, 500);
 	  SWTBotTreeItem srcFile = srcFolder.expandNode(fileName);
 	  srcFile.select();
 
@@ -606,10 +643,16 @@ public class X10DTTestBase {
   public static boolean openX10Type(String typeName, String searchString, Integer expectedRows)  throws X10DT_Test_Exception
   {
 
-	  boolean found = false;	//assume the worst
+	  boolean found = false;	//found a matching type
+	  boolean foundExpected = false;	//found at least the number of matches we expected
 
+	  try {
 	  // Open the X10 Type dialog
 	  topLevelBot.menu(WizardConstants.NAVIGATE_MENU).menu(WizardConstants.OPEN_X10_TYPE_ITEM).click();
+	  }
+	  catch (Exception e) {
+		  System.out.println("can't find '" + WizardConstants.OPEN_X10_TYPE_ITEM + "' : " + e.getMessage());
+	  }
 
 	  //Set up a shell for the X10 Type Dialog
 	  SWTBotShell x10TypeShell = topLevelBot.shell(WizardConstants.OPEN_X10_TYPE_DIALOG_TITLE);
@@ -619,54 +662,74 @@ public class X10DTTestBase {
 	  // find the text box for the search patterns, and set the search string
 	  x10TypeBot.textWithLabel(WizardConstants.X10_TYPE_SEARCH_PATTERN).setText(searchString);
 
-	  x10TypeBot.sleep(4000);
+	  //	  x10TypeBot.sleep(4000);
 
 	  //find the list box for the types we found
 	  SWTBotTable typeList = x10TypeBot.tableWithLabel(WizardConstants.X10_TYPE_SEARCH_LISTBOX);
 
 	  int rowCount = 0;
 	  boolean done = false;
+	  Integer waitLoop = 5;
+	  System.out.println("\n    open X10 type '" + typeName + "' by searching on '" + searchString + "'");
+	  
 	  do {
 		  try {
 			  x10TypeBot.waitUntil(X10DT_Conditions.tableHasMinimumRows(typeList, expectedRows), 2000);	//give it a few seconds to find at least 
-		  }									// as many things as we're looking for. benignly time-out if it doesn't find that many
+			  done = true;
+		  }											// as many things as we're looking for. benignly time-out if it doesn't find that many
 		  catch (TimeoutException e) {
 			  //not a big deal - it just means we didn't find a match, and we'll return false
 			  System.out.println("timed out waiting for the type list to populate"); /*debug*/
+			  for (Integer i=0; (i < typeList.rowCount()); i++)
+				  System.out.println("      line " + i + " is '" + typeList.getTableItem(i).getText() +"'");
 		  }
 		  //just to be on the safe side, we'll continue to wait until nothing more is being added to the table 
-		  done = (rowCount == typeList.rowCount()); //done when what we got now == what we had before
+		  done = done && (rowCount == typeList.rowCount()); //What we got now == what we had before?
 		  rowCount = typeList.rowCount();												
 		  x10TypeBot.sleep(1000);
-	  } while (!done);
+	  } while ((--waitLoop > 0) && (!done));
 
-	  //Check that we found the expected number of matching items
-	  Assert.assertTrue("expected to find " + expectedRows + ", found " + rowCount + " rows", (rowCount >= expectedRows));			  
+	  System.out.println("        done waiting - waitloop = " + waitLoop); /*debug*/
 
-	  // look for the expected type in the list	  
-	  //See if we found the type we're looking for
-	  int i=0;
-	  found = false;
-	  while ((!found) && (i < rowCount))
-	  {
-		  String tableItemText = typeList.getTableItem(i).getText();
-		  int firstSpace = tableItemText.indexOf(' ');
-		  String classText = tableItemText.substring(0, (firstSpace != -1 ? firstSpace : tableItemText.length())); //get rid of various qualifiers, like " - default"
-		  System.out.println("comparing classText'" + classText + "' to typename'" + typeName + "'");
-		  found = classText.equals(typeName);
-		  if (found) {
-			  typeList.select(i);	//select the row
+	  foundExpected = (rowCount >= expectedRows);
+
+	  if (foundExpected) {
+		  // look for the expected type in the list	  
+		  //See if we found the type we're looking for
+		  int i=0;
+		  found = false;
+		  while ((!found) && (i < rowCount))
+		  {
+			  String tableItemText = typeList.getTableItem(i).getText();
+			  int firstSpace = tableItemText.indexOf(' ');
+			  String classText = tableItemText.substring(0, (firstSpace != -1 ? firstSpace : tableItemText.length())); //get rid of various qualifiers, like " - default"
+			  System.out.println("comparing classText'" + classText + "' to typename'" + typeName + "'");
+			  found = classText.equals(typeName);
+			  if (found) {
+				  typeList.select(i);	//select the row
+			  }
+			  i++;
 		  }
-		  i++;
 	  }
 
-	  Assert.assertTrue(((rowCount == 0) ?  "Type list is empty":"No match found in list"), found);
-
-	  //that's enough for now.  find the OK button
-	  SWTBotButton okButton = x10TypeBot.button(WizardConstants.OK_BUTTON);
-	  okButton.click();
+	  if (!found || !foundExpected) {
+		  //rats!  click the Cancel button
+		  SWTBotButton cancelButton = x10TypeBot.button(WizardConstants.CANCEL_BUTTON);
+		  cancelButton.click();
+	  }
+	  else {
+		  //got it. click the OK button
+		  SWTBotButton okButton = x10TypeBot.button(WizardConstants.OK_BUTTON);
+		  okButton.click();
+	  }
 
 	  topLevelBot.waitUntil(Conditions.shellCloses(x10TypeShell));
+
+	  //Check that we found the expected number of matching items
+	  Assert.assertTrue("expected to find " + expectedRows + ", found " + rowCount + " rows", (rowCount >= expectedRows));
+
+	  //Check that we found the correct matching item
+	  Assert.assertTrue(((rowCount == 0) ?  "Type list is empty":"No match found in list"), found);
 
 	  return found;
   }
@@ -701,7 +764,7 @@ public class X10DTTestBase {
 	  x10SearchBot.waitUntil(Conditions.shellCloses(x10SearchShell));
 
 	  //find the Search View
-	  SWTBotView searchView = topLevelBot.viewByTitle(WizardConstants.SEARCH_VIEW_TITLE);
+	  SWTBotView searchView = topLevelBot.viewByTitle(ViewConstants.SEARCH_VIEW_TITLE);
 	  SWTBot searchViewBot = searchView.bot();
 	  searchView.setFocus();
 
@@ -727,29 +790,31 @@ public class X10DTTestBase {
 		  }
 	  }
 
-	  Integer waitLoop = 30;
 	  System.out.println("\n    find X10 type '" + typeName + "' by searching on '" + searchString + "'");
-
+	  boolean done = false;
+	  int rowCount = 0;
+	  Integer waitLoop = 5;
 	  do {
 		  try {
-			  searchViewBot.waitUntil(X10DT_Conditions.tableHasMinimumRows(typeList, expectedRows), 2000);	//give it a few seconds to find something.
-		  }
+			  searchViewBot.waitUntil(X10DT_Conditions.tableHasMinimumRows(typeList, expectedRows), 2000);	//give it a few seconds to find at least 
+			  done = true;
+		  }											// as many things as we're looking for. benignly time-out if it doesn't find that many
 		  catch (TimeoutException e) {
 			  //not a big deal - it just means we didn't find a match, and we'll return false
-			  System.out.println("timed out waiting for the type list to populate.\n     have " + typeList.rowCount() + " rows so far"); /*debug*/
+			  System.out.println("timed out waiting for the type list to populate"); /*debug*/
 			  for (Integer i=0; (i < typeList.rowCount()); i++)
 				  System.out.println("      line " + i + " is '" + typeList.getTableItem(i).getText() +"'");
-
 		  }
-	  } while ((--waitLoop > 0) && 
-			  ((typeList.getTableItem(0).getText().equals("Searching...")) ||
-					  (typeList.getTableItem(0).getText().equals("")))
-	  );
+		  //just to be on the safe side, we'll continue to wait until nothing more is being added to the table 
+		  done = done && (rowCount == typeList.rowCount()); //What we got now == what we had before?
+		  rowCount = typeList.rowCount();												
+		  searchViewBot.sleep(1000);
+	  } while ((--waitLoop > 0) && (!done));
 
+	  System.out.println("        done waiting - waitloop = " + waitLoop); /*debug*/
 	  // look for the expected type in the list
 
 	  //Check that we found the expected number of matching items
-	  int rowCount = typeList.rowCount();
 	  Assert.assertTrue("expected to find " + expectedRows + ", found " + rowCount + " rows", (rowCount >= expectedRows));			  
 
 	  //See if we found the type we're looking for
@@ -918,12 +983,13 @@ public class X10DTTestBase {
 		  }
 
 		  if (platformSetup.usePassword) {
-			  editorBot.checkBox(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).deselect();
+			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
 			  editorBot.textWithLabel(PlatformConfConstants.PASSWORD_TEXT_LABEL).setText(platformSetup.remoteHostPassword);
 		  }
 		  else {	//use public key authentication
-			  editorBot.checkBox(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).select();
-			  final String privateKeyFile = String.format("%s/.ssh/id_rsa", System.getProperty("user.home")); //$NON-NLS-1$ //$NON-NLS-2$
+			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
+// /*hardcoded version */			  final String privateKeyFile = String.format("%s/.ssh/id_rsa", System.getProperty("user.home")); //$NON-NLS-1$ //$NON-NLS-2$
+			  final String privateKeyFile = String.format("%s/%s", System.getProperty("user.home"), platformSetup.remoteKeyFile); //$NON-NLS-1$ //$NON-NLS-2$
 			  editorBot.textWithLabel(PlatformConfConstants.PRIVATE_KEY_FILE_LABEL).setText(privateKeyFile);
 		  }
 
@@ -937,6 +1003,7 @@ public class X10DTTestBase {
 			  checkBoxPortForwarding.deselect();
 		  }
 		  
+		  System.out.println("clicking Validate Connection button");
 		  editorBot.button(PlatformConfConstants.VALIDATE_BUTTON).click();
 		  editorBot.sleep(8000); // Leave the time to make the connection.
 
@@ -945,6 +1012,7 @@ public class X10DTTestBase {
 
 	  setCppPlatformCompilationConfig(projectName, platformSetup, editorBot);
 
+System.out.println("Configuration '" + platformSetup.configName + "' clicking Validate Configuration button");
 	  editorBot.toolbarButton(PlatformConfConstants.VALIDATE_PLATFORM_TOOLTIP_BT).click();
 
 	  // The Progress Configuration dialog will open.  Wait for it to go away
@@ -952,6 +1020,7 @@ public class X10DTTestBase {
 	  SWTBotShell progressShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_PROGESS_DLG);
 	  progressShell.activate();
 	  
+System.out.println("wait for Progress Dialog to go away");
 	  int timeoutCount = 12;	//loops waits 5 sec, we'll loop 12 times = 1 min
 	  boolean stillWaiting = true;
 	  while ((stillWaiting) && (0 < timeoutCount--)) {
@@ -961,11 +1030,7 @@ public class X10DTTestBase {
 		  }
 		  catch (TimeoutException e) {	//Awww...!! The validation is *still* running!
 			  try {	//well, let's just hope that the error dialog didn't open
-				  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
-				  //rats!! it opened.
-				  //it's modal. Unless we click 'OK', we'll have to wait for the overall junit timeout
-				  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
-				  Assert.fail("Errors occurred in X10 Platform configuration validation");
+System.out.println("      timeout waiting for Progress Dialog to go away, count = " + timeoutCount);
 			  }
 			  catch (WidgetNotFoundException eWNF) { //this is a good thing.  It means that the error dialog didn't pop up.
 				  //Keep waiting for progress dialog to go away
@@ -974,13 +1039,39 @@ public class X10DTTestBase {
 	  }
 	  
 	  if (stillWaiting) { //yawnnnnn...
-		  Assert.fail("X10 Platform configuration validation failed to complete");
+		  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
+		  System.out.println("      		no ValidationFailureShell yet");
+		  //rats!! it opened.
+		  //it's modal. Unless we click 'OK', we'll have to wait for the overall junit timeout
+		  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
+		  Assert.fail("Errors occurred in X10 Platform configuration validation");
 	  }
 
+System.out.println("clicking Save Configuration button");
 	  editorBot.toolbarButton(PlatformConfConstants.SAVE_PLATFORM_TOOLTIP_BT).click();
-	  editorBot.sleep(6000);
+	  editorBot.sleep(1000);
 
-	  Assert.assertEquals(0, ProblemsViewUtils.getErrorMessages(topLevelBot).length);
+System.out.println("wait for '" + platformSetup.configName + "' build to finish");
+	  try {
+		waitForBuildToFinish();
+	} catch (Exception e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+System.out.println("checking Problems View for errors");
+
+	int problemsViewErrorCount = ProblemsViewUtils.getErrorMessages(topLevelBot).length;
+	if (problemsViewErrorCount != 0)
+	{
+		System.out.println(platformSetup.configName + ": " + problemsViewErrorCount + " compilation Errors found in Problems View");
+		dumpConsole(topLevelBot);
+		editorBot.sleep(1000);
+
+		Assert.assertEquals("Compilation Errors found in Problems View: ", 0, problemsViewErrorCount);
+	}
+
+System.out.println("done with setCppPlatformConnectionConfig");
+
   }
   
 /*
@@ -999,7 +1090,6 @@ public class X10DTTestBase {
 	  Document doc = null;
 
 	  try {
-//		  ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
 		  ClassLoader cl = X10DTTestBase.class.getClassLoader();		//archive file must be on the build path
 		  URL xmlFileURL = cl.getResource(xmlFileName);	//find the file 
 		  fXmlFile = new File(FileLocator.toFileURL(xmlFileURL).getFile());
@@ -1015,10 +1105,13 @@ public class X10DTTestBase {
 	  return doc;
   }
 
-  //well, isn't this annoying!
-  //I could tag everything as a text node, but that would make the xml file pretty ugly
+  //retrieve first string value from element by tag
   public static String getTagString(String tag, Element element) {
-	  NodeList nList= element.getElementsByTagName(tag).item(0).getChildNodes();
+	return getTagString(tag, element, 0);
+}
+  //retrieve nth string value from element by tag
+  public static String getTagString(String tag, Element element, int listItem) {
+	  NodeList nList= element.getElementsByTagName(tag).item(listItem).getChildNodes();
 	  Node nValue = (Node) nList.item(0);
 	  if (nValue != null)
 		  return nValue.getNodeValue().trim();
@@ -1026,14 +1119,80 @@ public class X10DTTestBase {
 		  return "";
   }
 
+  //retrieve first integer value from element by tag
   public static Integer getTagInteger(String tag, Element element) {
-	  String tagString = getTagString(tag, element);
+	  return getTagInteger(tag, element, 0);
+  }
+
+  //retrieve nth integer value from element by tag
+  public static Integer getTagInteger(String tag, Element element, int listItem) {
+	  String tagString = getTagString(tag, element, listItem);
 	  return tagString.equals("") ? 0 : Integer.valueOf(tagString);
   }
 
+  //retrieve first boolean value from element by tag
   public static Boolean getTagBoolean(String tag, Element element) {
-	  return (getTagString(tag, element).equals("yes") ? true : false);
+	  return getTagBoolean(tag, element, 0);
   }
 
+  //retrieve nth boolean value from element by tag
+  public static Boolean getTagBoolean(String tag, Element element, int listItem) {
+	  return (getTagString(tag, element, listItem).equals("yes") ? true : false);
+  }
+
+  //Sometimes you might want to use a quoted string as a value 
+  // so that leading or trailing whitespace can be preserved.
+  // This strips off the quotes.  
+  //retrieve first quoted string value from element by tag
+  public static String getTagQuotedString(String tag, Element element) {
+	  return getTagQuotedString(tag, element, 0);
+  }
+
+  //Sometimes you might want to use a quoted string as a value 
+  // so that leading or trailing whitespace can be preserved.
+  // This strips off the quotes.  
+  //retrieve nth quoted string value from element by tag
+  public static String getTagQuotedString(String tag, Element element, int listItem) {
+	  NodeList nList= element.getElementsByTagName(tag).item(listItem).getChildNodes();
+	  Node nValue = (Node) nList.item(0);
+	  if (nValue != null) {
+		  String theString = nValue.getNodeValue().trim();
+		  if (theString.startsWith("\"") && theString.endsWith("\"")) {
+			  return theString.substring(theString.indexOf('"')+1, theString.lastIndexOf('"'));
+		  }
+		  else
+			  return "";
+	  }
+	  else
+		  return "";
+  }
+
+  /*
+   * 
+   * Debugging support
+   * 
+   * 
+   */
+
+  //this will dump the contents of the target console to the development console
+  // so that output and errors generated by the target are preserved
+  public static void dumpConsole(SWTWorkbenchBot topLevelBot) {
+
+	  //find the Console View
+	  SWTBotView consoleView = topLevelBot.viewByTitle(ViewConstants.CONSOLE_VIEW_NAME);
+	  consoleView.setFocus();
+
+	  //load the text of the actual output
+	  List<String> consoleLines = consoleView.bot().styledText().getLines();
+	  Iterator<String> consoleLine = consoleLines.listIterator(0);
+
+	  if (consoleLine.hasNext())  { //don't bother if there's nothing to find.
+		  System.out.println("Dump of target's console output:");
+
+		  while (consoleLine.hasNext()) {
+			  System.out.println("    " + consoleLine.next());
+		  }
+	  }
+  }
 
 }
