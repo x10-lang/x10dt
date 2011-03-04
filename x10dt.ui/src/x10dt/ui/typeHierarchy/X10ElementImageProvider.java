@@ -165,16 +165,19 @@ public class X10ElementImageProvider {
 		ImageDescriptor desc= X10PluginImages.DESC_OBJS_CUNIT_RESOURCE;
 		
 		try {
-			int severity = file.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
-			if (severity == IMarker.SEVERITY_ERROR) {
-				severity = X10ElementImageDescriptor.ERROR;
-			} else if (severity == IMarker.SEVERITY_WARNING) {
-				severity = X10ElementImageDescriptor.WARNING;
-			}
-
-			if(severity > 0)
+			if(file.exists())
 			{
-				desc = new X10ElementImageDescriptor(desc, severity, size);
+				int severity = file.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
+				if (severity == IMarker.SEVERITY_ERROR) {
+					severity = X10ElementImageDescriptor.ERROR;
+				} else if (severity == IMarker.SEVERITY_WARNING) {
+					severity = X10ElementImageDescriptor.WARNING;
+				}
+	
+				if(severity > 0)
+				{
+					desc = new X10ElementImageDescriptor(desc, severity, size);
+				}
 			}
 		} catch (CoreException e) {
 			X10DTUIPlugin.log(e);
