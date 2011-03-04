@@ -58,6 +58,9 @@ final class CppBuilderExtensionInfo extends ExtensionInfo {
             throw new IllegalStateException("Not an End Goal?");
         }
         List<Goal> newGoals = new ArrayList<Goal>();
+        if (fProject == null) { // --- This extension info may be used by the platform checker, in which case there is no project. It is null and the package declaration check should not be performed.
+        	return goals;
+        }
         for(Goal goal: goals){
         	if (goal.name().equals("CheckASTForErrors")){ // --- WARNING: FRAGILE CODE HERE!
         		newGoals.add(PackageDeclGoal(job, fProject));
