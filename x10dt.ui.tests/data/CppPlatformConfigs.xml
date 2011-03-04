@@ -8,8 +8,7 @@
    
 <platformConfigs> 
 
-    <config id="ber
-    "> 
+    <config id="remoteLinuxSocketsConfig"> 
         <configName> Linux 32-bit x86 </configName> 
         <description> remote Linux VM </description> 
         
@@ -37,6 +36,7 @@
             <remoteHostUser> root </remoteHostUser> 
             <usePassword> no </usePassword> 
             <remoteHostPassword>  </remoteHostPassword> 
+            <remoteKeyFile> .ssh/id_rsa </remoteKeyFile> 
             
             <portForwarding> 
                 <usePortForwarding> no </usePortForwarding> 
