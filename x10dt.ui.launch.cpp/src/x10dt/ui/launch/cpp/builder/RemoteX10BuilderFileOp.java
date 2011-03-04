@@ -8,8 +8,6 @@
 package x10dt.ui.launch.cpp.builder;
 
 import static x10dt.ui.launch.core.Constants.CC_EXT;
-import static x10dt.ui.launch.core.Constants.H_EXT;
-import static x10dt.ui.launch.core.Constants.INC_EXT;
 
 import java.io.File;
 import java.util.Collection;
@@ -80,12 +78,10 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
     final IFileSystem localFileSystem = EFS.getLocalFileSystem();
     monitor.beginTask(null, files.size());
     for (final File file : files) {
-      final String ccFilePath = file.getAbsolutePath();
-      addCppFile(ccFilePath, copyGeneratedFile(destDir, localFileSystem, ccFilePath));
-      copyGeneratedFile(destDir, localFileSystem, ccFilePath.replace(CC_EXT, H_EXT));
-      final File incFile = new File(ccFilePath.replace(CC_EXT, INC_EXT));
-      if (incFile.exists()) {
-        copyGeneratedFile(destDir, localFileSystem, incFile.getAbsolutePath());
+      final String filePath = file.getAbsolutePath();
+      final String destPath = copyGeneratedFile(destDir, localFileSystem, filePath);
+      if (filePath.endsWith(CC_EXT)) {
+        addCppFile(filePath, destPath);
       }
       monitor.worked(1);
     }

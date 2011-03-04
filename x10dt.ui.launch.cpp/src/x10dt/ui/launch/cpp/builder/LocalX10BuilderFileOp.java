@@ -14,6 +14,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -35,7 +36,9 @@ final class LocalX10BuilderFileOp extends AbstractX10BuilderOp implements IX10Bu
 
   public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
     for (final File file : files) {
-      addCppFile(file.getAbsolutePath(), file.getAbsolutePath());
+      if (file.getAbsolutePath().endsWith(Constants.CC_EXT)) {
+        addCppFile(file.getAbsolutePath(), file.getAbsolutePath());
+      }
     }
   }
   

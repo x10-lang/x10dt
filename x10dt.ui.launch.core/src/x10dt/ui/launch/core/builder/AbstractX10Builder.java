@@ -484,10 +484,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
       final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
       for (final Object outputFile : compiler.outputFiles()) {
-        final String outputFileName = (String) outputFile;
-        if (outputFileName.endsWith(getFileExtension())) {
-          generatedFiles.add(new File(outputLocation, outputFileName));
-        }
+        generatedFiles.add(new File(outputLocation, (String) outputFile));
       }
       return generatedFiles;
     } catch (InternalCompilerError except) {
