@@ -21,6 +21,8 @@ public final class ViewConstants {
   
   public static final String PACKAGE_EXPLORER_VIEW_NAME = "Package Explorer"; //$NON-NLS-1$
   
+  public static final String SEARCH_VIEW_TITLE = "Search";
+
   // --- View context menu constants
   
   public static final String NEW_MENU = "New"; //$NON-NLS-1$
