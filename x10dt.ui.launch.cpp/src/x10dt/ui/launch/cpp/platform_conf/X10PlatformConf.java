@@ -52,22 +52,28 @@ import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 class X10PlatformConf implements IX10PlatformConf {
   
   X10PlatformConf(final IFile confFile) {
+    this(confFile, true);
+  }
+	
+  X10PlatformConf(final IFile confFile, boolean loadFromFile) {
     this.fConnectionConf = new ConnectionConfiguration();
     this.fCppCompilationConf = new CppCompilationConfiguration();
     this.fCommInterfaceFact = new CommInterfaceFactory();
     this.fDebuggingInfoConf = new DebuggingInfoConf();
     this.fConfFile = confFile;
-    try {
-			if (isNonEmpty(confFile)) {
-			  load(confFile, new BufferedReader(new InputStreamReader(confFile.getContents())));
-			} else {
-			  this.fId = UUID.randomUUID().toString();
-			}
-		} catch (CoreException except) {
-			CppLaunchCore.log(except.getStatus());
-			// We could not load the file content. Let's just consider an empty configuration file then.
+	try {
+		if (loadFromFile && isNonEmpty(confFile)) {
+			load(confFile, new BufferedReader(new InputStreamReader(
+					confFile.getContents())));
+		} else {
 			this.fId = UUID.randomUUID().toString();
 		}
+	} catch (CoreException except) {
+		CppLaunchCore.log(except.getStatus());
+		// We could not load the file content. Let's just consider an empty
+		// configuration file then.
+		this.fId = UUID.randomUUID().toString();
+	}
   }
   
   X10PlatformConf(final IServiceProvider serviceProvider, final IFile confFile) {
@@ -154,7 +160,7 @@ class X10PlatformConf implements IX10PlatformConf {
         connectionTag.createChild(HOSTNAME_TAG).putTextData(this.fConnectionConf.fHostName);
       }
       connectionTag.createChild(PORT_TAG).putTextData(String.valueOf(this.fConnectionConf.fPort));
-      connectionTag.createChild(LOCAL_ADDRESS_TAG).putTextData(this.fConnectionConf.fLocalAddress);
+      connectionTag.createChild(LOCAL_ADDRESS_TAG).putTextData(PlatformConfUtils.getValidString(this.fConnectionConf.fLocalAddress));
       connectionTag.createChild(TIMEOUT_TAG).putTextData(String.valueOf(this.fConnectionConf.fTimeout));
     }
     

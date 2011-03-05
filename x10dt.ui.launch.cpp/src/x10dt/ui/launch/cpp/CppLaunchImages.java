@@ -40,11 +40,16 @@ public class CppLaunchImages {
   
   public static final String PLATFORM_CONF_VALIDATION_ERROR = "obj/conf-valid-error.png"; //$NON-NLS-1$
   
-  public static final String SAVE_PLATFORM_CONF = "obj/save-conf.png"; //$NON-NLS-1$
+//  public static final String SAVE_PLATFORM_CONF = "obj/save-conf.png"; //$NON-NLS-1$
   
+  public static final String REFRESH_PLATFORM_CONF = "obj/refresh-icon.png"; //$NON-NLS-1$
+
   public static final String VALID_PLATFORM_CONF = "obj/valid-conf.png"; //$NON-NLS-1$
   
   public static final String VALID_RM = "obj/valid-rm.png"; //$NON-NLS-1$
+  
+  public static final String FILE = "obj/x10-platform-conf.png"; //$NON-NLS-1$
+  
   
   // --- Wizards images
   

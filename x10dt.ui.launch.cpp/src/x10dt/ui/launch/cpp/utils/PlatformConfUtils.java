@@ -57,6 +57,11 @@ public final class PlatformConfUtils {
     }
   }
   
+  public static String getValidString(String original)
+  {
+	  return (original == null) ? "" : original;
+  }
+  
   // --- Private code
   
   private PlatformConfUtils() {}

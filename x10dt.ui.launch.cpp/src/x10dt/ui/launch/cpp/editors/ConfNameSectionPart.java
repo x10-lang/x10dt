@@ -21,11 +21,11 @@ import org.eclipse.ptp.services.core.IServiceModelEventListener;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ptp.services.core.ServiceModelManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
@@ -35,8 +35,10 @@ import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import x10dt.ui.launch.core.utils.PTPConstants;
+import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements IFormPart, IServiceModelEventListener,
@@ -88,7 +90,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
  
   // --- Private code
   
-  private void addListeners(final IManagedForm managedForm, final Combo rmServiceConfNameCombo, final Text descriptionText,
+  private void addListeners(final IManagedForm managedForm, final CCombo rmServiceConfNameCombo, final Text descriptionText,
                             final Collection<IServiceConfigurationListener> rmConfPageListeners) {
     rmServiceConfNameCombo.addModifyListener(new ModifyListener() {
       
@@ -160,9 +162,11 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     nameCompo.setLayout(layout);
     nameCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 2));
     
-    toolkit.createLabel(nameCompo, LaunchMessages.RMCP_ConfNameLabel);
-    this.fRMServiceConfNameCombo = new Combo(nameCompo, SWT.NONE);
-    this.fRMServiceConfNameCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+//    toolkit.createLabel(nameCompo, LaunchMessages.RMCP_ConfNameLabel);
+//    this.fRMServiceConfNameCombo = new Combo(nameCompo, SWT.NONE);
+//    this.fRMServiceConfNameCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    
+    this.fRMServiceConfNameCombo = SWTFormUtils.createLabelAndCombo(nameCompo, LaunchMessages.RMCP_ConfNameLabel, toolkit, SWT.NONE, null);
     
     final ServiceModelManager modelManager = ServiceModelManager.getInstance();
     for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
@@ -170,9 +174,12 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
       this.fRMServiceConfNameCombo.setData(serviceConf.getName(), serviceConf);
     }
     
-    toolkit.createLabel(nameCompo, LaunchMessages.RMCP_DescriptionLabel);
-    this.fDescriptionText = toolkit.createText(nameCompo, null);
-    this.fDescriptionText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+//    toolkit.createLabel(nameCompo, LaunchMessages.RMCP_DescriptionLabel);
+//    this.fDescriptionText = toolkit.createText(nameCompo, null);
+//    this.fDescriptionText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+//    
+    this.fDescriptionText = SWTFormUtils.createLabelAndText(nameCompo, LaunchMessages.RMCP_DescriptionLabel, toolkit, null);
+    
     
     initializeControls();
     
@@ -183,7 +190,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     return this.fRMServiceConfNameCombo.getText().length() > 0;
   }
   
-  private void initializeControls() {
+  public void initializeControls() {
     final IX10PlatformConf platformConf = getPlatformConf();
     
     int index = -1;
@@ -196,7 +203,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
       }
     }
     if (this.fRMServiceConfNameCombo.getSelectionIndex() == -1) {
-      this.fRMServiceConfNameCombo.setText(platformConf.getName());
+      this.fRMServiceConfNameCombo.setText(PlatformConfUtils.getValidString(platformConf.getName()));
     }
     handleEmptyTextValidation(this.fRMServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel);
     
@@ -207,7 +214,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   
   // --- Fields
   
-  private Combo fRMServiceConfNameCombo;
+  private CCombo fRMServiceConfNameCombo;
   
   private Text fDescriptionText;
 

@@ -214,6 +214,15 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
       fPlugin.getLog().log(status);
     }
   }
+  
+  public static void log(Exception e) {
+      log(e.getMessage());
+  }
+  
+  public static void log(String msg) {
+      Status status= new Status(Status.ERROR, PLUGIN_ID, 0, msg, null);
+      fPlugin.getLog().log(status);
+  }
 
   /**
    * Logs (if the plugin is active) the outcome of an operation with the parameters provided.

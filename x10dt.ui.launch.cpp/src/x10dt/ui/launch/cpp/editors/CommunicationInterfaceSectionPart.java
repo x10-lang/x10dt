@@ -7,7 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
-import static x10dt.ui.launch.core.utils.PTPConstants.*;
+import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,9 +26,9 @@ import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ptp.services.core.IServiceProviderDescriptor;
 import org.eclipse.ptp.services.core.ServiceModelManager;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -42,6 +43,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.PTPConstants;
+import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
@@ -148,18 +150,18 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     
   // --- Internal services
   
-  Combo getCommunicationModeCombo() {
+  CCombo getCommunicationModeCombo() {
     return this.fCIModeCombo;
   }
   
-  Combo getCommunicationTypeCombo() {
+  CCombo getCommunicationTypeCombo() {
     return this.fCITypeCombo;
   }
  
   // --- Private code
   
   private void addListeners(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent, 
-                            final Combo ciTypeCombo, final Combo ciModeCombo) {
+                            final CCombo ciTypeCombo, final CCombo ciModeCombo) {
     ciTypeCombo.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -221,15 +223,20 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     comboComposite.setLayout(comboLayout);
     comboComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    final Label typeLabel = toolkit.createLabel(comboComposite, LaunchMessages.RMCP_CITypeLabel);
-    typeLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
-    this.fCITypeCombo = new Combo(comboComposite, SWT.READ_ONLY);
-    this.fCITypeCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    this.fCITypeCombo = SWTFormUtils.createLabelAndCombo(comboComposite, LaunchMessages.RMCP_CITypeLabel, toolkit, SWT.READ_ONLY, null);
+    
+//    final Label typeLabel = toolkit.createLabel(comboComposite, LaunchMessages.RMCP_CITypeLabel);
+//    typeLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+//    this.fCITypeCombo = new Combo(comboComposite, SWT.READ_ONLY);
+//    this.fCITypeCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
     
-    final Label modeLabel = toolkit.createLabel(comboComposite, LaunchMessages.RMCP_CIModeLabel);
-    modeLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
-    this.fCIModeCombo = new Combo(comboComposite, SWT.READ_ONLY);
+//    final Label modeLabel = toolkit.createLabel(comboComposite, LaunchMessages.RMCP_CIModeLabel);
+//    modeLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+//    this.fCIModeCombo = new Combo(comboComposite, SWT.READ_ONLY);
+    
+    this.fCIModeCombo = SWTFormUtils.createLabelAndCombo(comboComposite, LaunchMessages.RMCP_CIModeLabel, toolkit, SWT.READ_ONLY, null);
+    
     
     final Set<IServiceProviderDescriptor> serviceProviders = new HashSet<IServiceProviderDescriptor>();
     
@@ -272,27 +279,32 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     return null;
   }
 
-  private void initializeControls() {
+  public void initializeControls() {
     final ICommunicationInterfaceConf ciConf = getPlatformConf().getCommunicationInterfaceConf();
     
-    int index = -1;
-    for (final String name : this.fCITypeCombo.getItems()) {
-      ++index;
-      final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) this.fCITypeCombo.getData(name);
-      if (typeConfPart.getServiceProviderId().equals(ciConf.getServiceTypeId())) {
-        this.fCITypeCombo.select(index);
-        break;
-      }
+    if(ciConf != null)
+    {
+	    int index = -1;
+	    for (final String name : this.fCITypeCombo.getItems()) {
+	      ++index;
+	      final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) this.fCITypeCombo.getData(name);
+	      if (typeConfPart.getServiceProviderId().equals(ciConf.getServiceTypeId())) {
+	        this.fCITypeCombo.select(index);
+	        break;
+	      }
+	    }
+	    index = -1;
+	    for (final String name : this.fCIModeCombo.getItems()) {
+	      ++index;
+	      final String id = (String) this.fCIModeCombo.getData(name);
+	      if (id.equals(ciConf.getServiceModeId())) {
+	        this.fCIModeCombo.select(index);
+	        break;
+	      }
+	    }
     }
-    index = -1;
-    for (final String name : this.fCIModeCombo.getItems()) {
-      ++index;
-      final String id = (String) this.fCIModeCombo.getData(name);
-      if (id.equals(ciConf.getServiceModeId())) {
-        this.fCIModeCombo.select(index);
-        break;
-      }
-    }
+    
+    this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
   }
   
   private void initTypeCombo(final Set<IServiceProviderDescriptor> serviceProviders, final ServiceModelManager serviceModelManager) {
@@ -314,32 +326,35 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
 	}
   }
   
-  private void updateCommunicationTypeInfo(final Combo ciTypeCombo, final IManagedForm managedForm,
+  private void updateCommunicationTypeInfo(final CCombo ciTypeCombo, final IManagedForm managedForm,
                                            final FormToolkit toolkit, final Composite parent) {
-    final String itemName = ciTypeCombo.getItem(ciTypeCombo.getSelectionIndex());
-    final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) ciTypeCombo.getData(itemName);
-    
-    getPlatformConf().setServiceTypeId(typeConfPart.getServiceProviderId());
-    
-    if (this.fPreviousTypeConfPart != null) {
-      final IManagedForm headerForm = ((SharedHeaderFormEditor) getFormPage().getEditor()).getHeaderForm();
-      this.fPreviousTypeConfPart.dispose(headerForm.getMessageManager(), managedForm.getMessageManager());
-    }
-
-    typeConfPart.create(managedForm, toolkit, parent, this);
-    
-    managedForm.reflow(true);
-    
-    this.fPreviousTypeConfPart = typeConfPart;
-    
-    setPartCompleteFlag(typeConfPart.hasCompleteInfo());
+	  if(ciTypeCombo.getSelectionIndex() != -1)
+	  {
+	    final String itemName = ciTypeCombo.getItem(ciTypeCombo.getSelectionIndex());
+	    final ICITypeConfigurationPart typeConfPart = (ICITypeConfigurationPart) ciTypeCombo.getData(itemName);
+	    
+	    getPlatformConf().setServiceTypeId(typeConfPart.getServiceProviderId());
+	    
+	    if (this.fPreviousTypeConfPart != null) {
+	      final IManagedForm headerForm = ((SharedHeaderFormEditor) getFormPage().getEditor()).getHeaderForm();
+	      this.fPreviousTypeConfPart.dispose(headerForm.getMessageManager(), managedForm.getMessageManager());
+	    }
+	
+	    typeConfPart.create(managedForm, toolkit, parent, this);
+	    
+	    managedForm.reflow(true);
+	    
+	    this.fPreviousTypeConfPart = typeConfPart;
+	    
+	    setPartCompleteFlag(typeConfPart.hasCompleteInfo());
+	  }
   }
   
   // --- Fields
   
-  private Combo fCITypeCombo;
+  private CCombo fCITypeCombo;
   
-  private Combo fCIModeCombo;
+  private CCombo fCIModeCombo;
   
   private ICITypeConfigurationPart fPreviousTypeConfPart;
   

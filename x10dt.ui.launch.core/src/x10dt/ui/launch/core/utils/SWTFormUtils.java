@@ -11,10 +11,10 @@ import java.util.Collection;
 
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -37,10 +37,23 @@ public class SWTFormUtils {
    * @param parent The parent composite to consider.
    * @param labelText The text for the label.
    * @param toolkit The toolkit to use for creating the label and combo widgets.
+   * @style The style to apply to the combo box
    * @return The non-null Combo widget created.
    */
-  public static Combo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit) {
-    return createLabelAndCombo(parent, labelText, toolkit, null);
+  public static CCombo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit, int comboStyle) {
+    return createLabelAndCombo(parent, labelText, toolkit, comboStyle, null);
+  }
+  
+  /**
+   * Calls {@link #createLabelAndCombo(Composite, String, FormToolkit, Collection)} with no container to collect the widgets.
+   * 
+   * @param parent The parent composite to consider.
+   * @param labelText The text for the label.
+   * @param toolkit The toolkit to use for creating the label and combo widgets.
+   * @return The non-null Combo widget created.
+   */
+  public static CCombo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit) {
+    return createLabelAndCombo(parent, labelText, toolkit, 0, null);
   }
   
   /**
@@ -53,7 +66,7 @@ public class SWTFormUtils {
    * controls. Can be useful for enabling/disabling of groups of controls easily.
    * @return The non-null Combo widget created.
    */
-  public static Combo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit,
+  public static CCombo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit, int comboStyle,
                                           final Collection<Control> controlContainer) {
     final Composite composite = toolkit.createComposite(parent);
     final boolean isTableWrapLayout = parent.getLayout() instanceof TableWrapLayout;
@@ -80,12 +93,20 @@ public class SWTFormUtils {
     if (controlContainer != null) {
       controlContainer.add(label);
     }
-    final Combo combo = new Combo(composite, SWT.READ_ONLY);
+    
+    final CCombo combo = new CCombo(composite, comboStyle | SWT.FLAT);
+    
     if (isTableWrapLayout) {
-      combo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+      TableWrapData td = new TableWrapData(TableWrapData.FILL_GRAB);
+      td.indent = 5;
+      combo.setLayoutData(td);
     } else {
-      combo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+      GridData gd = new GridData(SWT.FILL, SWT.NONE, true, false);
+      gd.horizontalIndent = 5;
+      combo.setLayoutData(gd);
     }
+    toolkit.paintBordersFor(composite);
+    
     if (controlContainer != null) {
       controlContainer.add(combo);
     }
@@ -246,14 +267,17 @@ public class SWTFormUtils {
       if (textHeightFactor > 1) {
         gd.heightHint = text.getLineHeight() * textHeightFactor;
       }
+      gd.indent = 5;
       text.setLayoutData(gd);
     } else {
       final GridData gd = new GridData(SWT.FILL, SWT.NONE, true, false);
       if (textHeightFactor > 1) {
         gd.heightHint = text.getLineHeight() * textHeightFactor;
       }
+      gd.horizontalIndent = 5;
       text.setLayoutData(gd);
     }
+    toolkit.paintBordersFor(composite);
     if (controlContainer != null) {
       controlContainer.add(text);
     }
@@ -326,12 +350,14 @@ public class SWTFormUtils {
       if (textHeightFactor > 1) {
         twData.heightHint = text.getLineHeight() * textHeightFactor;
       }
+      twData.indent = 5;
       text.setLayoutData(twData);
     } else {
       final GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
       if (textHeightFactor > 1) {
         gd.heightHint = text.getLineHeight() * textHeightFactor;
       }
+      gd.horizontalIndent = 5;
       text.setLayoutData(gd);
     }
     if (controlContainer != null) {
@@ -339,11 +365,16 @@ public class SWTFormUtils {
     }
     final Button button = toolkit.createButton(composite, buttonText, SWT.PUSH);
     if (isTableWrapLayout) {
-      button.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+      final TableWrapData twData = new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE);
+      twData.heightHint = text.getLineHeight() + 4;
+      button.setLayoutData(twData);
     } else {
-      button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+      GridData gd = new GridData(SWT.FILL, SWT.CENTER, false, false);
+      gd.heightHint = text.getLineHeight() + 4;
+      button.setLayoutData(gd);
     }
     button.setEnabled(false);
+    toolkit.paintBordersFor(composite);
     if (controlContainer != null) {
       controlContainer.add(button);
     }

@@ -15,12 +15,12 @@ import java.util.Collection;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Spinner;
@@ -93,8 +93,8 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     ecCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     addControl(ecCompo);
     
-    final Combo multiClusterCombo = SWTFormUtils.createLabelAndCombo(ecCompo, LaunchMessages.PETCP_MultiClusterMode, toolkit,
-                                                                     getCtrlsContainer());
+    final CCombo multiClusterCombo = SWTFormUtils.createLabelAndCombo(ecCompo, LaunchMessages.PETCP_MultiClusterMode, toolkit,
+                                                                     SWT.READ_ONLY, getCtrlsContainer());
     multiClusterCombo.add(LaunchMessages.PETCP_DefaultCluster);
     multiClusterCombo.setData(LaunchMessages.PETCP_DefaultCluster, EClusterMode.DEFAULT);
     multiClusterCombo.add(LaunchMessages.PETCP_LocalCluster);
@@ -155,7 +155,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
                                                                         getCtrlsContainer(), 3);
     this.fBrowseBts.add(pair3.second);
     
-    final Combo templateOptCombo = SWTFormUtils.createLabelAndCombo(templateGrp, LaunchMessages.LLTCP_Option, toolkit);
+    final CCombo templateOptCombo = SWTFormUtils.createLabelAndCombo(templateGrp, LaunchMessages.LLTCP_Option, toolkit);
     templateOptCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     templateOptCombo.add(LaunchMessages.LLTCP_NeverWriteOpt);
     templateOptCombo.setData(LaunchMessages.LLTCP_NeverWriteOpt, ELLTemplateOpt.ENeverWrite);
@@ -200,10 +200,10 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
   
   private void addListeners(final IX10PlatformConfWorkCopy x10PlatformConf, final IManagedForm managedForm, 
                             final AbstractCommonSectionFormPart formPart, final ILoadLevelerConf ciConf,
-                            final Text proxyExecPathText, final Button launchServerManuallyBt, final Combo multiClusterCombo, final Spinner nodePollingMinSp, final Spinner nodePollingMaxSp, 
+                            final Text proxyExecPathText, final Button launchServerManuallyBt, final CCombo multiClusterCombo, final Spinner nodePollingMinSp, final Spinner nodePollingMaxSp, 
                             final Spinner jobPollingSp, final Text alternateLibPathText, final Button traceBt, 
                             final Button infoBt, final Button warningBt, final Button errorBt, final Button fatalBt, 
-                            final Button argsBt, final Text templateFilePathText, final Combo templateOptCombo, 
+                            final Button argsBt, final Text templateFilePathText, final CCombo templateOptCombo, 
                             final Button suspendProxyAtStartupBt) {
     proxyExecPathText.addModifyListener(new ModifyListener() {
       
@@ -401,11 +401,11 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
   
   private void initializeControls(final AbstractCommonSectionFormPart formPart, final ILoadLevelerConf ciConf, 
                                   final Text proxyExecPathText, final Button launchServerManuallyBt, 
-                                  final Combo multiClusterCombo, final Spinner nodePollingMinSp, 
+                                  final CCombo multiClusterCombo, final Spinner nodePollingMinSp, 
                                   final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
                                   final Button proxyServerBrowseBt, final Button traceBt, final Button infoBt, 
                                   final Button warningBt, final Button errorBt, final Button fatalBt, final Button argsBt,
-                                  final Text templateFilePathText, final Combo templateOptCombo, 
+                                  final Text templateFilePathText, final CCombo templateOptCombo, 
                                   final Button suspendProxyAtStartupBt) {
     proxyExecPathText.setText(ciConf.getProxyServerPath());
     formPart.handleEmptyTextValidation(proxyExecPathText, LaunchMessages.PETCP_ProxyExecPath);

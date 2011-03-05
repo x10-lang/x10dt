@@ -12,16 +12,15 @@ import java.util.Arrays;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -118,7 +117,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   private void addListeners(final IManagedForm managedForm, final Text compilerText, final Text compilingOptsText,
                             final Text archiverText, final Text archivingOptsText, final Text linkerText, 
                             final Text linkingOptsText, final Text linkingLibsText, final Button bitsArchBt,
-                            final Combo osCombo, final Combo archCombo) {
+                            final CCombo osCombo, final CCombo archCombo) {
 		compilerText.addModifyListener(new ModifyListener() {
 			public void modifyText(final ModifyEvent event) {
 			  handleEmptyTextValidation(compilerText, LaunchMessages.XPCP_CompilerLabel);
@@ -252,7 +251,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     });
   }
   
-  private void checkCompilerVersion(final Text compilerText, final Combo osCombo, final Combo archCombo) {
+  private void checkCompilerVersion(final Text compilerText, final CCombo osCombo, final CCombo archCombo) {
     final IX10PlatformConf platformConf = getPlatformConf();
     final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
     final IConnectionConf connConf = platformConf.getConnectionConf();
@@ -287,9 +286,11 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     osComposite.setLayout(osLayout);
     osComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    final Label osLabel = toolkit.createLabel(osComposite, LaunchMessages.XPCP_OSLabel);
-    osLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
-    this.fOSCombo = new Combo(osComposite, SWT.READ_ONLY);
+//    final Label osLabel = toolkit.createLabel(osComposite, LaunchMessages.XPCP_OSLabel);
+//    osLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+//    this.fOSCombo = new Combo(osComposite, SWT.READ_ONLY);
+    
+    this.fOSCombo = SWTFormUtils.createLabelAndCombo(osComposite, LaunchMessages.XPCP_OSLabel, toolkit, SWT.READ_ONLY);
     this.fOSCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     for (final ETargetOS targetOs : ETargetOS.values()) {
       this.fOSCombo.add(targetOs.name());
@@ -303,9 +304,11 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     archComposite.setLayout(archLayout);
     archComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    final Label archLabel = toolkit.createLabel(archComposite, LaunchMessages.XPCP_Architecture);
-    archLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
-    this.fArchCombo = new Combo(archComposite, SWT.READ_ONLY);
+//    final Label archLabel = toolkit.createLabel(archComposite, LaunchMessages.XPCP_Architecture);
+//    archLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+//    this.fArchCombo = new Combo(archComposite, SWT.READ_ONLY);
+    
+    this.fArchCombo = SWTFormUtils.createLabelAndCombo(archComposite, LaunchMessages.XPCP_Architecture, toolkit, SWT.READ_ONLY);
     this.fArchCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     for (final EArchitecture arch : EArchitecture.values()) {
       this.fArchCombo.add(arch.name());
@@ -373,7 +376,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
            (this.fLinkingOptsText.getText().trim().length() > 0) && (this.fLinkingLibsText.getText().trim().length() > 0);
   }
   
-  private void initializeControls() {
+  public void initializeControls() {
     final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
     int index = -1;
     for (final ETargetOS targetOS : ETargetOS.values()) {
@@ -390,8 +393,9 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       }
     }
     
-    this.fCompilerText.setText(cppCompConf.getCompiler());
+    this.fCompilerText.setText(PlatformConfUtils.getValidString(cppCompConf.getCompiler()));
     handleEmptyTextValidation(this.fCompilerText, LaunchMessages.XPCP_CompilerLabel);
+    
     KeyboardUtils.addDelayedActionOnControl(this.fCompilerText, new Runnable() {
       
       public void run() {
@@ -407,20 +411,20 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       }
       
     });
-    this.fCompilingOptsText.setText(cppCompConf.getCompilingOpts(false));
+    this.fCompilingOptsText.setText(PlatformConfUtils.getValidString(cppCompConf.getCompilingOpts(false)));
     handleEmptyTextValidation(this.fCompilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel);
-    this.fArchiverText.setText(cppCompConf.getArchiver());
+    this.fArchiverText.setText(PlatformConfUtils.getValidString(cppCompConf.getArchiver()));
     handleEmptyTextValidation(this.fArchiverText, LaunchMessages.XPCP_ArchiverLabel);
-    this.fArchivingOptsText.setText(cppCompConf.getArchivingOpts(false));
+    this.fArchivingOptsText.setText(PlatformConfUtils.getValidString(cppCompConf.getArchivingOpts(false)));
     handleEmptyTextValidation(this.fArchivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel);
-    this.fLinkerText.setText(cppCompConf.getLinker());
+    this.fLinkerText.setText(PlatformConfUtils.getValidString(cppCompConf.getLinker()));
     handleEmptyTextValidation(this.fLinkerText, LaunchMessages.XPCP_LinkerLabel);
-    this.fLinkingOptsText.setText(cppCompConf.getLinkingOpts(false));
+    this.fLinkingOptsText.setText(PlatformConfUtils.getValidString(cppCompConf.getLinkingOpts(false)));
     handleEmptyTextValidation(this.fLinkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel);
-    this.fLinkingLibsText.setText(cppCompConf.getLinkingLibs(false));
+    this.fLinkingLibsText.setText(PlatformConfUtils.getValidString(cppCompConf.getLinkingLibs(false)));
     handleEmptyTextValidation(this.fLinkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel);
 
-    this.fBitsArchBt.setSelection(cppCompConf.getBitsArchitecture() == EBitsArchitecture.E64Arch);    
+    this.fBitsArchBt.setSelection(cppCompConf.getBitsArchitecture() == EBitsArchitecture.E64Arch);
   }
   
   private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
@@ -528,13 +532,13 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       default:
         defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, architecture, transport);
     }
-    compilerText.setText(defaultCPPCommands.getCompiler());
-    compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
-    archiverText.setText(defaultCPPCommands.getArchiver());
-    archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
-    linkerText.setText(defaultCPPCommands.getLinker());
-    linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
-    linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
+    compilerText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getCompiler()));
+    compilingOptsText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getCompilerOptions()));
+    archiverText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getArchiver()));
+    archivingOptsText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getArchivingOpts()));
+    linkerText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getLinker()));
+    linkingOptsText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getLinkingOptions()));
+    linkingLibsText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getLinkingLibraries()));
   }
   
   // --- Private classes
@@ -607,9 +611,9 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   // --- Fields
   
-  private Combo fOSCombo;
+  private CCombo fOSCombo;
   
-  private Combo fArchCombo;
+  private CCombo fArchCombo;
   
   private Text fCompilerText;
   

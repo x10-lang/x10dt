@@ -15,12 +15,12 @@ import java.util.Collection;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -105,8 +105,8 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     
     final Collection<Control> llGroupControls = new ArrayList<Control>();
     
-    final Combo multiClusterCombo = SWTFormUtils.createLabelAndCombo(llGroup, LaunchMessages.PETCP_MultiClusterMode, toolkit,
-                                                                     llGroupControls);
+    final CCombo multiClusterCombo = SWTFormUtils.createLabelAndCombo(llGroup, LaunchMessages.PETCP_MultiClusterMode, toolkit,
+                                                                     SWT.READ_ONLY, llGroupControls);
     multiClusterCombo.add(LaunchMessages.PETCP_DefaultCluster);
     multiClusterCombo.setData(LaunchMessages.PETCP_DefaultCluster, EClusterMode.DEFAULT);
     multiClusterCombo.add(LaunchMessages.PETCP_LocalCluster);
@@ -128,8 +128,8 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
     
     final Button runAfterProxyBt = toolkit.createButton(ecCompo, LaunchMessages.PETCP_RunAfterProxy, SWT.CHECK);
     addControl(runAfterProxyBt);
-    final Combo traceOptCombo = SWTFormUtils.createLabelAndCombo(ecCompo, LaunchMessages.PETCP_TraceOpts, toolkit,
-                                                                 getCtrlsContainer());
+    final CCombo traceOptCombo = SWTFormUtils.createLabelAndCombo(ecCompo, LaunchMessages.PETCP_TraceOpts, toolkit,
+                                                                 SWT.READ_ONLY, getCtrlsContainer());
     traceOptCombo.add(LaunchMessages.PETCP_NoTraceOpt);
     traceOptCombo.setData(LaunchMessages.PETCP_NoTraceOpt, ECIDebugLevel.NONE);
     traceOptCombo.add(LaunchMessages.PETCP_FunctionTraceOpt);
@@ -174,9 +174,9 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
   
   private void addListeners(final IX10PlatformConfWorkCopy x10PlatformConf, final IManagedForm managedForm, 
                             final AbstractCommonSectionFormPart formPart, final Text proxyExecPathText, 
-                            final Button launchServerManuallyBt, final Button useLoadLevelerBt, final Combo multiClusterCombo,
+                            final Button launchServerManuallyBt, final Button useLoadLevelerBt, final CCombo multiClusterCombo,
                             final Spinner nodePollingMinSp, final Spinner nodePollingMaxSp, final Spinner jobPollingSp, 
-                            final Text alternateLibPathText, final Button runAfterProxyBt, final Combo traceOptCombo, 
+                            final Text alternateLibPathText, final Button runAfterProxyBt, final CCombo traceOptCombo, 
                             final Button suspendProxyBt, final Collection<Control> llGroupControls) {
     proxyExecPathText.addModifyListener(new ModifyListener() {
       
@@ -324,9 +324,9 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
   
   private void initializeControls(final AbstractCommonSectionFormPart formPart, final IParallelEnvironmentConf ciConf, 
                                   final Text proxyExecPathText, final Button launchServerManuallyBt, 
-                                  final Button useLoadLevelerBt, final Combo multiClusterCombo, final Spinner nodePollingMinSp, 
+                                  final Button useLoadLevelerBt, final CCombo multiClusterCombo, final Spinner nodePollingMinSp, 
                                   final Spinner nodePollingMaxSp, final Spinner jobPollingSp, final Text alternateLibPathText,
-                                  final Button runAfterProxyBt, final Combo traceOptCombo, final Button suspendProxyBt,
+                                  final Button runAfterProxyBt, final CCombo traceOptCombo, final Button suspendProxyBt,
                                   final Button proxyServerBrowseBt, final Button libPathBrowseBt,
                                   final Collection<Control> llGroupControls) {
     proxyExecPathText.setText(ciConf.getProxyServerPath());

@@ -55,9 +55,9 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
     }
     if (! isLocal) {
       final String x10DistLoc = this.fX10DistLocText.getText().trim();
-      getPlatformConf().setX10DistribLocation(x10DistLoc.length() == 0 ? null : x10DistLoc);
+      getPlatformConf().setX10DistribLocation(x10DistLoc);
       final String pgasLoc = this.fPGASLocText.getText().trim();
-      getPlatformConf().setPGASLocation(pgasLoc.length() == 0 ? null : pgasLoc);
+      getPlatformConf().setPGASLocation(pgasLoc);
     }
     final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
     final boolean useSameLoc = (cppCompConf.getPGASLocation() == null) ||
@@ -191,14 +191,14 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
                        (this.fPGASLocText.getText().trim().length() > 0));
   }
   
-  private void initializeControls() {
+  public void initializeControls() {
     final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
     }
     
     final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
-    if (! isLocal) {
+    //if (! isLocal) {
       if (cppCompConf.getX10DistribLocation() != null) {
         this.fX10DistLocText.setText(cppCompConf.getX10DistribLocation());
       }
@@ -216,7 +216,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart imp
         control.setEnabled(! useSameLoc);
       }
       this.fUseSameLocBt.setSelection(useSameLoc);
-    }
+    //}
     
     KeyboardUtils.addDelayedActionOnControl(this.fX10DistLocText, new Runnable() {
       

@@ -51,7 +51,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     }
     if (! isLocal) {
       final String outputFolder = this.fRemoteOutputFolderText.getText().trim();
-      getPlatformConf().setRemoteOutputFolder(outputFolder.length() == 0 ? null : outputFolder);
+      getPlatformConf().setRemoteOutputFolder(outputFolder);
     }
     this.fBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
     handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
@@ -115,7 +115,7 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     return isLocal || this.fRemoteOutputFolderText.getText().trim().length() > 0;
   }
   
-  private void initializeControls() {
+  public void initializeControls() {
     final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);
@@ -126,8 +126,8 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
       if (cppCompConf.getRemoteOutputFolder() != null) {
         this.fRemoteOutputFolderText.setText(cppCompConf.getRemoteOutputFolder());
       }
-      handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
     }
+    handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
   }
   
   // --- Fields

@@ -468,6 +468,10 @@ public class LaunchMessages extends NLS {
   public static String XPCFE_ValidationFailureDlgTitle;
 
   public static String XPCFE_ValidationPlatformActionMsg;
+  
+  public static String XPCFE_ResetPlatformActionMsg;
+  
+  public static String XPCFE_ResetPlatformActionDialogMsg;
 
   public static String XPCP_AddBt;
 

@@ -51,6 +51,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IFileEditorInput;
@@ -229,6 +230,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
           }
           for (final IConnectionInfo connectionInfo : getAllConnectionInfo()) {
             validateRemoteHostConnection(connectionInfo, (connectionInfo == curConnInfo));
+          }
+          for (final IConnectionTypeListener listener : ConnectionSectionPart.this.fConnectionTypeListeners) {
+            listener.connectionChanged(false, null, null, true);
           }
           setPartCompleteFlag(hasCompleteInfo());
           updateDirtyState(managedForm);
@@ -481,8 +485,6 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     sectionClient.setFont(getSection().getFont());
     sectionClient.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    final Collection<Control> firstGroupControls = new ArrayList<Control>();
-    final Collection<Control> secondGroupControls = new ArrayList<Control>();
     
     this.fLocalConnBt = toolkit.createButton(sectionClient, LaunchMessages.RMCP_LocalConnBt, SWT.RADIO);
     
@@ -564,7 +566,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fPrivateKeyFileAuthBt.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     secondGroupControls.add(this.fPrivateKeyFileAuthBt);
     
-    final Collection<Control> keyFileControls = new ArrayList<Control>();
+    
     final Pair<Text, Button> pair = SWTFormUtils.createLabelTextButton(groupCompo, LaunchMessages.RMCP_PrivateKeyFileLabel, 
                                                                        LaunchMessages.XPCP_BrowseBt, toolkit, 
                                                                        keyFileControls);
@@ -608,13 +610,13 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     infoLabel.setText(LaunchMessages.RMCP_RemoteConnDataInfo);
     infoLabel.setForeground(getFormPage().getSite().getShell().getDisplay().getSystemColor(SWT.COLOR_DARK_GRAY));
     
-    final Collection<IConnectionInfo> tableInput = new ArrayList<IConnectionInfo>();
+    
     for (final ITargetElement targetElement : PTPConfUtils.getTargetElements()) {
       tableInput.add(new TargetBasedConnectionInfo(targetElement));
     }
     this.fTableViewer.setInput(tableInput);
 
-    initializeControls(firstGroupControls, secondGroupControls, keyFileControls, tableInput);
+    initializeControls();
     
     addListeners(managedForm, this.fLocalConnBt, this.fRemoteConnBt, this.fValidateButton,
                  this.fHostText, this.fPortText, this.fUserNameText, this.fPasswordAuthBt, this.fPasswordLabel, 
@@ -627,8 +629,11 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   
   private void createConnectionsTable(final Collection<Control> firstGroupControls, final Collection<Control> sndGroupControls,
                                       final Composite parent, final FormToolkit toolkit) {
-    final TableViewer tableViewer = new TableViewer(parent, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL |
-                                                    SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
+    
+    Table table = toolkit.createTable(parent, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL |
+            SWT.FULL_SELECTION | SWT.HIDE_SELECTION);
+    
+    final TableViewer tableViewer = new TableViewer(table);
     this.fTableViewer = tableViewer;
     
     tableViewer.setContentProvider(new IStructuredContentProvider() {
@@ -646,11 +651,11 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       
     });
 
-    final Button validateButton = new Button(parent, SWT.PUSH);
+    final Button validateButton = toolkit.createButton(parent, LaunchMessages.RMCP_ValidateBt, SWT.PUSH);
     this.fValidateButton = validateButton;
+    
     validateButton.setFont(parent.getFont());
     validateButton.setLayoutData(new TableWrapData(TableWrapData.FILL));
-    validateButton.setText(LaunchMessages.RMCP_ValidateBt);
     validateButton.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -677,10 +682,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     
     new Label(parent, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new TableWrapData(TableWrapData.FILL));
         
-    final Button addButton = new Button(parent, SWT.PUSH);
+    final Button addButton = toolkit.createButton(parent, LaunchMessages.RMCP_AddBt, SWT.PUSH);
     addButton.setFont(parent.getFont());
     addButton.setLayoutData(new TableWrapData(TableWrapData.FILL));
-    addButton.setText(LaunchMessages.RMCP_AddBt);
     addButton.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -698,10 +702,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     });
     firstGroupControls.add(addButton);
     
-    final Button removeButton = new Button(parent, SWT.PUSH);
+    final Button removeButton = toolkit.createButton(parent, LaunchMessages.RMCP_RemoteBt, SWT.PUSH);
     removeButton.setFont(parent.getFont());
     removeButton.setLayoutData(new TableWrapData(TableWrapData.FILL));
-    removeButton.setText(LaunchMessages.RMCP_RemoteBt);
     removeButton.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -909,6 +912,8 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     });
     
     firstGroupControls.add(tableViewer.getTable());
+    
+    toolkit.paintBordersFor(parent);
   }
   
   private void fillConnectionControlsInfo(final IConnectionInfo connectionInfo) {
@@ -969,8 +974,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     }
   }
   
-  private void initializeControls(final Collection<Control> firstGroupControls, final Collection<Control> secondGroupControls,
-                                  final Collection<Control> keyFileControls, final Collection<IConnectionInfo> tableInput) {
+  public void initializeControls() {
     final IConnectionConf connectionConf = getPlatformConf().getConnectionConf();
     if (connectionConf.isLocal()) {
       this.fLocalConnBt.setSelection(true);
@@ -1307,5 +1311,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   private final Collection<IX10PlatformValidationListener> fValidationListeners;
   
   private final Collection<IConnectionSwitchListener> fConnectionSwitchListeners;
+  
+  private final Collection<Control> firstGroupControls = new ArrayList<Control>();
+  private final Collection<Control> secondGroupControls = new ArrayList<Control>();
+  private final Collection<Control> keyFileControls = new ArrayList<Control>();
+  private final Collection<IConnectionInfo> tableInput = new ArrayList<IConnectionInfo>();
 
 }

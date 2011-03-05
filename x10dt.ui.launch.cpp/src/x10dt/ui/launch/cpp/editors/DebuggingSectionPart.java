@@ -141,7 +141,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     return true;
   }
   
-  private void initializeControls() {
+  public void initializeControls() {
     final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
     for (final Control control : this.fControlsAffectedByLocalRM) {
       control.setEnabled(! isLocal);

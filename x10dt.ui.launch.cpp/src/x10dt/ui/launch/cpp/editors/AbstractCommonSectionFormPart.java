@@ -13,10 +13,10 @@ import java.util.Collection;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.services.core.IServiceProvider;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -81,6 +81,8 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     this.fIsDirty = false;
     this.fIsStale = false;
   }
+  
+  public abstract void initializeControls();
   
   public final void setFocus() {
     final Control client = this.fSection.getClient();
@@ -149,7 +151,7 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     return this.fSection;
   }
   
-  protected final void handleEmptyTextValidation(final Combo combo, final String controlInfo) {
+  protected final void handleEmptyTextValidation(final CCombo combo, final String controlInfo) {
     final IFormControlChecker checker = FormCheckerFactory.createEmptyControlChecker(this.fFormPage, combo, controlInfo);
     checker.validate(combo.getText().trim());
   }

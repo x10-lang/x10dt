@@ -81,6 +81,17 @@ public final class X10PlatformConfFactory {
   }
   
   /**
+   * Loads (or creates) the X10 platform configuration file from the JDT file provided and creates as a result 
+   * {@link IX10PlatformConf}.
+   * 
+   * @param file The X10 Platform Configuration file to read.
+   * @return A non-null implementation of {@link IX10PlatformConf}.
+   */
+	public static IX10PlatformConf load(final IFile file, boolean loadFromFile) {
+		return new X10PlatformConf(file, loadFromFile);
+	}
+  
+  /**
    * Loads (or creates) the X10 platform configuration present at the root of the project provided and creates as a 
    * result {@link IX10PlatformConf}.
    * 

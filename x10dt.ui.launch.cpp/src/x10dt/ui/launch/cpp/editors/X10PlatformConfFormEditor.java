@@ -7,55 +7,51 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.services.core.IServiceProvider;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPropertyListener;
-import org.eclipse.ui.IWorkbenchPartConstants;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
+import org.eclipse.ui.forms.IMessage;
 import org.eclipse.ui.forms.editor.IFormPage;
 import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.events.HyperlinkAdapter;
 import org.eclipse.ui.forms.widgets.Form;
+import org.eclipse.ui.internal.forms.MessageManager;
 
-import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.Messages;
-import x10dt.ui.launch.core.dialogs.DialogsFactory;
-import x10dt.ui.launch.core.platform_conf.ETargetOS;
+import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.CppLaunchImages;
 import x10dt.ui.launch.cpp.LaunchMessages;
-import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
@@ -63,26 +59,79 @@ import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformChecker;
 import x10dt.ui.launch.cpp.platform_conf.validation.IX10PlatformValidationListener;
 import x10dt.ui.launch.cpp.platform_conf.validation.PlatformCheckerFactory;
+import x10dt.ui.typeHierarchy.X10ElementImageDescriptor;
+import x10dt.ui.typeHierarchy.X10ElementImageProvider;
 
 /**
  * Main class activating the editor for editing the X10 Platform Configuration file.
  * 
  * @author egeay
  */
+@SuppressWarnings({"restriction"})
 public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor 
                                              implements IPropertyListener, ICompletePageChangedListener, 
                                                         IX10PlatformValidationListener, IConnectionTypeListener {
   
   // --- IPropertyListener's interface methods implementation
   
-  public void propertyChanged(final Object source, final int propId) {
-    if ((this == source) && (propId == IWorkbenchPartConstants.PROP_DIRTY)) {
-      final boolean isDirty = isDirty();
-      if (isDirty != this.fSaveAction.isEnabled()) {
-        this.fSaveAction.setEnabled(isDirty);
-      }
-    }
-  }
+	public void propertyChanged(final Object source, final int propId) {
+		
+	}
+  
+	public ImageDescriptor getCUResourceImageDescriptor() {
+		ImageDescriptor desc = fFileImg;
+
+		try {
+			int severity = getFile().findMaxProblemSeverity(IMarker.PROBLEM,
+					true, IResource.DEPTH_ZERO);
+			if (severity == IMarker.SEVERITY_ERROR) {
+				severity = X10ElementImageDescriptor.ERROR;
+			} else if (severity == IMarker.SEVERITY_WARNING) {
+				severity = X10ElementImageDescriptor.WARNING;
+			}
+
+			if (severity > 0) {
+				desc = new X10ElementImageDescriptor(desc, severity,
+						X10ElementImageProvider.SMALL_SIZE);
+			}
+		} catch (CoreException e) {
+			X10DTUIPlugin.log(e);
+		}
+
+		return desc;
+	}
+	
+	public ImageDescriptor getCUResourceImageDescriptor(List<IMessage> messages) {
+		ImageDescriptor desc = fFileImg;
+
+		int severity = 0;
+		if(messages.size() > 0)
+		{
+			for(IMessage msg : messages)
+			{
+				if(msg.getMessageType() == IMessage.ERROR)
+				{
+					severity = X10ElementImageDescriptor.ERROR;
+				}
+				
+				else if (severity == IMessage.WARNING) {
+					severity = X10ElementImageDescriptor.WARNING;
+				}
+				
+				if(severity == X10ElementImageDescriptor.ERROR)
+				{
+					break;
+				}
+			}
+		}
+		
+		if (severity > 0) {
+			desc = new X10ElementImageDescriptor(desc, severity,
+					X10ElementImageProvider.SMALL_SIZE);
+		}
+		
+		return desc;
+	}
   
   // --- ICompletePageChangedListener's interface methods implementation
   
@@ -96,9 +145,6 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
         }
       }
       this.fValidateAction.setEnabled(allPagesComplete);
-      if (allPagesComplete) {
-        this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);
-      }
     } else {
       this.fValidateAction.setEnabled(false);
     }
@@ -107,17 +153,30 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   // --- IX10PlatformValidationListener's interface methods implementation
   
   public void platformCommunicationInterfaceValidated() {
-    this.fValidateAction.setImageDescriptor(this.fValidPlatformImg);  	
+	
   }
 
+	private void addHeaderErrorMessage(final String msg) {
+		getSite().getShell().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				getHeaderForm().getMessageManager().addMessage(
+						X10PlatformConfFormEditor.this.fConnKey, msg, null,
+						IMessageProvider.ERROR);
+			}
+
+		});
+	}
+	
+	private void removeHeaderMessage(final Object key) {
+		getSite().getShell().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				getHeaderForm().getMessageManager().removeMessage(key);
+			}
+		});
+	}
+  
 	public void platformCommunicationInterfaceValidationFailure(final String message) {
-		this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
-		CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                            NLS.bind(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, Constants.EMPTY_STR),
-                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
-    DialogsFactory.createErrorBuilder().setDetailedMessage(message)
-    					    .createAndOpen(getSite(), LaunchMessages.XPCFE_CommInterfaceFailure, 
-    					                   LaunchMessages.XPCFE_DiscoveryCmdDialogMsg);
+		addHeaderErrorMessage(MessageFormat.format(LaunchMessages.XPCFE_DiscoveryCmdFailedMarkerMsg, message));
 	}
   
   public void platformCppCompilationValidated() {
@@ -125,72 +184,23 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   }
   
   public void platformCppCompilationValidationFailure(final String message) {
-    this.fValidateAction.setImageDescriptor(this.fInvalidPlatformImg);
-    final String failureMessage = getCurrentPlatformConf().getCppCompilationConf().getValidationErrorMessage();
-    CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                            LaunchMessages.XPCFE_ValidationFailureDlgMsg, IMarker.SEVERITY_ERROR, 
-                                            IMarker.PRIORITY_HIGH);
-    DialogsFactory.createErrorBuilder().setDetailedMessage(failureMessage)
-                  .createAndOpen(getSite(), LaunchMessages.XPCFE_ValidationFailureDlgTitle, 
-                                 LaunchMessages.XPCFE_ValidationFailureDlgMsg); 
+    addHeaderErrorMessage(getCurrentPlatformConf().getCppCompilationConf().getValidationErrorMessage());
   }
   
   public void platformCppCompilationValidationError(final Exception exception) {
-    this.fValidateAction.setImageDescriptor(this.fErrorPlatformImg);
-    CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                            LaunchMessages.XPCFE_ValidationErrorDlgMsg, IMarker.SEVERITY_ERROR, 
-                                            IMarker.PRIORITY_HIGH);
-    DialogsFactory.createErrorBuilder().setDetailedMessage(exception)
-    							.createAndOpen(getSite(), LaunchMessages.XPCFE_ValidationErrorDlgTitle, 
-    							               LaunchMessages.XPCFE_ValidationErrorDlgMsg);
+    addHeaderErrorMessage(MessageFormat.format(LaunchMessages.XPCFE_ValidationErrorDlgMsg, exception.getMessage()));
   }
   
   public void remoteConnectionFailure(final Exception exception) {
-    final IAction validationAction = this.fValidateAction;
-    CoreResourceUtils.addPlatformConfMarker(((IFileEditorInput) getEditorInput()).getFile(), 
-                                            NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg, Constants.EMPTY_STR),
-                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
-    getSite().getShell().getDisplay().syncExec(new Runnable() {
-      
-      public void run() {
-        if (validationAction.isEnabled()) {
-          validationAction.setImageDescriptor(X10PlatformConfFormEditor.this.fInvalidPlatformImg);
-        }
-        getHeaderForm().getMessageManager().addMessage(X10PlatformConfFormEditor.this.fConnKey, 
-                                                       LaunchMessages.XPCFE_RemoteConnValidationError, null, 
-                                                       IMessageProvider.ERROR);
-      }
-      
-    });
+    addHeaderErrorMessage(LaunchMessages.XPCFE_RemoteConnValidationError);
   }
   
   public void remoteConnectionUnknownStatus() {
-    final IAction validationAction = this.fValidateAction;
-    CoreResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
-    getSite().getShell().getDisplay().syncExec(new Runnable() {
-      
-      public void run() {
-        getHeaderForm().getMessageManager().removeMessage(X10PlatformConfFormEditor.this.fConnKey);
-        if (validationAction.isEnabled()) {
-          validationAction.setImageDescriptor(X10PlatformConfFormEditor.this.fUncheckedPlatformImg);
-        }   
-      }
-      
-    });
+	  removeHeaderMessage(X10PlatformConfFormEditor.this.fConnKey);
   }
   
   public void remoteConnectionValidated(final ITargetElement targetElement) {
-    final IAction validationAction = this.fValidateAction;
-    getSite().getShell().getDisplay().syncExec(new Runnable() {
-      
-      public void run() {
-        getHeaderForm().getMessageManager().removeMessage(X10PlatformConfFormEditor.this.fConnKey);
-        if (validationAction.isEnabled()) {
-          validationAction.setImageDescriptor(X10PlatformConfFormEditor.this.fUncheckedPlatformImg);
-        }
-      }
-      
-    });
+    
   }
   
   public void serviceProviderFailure(final CoreException exception) {
@@ -202,10 +212,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
                                 final EValidationStatus validationStatus, final boolean shouldDeriveInfo) {
-    getHeaderForm().getMessageManager().removeMessage(this.fConnKey);
-    if (this.fValidateAction.isEnabled()) {
-      this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);
-    }
+	  removeHeaderMessage(X10PlatformConfFormEditor.this.fConnKey);
   }
   
   // --- Abstract methods implementation
@@ -221,81 +228,38 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     }
   }
 
+  @SuppressWarnings({"unchecked"})
   public void doSave(final IProgressMonitor monitor) {
-    final IFile file = ((IFileEditorInput) getEditorInput()).getFile();
+    final IFile file = getFile();
     synchronized (file) {
       CoreResourceUtils.deletePlatformConfMarkers(file);
       
-      {//TODO: Probably to remove.
-        final IProject project = file.getProject();
-        final IWorkspace workspace = project.getWorkspace();
-        final IWorkspaceDescription description = workspace.getDescription();
-        boolean isAutoBuilding = description.isAutoBuilding();
-        if (isAutoBuilding == true) {
-          description.setAutoBuilding(false);
-          try {
-            workspace.setDescription(description);
-          } catch (CoreException except) {
-            CppLaunchCore.log(except.getStatus());
-          }
-        }
-
-        monitor.beginTask(null, 3);
-        final BuildChangeListener buildListener = new BuildChangeListener();
-        try {
-          project.getWorkspace().addResourceChangeListener(buildListener);
-          project.build(IncrementalProjectBuilder.CLEAN_BUILD, new SubProgressMonitor(monitor, 1));
-          while (buildListener.hasFinished())
-            ;
-        } catch (CoreException except) {
-          DialogsFactory.createErrorBuilder()
-                        .setDetailedMessage(except.getStatus())
-                        .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
-                                       LaunchMessages.XPCFE_CouldNotCleanOutputDir);
-        } finally {
-          if (isAutoBuilding) {
-            description.setAutoBuilding(true);
-            try {
-              workspace.setDescription(description);
-            } catch (CoreException except) {
-              CppLaunchCore.log(except.getStatus());
-            }
-          }
-          project.getWorkspace().removeResourceChangeListener(buildListener);
-        }
-        if (monitor.isCanceled()) {
-          return;
-        }
-      }
-
       try {
         getCurrentPlatformConf().applyChanges();
         
-        final String outputFolder = getCurrentPlatformConf().getCppCompilationConf().getRemoteOutputFolder();
-        if ((outputFolder == null) || (outputFolder.length() == 0)) {
-          CoreResourceUtils.addPlatformConfMarker(file, Messages.AXBO_NoRemoteOutputFolder, IMarker.SEVERITY_ERROR, 
-                                                  IMarker.PRIORITY_HIGH);
-        }
+        Field f = MessageManager.class.getDeclaredField("messages");
+        f.setAccessible(true);
+        final List<IMessage> msgs = (List<IMessage>)f.get((MessageManager)getHeaderForm().getMessageManager());
+        f.setAccessible(false);
         
-        final IConnectionConf connConf = getCurrentPlatformConf().getConnectionConf();
-        final boolean isCygwin = getCurrentPlatformConf().getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
-        if (TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName()) == null) {
-          CoreResourceUtils.addPlatformConfMarker(file, Messages.CPPB_NoValidConnectionError, IMarker.SEVERITY_ERROR, 
-                                                  IMarker.PRIORITY_HIGH);
+        for(IMessage msg : msgs) {
+        	CoreResourceUtils.addPlatformConfMarker(file, msg.getMessage(), (msg.getMessageType() == IMessage.ERROR) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING, 
+                    IMarker.PRIORITY_HIGH);
         }
         
         X10PlatformConfFactory.save(file, getCurrentPlatformConf());
         monitor.worked(1);
         commitPages(true);
-        if (! getCurrentPlatformConf().isComplete(false)) {
-          CoreResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, IMarker.SEVERITY_WARNING, 
-                                                  IMarker.PRIORITY_HIGH);
-        }
+        
+        Display.getDefault().syncExec(new Runnable() {
+			public void run() {
+				setTitleImage(getCUResourceImageDescriptor(msgs)
+						.createImage());
+			}
+		});
         monitor.worked(1);
-      } catch (CoreException except) {
-        DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
-                      .createAndOpen(getEditorSite(), LaunchMessages.XPCFE_ConfSavingErrorDlgTitle,
-                                     LaunchMessages.XPCFE_ContentCopyError);
+      } catch(Exception e) {
+    	  CppLaunchCore.log(e);
       } finally {
         monitor.done();
       }
@@ -316,13 +280,13 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     form.setText(LaunchMessages.XPCFE_FormTitle);
     headerForm.getToolkit().decorateFormHeading(form);
     
-    this.fSaveAction = new SaveAction();
+    this.fRefreshAction = new RefreshAction();
     this.fValidateAction = new ValidateAction();
-    form.getToolBarManager().add(this.fSaveAction);
+    form.getToolBarManager().add(this.fRefreshAction);
     form.getToolBarManager().add(this.fValidateAction);
     form.getToolBarManager().update(true);
     form.addMessageHyperlinkListener(new HyperlinkAdapter());
-    this.fSaveAction.setEnabled(false);
+    this.fRefreshAction.setEnabled(true);
   }
   
   protected void createPages() {
@@ -342,6 +306,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     for (final Object page : super.pages) {
       if (page != null) {
         ((IFormPage) page).getManagedForm().setInput(getCurrentPlatformConf());
+        ((IFormPage) page).getManagedForm().getMessageManager().setDecorationPosition(SWT.LEFT);
       }
     }
     ((IFormPage) super.pages.get(0)).getManagedForm().reflow(true);
@@ -351,8 +316,37 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     }
     this.fValidateAction.setImageDescriptor(this.fUncheckedPlatformImg);
     this.fValidateAction.setEnabled(getCurrentPlatformConf().isComplete(false));
-    this.fSaveAction.setImageDescriptor(CppLaunchImages.createUnmanaged(CppLaunchImages.SAVE_PLATFORM_CONF));
+    this.fRefreshAction.setImageDescriptor(CppLaunchImages.createUnmanaged(CppLaunchImages.REFRESH_PLATFORM_CONF));
+    
+//    updateHeaderFromMarkers();
+    Display.getDefault().syncExec(new Runnable() {
+		public void run() {
+			setTitleImage(getCUResourceImageDescriptor()
+					.createImage());
+		}
+	});
   }
+  
+	public void updateHeaderFromMarkers() {
+		getSite().getShell().getDisplay().syncExec(new Runnable() {
+			public void run() {
+				try {
+					IMarker[] markers = ((IFileEditorInput) getEditorInput())
+							.getFile().findMarkers(IMarker.PROBLEM, true,
+									IResource.DEPTH_ZERO);
+					for (IMarker marker : markers) {
+						getHeaderForm().getMessageManager().addMessage(
+								X10PlatformConfFormEditor.this.fConnKey,
+								marker.getAttribute(IMarker.MESSAGE,
+										"Missing message"), null,
+								IMessageProvider.ERROR);
+					}
+				} catch (CoreException e) {
+					CppLaunchCore.log(e);
+				}
+			}
+		});
+	}
   
   public void dispose() {
     removePropertyListener(this);
@@ -362,10 +356,10 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   public void init(final IEditorSite site, final IEditorInput input) throws PartInitException {
     super.init(site, input);
     
-    final IProject project = ((IFileEditorInput) input).getFile().getProject();
+    final IProject project = getProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
     final IX10PlatformConfWorkCopy workCopy = platformConf.createWorkingCopy();
-    workCopy.initializeToDefaultValues(project);
+    //workCopy.initializeToDefaultValues(project);
     
     this.fX10PlatformConfs.put(workCopy.getName(), workCopy);
     this.fCurConfiguration = workCopy;
@@ -398,7 +392,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private synchronized void validate() {
     final IX10PlatformChecker checker = PlatformCheckerFactory.create();
-  	CoreResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
+//  	CoreResourceUtils.deletePlatformConfMarkers(((IFileEditorInput) getEditorInput()).getFile());
     checker.addValidationListener(this);
     try {
       final IRunnableWithProgress runnable = new IRunnableWithProgress() {
@@ -444,41 +438,47 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
     
   }
   
-  private final class SaveAction extends Action {
-    
-    SaveAction() {
-      super(LaunchMessages.XPCFE_SavePlatformActionMsg);
-    }
-    
-    // --- Overridden methods
-    
-    public void run() {
-      doSave(new NullProgressMonitor());
-    }
-    
-  }
-  
-  private static final class BuildChangeListener implements IResourceChangeListener {
+	private final class RefreshAction extends Action {
+		RefreshAction() {
+			super(LaunchMessages.XPCFE_ResetPlatformActionMsg);
+		}
 
-    // --- Interface methods implementation
-    
-    public void resourceChanged(final IResourceChangeEvent event) {
-      if (event.getType() == IResourceChangeEvent.POST_BUILD) {
-        this.fHasFinished = true;
-      }
-    }
-    
-    // --- Internal services
-    
-    boolean hasFinished() {
-      return this.fHasFinished;
-    }
-    
-    // --- Fields
-    
-    private boolean fHasFinished;
-    
-  }
+		// --- Overridden methods
+		public void run() {
+			if(MessageDialog.openQuestion(null, 
+					LaunchMessages.XPCFE_ResetPlatformActionMsg, 
+					LaunchMessages.XPCFE_ResetPlatformActionDialogMsg))
+			{
+				final IX10PlatformConf platformConf = X10PlatformConfFactory.load(getFile(), false);
+			    final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
+			    platformConfWorkCopy.initializeToDefaultValues(getProject());
+			    
+			    fX10PlatformConfs.put(platformConfWorkCopy.getName(), platformConfWorkCopy);
+			    fCurConfiguration = platformConfWorkCopy;
+			    
+				
+				for (final Object page : X10PlatformConfFormEditor.this.pages) {
+					if (page != null) {
+						IManagedForm form = ((IFormPage) page).getManagedForm();
+						
+						for (IFormPart part : form.getParts()) {
+							((AbstractCommonSectionFormPart)part).initializeControls();
+						}	
+					}
+				}
+			}
+		}
+	}
+	
+	private IFile getFile()
+	{
+		return ((IFileEditorInput) getEditorInput()).getFile();
+	}
+	
+	private IProject getProject()
+	{
+		return getFile().getProject();
+	}
   
   // --- Fields
   
@@ -486,19 +486,13 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private IX10PlatformConfWorkCopy fCurConfiguration; 
   
-  private IAction fSaveAction;
+  private IAction fRefreshAction;
   
   private IAction fValidateAction;
   
   private final Object fConnKey = new Object();
   
-  
-  private final ImageDescriptor fValidPlatformImg = CppLaunchImages.createUnmanaged(CppLaunchImages.VALID_PLATFORM_CONF);
-  
-  private final ImageDescriptor fInvalidPlatformImg = CppLaunchImages.createUnmanaged(CppLaunchImages.INVALID_PLATFORM_CONF);
-  
-  private final ImageDescriptor fErrorPlatformImg = CppLaunchImages.createUnmanaged(CppLaunchImages.PLATFORM_CONF_VALIDATION_ERROR);
-  
   private final ImageDescriptor fUncheckedPlatformImg = CppLaunchImages.createUnmanaged(CppLaunchImages.UNCHEKED_PLATFORM_CONF);
-
+  
+  private final ImageDescriptor fFileImg= CppLaunchImages.createUnmanaged(CppLaunchImages.FILE);
 }

@@ -64,6 +64,11 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   	IResourceManager resourceManager = null;
   	try {
   		resourceManager = PTPConfUtils.getResourceManager(platformConf);
+  		
+  		if(resourceManager == null)
+  		{
+	  		return;
+  		}
   	} catch (RemoteConnectionException except) {
   		for (final IX10PlatformValidationListener listener : this.fListeners) {
   			listener.remoteConnectionFailure(except);
