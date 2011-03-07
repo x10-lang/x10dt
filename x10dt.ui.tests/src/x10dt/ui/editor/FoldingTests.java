@@ -70,8 +70,8 @@ public class FoldingTests extends X10DTEditorTestBase {
 
         waitForParser();
 
-        IAnnotationModel annModel = (IAnnotationModel) univEditor.getAdapter(IAnnotationModel.class);
-        Node root= (Node) univEditor.getParseController().getCurrentAst();
+        IAnnotationModel annModel = univEditor.getDocumentProvider().getAnnotationModel(univEditor.getEditorInput());
+        Node root = (Node) univEditor.getParseController().getCurrentAst();
 
         checkFoldable(findMethod("main", root), annModel, univEditor);
 //      checkFoldable(findMethod("this", root), annModel, univEditor);
