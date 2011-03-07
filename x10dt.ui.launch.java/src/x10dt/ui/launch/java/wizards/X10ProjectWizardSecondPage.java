@@ -27,6 +27,7 @@ import java.util.List;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -107,7 +108,7 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
           IPackageFragment pkgFrag = pkgFragRoot.getPackageFragment(""); //$NON-NLS-1$
 
           InputStream sourceInputStream = WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello"); //$NON-NLS-1$
-          newFile.create(sourceInputStream, true, monitor);
+          newFile.create(sourceInputStream, IResource.FORCE | IResource.KEEP_HISTORY, monitor);
 
           ((X10ProjectWizard) X10ProjectWizardSecondPage.this.getWizard()).selectAndReveal(newFile);
           openResource(newFile);

@@ -189,7 +189,8 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
     final IPackageFragmentRoot pkgFragRoot = javaProject.getPackageFragmentRoot(srcFolder);
     final IPackageFragment pkgFrag = pkgFragRoot.getPackageFragment(""); //$NON-NLS-1$
 
-    this.fCreatedFile.create(WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello"), true /* force */, //$NON-NLS-1$
+    this.fCreatedFile.create(WizardUtils.createSampleContentStream(pkgFrag.getElementName(), "Hello"), //$NON-NLS-1$
+    						 IResource.FORCE | IResource.KEEP_HISTORY, 
                              monitor);
 
     openSourceFile(this.fCreatedFile);

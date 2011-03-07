@@ -163,7 +163,7 @@ public class NewX10InterfacePage extends NewTypeWizardPage {
       if (file.exists()) {
         file.setContents(stream, true, true, monitor);
       } else {
-        file.create(stream, true, monitor);
+        file.create(stream, IResource.FORCE | IResource.KEEP_HISTORY, monitor);
       }
       stream.close();
     } catch (IOException e) {
