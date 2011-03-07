@@ -428,10 +428,10 @@ public class X10SearchPage extends DialogPage implements ISearchPage {
 		ArrayList<Button> buttons= new ArrayList<Button>();
 		buttons.add(createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_allOccurrences, ALL_OCCURRENCES, limitTo == ALL_OCCURRENCES));
 		Button declarations = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_declarations, DECLARATIONS, limitTo == DECLARATIONS);
-		declarations.setEnabled(false);
+		//declarations.setEnabled(false);
 		buttons.add(declarations);
 		Button references = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_references, REFERENCES, limitTo == REFERENCES);
-		references.setEnabled(false);
+		//references.setEnabled(false);
 		buttons.add(references);
 		if (searchFor == TYPE) {
 			Button implementors = createButton(fLimitToGroup, SWT.RADIO, Messages.SearchPage_limitTo_implementors, IMPLEMENTORS, limitTo == IMPLEMENTORS);

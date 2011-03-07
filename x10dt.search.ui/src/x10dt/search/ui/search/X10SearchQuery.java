@@ -8,7 +8,9 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.ISearchResult;
 
+import x10dt.search.core.elements.IFieldInfo;
 import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.elements.IMethodInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.X10SearchEngine;
 import x10dt.search.ui.Messages;
@@ -35,23 +37,41 @@ public class X10SearchQuery implements ISearchQuery {
 		IProgressMonitor mainSearchPM= new SubProgressMonitor(monitor, totalTicks);
 		try {
 			
-			if (fPatternData.getSearchFor() == SearchPatternData.TYPE 
-					&& fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
+			if (fPatternData.getSearchFor() == SearchPatternData.TYPE){
 				ITypeInfo[] results = X10SearchEngine.getAllMatchingTypeInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
 				for(ITypeInfo info: results){
-					acceptSearchResult(info, textResult);
+					if (fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES ||
+						fPatternData.getLimitTo() == SearchPatternData.DECLARATIONS) {
+							acceptSearchResult(info, textResult);
+					}
+					if (fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES ||
+						fPatternData.getLimitTo() == SearchPatternData.REFERENCES){
+							X10SearchEngine.collectTypeUses(fPatternData.getX10Scope(), info, textResult, mainSearchPM);	
+					}
 				}
-			} else if (fPatternData.getSearchFor() == SearchPatternData.METHOD 
-					&& fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
-				IMemberInfo[] results = X10SearchEngine.getAllMatchingMethodInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
-				for (IMemberInfo r: results){
-					acceptSearchResult(r, textResult);
-				}
-			} else if (fPatternData.getSearchFor() == SearchPatternData.FIELD
-					&& fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES){
-					IMemberInfo[] results = X10SearchEngine.getAllMatchingFieldInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
-					for (IMemberInfo r: results){
+			} else if (fPatternData.getSearchFor() == SearchPatternData.METHOD){
+				IMethodInfo[] results = X10SearchEngine.getAllMatchingMethodInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
+				for (IMethodInfo r: results){
+					if (fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES ||
+							fPatternData.getLimitTo() == SearchPatternData.DECLARATIONS) {
 						acceptSearchResult(r, textResult);
+					}
+					if (fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES ||
+						fPatternData.getLimitTo() == SearchPatternData.REFERENCES){
+						X10SearchEngine.collectMethodUses(fPatternData.getX10Scope(), r, textResult, mainSearchPM);
+					}
+				}
+			} else if (fPatternData.getSearchFor() == SearchPatternData.FIELD){
+					IFieldInfo[] results = X10SearchEngine.getAllMatchingFieldInfo(fPatternData.getX10Scope(), stringPattern, fPatternData.isCaseSensitive(), mainSearchPM);
+					for (IFieldInfo r: results){
+						if (fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES ||
+							fPatternData.getLimitTo() == SearchPatternData.DECLARATIONS) {
+								acceptSearchResult(r, textResult);
+						}
+						if (fPatternData.getLimitTo() == SearchPatternData.ALL_OCCURRENCES ||
+							fPatternData.getLimitTo() == SearchPatternData.REFERENCES){
+								X10SearchEngine.collectFieldUses(fPatternData.getX10Scope(), r, textResult, mainSearchPM);
+						}
 					}
 			}
 		} catch(Exception e){

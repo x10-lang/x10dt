@@ -1,6 +1,7 @@
 package x10dt.search.ui.search;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.search.ui.ISearchQuery;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
@@ -10,8 +11,9 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.ui.IEditorPart;
 
 import x10dt.search.core.elements.IMemberInfo;
+import x10dt.search.core.engine.ISearchResultObserver;
 import x10dt.ui.typeHierarchy.SearchUtils;
-public class X10SearchResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter {
+public class X10SearchResult extends AbstractTextSearchResult implements IEditorMatchAdapter, IFileMatchAdapter, ISearchResultObserver {
 
 	private final X10SearchQuery fQuery;
 	
@@ -75,6 +77,10 @@ public class X10SearchResult extends AbstractTextSearchResult implements IEditor
 	@Override
 	public IFileMatchAdapter getFileMatchAdapter() {
 		return this;
+	}
+
+	public void accept(IMemberInfo container, ISourceLocation sourceLocation) {
+		this.addMatch(new X10ElementMatch(container, container.getLocation().getOffset(), container.getLocation().getLength(), false, false));	
 	}
 	
 }
