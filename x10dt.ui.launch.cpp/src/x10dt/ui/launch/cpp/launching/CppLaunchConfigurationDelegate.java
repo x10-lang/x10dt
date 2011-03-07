@@ -13,13 +13,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -60,6 +63,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.visit.MessagePassingCodeGenerator;
 import x10dt.core.utils.CompilerOptionsFactory;
+import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
@@ -114,6 +118,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
     try {
       this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+      
       final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
       final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
       this.fIsCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
@@ -142,6 +147,16 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       final String mainX10FilePath = createX10MainFile(this.fTargetOpHelper, x10MainType.replace(PACKAGE_SEP, NAMESPACE_SEP),
                                                        this.fWorkspaceDir, project, subMonitor.newChild(1));
 
+      for(IMarker marker : project.findMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, false, IResource.DEPTH_ZERO))
+      {
+    	  if(marker.getAttribute(MAIN_FILE_KEY, "").equals(fX10PlatformConf.getConfFile().getProjectRelativePath().toPortableString()) 
+    			  && marker.getAttribute(MAIN_CLASS_KEY, "").equals(x10MainType))
+    	  {
+    		  marker.delete();
+    		  break;
+    	  }
+      }
+      
       final IFileStore mainCppFileStore = getMainCppFileStore(x10MainType, this.fWorkspaceDir);
       if (mainCppFileStore == null) {
         throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID,
@@ -155,7 +170,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       project.setPersistentProperty(Constants.EXEC_PATH, this.fExecPath);
 
       final List<String> command = new ArrayList<String>();
-      final String linker = this.fTargetOpHelper.getTargetSystemPath(cppCompConf.getLinker());
+      final String linker = this.fTargetOpHelper.getTargetSystemPath(PlatformConfUtils.getValidString(cppCompConf.getLinker()));
 
       command.add(linker);
       command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingOpts(true)));
@@ -203,8 +218,12 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       if (returnCode != 0) {
         mcStream.println();
         UIUtils.showX10Console();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map.put(MAIN_FILE_KEY, fX10PlatformConf.getConfFile().getProjectRelativePath().toPortableString());
+        map.put(MAIN_CLASS_KEY, x10MainType);
+        
         CoreResourceUtils.addBuildMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR,
-                                           IMarker.PRIORITY_HIGH);
+                                           IMarker.PRIORITY_HIGH, null, -1, 0, 0, map);
       }
 
       return returnCode;
@@ -550,5 +569,10 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
   private static final String EXE_EXT = ".exe"; //$NON-NLS-1$
 
   private static final String CC_EXT = "cc"; //$NON-NLS-1$
+  
+
+  public static final String MAIN_FILE_KEY = "file";
+
+  public static final String MAIN_CLASS_KEY = "class";
 
 }
