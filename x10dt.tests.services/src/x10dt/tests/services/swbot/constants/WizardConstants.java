@@ -156,9 +156,7 @@ public final class WizardConstants {
 
   public static final String SEARCH_MENU_ITEM = "Search...";
 
-  public static final String REMOVE_ALL_MATCHES_BUTTON = "Remove All Matches";
-
-
+  
   // --- Constants for project and file deletion
   
   public static final String DELETE_MENU_ITEM = "Delete"; //$NON-NLS-1$

@@ -22,10 +22,20 @@ public final class ViewConstants {
   public static final String PACKAGE_EXPLORER_VIEW_NAME = "Package Explorer"; //$NON-NLS-1$
   
   public static final String SEARCH_VIEW_TITLE = "Search";
+  
 
   // --- View context menu constants
   
   public static final String NEW_MENU = "New"; //$NON-NLS-1$
+  
+  
+  // --- View buttons
+  
+  public static final String REMOVE_ALL_MATCHES_BUTTON = "Remove All Matches"; //$NON-NLS-1$
+  
+  public static final String CLEAR_CONSOLE_BUTTON = "Clear Console"; //$NON-NLS-1$
+
+
   
   // --- Private code
   

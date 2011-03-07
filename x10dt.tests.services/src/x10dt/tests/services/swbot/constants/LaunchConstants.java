@@ -68,6 +68,8 @@ public final class LaunchConstants {
 
   public static final String CPP_LAUNCH_CONFIG_COMM_INTERFACE_TAB = "Communication Interface"; //$NON-NLS-1$
 
+  public static final String CPP_LAUNCH_PROGRAM_ARGUMENTS = "Parallel Program arguments"; //$NON-NLS-1$
+
   // --- Private code
 
   private LaunchConstants() {}
