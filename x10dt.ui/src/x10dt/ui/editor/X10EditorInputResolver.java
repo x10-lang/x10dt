@@ -19,13 +19,11 @@ public class X10EditorInputResolver extends EditorInputResolver {
 			try {
 				IStorageEditorInput sti = (IStorageEditorInput) editorInput;
 				if (sti.getStorage() instanceof IJarEntryResource) {
-					IJarEntryResource jar = (IJarEntryResource) sti
-							.getStorage();
+					IJarEntryResource jar = (IJarEntryResource) sti.getStorage();
 					IPackageFragmentRoot root = jar.getPackageFragmentRoot();
 					return new Path(root.getPath().toPortableString()
 							+ ":"
-							+ jar.getFullPath().toPortableString()
-									.replaceFirst("/", ""));
+							+ jar.getFullPath().toPortableString().replaceFirst("/", ""));
 				}
 			} catch (Exception e) {
 				// ignore
