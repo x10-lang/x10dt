@@ -19,6 +19,7 @@ package x10dt.ui.tests;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -68,6 +69,7 @@ import org.w3c.dom.NodeList;
 
 import x10dt.core.utils.Timeout;
 import x10dt.core.utils.X10BundleUtils; 
+import x10dt.search.core.SearchCoreActivator;
 import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.PlatformConfConstants;
 import x10dt.tests.services.swbot.constants.ViewConstants;
@@ -75,6 +77,8 @@ import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.ProblemsViewUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.cpp.CppLaunchCore;
+
 import x10dt.ui.tests.waits.X10DT_Conditions;
 
 /**
@@ -202,6 +206,7 @@ public class X10DTTestBase {
 
 	  // x10 settings
 	  public Integer			numPlaces;
+	  public ArrayList<String>	programArgs;
 
 	  // remote connection settings
 	  public String  connectionName;
@@ -283,13 +288,31 @@ public class X10DTTestBase {
     SWTBotUtils.closeAllShells(topLevelBot);
   }
 
-/**
+  /**
    * This method waits for a build to finish before continuing
    * 
    * @throws Exception
    */
   public static void waitForBuildToFinish() throws Exception {
     Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+  }
+  
+  /**
+   * This method waits for the indexer to finish before continuing
+   * 
+   * @throws Exception
+   */
+  public static void waitForIndexerToFinish() throws Exception {
+//    Job.getJobManager().join(SearchCoreActivator.FAMILY_X10_INDEXER, null);
+  }
+  
+  /**
+   * This method waits for the Platform Configuration Validation to finish before continuing
+   * 
+   * @throws Exception
+   */
+  public static void waitForPlatformValidationToFinish() throws Exception {
+    Job.getJobManager().join(CppLaunchCore.FAMILY_PLATFORM_CONF_VALIDATION, null);
   }
   
   /**
@@ -313,7 +336,29 @@ public class X10DTTestBase {
 	  newPerspectiveBot.button(WizardConstants.OK_BUTTON).click();
 	  topLevelBot.perspectiveByLabel(perspectiveName).activate();
   }
+ 
   
+  /**
+   * This method clears the console view
+   * 
+   * @throws Exception
+   */
+  public static void clearConsoleView() {
+
+System.out.println("clearing console view");
+	  // look for the Console view
+	  final Matcher<IViewReference> withPartName = WidgetMatcherFactory.withPartName(ViewConstants.CONSOLE_VIEW_NAME);
+	  final WaitForView waitForConsole = Conditions.waitForView(withPartName);
+
+	  topLevelBot.waitUntil(waitForConsole);
+
+	  //find the console view
+	  SWTBotView consoleView = new SWTBotView(waitForConsole.get(0), topLevelBot);
+
+	  consoleView.setFocus();
+	  consoleView.toolbarPushButton(ViewConstants.CLEAR_CONSOLE_BUTTON).click();	//reset console window for the next time around
+  }
+
   /*
    * 	Methods for creating and running Java Back End Projects
    */
@@ -482,7 +527,7 @@ public class X10DTTestBase {
 
   //Set up CPP backend run configuration and launch application
   //
-  public static void createAndRunCPPBackEndLaunchConfig(String launchName, String projectName, String mainTypeName, int numPlaces)
+  public static void createAndRunCPPBackEndLaunchConfig(String launchName, String projectName, String mainTypeName, int numPlaces, ArrayList<String> programArgs)
   {
 	  // Open the X10 Run Configuration dialog
 	  SWTBotMenu runMenu = topLevelBot.menu(LaunchConstants.RUN_MENU);
@@ -512,6 +557,16 @@ public class X10DTTestBase {
 
 	  //set the main class name
 	  configsBot.textInGroup(LaunchConstants.CPP_LAUNCH_CONFIG_MAIN_CLASS, 0).setText(mainTypeName);
+
+	  //set the program arguments
+	  if (programArgs != null) {
+		  Iterator<String> argument = programArgs.listIterator(0);
+		  String argString = "";
+		  while (argument.hasNext()) {
+			  argString += argument.next() + " ";
+		  }
+		  configsBot.textInGroup(LaunchConstants.CPP_LAUNCH_PROGRAM_ARGUMENTS, 0).setText(argString);
+	  }
 
 	  //pick the the 'Communication Interface' dialog tab
 	  mainTab = configsBot.cTabItem(LaunchConstants.CPP_LAUNCH_CONFIG_COMM_INTERFACE_TAB);
@@ -838,7 +893,7 @@ public class X10DTTestBase {
 	  Assert.assertTrue(((rowCount == 0) ?  "Type list is empty":"No match found in list"), found);
 
 	  searchView.setFocus();
-	  searchView.toolbarPushButton(WizardConstants.REMOVE_ALL_MATCHES_BUTTON).click();	//reset search window for the next time around
+	  searchView.toolbarPushButton(ViewConstants.REMOVE_ALL_MATCHES_BUTTON).click();	//reset search window for the next time around
 
 	  return found;
   }
@@ -931,7 +986,7 @@ public class X10DTTestBase {
   
   //NB: Call this BEFORE calling setCppPlatformCompilationConfig
   //
-  public void setCppPlatformConnectionConfig(String projectName, PlatformConfig	 platformSetup) throws IOException
+  public void setCppPlatformConnectionConfig(String projectName, PlatformConfig	 platformSetup) throws IOException, Exception
   {
 	  //Make sure we're in the X10 perspective before getting started
 	  topLevelBot.perspectiveByLabel("X10").activate();
@@ -988,7 +1043,6 @@ public class X10DTTestBase {
 		  }
 		  else {	//use public key authentication
 			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
-// /*hardcoded version */			  final String privateKeyFile = String.format("%s/.ssh/id_rsa", System.getProperty("user.home")); //$NON-NLS-1$ //$NON-NLS-2$
 			  final String privateKeyFile = String.format("%s/%s", System.getProperty("user.home"), platformSetup.remoteKeyFile); //$NON-NLS-1$ //$NON-NLS-2$
 			  editorBot.textWithLabel(PlatformConfConstants.PRIVATE_KEY_FILE_LABEL).setText(privateKeyFile);
 		  }
@@ -1014,7 +1068,7 @@ public class X10DTTestBase {
 
 System.out.println("Configuration '" + platformSetup.configName + "' clicking Validate Configuration button");
 	  editorBot.toolbarButton(PlatformConfConstants.VALIDATE_PLATFORM_TOOLTIP_BT).click();
-
+	  
 	  // The Progress Configuration dialog will open.  Wait for it to go away
 	  topLevelBot.waitUntil(Conditions.shellIsActive(PlatformConfConstants.CPP_VALIDATION_PROGESS_DLG));
 	  SWTBotShell progressShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_PROGESS_DLG);
@@ -1029,37 +1083,50 @@ System.out.println("wait for Progress Dialog to go away");
 			  stillWaiting = false;		//At last!
 		  }
 		  catch (TimeoutException e) {	//Awww...!! The validation is *still* running!
-			  try {	//well, let's just hope that the error dialog didn't open
-System.out.println("      timeout waiting for Progress Dialog to go away, count = " + timeoutCount);
-			  }
-			  catch (WidgetNotFoundException eWNF) { //this is a good thing.  It means that the error dialog didn't pop up.
-				  //Keep waiting for progress dialog to go away
-			  }
+				  System.out.println("      timeout waiting for Progress Dialog to go away, count = " + timeoutCount);
 		  }
 	  }
-	  
+//	  
+//	  if (stillWaiting) { //yawnnnnn...
+//		  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
+//		  System.out.println("  Validation Failure popped up");
+// 
+//		  //it's modal. Unless we click 'OK', we'll have to wait for the overall junit timeout
+//		  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
+//		  Assert.fail("Errors occurred in X10 Platform configuration validation");
+//	  }
+
 	  if (stillWaiting) { //yawnnnnn...
-		  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
-		  System.out.println("      		no ValidationFailureShell yet");
-		  //rats!! it opened.
-		  //it's modal. Unless we click 'OK', we'll have to wait for the overall junit timeout
-		  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
-		  Assert.fail("Errors occurred in X10 Platform configuration validation");
+		  //check for problems by seeing if the platform validation failure dialog is displayed
+		  SWTBotShell[] shellList = topLevelBot.shells();		//get current list of shells
+		  for (int i = 0; i < shellList.length; i++) {		// scan list and hope we don't find the validation failure shell
+			  System.out.println("shell " + i + " is " + shellList[i].getText());
+			  if (shellList[i].getText().equals(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG)) {
+				  //rats!! it opened. 
+				  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
+				  if (ValidationFailureShell.isActive()) { 
+					  // it's modal. We have to click 'OK', or else wait for the overall junit timeout
+					  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
+					  Assert.fail("Errors occurred in X10 Platform configuration validation");
+				  }
+			  }
+		  }
+		  Assert.fail("Timeout: X10 Platform configuration validation did not complete");
 	  }
+	  	
+System.out.println("	platform validation is finished");
 
 System.out.println("clicking Save Configuration button");
+	  // save configuration
 	  editorBot.toolbarButton(PlatformConfConstants.SAVE_PLATFORM_TOOLTIP_BT).click();
 	  editorBot.sleep(1000);
 
 System.out.println("wait for '" + platformSetup.configName + "' build to finish");
-	  try {
-		waitForBuildToFinish();
-	} catch (Exception e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+	  // program will build on platform
+	  waitForBuildToFinish();
+	  
 System.out.println("checking Problems View for errors");
-
+	// look for errors in the Problems View
 	int problemsViewErrorCount = ProblemsViewUtils.getErrorMessages(topLevelBot).length;
 	if (problemsViewErrorCount != 0)
 	{
@@ -1088,6 +1155,8 @@ System.out.println("done with setCppPlatformConnectionConfig");
 	  DocumentBuilderFactory docFactory;
 	  DocumentBuilder docBuilder;
 	  Document doc = null;
+	  
+	  System.out.println("loading config file " + xmlFileName);
 
 	  try {
 		  ClassLoader cl = X10DTTestBase.class.getClassLoader();		//archive file must be on the build path
