@@ -7,10 +7,10 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
-import java.io.FileWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 
-import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -120,14 +120,21 @@ public final class X10PlatformConfFactory {
   public static void save(final IFile file, final IX10PlatformConf platformConf) throws CoreException {
     final IWorkspaceRunnable myRunnable = new IWorkspaceRunnable() {
 
-			public void run(final IProgressMonitor monitor) throws CoreException {
+	  public void run(final IProgressMonitor monitor) throws CoreException {
         try {
-        	final FileWriter writer = new FileWriter(EFS.getStore(file.getLocationURI()).toLocalFile(EFS.NONE, monitor));
+          final StringWriter writer = new StringWriter();
           platformConf.save(writer);
-
-          writer.close();
+          byte[] barray = writer.toString().getBytes();
+          
+          if (file.exists()) {
+              file.setContents(new ByteArrayInputStream(barray), true, true, monitor);
+          } else {
+              file.create(new ByteArrayInputStream(barray), IResource.FORCE | IResource.KEEP_HISTORY, monitor);
+          }
           
           file.refreshLocal(IResource.DEPTH_ZERO, monitor);
+          writer.close();
+          
         } catch (IOException except) {
           throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
                                              LaunchMessages.XPCFE_ConfSavingErrorDlgMsg, except));
