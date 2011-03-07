@@ -16,6 +16,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.model.ModelFactory.ModelException;
@@ -118,16 +119,22 @@ public class X10ElementImageProvider {
 	}
 
 
-	private ImageDescriptor computeDescriptor(Object element, int flags){
+	private ImageDescriptor computeDescriptor(Object element, int flags) {
 		if (element instanceof IX10Element) {
 			return getJavaImageDescriptor((IX10Element) element, flags);
-		} 
-		else if (element instanceof IFile) {
-			IFile file= (IFile) element;
-			if (LanguageRegistry.findLanguage("X10").getFilenameExtensions().contains(file.getFileExtension())) {
-				return getCUResourceImageDescriptor(file, flags); // image for a CU not on the build path
+		} else if (element instanceof IFile) {
+            IFile file= (IFile) element;
+            if (LanguageRegistry.findLanguage("X10").getFilenameExtensions().contains(file.getFileExtension())) {
+                return getCUImageDescriptor(file, flags); // image for a CU not on the build path
+            }
+            return getWorkbenchImageDescriptor(file, flags);
+		} else if (element instanceof IPath) {
+		    // IPaths are passed in for, e.g., files that live outside the workspace
+			IPath path= (IPath) element;
+			if (LanguageRegistry.findLanguage("X10").getFilenameExtensions().contains(path.getFileExtension())) {
+				return getCUImageDescriptor(null, flags); // image for a CU not on the build path
 			}
-			return getWorkbenchImageDescriptor(file, flags);
+//			return getWorkbenchImageDescriptor(path, flags);
 		} else if (element instanceof IAdaptable) {
 			return getWorkbenchImageDescriptor((IAdaptable) element, flags);
 		} else if(element instanceof ModelTreeNode) {
@@ -160,13 +167,12 @@ public class X10ElementImageProvider {
 	 * @param flags the image flags
 	 * @return returns the image descriptor
 	 */
-	public ImageDescriptor getCUResourceImageDescriptor(IFile file, int flags) {
+	public ImageDescriptor getCUImageDescriptor(IFile file, int flags) {
 		Point size= useSmallSize(flags) ? SMALL_SIZE : BIG_SIZE;
 		ImageDescriptor desc= X10PluginImages.DESC_OBJS_CUNIT_RESOURCE;
-		
+
 		try {
-			if(file.exists())
-			{
+			if (file != null && file.exists()) {
 				int severity = file.findMaxProblemSeverity(IMarker.PROBLEM, true, IResource.DEPTH_ZERO);
 				if (severity == IMarker.SEVERITY_ERROR) {
 					severity = X10ElementImageDescriptor.ERROR;
@@ -174,7 +180,7 @@ public class X10ElementImageProvider {
 					severity = X10ElementImageDescriptor.WARNING;
 				}
 	
-				if(severity > 0)
+				if (severity > 0)
 				{
 					desc = new X10ElementImageDescriptor(desc, severity, size);
 				}
