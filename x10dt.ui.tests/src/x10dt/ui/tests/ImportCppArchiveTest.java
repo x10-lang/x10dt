@@ -38,8 +38,7 @@ public class ImportCppArchiveTest extends ImportX10Archive {
 
 	private static SmokeTestSetup testSetup;
 	private static Document xmlConfigurations;		//loaded from XML - this document contains the specific settings of one or more x10 platform configurations
-	private static final String PLATFORM_CONFIGS_FILE = "CppSmokeTestConfigs.xml";  //$NON-NLS-1$
-
+	private static String defaultConfigsFile = "CppSmokeTestConfigs.xml";  //$NON-NLS-1$		//default configs file name. test accepts alternate file name as cmd line argument
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
@@ -55,25 +54,38 @@ public class ImportCppArchiveTest extends ImportX10Archive {
 	}
 
 	/*
-	 * Import archive into CPP back end project and check out type indexing
+	 * get the name of the xml configuration file. Optionally set as a system property in VM arguments
 	 */
+	public static String getConfigFileName() {
+		String argConfigsFile = System.getProperty("configsFile");	//see if we have a command line argument
+		if (argConfigsFile == null)
+			return defaultConfigsFile;
+		else
+			return argConfigsFile;			
+	}
 
 	//
 	@Test
+	// Create a new project and import an archive file
 	public void importCPPArchiveTest() throws Exception {
-		xmlConfigurations = loadXML(PLATFORM_CONFIGS_FILE);
+		
+		xmlConfigurations = loadXML(getConfigFileName());
 		testSetup = new SmokeTestSetup(xmlConfigurations);
 
 		importArchive(BackEndType.cppBackEnd, testSetup.projectName, testSetup.archiveName, testSetup.classSourceFileName);
 	}
 
-//	//
+	//
 //	@Test
+//	// test the indexer by verifying that it can open 
+//	// everything in a list of X10 type declarations
 //	public void test_CPPOpenType() throws Exception {
 //		validateOpenType(testSetup.declarationCheckList);
 //	}
 //
 //	@Test
+//	// test the indexer by verifying that it can search for and find 
+//	// everything in a list of X10 type declarations
 //	public void test_CPPSearchType() throws Exception {
 //		validateTypeSearch(testSetup.declarationCheckList);
 //	}
