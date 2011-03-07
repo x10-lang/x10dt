@@ -33,10 +33,10 @@ public class SmokeTestSetup  extends X10DTTestBase {
 		Element setup = (Element) setupList.item(0);		//we're only expecting one of these. any additional elements will be ignored
 		try {
 
-			className			= getTagString("className", setup, 0);
+			className			= getTagString("className", setup);
 			classSourceFileName = (className + ".x10");
-			archiveName 		= getTagString("archiveName", setup, 0);
-			projectName 		= getTagString("projectName", setup, 0);
+			archiveName 		= getTagString("archiveName", setup);
+			projectName 		= getTagString("projectName", setup);
 
 			//expected console output
 			Element xmlConsoleLines = (Element) setup.getElementsByTagName("expectedOutput").item(0);			//we're only expecting one of these. any additional output lists will be ignored
@@ -59,11 +59,11 @@ public class SmokeTestSetup  extends X10DTTestBase {
 
 					Element xmlTypeSearchInfo = (Element)xmlSearchInfoList.item(xmlTypeSearchNum);
 					TypeSearchInfo searchInfo = new TypeSearchInfo(
-							getTagQuotedString("searchString"   , xmlTypeSearchInfo, 0) ,
-							getTagQuotedString("typeName"       , xmlTypeSearchInfo, 0) ,
-							getTagInteger("expectToFind"  		, xmlTypeSearchInfo, 0) ,
-							getTagQuotedString("fileName"       , xmlTypeSearchInfo, 0) ,
-							getTagQuotedString("typeDeclaration", xmlTypeSearchInfo, 0) 
+							getTagQuotedString("searchString"   , xmlTypeSearchInfo) ,
+							getTagQuotedString("typeName"       , xmlTypeSearchInfo) ,
+							getTagInteger("expectToFind"  		, xmlTypeSearchInfo) ,
+							getTagQuotedString("fileName"       , xmlTypeSearchInfo) ,
+							getTagQuotedString("typeDeclaration", xmlTypeSearchInfo) 
 					);
 					declarationCheckList.add(searchInfo);
 				}
