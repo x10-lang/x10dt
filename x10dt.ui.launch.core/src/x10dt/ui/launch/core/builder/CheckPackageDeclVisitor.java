@@ -2,8 +2,6 @@ package x10dt.ui.launch.core.builder;
 
 import java.io.File;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -23,27 +21,31 @@ import polyglot.visit.NodeVisitor;
 import x10.errors.Errors;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.Messages;
-import x10dt.ui.launch.core.utils.CoreResourceUtils;
 
 public class CheckPackageDeclVisitor extends NodeVisitor {
     private final Job fJob;
     private final IProject fProject;
     private boolean fSeenPkg= false;
- 
 
     public CheckPackageDeclVisitor(Job job, IProject project) {
         fJob= job;
         fProject= project;
     }
+
     @Override
     public NodeVisitor begin() {
-        String path= fJob.source().path(); 
-        //PORT1.7 don't bother looking for dependencies if we're in jar/zip
-        if(path.endsWith(".jar")|| path.endsWith(".zip")) {
+        String path= fJob.source().path();
+        // Don't bother looking for dependencies if the AST in question was from a jar/zip
+        if (path.endsWith(".jar") || path.endsWith(".zip")) {
         	return null;
+        }
+        if (fJob.ast().position().isCompilerGenerated()) {
+            // This is a "dummy AST" produced for a file that wouldn't parse, so ignore it.
+            return null;
         }
         return super.begin();
     }
+
     private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
         if (!actualPkg.equals(declaredPkg)) {
         	Errors.issue(fJob, new SemanticException(Messages.CPD_PackageDeclError, pos));
