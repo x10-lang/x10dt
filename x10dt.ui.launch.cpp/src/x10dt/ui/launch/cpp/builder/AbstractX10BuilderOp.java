@@ -93,6 +93,12 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   // --- Interface methods implementation
   
   public final void archive(final IProgressMonitor monitor) throws CoreException {
+    Collection<String> objectFiles= collectAllObjectFiles();
+
+    if (objectFiles.isEmpty()) {
+      return;
+    }
+
     monitor.subTask(Messages.CPPB_ArchivingTaskName);
     final List<String> archiveCmd = new ArrayList<String>();
     archiveCmd.add(this.fPlatformConf.getCppCompilationConf().getArchiver());
@@ -100,12 +106,13 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     final StringBuilder libName = new StringBuilder();
     libName.append("lib").append(this.fProject.getName()).append(A_EXT); //$NON-NLS-1$
     archiveCmd.add(libName.toString());
-    
-    for (final String objectFile : collectAllObjectFiles()) {
-      archiveCmd.add(objectFile);
-    }
+
 
     try {
+      for (final String objectFile : objectFiles) {
+        archiveCmd.add(objectFile);
+      }
+
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
       final int returnCode = this.fTargetOpHelper.run(archiveCmd, this.fWorkspaceDir, new IProcessOuputListener() {
