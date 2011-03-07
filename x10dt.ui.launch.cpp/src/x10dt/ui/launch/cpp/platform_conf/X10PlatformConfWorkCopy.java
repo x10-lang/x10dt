@@ -182,29 +182,30 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
     final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
     final IProject project = getConfFile().getProject();
+    final boolean isLocal = this.fConnectionConf.fIsLocal;
     
     final IDefaultCPPCommands defaultCPPCommands;
     switch (this.fCppCompilationConf.fTargetOS) {
       case AIX:
         defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                         transport);
+                                                                         transport, isLocal);
         break;
       case LINUX:
         defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                           transport);
+                                                                           transport, isLocal);
         break;
       case MAC:
         defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                         transport);
+                                                                         transport, isLocal);
         break;
       case WINDOWS:
         defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                            transport);
+                                                                            transport, isLocal);
         break;
       default:
         defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, 
                                                                                 this.fCppCompilationConf.fArchitecture,
-                                                                                transport);
+                                                                                transport, isLocal);
     }
     this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
     this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();

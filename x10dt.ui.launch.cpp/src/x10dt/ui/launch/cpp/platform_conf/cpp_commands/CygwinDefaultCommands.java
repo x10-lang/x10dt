@@ -15,8 +15,8 @@ import x10dt.ui.launch.core.platform_conf.ETransport;
 
 final class CygwinDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  CygwinDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
-    super(project, is64Arch, architecture, transport);
+  CygwinDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport, boolean isLocal) {
+    super(project, is64Arch, architecture, transport, isLocal);
   }
   
   // --- Interface methods implementation
@@ -30,39 +30,23 @@ final class CygwinDefaultCommands extends AbstractDefaultCPPCommands implements 
   }
 
   public String getCompiler() {
-    return (getTransport() == ETransport.MPI) ? "mpicxx" : "g++-4"; //$NON-NLS-1$ //$NON-NLS-2$
+    return fPostCompiler;
   }
 
   public String getCompilerOptions() {
-    String cmpOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter -DX10_USE_BDWGC", //$NON-NLS-1$
-                                   getTransportCompilerOption());
-    if (is64Arch()) {
-      cmpOpts += M64BIT_OPTION;
-    }
-    if (supportsStreamingSIMDExtensions()) {
-      cmpOpts += STREAMING_SIMD_EXTENSIONS;
-    }
-    return addNoChecksOptions(addOptimizeOptions(cmpOpts));
+    return fPreFileArgs;
   }
 
   public String getLinker() {
-    return getCompiler();
+	  return fPostCompiler;
   }
 
   public String getLinkingLibraries() {
-    return String.format("-lx10 %s -ldl -lm -lpthread -lgc", getTransportLibrary()); //$NON-NLS-1$
+	  return fPostFileArgs;
   }
 
   public String getLinkingOptions() {
-    String linkOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter -DX10_USE_BDWGC", //$NON-NLS-1$
-                                    getTransportCompilerOption());
-    if (is64Arch()) {
-      linkOpts += M64BIT_OPTION;
-    }
-    if (supportsStreamingSIMDExtensions()) {
-      linkOpts += STREAMING_SIMD_EXTENSIONS;
-    }
-    return addNoChecksOptions(addOptimizeOptions(linkOpts));
+	  return fPreFileArgs;
   }
 
 }

@@ -15,8 +15,8 @@ import x10dt.ui.launch.core.platform_conf.ETransport;
 
 final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  UnknownUnixDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
-    super(project, is64Arch, architecture, transport);
+  UnknownUnixDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport, boolean isLocal) {
+    super(project, is64Arch, architecture, transport, isLocal);
   }
   
   // --- Interface methods implementation
@@ -30,34 +30,23 @@ final class UnknownUnixDefaultCommands extends AbstractDefaultCPPCommands implem
   }
 
   public String getCompiler() {
-    return (getTransport() == ETransport.MPI) ? "mpicxx" : "g++"; //$NON-NLS-1$ //$NON-NLS-2$
+    return fPostCompiler;
   }
 
   public String getCompilerOptions() {
-    final String cmpOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter -pthread", //$NON-NLS-1$
-                                         getTransportCompilerOption());
-    if (is64Arch()) {
-      return addNoChecksOptions(addOptimizeOptions(cmpOpts + M64BIT_OPTION));
-    } else {
-      return addNoChecksOptions(addOptimizeOptions(cmpOpts));
-    }
+    return fPreFileArgs;
   }
 
   public String getLinker() {
-    return getCompiler();
+    return fPostCompiler;
   }
 
   public String getLinkingLibraries() {
-    return String.format("-lx10 %s -lm -lpthread -Wl,--rpath -Wl,${X10-DIST}/lib -Wl,--rpath -Wl,${X10-DIST}/stdlib/lib", getTransportLibrary()); //$NON-NLS-1$
+    return fPostFileArgs;
   }
 
   public String getLinkingOptions() {
-    final String linkOpts = String.format("-g %s -Wno-long-long -Wno-unused-parameter", getTransportCompilerOption()); //$NON-NLS-1$
-    if (is64Arch()) {
-      return addNoChecksOptions(addOptimizeOptions(linkOpts + M64BIT_OPTION));
-    } else {
-      return addNoChecksOptions(addOptimizeOptions(linkOpts));
-    }
+    return fPreFileArgs;
   }
 
 }

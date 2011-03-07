@@ -29,8 +29,8 @@ public final class DefaultCPPCommandsFactory {
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
   public static IDefaultCPPCommands createAixCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                      final ETransport transport) {
-    return new AixDefaultCommands(project, is64Arch, architecture, transport);
+                                                      final ETransport transport, boolean isLocal) {
+    return new AixDefaultCommands(project, is64Arch, architecture, transport, isLocal);
   }
   
   /**
@@ -43,8 +43,8 @@ public final class DefaultCPPCommandsFactory {
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
   public static IDefaultCPPCommands createCygwinCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                         final ETransport transport) {
-    return new CygwinDefaultCommands(project, is64Arch, architecture, transport);
+                                                         final ETransport transport, boolean isLocal) {
+    return new CygwinDefaultCommands(project, is64Arch, architecture, transport, isLocal);
   }
   
   /**
@@ -57,8 +57,8 @@ public final class DefaultCPPCommandsFactory {
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
   public static IDefaultCPPCommands createLinuxCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                        final ETransport transport) {
-    return new LinuxDefaultCommands(project, is64Arch, architecture, transport);
+                                                        final ETransport transport, boolean isLocal) {
+    return new LinuxDefaultCommands(project, is64Arch, architecture, transport, isLocal);
   }
   
   /**
@@ -71,8 +71,8 @@ public final class DefaultCPPCommandsFactory {
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
   public static IDefaultCPPCommands createMacCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                      final ETransport transport) {
-    return new MacDefaultCommands(project, is64Arch, architecture, transport);
+                                                      final ETransport transport, boolean isLocal) {
+    return new MacDefaultCommands(project, is64Arch, architecture, transport, isLocal);
   }
   
   /**
@@ -85,8 +85,8 @@ public final class DefaultCPPCommandsFactory {
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
    */
   public static IDefaultCPPCommands createUnkownUnixCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                             final ETransport transport) {
-    return new UnknownUnixDefaultCommands(project, is64Arch, architecture, transport);
+                                                             final ETransport transport, boolean isLocal) {
+    return new UnknownUnixDefaultCommands(project, is64Arch, architecture, transport, isLocal);
   }
   
   // --- Private code

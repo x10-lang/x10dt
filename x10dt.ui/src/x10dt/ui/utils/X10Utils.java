@@ -221,7 +221,7 @@ public final class X10Utils {
     
   }
   
-  private static final class ShallowErrorQueue implements ErrorQueue {
+  public static final class ShallowErrorQueue implements ErrorQueue {
 
     // --- Interface methods implementation
     

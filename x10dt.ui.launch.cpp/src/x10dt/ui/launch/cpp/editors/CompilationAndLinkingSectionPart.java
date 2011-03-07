@@ -514,23 +514,24 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     final String serviceTypeId = getPlatformConf().getCommunicationInterfaceConf().getServiceTypeId();
     final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, targetOS);
     final IProject project = getPlatformConf().getConfFile().getProject();
+    final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
     
     final IDefaultCPPCommands defaultCPPCommands;
     switch (targetOS) {
       case AIX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, architecture, transport, isLocal);
         break;
       case LINUX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, architecture, transport, isLocal);
         break;
       case MAC:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, architecture, transport, isLocal);
         break;
       case WINDOWS:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, architecture, transport, isLocal);
         break;
       default:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, architecture, transport);
+        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, architecture, transport, isLocal);
     }
     compilerText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getCompiler()));
     compilingOptsText.setText(PlatformConfUtils.getValidString(defaultCPPCommands.getCompilerOptions()));

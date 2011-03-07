@@ -15,8 +15,8 @@ import x10dt.ui.launch.core.platform_conf.ETransport;
 
 final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  AixDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport) {
-    super(project, is64Arch, architecture, transport);
+  AixDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport, boolean isLocal) {
+    super(project, is64Arch, architecture, transport, isLocal);
   }
   
   // --- Interface methods implementation
@@ -35,35 +35,23 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
   }
 
   public String getCompiler() {
-    return "mpCC_r"; //$NON-NLS-1$
+    return fPostCompiler;
   }
   
   public String getCompilerOptions() {
-    final String cmpOpts = String.format("-g %s -qsuppress=1540-0809:1500-029 -qrtti=all -DX10_USE_BDWGC", //$NON-NLS-1$
-                                         getTransportCompilerOption());
-    if (is64Arch()) {
-      return addNoChecksOptions(addOptimizeOptions(cmpOpts + " -q64")); //$NON-NLS-1$
-    } else {
-      return addNoChecksOptions(addOptimizeOptions(cmpOpts));
-    }
+    return fPreFileArgs;
   }
 
   public String getLinker() {
-    return getCompiler();
+    return fPostCompiler;
   }
 
   public String getLinkingLibraries() {
-    return String.format("-lx10 -lgc %s -ldl -lm -lpthread", getTransportLibrary()); //$NON-NLS-1$
+    return fPostFileArgs;
   }
 
   public String getLinkingOptions() {
-    final String linkOpts = String.format("-g %s -qrtti=all -bbigtoc -bexpfull -qsuppress=1540-0809:1500-029 -DX10_USE_BDWGC", //$NON-NLS-1$
-                                          getTransportCompilerOption());
-    if (is64Arch()) {
-      return addNoChecksOptions(addOptimizeOptions(linkOpts + " -q64")); //$NON-NLS-1$
-    } else {
-      return addNoChecksOptions(addOptimizeOptions(linkOpts));
-    }
+    return fPreFileArgs;
   }
   
 }
