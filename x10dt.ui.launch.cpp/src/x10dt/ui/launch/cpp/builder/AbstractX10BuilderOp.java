@@ -77,7 +77,8 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     final boolean isCygwin = this.fPlatformConf.getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
     this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
     if (this.fTargetOpHelper == null) {
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoValidConnectionError));
+      String msg= NLS.bind(Messages.CPPB_NoValidConnectionError, new Object[] { connConf.getHostName(), this.fProject.getName() } );
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, msg));
     }
   }
   
