@@ -52,10 +52,11 @@ import x10dt.ui.tests.SmokeTestSetup;
 @RunWith(Parameterized.class)
 public class CppBackendTestConfigs extends ImportX10Archive {
 
-	private static final String PLATFORM_CONFIGS_FILE = "CppSmokeTestConfigs.xml";  //$NON-NLS-1$
+	private static String defaultConfigsFile = "CppSmokeTestConfigs.xml";  //$NON-NLS-1$	//default configs file name. test accepts alternate file name as a VM argument
+																							//  e.g. "-DconfigsFile=<file name>"  NB: this is a VM argument, not a program argument!!
 
-	private static Document xmlConfigurations;		//loaded from XML - this document contains the specific settings of one or more x10 platform configurations
-	private Element xmlConfigElement;		//loaded from XML - a Node containing the settings for a single x10 platform configurations
+	private static Document xmlConfigurations;		//loaded from defaultConfigsFile - this document contains the specific settings of one or more x10 platform configurations
+	private Element xmlConfigElement;				//loaded from xmlConfigurations - a Node containing the settings for a single x10 platform configurations
 	private PlatformConfig platformConfig;
 	private SmokeTestSetup testSetup;
 
@@ -78,12 +79,26 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 	//		SWTBotUtils.saveAllDirtyEditors(topLevelBot);
 	//	}
 
+	/*
+	 * get the name of the xml configuration file. Optionally set as a system property in VM arguments
+	 */
+	public static String getConfigFileName() {
+		String argConfigsFile = System.getProperty("configsFile");	//see if we have a command line argument
+		if (argConfigsFile == null)
+			return defaultConfigsFile;
+		else 
+			return argConfigsFile;			
+	}
 
 
+	/*
+	 * This sets up a separate instance of this test class (i.e., CppBackendTestConfigs) for every instance
+	 * of a <config> element in the xml file.  JUnit takes care of running each instance sequentially
+	 */
 	@Parameters
 	public static Collection<Node[]> data() {
 		List<Node[]> configElements = new ArrayList<Node[]>();
-		xmlConfigurations = loadXML(PLATFORM_CONFIGS_FILE);
+		xmlConfigurations = loadXML(getConfigFileName());
 		NodeList xmlConfigList = xmlConfigurations.getElementsByTagName("config");
 		if (xmlConfigList != null) {
 			for (int xmlConfigNum = 0; xmlConfigNum < xmlConfigList.getLength(); xmlConfigNum++) {
@@ -95,6 +110,10 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 		return configElements;
 	}	
 
+	/*
+	 * Constructs a single instance of this test class, representing a single <config> element in the xml file.
+	 * JUnit takes care of running each instance as an individual test class
+	 */
 	public CppBackendTestConfigs(Node configNode) throws IOException {
 		testSetup = new SmokeTestSetup(xmlConfigurations);
 		platformConfig = ExtractConfigFromXML((Element)configNode);	
@@ -102,7 +121,7 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 
 	//
 	@Test
-	//use local platform config w/ sockets runtime
+	//Test a platform configuration.
 	public void test_Configuration() throws Exception {
 		System.out.println("Now testing configuration " + platformConfig.configName);
 		ConfigureAndRunCppProject(testSetup.projectName, testSetup.className, 
