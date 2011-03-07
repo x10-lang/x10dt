@@ -15,6 +15,7 @@ package x10dt.ui.tests;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -115,6 +116,10 @@ System.out.println("Import archive file");
 System.out.println("wait for import build to finish");
 
 		waitForBuildToFinish();
+		
+System.out.println("wait for indexer to finish");
+
+		waitForIndexerToFinish();
 
 System.out.println("import build is finished");
 
@@ -270,7 +275,7 @@ System.out.println("verifying X10 program's console output");
    */
   
   //  one or more C++ backend platform configurations are loaded from an xml file. A run is made for each one
-  public Boolean ConfigureAndRunCppProject(String projectName, String className, PlatformConfig platformConfig, List<String> expectedOutput) throws IOException {
+  public Boolean ConfigureAndRunCppProject(String projectName, String className, PlatformConfig platformConfig, List<String> expectedOutput) throws IOException, Exception {
 
 	  Boolean result = false;
 
@@ -289,10 +294,12 @@ System.out.println("verifying X10 program's console output");
 System.out.println("open Parallel Runtime perspective");
 	  //the program output will be in the Console view of the Parallel Runtime perspective, so let's get into that
 	  openPerspective(topLevelBot, "Parallel Runtime");	  //switch to Parallel Runtime perspective
+	  
+	  clearConsoleView();		//get rid of any stale output in the console view
 
 System.out.println("create and run '" + platformConfig.configName + "'");
 	  //run the program
-	  createAndRunCPPBackEndLaunchConfig(platformConfig.configName, projectName, className, platformConfig.numPlaces);			  
+	  createAndRunCPPBackEndLaunchConfig(platformConfig.configName, projectName, className, platformConfig.numPlaces, platformConfig.programArgs);			  
 
 System.out.println("verify console output");
 	  //Well, let's see if it worked
@@ -313,32 +320,43 @@ System.out.println("Go back to the X10 perspective");
 
 	  try {
 
-		  platformConfig.configName = getTagString("configName", xmlConfigElement, 0);
-		  platformConfig.description = getTagString("description", xmlConfigElement, 0);
+		  platformConfig.configName = getTagString("configName", xmlConfigElement);
+		  platformConfig.description = getTagString("description", xmlConfigElement);
 
-		  platformConfig.useLocalConnection = getTagBoolean("useLocalConnection", xmlConfigElement, 0);
+		  platformConfig.useLocalConnection = getTagBoolean("useLocalConnection", xmlConfigElement);
 
 		  //target configuration
 		  NodeList xmlTargetNode = xmlConfigElement.getElementsByTagName("target");			  
 		  Element xmlTargetElement = (Element) xmlTargetNode.item(0);
-		  platformConfig.os = OS.get(getTagString("osType", xmlTargetElement, 0));
-		  platformConfig.arch = Architecture.get(getTagString("architectureType", xmlTargetElement, 0));	  
-		  platformConfig.set64bit = getTagBoolean("set64BitSpace", xmlTargetElement, 0);				  
+		  platformConfig.os = OS.get(getTagString("osType", xmlTargetElement));
+		  platformConfig.arch = Architecture.get(getTagString("architectureType", xmlTargetElement));	  
+		  platformConfig.set64bit = getTagBoolean("set64BitSpace", xmlTargetElement);				  
 
-		  //x10 configuration
-		  NodeList xmlX10Node = xmlConfigElement.getElementsByTagName("x10");			  
-		  Element xmlX10Element = (Element) xmlX10Node.item(0);
-		  
-		  platformConfig.numPlaces = getTagInteger("numPlaces", xmlX10Element, 0);
-		  if (platformConfig.numPlaces == 0)	//num places specified?
-			  platformConfig.numPlaces = 4;		// no - set default;
+		  //x10 configuration  NB: this node is optional
+		  platformConfig.numPlaces = 4;		// set default number of places
+		  // look for the node
+		  NodeList xmlX10Node = xmlConfigElement.getElementsByTagName("x10");
+		  if (xmlX10Node != null ) {
+			  Element xmlX10Element = (Element) xmlX10Node.item(0);
 
+			  //number of places
+			  int places = getTagInteger("numPlaces", xmlX10Element);
+			  if (places != 0)	//num places specified?
+				  platformConfig.numPlaces = places;
+
+			  //program arguments
+			  int xmlNumArgs = xmlX10Element.getElementsByTagName("programArg").getLength();
+			  platformConfig.programArgs = new ArrayList<String>(xmlNumArgs);
+			  for (int xmlArgNum = 0; xmlArgNum < xmlNumArgs; xmlArgNum++) {
+				  platformConfig.programArgs.add(getTagString("programArg", xmlX10Element, xmlArgNum));
+			  }
+		  }
 
 		  //communication interface configuration
 		  NodeList xmlCommNode = xmlConfigElement.getElementsByTagName("commInterface");			  
 		  Element xmlCommElement = (Element) xmlCommNode.item(0);
-		  platformConfig.interfaceType = CommInterface.getType(getTagString("interfaceType", xmlCommElement, 0));    
-		  platformConfig.interfaceMode = CommInterface.getMode(getTagString("interfaceMode", xmlCommElement, 0));
+		  platformConfig.interfaceType = CommInterface.getType(getTagString("interfaceType", xmlCommElement));    
+		  platformConfig.interfaceMode = CommInterface.getMode(getTagString("interfaceMode", xmlCommElement));
 
 
 		  if (platformConfig.useLocalConnection) {			//running on local machine
@@ -351,32 +369,32 @@ System.out.println("Go back to the X10 perspective");
 			  //remote connection configuration
 			  NodeList xmlRemoteNode = xmlConfigElement.getElementsByTagName("remoteConnection");			  
 			  Element xmlRemoteElement = (Element) xmlRemoteNode.item(0);
-			  platformConfig.connectionName 	= getTagString("connectionName", xmlRemoteElement, 0);     
-			  platformConfig.remoteHostName 	= getTagString("remoteHostName", xmlRemoteElement, 0);    
-			  platformConfig.remoteHostPort 	= getTagInteger("remoteHostPort", xmlRemoteElement, 0);    
-			  platformConfig.remoteHostUser 	= getTagString("remoteHostUser", xmlRemoteElement, 0);    
-			  platformConfig.usePassword 		= getTagBoolean("usePassword", xmlRemoteElement, 0);      
-			  platformConfig.remoteHostPassword = getTagString("remoteHostPassword", xmlRemoteElement, 0);
-			  platformConfig.remoteKeyFile		= getTagString("remoteKeyFile", xmlRemoteElement, 0);
+			  platformConfig.connectionName 	= getTagString("connectionName", xmlRemoteElement);     
+			  platformConfig.remoteHostName 	= getTagString("remoteHostName", xmlRemoteElement);    
+			  platformConfig.remoteHostPort 	= getTagInteger("remoteHostPort", xmlRemoteElement);    
+			  platformConfig.remoteHostUser 	= getTagString("remoteHostUser", xmlRemoteElement);    
+			  platformConfig.usePassword 		= getTagBoolean("usePassword", xmlRemoteElement);      
+			  platformConfig.remoteHostPassword = getTagString("remoteHostPassword", xmlRemoteElement);
+			  platformConfig.remoteKeyFile		= getTagString("remoteKeyFile", xmlRemoteElement);
 
 			  //Port forwarding settings
 			  NodeList xmlPortNode = xmlConfigElement.getElementsByTagName("portForwarding");			  
 			  Element xmlPortElement = (Element) xmlPortNode.item(0);
-			  platformConfig.usePortForwarding        	= getTagBoolean("usePortForwarding", xmlPortElement, 0);    
-			  platformConfig.portForwardingTimeout    	= getTagString("portForwardingTimeout", xmlPortElement, 0);    
-			  platformConfig.portForwardingLocalAddress	= getTagString("portForwardingLocalAddress", xmlPortElement, 0);      
+			  platformConfig.usePortForwarding        	= getTagBoolean("usePortForwarding", xmlPortElement);    
+			  platformConfig.portForwardingTimeout    	= getTagString("portForwardingTimeout", xmlPortElement);    
+			  platformConfig.portForwardingLocalAddress	= getTagString("portForwardingLocalAddress", xmlPortElement);      
 
 			  //Remote compilation settings
 			  NodeList xmlCompileNode = xmlConfigElement.getElementsByTagName("remotePlatform");
 			  Element xmlCompileElement = (Element) xmlCompileNode.item(0);
 			  if (xmlCompileElement != null)
 			  {
-				  platformConfig.outputFolder       = getTagString("outputFolder", xmlCompileElement, 0);
-				  platformConfig.useSelectedPGAS    = getTagBoolean("useSelectedPGAS", xmlCompileElement, 0);      
-				  platformConfig.remoteDistribution = getTagString("remoteDistribution", xmlCompileElement, 0);    
-				  platformConfig.remotePGASDist     = getTagString("remotePGASDist", xmlCompileElement, 0);    
-				  platformConfig.debuggerFolder 	= getTagString("debuggerFolder", xmlCompileElement, 0);    
-				  platformConfig.debuggingPort     	= getTagInteger("debuggingPort", xmlCompileElement, 0); 
+				  platformConfig.outputFolder       = getTagString("outputFolder", xmlCompileElement);
+				  platformConfig.useSelectedPGAS    = getTagBoolean("useSelectedPGAS", xmlCompileElement);      
+				  platformConfig.remoteDistribution = getTagString("remoteDistribution", xmlCompileElement);    
+				  platformConfig.remotePGASDist     = getTagString("remotePGASDist", xmlCompileElement);    
+				  platformConfig.debuggerFolder 	= getTagString("debuggerFolder", xmlCompileElement);    
+				  platformConfig.debuggingPort     	= getTagInteger("debuggingPort", xmlCompileElement); 
 			  }
 		  } //if using remote connection
 
