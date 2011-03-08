@@ -99,13 +99,17 @@ public class Messages extends NLS {
 
   public static String ConfigurationPage_CipherType;
 
-  public static String LA_SocketsHostFileDescr;
+  public static String LA_HostFileDescr;
 
-  public static String LA_SocketsHostFileName;
+  public static String LA_HostFileName;
 
-  public static String LA_SocketsHostListDescr;
+  public static String LA_HostListDescr;
 
-  public static String LA_SocketsHostListName;
+  public static String LA_HostListName;
+
+  public static String LA_UseHostFileDescr;
+
+  public static String LA_UseHostFileName;
 
   public static String SRMLCDT_AddBt;
 

@@ -326,6 +326,7 @@ public final class X10EnvVarsConfDynamicTab implements IRMLaunchConfigurationDyn
       final int numPlaces = configuration.getAttribute(ATTR_NUM_PLACES, DEFAULT_NUM_PLACES);
       attrs.add(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
       attrs.add(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
+      attrs.add(LaunchAttributes.getUseHostFileAttr().create(configuration.getAttribute(ATTR_USE_HOSTFILE, false)));
       final ArrayAttribute<String> attribute = LaunchAttributes.getHostListAttr().create();
       final List<String> defaultHostList = new ArrayList<String>();
       if (defaultHostList.isEmpty()) {
