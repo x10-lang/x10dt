@@ -88,7 +88,6 @@
 			delegate="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
 			type="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
 			modes="run"
-			sourceLocatorId="x10dt.ui.cpp.launch.SourceLocator"
 			sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">
 	  </launchDelegate>
    </extension>
@@ -114,17 +113,10 @@
       </launchConfigurationTypeImage>
    </extension>
    <extension
-         point="org.eclipse.debug.core.sourceLocators">
-      <sourceLocator
-            class="x10dt.ui.launch.cpp.launching.CppSourceLocator"
-            id="x10dt.ui.cpp.launch.SourceLocator"
-            name="X10 C++ back-end source locator">
-      </sourceLocator>
-   </extension>
-   <extension
          point="org.eclipse.ui.editors">
       <editor
             class="x10dt.ui.launch.cpp.editors.X10PlatformConfFormEditor"
+            contributorClass="x10dt.ui.launch.cpp.editors.FormEditorActionBarContributor"
             default="true"
             icon="icons/obj/x10-platform-conf.png"
             id="x10dt.ui.launch.cpp.platformConfEditor"
