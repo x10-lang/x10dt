@@ -18,39 +18,107 @@ package x10dt.ui.launch.core.builder;
  */
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.builder.DependencyInfo;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 
 import polyglot.types.ClassType;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.core.LaunchCore;
+import x10dt.ui.launch.core.utils.ProjectUtils;
 
 /**
  * A compilation unit-level dependency tracking manager that speaks in terms of Polyglot Type objects.
  * @author rfuhrer
  */
 public class PolyglotDependencyInfo extends DependencyInfo {
-    public PolyglotDependencyInfo(IProject project) {
-        super(project);
+	private IJavaProject fJavaProject ;
+    public PolyglotDependencyInfo(IJavaProject project) {
+        super(project.getProject());
+        this.fJavaProject = project;
     }
-
-    //  don't forget the case when resource is outside the WS
-    protected String typeToPath(Type type) {
+    
+    protected ClassType getClassType(Type type){
     	ClassType classType = null;
     	if (type.isClass()){
     		classType= (ClassType) Types.baseType(type);
     	} else {
     		return null;
     	}
-    	Position pos= classType.position();
-    	if (pos == null) {
-    		return null;
+    	return classType;
+  
+    }
+    
+    private Collection<String> getPossiblePaths(ClassType type, String context){
+    	Collection<String> result = new ArrayList<String>();
+    	String name = type.fullName().toString();
+    	Collection<String> srcFolders = getSrcFolders();
+    	
+    	if (name.contains(".") || isInDefaultPackage(context, srcFolders)) { 
+    		for (String path: srcFolders){
+    			String n = File.separator + name.replace('.', File.separatorChar) + Constants.X10_EXT;
+    			result.add(path + n);
+    		}
     	}
-    	return getPath(pos);  
+    	if (name.contains(".")) { // --- if type has a qualified name, then don't consider the imports.
+    		return result;
+    	}
+    	
+    	// --- Name is not qualified, consider the imports by looking at the dependencies.
+    	name = name + Constants.X10_EXT; 
+    	Collection<String> possiblePaths = fDependsUpon.get(context); // --- The dependencies will contain paths from the imports.
+    	for (String path: possiblePaths){
+    		if (path.endsWith(name)) {
+    			return new ArrayList<String>(); // --- return empty set. Already have the needed dependence.
+    		}
+    		if (!path.endsWith(Constants.X10_EXT)){
+    			result.add(path + File.separator + name);
+    		}
+    	}
+ 
+    	return result;
+    }
+    
+    private boolean isInDefaultPackage(String context, Collection<String> srcFolders){
+    	for(String path: srcFolders){
+    		if (context.startsWith(path)){
+    			String rest = normalize(context.substring(path.length()));
+    			if (!rest.contains(File.separator))
+    				return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    private String normalize(String path){
+    	if (path.startsWith(File.separator))
+    		return path.substring(1);
+    	return path;
+    }
+    
+    private Collection<String> getSrcFolders(){
+    	Collection<String> result = new ArrayList<String>();
+    	try {
+    		result.addAll(ProjectUtils.collectSourceFolders(fJavaProject));
+    		for(String project: fJavaProject.getRequiredProjectNames()){
+    			IJavaProject javaProject = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot().getProject(project));
+    			result.addAll(ProjectUtils.collectSourceFolders(javaProject));
+    		}
+    	} catch(JavaModelException e){
+    		LaunchCore.log(e.getStatus());
+    	}
+    	return result;
     }
     
     protected String getPath(Position pos){
@@ -68,24 +136,33 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     }
 
     public void addDependency(Type fromType, Type uponType) {
-        String fromPath= typeToPath(fromType);
-        String uponPath= typeToPath(uponType);
-        if (fromPath == null || uponPath == null) return;
-        // PORT1.7  ...
-        if(!(uponPath.contains(".zip") || uponPath.contains(".jar")) && !(uponPath.equals(fromPath))) {
-        	addDependency(fromPath, uponPath);
+        String fromPath= getPath(getClassType(fromType).position()); 
+        if (fromPath == null) return;
+        ClassType uponClassType = getClassType(uponType);
+        Position uponPosition = uponClassType.position();
+        if (!uponPosition.isCompilerGenerated()){
+        	String uponPath= getPath(uponPosition);
+        	if (uponPath == null) return;
+        	if(!(uponPath.contains(".zip") || uponPath.contains(".jar")) && !(uponPath.equals(fromPath))) {
+        		addDependency(fromPath, uponPath);
+        	}
+        } else {
+        	Collection<String> paths =  getPossiblePaths(uponClassType, fromPath);
+        	for(String path: paths){
+        		addDependency(fromPath, path);
+        	}
         }
     }
 
     public void clearDependenciesOf(Type type) {
-    	String path = typeToPath(type);
+    	String path = getPath(getClassType(type).position()); 
     	if (path == null) return;
         clearDependenciesOf(path);
     }
 
-    public Set getDependentsOf(Type type) {
-    	String path = typeToPath(type);
-    	if (path == null) return new HashSet();
+    public Set<String> getDependentsOf(Type type) {
+    	String path = getPath(getClassType(type).position()); 
+    	if (path == null) return new HashSet<String>();
         return getDependentsOf(path);
     }
 }

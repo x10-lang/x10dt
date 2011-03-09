@@ -235,7 +235,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         this.fProjectWrapper = JavaCore.create(getProject());
       }
       if (this.fDependencyInfo == null) {
-        this.fDependencyInfo = new PolyglotDependencyInfo(getProject());
+        this.fDependencyInfo = new PolyglotDependencyInfo(fProjectWrapper);
       }
     }
   }
@@ -340,9 +340,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
           public boolean visit(final IResourceDelta delta) throws CoreException {
             if (delta.getResource().getType() == IResource.FOLDER) {
               final IFolder folder = (IFolder) delta.getResource();
-              if (delta.getKind() == IResourceDelta.REMOVED) {
+              if (delta.getKind() == IResourceDelta.REMOVED || delta.getKind() == IResourceDelta.ADDED) {
                 sourcesToCompile.addAll(getChangeDependents(folder));
-              }
+              } 
             }
             if (delta.getResource().getType() == IResource.FILE) {
               final IFile file = (IFile) delta.getResource();
@@ -353,12 +353,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                 if (delta.getKind() == IResourceDelta.REMOVED) {
                   deletedSources.add(file);
                   sourcesToCompile.addAll(getChangeDependents(file));
-                } else if (delta.getKind() == IResourceDelta.ADDED) {
-                  sourcesToCompile.add(file);
-                } else if (delta.getKind() == IResourceDelta.CHANGED) {
+                } else if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
                   sourcesToCompile.add(file);
                   sourcesToCompile.addAll(getChangeDependents(file));
-                }
+                } 
               }
             }
             return true;
@@ -379,7 +377,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             final IFile file = (IFile) resource;
             if (isX10File(file)) {
               final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
-              if (buildAll || (generatedFile == null)) {
+              if (buildAll || ((generatedFile == null) && CoreResourceUtils.hasNoErrorMarkers(file))) {
                 sourcesToCompile.add(file);
 
                 if (!resource.getProject().equals(project)) {
@@ -417,10 +415,18 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                        final IX10BuilderFileOp builderOp, final SubMonitor subMonitor) throws CoreException {
     final IWorkspace workspace = ResourcesPlugin.getWorkspace();
     final ISchedulingRule rule = getSchedulingRule(sourcesToCompile);
+    final IJavaProject project = this.fProjectWrapper;
     final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
       public void run(final IProgressMonitor monitor) throws CoreException {
-        compileGeneratedFiles(builderOp, compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20)), 
+    	Collection<File> sources = compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
+    	for (IFile f: sourcesToCompile){
+    		File mainGeneratedFile = getMainGeneratedFile(project, f);
+    		if (sources.contains(mainGeneratedFile) && !checkPostCompilationCondition(f)){ // --- check if this and related files should be post-compiled
+    			
+    		}
+    	}
+        compileGeneratedFiles(builderOp, sources, 
                               subMonitor.newChild(65));
       }
 
@@ -429,12 +435,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
   }
 
-  private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<File> sourcesToCompile,
+  private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<File> sourcesToPostCompile,
                                      final SubMonitor monitor) throws CoreException {
-    if (! sourcesToCompile.isEmpty()) {
+    if (! sourcesToPostCompile.isEmpty()) {
       monitor.beginTask(null, 100);
-      
-      builderOp.transfer(sourcesToCompile, monitor.newChild(10));
+      builderOp.transfer(sourcesToPostCompile, monitor.newChild(10));
       if (builderOp.compile(monitor.newChild(70))) {
         builderOp.archive(monitor.newChild(20));
       }
@@ -443,6 +448,22 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
 
+  // --- A file can be post-compiled only if all the files it depends on have generated artifacts.
+  private boolean checkPostCompilationCondition(final IFile srcFile)throws CoreException {
+	  Set<String> dependencies = this.fDependencyInfo.getDependencies().get(srcFile.getFullPath().toString());
+	  final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+	  if (dependencies != null){
+		  for(String path: dependencies){
+			  File f = getMainGeneratedFile(fProjectWrapper, wsRoot.getFile(new Path(path)));
+			  if (!f.exists()){
+				  return false;
+			  }
+		  }
+	  }
+	  return true;
+  }
+ 
+  
   private Collection<File> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                            final IProgressMonitor monitor) throws CoreException {
 	checkSrcFolders();  

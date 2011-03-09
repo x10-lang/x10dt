@@ -125,9 +125,9 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
     		if (isPackage) // --- name may be either a class or a package
     			results.add(path + n);
     	}
-    	Collection<String> rest = getPossiblePaths(name.qualifier(), false, true); //We know that it is a package
-    	if (rest != null)
-    		results.addAll(rest);
+    	//Collection<String> rest = getPossiblePaths(name.qualifier(), false, true); //We know that it is a package
+    	//if (rest != null)
+    	//	results.addAll(rest);
     	return results;
     }
     
@@ -179,7 +179,7 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 		    	fFromFile= (SourceFile) n;
 			
 		    } else if (n instanceof TypeNode) {
-				
+		    
 				TypeNode typeNode = (TypeNode) n;
 				Type type = typeNode.type();
 				List<Type> types = new ArrayList<Type>();

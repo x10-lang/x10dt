@@ -314,6 +314,11 @@ public final class CoreResourceUtils {
   	return file.findMarkers(PLATFORM_CONF_MARKER_ID, false/* includeSubtypes */, IResource.DEPTH_ZERO);
   }
   
+  public static boolean hasNoErrorMarkers(final IFile file) throws CoreException {
+	  IMarker[] markers = file.findMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, false, IResource.DEPTH_ZERO);
+	  return (markers.length == 0);
+  }
+  
   /**
    * Returns the number of X10 build error markers for a given project.
    * 
