@@ -499,7 +499,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       // (duplicate class error),
       // --- when there is a file that imports another one file a bad syntactic error.
       
-      analyze(extInfo.scheduler().commandLineJobs());
+      
       
       final Collection<File> generatedFiles = new LinkedList<File>();
       final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
@@ -514,6 +514,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       sourcesToCompile.clear(); // To prevent post-compilation step.
       return Collections.emptyList();
     } finally {
+      analyze(extInfo.scheduler().commandLineJobs());	
       Globals.initialize(null);
     }
   }
