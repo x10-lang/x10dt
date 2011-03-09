@@ -490,7 +490,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     echoCommandLineToConsole(sourcesToCompile, extInfo);
 
-    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(this.fProjectWrapper, 1000000, extInfo.compilerName()));
+    final Compiler compiler = new Compiler(extInfo, new X10ErrorQueue(this.fProjectWrapper, 1000000, extInfo.compilerName(), sourcesToCompile));
     Globals.initialize(compiler);
     try {
       final Collection<String> files = new ArrayList<String>();

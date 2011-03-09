@@ -7,6 +7,7 @@
  *****************************************************************************/
 package x10dt.ui.launch.core.builder;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
@@ -26,11 +27,13 @@ import x10dt.ui.launch.core.utils.CoreResourceUtils;
 
 final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
 	IJavaProject fProject;
+	Collection<IFile> fSourcesToCompile;
 
 	X10ErrorQueue(IJavaProject project, final int errorsLimit,
-			final String compilerName) {
+			final String compilerName, final Collection<IFile> sourcesToCompile) {
 		super(errorsLimit, compilerName);
 		fProject = project;
+		fSourcesToCompile = sourcesToCompile;
 	}
 
 	// --- Abstract methods implementation
@@ -62,11 +65,12 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
 				if (error instanceof CodedErrorInfo) {
 					atts = ((CodedErrorInfo) error).getAttributes();
 				}
-
-				CoreResourceUtils.addBuildMarkerTo(file, error.getMessage(),
+				if (fSourcesToCompile.contains(file)){ // --- Only create the marker if the error pertains to a file that was submitted for compilation. This is to avoid duplicate markers on other files.
+					CoreResourceUtils.addBuildMarkerTo(file, error.getMessage(),
 						severity, IMarker.PRIORITY_NORMAL, position.file(),
 						position.line(), position.offset(), position
 								.endOffset(), atts);
+				}
 			}
 		}
 	}
