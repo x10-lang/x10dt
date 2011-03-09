@@ -420,13 +420,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
       public void run(final IProgressMonitor monitor) throws CoreException {
     	Collection<File> sources = compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
+    	Collection<File> sourcesToPostCompile = sources;
+    	// The following code will need to be reinstated to fix RTC 937.
+    	 /* Collection<File> sourcesToPostCompile = new ArrayList<File>();
     	for (IFile f: sourcesToCompile){
     		File mainGeneratedFile = getMainGeneratedFile(project, f);
-    		if (sources.contains(mainGeneratedFile) && !checkPostCompilationCondition(f)){ // --- check if this and related files should be post-compiled
-    			
+    		if (sources.contains(mainGeneratedFile) && checkPostCompilationCondition(f)){ // --- check if this and related files should be post-compiled
+    			sourcesToPostCompile.add()
     		}
-    	}
-        compileGeneratedFiles(builderOp, sources, 
+    	}*/
+        compileGeneratedFiles(builderOp, sourcesToPostCompile, 
                               subMonitor.newChild(65));
       }
 
