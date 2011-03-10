@@ -44,9 +44,8 @@ page X10.Formatting {
 
 page X10.Compiler {
     fields {
-	    boolean ConservativeBuild {
-		    defvalue true;
-		    tooltip "When rebuilding, include all files that have no generated files"; }
+	        boolean ConservativeBuild { defvalue false; tooltip "When rebuilding, include all files that have no generated files"; }
+		        boolean Debug { label "Generate debugging symbols"; defvalue true; }
         boolean PermitAssert { label "Permit asserts"; defvalue true; }
         boolean StaticCalls  { label "Strict static call checking"; defvalue false; }
         boolean VerboseCalls { label "Emit warnings for casts inserted at dynamically-checked calls"; defvalue false; }
@@ -68,19 +67,5 @@ page X10.Compiler.Optimizations {
             tooltip "Disables the generation of all null, bounds, and place checks";
          	   defvalue false;
 	     	   }
-    }
-}
-
-page X10.Runtime {
-    fields {
-        directory DefaultRuntime {
-            emptyallowed true ""; 
-            label "Default runtime";
-            tooltip "Folder containing the default X10 runtime libraries";
-            defvalue ""; }
-        int NumberOfPlaces {
-            tooltip "The number of logical places upon which the application is executed";
-            range 1 ..50;
-            defvalue 4; }
     }
 }

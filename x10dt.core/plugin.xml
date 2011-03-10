@@ -108,14 +108,5 @@
             id="x10dt.core.preferences.generated.X10.Compiler.Optimizations">
       </page>
    </extension>
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            name="Runtime"
-            category="x10dt.core.preferences.generated.X10"
-            class="x10dt.core.preferences.generated.X10RuntimePreferencePage"
-            id="x10dt.core.preferences.generated.X10.Runtime">
-      </page>
-   </extension>
 
 </plugin>

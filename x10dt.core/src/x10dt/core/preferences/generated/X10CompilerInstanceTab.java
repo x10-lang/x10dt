@@ -5,7 +5,6 @@ package x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
-import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -49,6 +48,17 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 			true, false,
 			false);
 		fields.add(ConservativeBuild);
+
+
+		BooleanFieldEditor Debug = fPrefUtils.makeNewBooleanField(
+			page, this, fPrefService,
+			"instance", "Debug", "Generate debugging symbols",
+			"",
+			parent,
+			true, true,
+			true, false,
+			false);
+		fields.add(Debug);
 
 
 		BooleanFieldEditor PermitAssert = fPrefUtils.makeNewBooleanField(

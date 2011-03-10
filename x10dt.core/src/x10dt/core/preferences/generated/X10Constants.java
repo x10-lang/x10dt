@@ -19,6 +19,7 @@ public class X10Constants {
 	public static final String P_INDENTMETHODBODY = "indentMethodBody";
 	public static final String P_INDENTTYPEBODY = "indentTypeBody";
 	public static final String P_CONSERVATIVEBUILD = "ConservativeBuild";
+	public static final String P_DEBUG = "Debug";
 	public static final String P_PERMITASSERT = "PermitAssert";
 	public static final String P_STATICCALLS = "StaticCalls";
 	public static final String P_VERBOSECALLS = "VerboseCalls";
@@ -26,6 +27,4 @@ public class X10Constants {
 	public static final String P_ADDITIONALCOMPILEROPTIONS = "AdditionalCompilerOptions";
 	public static final String P_OPTIMIZE = "Optimize";
 	public static final String P_DISABLECHECKING = "DisableChecking";
-	public static final String P_DEFAULTRUNTIME = "DefaultRuntime";
-	public static final String P_NUMBEROFPLACES = "NumberOfPlaces";
 }

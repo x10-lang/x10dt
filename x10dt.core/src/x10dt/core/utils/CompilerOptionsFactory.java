@@ -41,7 +41,7 @@ public class CompilerOptionsFactory {
     }
     
     public static void setOptions(IPreferencesService prefService, X10CompilerOptions options){
-        options.x10_config.DEBUG = true;
+        options.x10_config.DEBUG = prefService.getBooleanPreference(X10Constants.P_DEBUG);
 
         final String additionalOptions = prefService.getStringPreference(X10Constants.P_ADDITIONALCOMPILEROPTIONS);
 
