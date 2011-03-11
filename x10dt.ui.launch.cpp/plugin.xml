@@ -279,6 +279,8 @@
             class="x10dt.ui.launch.cpp.actions.CppBackEndProjectConverter">
       </converter>
    </extension>
+   <!--
+   Disable for now while PTP breakpoint persistency is being addressed.
    <extension
          point="x10dt.ui.launch.core.x10ToggleBreakpointHandler">
       <x10ToggleBreakpointHandler
@@ -286,5 +288,6 @@
             class="x10dt.ui.launch.cpp.debug.X10CppToggleBreakpointsHandler">
       </x10ToggleBreakpointHandler>
    </extension>
+   -->
 
 </plugin>
