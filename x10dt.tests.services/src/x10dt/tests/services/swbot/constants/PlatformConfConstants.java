@@ -49,6 +49,8 @@ public final class PlatformConfConstants {
   
   public static final String PUBLIC_KEY_AUTH_RADIO_BUTTON = "Public key authentication"; //$NON-NLS-1$
   
+  public static final String PASSWORD_AUTH_RADIO_BUTTON = "Password based authentication"; //$NON-NLS-1$
+  
   public static final String PRIVATE_KEY_FILE_LABEL = "File with private key"; //$NON-NLS-1$
   
   public static final String PASSWORD_TEXT_LABEL = "Password"; //$NON-NLS-1$
@@ -88,6 +90,8 @@ public final class PlatformConfConstants {
   public static final String CPP_VALIDATION_PROGESS_DLG = "Progress Information"; //$NON-NLS-1$
 
   public static final String CPP_VALIDATION_FAILURE_DLG = "Validation Failure"; //$NON-NLS-1$
+
+  public static final String CPP_CONNECTION_FAILURE_DLG = "Connection Requirement"; //$NON-NLS-1$
 
   public static final String REMOTE_DEBUGGER_FOLDER_TEXTBOX = "Debugger folder"; //$NON-NLS-1$
 
