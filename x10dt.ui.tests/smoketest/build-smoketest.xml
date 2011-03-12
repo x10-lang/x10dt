@@ -6,8 +6,6 @@
     <target name="testAllInOne" depends="init_smoketest,get_dependencies_archives,test_all-in-one" />
     <target name="testUpdates" depends="init_smoketest,get_dependencies_archives,test-helios-update" />
 
-    <property name="ECLIPSE_HOME" value="../../rtc_eclipse"/>
-
     <property name="workspace"                  value="${basedir}/../" />
     <property name="smoketest.folder"           value="/Users/lesniakr/x10dt/x10dt-smoketest" />
     <property name="all-in-one.folder"          value="${smoketest.folder}/all-in-one" />
@@ -28,10 +26,10 @@
     <property name="unzipped.swtbot"            value="${swtbot.folder}/eclipse" />
     <property name="unzipped.headless"          value="${headless.folder}/eclipse" />
 	                                        
-<!--    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/dropins/plugins" />  -->
-<!--    <property name="helios.plugins.dir"         value="${unzipped.helios}/dropins/plugins" />      -->
-    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/plugins" />   
-    <property name="helios.plugins.dir"         value="${unzipped.helios}/plugins" />       
+    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/dropins/plugins" /> 
+    <property name="helios.plugins.dir"         value="${unzipped.helios}/dropins/plugins" />     
+<!--    <property name="all-in-one.plugins.dir"     value="${unzipped.all-in-one}/plugins" />      -->
+<!--    <property name="helios.plugins.dir"         value="${unzipped.helios}/plugins" />          -->
     <property name="swtbot.plugins.dir"         value="${unzipped.swtbot}/plugins" />
     <property name="headless.plugins.dir"       value="${unzipped.headless}/plugins" />
                                                 
