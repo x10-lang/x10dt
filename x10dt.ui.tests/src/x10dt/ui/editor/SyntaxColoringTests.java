@@ -229,7 +229,7 @@ public class SyntaxColoringTests extends X10DTEditorTestBase {
     getTestSource(fSrcEditor, srcPath);
     waitForParser();
     fSrcEditor.save();
-    waitForBuildToFinish();
+    waitForFamilyJobToFinish(ResourcesPlugin.FAMILY_AUTO_BUILD);	//wait for build to finish
     verifyColoring(fSrcEditor);
     fUpdateListener.reset();
   }

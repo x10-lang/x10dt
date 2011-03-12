@@ -14,6 +14,7 @@ package x10dt.ui.editor;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -135,7 +136,7 @@ public class ContentAssistTests extends X10DTEditorTestBase {
     createProject(PROJECT_NAME + "1", CLASS_NAME_1, CLASS_SRCFILE_NAME_1);
     getTestSource(fSrcEditor, "data/" + CLASS_SRCFILE_NAME_1, CLASS_NAME_1); //$NON-NLS-1$
     fSrcEditor.save();
-    waitForBuildToFinish();
+    waitForFamilyJobToFinish(ResourcesPlugin.FAMILY_AUTO_BUILD);	//wait for build to finish
     waitForParser();
     runStatementContextTest("statement", TEST1);
   }
@@ -146,7 +147,7 @@ public class ContentAssistTests extends X10DTEditorTestBase {
     createProject(PROJECT_NAME + "2", CLASS_NAME_2, CLASS_SRCFILE_NAME_2);
     getTestSource(fSrcEditor, "data/" + CLASS_SRCFILE_NAME_2, CLASS_NAME_2); //$NON-NLS-1$
     fSrcEditor.save();
-    waitForBuildToFinish();
+    waitForFamilyJobToFinish(ResourcesPlugin.FAMILY_AUTO_BUILD);	//wait for build to finish
     waitForParser();
     runStatementContextTest("member", TEST2);
 
