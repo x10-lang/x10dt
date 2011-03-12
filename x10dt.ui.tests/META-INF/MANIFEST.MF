@@ -18,3 +18,5 @@ Require-Bundle: org.apache.log4j,
  x10dt.tests.services
 Bundle-ClassPath: ui.jar,.
 Eclipse-RegisterBuddy: org.apache.log4j
+Import-Package: x10dt.ui.launch.cpp,
+ x10dt.ui.launch.cpp.builder.target_op

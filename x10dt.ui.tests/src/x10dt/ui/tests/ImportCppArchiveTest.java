@@ -36,8 +36,7 @@ import x10dt.tests.services.swbot.utils.SWTBotUtils;
 @RunWith(SWTBotJunit4ClassRunner.class)
 public class ImportCppArchiveTest extends ImportX10Archive {
 
-	private static SmokeTestSetup testSetup;
-	private static Document xmlConfigurations;		//loaded from XML - this document contains the specific settings of one or more x10 platform configurations
+	private static XMLPlatformConfigurations testSetup;
 	private static String defaultConfigsFile = "CppSmokeTestConfigs.xml";  //$NON-NLS-1$		//default configs file name. test accepts alternate file name as cmd line argument
 
 	@BeforeClass
@@ -69,24 +68,23 @@ public class ImportCppArchiveTest extends ImportX10Archive {
 	// Create a new project and import an archive file
 	public void importCPPArchiveTest() throws Exception {
 		
-		xmlConfigurations = loadXML(getConfigFileName());
-		testSetup = new SmokeTestSetup(xmlConfigurations);
+		testSetup = new XMLPlatformConfigurations(getConfigFileName());
 
 		importArchive(BackEndType.cppBackEnd, testSetup.projectName, testSetup.archiveName, testSetup.classSourceFileName);
 	}
 
 	//
-//	@Test
-//	// test the indexer by verifying that it can open 
-//	// everything in a list of X10 type declarations
-//	public void test_CPPOpenType() throws Exception {
-//		validateOpenType(testSetup.declarationCheckList);
-//	}
-//
-//	@Test
-//	// test the indexer by verifying that it can search for and find 
-//	// everything in a list of X10 type declarations
-//	public void test_CPPSearchType() throws Exception {
-//		validateTypeSearch(testSetup.declarationCheckList);
-//	}
+	@Test
+	// test the indexer by verifying that it can open 
+	// everything in a list of X10 type declarations
+	public void test_CPPOpenType() throws Exception {
+		validateOpenType(testSetup.declarationCheckList);
+	}
+
+	@Test
+	// test the indexer by verifying that it can search for and find 
+	// everything in a list of X10 type declarations
+	public void test_CPPSearchType() throws Exception {
+		validateTypeSearch(testSetup.declarationCheckList);
+	}
 }

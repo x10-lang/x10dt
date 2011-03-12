@@ -44,6 +44,7 @@ import org.w3c.dom.NodeList;
 import x10dt.core.utils.Timeout;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
 import x10dt.ui.tests.SmokeTestSetup;
+import x10dt.ui.tests.XMLPlatformConfigurations.PlatformConfig;
 
 /**
  * @author lesniakr@us.ibm.com
@@ -55,10 +56,8 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 	private static String defaultConfigsFile = "CppSmokeTestConfigs.xml";  //$NON-NLS-1$	//default configs file name. test accepts alternate file name as a VM argument
 																							//  e.g. "-DconfigsFile=<file name>"  NB: this is a VM argument, not a program argument!!
 
-	private static Document xmlConfigurations;		//loaded from defaultConfigsFile - this document contains the specific settings of one or more x10 platform configurations
-	private Element xmlConfigElement;				//loaded from xmlConfigurations - a Node containing the settings for a single x10 platform configurations
+	private static XMLPlatformConfigurations xmlPlatformConfigs;
 	private PlatformConfig platformConfig;
-	private SmokeTestSetup testSetup;
 
 	//	@BeforeClass
 	//	public static void beforeClass() throws Exception {
@@ -68,16 +67,20 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 	//		SWTBotPreferences.TIMEOUT = Timeout.SIXTY_SECONDS;
 	//	}
 	//	
-	//	@After
-	//	public void after() throws Exception {
+		@After
+		public void after() throws Exception {
 	//		SWTBotUtils.closeAllEditors(topLevelBot);
-	//		SWTBotUtils.closeAllShells(topLevelBot);
-	//	}
-	//
-	//	@AfterClass
-	//	public static void afterClass() throws Exception {
+			SWTBotUtils.closeAllShells(topLevelBot);
+			if (platformConfig.useLocalConnection == false) {
+				cleanRemoteOutputFiles(platformConfig);
+			}
+		}
+	
+		@AfterClass
+		public static void afterClass() throws Exception {
 	//		SWTBotUtils.saveAllDirtyEditors(topLevelBot);
-	//	}
+			SWTBotUtils.closeAllShells(topLevelBot);
+		}
 
 	/*
 	 * get the name of the xml configuration file. Optionally set as a system property in VM arguments
@@ -98,8 +101,8 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 	@Parameters
 	public static Collection<Node[]> data() {
 		List<Node[]> configElements = new ArrayList<Node[]>();
-		xmlConfigurations = loadXML(getConfigFileName());
-		NodeList xmlConfigList = xmlConfigurations.getElementsByTagName("config");
+		xmlPlatformConfigs = new XMLPlatformConfigurations(getConfigFileName());
+		NodeList xmlConfigList = xmlPlatformConfigs.getElementsByTagName("config");
 		if (xmlConfigList != null) {
 			for (int xmlConfigNum = 0; xmlConfigNum < xmlConfigList.getLength(); xmlConfigNum++) {
 				Node[] n = (Node[])Array.newInstance(Node.class, 1);
@@ -115,8 +118,7 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 	 * JUnit takes care of running each instance as an individual test class
 	 */
 	public CppBackendTestConfigs(Node configNode) throws IOException {
-		testSetup = new SmokeTestSetup(xmlConfigurations);
-		platformConfig = ExtractConfigFromXML((Element)configNode);	
+		platformConfig = xmlPlatformConfigs.getConfig((Element)configNode);	
 	}
 
 	//
@@ -124,8 +126,8 @@ public class CppBackendTestConfigs extends ImportX10Archive {
 	//Test a platform configuration.
 	public void test_Configuration() throws Exception {
 		System.out.println("Now testing configuration " + platformConfig.configName);
-		ConfigureAndRunCppProject(testSetup.projectName, testSetup.className, 
-				platformConfig, testSetup.expectedOutput); 
+		ConfigureAndRunCppProject(xmlPlatformConfigs.projectName, xmlPlatformConfigs.className, 
+				platformConfig, xmlPlatformConfigs.expectedOutput); 
 		System.out.println("Configuration test '" + platformConfig.configName + "' complete");
 	}
 }

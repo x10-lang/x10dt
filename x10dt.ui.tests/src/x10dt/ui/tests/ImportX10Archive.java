@@ -26,6 +26,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
@@ -63,7 +64,8 @@ import x10dt.tests.services.swbot.constants.LaunchConstants;
 import x10dt.tests.services.swbot.constants.ViewConstants;
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
-import x10dt.ui.tests.X10DTTestBase.TypeSearchInfo;
+import x10dt.ui.tests.XMLPlatformConfigurations.PlatformConfig;
+import x10dt.ui.tests.SmokeTestSetup.TypeSearchInfo;
 import x10dt.ui.tests.utils.EditorMatcher;
 import x10dt.ui.tests.waits.X10DT_Conditions;
 
@@ -78,93 +80,95 @@ public class ImportX10Archive extends X10DTTestBase {
 	 */
 
 //TODO: pass in constants as arguments, so we can use this method in other test modules
-  public void importArchive(BackEndType backEnd, String projectName, String archiveName, String classSrcfileName) throws Exception {
+	public void importArchive(BackEndType backEnd, String projectName, String archiveName, String classSrcfileName) throws Exception {
 
-	  Boolean createHello = false;
-	  String archivePath = null;
-	  	  
-System.out.println("Import: find archive file '" + archiveName + "'");
-	  // Locate the archive file in the file system - get the full file path
-	  ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
-	  URL archiveURL = cl.getResource(archiveName);	//find the file
-	  if (archiveURL != null) {
-		  archivePath = FileLocator.toFileURL(archiveURL).getPath();	//turn the net URL into a file path
-		  System.out.println("full path to archive = " + archivePath);
-	  }
-	  else {
-		  Assert.fail("archive file '" + archiveName + "' not found"); 		  
-	  }
+		Boolean createHello = false;
+		String archivePath = null;
+
+		System.out.println("Import: find archive file '" + archiveName + "'");
+		// Locate the archive file in the file system - get the full file path
+		ClassLoader cl = getClass().getClassLoader();		//archive file must be on the build path
+		URL archiveURL = cl.getResource(archiveName);	//find the file
+		if (archiveURL != null) {
+			archivePath = FileLocator.toFileURL(archiveURL).getPath();	//turn the net URL into a file path
+			System.out.println("full path to archive = " + archivePath);
+		}
+		else {
+			Assert.fail("archive file '" + archiveName + "' not found"); 		  
+		}
 
 
-	  System.out.println("creating project '" + projectName + "'");
-	  if (backEnd == BackEndType.javaBackEnd) {
-		  // create a java back end project to import the archive into
-		  createJavaBackEndProject(projectName, createHello);
-	  }
-	  else { // create a C++ back end project to import the archive into
-		  createCPPBackEndProject(projectName, createHello);
-	  }
+		System.out.println("creating project '" + projectName + "'");
+		if (backEnd == BackEndType.javaBackEnd) {
+			// create a java back end project to import the archive into
+			createJavaBackEndProject(projectName, createHello);
+		}
+		else { // create a C++ back end project to import the archive into
+			createCPPBackEndProject(projectName, createHello);
+		}
 
-	  if (createHello) {
-		  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher("Hello.x10")));
-	  }
+		if (createHello) {
+			topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher("Hello.x10")));
+		}
 
-System.out.println("Import archive file");
-	  //import the archive
-	  importArchiveToX10Project(archivePath, projectName + "/src", true);
+		System.out.println("Import archive file");
+		//import the archive
+		importArchiveToX10Project(archivePath, projectName + "/src", true);
 
-System.out.println("wait for import build to finish");
+		System.out.println("wait for import build to finish");
 
-		waitForBuildToFinish();
-		
-System.out.println("wait for indexer to finish");
+		waitForFamilyJobToFinish(ResourcesPlugin.FAMILY_AUTO_BUILD);	//wait for build to finish
 
-		waitForIndexerToFinish();
+		System.out.println("wait for indexer to finish");
 
-System.out.println("import build is finished");
+//		waitForFamilyJobToFinish(SearchCoreActivator.FAMILY_X10_INDEXER);	//3/11/11 currently blocks forever - indexer is always rescheduled, so it never 'finishes
 
-	  //open the imported file in an editor view
-	  openX10FileInEditor(projectName, classSrcfileName);
+		System.out.println("import build is finished");
 
-	  //wait for the editor to open
-	  topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(classSrcfileName)), 60000, 500);
+		//open the imported file in an editor view
+		openX10FileInEditor(projectName, classSrcfileName);
 
-  }
+		//wait for the editor to open
+		topLevelBot.waitUntil(Conditions.waitForEditor(new EditorMatcher(classSrcfileName)), 60000, 500);
+
+	}
 
   //
   // Check that the type indexer is working
   //
   public boolean validateOpenType(List<TypeSearchInfo> checkList) throws Exception {
-	  
-	  boolean okSoFar = true;
-	  
-	  // look for a few types by using the 'Open X10 Type...' dialog 
-	  for (Iterator<TypeSearchInfo> it = checkList.iterator(); (it.hasNext() && okSoFar);)
-	  {
-		  TypeSearchInfo searchSet = it.next();
-		  //look for a specific source class
-		  okSoFar &= openX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
-		  if (okSoFar)
-			  okSoFar &= verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
-	  }
 
+	  boolean okSoFar = true;
+
+	  if (checkList != null) {
+		  // look for a few types by using the 'Open X10 Type...' dialog 
+		  for (Iterator<TypeSearchInfo> it = checkList.iterator(); (it.hasNext() && okSoFar);)
+		  {
+			  TypeSearchInfo searchSet = it.next();
+			  //look for a specific source class
+			  okSoFar &= openX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
+			  if (okSoFar)
+				  okSoFar &= verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
+		  }
+	  }
 	  return okSoFar;
   }
 
   public boolean validateTypeSearch(List<TypeSearchInfo> checkList) throws Exception {
-	  
+
 	  boolean okSoFar = true;
-	  
-	  // now, do it all over again by looking for a few types using the X10 Search dialog 
-	  for (Iterator<TypeSearchInfo> it = checkList.iterator(); (it.hasNext() && okSoFar);)
-	  {
-		  TypeSearchInfo searchSet = it.next();
-		  //look for a specific source class
-		  okSoFar &= searchForX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
-		  if (okSoFar)
-			  okSoFar &= verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
+
+	  if (checkList != null) {
+		  // now, do it all over again by looking for a few types using the X10 Search dialog 
+		  for (Iterator<TypeSearchInfo> it = checkList.iterator(); (it.hasNext() && okSoFar);)
+		  {
+			  TypeSearchInfo searchSet = it.next();
+			  //look for a specific source class
+			  okSoFar &= searchForX10Type(searchSet.typeName, searchSet.searchString, searchSet.expectToFind);
+			  if (okSoFar)
+				  okSoFar &= verifySourceLine(searchSet.fileName, searchSet.typeDeclaration);	  
+		  }
 	  }
-	  
 	  return okSoFar;
   }
 
@@ -178,7 +182,10 @@ System.out.println("import build is finished");
 
 	  boolean matches = true;				//verification result. Assume the best!
 
-System.out.println("verifying X10 program's console output");
+	  //TODO: detect and handle "Linking Prerequisite Check" dialog here.
+	  //		indicates compile errors in project.  Dismiss dialog and fail test
+	  
+	  System.out.println("verifying X10 program's console output");
 	  //used to synchronize expected text block with actual output
 	  int startAtLine = 0;					//First line number in actual output to begin compare operation
 	  String firstExpectedLine = null;		//Text of first expected output line
@@ -219,7 +226,7 @@ System.out.println("verifying X10 program's console output");
 			  startAtLine++;
 			  matches = firstExpectedLine.equals(actualLine.next());
 		  }
-		  
+
 		  Assert.assertTrue("Could not find an output line to match'" + firstExpectedLine + "'", matches);
 
 		  //OK, so we found a match to the expected starting line
@@ -233,7 +240,7 @@ System.out.println("verifying X10 program's console output");
 			  currentExpectedLine = expectedLine.next();
 			  matches = currentActualLine.equals(currentExpectedLine);
 		  }
-		  
+
 		  //assert if everything didn't match properly
 		  Assert.assertTrue("Mismatch at line " + currentLine + 
 				  "\n    actual: '" + currentActualLine + 
@@ -257,10 +264,7 @@ System.out.println("verifying X10 program's console output");
 	  while (( ! fArchiveFileEditor.isActive()) && (--timeout != 0))
 	  	topLevelBot.sleep(500);
 
-//	  while ((!matches) && (--timeout != 0)) {
-//		  topLevelBot.sleep(500);  //wait a little longer for it to jump to the right line
 		  matches = expectedText.equals(fArchiveFileEditor.getTextOnCurrentLine().trim());
-//	  }
 
 	  Assert.assertTrue("Expected source line does not match actual source line in file '" + fileName +  "':" +
 			  "\n    actual: '" + fArchiveFileEditor.getTextOnCurrentLine() + 
@@ -286,123 +290,32 @@ System.out.println("verifying X10 program's console output");
 
 	  return result;
   }
- 
+
 
   //  one or more C++ backend platform configurations are loaded from an xml file. A run is made for each one
   public Boolean RunCppProject(String projectName, String className, PlatformConfig platformConfig, List<String> expectedOutput) throws IOException {
 
-System.out.println("open Parallel Runtime perspective");
+	  System.out.println("open Parallel Runtime perspective");
 	  //the program output will be in the Console view of the Parallel Runtime perspective, so let's get into that
 	  openPerspective(topLevelBot, "Parallel Runtime");	  //switch to Parallel Runtime perspective
-	  
+
 	  clearConsoleView();		//get rid of any stale output in the console view
 
-System.out.println("create and run '" + platformConfig.configName + "'");
+	  System.out.println("create and run '" + platformConfig.configName + "'");
 	  //run the program
 	  createAndRunCPPBackEndLaunchConfig(platformConfig.configName, projectName, className, platformConfig.numPlaces, platformConfig.programArgs);			  
 
-System.out.println("verify console output");
+	  System.out.println("verify console output");
 	  //Well, let's see if it worked
 	  // verify that the actual output matches the expected output
 	  boolean match = verifyConsoleOutput(expectedOutput); //$NON-NLS-1$
 	  Assert.assertTrue("ImportArchiveTest: Console output does not match", match); //$NON-NLS-1$
 
-System.out.println("Go back to the X10 perspective");
+	  System.out.println("Go back to the X10 perspective");
 	  //Go back to the X10 perspective
 	  topLevelBot.perspectiveByLabel("X10").activate();
 
 	  return match;
   }
  
-  public PlatformConfig ExtractConfigFromXML(Element xmlConfigElement) throws IOException {
-
-	  PlatformConfig platformConfig = new PlatformConfig();
-
-	  try {
-
-		  platformConfig.configName = getTagString("configName", xmlConfigElement);
-		  platformConfig.description = getTagString("description", xmlConfigElement);
-
-		  platformConfig.useLocalConnection = getTagBoolean("useLocalConnection", xmlConfigElement);
-
-		  //target configuration
-		  NodeList xmlTargetNode = xmlConfigElement.getElementsByTagName("target");			  
-		  Element xmlTargetElement = (Element) xmlTargetNode.item(0);
-		  platformConfig.os = OS.get(getTagString("osType", xmlTargetElement));
-		  platformConfig.arch = Architecture.get(getTagString("architectureType", xmlTargetElement));	  
-		  platformConfig.set64bit = getTagBoolean("set64BitSpace", xmlTargetElement);				  
-
-		  //x10 configuration  NB: this node is optional
-		  platformConfig.numPlaces = 4;		// set default number of places
-		  // look for the node
-		  NodeList xmlX10Node = xmlConfigElement.getElementsByTagName("x10");
-		  if (xmlX10Node != null ) {
-			  Element xmlX10Element = (Element) xmlX10Node.item(0);
-
-			  //number of places
-			  int places = getTagInteger("numPlaces", xmlX10Element);
-			  if (places != 0)	//num places specified?
-				  platformConfig.numPlaces = places;
-
-			  //program arguments
-			  int xmlNumArgs = xmlX10Element.getElementsByTagName("programArg").getLength();
-			  platformConfig.programArgs = new ArrayList<String>(xmlNumArgs);
-			  for (int xmlArgNum = 0; xmlArgNum < xmlNumArgs; xmlArgNum++) {
-				  platformConfig.programArgs.add(getTagString("programArg", xmlX10Element, xmlArgNum));
-			  }
-		  }
-
-		  //communication interface configuration
-		  NodeList xmlCommNode = xmlConfigElement.getElementsByTagName("commInterface");			  
-		  Element xmlCommElement = (Element) xmlCommNode.item(0);
-		  platformConfig.interfaceType = CommInterface.getType(getTagString("interfaceType", xmlCommElement));    
-		  platformConfig.interfaceMode = CommInterface.getMode(getTagString("interfaceMode", xmlCommElement));
-
-
-		  if (platformConfig.useLocalConnection) {			//running on local machine
-			  // replace whatever os and arch we got from xml with the local report from Java
-			  platformConfig.os = OS.get(System.getProperty("os.name"));
-			  platformConfig.arch = Architecture.get(System.getProperty("os.arch"));
-		  }
-		  else	{ //use remote connection
-
-			  //remote connection configuration
-			  NodeList xmlRemoteNode = xmlConfigElement.getElementsByTagName("remoteConnection");			  
-			  Element xmlRemoteElement = (Element) xmlRemoteNode.item(0);
-			  platformConfig.connectionName 	= getTagString("connectionName", xmlRemoteElement);     
-			  platformConfig.remoteHostName 	= getTagString("remoteHostName", xmlRemoteElement);    
-			  platformConfig.remoteHostPort 	= getTagInteger("remoteHostPort", xmlRemoteElement);    
-			  platformConfig.remoteHostUser 	= getTagString("remoteHostUser", xmlRemoteElement);    
-			  platformConfig.usePassword 		= getTagBoolean("usePassword", xmlRemoteElement);      
-			  platformConfig.remoteHostPassword = getTagString("remoteHostPassword", xmlRemoteElement);
-			  platformConfig.remoteKeyFile		= getTagString("remoteKeyFile", xmlRemoteElement);
-
-			  //Port forwarding settings
-			  NodeList xmlPortNode = xmlConfigElement.getElementsByTagName("portForwarding");			  
-			  Element xmlPortElement = (Element) xmlPortNode.item(0);
-			  platformConfig.usePortForwarding        	= getTagBoolean("usePortForwarding", xmlPortElement);    
-			  platformConfig.portForwardingTimeout    	= getTagString("portForwardingTimeout", xmlPortElement);    
-			  platformConfig.portForwardingLocalAddress	= getTagString("portForwardingLocalAddress", xmlPortElement);      
-
-			  //Remote compilation settings
-			  NodeList xmlCompileNode = xmlConfigElement.getElementsByTagName("remotePlatform");
-			  Element xmlCompileElement = (Element) xmlCompileNode.item(0);
-			  if (xmlCompileElement != null)
-			  {
-				  platformConfig.outputFolder       = getTagString("outputFolder", xmlCompileElement);
-				  platformConfig.useSelectedPGAS    = getTagBoolean("useSelectedPGAS", xmlCompileElement);      
-				  platformConfig.remoteDistribution = getTagString("remoteDistribution", xmlCompileElement);    
-				  platformConfig.remotePGASDist     = getTagString("remotePGASDist", xmlCompileElement);    
-				  platformConfig.debuggerFolder 	= getTagString("debuggerFolder", xmlCompileElement);    
-				  platformConfig.debuggingPort     	= getTagInteger("debuggingPort", xmlCompileElement); 
-			  }
-		  } //if using remote connection
-
-	  }
-	  catch (Exception e) {
-		  System.out.println("error reading platform configs file: " + e.getMessage());
-		  e.printStackTrace();
-	  }
-	  return platformConfig;
-  }
 }

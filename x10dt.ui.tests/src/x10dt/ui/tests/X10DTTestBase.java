@@ -31,11 +31,15 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.Assert;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swtbot.eclipse.finder.SWTWorkbenchBot;
 import org.eclipse.swtbot.eclipse.finder.matchers.WidgetMatcherFactory;
 import org.eclipse.swtbot.eclipse.finder.waits.Conditions;
@@ -43,7 +47,10 @@ import org.eclipse.swtbot.eclipse.finder.waits.WaitForView;
 import org.eclipse.swtbot.eclipse.finder.widgets.SWTBotView;
 import org.eclipse.swtbot.swt.finder.SWTBot;
 import org.eclipse.swtbot.swt.finder.exceptions.WidgetNotFoundException;
+import org.eclipse.swtbot.swt.finder.results.VoidResult;
+import org.eclipse.swtbot.swt.finder.utils.MessageFormat;
 import org.eclipse.swtbot.swt.finder.utils.SWTBotPreferences;
+import org.eclipse.swtbot.swt.finder.utils.TableRow;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotButton;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCTabItem;
 import org.eclipse.swtbot.swt.finder.widgets.SWTBotCheckBox;
@@ -76,9 +83,12 @@ import x10dt.tests.services.swbot.constants.ViewConstants;
 import x10dt.tests.services.swbot.constants.WizardConstants;
 import x10dt.tests.services.swbot.utils.ProblemsViewUtils;
 import x10dt.tests.services.swbot.utils.SWTBotUtils;
-import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.cpp.CppLaunchCore;
 
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
+
+import x10dt.ui.tests.XMLPlatformConfigurations.PlatformConfig;
+import x10dt.ui.tests.XMLPlatformConfigurations.PlatformConfig;
 import x10dt.ui.tests.waits.X10DT_Conditions;
 
 /**
@@ -97,159 +107,8 @@ public class X10DTTestBase {
   * 
   */
   
-  //type of x10 project
+  // enum to identify type of x10 project - java backend or cpp backend
   public enum BackEndType {javaBackEnd, cppBackEnd};
-
-  /*
-   * The following enums are used to select dropdown items in the X10 Platform Configuration editor
-   * 	- CommInterface		: Communications Interface Mode and Type
-   * 	- Architecture
-   * 	- OS
-   */
-
-  //maps Comminterface Mode and Type enums to/from strings
-  public static class CommInterface {
-	  //create the Mode enum and map each enum to a string
-	  public enum Mode { Profile	("Profile"),
-						 Debug	("Debug"),
-						 Launch	("Launch");
-		  Mode(String key) { this.key = key; }	 //constructor sets the string in
-		  private final String key;				 // private field 'key'
-		  public String getKey() { return key; } //use enum to get string
-	  };
-	  // now go the other way - map a string key to an enum value
-	  private static Map<String, Mode> modeMap = new HashMap<String, Mode>();
-	  public static Mode getMode(String s) { return modeMap.get(s); } //use string to get enum
-	  static {
-		  for (Mode t : Mode.values()) {
-			  modeMap.put(t.getKey(), t);	//initialize map
-		  }
-	  }
-
-	  //create the Type enum and map each enum to a string
-	  public enum Type {Sockets			("Sockets"),		
-					    IBM_LoadLeveler	("IBM LoadLeveler"),		
-					    Standalone		("Standalone"),		
-					    IBM_Parallel_Environment("IBM Parallel Environment"),		
-					    Open_MPI		("Open MPI"),		
-					    MPICH2			("MPICH2");
-		  Type(String key) { this.key = key; }   //constructor sets the string in
-		  private final String key;              // private field 'key'          
-		  public String getKey() { return key; } //use enum to get string        
-	  };
-	  // now go the other way - map a string key to an enum value
-	  private static Map<String, Type> typeMap = new HashMap<String, Type>();
-	  public static Type getType(String s) { return typeMap.get(s); } //use string to get enum
-	  static {
-		  for (Type t : Type.values()) {
-			  typeMap.put(t.getKey(), t);
-		  }
-	  }
-  }
-
-  //maps Architecture Type enum to/from strings
-  public static class Architecture {
-	  //create the Mode enum and map each enum to a string
-	  public enum Type {x86("x86"), 
-		  				Power("Power");
-		  Type(String key) { this.key = key; }   //constructor sets the string in
-		  private final String key;              // private field 'key'          
-		  public String getKey() { return key; } //use enum to get string        
-	  };
-	  // now go the other way - map a string key to an enum value
-	  private static Map<String, Type> typeMap = new HashMap<String, Type>();
-	  public static Type get(String s) { return typeMap.get(s); } //use string to get enum
-	  static {
-		  for (Type t : Type.values()) {
-			  typeMap.put(t.getKey(), t);
-		  }
-		  typeMap.put("i386",	Type.x86  ); //additional string reported by mac os x
-	  }
-  }
-
-  //maps OS Type enum to/from strings
-  public static class OS {
-	  //create the Mode enum and map each enum to a string
-	  public enum Type {WINDOWS("WINDOWS"	),
-						LINUX  ("LINUX"		),
-						AIX    ("AIX"		),
-						UNIX   ("UNIX"		),
-						MAC    ("MAC"		);
-		  Type(String key) { this.key = key; }   //constructor sets the string in
-		  private final String key;              // private field 'key'          
-		  public String getKey() { return key; } //use enum to get string        
-	  };
-	  // now go the other way - map a string key to an enum value
-	  private static Map<String, Type> typeMap = new HashMap<String, Type>();
-	  public static Type get(String s) { return typeMap.get(s.toUpperCase()); } //use string to get enum
-	  static {
-		  for (Type t : Type.values()) {
-			  typeMap.put(t.getKey(), t);
-		  }
-		  typeMap.put("MAC OS X",	Type.MAC ); //additional string reported by mac os x
-	  }
-  }
-  
-  /*
-   * This class aggregates all X10 Platform Configuration settings
-   */
-  public class PlatformConfig {
-
-	  public boolean useLocalConnection;
-	  public String  configName;
-	  public String  description;
-	  
-	  // target settings
-	  public OS.Type  			os;
-	  public Architecture.Type	arch;
-	  public Boolean 			set64bit;
-
-	  // x10 settings
-	  public Integer			numPlaces;
-	  public ArrayList<String>	programArgs;
-
-	  // remote connection settings
-	  public String  connectionName;
-	  public String  remoteHostName;
-	  public Integer remoteHostPort;
-	  public String  remoteHostUser;
-	  public boolean usePassword;
-	  public String  remoteHostPassword;
-	  public String  remoteKeyFile;
-
-	  // Communications interface
-	  public CommInterface.Type interfaceType;
-	  public CommInterface.Mode interfaceMode;
-
-	  // Port forwarding settings
-	  public boolean usePortForwarding;
-	  public String  portForwardingTimeout;
-	  public String  portForwardingLocalAddress;
-
-	  // remote compilation settings
-	  public String  outputFolder;
-	  public boolean useSelectedPGAS;
-	  public String  remoteDistribution;
-	  public String  remotePGASDist;
-	  public String  debuggerFolder;
-	  public Integer debuggingPort;
-  }
-
-	//This data structure specifies the test parameters for the 'Open X10 Type...' and X10 Search dialogs
-	public static class TypeSearchInfo {
-		TypeSearchInfo(String searchString, String typeName, Integer expectToFind, String fileName, String typeDeclaration) {
-			this.searchString = searchString;
-			this.typeName = typeName;
-			this.fileName = fileName;
-			this.typeDeclaration = typeDeclaration;
-			this.expectToFind = expectToFind;
-			}
-		String	searchString;          // The search string                                      
-		String	typeName;              // The type we're looking for                             
-		String	typeDeclaration;       // The expected type declaration text in the source file 
-		String	fileName;              // The source file where we're expecting to find the type 
-		Integer	expectToFind;          // The minimum number of search results we're looking for
-	}
 	
  /*
   * The following junit routines, BeforeClass, AfterClass and afterTest, are used elsewhere.
@@ -289,30 +148,53 @@ public class X10DTTestBase {
   }
 
   /**
-   * This method waits for a build to finish before continuing
+   * This method deletes a single file or performs a recursive delete on a directory
    * 
-   * @throws Exception
+   * @param fileStore the file/directory to delete
    */
-  public static void waitForBuildToFinish() throws Exception {
-    Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+
+  public static void deleteFile(IFileStore fileStore) {
+	  try {
+		  if (fileStore.fetchInfo().isDirectory()) {
+			  for (IFileStore child: fileStore.childStores(EFS.NONE, null)) {
+				  deleteFile(child);
+			  }
+		  }
+		  fileStore.delete(EFS.NONE, null);
+	  } 
+	  catch (CoreException e) {
+		  e.printStackTrace();
+		  Assert.fail(e.getMessage());
+	  }
+  }
+
+  /**
+   * This method deletes the output folder generated during a test run on a remote machine
+   * 
+   * @param platformConfig contains the platform configuration of the remote machine. This
+   * includes the operating system type of the remote target as well as the remote output folder path
+   */
+
+  public static void cleanRemoteOutputFiles(PlatformConfig platformConfig) {
+	  ITargetOpHelper remoteTargetCleaner = TargetOpHelperFactory.create(false, 
+			  																(platformConfig.os == XMLPlatformConfigurations.OS.Type.WINDOWS), 
+			  																platformConfig.connectionName);
+	  deleteFile(remoteTargetCleaner.getStore(platformConfig.outputFolder));
+	  deleteFile(remoteTargetCleaner.getStore(platformConfig.debuggerFolder));
   }
   
   /**
-   * This method waits for the indexer to finish before continuing
+   * This method waits for the a job family to finish before continuing
+   * 
+   * 	popular family objects include:
+   * 		ResourcesPlugin.FAMILY_AUTO_BUILD            	build job
+   *        SearchCoreActivator.FAMILY_X10_INDEXER       	indexer job
+   *        CppLaunchCore.FAMILY_PLATFORM_CONF_VALIDATION	validate platform config
    * 
    * @throws Exception
    */
-  public static void waitForIndexerToFinish() throws Exception {
-//    Job.getJobManager().join(SearchCoreActivator.FAMILY_X10_INDEXER, null);
-  }
-  
-  /**
-   * This method waits for the Platform Configuration Validation to finish before continuing
-   * 
-   * @throws Exception
-   */
-  public static void waitForPlatformValidationToFinish() throws Exception {
-    Job.getJobManager().join(CppLaunchCore.FAMILY_PLATFORM_CONF_VALIDATION, null);
+  public static void waitForFamilyJobToFinish(Object family) throws Exception {
+    Job.getJobManager().join(family, null);
   }
   
   /**
@@ -724,7 +606,7 @@ System.out.println("clearing console view");
 
 	  int rowCount = 0;
 	  boolean done = false;
-	  Integer waitLoop = 5;
+	  Integer waitLoop = 15;
 	  System.out.println("\n    open X10 type '" + typeName + "' by searching on '" + searchString + "'");
 	  
 	  do {
@@ -848,7 +730,7 @@ System.out.println("clearing console view");
 	  System.out.println("\n    find X10 type '" + typeName + "' by searching on '" + searchString + "'");
 	  boolean done = false;
 	  int rowCount = 0;
-	  Integer waitLoop = 5;
+	  Integer waitLoop = 15;
 	  do {
 		  try {
 			  searchViewBot.waitUntil(X10DT_Conditions.tableHasMinimumRows(typeList, expectedRows), 2000);	//give it a few seconds to find at least 
@@ -983,7 +865,7 @@ System.out.println("clearing console view");
  * @throws IOException 
    * 
    */
-  
+
   //NB: Call this BEFORE calling setCppPlatformCompilationConfig
   //
   public void setCppPlatformConnectionConfig(String projectName, PlatformConfig	 platformSetup) throws IOException, Exception
@@ -992,9 +874,9 @@ System.out.println("clearing console view");
 	  topLevelBot.perspectiveByLabel("X10").activate();
 
 	  topLevelBot.viewByTitle(ViewConstants.PACKAGE_EXPLORER_VIEW_NAME).bot().tree()
-	  		.expandNode(projectName)
-	  			.expandNode(PlatformConfConstants.PLATFORM_CONF_FILE).doubleClick();
-	  
+	  									.expandNode(projectName)
+	  										.expandNode(PlatformConfConstants.PLATFORM_CONF_FILE).doubleClick();
+
 	  final SWTBot editorBot = topLevelBot.editorByTitle(PlatformConfConstants.PLATFORM_CONF_FILE).bot();
 
 	  //open the C++ Connection and Communication tab
@@ -1015,14 +897,24 @@ System.out.println("clearing console view");
 		  editorBot.radio(PlatformConfConstants.LOCAL_CONNECTION).click();	//well, *that* was easy.
 	  }
 	  else { //set up connection to a remote host
+		  //but *this* is going to be less easy.
+		  //select a remote connection
+		  editorBot.radio(PlatformConfConstants.REMOTE_CONNECTION).click();			  
+		  //get the connection name table
+		  SWTBotTable remoteNameTable = editorBot.tableInGroup(PlatformConfConstants.WORKSPACE_PERSISTED_GROUP);
 
-		  editorBot.radio(PlatformConfConstants.REMOTE_CONNECTION).click();	//but *this* is going to be less easy.		  
-		  editorBot.button(PlatformConfConstants.ADD_BUTTON).click();
+		  if (remoteNameTable.rowCount() == 0) {	//need a row, or is one already there?
+			  editorBot.button(PlatformConfConstants.ADD_BUTTON).click();	//make a new row
+		  }
+
+		  //get the table row
+		  final SWTBotTableItem remoteNameItem = remoteNameTable.getTableItem(0);
 
 		  editorBot.sleep(1000);
 
-		  final SWTBotTableItem remoteNameItem = editorBot.tableInGroup(PlatformConfConstants.WORKSPACE_PERSISTED_GROUP).getTableItem(0);
 
+		  //SWTBot doesn't support writing directly into a cell editor, so we have to do it the hard way
+		  remoteNameTable.click(0, 1); 	//this will select any text in the table cell so that we can overwrite it.
 		  for (int c = 0; c < platformSetup.connectionName.length(); c++) {
 			  remoteNameItem.pressShortcut(SWT.NONE, platformSetup.connectionName.charAt(c));
 		  }
@@ -1030,6 +922,8 @@ System.out.println("clearing console view");
 
 		  editorBot.sleep(100);
 
+		  //connection table entry is created.
+		  //now fill in the connection details
 		  editorBot.textWithLabel(PlatformConfConstants.HOST_TEXT_LABEL).setText(platformSetup.remoteHostName); //$NON-NLS-1$
 		  editorBot.textWithLabel(PlatformConfConstants.USER_TEXT_LABEL).setText(platformSetup.remoteHostUser); //$NON-NLS-1$
 
@@ -1038,16 +932,17 @@ System.out.println("clearing console view");
 		  }
 
 		  if (platformSetup.usePassword) {
-			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
+			  editorBot.radio(PlatformConfConstants.PASSWORD_AUTH_RADIO_BUTTON).click();
 			  editorBot.textWithLabel(PlatformConfConstants.PASSWORD_TEXT_LABEL).setText(platformSetup.remoteHostPassword);
 		  }
-		  else {	//use public key authentication
+		  else {	//use private key authentication
 			  editorBot.radio(PlatformConfConstants.PUBLIC_KEY_AUTH_RADIO_BUTTON).click();
 			  final String privateKeyFile = String.format("%s/%s", System.getProperty("user.home"), platformSetup.remoteKeyFile); //$NON-NLS-1$ //$NON-NLS-2$
 			  editorBot.textWithLabel(PlatformConfConstants.PRIVATE_KEY_FILE_LABEL).setText(privateKeyFile);
 		  }
 
-		  SWTBotCheckBox checkBoxPortForwarding = editorBot.checkBox(PlatformConfConstants.PORT_FORWARDING_CHECKBOX);
+		  //setting up port forwarding?
+		  SWTBotCheckBox checkBoxPortForwarding = editorBot.checkBox(PlatformConfConstants.PORT_FORWARDING_CHECKBOX) ;
 		  if (platformSetup.usePortForwarding) {
 			  checkBoxPortForwarding.select();
 			  editorBot.textWithLabel(PlatformConfConstants.PORT_FORWARDING_TIMEOUT).setText(platformSetup.portForwardingTimeout.toString());
@@ -1056,26 +951,31 @@ System.out.println("clearing console view");
 		  else {	//don't do port forwarding
 			  checkBoxPortForwarding.deselect();
 		  }
-		  
+
+		  //find out if the connection works
 		  System.out.println("clicking Validate Connection button");
 		  editorBot.button(PlatformConfConstants.VALIDATE_BUTTON).click();
 		  editorBot.sleep(8000); // Leave the time to make the connection.
 
 	  }
+
+	  //switch to Compilation and Linking tab
 	  editorBot.cTabItem(PlatformConfConstants.CPP_COMPILATION_LINKING_TAB).activate();
 
 	  setCppPlatformCompilationConfig(projectName, platformSetup, editorBot);
 
-System.out.println("Configuration '" + platformSetup.configName + "' clicking Validate Configuration button");
+	  //configuration setup is done.
+	  //now find out of the whole configuration works
+	  System.out.println("Configuration '" + platformSetup.configName + "' clicking Validate Configuration button");
 	  editorBot.toolbarButton(PlatformConfConstants.VALIDATE_PLATFORM_TOOLTIP_BT).click();
-	  
+
 	  // The Progress Configuration dialog will open.  Wait for it to go away
 	  topLevelBot.waitUntil(Conditions.shellIsActive(PlatformConfConstants.CPP_VALIDATION_PROGESS_DLG));
 	  SWTBotShell progressShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_PROGESS_DLG);
 	  progressShell.activate();
-	  
-System.out.println("wait for Progress Dialog to go away");
-	  int timeoutCount = 12;	//loops waits 5 sec, we'll loop 12 times = 1 min
+
+	  System.out.println("wait for Progress Dialog to go away");
+	  int timeoutCount = 12;	//loop waits 5 sec, we'll loop 12 times = 1 min
 	  boolean stillWaiting = true;
 	  while ((stillWaiting) && (0 < timeoutCount--)) {
 		  try {
@@ -1083,159 +983,55 @@ System.out.println("wait for Progress Dialog to go away");
 			  stillWaiting = false;		//At last!
 		  }
 		  catch (TimeoutException e) {	//Awww...!! The validation is *still* running!
-				  System.out.println("      timeout waiting for Progress Dialog to go away, count = " + timeoutCount);
-		  }
-	  }
-//	  
-//	  if (stillWaiting) { //yawnnnnn...
-//		  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
-//		  System.out.println("  Validation Failure popped up");
-// 
-//		  //it's modal. Unless we click 'OK', we'll have to wait for the overall junit timeout
-//		  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
-//		  Assert.fail("Errors occurred in X10 Platform configuration validation");
-//	  }
+			  System.out.println("      timeout waiting for Progress Dialog to go away, count = " + timeoutCount);
 
-	  if (stillWaiting) { //yawnnnnn...
-		  //check for problems by seeing if the platform validation failure dialog is displayed
-		  SWTBotShell[] shellList = topLevelBot.shells();		//get current list of shells
-		  for (int i = 0; i < shellList.length; i++) {		// scan list and hope we don't find the validation failure shell
-			  System.out.println("shell " + i + " is " + shellList[i].getText());
-			  if (shellList[i].getText().equals(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG)) {
-				  //rats!! it opened. 
-				  SWTBotShell ValidationFailureShell = topLevelBot.shell(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG);
-				  if (ValidationFailureShell.isActive()) { 
-					  // it's modal. We have to click 'OK', or else wait for the overall junit timeout
-					  ValidationFailureShell.bot().button(WizardConstants.OK_BUTTON);
-					  Assert.fail("Errors occurred in X10 Platform configuration validation");
+			  //check for problems by seeing if some sort of validation failure dialog is displayed
+			  SWTBotShell[] shellList = topLevelBot.shells();		//get current list of shells
+			  for (int i = 0; i < shellList.length; i++) {		// scan list and hope we don't find the validation failure shell
+				  SWTBotShell shell = shellList[i];
+				  String shellName = shell.getText();
+				  System.out.println("shell " + i + " is " + shellName);
+				  if (shellName.equals(PlatformConfConstants.CPP_VALIDATION_FAILURE_DLG) ||			//it could be this...
+						  shellName.equals(PlatformConfConstants.CPP_CONNECTION_FAILURE_DLG)) {		//... or it could be that
+					  shell.activate(); 															// both are bad
+					  // it's going to be modal. We have to click 'OK', or else wait for the overall junit timeout
+					  shell.bot().button(WizardConstants.OK_BUTTON).click();
+					  Assert.fail("Errors occurred in X10 Platform configuration validation: '" + shellName + "' dialog was presented");
 				  }
 			  }
 		  }
+	  }
+
+	  if (stillWaiting) { //yawnnnnn...
 		  Assert.fail("Timeout: X10 Platform configuration validation did not complete");
 	  }
-	  	
-System.out.println("	platform validation is finished");
 
-System.out.println("clicking Save Configuration button");
+	  System.out.println("	platform validation is finished");
+
+	  System.out.println("clicking Save Configuration button");
 	  // save configuration
 	  editorBot.toolbarButton(PlatformConfConstants.SAVE_PLATFORM_TOOLTIP_BT).click();
 	  editorBot.sleep(1000);
 
-System.out.println("wait for '" + platformSetup.configName + "' build to finish");
+	  System.out.println("wait for '" + platformSetup.configName + "' build to finish");
 	  // program will build on platform
-	  waitForBuildToFinish();
-	  
-System.out.println("checking Problems View for errors");
-	// look for errors in the Problems View
-	int problemsViewErrorCount = ProblemsViewUtils.getErrorMessages(topLevelBot).length;
-	if (problemsViewErrorCount != 0)
-	{
-		System.out.println(platformSetup.configName + ": " + problemsViewErrorCount + " compilation Errors found in Problems View");
-		dumpConsole(topLevelBot);
-		editorBot.sleep(1000);
+	  waitForFamilyJobToFinish(ResourcesPlugin.FAMILY_AUTO_BUILD);	//wait for build to finish
 
-		Assert.assertEquals("Compilation Errors found in Problems View: ", 0, problemsViewErrorCount);
-	}
+	  System.out.println("checking Problems View for errors");
+	  // look for errors in the Problems View
+	  int problemsViewErrorCount = ProblemsViewUtils.getErrorMessages(topLevelBot).length;
+	  if (problemsViewErrorCount != 0)
+	  {
+		  System.out.println(platformSetup.configName + ": " + problemsViewErrorCount + " compilation Errors found in Problems View");
+		  editorBot.sleep(1000);
 
-System.out.println("done with setCppPlatformConnectionConfig");
+		  Assert.failNotEquals("Compilation Errors found in Problems View: ", 0, problemsViewErrorCount);
+	  }
+
+	  System.out.println("done with setCppPlatformConnectionConfig");
 
   }
   
-/*
- * 
- * XML support
- * 
- * Load and access simple XML configuration files
- * 
- */
-  public static Document loadXML(String xmlFileName) { 
-
-	  File fXmlFile; 
-
-	  DocumentBuilderFactory docFactory;
-	  DocumentBuilder docBuilder;
-	  Document doc = null;
-	  
-	  System.out.println("loading config file " + xmlFileName);
-
-	  try {
-		  ClassLoader cl = X10DTTestBase.class.getClassLoader();		//archive file must be on the build path
-		  URL xmlFileURL = cl.getResource(xmlFileName);	//find the file 
-		  fXmlFile = new File(FileLocator.toFileURL(xmlFileURL).getFile());
-
-		  docFactory = DocumentBuilderFactory.newInstance();
-		  docBuilder = docFactory.newDocumentBuilder();
-		  doc = docBuilder.parse(fXmlFile);
-		  doc.getDocumentElement().normalize();
-	  }
-	  catch (Exception e) {
-		  Assert.fail("exception in loadXML " + e.getMessage());		
-	  }
-	  return doc;
-  }
-
-  //retrieve first string value from element by tag
-  public static String getTagString(String tag, Element element) {
-	return getTagString(tag, element, 0);
-}
-  //retrieve nth string value from element by tag
-  public static String getTagString(String tag, Element element, int listItem) {
-	  NodeList nList= element.getElementsByTagName(tag).item(listItem).getChildNodes();
-	  Node nValue = (Node) nList.item(0);
-	  if (nValue != null)
-		  return nValue.getNodeValue().trim();
-	  else
-		  return "";
-  }
-
-  //retrieve first integer value from element by tag
-  public static Integer getTagInteger(String tag, Element element) {
-	  return getTagInteger(tag, element, 0);
-  }
-
-  //retrieve nth integer value from element by tag
-  public static Integer getTagInteger(String tag, Element element, int listItem) {
-	  String tagString = getTagString(tag, element, listItem);
-	  return tagString.equals("") ? 0 : Integer.valueOf(tagString);
-  }
-
-  //retrieve first boolean value from element by tag
-  public static Boolean getTagBoolean(String tag, Element element) {
-	  return getTagBoolean(tag, element, 0);
-  }
-
-  //retrieve nth boolean value from element by tag
-  public static Boolean getTagBoolean(String tag, Element element, int listItem) {
-	  return (getTagString(tag, element, listItem).equals("yes") ? true : false);
-  }
-
-  //Sometimes you might want to use a quoted string as a value 
-  // so that leading or trailing whitespace can be preserved.
-  // This strips off the quotes.  
-  //retrieve first quoted string value from element by tag
-  public static String getTagQuotedString(String tag, Element element) {
-	  return getTagQuotedString(tag, element, 0);
-  }
-
-  //Sometimes you might want to use a quoted string as a value 
-  // so that leading or trailing whitespace can be preserved.
-  // This strips off the quotes.  
-  //retrieve nth quoted string value from element by tag
-  public static String getTagQuotedString(String tag, Element element, int listItem) {
-	  NodeList nList= element.getElementsByTagName(tag).item(listItem).getChildNodes();
-	  Node nValue = (Node) nList.item(0);
-	  if (nValue != null) {
-		  String theString = nValue.getNodeValue().trim();
-		  if (theString.startsWith("\"") && theString.endsWith("\"")) {
-			  return theString.substring(theString.indexOf('"')+1, theString.lastIndexOf('"'));
-		  }
-		  else
-			  return "";
-	  }
-	  else
-		  return "";
-  }
-
   /*
    * 
    * Debugging support
