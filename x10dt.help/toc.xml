@@ -114,6 +114,7 @@
 	<topic label="Interfaces" href="html/langref/interfaces.html">
 		<topic label="Interface Syntax" href="html/langref/int-syntax.html"/>
 		<topic label="Access to Members" href="html/langref/int-access.html"/>
+		<topic label="Property Methods" href="html/langref/int-propertymethods.html"/>
 		<topic label="Field Definitions" href="html/langref/int-fielddefs.html"/>
 		<topic label="Generic Interfaces" href="html/langref/int-generic.html"/>
 		<topic label="Interface Inheritance" href="html/langref/int-inheritance.html"/>
@@ -184,7 +185,8 @@
 		<topic label="Subtyping expressions" href="html/langref/exp-subtyping.html"/> 
 		<topic label="Contains expressions" href="html/langref/exp-contains.html"/> 
 		<topic label="Array constructors" href="html/langref/exp-railcons.html"/>
-		<topic label="Coercions and conversions" href="html/langref/exp-coercions.html"/> 
+		<topic label="Coercions and conversions" href="html/langref/exp-coercions.html"/>
+		<topic label="Parenthesized expressions" href="html/langref/exp-parenthesized.html"/>
 	</topic>
 	<topic label="Statements" href="html/langref/statements.html"> 
 		<topic label="Empty statement" href="html/langref/sta-empty.html"/> 
