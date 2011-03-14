@@ -44,7 +44,7 @@ public class TestEditor {
 
   public Object getAst() {
     if (parseController.getCurrentAst() == null) {
-      parseController.parse(document.get(), new NullProgressMonitor());
+      parseController.parse(document, new NullProgressMonitor());
     }
 
     return parseController.getCurrentAst();
