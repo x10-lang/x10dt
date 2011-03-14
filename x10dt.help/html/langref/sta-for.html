@@ -73,7 +73,7 @@ If omitted, <b>init</b> does nothing.
 <div class="p"><!----></div>
 <b>test</b> is a Boolean-valued expression; an iteration of the loop will only
 proceed if <b>test</b> is true at the beginning of the loop, after <b>init</b>
-on the first iteration or or <b>step</b> on later ones. If omitted, <b>test</b>
+on the first iteration or after <b>step</b> on later ones. If omitted, <b>test</b>
 defaults to <b>true</b>, giving a loop that will run until stopped by some
 other means such as <b>break</b>, <b>return</b>, or <b>throw</b>.
 
@@ -109,6 +109,11 @@ A number of library classes implement <b>Iterable</b>, and thus can be iterated
 over.  For example, iterating over a <b>Region</b> iterates the <b>Point</b>s in
 the region, and iterating over an <b>Array</b> iterates over the
 <b>Point</b>s at which the  array is defined.
+
+<div class="p"><!----></div>
+The type of the loop variable may be supplied as <b>x &lt;: T</b>.  In this case
+the iterable <b>c</b> must have type <b>Iterable[U</b> for some <b>U &lt;: T</b>,
+and <b>x</b> will be given the type <b>U</b>.
 
 <div class="p"><!----></div>
 This loop adds up the elements of a <b>List[Int]</b>.

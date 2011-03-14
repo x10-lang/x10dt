@@ -49,14 +49,14 @@ is not necessarily distinct from <b>p</b> (e.g. <b>q</b> may be
 
 <div class="p"><!----></div>
 First, the runtime identifies the object graph at <b>p</b> reachable
-from lexically scoped initialized variables (say, <b>v1</b>,...,
+from lexically scoped initialized <b>val</b> variables (say, <b>v1</b>,..., 
 <b>vn</b>) referenced in <b>S</b>.  Second this graph is <em>
   serialized</em> into a buffer and transmitted to place <b>q</b>.  Third,
 the variables <b>v1</b>,..., <b>vn</b> are re-created at <b>q</b> and
 initialized with the objects obtained by deserializing the buffer at
 <b>q</b>. Fourth, <b>S</b> is executed at <b>q</b> (in an environment in
 which the variable <b>vi</b> refers to the re-created variable at
-<b>q</b>).
+<b>q</b>).  (For the treatment of <b>var</b>s, see &#167;.)
 
 <div class="p"><!----></div>
 On normal termination of <b>S</b> control returns to <b>p</b> and
@@ -72,6 +72,12 @@ constructs such as <b>break</b>, <b>continue</b>, <b>return</b> and
 <b>throw</b> are permitted in <b>S</b>.  All concurrency related
 constructs - <b>async</b>, <b>finish</b>, <b>atomic</b>, <b>when</b> are
 also permitted.
+
+<div class="p"><!----></div>
+The <b>at</b>-expression <b>at(p)E</b> is similar, except that, in the case of
+normal termination of <b>E</b>, the value that <b>E</b> produces is serialized
+into a buffer, transported to the starting place, and deserialized, and the
+value of the <b>at</b>-expression is the result of deserialization.
 
 <div class="p"><!----></div>
 <em>Limitation</em> In <b>at(e) S</b>, <b>S</b> is permitted to access only
@@ -118,7 +124,7 @@ of <b>x10.lang.GlobalRef[T]</b> for more details.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.1">
-2.1</a>&nbsp;&nbsp;Discussion</h3>
+2.1</a>&nbsp;&nbsp;<tt>at</tt> and Activities</h3>
 <b>at(p)S</b> does <em>not</em> start a new activity.  It should be thought of as
 transporting the current activity to <b>p</b>, running <b>S</b> there, and then
 transporting it back.  <b>async</b> is the only construct in the
@@ -137,7 +143,7 @@ within a single activity.
 For example, 
 <pre>
     for(x in globalRefsToThings) 
-      if (at(x.home) x().nice()) 
+      if (at(x.home) x().isNice())  
         return x();
 </pre>
 returns the first nice thing in a collection.   If we had used 
@@ -154,7 +160,7 @@ you can't <b>return</b> from an
 <b>at(p)S</b> copies nearly all data that <b>S</b> might reference, and sends it
 to place <b>p</b>, before executing <b>S</b> there. The only things that are not
 copied are values only reachable through <b>GlobalRef</b>s and <b>transient</b>
-fields.    If <b>x</b> is a
+fields, and data omitted by custom serialization.    If <b>x</b> is a
 variable name referring to some object <b>ob</b> outside of <b>S</b>, then the
 same variable name <b>x</b> refers to a deep copy of <b>ob</b>
 inside of <b>S</b>.  In this way the body <b>S</b> is in a separate block with
@@ -262,7 +268,7 @@ class Trans {
 A <b>GlobalRef[T]</b> (say <b>g</b>) contains a reference to
 a value of type <b>T</b>, in a form which can be transmitted, and a <b>Place</b>
 <b>g.home</b> indicating where the value lives. When a 
-<b>GlobalRef</b> is serialized an opaque, globally uniqe handle to
+<b>GlobalRef</b> is serialized an opaque, globally unique handle to
 the enclosed value <b>o</b> is passed. 
 
 <div class="p"><!----></div>
@@ -279,8 +285,8 @@ at (here) {
 </pre>
 
 <div class="p"><!----></div>
-Values protected in <b>GlobalRef</b>s can be retrieved by the <b>g.apply()</b>
-method, often abbreviated simply <b>g()</b>.  <b>g.apply()</b> is guarded; it can
+Values protected in <b>GlobalRef</b>s can be retrieved by the application
+operation <b>g()</b>.  <b>g()</b> is guarded; it can 
 only be called when <b>g.home == here</b>.  If you  want to do anything other
 than pass a global reference around or compare two of them for equality, you
 need to placeshift back to the home place of the reference, often with
@@ -325,7 +331,7 @@ that <b>this</b> refers to, which can be very large.
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc2.2.4">
-2.2.4</a>&nbsp;&nbsp;<tt>at</tt> and Variables</h4>
+2.2.4</a>&nbsp;&nbsp;<tt>at</tt> and <tt>var</tt> Variables</h4>
 
 
 <div class="p"><!----></div>

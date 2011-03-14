@@ -81,7 +81,6 @@ class Example {
     try {
        throw new SubExn(4);
     }
-    catch (e : SubExn{n==1}) { assert false; }
     catch (e : Exn)          { correct = true; }
     catch (e : SubExn)       { assert false; }
     catch (e : Throwable)    { assert false; }
@@ -89,6 +88,9 @@ class Example {
   }
 }
 </pre>
+
+<b>Limitation</b>Constraints on exception types in <b>catch</b> blocks are not
+currently supported. 
 
 <div class="p"><!----></div>
 

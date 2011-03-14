@@ -23,7 +23,7 @@
 
 
 <div class="p"><!----></div>
-Instances of classes are created by the <b>new</b> expression: 
+Instances of classes are created by the <b>new</b> expression: <br />
 
   <em>
   
@@ -107,6 +107,41 @@ class C(x:Int) {
 Thus, it has an implicit constructor: 
 <b>def this(x:Int)property(x);</b>
 
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;Calling Other Constructors</h3>
+
+<div class="p"><!----></div>
+The <em>first</em> statement of a constructor body may be a call of the form 
+<b>this(a,b,c)</b> or <b>super(a,b,c)</b>.  The former will execute the body of
+the matching constructor of the current class; the latter, of the superclass. 
+This allows a measure of abstraction in constructor definitions; one may be
+defined in terms of another.
+
+<div class="p"><!----></div>
+The following class has two constructors.  <b>new Ctors(123)</b> constructs a
+new <b>Ctors</b> object with parameter 123.  <b>new Ctors()</b> constructs one
+whose parameter has a default value of 100: 
+<pre>
+class Ctors {
+  val a : Int;
+  def this(a:Int) { this.a = a; }
+  def this() {
+    this(100);
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+In the case of a class which implements <b>operator ()</b> 
+- or any other constructor and application with the same signature - 
+this can be ambiguous.  If <b>this()</b> appears as the first statement of a
+constructor body, it could, in principle, mean either a constructor call or an
+operator evaluation.   This ambiguity is resolved so that <b>this()</b> always
+means the constructor invocation.  If, for some reason, it is necessary to
+invoke an application operator early in a constructor, precede it with a dummy
+statement, such as <b>if(false);</b>  
 
 <div class="p"><!----></div>
 

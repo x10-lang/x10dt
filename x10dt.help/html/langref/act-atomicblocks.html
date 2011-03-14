@@ -30,6 +30,28 @@ shared data-structures are maintained even as they are being accessed
 simultaneously by multiple activities running in the same place.  
 
 <div class="p"><!----></div>
+An X10 program in which all accesses (both reads and writes) of shared
+variables appear in <b>atomic</b> or <b>when</b> blocks is guaranteed to use all
+shared variables atomically.  Equivalently, 
+if two accesses to some shared variable <b>v</b> could collide at runtime, and
+one is in an atomic block, then the other must be in an atomic block as well
+to guarantee atomicity of the accesses to <b>v</b>. 
+If some accesses to shared variables are not
+protected by <b>atomic</b> or <b>when</b>, then race conditions or deadlocks may
+occur.  
+
+<div class="p"><!----></div>
+In particular, atomic sections are atomic with respect to each other. They may
+not be atomic with respect to non-atomic code.  
+
+<div class="p"><!----></div>
+X10 guarantees that atomic sections at the same place are mutually exclusive.
+That is, if one activity A at a given place p is executing an atomic
+section, then no other activity B at p will also be executing an atomic
+section. If such a B attempts to execute an <b>atomic</b> or <b>when</b>
+command, it will be blocked until A finishes executing its atomic section.  
+
+<div class="p"><!----></div>
 <em>  
 <table>
 

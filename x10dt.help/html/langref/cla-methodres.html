@@ -49,7 +49,8 @@ class Resolve {
 The basic concept of method resolution is quite straightforward: 
 
 <ol type="1">
-<li> List all the methods that could possibly be used;
+<li> List all the methods that could possibly be used (counting implicit
+      coercions);
 <div class="p"><!----></div>
 </li>
 
@@ -93,7 +94,7 @@ resolution, is:
 
 <li> The types "x<sub>1</sub>:T<sub>1</sub>,&#8230;, x<sub>f</sub>:T<sub>f</sub>" of the formal parameters.  If
       there are no formal parameters, f=0. In the case of an instance
-      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
+      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
 <div class="p"><!----></div>
 </li>
 
@@ -172,7 +173,13 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 </li>
 
 <li> The actual parameter types must be subtypes of the formal
-            parameter types:  "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>" for each <em>i</em>.
+            parameter types, or be coercible to such subtypes.  Parameter i
+            is a subtype if "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>".  It is implicitly
+            coercible to a subtype if there is an implicit coercion operator
+            defined from "T&#8242;<sub>i</sub>" to some type <b>U</b>, and 
+            &#220; &lt;: T<sub>i</sub>".  .  If coercions are
+            used to resolve the method, they will be called on the arguments
+            before the method is invoked.
 <div class="p"><!----></div>
 </li>
 
@@ -239,7 +246,23 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 </li>
 
 <li> If <b>m2</b> is acceptable for the invocation <b>invo1</b>,
-      <b>specific(m1,m2)</b> returns true; otherwise, it returns false.
+      <b>specific(m1,m2)</b> returns true;
+<div class="p"><!----></div>
+</li>
+
+<li> Construct an invocation <b>invo2p</b>, which is <b>invo1</b> with the
+      generic parameters erased.  Let <b>invo2</b> be <b>invo2p</b> with generic
+      parameters as inferred by X10's type inference algorithm.  If type
+      inference fails, <b>specific(m1,m2)</b> returns false.
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>m2</b> is acceptable for the invocation <b>invo2</b>,
+      <b>specific(m1,m2)</b> returns true;
+<div class="p"><!----></div>
+</li>
+
+<li> Otherwise, <b>specific(m1,m2)</b> returns false.
 <div class="p"><!----></div>
 </li>
 </ol>

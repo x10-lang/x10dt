@@ -29,7 +29,7 @@
 methods of the <b>DistArray</b> class.
 A <b>DistArray</b> creation 
 must take either an <b>Int</b> as an argument or a <b>Dist</b>. In the first
-case,  a distributed array is created over the distribution <b>[0:N-1]-&#62;here</b>;
+case,  a distributed array is created over the distribution <b>Dist.makeConstant([0:N-1],here)</b>;
 in the second over the given distribution. 
 
 <div class="p"><!----></div>
@@ -45,7 +45,7 @@ distribution).
 For instance:
 <pre>
 val data : DistArray[Int]
-    = DistArray.make[Int](1..1000-&#62;here, ([i]:Point(1)) =&#62; i);
+    = DistArray.make[Int](Dist.makeConstant(1..1000), ([i]:Point(1)) =&#62; i);
 val blocked = Dist.makeBlock((1..1000)*(1..1000));
 val data2 : DistArray[Int]
     = DistArray.make[Int](blocked, ([i,j]:Point(2)) =&#62; i*j);

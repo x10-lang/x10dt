@@ -85,7 +85,26 @@ and is initialized with the value of the actual parameter.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.1">
-4.1</a>&nbsp;&nbsp;Method Guards</h3>
+4.1</a>&nbsp;&nbsp;Generic Instance Methods</h3>
+
+
+<div class="p"><!----></div>
+<b>Limitation: </b>
+In X10, an instance method may be generic: 
+<pre>
+class Example {
+  def example[T](t:T) = &#207; like " + t;
+}
+</pre>
+
+<div class="p"><!----></div>
+However, the C++ back end does not currently support generic virtual instance
+methods like <b>example</b>.  It does allow generic instance methods which are
+<b>final</b> or <b>private</b>, and it does allow generic static methods.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Method Guards</h3>
 <a name="MethodGuard">
 </a>
 
@@ -172,8 +191,8 @@ Using a reference to an outer class, <b>Outer.this</b>, in a constraint, is not 
 </em>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.2">
-4.2</a>&nbsp;&nbsp;Property methods</h3>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Property methods</h3>
 
 
 
@@ -198,7 +217,9 @@ in constraints.  A property method declared in a class must have
 a body and must not be <b>void</b>.  The body of the method must
 consist of only a single <b>return</b> statement or a single
 expression.  It is a static error if the expression cannot be
-represented in the constraint system. 
+represented in the constraint system.   Property methods may be <b>abstract</b>
+in <b>abstract</b> classes, but are implicitly <b>final</b> in
+non-<b>abstract</b> classes. 
 
 <div class="p"><!----></div>
 The expression may contain invocations of other property methods. It is the
@@ -231,8 +252,8 @@ is equivalent to
 <b>w.rail()</b>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.3">
-4.3</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
 <a name="MethodOverload">
 </a>
 

@@ -26,13 +26,10 @@
 <em>
 <table>
 
-<tr><td align="right">NormalInterfaceDecl ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">NormalInterfaceDecl ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
 <tr><td align="right">TypeParamsWithVariance ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
-<tr><td align="right">Properties ::= <b>(</b> PropertyList <b>)</b> </td></tr>
-<tr><td align="right">PropertyList ::= Property </td></tr>
-<tr><td align="right">&#124; PropertyList <b>,</b> Property </td></tr>
-<tr><td align="right">WhereClause ::= DepParams </td></tr>
-<tr><td align="right">ExtendsInterfaces ::= <b>extends</b> Type </td></tr>
+<tr><td align="right">WhereClause ::= DepParams = </td></tr>
+<tr><td align="right">ExtendsInterfaces ::= <b>extends</b> Type = </td></tr>
 <tr><td align="right">&#124; ExtendsInterfaces <b>,</b> Type </td></tr>
 <tr><td align="right">InterfaceBody ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
 <tr><td align="right">InterfaceMemberDecl ::= MethodDecl </td></tr>
@@ -50,12 +47,6 @@ The invariant associated with an interface is the conjunction of the
 invariants associated with its superinterfaces and the invariant
 defined at the interface. 
 
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-Each interface implicitly defines a nullary getter method
-<b>def p(): T</b> for each property <b>p: T</b>. The interface may not have
-another definition of a method <b>p()</b>. 
 
 <div class="p"><!----></div>
 A class <b>C</b>  implements an interface <b>I</b> if
@@ -66,7 +57,7 @@ A class <b>C</b>  implements an interface <b>I</b> if
 <div class="p"><!----></div>
 </li>
 
-<li> <b>C</b>'s properties include all the properties of <b>I</b>,
+<li> <b>C</b>'s property methods include all the property methods  of <b>I</b>,
 <div class="p"><!----></div>
 </li>
 

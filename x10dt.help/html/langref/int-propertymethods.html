@@ -13,26 +13,17 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Interface Inheritance</title>
+	<title>Property Methods</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc6">
-6</a>&nbsp;&nbsp;Interface Inheritance</h2>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Property Methods</h2>
 
 <div class="p"><!----></div>
-The <em>direct superinterfaces</em> of a non-generic interface <b>I</b> are the interfaces
-(if any) mentioned in the <b>extends</b> clause of <b>I</b>'s definition.
-If <b>I</b>  is generic, the direct superinterfaces are of an instantiation of
-<b>I</b> are the corresponding instantiations of those interfaces.
-A <em>superinterface</em> of <b>I</b> is either <b>I</b> itself, or a direct
-superinterface of a superinterface of <b>I</b>, and similarly for generic
-interfaces.    
-
-<div class="p"><!----></div>
-<b>I</b> inherits the members of all of its superinterfaces. Any class or
-struct that has <b>I</b> in its <b>implements</b> clause also implements all of
-<b>I</b>'s superinterfaces. 
+An interface may declare <b>property</b> methods.  All non-<b>abstract</b>
+containers implementing such an interface must provide all the <b>property</b>
+methods specified.  
 
 <div class="p"><!----></div>
 

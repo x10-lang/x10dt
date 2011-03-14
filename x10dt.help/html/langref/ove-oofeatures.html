@@ -22,7 +22,7 @@
 
 <div class="p"><!----></div>
 The sequential core of X10 is a <em>container-based</em> object-oriented language
-similar to Java and C++, and more recent language such as Scala.  
+similar to Java and C++, and more recent languages such as Scala.  
 Programmers write X10 code by defining containers for data and behavior called
 <em>interfaces</em>
 (&#167;),
@@ -129,9 +129,9 @@ complicated way.
 </pre>
 
 <div class="p"><!----></div>
-They are used extensively in X10
-programs.  For example, the normal way to construct an <b>Array[Int](1)</b> -
-that is, a fixed-length array of numbers, like an <b>int[]</b> in Java - is to
+Functions are used extensively in X10
+programs.  For example, a common way to construct and initialize an <b>Array[Int](1)</b> -
+that is, a fixed-length one-dimensional array of numbers, like an <b>int[]</b> in Java - is to
 pass two arguments to a factory method: the first argument being the length of
 the array, and the second being a function which computes the initial value of
 the <b>i</b><sup>th</sup> element.  The following code constructs a 1-dimensional
@@ -165,7 +165,9 @@ abstract class Mat(rows:Int, cols:Int) {
 </pre>
 
 <div class="p"><!----></div>
-The following code typechecks, but an attempt to compute <b>axb1 + bxc</b> or
+The following code typechecks (assuming that <b>makeMat(m,n)</b> is a function
+which creates an "m<em>x</em>n" matrix).
+However, an attempt to compute <b>axb1 + bxc</b> or
 <b>bxc * axb1</b> would result in a compile-time type error:
 <pre>
   static def example(a:Int, b:Int, c:Int) {

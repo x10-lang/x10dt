@@ -199,6 +199,20 @@ approximation is good enough.
       the <b>Byte</b>sized <b>-2y</b>.
 <div class="p"><!----></div>
 </li>
+
+<li> Casting an unsigned integer type to a signed integer type of the same
+      size (<em>e.g.</em>, <b>UInt</b> to <b>Int</b>) preserves 2's-complement bit pattern
+      (<em>e.g.</em>,  
+      <b>UInt.MAX_VALUE as Int == -1</b>.   Casting an unsigned integer type to
+      a signed integer type of a different size is equivalent to first casting
+      to an unsigned integer type of the target size, and then casting to a
+      signed integer type.
+<div class="p"><!----></div>
+</li>
+
+<li> Casting a signed integer type to an unsigned one is similar.
+<div class="p"><!----></div>
+</li>
 </ul>
 
 <div class="p"><!----></div>
@@ -244,6 +258,20 @@ type and a type to its right, below:
 Byte &lt; Short &lt; Int &lt; Long &lt; Float &lt; Double
 UByte &lt; UShort &lt; UInt &lt; ULong
 </pre>
+
+<div class="p"><!----></div>
+Furthermore, an unsigned integer type may be implicitly coerced a signed type
+large 
+enough to hold any value of the type: <b>UByte</b> to <b>Short</b>, <b>UShort</b>
+to <b>Int</b>, <b>UInt</b> to <b>Long</b>.  There are no implicit conversions
+from signed to unsigned numbers, since they cannot treat negatives properly.
+
+<div class="p"><!----></div>
+There are no implicit conversions in cases when overflow is possible.  For
+example, there is no implicit conversion between <b>Int</b> and <b>UInt</b>.  If
+it is necessary to convert between these types, use <b>n as Int</b> or 
+<b>n as UInt</b>, generally with a test to ensure that the value will fit and
+code to handle the case in which it does not.
 
 <div class="p"><!----></div>
 

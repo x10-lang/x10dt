@@ -17,13 +17,13 @@
 </head>
 
 <body>
- <h2><a name="tth_sEc1">
-3</a>&nbsp;&nbsp;Field Definitions</h2>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Field Definitions</h2>
 
 
 <div class="p"><!----></div>
 An interface may declare a <b>val</b> field, with a value.  This field is implicitly
-<b>public static val</b>: 
+<b>public static val</b>.  In particular, it is <em>not</em> an instance field. 
 <pre>
 interface KnowsPi {
   PI = 3.14159265358;
@@ -32,7 +32,7 @@ interface KnowsPi {
 
 <div class="p"><!----></div>
 Classes and structs implementing such an interface get the interface's fields as
-<b>public static</b> fields.  Unlike properties and methods, there is no need
+<b>public static</b> fields.  Unlike  methods, there is no need
 for the implementing class to declare them. 
 <pre>
 class Circle implements KnowsPi {
@@ -45,10 +45,10 @@ class UsesPi {
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.1">
-1.1</a>&nbsp;&nbsp;Fine Points of Fields</h3>
+4.1</a>&nbsp;&nbsp;Fine Points of Fields</h3>
 
 <div class="p"><!----></div>
-If two parent interfaces give different fields of the same name,
+If two parent interfaces give different static fields of the same name, 
 those fields must be referred to by qualified names.
 <pre>
 interface E1 {static val a = 1;}

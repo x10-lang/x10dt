@@ -77,6 +77,31 @@ The operator-using code can be written in X10, though a few variations are
 necessary to handle such exotic cases as <b>1+X</b>.
 
 <div class="p"><!----></div>
+Most X10 operators can be given definitions.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  However, <b>&amp;&amp;</b> and
+<b>&#124;&#124;</b> 
+are only short-circuiting for <b>Boolean</b> expressions; user-defined versions
+of these operators have no special execution behavior.  
+These are: <br />
+
+<table>
+<tr><td align="left">implicit type coercions</td></tr>
+<tr><td align="left">postfix <b>()</b></td></tr>
+<tr><td align="left"><b>as T</b></td></tr>
+<tr><td align="left">unary <b>-</b>, unary <b>+</b>, <b>!</b>, <b>&#126;</b></td></tr>
+<tr><td align="left"><b>..</b></td></tr>
+<tr><td align="left"><b>*     </b>  <b>/     </b>  <b>%</b> </td></tr>
+<tr><td align="left"><b>+</b> <b>     -</b> </td></tr>
+<tr><td align="left"><b>&lt;&lt;    </b> <b>&#62;&#62;    </b> <b>&#62;&#62;&#62;   </b> <b>-&#62;</b> </td></tr>
+<tr><td align="left"><b>&#62;     </b> <b>&#62;=    </b> <b>&lt;     </b> <b>&lt;=     </b> 
+<b>in     </b> 
+<b>&amp;</b> </td></tr>
+<tr><td align="left"><b>^</b> </td></tr>
+<tr><td align="left"><b></td><td align="left">&#124;</b> </td></tr>
+<tr><td align="left"><b>&amp;&amp;</b> </td></tr>
+<tr><td align="left"><b></td><td align="left">&#124;</td><td align="left">&#124;</b> </td></tr></table>
+
+
+<div class="p"><!----></div>
      <h3><a name="tth_sEc7.1">
 7.1</a>&nbsp;&nbsp;Binary Operators</h3>
 
@@ -230,7 +255,8 @@ class Poly {
 You may also define <em>implicit</em> type coercions to <b>T{c}</b> as static
 operators in class <b>T</b>.  The syntax for this is
 <b>static operator (x:U) : T{c} = e</b>.
-Implicit coercions are used automatically by the compiler.  
+Implicit coercions are used automatically by the compiler on method calls 
+(&#167;) and assignments (&#167;).  
 
 
 <div class="p"><!----></div>
@@ -289,10 +315,10 @@ with <b>public operator this(i:Int)</b>, and by string-valued keys with
 <b>i,j</b>.  It may also be overloaded. 
 
 <div class="p"><!----></div>
-The update operations <b>a(i) += b</b> are defined to be the 
-same as the corresponding <b>a(i) = a(i) + b</b>.  This applies for all arities
-of arguments, and all types.  Of course to use this, both the application and
-assignment <b>operator</b>s must be defined.cd
+The update operations <b>a(i) += b</b> are defined to be the same as the
+corresponding <b>a(i) = a(i) + b</b>. This applies for all arities of
+arguments, and all types, and all binary operations. Of course to use this,
+both the application and assignment <b>operator</b>s must be defined.
 
 <div class="p"><!----></div>
 The <b>Oddvec</b> class of somewhat peculiar vectors illustrates this.
@@ -311,7 +337,7 @@ class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=&#62;0);
   public operator this () = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
   public operator this () = (newval: Int) { 
-    for(p in v.region) v(p) = newval;
+    for(p in v) v(p) = newval;
   }
   public operator this(i:Int) = v(i);
   public operator this(i:Int, j:Int) = [v(i),v(j)];

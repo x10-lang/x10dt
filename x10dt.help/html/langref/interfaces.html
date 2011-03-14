@@ -23,7 +23,8 @@ Chapter 7 </a><br />Interfaces</h1>
 </a>
 
 <div class="p"><!----></div>
-An interface specifies signatures for zero or more public methods, properties,
+An interface specifies signatures for zero or more public methods, property
+methods,
 <b>static val</b>s,
 classes, structs, interfaces, types
 and an invariant.  
@@ -31,40 +32,46 @@ and an invariant.
 <div class="p"><!----></div>
 The following puny example illustrates all these features: 
 <pre>
-interface Pushable(text:String, prio:Int){prio != 0} {
+interface Pushable{prio != 0} {s
   def push(): void;
   static val MAX_PRIO = 100;
   abstract class Pushedness{}
   struct Pushy{}
   interface Pushing{}
   static type Shove = Int;
-  
+  property text():Int;
+  property prio():Int;
 }
 class MessageButton(text:String, prio:Int)
-  implements Pushable{self.prio==Pushable.MAX_PRIO} {
+  implements Pushable{self.prio()==Pushable.MAX_PRIO} {
   public def push() { 
     x10.io.Console.OUT.println(text + " pushed");
   }
+  public property text() = text;
+  public property prio() = prio;
+  
 }
 </pre>
 
-<b>Pushable</b> defines two properties, a method, and a static value.  It also
+<b>Pushable</b> defines two property methods, one normal method, and a static
+value.  It also 
 establishes an invariant, that <b>prio != 0</b>. 
 <b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
-<em>viz</em>&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
+<em>viz</em>&nbsp;one with maximum priority.  It
 defines the <b>push()</b> method given in the interface, as a <b>public</b>
 method-interface methods are implicitly <b>public</b>.
 
 <div class="p"><!----></div>
 A concrete type-a class or struct-can <em>implement</em> an interface,
-typically by having all the methods and properties that the interface
+typically by having all the methods and property methods that the interface
 requires.
 
 <div class="p"><!----></div>
 A variable may be declared to be of interface type.  Such a variable has all
-the properties and methods declared (directly or indirectly) by the interface;
+the property and normal methods declared (directly or indirectly) by the
+interface; 
 nothing else is statically available.  Values of any concrete type which
-implement the interface may be stored in the variable.  
+implement the interface may be stored in the variable.    
 
 <div class="p"><!----></div>
 The following code puts two quite different objects into the variable

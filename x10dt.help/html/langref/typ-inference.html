@@ -142,6 +142,12 @@ to be a common ancestor of the types of any formal
 parameters of type <b>T</b>.
 
 <div class="p"><!----></div>
+(Exception: it is an error if the method call provides no information about
+a type parameter that must be inferred.  For example, given the method
+definition <b>def m[T](){...}</b>, an invocation <b>m()</b> is considered a
+static error.  The compiler has no idea what <b>T</b> the programmer intends.)
+
+<div class="p"><!----></div>
 Consider the following method, which chooses one of its arguments.  (A more
 sophisticated one might sometimes choose the second argument, but that does
 not matter for the sake of this example.)
@@ -250,7 +256,7 @@ interesting ones.
 <div class="p"><!----></div>
 
 <ul>
-<li> If F has the form "F&#8242;{c}" 
+<li> If F has the form "F&#8242;{c}", then
 "C(r)" is defined to be
  "F&#8242; == G" if r is an equality, or 
  "F&#8242; &lt;: G" if r is a subtyping.
@@ -285,7 +291,7 @@ C(r) = { F<sub>l</sub> == G<sub>l</sub> </td><td width="150">
 If r is a type comparison, and the l<sup>th</sup> type parameter of <b>K</b> is
 invariant (resp. covariant or contravariant), then 
 C(r) has F<sub>l</sub> =  = G<sub>l</sub>
-(resp F<sub>l</sub>  &lt; : G<sub>l</sub> or G<sub>l</sub>  &lt; : F<sub>l</sub> . 
+(resp. {F<sub>l</sub>  &lt; : G<sub>l</sub>} or {G<sub>l</sub>  &lt; : F<sub>l</sub>}) . 
 
 <div class="p"><!----></div>
 For example, the constraint "List[X] == List[Y]" produces the

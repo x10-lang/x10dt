@@ -255,14 +255,21 @@ entail the constraint in the parameter list of the constructor.
 
 
 <div class="p"><!----></div>
-X10 does object initialization safely.  It avoids a few classes of bad things: 
+X10 does object initialization safely.  It avoids certain bad things which
+trouble some other languages:
 
 <ol type="1">
 <li> Use of a field before the field has been initialized.
 <div class="p"><!----></div>
 </li>
 
-<li> <b>this</b> escaping from a constructor;
+<li> A program reading two different values from a <b>val</b> field of a
+      container.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>this</b> escaping from a constructor, which can cause problems as
+      noted below.
 <div class="p"><!----></div>
 </li>
 </ol>

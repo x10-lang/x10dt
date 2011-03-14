@@ -37,8 +37,13 @@ thus the rank of every point that the distribution applies to.
 <pre>
 val R  &lt;: Region = 1..100;
 val D1 &lt;: Dist = Dist.makeBlock(R);
-val D2 &lt;: Dist = R -&#62; here;
+val D2 &lt;: Dist = Dist.makeConstant(R, here);
 </pre>
+
+<div class="p"><!----></div>
+<b>D1</b> distributes the region <b>R</b> in blocks, with a set of consecutive
+points at each place, as evenly as possible.  <b>D2</b> maps all the points in
+<b>R</b> to <b>here</b>.  
 
 <div class="p"><!----></div>
 Let <b>D</b> be a distribution. 
@@ -90,29 +95,20 @@ region <b>1..k</b> to <b>Q</b> mapping each point <b>i</b> to <b>pi</b>.
 <div class="p"><!----></div>
 
 <b>Constant distributions.&nbsp;&nbsp;</b> 
-The distribution <b>R-&#62;P</b> maps every point in region <b>R</b> to place <b>P</b>, as does
-<b>Dist.makeConstant(R,P)</b>. 
+The distribution <b>Dist.makeConstant(R,P)</b> maps every point in region
+<b>R</b> to place <b>P</b>.  
+The special case <b>Dist.makeConstant(R)</b> maps every point in <b>R</b> to
+<b>here</b>. 
 
 <div class="p"><!----></div>
 
 <b>Block distributions.&nbsp;&nbsp;</b>
 The distribution <b>Dist.makeBlock(R)</b> distributes the elements of <b>R</b>,
-in order, over all the places available to the program. 
-Let p equal <b></td><td width="150">
-&#124;R</td><td width="150">
-&#124; div N</b> and q equal <b></td><td width="150">
-&#124;R</td><td width="150">
-&#124; mod N</b>,
-where <b>N</b> is the size of <b>Q</b>, and 
-<b></td><td width="150">
-&#124;R</td><td width="150">
-&#124;</b> is the size of <b>R</b>.  The first q places get
-successive blocks of size (p+1) and the remaining places get blocks of
-size p.
+in approximately-even blocks, over all the places available to the program. 
 
 <div class="p"><!----></div>
 There are other <b>Dist.makeBlock</b> methods capable of controlling the
-distribution and the set of places used; see the API documentation.
+distribution and the set of places used; see the API documentation.f
 
 <div class="p"><!----></div>
 

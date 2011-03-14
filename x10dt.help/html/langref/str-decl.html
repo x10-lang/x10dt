@@ -49,6 +49,7 @@ defined in <b>C</b>.  Unlike for classes, the  <b>new</b> keyword is optional
 for struct constructors.
 
 <div class="p"><!----></div>
+Leaving out <b>new</b> can improve readability in some cases: 
 <pre>
 struct Polar(r:Double, theta:Double){
   def this(r:Double, theta:Double) {property(r,theta);}
@@ -58,6 +59,20 @@ struct Polar(r:Double, theta:Double){
 }
 </pre>
 
+<div class="p"><!----></div>
+When a struct and a method have the same name, 
+<b>new</b> may be used to resolve to the struct's constructor.  
+<pre>
+struct Ambig(x:Int) {
+  static def Ambig(x:Int) = "Breaks capitalization conventions!";
+  static def example() { 
+    val useMethod      = Ambig(1);
+    val useConstructor = new Ambig(2);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
 Structs support the same notions of generics, properties, and constrained
 types that classes do.  
 
