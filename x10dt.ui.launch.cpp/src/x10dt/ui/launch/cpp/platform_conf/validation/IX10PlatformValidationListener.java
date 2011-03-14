@@ -37,10 +37,12 @@ public interface IX10PlatformValidationListener {
   
   /**
    * Event indicating that the C++ compilation/linking validation has failed.
-   * 
-   * @param message The message providing information about the failure.
+   * @param topMessage The message providing information about the failure.
+   * @param command The command used for the validation.
+   * @param errorMessage The message coming out of the process execution.
    */
-  public void platformCppCompilationValidationFailure(final String message);
+  public void platformCppCompilationValidationFailure(final String topMessage, final String command, 
+                                                      final String errorMessage);
   
   /**
    * Event indicating that unfortunately an error occurred during the validation process.

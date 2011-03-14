@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 import x10dt.core.utils.X10BundleUtils;
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -28,11 +29,11 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   }
 
   public String getArchiver() {
-    return this.fArchiver;
+    return (this.fArchiver == null) ? Constants.EMPTY_STR : this.fArchiver;
   }
 
-  public String getArchivingOpts(final boolean shouldBeInterpreted) {
-    return shouldBeInterpreted ? interpretDistVariables(this.fArchivingOpts) : this.fArchivingOpts;
+  public String getArchivingOpts() {
+    return (this.fArchivingOpts == null) ? Constants.EMPTY_STR : this.fArchivingOpts;
   }
   
   public EBitsArchitecture getBitsArchitecture() {
@@ -40,69 +41,59 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   }
 
   public String getCompiler() {
-    return this.fCompiler;
+    return (this.fCompiler == null) ? Constants.EMPTY_STR : this.fCompiler;
   }
 
-  public String getCompilingOpts(final boolean shouldBeInterpreted) {
-    return shouldBeInterpreted ? interpretDistVariables(this.fCompilingOpts) : this.fCompilingOpts;
+  public String getCompilingOpts() {
+    return (this.fCompilingOpts == null) ? Constants.EMPTY_STR : this.fCompilingOpts;
   }
 
   public String getLinker() {
-    return this.fLinker;
+    return (this.fLinker == null) ? Constants.EMPTY_STR : this.fLinker;
   }
 
-  public String getLinkingLibs(final boolean shouldBeInterpreted) {
-    return shouldBeInterpreted ? interpretDistVariables(this.fLinkingLibs) : this.fLinkingLibs;
+  public String getLinkingLibs() {
+    return (this.fLinkingLibs == null) ? Constants.EMPTY_STR : this.fLinkingLibs;
   }
 
-  public String getLinkingOpts(final boolean shouldBeInterpreted) {
-    return shouldBeInterpreted ? interpretDistVariables(this.fLinkingOpts) : this.fLinkingOpts;
+  public String getLinkingOpts() {
+    return (this.fLinkingOpts == null) ? Constants.EMPTY_STR : this.fLinkingOpts;
   }
-
-  public String getPGASLocation() {
-    return (this.fPGASLoc == null) ? getX10DistribLocation() : this.fPGASLoc;
-  }
-
+  
   public String getRemoteOutputFolder() {
-    return this.fRemoteOutputFolder;
+    return (this.fRemoteOutputFolder == null) ? Constants.EMPTY_STR : this.fRemoteOutputFolder;
   }
 
   public ETargetOS getTargetOS() {
     return this.fTargetOS;
   }
 
-  public String getX10DistribLocation() {
+  public String getX10DistribLocation(final boolean isLocal) {
     if (this.fX10DistLoc == null) {
-      try {
-        return new File(X10BundleUtils.getX10DistHostResource("include").getFile()).getParent(); //$NON-NLS-1$
-      } catch (IOException except) {
-        return null;
+      if (isLocal) {
+        try {
+          return new File(X10BundleUtils.getX10DistHostResource("include").getFile()).getParent(); //$NON-NLS-1$
+        } catch (IOException except) {
+          // Simply forgets
+          return Constants.EMPTY_STR;
+        }
+      } else {
+        return Constants.EMPTY_STR;
       }
     } else {
       return this.fX10DistLoc;
     }
   }
 
-  public String[] getX10HeadersLocations() {
-    final String x10DistLoc = getX10DistribLocation();
-    final String pgasLoc = getPGASLocation();
-    if (x10DistLoc.equals(pgasLoc)) {
-      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc), String.format(STDLIB_INCLUDE_FORMAT, x10DistLoc) };
-    } else {
-      return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc), 
-                            String.format(INCLUDE_FORMAT, pgasLoc) };
-    }
+  public String[] getX10HeadersLocations(final boolean isLocal) {
+    final String x10DistLoc = getX10DistribLocation(isLocal);
+    return new String[] { String.format(INCLUDE_FORMAT, x10DistLoc), String.format(STDLIB_INCLUDE_FORMAT, x10DistLoc) };
   }
 
-  public String[] getX10LibsLocations() {
-    final String x10DistLoc = getX10DistribLocation();
-    final String pgasLoc = getPGASLocation();
-    if (x10DistLoc.equals(pgasLoc)) {
-      return new String[] { String.format(LIB_FORMAT, x10DistLoc), String.format(STDLIB_FORMAT, x10DistLoc),
-                            String.format(STDLIB_LIB_FORMAT, x10DistLoc) };
-    } else {
-      return new String[] { String.format(LIB_FORMAT, x10DistLoc), String.format(LIB_FORMAT, pgasLoc) };
-    }
+  public String[] getX10LibsLocations(final boolean isLocal) {
+    final String x10DistLoc = getX10DistribLocation(isLocal);
+    return new String[] { String.format(LIB_FORMAT, x10DistLoc), String.format(STDLIB_FORMAT, x10DistLoc),
+                          String.format(STDLIB_LIB_FORMAT, x10DistLoc) };
   }
   
   // --- Overridden methods
@@ -115,17 +106,17 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
     return ((this.fTargetOS == rhsObj.fTargetOS) && (this.fBitsArchitecture == rhsObj.fBitsArchitecture) &&
             (this.fArchitecture == rhsObj.fArchitecture) &&
             Arrays.equals(new Object[] { this.fCompiler, this.fCompilingOpts, this.fArchiver, this.fArchivingOpts,
-                                         this.fLinker, this.fLinkingOpts, this.fLinkingLibs, this.fPGASLoc,
-                                         this.fX10DistLoc, this.fRemoteOutputFolder },
+                                         this.fLinker, this.fLinkingOpts, this.fLinkingLibs, this.fX10DistLoc, 
+                                         this.fRemoteOutputFolder },
                           new Object[] { rhsObj.fCompiler, rhsObj.fCompilingOpts, rhsObj.fArchiver, rhsObj.fArchivingOpts,
-                                         rhsObj.fLinker, rhsObj.fLinkingOpts, rhsObj.fLinkingLibs, rhsObj.fPGASLoc,
-                                         rhsObj.fX10DistLoc, rhsObj.fRemoteOutputFolder }));
+                                         rhsObj.fLinker, rhsObj.fLinkingOpts, rhsObj.fLinkingLibs, rhsObj.fX10DistLoc, 
+                                         rhsObj.fRemoteOutputFolder }));
   }
   
   public int hashCode() {
     return super.hashCode() + CodingUtils.generateHashCode(134456, this.fTargetOS, this.fBitsArchitecture, this.fCompiler, 
                                                            this.fCompilingOpts, this.fArchiver, this.fArchivingOpts, 
-                                                           this.fLinker,this.fLinkingOpts, this.fLinkingLibs, this.fPGASLoc,
+                                                           this.fLinker,this.fLinkingOpts, this.fLinkingLibs,
                                                            this.fX10DistLoc, this.fRemoteOutputFolder, this.fArchitecture);
   }
   
@@ -141,8 +132,7 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
       .append("\nLinker: ").append(this.fLinker) //$NON-NLS-1$
       .append("\nLinking Options: ").append(this.fLinkingOpts) //$NON-NLS-1$
       .append("\nLinking Libs: ").append(this.fLinkingLibs) //$NON-NLS-1$
-      .append("\nPGAS Location: ").append(getPGASLocation()) //$NON-NLS-1$
-      .append("\nX10 Dist Location: ").append(getX10DistribLocation()) //$NON-NLS-1$
+      .append("\nX10 Dist Location: ").append(this.fX10DistLoc) //$NON-NLS-1$
       .append("\nRemote Output Folder: ").append(this.fRemoteOutputFolder); //$NON-NLS-1$
     return sb.toString();
   }
@@ -164,35 +154,25 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
     this.fLinker = original.fLinker;
     this.fLinkingOpts = original.fLinkingOpts;
     this.fLinkingLibs = original.fLinkingLibs;
-    this.fPGASLoc = original.fPGASLoc;
     this.fX10DistLoc = original.fX10DistLoc;
     this.fRemoteOutputFolder = original.fRemoteOutputFolder;
   }
   
-  void applyChanges(final ICppCompilationConf source) {
+  void applyChanges(final ICppCompilationConf source, final boolean isLocal) {
     this.fValidationStatus = source.getValidationStatus();
     this.fValidationErrorMsg = source.getValidationErrorMessage();
     this.fTargetOS = source.getTargetOS();
     this.fBitsArchitecture = source.getBitsArchitecture();
     this.fArchitecture = source.getArchitecture();
     this.fCompiler = source.getCompiler();
-    this.fCompilingOpts = source.getCompilingOpts(false);
+    this.fCompilingOpts = source.getCompilingOpts();
     this.fArchiver = source.getArchiver();
-    this.fArchivingOpts = source.getArchivingOpts(false);
+    this.fArchivingOpts = source.getArchivingOpts();
     this.fLinker = source.getLinker();
-    this.fLinkingOpts = source.getLinkingOpts(false);
-    this.fLinkingLibs = source.getLinkingLibs(false);
-    this.fX10DistLoc = source.getX10DistribLocation();
-    this.fPGASLoc = source.getPGASLocation();
+    this.fLinkingOpts = source.getLinkingOpts();
+    this.fLinkingLibs = source.getLinkingLibs();
+    this.fX10DistLoc = source.getX10DistribLocation(isLocal);
     this.fRemoteOutputFolder = source.getRemoteOutputFolder();
-  }
-  
-  // --- Private code
-  
-  private String interpretDistVariables(final String option) {
-    final String x10DistLoc = String.format("\"%s\"", getX10DistribLocation()); //$NON-NLS-1$
-    final String pgasDistLoc = String.format("\"%s\"", getPGASLocation()); //$NON-NLS-1$
-    return option.replace(X10_DIST_VAR, x10DistLoc).replace(PGAS_DIST_VAR, pgasDistLoc);
   }
   
   // --- Fields
@@ -218,15 +198,9 @@ final class CppCompilationConfiguration extends StatusConfProvider implements IC
   String fLinkingLibs;
   
   String fX10DistLoc;
-  
-  String fPGASLoc;
 
   String fRemoteOutputFolder;
   
-  
-  private static final String PGAS_DIST_VAR = "${PGAS-DIST}"; //$NON-NLS-1$
-  
-  private static final String X10_DIST_VAR = "${X10-DIST}"; //$NON-NLS-1$
   
   private static final String INCLUDE_FORMAT = "%s/include"; //$NON-NLS-1$
   

@@ -41,7 +41,7 @@ class X10FormPage extends FormPage implements IFormPage, ICompletePartListener {
     }
   }
   
-  // --- Public services
+  // --- Public Services
   
   public final void addCompletePageChangedListener(final ICompletePageChangedListener listener) {
     this.fListeners.add(listener);
@@ -53,6 +53,14 @@ class X10FormPage extends FormPage implements IFormPage, ICompletePartListener {
   
   public final void removeCompletePageChangedListener(final ICompletePageChangedListener listener) {
     this.fListeners.remove(listener);
+  }
+  
+  // --- Internal Services
+  
+  protected void postPagesCreation() {
+    for (final IFormPart formPart : getManagedForm().getParts()) {
+      ((AbstractCommonSectionFormPart) formPart).postPagesCreation();
+    }
   }
   
   // --- Private code

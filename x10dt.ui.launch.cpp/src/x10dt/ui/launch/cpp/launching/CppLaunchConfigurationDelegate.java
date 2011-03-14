@@ -147,14 +147,13 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       final String mainX10FilePath = createX10MainFile(this.fTargetOpHelper, x10MainType.replace(PACKAGE_SEP, NAMESPACE_SEP),
                                                        this.fWorkspaceDir, project, subMonitor.newChild(1));
 
-      for(IMarker marker : project.findMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, false, IResource.DEPTH_ZERO))
-      {
-    	  if(marker.getAttribute(MAIN_FILE_KEY, "").equals(fX10PlatformConf.getConfFile().getProjectRelativePath().toPortableString()) 
-    			  && marker.getAttribute(MAIN_CLASS_KEY, "").equals(x10MainType))
-    	  {
-    		  marker.delete();
-    		  break;
-    	  }
+      for (final IMarker marker : project.findMarkers(X10DTCoreConstants.PROBLEMMARKER_ID, false, IResource.DEPTH_ZERO)) {
+        final String confFilePath = this.fX10PlatformConf.getConfFile().getProjectRelativePath().toPortableString();
+        if (marker.getAttribute(MAIN_FILE_KEY, Constants.EMPTY_STR).equals(confFilePath) &&
+            marker.getAttribute(MAIN_CLASS_KEY, Constants.EMPTY_STR).equals(x10MainType)) {
+          marker.delete();
+          break;
+        }
       }
       
       final IFileStore mainCppFileStore = getMainCppFileStore(x10MainType, this.fWorkspaceDir);
@@ -170,24 +169,24 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       project.setPersistentProperty(Constants.EXEC_PATH, this.fExecPath);
 
       final List<String> command = new ArrayList<String>();
-      final String linker = this.fTargetOpHelper.getTargetSystemPath(PlatformConfUtils.getValidString(cppCompConf.getLinker()));
+      final String linker = this.fTargetOpHelper.getTargetSystemPath(cppCompConf.getLinker());
 
       command.add(linker);
-      command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingOpts(true)));
+      command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingOpts()));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(mainCppFileIncludePath));
-      for (final String headerLoc : cppCompConf.getX10HeadersLocations()) {
+      for (final String headerLoc : cppCompConf.getX10HeadersLocations(connConf.isLocal())) {
         command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(headerLoc));
       }
       command.add(this.fTargetOpHelper.getTargetSystemPath(mainX10FilePath));
       command.add("-o"); //$NON-NLS-1$
       command.add(this.fTargetOpHelper.getTargetSystemPath(this.fExecPath));
       command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
-      for (final String libLoc : cppCompConf.getX10LibsLocations()) {
+      for (final String libLoc : cppCompConf.getX10LibsLocations(connConf.isLocal())) {
         command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(libLoc));
       }
       command.add("-l" + project.getName()); //$NON-NLS-1$
-      final List<String> linkingLibs = X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs(true));
+      final List<String> linkingLibs = X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs());
       command.addAll(linkingLibs);
 
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
@@ -219,7 +218,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
         mcStream.println();
         UIUtils.showX10Console();
         Map<String, Object> map = new HashMap<String, Object>();
-        map.put(MAIN_FILE_KEY, fX10PlatformConf.getConfFile().getProjectRelativePath().toPortableString());
+        map.put(MAIN_FILE_KEY, this.fX10PlatformConf.getConfFile().getProjectRelativePath().toPortableString());
         map.put(MAIN_CLASS_KEY, x10MainType);
         
         CoreResourceUtils.addBuildMarkerTo(project, LaunchMessages.CLCD_LinkCmdError, IMarker.SEVERITY_ERROR,
@@ -253,7 +252,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
         sb.append(PATH_ENV).append('=');
         final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
         int k = 0;
-        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations()) {
+        final boolean isLocal = this.fX10PlatformConf.getConnectionConf().isLocal();
+        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations(isLocal)) {
           if (k > 0) {
             sb.append(';');
           } else {
@@ -571,8 +571,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
   private static final String CC_EXT = "cc"; //$NON-NLS-1$
   
 
-  public static final String MAIN_FILE_KEY = "file";
+  private static final String MAIN_FILE_KEY = "file"; //$NON-NLS-1$
 
-  public static final String MAIN_CLASS_KEY = "class";
+  private static final String MAIN_CLASS_KEY = "class"; //$NON-NLS-1$
 
 }

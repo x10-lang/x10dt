@@ -18,6 +18,13 @@ import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 public interface ICommunicationInterfaceConf {
 
   /**
+   * Returns the default number of places to run with.
+   * 
+   * @return A positive number.
+   */
+  public int getNumberOfPlaces();
+  
+  /**
    * Returns the id that identifies the communication service mode in PTP. Right now it is Launch, Debug or Profile.
    * 
    * @return A possibly <b>null</b> if it hasn't yet been defined.

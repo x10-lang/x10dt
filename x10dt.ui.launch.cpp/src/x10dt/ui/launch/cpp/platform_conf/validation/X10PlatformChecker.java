@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.utils.Pair;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
@@ -32,7 +33,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.StringUtils;
 import x10dt.ui.launch.core.utils.TimerThread;
@@ -64,11 +64,6 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   	IResourceManager resourceManager = null;
   	try {
   		resourceManager = PTPConfUtils.getResourceManager(platformConf);
-  		
-  		if(resourceManager == null)
-  		{
-	  		return;
-  		}
   	} catch (RemoteConnectionException except) {
   		for (final IX10PlatformValidationListener listener : this.fListeners) {
   			listener.remoteConnectionFailure(except);
@@ -190,11 +185,11 @@ final class X10PlatformChecker implements IX10PlatformChecker {
       final ICppCompilationChecker checker = new CppCompilationChecker(rmServicesId, this.fRemoteConnection, cppCompConf, platformConf.getConfFile().getProject());
       
       try {
-        final String returnCompilMsg = checker.validateCompilation(subMonitor.newChild(10));
+        final Pair<String, String> returnCompilMsg = checker.validateCompilation(subMonitor.newChild(10));
         if (returnCompilMsg == null) {
-          final String returnArchivingMsg = checker.validateArchiving(subMonitor.newChild(3));
+          final Pair<String, String> returnArchivingMsg = checker.validateArchiving(subMonitor.newChild(3));
           if (returnArchivingMsg == null) {
-            final String returnLinkMsg = checker.validateLinking(subMonitor.newChild(7));
+            final Pair<String, String> returnLinkMsg = checker.validateLinking(subMonitor.newChild(7));
             if (returnLinkMsg == null) {
               platformConf.setCppConfValidationStatus(EValidationStatus.VALID);
               for (final IX10PlatformValidationListener listener : this.fListeners) {
@@ -202,26 +197,29 @@ final class X10PlatformChecker implements IX10PlatformChecker {
               }
             } else {
               platformConf.setCppConfValidationStatus(EValidationStatus.FAILURE);
-              platformConf.setCppConfValidationErrorMessage(NLS.bind(Messages.DF_LineBreak, 
-                                                                     LaunchMessages.XPC_LinkingFailure, returnLinkMsg));
+              platformConf.setCppConfValidationErrorMessage(NLS.bind(LaunchMessages.XPC_LinkingFailure, returnLinkMsg.first,
+                                                                     returnLinkMsg.second));
               for (final IX10PlatformValidationListener listener : this.fListeners) {
-                listener.platformCppCompilationValidationFailure(cppCompConf.getValidationErrorMessage());
+                listener.platformCppCompilationValidationFailure(LaunchMessages.XPC_LinkOpFailureMsg, returnLinkMsg.first, 
+                                                                 returnLinkMsg.second);
               }
             }
           } else {
             platformConf.setCppConfValidationStatus(EValidationStatus.FAILURE);
-            platformConf.setCppConfValidationErrorMessage(NLS.bind(Messages.DF_LineBreak, LaunchMessages.XPC_ArchivingFailure,
-                                                                   returnArchivingMsg));
+            platformConf.setCppConfValidationErrorMessage(NLS.bind(LaunchMessages.XPC_ArchivingFailure, 
+                                                                   returnArchivingMsg.first, returnArchivingMsg.second));
             for (final IX10PlatformValidationListener listener : this.fListeners) {
-              listener.platformCppCompilationValidationFailure(cppCompConf.getValidationErrorMessage());
+              listener.platformCppCompilationValidationFailure(LaunchMessages.XPC_ArchiveOpFailureMsg, 
+                                                               returnArchivingMsg.first, returnArchivingMsg.second);
             }
           }
         } else {
           platformConf.setCppConfValidationStatus(EValidationStatus.FAILURE);
-          platformConf.setCppConfValidationErrorMessage(NLS.bind(Messages.DF_LineBreak, LaunchMessages.XPC_CompilationFailure,
-                                                                 returnCompilMsg));
+          platformConf.setCppConfValidationErrorMessage(NLS.bind(LaunchMessages.XPC_CompilationFailure,
+                                                                 returnCompilMsg.first, returnCompilMsg.second));
           for (final IX10PlatformValidationListener listener : this.fListeners) {
-            listener.platformCppCompilationValidationFailure(cppCompConf.getValidationErrorMessage());
+            listener.platformCppCompilationValidationFailure(LaunchMessages.XPC_CompilationOpFailureMsg, 
+                                                             returnCompilMsg.first, returnCompilMsg.second);
           }
         }
       } catch (InterruptedException except) {

@@ -7,13 +7,16 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
+import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.X10RT_PROPERTIES_FILE_FORMAT;
+
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import org.eclipse.core.resources.IProject;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
 
 import x10.X10CompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
@@ -21,174 +24,121 @@ import x10cpp.postcompiler.PostCompileProperties;
 import x10cpp.postcompiler.PrecompiledLibrary;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.X10BundleUtils;
-import x10dt.ui.launch.core.platform_conf.EArchitecture;
+import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.ETransport;
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
+import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
+import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
+import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import x10dt.ui.utils.X10Utils;
 
 abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
 
-  protected AbstractDefaultCPPCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport, boolean isLocal) {
-    this.fIs64Arch = is64Arch;
-    this.fArchitecture = architecture;
-    this.fTransport = transport;
-    this.fCompilerOptions = CompilerOptionsFactory.createOptions(project);
+  protected AbstractDefaultCPPCommands(final IX10PlatformConf platformConf) throws CoreException, IOException {
+    final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
+    final ICommunicationInterfaceConf ciConf = platformConf.getCommunicationInterfaceConf();
+    this.fIs64Arch = false;
     
-    
-    PostCompileProperties prop = getTransportProperties(transport);
-    X10CompilerOptions options = CompilerOptionsFactory.createOptions(project);
-    getPrecompiledLibrary(options, isLocal);
-    CXXCommandBuilder builder = CXXCommandBuilder.getCXXCommandBuilder(options, prop, new X10Utils.ShallowErrorQueue());
+    final boolean isLocal = platformConf.getConnectionConf().isLocal();
+    final ETransport transport = PlatformConfUtils.getTransport(ciConf.getServiceTypeId(), cppCompConf.getTargetOS());
+    final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(isLocal, cppCompConf.getTargetOS() == ETargetOS.WINDOWS,
+                                                                        platformConf.getConnectionConf().getConnectionName());
+    final String x10DistribLoc;
+    if (isLocal) {
+      x10DistribLoc = new File(X10BundleUtils.getX10DistHostResource("etc").getFile()).getParentFile().getAbsolutePath(); //$NON-NLS-1$
+    } else {
+      x10DistribLoc = cppCompConf.getX10DistribLocation(isLocal);
+    }
+    final IFileStore x10DistFileStore = targetOpHelper.getStore(x10DistribLoc);
+
+    final PostCompileProperties prop = getTransportProperties(transport, x10DistFileStore);
+    final X10CompilerOptions options = CompilerOptionsFactory.createOptions(platformConf.getConfFile().getProject());
+    definePrecompiledLibrary(options, isLocal, x10DistribLoc, x10DistFileStore);
+    final CXXCommandBuilder builder = CXXCommandBuilder.getCXXCommandBuilder(options, prop, new X10Utils.ShallowErrorQueue());
+
     this.fPostCompiler = builder.getPostCompiler();
     this.fPostFileArgs = concatenate(builder.getPostFileArgs());
     this.fPreFileArgs = concatenate(builder.getPreFileArgs());
   }
   
-  private String concatenate(List<String> items){
-	  String result = "";
-	  for(String item: items){
-		  result += item + " ";
-	  }
-	  return result;
+  // --- Interface methods implementation
+  
+  public final String getCompiler() {
+    return this.fPostCompiler;
   }
   
-  private String normalize(String path){
-	if (path.endsWith("/")){
-		return path.substring(0, path.length() - 1);
-	}
-	return path;
+  public final String getCompilerOptions() {
+    return this.fPreFileArgs;
   }
-  
-  private String removeLastSegment(String path){
-	int i = normalize(path).lastIndexOf("/");
-	return path.substring(0, i);
+
+  public final String getLinker() {
+    return this.fPostCompiler;
   }
-  
-  private PostCompileProperties getTransportProperties(ETransport transport){
-	try {
-		String etcPath  = normalize(X10BundleUtils.getX10DistHostResource("etc").getPath());
-		String propName = null;
-		if (transport == ETransport.LAPI){
-			propName = "x10rt_lapi.properties";
-		} else if (transport == ETransport.MPI) {
-			propName = "x10rt_mpi.properties";
-		} else if (transport == ETransport.SOCKETS) {
-			propName = "x10rt_sockets.properties";
-		} else if (transport == ETransport.STANDALONE) {
-			propName = "x10rt_standalone.properties";
-		}
-		Properties prop = new Properties();
-		File f = new File(etcPath + File.separator + propName);
-        prop.load(new FileInputStream(f));
-		return new PostCompileProperties(prop);
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-		return null;
-	}
+
+  public final String getLinkingLibraries() {
+    return this.fPostFileArgs;
   }
-  
-  private void getPrecompiledLibrary(X10CompilerOptions options, boolean local){
-	  try {
-		String stdlibPath = normalize(X10BundleUtils.getX10DistHostResource("stdlib").getPath());  
-		String distHostPath = removeLastSegment(stdlibPath);
-		options.setDistPath(distHostPath);
-		
-		Properties prop = new Properties();
-		File f = new File(stdlibPath + File.separator +  "libx10.properties");
-		prop.load(new FileInputStream(f));
-		PrecompiledLibrary lib = new PrecompiledLibrary(stdlibPath, prop);
-		if (local){
-			options.addLocalPrecompiledLibrary(lib);
-		} else {
-			options.addRemotePrecompiledLibrary(lib);
-		}
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}
+
+  public final String getLinkingOptions() {
+    return this.fPreFileArgs;
   }
-  
+
   // --- Code for descendants
-  
-  protected final String addNoChecksOptions(final String command) {
-    if (this.fCompilerOptions.x10_config.NO_CHECKS) {
-      return command + " -DNO_CHECKS"; //$NON-NLS-1$
-    } else {
-      return command;
-    }
-  }
-  
-  protected final String addOptimizeOptions(final String command) {
-    if (this.fCompilerOptions.x10_config.OPTIMIZE) {
-      return command + " -O2 -DNDEBUG -DNO_PLACE_CHECKS -finline-functions"; //$NON-NLS-1$
-    } else {
-      return command;
-    }
-  }
-  
-  protected final EArchitecture getArchitecture() {
-    return this.fArchitecture;
-  }
-  
-  protected final ETransport getTransport() {
-    return this.fTransport;
-  }
-  
-  protected String getTransportCompilerOption() {
-    switch (this.fTransport) {
-      case LAPI:
-        return "-DTRANSPORT=lapi"; //$NON-NLS-1$
-      case MPI:
-      case SOCKETS:
-      case STANDALONE:
-        return ""; //$NON-NLS-1$
-      default:
-        throw new AssertionError();
-    }
-  }
-  
-  protected String getTransportLibrary() {
-    switch (this.fTransport) {
-      case LAPI:
-        return "-lupcrts_lapi"; //$NON-NLS-1$
-      case MPI:
-    	return "-lx10rt_mpi"; //$NON-NLS-1$
-      case SOCKETS:
-        return "-lx10rt_sockets"; //$NON-NLS-1$
-      case STANDALONE:
-        return "-lx10rt_standalone"; //$NON-NLS-1$
-      default:
-        throw new AssertionError();
-    }
-  }
-  
+
   protected final boolean is64Arch() {
     return this.fIs64Arch;
   }
   
-  protected final boolean supportsStreamingSIMDExtensions() {
-    return this.fArchitecture == EArchitecture.x86;
+  // --- Private code
+  
+  private String concatenate(final List<String> items) {
+    final StringBuilder sb = new StringBuilder();
+    for (final String item : items) {
+      if (sb.length() > 0) {
+        sb.append(' ');
+      }
+      sb.append(item);
+    }
+    return sb.toString();
+  }
+
+  private void definePrecompiledLibrary(final X10CompilerOptions options, final boolean isLocal, final String x10DistPath,
+                                        final IFileStore x10DistFileStore) throws IOException, CoreException {
+    final IFileStore libX10FileStore = x10DistFileStore.getChild(LIBX10_PROPERTIES_FILE);
+    options.setDistPath(x10DistPath);
+
+    final Properties properties = new Properties();
+    properties.load(libX10FileStore.openInputStream(EFS.NONE, null /* monitor */));
+    final PrecompiledLibrary lib = new PrecompiledLibrary(String.format("%s/%s", x10DistPath, "stdlib"), properties); //$NON-NLS-1$ //$NON-NLS-2$
+    if (isLocal) {
+      options.addLocalPrecompiledLibrary(lib);
+    } else {
+      options.addRemotePrecompiledLibrary(lib);
+    }
   }
   
+  private PostCompileProperties getTransportProperties(final ETransport transport, 
+                                                       final IFileStore x10DistFileStore) throws CoreException, IOException {
+    final String propertiesFileName = String.format(X10RT_PROPERTIES_FILE_FORMAT, transport.name().toLowerCase());
+    final IFileStore propertiesFileStore = x10DistFileStore.getChild(propertiesFileName);
+    final Properties properties = new Properties();
+    properties.load(propertiesFileStore.openInputStream(EFS.NONE, null /* monitor */));
+    return new PostCompileProperties(properties);
+  }
+
   // --- Fields
   
-  private final X10CompilerOptions fCompilerOptions;
-  
   private final boolean fIs64Arch;
-  
-  private final EArchitecture fArchitecture;
-  
-  private final ETransport fTransport;
-  
-  
-  protected static final String M64BIT_OPTION = " -m64"; //$NON-NLS-1$
-  
-  protected static final String STREAMING_SIMD_EXTENSIONS = " -msse2 -mfpmath=sse"; //$NON-NLS-1$
-  
+
   protected final String fPostCompiler;
-  
+
   protected final String fPreFileArgs;
-  
+
   protected final String fPostFileArgs;
+  
+  
+  private static final String LIBX10_PROPERTIES_FILE = "stdlib/libx10.properties"; //$NON-NLS-1$
 
 }

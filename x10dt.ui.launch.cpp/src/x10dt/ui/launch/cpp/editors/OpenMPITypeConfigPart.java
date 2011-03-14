@@ -18,9 +18,9 @@ import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPlugin;
 import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPIPreferenceManager;
 import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.ui.forms.IManagedForm;
@@ -73,13 +73,8 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
     versionsCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     addControl(versionsCompo);
     
-//    final Label openMPIVersionLabel = toolkit.createLabel(versionsCompo, LaunchMessages.CISP_OpenMPIVersion);
-//    openMPIVersionLabel.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
-//    addControl(openMPIVersionLabel);
+    this.fOpenMPIVersionCombo = SWTFormUtils.createLabelAndCombo(versionsCompo, LaunchMessages.CISP_OpenMPIVersion, toolkit);
     
-    this.fOpenMPIVersionCombo = SWTFormUtils.createLabelAndCombo(versionsCompo, LaunchMessages.CISP_OpenMPIVersion, toolkit, SWT.READ_ONLY);
-    
-//    this.fOpenMPIVersionCombo = new Combo(versionsCompo, SWT.READ_ONLY);
     this.fOpenMPIVersionCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     this.fOpenMPIVersionCombo.add(LaunchMessages.CISP_AutoDetect);
     this.fOpenMPIVersionCombo.setData(LaunchMessages.CISP_AutoDetect, EOpenMPIVersion.EAutoDetect);
@@ -94,7 +89,7 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
   
   // --- Private code
   
-  private void addListeners(final IX10PlatformConfWorkCopy x10PlatformConf, final CCombo openMPIVersionCombo) {
+  private void addListeners(final IX10PlatformConfWorkCopy x10PlatformConf, final Combo openMPIVersionCombo) {
     openMPIVersionCombo.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
@@ -171,6 +166,6 @@ final class OpenMPITypeConfigPart extends AbstractMPIBasedTypeConfigPart impleme
   
   // --- Fields
   
-  private CCombo fOpenMPIVersionCombo;
+  private Combo fOpenMPIVersionCombo;
 
 }

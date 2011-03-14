@@ -143,7 +143,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
     try {
       final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fSecondPage.getJavaProject().getProject());
       
-      final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
+      final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
       final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
       platformConfWorkCopy.initializeToDefaultValues(platformConfFile.getProject());
       platformConfWorkCopy.applyChanges();

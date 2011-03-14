@@ -76,6 +76,7 @@ import x10dt.ui.launch.cpp.platform_conf.IMPICH2InterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IMessagePassingInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IParallelEnvironmentConf;
+import x10dt.ui.launch.cpp.platform_conf.ISocketsConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
@@ -537,6 +538,10 @@ public final class PTPConfUtils {
       llConf.setTemplateWriteAlways((configuration.getTemplateOption() == ELLTemplateOpt.EAlwaysWrite) ? LL_YES : LL_NO);
       llConf.setSuppressTemplateWrite((configuration.getTemplateOption() == ELLTemplateOpt.ENeverWrite) ? LL_YES : LL_NO);
       llConf.setDebugLoop(configuration.shouldSuspendProxyAtStartup() ? LL_YES : LL_NO);
+    }
+    
+    public void visit(final ISocketsConf configuration) {
+      // Nothing to do.
     }
     
     // --- Private code

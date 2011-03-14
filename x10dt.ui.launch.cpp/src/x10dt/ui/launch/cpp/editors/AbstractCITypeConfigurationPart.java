@@ -10,6 +10,7 @@ package x10dt.ui.launch.cpp.editors;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.IMessageManager;
 
@@ -24,8 +25,8 @@ abstract class AbstractCITypeConfigurationPart implements ICITypeConfigurationPa
         messageManager.removeMessage(control);
         messageManager.removeMessage(control, control);
       }
-      control.dispose();
     }
+    this.fMainComposite.dispose();
     this.fAllControls.clear();
   }
   
@@ -43,8 +44,14 @@ abstract class AbstractCITypeConfigurationPart implements ICITypeConfigurationPa
     return this.fAllControls;
   }
   
+  protected final void setMainComposite(final Composite mainComposite) {
+    this.fMainComposite = mainComposite; 
+  }
+  
   // --- Fields
   
   private final Collection<Control> fAllControls = new ArrayList<Control>();
+  
+  private Composite fMainComposite;
 
 }

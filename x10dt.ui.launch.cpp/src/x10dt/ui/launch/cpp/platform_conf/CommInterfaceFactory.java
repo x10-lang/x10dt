@@ -89,7 +89,9 @@ final class CommInterfaceFactory {
       } else {
         configuration = null;
       }
-      this.fCommInterfaceConfs.put(ciType, configuration);
+      if (configuration != null) {
+        this.fCommInterfaceConfs.put(ciType, configuration);
+      }
       return configuration;
     } else {
       return conf;

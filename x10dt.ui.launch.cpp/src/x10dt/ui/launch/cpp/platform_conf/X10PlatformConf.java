@@ -16,11 +16,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -36,44 +35,36 @@ import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
-import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CodingUtils;
-import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.EnumUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
-import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 class X10PlatformConf implements IX10PlatformConf {
-  
+
   X10PlatformConf(final IFile confFile) {
-    this(confFile, true);
-  }
-	
-  X10PlatformConf(final IFile confFile, boolean loadFromFile) {
     this.fConnectionConf = new ConnectionConfiguration();
     this.fCppCompilationConf = new CppCompilationConfiguration();
     this.fCommInterfaceFact = new CommInterfaceFactory();
     this.fDebuggingInfoConf = new DebuggingInfoConf();
     this.fConfFile = confFile;
-	try {
-		if (loadFromFile && isNonEmpty(confFile)) {
-			load(confFile, new BufferedReader(new InputStreamReader(
-					confFile.getContents())));
-		} else {
-			this.fId = UUID.randomUUID().toString();
-		}
-	} catch (CoreException except) {
-		CppLaunchCore.log(except.getStatus());
-		// We could not load the file content. Let's just consider an empty
-		// configuration file then.
-		this.fId = UUID.randomUUID().toString();
-	}
+    try {
+      if (isNonEmpty(confFile)) {
+        load(new BufferedReader(new InputStreamReader(confFile.getContents())));
+      } else {
+        this.fId = UUID.randomUUID().toString();
+      }
+    } catch (CoreException except) {
+      CppLaunchCore.log(except.getStatus());
+      // We could not load the file content. Let's just consider an empty
+      // configuration file then.
+      this.fId = UUID.randomUUID().toString();
+    }
   }
   
   X10PlatformConf(final IServiceProvider serviceProvider, final IFile confFile) {
@@ -134,8 +125,9 @@ class X10PlatformConf implements IX10PlatformConf {
   }
   
   public boolean isComplete(final boolean onlyCompilation) {
-    if (hasData(this.fName) && isCppCompilationComplete() && isConnectionComplete()) {
-      return onlyCompilation ? true : this.fCommInterfaceFact.getCurrentCommunicationInterface().isComplete();
+    if (hasData(this.fName) && isCppCompilationComplete(this.fConnectionConf.fIsLocal) && isConnectionComplete()) {
+      final ICommunicationInterfaceConf ciConf = this.fCommInterfaceFact.getCurrentCommunicationInterface();
+      return onlyCompilation ? true : ((ciConf == null) ? false : ciConf.isComplete());
     } else {
       return false;
     }
@@ -160,7 +152,9 @@ class X10PlatformConf implements IX10PlatformConf {
         connectionTag.createChild(HOSTNAME_TAG).putTextData(this.fConnectionConf.fHostName);
       }
       connectionTag.createChild(PORT_TAG).putTextData(String.valueOf(this.fConnectionConf.fPort));
-      connectionTag.createChild(LOCAL_ADDRESS_TAG).putTextData(PlatformConfUtils.getValidString(this.fConnectionConf.fLocalAddress));
+      if (hasData(this.fConnectionConf.fLocalAddress)) {
+        connectionTag.createChild(LOCAL_ADDRESS_TAG).putTextData(this.fConnectionConf.fLocalAddress);
+      }
       connectionTag.createChild(TIMEOUT_TAG).putTextData(String.valueOf(this.fConnectionConf.fTimeout));
     }
     
@@ -172,6 +166,8 @@ class X10PlatformConf implements IX10PlatformConf {
     if (hasData(commInterfaceConf.getServiceModeId())) {
       communicationInterfaceTag.createChild(SERVICE_MODE_ID_TAG).putTextData(commInterfaceConf.getServiceModeId());
     }
+    communicationInterfaceTag.createChild(NUMBER_OF_PLACES_TAG)
+                             .putTextData(String.valueOf(commInterfaceConf.getNumberOfPlaces()));
     if (commInterfaceConf instanceof OpenMPIInterfaceConf) {
       save(communicationInterfaceTag, (OpenMPIInterfaceConf) commInterfaceConf);
     } else if (commInterfaceConf instanceof MPICH2InterfaceConf) {
@@ -180,6 +176,8 @@ class X10PlatformConf implements IX10PlatformConf {
       save(communicationInterfaceTag, (ParallelEnvironmentConf) commInterfaceConf);
     } else if (commInterfaceConf instanceof LoadLevelerConf) {
       save(communicationInterfaceTag, (LoadLevelerConf) commInterfaceConf);
+    } else if (commInterfaceConf instanceof SocketsConf) {
+      save(communicationInterfaceTag, (SocketsConf) commInterfaceConf);
     }
     
     final IMemento cppCompilationTag = platformTag.createChild(CPP_COMPILATION_TAG);
@@ -216,9 +214,6 @@ class X10PlatformConf implements IX10PlatformConf {
     if (! this.fConnectionConf.fIsLocal) {
       if (hasData(this.fCppCompilationConf.fX10DistLoc)) {
         cppCompilationTag.createChild(X10_DIST_LOC_TAG).putTextData(this.fCppCompilationConf.fX10DistLoc);
-      }
-      if (hasData(this.fCppCompilationConf.fPGASLoc)) {
-        cppCompilationTag.createChild(PGAS_LOC_TAG).putTextData(this.fCppCompilationConf.fPGASLoc);
       }
       if (hasData(this.fCppCompilationConf.fRemoteOutputFolder)) {
         cppCompilationTag.createChild(REMOTE_OUTPUT_FOLDER_TAG).putTextData(this.fCppCompilationConf.fRemoteOutputFolder);
@@ -280,51 +275,26 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fCppCompilationConf.fTargetOS = EnumUtils.getLocalOS();
     final boolean is64Arch = is64Arch();
     this.fCppCompilationConf.fBitsArchitecture = is64Arch ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
-    this.fCppCompilationConf.fArchitecture = EArchitecture.x86;
     
-    final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
-    final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
-    final IProject project = this.fConfFile.getProject();
-    final boolean isLocal = this.fConnectionConf.fIsLocal;
-
-    final IDefaultCPPCommands defaultCPPCommands;
-
-    switch (this.fCppCompilationConf.fTargetOS) {
-      case AIX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                         transport, isLocal);
-        break;
-      case LINUX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                           transport, isLocal);
-        break;
-      case MAC:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                         transport, isLocal);
-        break;
-      case WINDOWS:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                            transport, isLocal);
-        break;
-      default:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, 
-                                                                                this.fCppCompilationConf.fArchitecture,
-                                                                                transport, isLocal);
+    try {
+      final IDefaultCPPCommands defaultCPPCommands = DefaultCPPCommandsFactory.create(this);
+      this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
+      this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
+      this.fCppCompilationConf.fArchiver = defaultCPPCommands.getArchiver();
+      this.fCppCompilationConf.fArchivingOpts = defaultCPPCommands.getArchivingOpts();
+      this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
+      this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
+      this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
+    } catch (Exception except) {
+      // Should not occur since we are in local mode. Still we are logging just in case.
+      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.XPC_PropertiesFileLoadingError, except);
     }
-    this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
-    this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
-    this.fCppCompilationConf.fArchiver = defaultCPPCommands.getArchiver();
-    this.fCppCompilationConf.fArchivingOpts = defaultCPPCommands.getArchivingOpts();
-    this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
-    this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
-    this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
     this.fCppCompilationConf.fBitsArchitecture = (is64Arch) ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
   }
 
   protected final void initLocalX10DistribLocation() {
     try {
       this.fCppCompilationConf.fX10DistLoc = new File(X10BundleUtils.getX10DistHostResource("include").getFile()).getParent(); //$NON-NLS-1$
-      this.fCppCompilationConf.fPGASLoc = this.fCppCompilationConf.fX10DistLoc;
     } catch (IOException except) {
       // Let's forget.
     }
@@ -379,20 +349,19 @@ class X10PlatformConf implements IX10PlatformConf {
     }
   }
   
-  private boolean isCppCompilationComplete() {
+  private boolean isCppCompilationComplete(final boolean isLocal) {
     final ICppCompilationConf cppCompConf = this.fCppCompilationConf;
     if (cppCompConf.getTargetOS() == null) {
       return false;
     }
-    if (hasData(cppCompConf.getCompiler()) && hasData(cppCompConf.getCompilingOpts(false)) && 
-        hasData(cppCompConf.getArchiver()) && hasData(cppCompConf.getArchivingOpts(false)) &&
-        hasData(cppCompConf.getLinker()) && hasData(cppCompConf.getLinkingOpts(false)) &&
-        hasData(cppCompConf.getLinkingLibs(false))) {
+    if (hasData(cppCompConf.getCompiler()) && hasData(cppCompConf.getCompilingOpts()) && 
+        hasData(cppCompConf.getArchiver()) && hasData(cppCompConf.getArchivingOpts()) &&
+        hasData(cppCompConf.getLinker()) && hasData(cppCompConf.getLinkingOpts()) &&
+        hasData(cppCompConf.getLinkingLibs())) {
       if (this.fConnectionConf.fIsLocal) {
         return true;
       } else {
-        return hasData(cppCompConf.getX10DistribLocation()) && hasData(cppCompConf.getPGASLocation()) &&
-               hasData(cppCompConf.getRemoteOutputFolder());
+        return hasData(cppCompConf.getX10DistribLocation(isLocal)) && hasData(cppCompConf.getRemoteOutputFolder());
       }
     } else {
       return false;
@@ -415,7 +384,7 @@ class X10PlatformConf implements IX10PlatformConf {
   	}
   }
   
-  private void load(final IFile file, final Reader reader) throws WorkbenchException {
+  private void load(final Reader reader) throws WorkbenchException {
     final XMLMemento platformMemento = XMLMemento.createReadRoot(reader);
     
     this.fId = getTextDataValue(platformMemento, ID_TAG);
@@ -439,13 +408,12 @@ class X10PlatformConf implements IX10PlatformConf {
     final IMemento ciMemento = platformMemento.getChild(COMMUNICATION_INTERFACE_TAG);
     final String ciType = getTextDataValue(ciMemento, SERVICE_TYPE_ID_TAG);
     final AbstractCommunicationInterfaceConfiguration ciConf = this.fCommInterfaceFact.getOrCreate(ciType);
-    if (ciConf == null) {
-      CoreResourceUtils.addPlatformConfMarker(file, LaunchMessages.XPC_CITypeNotSupported, 
-                                              IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
-    } else {
+    if (ciConf != null) {
       this.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
       ciConf.fServiceModeId = getTextDataValue(ciMemento, SERVICE_MODE_ID_TAG);
       ciConf.fServiceTypeId = ciType;
+      final String numOfPlaces = getTextDataValue(ciMemento, NUMBER_OF_PLACES_TAG);
+      ciConf.fNumberOfPlaces = (numOfPlaces == null) ? 1 : Integer.parseInt(numOfPlaces);
       if (ciConf instanceof OpenMPIInterfaceConf) {
         load(ciMemento, (OpenMPIInterfaceConf) ciConf);
       } else if (ciConf instanceof MPICH2InterfaceConf) {
@@ -454,6 +422,8 @@ class X10PlatformConf implements IX10PlatformConf {
         load(ciMemento, (ParallelEnvironmentConf) ciConf);
       } else if (ciConf instanceof LoadLevelerConf) {
         load(ciMemento, (LoadLevelerConf) ciConf);
+      } else if (ciConf instanceof SocketsConf) {
+        load(ciMemento, (SocketsConf) ciConf);
       }
     }
     
@@ -474,7 +444,6 @@ class X10PlatformConf implements IX10PlatformConf {
     this.fCppCompilationConf.fLinkingOpts = getTextDataValue(cppCmdsMemento, LINKING_OPTS_TAG);
     this.fCppCompilationConf.fLinkingLibs = getTextDataValue(cppCmdsMemento, LINKING_LIBS_TAG);
     this.fCppCompilationConf.fX10DistLoc = getTextDataValue(cppCmdsMemento, X10_DIST_LOC_TAG);
-    this.fCppCompilationConf.fPGASLoc = getTextDataValue(cppCmdsMemento, PGAS_LOC_TAG);
     this.fCppCompilationConf.fRemoteOutputFolder = getTextDataValue(cppCmdsMemento, REMOTE_OUTPUT_FOLDER_TAG);
     final String compStatus = getTextDataValue(cppCmdsMemento, COMP_VALIDATION_STATUS_TAG);
     this.fCppCompilationConf.fValidationStatus = (compStatus == null) ? UNKNOWN: EValidationStatus.valueOf(compStatus);
@@ -537,6 +506,22 @@ class X10PlatformConf implements IX10PlatformConf {
     ciConf.fTemplateFilePath = getTextDataValue(ciMemento, LL_TEMPLATE_FILE_PATH);
     final IMemento tmpOpt = ciMemento.getChild(LL_TEMPLATE_OPT);
     ciConf.fTemplateOpt = (tmpOpt == null) ? null : ELLTemplateOpt.valueOf(tmpOpt.getTextData());
+  }
+  
+  private void load(final IMemento ciMemento, final SocketsConf ciConf) {
+    final String hostFile = getTextDataValue(ciMemento, SOCKETS_HOST_FILE);
+    if (hostFile == null) {
+      ciConf.fHostFile = hostFile;
+      ciConf.fShouldUseHostFile = true;
+    } else {
+      final String hostList = getTextDataValue(ciMemento, SOCKETS_HOST_LIST);
+      if (hostList == null) {
+        ciConf.fHostList = Collections.<String>emptyList();
+      } else {
+        ciConf.fHostList = Arrays.asList(hostList.split(",")); //$NON-NLS-1$
+      }
+      ciConf.fShouldUseHostFile = false;
+    }
   }
   
   private void save(final IMemento communicationInterfaceTag, final MessagePassingInterfaceConf ciConf) {
@@ -616,6 +601,22 @@ class X10PlatformConf implements IX10PlatformConf {
     }
   }
   
+  private void save(final IMemento ciMemento, final SocketsConf conf) {
+    if (conf.shouldUseHostFile()) {
+      ciMemento.putString(SOCKETS_HOST_FILE, conf.getHostFile());
+    } else {
+      final StringBuilder sb = new StringBuilder();
+      for (final String host : conf.getHostList()) {
+        if (sb.length() > 0) {
+          sb.append(',');
+        } else {
+          sb.append(host);
+        }
+      }
+      ciMemento.putString(SOCKETS_HOST_LIST, sb.toString());
+    }
+  }
+  
   // --- Fields
   
   String fName;
@@ -665,6 +666,8 @@ class X10PlatformConf implements IX10PlatformConf {
   
   private static final String SERVICE_MODE_ID_TAG = "service-mode"; //$NON-NLS-1$
   
+  private static final String NUMBER_OF_PLACES_TAG = "num-places"; //$NON-NLS-1$
+  
   private static final String OPEN_MPI_VERSION_TAG = "open-mpi-version"; //$NON-NLS-1$
   
   private static final String DEFAULT_TOOL_CMDS_ATTR = "default-tool-cmds"; //$NON-NLS-1$
@@ -710,6 +713,10 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String LL_TEMPLATE_FILE_PATH = "ll-template-file"; //$NON-NLS-1$
   
   private static final String LL_TEMPLATE_OPT = "ll-template-opt"; //$NON-NLS-1$
+  
+  private static final String SOCKETS_HOST_FILE = "sockets-host-file"; //$NON-NLS-1$
+  
+  private static final String SOCKETS_HOST_LIST = "sockets-host-file"; //$NON-NLS-1$
 
 
   private static final String CPP_COMPILATION_TAG = "cpp-compilation"; //$NON-NLS-1$
@@ -735,8 +742,6 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String LINKING_LIBS_TAG = "linking-libs"; //$NON-NLS-1$
   
   private static final String X10_DIST_LOC_TAG = "x10-dist-loc"; //$NON-NLS-1$
-  
-  private static final String PGAS_LOC_TAG = "pgas-loc"; //$NON-NLS-1$
 
   private static final String REMOTE_OUTPUT_FOLDER_TAG = "remote-output-folder"; //$NON-NLS-1$
   

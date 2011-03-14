@@ -28,5 +28,7 @@ interface ICITypeConfigurationPart {
   public String getServiceProviderId();
   
   public boolean hasCompleteInfo();
+  
+  public boolean setFormInput(final Object input);
 
 }

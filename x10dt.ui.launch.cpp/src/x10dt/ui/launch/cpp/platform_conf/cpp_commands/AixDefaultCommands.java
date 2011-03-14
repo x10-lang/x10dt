@@ -7,16 +7,17 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
-import org.eclipse.core.resources.IProject;
+import java.io.IOException;
 
-import x10dt.ui.launch.core.platform_conf.EArchitecture;
-import x10dt.ui.launch.core.platform_conf.ETransport;
+import org.eclipse.core.runtime.CoreException;
+
+import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 
 final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  AixDefaultCommands(IProject project, final boolean is64Arch, final EArchitecture architecture, final ETransport transport, boolean isLocal) {
-    super(project, is64Arch, architecture, transport, isLocal);
+  AixDefaultCommands(final IX10PlatformConf platformConf) throws IOException, CoreException {
+    super(platformConf);
   }
   
   // --- Interface methods implementation
@@ -32,26 +33,6 @@ final class AixDefaultCommands extends AbstractDefaultCPPCommands implements IDe
 
   public String getArchivingOpts() {
     return "-r"; //$NON-NLS-1$
-  }
-
-  public String getCompiler() {
-    return fPostCompiler;
-  }
-  
-  public String getCompilerOptions() {
-    return fPreFileArgs;
-  }
-
-  public String getLinker() {
-    return fPostCompiler;
-  }
-
-  public String getLinkingLibraries() {
-    return fPostFileArgs;
-  }
-
-  public String getLinkingOptions() {
-    return fPreFileArgs;
   }
   
 }

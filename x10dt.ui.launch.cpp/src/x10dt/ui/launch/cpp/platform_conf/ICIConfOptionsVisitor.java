@@ -41,5 +41,12 @@ public interface ICIConfOptionsVisitor {
    * @param configuration The current LoadLeveler configuration.
    */
   public void visit(final ILoadLevelerConf configuration);
+  
+  /**
+   * Visits the communication interface configuration for Sockets.
+   * 
+   * @param configuration The current Sockets configuration.
+   */
+  public void visit(final ISocketsConf configuration);
 
 }

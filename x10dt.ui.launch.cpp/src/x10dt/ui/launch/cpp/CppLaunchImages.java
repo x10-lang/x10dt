@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 import org.osgi.framework.Bundle;
 
 /**
@@ -28,25 +29,21 @@ public class CppLaunchImages {
   
   // --- Icons images
   
-  public static final String UNCHEKED_PLATFORM_CONF = "obj/go-icon.png"; //$NON-NLS-1$
+  public static final String VALID_CONNECTION = "obj/ok-icon.png"; //$NON-NLS-1$
   
-  public static final String CUR_CONNECTION = "obj/check-icon.png"; //$NON-NLS-1$
+  public static final String INVALID_CONNECTION = "obj/error-icon.png"; //$NON-NLS-1$
   
-  public static final String DISABLED_RM = "obj/disabled-rm.png"; //$NON-NLS-1$
+  public static final String UNKOWN_CONNECTION = "obj/question-mark.png"; //$NON-NLS-1$
+  
+  public static final String CUR_CONNECTION = "obj/right-arrow.png"; //$NON-NLS-1$
   
   public static final String INVALID_PLATFORM_CONF = "obj/invalid-conf.png"; //$NON-NLS-1$
   
-  public static final String INVALID_RM = "obj/invalid-rm.png"; //$NON-NLS-1$
-  
   public static final String PLATFORM_CONF_VALIDATION_ERROR = "obj/conf-valid-error.png"; //$NON-NLS-1$
   
-//  public static final String SAVE_PLATFORM_CONF = "obj/save-conf.png"; //$NON-NLS-1$
-  
-  public static final String REFRESH_PLATFORM_CONF = "obj/refresh-icon.png"; //$NON-NLS-1$
-
   public static final String VALID_PLATFORM_CONF = "obj/valid-conf.png"; //$NON-NLS-1$
   
-  public static final String VALID_RM = "obj/valid-rm.png"; //$NON-NLS-1$
+  public static final String INVALIDATED_PLATFORM_CONF = "obj/go-icon.png"; //$NON-NLS-1$
   
   public static final String FILE = "obj/x10-platform-conf.png"; //$NON-NLS-1$
   
@@ -56,6 +53,18 @@ public class CppLaunchImages {
   public static final String NEW_X10_PRJ_WIZBAN = "wizban/newx10prj_cpp.png"; //$NON-NLS-1$
   
   // --- Public services
+  
+  /**
+   * Creates the descriptor for a given image file name. This version caches the image in the {@link ImageRegistry}.
+   * 
+   * @param imagePath The relative path to the image for which one wants the descriptor.
+   * @return A non-null instance of {@link ImageDescriptor}.
+   */
+  public static ImageDescriptor createManaged(final String imagePath) {
+    final ImageDescriptor descriptor = createUnmanaged(imagePath);
+    fImageRegistry.put(imagePath, descriptor);
+    return descriptor;
+  }
   
   /**
    * Creates the descriptor for a given image file name. This version does not cache the image in the {@link ImageRegistry}.
@@ -90,5 +99,28 @@ public class CppLaunchImages {
     }
     return null;
   }
+  
+  /**
+   * Returns the image for the path transmitted if any exists with this key.
+   * 
+   * @param imagePath The path representing the key to access the image.
+   * @return A non-null image if the path is within the image registry, <b>null</b> otherwise.
+   */
+  public static Image getImage(final String imagePath) {
+    return fImageRegistry.get(imagePath);
+  }
+  
+  /**
+   * Removes the image from the image registry. It will have no effect if the image path is not part of the image registry.
+   * 
+   * @param imagePath The path representing the key to access the image.
+   */
+  public static void removeImage(final String imagePath) {
+    fImageRegistry.remove(imagePath);
+  }
+  
+  // --- Fields
+  
+  private static final ImageRegistry fImageRegistry = new ImageRegistry();
 
 }

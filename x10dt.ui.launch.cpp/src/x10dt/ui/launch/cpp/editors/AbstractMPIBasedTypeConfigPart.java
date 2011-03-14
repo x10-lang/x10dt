@@ -61,10 +61,16 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
 
   public final void create(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent,
                            final AbstractCommonSectionFormPart formPart) {
-    preCreationStep(toolkit, parent);
+    final Composite composite = toolkit.createComposite(parent);
+    composite.setFont(parent.getFont());
+    composite.setLayout(new TableWrapLayout());
+    composite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    setMainComposite(composite);
     
-    final Group toolsCommandsGroup = new Group(parent, SWT.NONE);
-    toolsCommandsGroup.setFont(parent.getFont());
+    preCreationStep(toolkit, composite);
+    
+    final Group toolsCommandsGroup = new Group(composite, SWT.NONE);
+    toolsCommandsGroup.setFont(composite.getFont());
     toolsCommandsGroup.setLayout(new TableWrapLayout());
     toolsCommandsGroup.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     toolsCommandsGroup.setText(LaunchMessages.RMCP_ToolsCommandsGroup);
@@ -104,8 +110,8 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     addControls(dependentToolCmdsControls);
     addControls(discoverCmdControls);
     
-    final Group installLocationGroup = new Group(parent, SWT.NONE);
-    installLocationGroup.setFont(parent.getFont());
+    final Group installLocationGroup = new Group(composite, SWT.NONE);
+    installLocationGroup.setFont(composite.getFont());
     installLocationGroup.setLayout(new TableWrapLayout());
     installLocationGroup.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     installLocationGroup.setText(LaunchMessages.RMCP_InstallLocGroup);
@@ -120,7 +126,7 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     addControls(installControls);
     
     final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
-    postCreationStep(toolkit, parent, managedForm, x10PlatformConf);
+    postCreationStep(toolkit, composite, managedForm, x10PlatformConf);
     
     initializeControls(x10PlatformConf, formPart, 
                        (IMessagePassingInterfaceConf) x10PlatformConf.getCommunicationInterfaceConf(),
@@ -166,6 +172,11 @@ abstract class AbstractMPIBasedTypeConfigPart extends AbstractCITypeConfiguratio
     } else {
       return this.fInstallLocText.getText().trim().length() > 0;
     }
+  }
+  
+  public final boolean setFormInput(final Object input) {
+    return (input == this.fLaunchCmdText) || (input == this.fDebugCmdText) || (input == this.fDiscoverCmdText) ||
+           (input == this.fMonitorCmdText) || (input == this.fInstallLocText);
   }
   
   // --- Private code

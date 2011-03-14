@@ -20,7 +20,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
@@ -54,7 +56,7 @@ import x10cpp.visit.MessagePassingCodeGenerator;
 import x10dt.core.builder.StreamSource;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.X10BundleUtils;
-import x10dt.ui.launch.core.utils.CollectionUtils;
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.FileUtils;
 import x10dt.ui.launch.core.utils.IFilter;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
@@ -78,9 +80,9 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
   
   // --- IPlatformConfChecker's interface methods implementation
 
-  public String validateArchiving(final SubMonitor monitor) throws Exception {
+  public Pair<String,String> validateArchiving(final SubMonitor monitor) throws Exception {
     final String archiver = this.fCompilationConf.getArchiver();
-    final String archivingOptions = this.fCompilationConf.getArchivingOpts(true);
+    final String archivingOptions = this.fCompilationConf.getArchivingOpts();
 
     monitor.beginTask(null, 10);
     monitor.subTask(LaunchMessages.APCC_ArchivingTaskMsg);
@@ -94,11 +96,12 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     }
   }
   
-  public String validateCompilation(final SubMonitor monitor) throws Exception {
+  public Pair<String,String> validateCompilation(final SubMonitor monitor) throws Exception {
+    final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
     final String compiler = this.fCompilationConf.getCompiler();
-    final String compilingOptions = this.fCompilationConf.getCompilingOpts(true);
-    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations();
-    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations();
+    final String compilingOptions = this.fCompilationConf.getCompilingOpts();
+    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations(isLocal);
+    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations(isLocal);
 
     monitor.beginTask(null, 20);
     monitor.subTask(LaunchMessages.APCC_CompilationTaskMsg);
@@ -112,9 +115,9 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
       final File testFilePath = createTestFile(uniqueDirName, monitor.newChild(1));
 
       // X10 compilation
-      final Pair<String, String> compilationResults = compileX10File(testFilePath, getContentSampleStream(),
-                                                                     this.fWorkDir, x10LibsLocs, fileManager, 
-                                                                     monitor.newChild(5));
+      final Pair<Pair<String,String>, String> compilationResults = compileX10File(testFilePath, getContentSampleStream(),
+                                                                                  this.fWorkDir, x10LibsLocs, fileManager, 
+                                                                                  monitor.newChild(5));
       if (compilationResults.first != null) {
         fileManager.getResource(this.fWorkDir).delete(EFS.NONE, new NullProgressMonitor());
         return compilationResults.first;
@@ -132,12 +135,13 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     }
   }
 
-  public String validateLinking(final SubMonitor monitor) throws Exception {
+  public Pair<String,String> validateLinking(final SubMonitor monitor) throws Exception {
+    final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
     final String linker = this.fCompilationConf.getLinker();
-    final String linkingOptions = this.fCompilationConf.getLinkingOpts(true);
-    final String linkingLibs = this.fCompilationConf.getLinkingLibs(true);
-    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations();
-    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations();
+    final String linkingOptions = this.fCompilationConf.getLinkingOpts();
+    final String linkingLibs = this.fCompilationConf.getLinkingLibs();
+    final String[] x10HeadersLocs = this.fCompilationConf.getX10HeadersLocations(isLocal);
+    final String[] x10LibsLocs = this.fCompilationConf.getX10LibsLocations(isLocal);
 
     monitor.beginTask(null, 20);
     monitor.subTask(LaunchMessages.APCC_LinkingTaskMsg);
@@ -167,10 +171,22 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     }
   }
   
-  private Pair<String, String> compileX10File(final File testFilePath, final InputStream sourceInputStream, 
-                                              final String workspaceDir, final String[] x10LibsLocs, 
-                                              final IRemoteFileManager fileManager, 
-                                              final SubMonitor monitor) throws Exception {
+  private Collection<String> collectCCFiles(final Map<String, Collection<String>> outputFiles) {
+    final Collection<String> ccFiles = new LinkedList<String>();
+    for (final Collection<String> generatedFiles : outputFiles.values()) {
+      for (final String generatedFile : generatedFiles) {
+        if (generatedFile.endsWith(Constants.CC_EXT)) {
+          ccFiles.add(generatedFile);
+        }
+      }
+    }
+    return ccFiles;
+  }
+  
+  private Pair<Pair<String, String>, String> compileX10File(final File testFilePath, final InputStream sourceInputStream, 
+                                                            final String workspaceDir, final String[] x10LibsLocs, 
+                                                            final IRemoteFileManager fileManager, 
+                                                            final SubMonitor monitor) throws Exception {
     monitor.beginTask(LaunchMessages.APCC_GeneratingFilesMsg, 10);
     if (monitor.isCanceled()) {
       throw new InterruptedException();
@@ -205,26 +221,28 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     try {
       compiler.compile(Arrays.<Source> asList(new StreamSource(sourceInputStream, testFilePath.getAbsolutePath())));
 
-      final Collection<String> ccFiles = CollectionUtils.filter(compiler.outputFiles(), new CCFileFilter());
-      if (!ccFiles.isEmpty()) {
+      final Collection<String> ccFiles = collectCCFiles(compiler.outputFiles());
+      if (! ccFiles.isEmpty()) {
         // Need to add the main method stub to the generated source file
-        String ccFileName= ccFiles.iterator().next();
-        addMainMethodStub(new File(testFilePath.getParentFile().getAbsolutePath() + File.separator + ccFileName));
+        final String ccFileName = ccFiles.iterator().next();
+        addMainMethodStub(new File(testFilePath.getParentFile().getAbsolutePath(), ccFileName));
       }
 
       final boolean isLocal = PTPRemoteCorePlugin.getDefault().getDefaultServices().equals(this.fRemoteServices);
-      if (!isLocal) {
+      if (! isLocal) {
         monitor.subTask(LaunchMessages.APCC_TransferringFiles);
         final IFileSystem fileSystem = EFS.getLocalFileSystem();
         final IFileStore destDir = fileManager.getResource(workspaceDir);
         try {
-          for (final Object fileName : compiler.outputFiles()) {
-            for (final File generatedFile : localTestDir.listFiles(new CppFileNameFilter((String) fileName))) {
-              if (monitor.isCanceled()) {
-                throw new InterruptedException();
+          for (final Collection<String> generatedFiles : compiler.outputFiles().values()) {
+            for (final String generatedFile : generatedFiles) {
+              for (final File file : localTestDir.listFiles(new CppFileNameFilter(generatedFile))) {
+                if (monitor.isCanceled()) {
+                  throw new InterruptedException();
+                }
+                final IFileStore curFileStore = fileSystem.getStore(new Path(file.getAbsolutePath()));
+                curFileStore.copy(destDir.getChild(curFileStore.getName()), EFS.OVERWRITE, null);
               }
-              final IFileStore curFileStore = fileSystem.getStore(new Path(generatedFile.getAbsolutePath()));
-              curFileStore.copy(destDir.getChild(curFileStore.getName()), EFS.OVERWRITE, null);
             }
           }
         } finally {
@@ -235,13 +253,18 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
       monitor.done();
 
       if (errorQueue.hasErrors()) {
-        return new Pair<String, String>(errorQueue.getAllErrors(), null);
+        return new Pair<Pair<String,String>, String>(new Pair<String,String>(NLS.bind(LaunchMessages.CCC_X10CompilerFailedCmd,
+                                                                                      classPathBuider.toString(), srcPath),
+                                                                             errorQueue.getAllErrors()), 
+                                                     null);
       } else {
-        final Collection<String> ccFile = CollectionUtils.filter(compiler.outputFiles(), new CCFileFilter());
-        if (ccFile.isEmpty()) {
-          return new Pair<String, String>(LaunchMessages.APCC_NoGeneratedFilesError, null);
+        if (ccFiles.isEmpty()) {
+          return new Pair<Pair<String,String>,String>(new Pair<String,String>(NLS.bind(LaunchMessages.CCC_X10CompilerFailedCmd,
+                                                                                       classPathBuider.toString(), srcPath),
+                                                                              LaunchMessages.APCC_NoGeneratedFilesError), 
+                                                      null);
         } else {
-          return new Pair<String, String>(null, ccFile.iterator().next());
+          return new Pair<Pair<String,String>, String>(null, ccFiles.iterator().next());
         }
       }
     } finally {
@@ -277,8 +300,8 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     return String.format("x10-validation-%s-%s", userName, format.format(new Date())); //$NON-NLS-1$
   }
   
-  private String execute(final List<String> command, final IRemoteFileManager fileManager, 
-                         final SubMonitor monitor) throws Exception {
+  private Pair<String,String> execute(final List<String> command, final IRemoteFileManager fileManager, 
+                                      final SubMonitor monitor) throws Exception {
     monitor.beginTask(null, 1);
     try {
       final IRemoteProcess process = getProcessBuilder(command).directory(fileManager.getResource(this.fWorkDir)).start();
@@ -290,21 +313,13 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
         }
         
         public void readError(final String line) {
-          if (this.fCounter == 0) {
-            errMsgBuilder.append(getCommandAsString(command));
-            this.fCounter = 1;
-          }
           errMsgBuilder.append(line).append('\n');
         }
-        
-        // --- Fields
-        
-        int fCounter;
         
       });
       
       monitor.worked(1);
-      return (exitValue == 0) ? null : errMsgBuilder.toString();
+      return (exitValue == 0) ? null : new Pair<String, String>(getCommandAsString(command), errMsgBuilder.toString());
     } finally {
       monitor.done();
     }
@@ -322,17 +337,12 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
   
   private String getCommandAsString(final List<String> command) {
     final StringBuilder sb = new StringBuilder();
-    int i = 0;
     for (final String str : command) {
-      if (i == 0) {
-        i = 1;
-        sb.append(LaunchMessages.APCC_ExecuteCommand);
-      } else {
+      if (sb.length() > 0) {
         sb.append(' ');
       }
       sb.append(str);
     }
-    sb.append('\n').append('\n');
     return sb.toString();
   }
   
@@ -349,7 +359,7 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     command.add("-c"); //$NON-NLS-1$
     command.add(generatedFilePath);
     command.add("-o"); //$NON-NLS-1$
-    this.fCompiledFile = generatedFilePath.replace(".cc", ".o"); //$NON-NLS-1$ //$NON-NLS-2$
+    this.fCompiledFile = generatedFilePath.replace(Constants.CC_EXT, Constants.O_EXT);
     command.add(this.fCompiledFile);
     return command;
   }
@@ -472,16 +482,6 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     
   }
   
-  private static final class CCFileFilter implements IFilter<String> {
-    
-    // --- Interface methods implementation
-
-    public boolean accepts(final String fileName) {
-      return fileName.endsWith(CC_EXT);
-    }
-    
-  }
-  
   private static final class CppFileNameFilter implements FilenameFilter {
 
     CppFileNameFilter(final String fileName) {
@@ -491,8 +491,8 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
     // --- Interface methods implementation
     
     public boolean accept(final File dir, final String name) {
-      return name.startsWith(this.fFileNameStart) && (name.endsWith(CC_EXT) || name.endsWith(H_EXT) || 
-                             name.endsWith(INC_EXT));
+      return name.startsWith(this.fFileNameStart) && (name.endsWith(Constants.CC_EXT) || name.endsWith(Constants.H_EXT) || 
+                             name.endsWith(Constants.INC_EXT));
     }
     
     // --- Fields
@@ -530,12 +530,6 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
   private static final String SRC_X10_DIR = "src-x10"; //$NON-NLS-1$
   
   private static final String TMPDIR_JAVA_ENV_VAR = "java.io.tmpdir"; //$NON-NLS-1$
-  
-  private static final String CC_EXT = ".cc"; //$NON-NLS-1$
-  
-  private static final String H_EXT = ".h"; //$NON-NLS-1$
-  
-  private static final String INC_EXT = ".inc"; //$NON-NLS-1$
 
   private static final String PATH_SEP_STRFORMAT = "%s/%s"; //$NON-NLS-1$
 

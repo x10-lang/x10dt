@@ -9,20 +9,22 @@ package x10dt.ui.launch.cpp.platform_conf;
 
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
-import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.PTPConstants;
+import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
-import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10PlatformConfWorkCopy {
@@ -41,7 +43,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fSource.fDescription = super.fDescription;
     this.fSource.fConnectionConf.applyChanges(this.fConnectionConf);
     this.fSource.fCommInterfaceFact.applyChanges(super.fCommInterfaceFact);
-    this.fSource.fCppCompilationConf.applyChanges(this.fCppCompilationConf);
+    this.fSource.fCppCompilationConf.applyChanges(this.fCppCompilationConf, this.fSource.fConnectionConf.fIsLocal);
     this.fIsDirty = false;
   }
   
@@ -156,11 +158,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     super.fCppCompilationConf.fLinkingOpts = linkingOpts;
     updateDirtyFlag();
   }
-    
-  public void setPGASLocation(final String pgasLocation) {
-    super.fCppCompilationConf.fPGASLoc = pgasLocation;
-    updateDirtyFlag();
-  }
   
   public void setRemoteOutputFolder(final String remoteOutputFolder) {
     super.fCppCompilationConf.fRemoteOutputFolder = remoteOutputFolder;
@@ -178,42 +175,19 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   public void updateCompilationCommands() {
-    final boolean is64Arch = (this.fCppCompilationConf.fBitsArchitecture == EBitsArchitecture.E64Arch);
-    final String serviceTypeId = this.fCommInterfaceFact.getCurrentCommunicationInterface().fServiceTypeId; 
-    final ETransport transport = PlatformConfUtils.getTransport(serviceTypeId, this.fCppCompilationConf.fTargetOS);
-    final IProject project = getConfFile().getProject();
-    final boolean isLocal = this.fConnectionConf.fIsLocal;
-    
-    final IDefaultCPPCommands defaultCPPCommands;
-    switch (this.fCppCompilationConf.fTargetOS) {
-      case AIX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createAixCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                         transport, isLocal);
-        break;
-      case LINUX:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createLinuxCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                           transport, isLocal);
-        break;
-      case MAC:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createMacCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                         transport, isLocal);
-        break;
-      case WINDOWS:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createCygwinCommands(project, is64Arch, this.fCppCompilationConf.fArchitecture,
-                                                                            transport, isLocal);
-        break;
-      default:
-        defaultCPPCommands = DefaultCPPCommandsFactory.createUnkownUnixCommands(project, is64Arch, 
-                                                                                this.fCppCompilationConf.fArchitecture,
-                                                                                transport, isLocal);
+    try {
+      final IDefaultCPPCommands defaultCPPCommands = DefaultCPPCommandsFactory.create(this);
+      this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
+      this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
+      this.fCppCompilationConf.fArchiver = defaultCPPCommands.getArchiver();
+      this.fCppCompilationConf.fArchivingOpts = defaultCPPCommands.getArchivingOpts();
+      this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
+      this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
+      this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
+    } catch (Exception except) {
+      // We can't update the commands so we keep the previous state as is.
+      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.XPC_PropertiesFileLoadingError, except);
     }
-    this.fCppCompilationConf.fCompiler = defaultCPPCommands.getCompiler();
-    this.fCppCompilationConf.fCompilingOpts = defaultCPPCommands.getCompilerOptions();
-    this.fCppCompilationConf.fArchiver = defaultCPPCommands.getArchiver();
-    this.fCppCompilationConf.fArchivingOpts = defaultCPPCommands.getArchivingOpts();
-    this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
-    this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
-    this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
     updateDirtyFlag();
   }
     
@@ -236,10 +210,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   
   public void setIsLocalFlag(final boolean isLocal) {
     super.fConnectionConf.fIsLocal = isLocal;
-    if (isLocal) {
-      initLocalCppCompilationCommands();
-      initLocalX10DistribLocation();
-    }
     updateDirtyFlag();
   }
   
@@ -289,6 +259,29 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   // --- ICommunicationInterface's setter methods
+  
+  public void setNumOfPlaces(final int numOfPlaces) {
+    super.fCommInterfaceFact.getCurrentCommunicationInterface().fNumberOfPlaces = numOfPlaces;
+    updateDirtyFlag();
+  }
+  
+  public void setServiceModeId(final String ciType, final String serviceModeId) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final AbstractCommunicationInterfaceConfiguration configuration = super.fCommInterfaceFact.getOrCreate(ciType);
+    if (configuration != null) {
+      configuration.fServiceModeId = serviceModeId;
+      updateDirtyFlag();
+    }
+  }
+  
+  public void setServiceTypeId(final String ciType) {
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final AbstractCommunicationInterfaceConfiguration configuration = super.fCommInterfaceFact.getOrCreate(ciType);
+    if (configuration != null) {
+      configuration.fServiceTypeId = ciType;
+      updateDirtyFlag();
+    }
+  }
   
   public void setDebugCommand(final String ciType, final String debugCommand) {
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
@@ -351,20 +344,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
     final OpenMPIInterfaceConf conf = (OpenMPIInterfaceConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fOpenMPIVersion = openMPIVersion;
-    updateDirtyFlag();
-  }
-  
-  public void setServiceModeId(final String ciType, final String serviceModeId) {
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final AbstractCommunicationInterfaceConfiguration configuration = super.fCommInterfaceFact.getOrCreate(ciType);
-    configuration.fServiceModeId = serviceModeId;
-    updateDirtyFlag();
-  }
-  
-  public void setServiceTypeId(final String ciType) {
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final AbstractCommunicationInterfaceConfiguration configuration = super.fCommInterfaceFact.getOrCreate(ciType);
-    configuration.fServiceTypeId = ciType;
     updateDirtyFlag();
   }
   
@@ -470,6 +449,27 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     final LoadLevelerConf conf = (LoadLevelerConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fTemplateOpt = templateOpt;
     updateDirtyFlag();
+  }
+  
+  public void setHostFile(final String hostFile) {
+    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final SocketsConf conf = (SocketsConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fHostFile = hostFile;
+  }
+  
+  public void setHostList(final List<String> hostList) {
+    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final SocketsConf conf = (SocketsConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fHostList = hostList;
+  }
+  
+  public void setShouldUseHostFile(final boolean shouldUseHostFile) {
+    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+    final SocketsConf conf = (SocketsConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    conf.fShouldUseHostFile = shouldUseHostFile;
   }
   
   // --- IDebuggingInfoConf's setter methods

@@ -33,8 +33,6 @@ public class LaunchMessages extends NLS {
   
   public static String APCC_CompilErrorWithPos;
   
-  public static String APCC_ExecuteCommand;
-  
   public static String APCC_GeneratingFilesMsg;
   
   public static String APCC_NoGeneratedFilesError;
@@ -97,7 +95,13 @@ public class LaunchMessages extends NLS {
 
   public static String CISP_AutoDetect;
 
+  public static String CISP_ModeUpdatedWarning;
+
   public static String CISP_OpenMPIVersion;
+
+  public static String CISP_TypeAndModeUpdatedWarning;
+
+  public static String CISP_TypeUpdatedWarning;
 
   public static String CISP_Version12;
 
@@ -173,6 +177,8 @@ public class LaunchMessages extends NLS {
   
   public static String CLCD_NotFound;
 
+  public static String CCC_X10CompilerFailedCmd;
+
   public static String CCVC_CompilerNotSupportedWarning;
 
   public static String CCVC_IBMCompilerVersionNotTested;
@@ -213,6 +219,8 @@ public class LaunchMessages extends NLS {
 
   public static String ETIC_NoEmptyContent;
   
+  public static String FEABC_RevertAction;
+
   public static String FFSD_DialogTitle;
   
   public static String PETCP_AdvancedSettings;
@@ -312,6 +320,16 @@ public class LaunchMessages extends NLS {
   public static String LLTCP_WarningBt;
 
   public static String LPCC_NonExistentPath;
+
+  public static String MFD_CommandPrefix;
+
+  public static String MFD_ErrorPrefix;
+
+  public static String MFD_FormInputErrors;
+
+  public static String MFD_MessagesFormDialogTitle;
+
+  public static String MFD_ValidationErrors;
 
   public static String RMCP_AddBt;
 
@@ -421,21 +439,27 @@ public class LaunchMessages extends NLS {
 
   public static String XCB_OptionError;
 
+  public static String XDSP_X10DistPropFileMissing;
+
+  public static String XPC_ArchiveOpFailureMsg;
+
   public static String XPC_ArchivingFailure;
 
-  public static String XPC_CITypeNotSupported;
-
   public static String XPC_CompilationFailure;
+
+  public static String XPC_CompilationOpFailureMsg;
 
   public static String XPC_InputStreamReadingError;
 
   public static String XPC_LinkingFailure;
+
+  public static String XPC_LinkOpFailureMsg;
+
+  public static String XPC_PropertiesFileLoadingError;
   
   public static String XPC_RemoteConnRequirementMsg;
   
   public static String XPC_RemoteConnRequirementTitle;
-
-  public static String XPCFE_CommInterfaceFailure;
 
 	public static String XPCFE_ConfSavingErrorDlgMsg;
 
@@ -457,21 +481,15 @@ public class LaunchMessages extends NLS {
 
 	public static String XPCFE_RemoteConnValidationError;
 
-  public static String XPCFE_SavePlatformActionMsg;
-
   public static String XPCFE_ValidationErrorDlgMsg;
-
-  public static String XPCFE_ValidationErrorDlgTitle;
 
   public static String XPCFE_ValidationFailureDlgMsg;
 
-  public static String XPCFE_ValidationFailureDlgTitle;
-
   public static String XPCFE_ValidationPlatformActionMsg;
   
-  public static String XPCFE_ResetPlatformActionMsg;
+  public static String XPCFE_RevertPlatformActionMsg;
   
-  public static String XPCFE_ResetPlatformActionDialogMsg;
+  public static String XPCFE_RevertPlatformActionDialogMsg;
 
   public static String XPCP_AddBt;
 
@@ -513,15 +531,11 @@ public class LaunchMessages extends NLS {
 
   public static String XPCP_OSLabel;
 
-  public static String XPCP_PGASDistLabel;
-
   public static String XPCP_RemoteBt;
 
   public static String XPCP_RemoteOutputFolderSection;
 
   public static String XPCP_RemoteOutputFolderSectionDescr;
-
-  public static String XPCP_UseX10DistLoc;
 
   public static String XPCP_X10DistLabel;
 

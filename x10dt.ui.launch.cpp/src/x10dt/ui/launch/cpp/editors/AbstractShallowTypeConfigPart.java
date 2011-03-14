@@ -36,5 +36,9 @@ abstract class AbstractShallowTypeConfigPart implements ICITypeConfigurationPart
   public final boolean hasCompleteInfo() {
     return true;
   }
+  
+  public boolean setFormInput(final Object input) {
+    return false;
+  }
 
 }

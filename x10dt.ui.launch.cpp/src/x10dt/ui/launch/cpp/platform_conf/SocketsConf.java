@@ -7,21 +7,40 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 
+import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.core.utils.CodingUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 
 
-final class SocketsConf extends AbstractCommunicationInterfaceConfiguration implements ICommunicationInterfaceConf {
+final class SocketsConf extends AbstractCommunicationInterfaceConfiguration implements ISocketsConf {
 
-  // --- Interface methods implementation
+  // --- ICommunicationInterfaceConf's interface methods implementation
   
   public boolean hasSameCommunicationInterfaceInfo(final IResourceManagerConfiguration rmConfiguration) {
     return PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(rmConfiguration.getResourceManagerId());
   }
 
   public void visitInterfaceOptions(final ICIConfOptionsVisitor visitor) {
-    // Nothing to do.
+    visitor.visit(this);
+  }
+  
+  // --- ISocketConf's interface methods implementation
+  
+  public String getHostFile() {
+    return (this.fHostFile == null) ? Constants.EMPTY_STR : this.fHostFile;
+  }
+  
+  public List<String> getHostList() {
+    return (this.fHostList == null) ? Collections.<String>emptyList() : this.fHostList;
+  }
+  
+  public boolean shouldUseHostFile() {
+    return this.fShouldUseHostFile;
   }
 
   // --- Abstract methods implementation
@@ -33,11 +52,23 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
   // --- Overridden methods
  
   public boolean equals(final Object rhs) {
-    return (rhs != null) && (rhs instanceof SocketsConf) && super.equals(rhs);
+    if ((rhs == null) || (! (rhs instanceof SocketsConf)) || ! super.equals(rhs)) {
+      return false;
+    }
+    final SocketsConf rhsObj = (SocketsConf) rhs;
+    if (this.fShouldUseHostFile == rhsObj.fShouldUseHostFile) {
+      if (this.fShouldUseHostFile) {
+        return CodingUtils.equals(this.fHostFile, rhsObj.fHostFile);
+      } else {
+        return getHostList().equals(rhsObj.getHostList());
+      }
+    } else {
+      return false;
+    }
   }
   
   public int hashCode() {
-    return 65747;
+    return 65747 + CodingUtils.generateHashCode(3454665, this.fHostFile, this.fHostList);
   }
 
   // --- Private code
@@ -51,5 +82,13 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
   SocketsConf(final IResourceManagerConfiguration rmConf) {
     super(rmConf);
   }
+  
+  // --- Fields
+  
+  String fHostFile;
+  
+  List<String> fHostList;
+  
+  boolean fShouldUseHostFile;
 
 }

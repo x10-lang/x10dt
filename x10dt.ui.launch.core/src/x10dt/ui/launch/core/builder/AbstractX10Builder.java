@@ -130,6 +130,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       return null;
     }
     try {
+      CoreResourceUtils.deleteBuildMarkers(getProject(), IResource.DEPTH_ZERO);
       if (this.fProjectWrapper == null) {
         return new IProject[0];
       }
@@ -138,7 +139,15 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final Collection<IFile> deletedSources = new HashSet<IFile>();
       final Collection<IFile> nativeFiles = new HashSet<IFile>();
 
-      final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
+      IX10BuilderFileOp x10BuilderOp = null;
+      try {
+        x10BuilderOp = createX10BuilderFileOp();
+      } catch (CoreException except) {
+        CoreResourceUtils.addBuildMarkerTo(getProject(), except.getMessage(), IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+      }
+      if (x10BuilderOp == null) {
+        return new IProject[0];
+      }
       if (!x10BuilderOp.hasAllPrerequisites()) {
         CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()),
                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
@@ -184,6 +193,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final Set<IProject> dependentProjects = new HashSet<IProject>();
       collectSourceFilesToCompile(sourcesToCompile, nativeFiles, deletedSources, this.fProjectWrapper, dependentProjects,
                                   createNativeFilesFilter(), shouldBuildAll, subMonitor.newChild(5));
+      CoreResourceUtils.deleteBuildMarkers(getProject(), IResource.DEPTH_ZERO);
       clearMarkers(sourcesToCompile); // --- This needs to happen before filter because we need to clear markers on files that have been recently excluded from the class path.
       filter(sourcesToCompile);
       if (subMonitor.isCanceled()) {
@@ -218,8 +228,14 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         this.fProjectWrapper = JavaCore.create(getProject());
       }
       this.fDependencyInfo.clearAllDependencies();
-      final IX10BuilderFileOp x10BuilderOp = createX10BuilderFileOp();
-      if (!x10BuilderOp.hasAllPrerequisites()) {
+      IX10BuilderFileOp x10BuilderOp = null;
+      try {
+        x10BuilderOp = createX10BuilderFileOp();
+      } catch (CoreException except) {
+        CoreResourceUtils.addBuildMarkerTo(getProject(), except.getMessage(), IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+        return;
+      }
+      if (! x10BuilderOp.hasAllPrerequisites()) {
         CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()),
                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
         UIUtils.showProblemsView();
@@ -320,7 +336,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     for (final IFile file : sourcesToCompile) {
       CoreResourceUtils.deleteBuildMarkers(file);
     }
-    CoreResourceUtils.deleteBuildMarkers(getProject(), IResource.DEPTH_ZERO);
   }
 
   private void collectSourceFilesToCompile(final Collection<IFile> sourcesToCompile, final Collection<IFile> nativeFiles,
@@ -377,7 +392,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             final IFile file = (IFile) resource;
             if (isX10File(file)) {
               final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
-              if (buildAll || ((generatedFile == null) && CoreResourceUtils.hasNoErrorMarkers(file))) {
+              if (buildAll || ((generatedFile == null) && ! CoreResourceUtils.hasBuildErrorMarkers(file))) {
                 sourcesToCompile.add(file);
 
                 if (!resource.getProject().equals(project)) {

@@ -11,10 +11,10 @@ import java.util.Collection;
 
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -37,23 +37,10 @@ public class SWTFormUtils {
    * @param parent The parent composite to consider.
    * @param labelText The text for the label.
    * @param toolkit The toolkit to use for creating the label and combo widgets.
-   * @style The style to apply to the combo box
    * @return The non-null Combo widget created.
    */
-  public static CCombo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit, int comboStyle) {
-    return createLabelAndCombo(parent, labelText, toolkit, comboStyle, null);
-  }
-  
-  /**
-   * Calls {@link #createLabelAndCombo(Composite, String, FormToolkit, Collection)} with no container to collect the widgets.
-   * 
-   * @param parent The parent composite to consider.
-   * @param labelText The text for the label.
-   * @param toolkit The toolkit to use for creating the label and combo widgets.
-   * @return The non-null Combo widget created.
-   */
-  public static CCombo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit) {
-    return createLabelAndCombo(parent, labelText, toolkit, 0, null);
+  public static Combo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit) {
+    return createLabelAndCombo(parent, labelText, toolkit, null);
   }
   
   /**
@@ -66,7 +53,7 @@ public class SWTFormUtils {
    * controls. Can be useful for enabling/disabling of groups of controls easily.
    * @return The non-null Combo widget created.
    */
-  public static CCombo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit, int comboStyle,
+  public static Combo createLabelAndCombo(final Composite parent, final String labelText, final FormToolkit toolkit, 
                                           final Collection<Control> controlContainer) {
     final Composite composite = toolkit.createComposite(parent);
     final boolean isTableWrapLayout = parent.getLayout() instanceof TableWrapLayout;
@@ -94,14 +81,13 @@ public class SWTFormUtils {
       controlContainer.add(label);
     }
     
-    final CCombo combo = new CCombo(composite, comboStyle | SWT.FLAT);
-    
+    final Combo combo = new Combo(composite, SWT.READ_ONLY);
     if (isTableWrapLayout) {
-      TableWrapData td = new TableWrapData(TableWrapData.FILL_GRAB);
+      final TableWrapData td = new TableWrapData(TableWrapData.FILL_GRAB);
       td.indent = 5;
       combo.setLayoutData(td);
     } else {
-      GridData gd = new GridData(SWT.FILL, SWT.NONE, true, false);
+      final GridData gd = new GridData(SWT.FILL, SWT.NONE, true, false);
       gd.horizontalIndent = 5;
       combo.setLayoutData(gd);
     }

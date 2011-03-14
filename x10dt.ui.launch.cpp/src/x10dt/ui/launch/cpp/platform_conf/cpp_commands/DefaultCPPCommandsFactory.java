@@ -7,10 +7,11 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
-import org.eclipse.core.resources.IProject;
+import java.io.IOException;
 
-import x10dt.ui.launch.core.platform_conf.EArchitecture;
-import x10dt.ui.launch.core.platform_conf.ETransport;
+import org.eclipse.core.runtime.CoreException;
+
+import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
  * Factory methods to create different implementations of {@link IDefaultCPPCommands}.
@@ -20,73 +21,31 @@ import x10dt.ui.launch.core.platform_conf.ETransport;
 public final class DefaultCPPCommandsFactory {
   
   /**
+   * Format to get location of X10RT properties file required for building c++ compilation/linking commands.
+   */
+  public static final String X10RT_PROPERTIES_FILE_FORMAT = "etc/x10rt_%s.properties"; //$NON-NLS-1$
+  
+  /**
    * Creates the implementation of {@link IDefaultCPPCommands} for AIX.
- * @param project 
    * 
-   * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
-   * @param architecture The architecture of the machine to consider.
-   * @param transport The current transport to consider.
+   * @param platformConf The platform configuration to consider for building the commands.
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
+   * @throws IOException Occurs if we could not the X10 properties file required to build the commands.
+   * @throws CoreException 
    */
-  public static IDefaultCPPCommands createAixCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                      final ETransport transport, boolean isLocal) {
-    return new AixDefaultCommands(project, is64Arch, architecture, transport, isLocal);
-  }
-  
-  /**
-   * Creates the implementation of {@link IDefaultCPPCommands} for Cygwin.
- * @param project 
-   * 
-   * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
-   * @param architecture The architecture of the machine to consider.
-   * @param transport The current transport to consider.
-   * @return A non-null implementation of {@link IDefaultCPPCommands}.
-   */
-  public static IDefaultCPPCommands createCygwinCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                         final ETransport transport, boolean isLocal) {
-    return new CygwinDefaultCommands(project, is64Arch, architecture, transport, isLocal);
-  }
-  
-  /**
-   * Creates the implementation of {@link IDefaultCPPCommands} for Linux.
- * @param project 
-   * 
-   * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
-   * @param architecture The architecture of the machine to consider.
-   * @param transport The current transport to consider.
-   * @return A non-null implementation of {@link IDefaultCPPCommands}.
-   */
-  public static IDefaultCPPCommands createLinuxCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                        final ETransport transport, boolean isLocal) {
-    return new LinuxDefaultCommands(project, is64Arch, architecture, transport, isLocal);
-  }
-  
-  /**
-   * Creates the implementation of {@link IDefaultCPPCommands} for Mac OS X.
- * @param project 
-   * 
-   * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
-   * @param architecture The architecture of the machine to consider.
-   * @param transport The current transport to consider.
-   * @return A non-null implementation of {@link IDefaultCPPCommands}.
-   */
-  public static IDefaultCPPCommands createMacCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                      final ETransport transport, boolean isLocal) {
-    return new MacDefaultCommands(project, is64Arch, architecture, transport, isLocal);
-  }
-  
-  /**
-   * Creates the implementation of {@link IDefaultCPPCommands} for general Unix system.
- * @param project 
-   * 
-   * @param is64Arch The flag indicating if we should consider commands for 64-bit architecture or not.
-   * @param architecture The architecture of the machine to consider.
-   * @param transport The current transport to consider.
-   * @return A non-null implementation of {@link IDefaultCPPCommands}.
-   */
-  public static IDefaultCPPCommands createUnkownUnixCommands(IProject project, final boolean is64Arch, final EArchitecture architecture,
-                                                             final ETransport transport, boolean isLocal) {
-    return new UnknownUnixDefaultCommands(project, is64Arch, architecture, transport, isLocal);
+  public static IDefaultCPPCommands create(final IX10PlatformConf platformConf) throws IOException, CoreException {
+    switch (platformConf.getCppCompilationConf().getTargetOS()) {
+      case AIX:
+        return new AixDefaultCommands(platformConf);
+      case LINUX:
+        return new LinuxDefaultCommands(platformConf);
+      case MAC:
+        return new MacDefaultCommands(platformConf);
+      case WINDOWS:
+        return new CygwinDefaultCommands(platformConf);
+      default:
+        return new UnknownUnixDefaultCommands(platformConf);
+    }
   }
   
   // --- Private code

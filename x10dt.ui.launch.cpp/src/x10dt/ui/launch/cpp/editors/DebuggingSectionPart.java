@@ -68,11 +68,27 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     removeCompletePartListener(getFormPage());
   }
   
+  // --- Abstract methods implementation
+  
+  protected void initializeControls() {
+    final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
+    for (final Control control : this.fControlsAffectedByLocalRM) {
+      control.setEnabled(! isLocal);
+    }
+    
+    final IDebuggingInfoConf debuggingInfoConf = getPlatformConf().getDebuggingInfoConf();
+    this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
+    this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
+  }
+  
+  protected void postPagesCreation() {
+    setPartCompleteFlag(hasCompleteInfo());
+  }
+  
   // --- Overridden methods
   
   public boolean setFormInput(final Object input) {
-    setPartCompleteFlag(hasCompleteInfo());
-    return false;
+    return (input == this.fDebuggerFolderText);
   }
   
   // --- Private code
@@ -132,25 +148,6 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
         
     initializeControls();
     
-    addListeners(managedForm, this.fDebuggerFolderText, this.fPortSpinner);
-     
-    getSection().setClient(sectionClient);
-  }
-  
-  private boolean hasCompleteInfo() {
-    return true;
-  }
-  
-  public void initializeControls() {
-    final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
-    for (final Control control : this.fControlsAffectedByLocalRM) {
-      control.setEnabled(! isLocal);
-    }
-    
-    final IDebuggingInfoConf debuggingInfoConf = getPlatformConf().getDebuggingInfoConf();
-    this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
-    this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
-
     final Text debuggerText = this.fDebuggerFolderText;
     KeyboardUtils.addDelayedActionOnControl(this.fDebuggerFolderText, new Runnable() {
 
@@ -174,6 +171,14 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
       }
 
     });
+    
+    addListeners(managedForm, this.fDebuggerFolderText, this.fPortSpinner);
+     
+    getSection().setClient(sectionClient);
+  }
+  
+  private boolean hasCompleteInfo() {
+    return true;
   }
   
   // --- Fields

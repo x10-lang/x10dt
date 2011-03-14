@@ -67,7 +67,7 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {
     final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
     if (! EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI()).fetchInfo().exists()) {
-      final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
+      final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
       final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
       platformConfWorkCopy.initializeToDefaultValues(project);
       platformConfWorkCopy.applyChanges();

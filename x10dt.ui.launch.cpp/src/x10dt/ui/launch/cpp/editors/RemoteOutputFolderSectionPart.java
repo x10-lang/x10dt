@@ -64,11 +64,29 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
     removeCompletePartListener(getFormPage());
   }
   
+  // --- Abstract methods implementation
+  
+  protected void initializeControls() {
+    final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
+    for (final Control control : this.fControlsAffectedByLocalRM) {
+      control.setEnabled(! isLocal);
+    }
+    
+    final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
+    if (! isLocal) {
+      this.fRemoteOutputFolderText.setText(cppCompConf.getRemoteOutputFolder());
+    }
+    handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
+  }
+  
   // --- Overridden methods
   
-  public boolean setFormInput(final Object input) {
+  protected void postPagesCreation() {
     setPartCompleteFlag(hasCompleteInfo());
-    return false;
+  }
+  
+  public boolean setFormInput(final Object input) {
+    return (input == this.fRemoteOutputFolderText);
   }
   
   // --- Private code
@@ -113,21 +131,6 @@ final class RemoteOutputFolderSectionPart extends AbstractCommonSectionFormPart 
   private boolean hasCompleteInfo() {
     final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
     return isLocal || this.fRemoteOutputFolderText.getText().trim().length() > 0;
-  }
-  
-  public void initializeControls() {
-    final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
-    for (final Control control : this.fControlsAffectedByLocalRM) {
-      control.setEnabled(! isLocal);
-    }
-    
-    final ICppCompilationConf cppCompConf = getPlatformConf().getCppCompilationConf();
-    if (! isLocal) {
-      if (cppCompConf.getRemoteOutputFolder() != null) {
-        this.fRemoteOutputFolderText.setText(cppCompConf.getRemoteOutputFolder());
-      }
-    }
-    handleEmptyTextValidation(this.fRemoteOutputFolderText, LaunchMessages.XPCP_FolderLabel);
   }
   
   // --- Fields

@@ -148,6 +148,17 @@
       </persistent>
    </extension>
    <extension
+         id="platformConfValidationMarker"
+         name="X10 Problem Marker"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+   </extension>
+   <extension
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="x10dt.ui.launch.cpp.launching.X10CppLaunchShortcut"

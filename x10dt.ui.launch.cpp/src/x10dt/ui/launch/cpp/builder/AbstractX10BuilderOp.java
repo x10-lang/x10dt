@@ -74,10 +74,12 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fWorkspaceDir = workspaceDir;
     this.fPlatformConf = platformConf;
     final IConnectionConf connConf = platformConf.getConnectionConf();
+    this.fIsLocal = connConf.isLocal();
     final boolean isCygwin = this.fPlatformConf.getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
     this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
     if (this.fTargetOpHelper == null) {
-      String msg= NLS.bind(Messages.CPPB_NoValidConnectionError, new Object[] { connConf.getHostName(), this.fProject.getName() } );
+      String msg= NLS.bind(Messages.CPPB_NoValidConnectionError, 
+                           new Object[] { connConf.getHostName(), this.fProject.getName() } );
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, msg));
     }
   }
@@ -87,6 +89,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fConfName = platformConf.getName();
     this.fProject = project;
     this.fWorkspaceDir = workspaceDir;
+    this.fIsLocal = platformConf.getConnectionConf().isLocal();
     this.fPlatformConf = platformConf;
     this.fTargetOpHelper = targetOpHelper;
   }
@@ -103,7 +106,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     monitor.subTask(Messages.CPPB_ArchivingTaskName);
     final List<String> archiveCmd = new ArrayList<String>();
     archiveCmd.add(this.fPlatformConf.getCppCompilationConf().getArchiver());
-    archiveCmd.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getArchivingOpts(true)));
+    archiveCmd.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getArchivingOpts()));
     final StringBuilder libName = new StringBuilder();
     libName.append("lib").append(this.fProject.getName()).append(A_EXT); //$NON-NLS-1$
     archiveCmd.add(libName.toString());
@@ -206,9 +209,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
 
         final List<String> command = new ArrayList<String>();
         command.add(this.fTargetOpHelper.getTargetSystemPath(this.fPlatformConf.getCppCompilationConf().getCompiler()));
-        command.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getCompilingOpts(true)));
+        command.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getCompilingOpts()));
         command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
-        for (final String headerLoc : this.fPlatformConf.getCppCompilationConf().getX10HeadersLocations()) {
+        for (final String headerLoc : this.fPlatformConf.getCppCompilationConf().getX10HeadersLocations(this.fIsLocal)) {
           command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(headerLoc));
         }
         command.add("-c"); //$NON-NLS-1$
@@ -343,6 +346,8 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   private final IProject fProject;
   
   private final String fWorkspaceDir;
+  
+  private final boolean fIsLocal;
   
   private final IX10PlatformConf fPlatformConf;
   

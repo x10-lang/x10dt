@@ -8,6 +8,7 @@
 package x10dt.ui.launch.cpp.platform_conf.validation;
 
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.utils.Pair;
 
 /**
  * Responsible for checking the commands of compilation and linking provided in an X10 platform configuration.
@@ -24,7 +25,7 @@ public interface ICppCompilationChecker {
    * went well.
    * @throws Exception May occur for various reasons.
    */
-  public String validateArchiving(final SubMonitor monitor) throws Exception;
+  public Pair<String,String> validateArchiving(final SubMonitor monitor) throws Exception;
   
   /**
    * Runs the compilation command on a default program created under the temp directory.
@@ -34,7 +35,7 @@ public interface ICppCompilationChecker {
    * @return A non-null string containing the error message if we did not succeed, otherwise <b>null</b> if everything 
    * went well.
    */
-  public String validateCompilation(final SubMonitor monitor) throws Exception;
+  public Pair<String,String> validateCompilation(final SubMonitor monitor) throws Exception;
   
   /**
    * Runs the linking command on a default program created under the temp directory.
@@ -44,6 +45,6 @@ public interface ICppCompilationChecker {
    * @return A non-null string containing the error message if we did not succeed, otherwise <b>null</b> if everything 
    * went well.
    */
-  public String validateLinking(final SubMonitor monitor) throws Exception;
+  public Pair<String,String> validateLinking(final SubMonitor monitor) throws Exception;
 
 }

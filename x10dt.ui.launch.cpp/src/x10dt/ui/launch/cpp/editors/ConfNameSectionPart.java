@@ -21,12 +21,13 @@ import org.eclipse.ptp.services.core.IServiceModelEventListener;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ptp.services.core.ServiceModelManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
@@ -38,7 +39,6 @@ import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
-import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements IFormPart, IServiceModelEventListener,
@@ -81,16 +81,37 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   public void handleEvent(final IRemoveResourceManagerEvent event) {
   }
   
-  // --- Overridden methods
+  // --- Abstract methods implementation
   
-  public boolean setFormInput(final Object input) {
+  protected void initializeControls() {
+    final IX10PlatformConf platformConf = getPlatformConf();
+    
+    int index = -1;
+    final ServiceModelManager modelManager = ServiceModelManager.getInstance();
+    for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
+      ++index;
+      if (serviceConf.getName().equals(platformConf.getName())) {
+        this.fRMServiceConfNameCombo.select(index);
+        break;
+      }
+    }
+    if (this.fRMServiceConfNameCombo.getSelectionIndex() == -1) {
+      this.fRMServiceConfNameCombo.setText(platformConf.getName());
+    }
+    handleEmptyTextValidation(this.fRMServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel);
+    
+    if ((platformConf.getDescription() != null) && (platformConf.getDescription().trim().length() > 0)) {
+      this.fDescriptionText.setText(platformConf.getDescription());
+    }
+  }
+  
+  protected void postPagesCreation() {
     setPartCompleteFlag(hasCompleteInfo());
-    return false;
   }
  
   // --- Private code
   
-  private void addListeners(final IManagedForm managedForm, final CCombo rmServiceConfNameCombo, final Text descriptionText,
+  private void addListeners(final IManagedForm managedForm, final Combo rmServiceConfNameCombo, final Text descriptionText,
                             final Collection<IServiceConfigurationListener> rmConfPageListeners) {
     rmServiceConfNameCombo.addModifyListener(new ModifyListener() {
       
@@ -158,15 +179,14 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     final Composite nameCompo = toolkit.createComposite(parent, SWT.NONE);
     nameCompo.setFont(parent.getFont());
     final TableWrapLayout layout = new TableWrapLayout();
-    layout.numColumns = 2;
+    layout.numColumns = 4;
     nameCompo.setLayout(layout);
     nameCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 2));
     
-//    toolkit.createLabel(nameCompo, LaunchMessages.RMCP_ConfNameLabel);
-//    this.fRMServiceConfNameCombo = new Combo(nameCompo, SWT.NONE);
-//    this.fRMServiceConfNameCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-    
-    this.fRMServiceConfNameCombo = SWTFormUtils.createLabelAndCombo(nameCompo, LaunchMessages.RMCP_ConfNameLabel, toolkit, SWT.NONE, null);
+    final Label nameLabel = toolkit.createLabel(nameCompo, LaunchMessages.RMCP_ConfNameLabel);
+    nameLabel.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
+    this.fRMServiceConfNameCombo = new Combo(nameCompo, SWT.NONE);
+    this.fRMServiceConfNameCombo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.MIDDLE));
     
     final ServiceModelManager modelManager = ServiceModelManager.getInstance();
     for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
@@ -174,12 +194,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
       this.fRMServiceConfNameCombo.setData(serviceConf.getName(), serviceConf);
     }
     
-//    toolkit.createLabel(nameCompo, LaunchMessages.RMCP_DescriptionLabel);
-//    this.fDescriptionText = toolkit.createText(nameCompo, null);
-//    this.fDescriptionText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
-//    
     this.fDescriptionText = SWTFormUtils.createLabelAndText(nameCompo, LaunchMessages.RMCP_DescriptionLabel, toolkit, null);
-    
     
     initializeControls();
     
@@ -190,31 +205,9 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     return this.fRMServiceConfNameCombo.getText().length() > 0;
   }
   
-  public void initializeControls() {
-    final IX10PlatformConf platformConf = getPlatformConf();
-    
-    int index = -1;
-    final ServiceModelManager modelManager = ServiceModelManager.getInstance();
-    for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
-      ++index;
-      if (serviceConf.getName().equals(platformConf.getName())) {
-        this.fRMServiceConfNameCombo.select(index);
-        break;
-      }
-    }
-    if (this.fRMServiceConfNameCombo.getSelectionIndex() == -1) {
-      this.fRMServiceConfNameCombo.setText(PlatformConfUtils.getValidString(platformConf.getName()));
-    }
-    handleEmptyTextValidation(this.fRMServiceConfNameCombo, LaunchMessages.RMCP_ConfNameLabel);
-    
-    if ((platformConf.getDescription() != null) && (platformConf.getDescription().trim().length() > 0)) {
-      this.fDescriptionText.setText(platformConf.getDescription());
-    }
-  }
-  
   // --- Fields
   
-  private CCombo fRMServiceConfNameCombo;
+  private Combo fRMServiceConfNameCombo;
   
   private Text fDescriptionText;
 

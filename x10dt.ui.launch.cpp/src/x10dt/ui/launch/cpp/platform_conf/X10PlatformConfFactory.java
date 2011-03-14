@@ -70,26 +70,15 @@ public final class X10PlatformConfFactory {
   }
   
   /**
-   * Loads (or creates) the X10 platform configuration file from the JDT file provided and creates as a result 
-   * {@link IX10PlatformConf}.
+   * Loads the X10 platform configuration file if the file is non-empty from the JDT file  provided and creates as a 
+   * result {@link IX10PlatformConf}. If it is empty this will create an empty X10 platform configuration.
    * 
    * @param file The X10 Platform Configuration file to read.
    * @return A non-null implementation of {@link IX10PlatformConf}.
    */
-  public static IX10PlatformConf load(final IFile file) {
+  public static IX10PlatformConf loadOrCreate(final IFile file) {
     return new X10PlatformConf(file);
   }
-  
-  /**
-   * Loads (or creates) the X10 platform configuration file from the JDT file provided and creates as a result 
-   * {@link IX10PlatformConf}.
-   * 
-   * @param file The X10 Platform Configuration file to read.
-   * @return A non-null implementation of {@link IX10PlatformConf}.
-   */
-	public static IX10PlatformConf load(final IFile file, boolean loadFromFile) {
-		return new X10PlatformConf(file, loadFromFile);
-	}
   
   /**
    * Loads (or creates) the X10 platform configuration present at the root of the project provided and creates as a 
@@ -98,7 +87,7 @@ public final class X10PlatformConfFactory {
    * @param project The project containing the X10 platform configuration file to read.
    * @return A non-null implementation of {@link IX10PlatformConf}.
    */
-  public static IX10PlatformConf load(final IProject project) {
+  public static IX10PlatformConf loadOrCreate(final IProject project) {
     return new X10PlatformConf(getFile(project));
   }
   
@@ -120,33 +109,33 @@ public final class X10PlatformConfFactory {
   public static void save(final IFile file, final IX10PlatformConf platformConf) throws CoreException {
     final IWorkspaceRunnable myRunnable = new IWorkspaceRunnable() {
 
-	  public void run(final IProgressMonitor monitor) throws CoreException {
+      public void run(final IProgressMonitor monitor) throws CoreException {
         try {
           final StringWriter writer = new StringWriter();
           platformConf.save(writer);
           byte[] barray = writer.toString().getBytes();
-          
+
           if (file.exists()) {
-              file.setContents(new ByteArrayInputStream(barray), true, true, monitor);
+            file.setContents(new ByteArrayInputStream(barray), true, true, monitor);
           } else {
-              file.create(new ByteArrayInputStream(barray), IResource.FORCE | IResource.KEEP_HISTORY, monitor);
+            file.create(new ByteArrayInputStream(barray), IResource.FORCE | IResource.KEEP_HISTORY, monitor);
           }
-          
+
           file.refreshLocal(IResource.DEPTH_ZERO, monitor);
           writer.close();
-          
+
         } catch (IOException except) {
-          throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
+          throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID,
                                              LaunchMessages.XPCFE_ConfSavingErrorDlgMsg, except));
         }
       }
-      
+
     };
     final IResourceRuleFactory ruleFactory = ResourcesPlugin.getWorkspace().getRuleFactory();
-  	final ISchedulingRule modifyRule = ruleFactory.modifyRule(file);
-  	final ISchedulingRule refreshRule = ruleFactory.refreshRule(file);
-  	ResourcesPlugin.getWorkspace().run(myRunnable, MultiRule.combine(modifyRule, refreshRule), IWorkspace.AVOID_UPDATE, 
-  	                                   new NullProgressMonitor());
+    final ISchedulingRule modifyRule = ruleFactory.modifyRule(file);
+    final ISchedulingRule refreshRule = ruleFactory.refreshRule(file);
+    ResourcesPlugin.getWorkspace().run(myRunnable, MultiRule.combine(modifyRule, refreshRule), IWorkspace.AVOID_UPDATE,
+                                       new NullProgressMonitor());
   }
   
   // --- Private code

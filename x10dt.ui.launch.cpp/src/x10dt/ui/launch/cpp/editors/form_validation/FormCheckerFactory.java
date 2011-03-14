@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.editors.form_validation;
 
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.forms.editor.IFormPage;
 
@@ -48,6 +49,19 @@ public final class FormCheckerFactory {
   public static IFormControlChecker createEmptyControlChecker(final IFormPage formPage, final Control control, 
                                                               final String controlInfo) {
     return new EmptyControlChecker(formPage, control, controlInfo);
+  }
+  
+  /**
+   * Creates a checker that is responsible for validating that a given combo has a selection index different from -1.
+   * 
+   * @param formPage The form page to get access to the form message managers.
+   * @param combo The combo to check.
+   * @param controlInfo The information that defines the combo content.
+   * @return A non-null instance of {@link IFormControlChecker}.
+   */
+  public static IFormControlChecker createEmptyComboChecker(final IFormPage formPage, final Combo combo, 
+                                                            final String controlInfo) {
+    return new EmptyComboChecker(formPage, combo, controlInfo);
   }
   
   /**

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
@@ -90,8 +92,6 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setLinkingOpts(final String linkingOpts);
     
-  public void setPGASLocation(final String pgasLocation);
-  
   public void setRemoteOutputFolder(final String remoteOutputFolder);
   
   public void setTargetOS(final ETargetOS targetOS);
@@ -130,6 +130,12 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
       
   // --- ICommunicationInterface's setter methods
   
+  public void setNumOfPlaces(final int numOfPlaces);
+  
+  public void setServiceModeId(final String ciType, final String serviceModeId);
+  
+  public void setServiceTypeId(final String ciType);
+  
   /// Message Passing Interface
   
   public void setDebugCommand(final String ciType, final String debugCommand);
@@ -149,10 +155,6 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setMonitorPeriod(final String ciType, final int monitorPeriod);
   
   public void setOpenMPIVersion(final EOpenMPIVersion openMPIVersion);
-  
-  public void setServiceModeId(final String ciType, final String serviceModeId);
-  
-  public void setServiceTypeId(final String ciType);
   
   /// IBM Parallel Environment & LoadLeveler
   
@@ -187,6 +189,14 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   public void setTemplateFilePath(final String templateFilePath);
   
   public void setTemplateOption(final ELLTemplateOpt templateOpt);
+  
+  /// Sockets
+  
+  public void setHostFile(final String hostFile);
+  
+  public void setHostList(final List<String> hostList);
+  
+  public void setShouldUseHostFile(final boolean shouldUseHostFile);
   
   // --- IDebuggingInfoConf's setter methods
   

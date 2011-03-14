@@ -57,8 +57,8 @@ import x10dt.ui.launch.cpp.utils.PTPConfUtils;
  * 
  * @author egeay
  */
-public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeListener, ISaveParticipant, 
-                                                               IPreferenceChangeListener {
+public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeListener, ISaveParticipant,
+                                                   IPreferenceChangeListener {
 
   /**
    * Unique id for this plugin.
@@ -69,12 +69,12 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * Unique id for the C++ Builder.
    */
   public static final String BUILDER_ID = PLUGIN_ID + ".X10CppBuilder"; //$NON-NLS-1$
-  
+
   /**
    * Constant identifying the job family identifier for the X10 Platform Conf Validation background job.
    */
   public static final Object FAMILY_PLATFORM_CONF_VALIDATION = new Object();
-  
+
   // --- IResourceChangeListener's interface methods implementation
 
   public void resourceChanged(final IResourceChangeEvent event) {
@@ -89,7 +89,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
         case IResourceDelta.ADDED: {
           final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
           if (platformConfFile.exists()) {
-            final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
+            final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
             this.fProjectToPlatform.put(project, platformConf);
             if (platformConf.isComplete(false)) {
               startResourceManager(project, platformConf);
@@ -113,7 +113,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
           final IResourceDelta platformConfDelta = rootResourceDelta.findMember(path);
           if ((platformConfDelta != null) && (platformConfDelta.getFlags() != IResourceDelta.MARKERS)) {
             final IFile platformConfFile = (IFile) platformConfDelta.getResource();
-            final IX10PlatformConf platformConf = X10PlatformConfFactory.load(platformConfFile);
+            final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
             this.fProjectToPlatform.put(project, platformConf);
             if (platformConf.isComplete(false)) {
               startResourceManager(project, platformConf);
@@ -143,9 +143,9 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     // No state to be saved by the plug-in, but request a resource delta to be used on next activation.
     context.needDelta();
   }
-  
+
   // --- IPreferenceChangeListener's interface methods implementation
-  
+
   public void preferenceChange(final PreferenceChangeEvent event) {
     if (X10Constants.P_OPTIMIZE.equals(event.getKey())) {
       for (final Map.Entry<IProject, IX10PlatformConf> entry : this.fProjectToPlatform.entrySet()) {
@@ -158,14 +158,14 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
           log(except.getStatus());
         }
       }
-      
+
       final WorkspaceJob job = new WorkspaceJob(LaunchMessages.CLC_RebuildWorkspaceJobName) {
-        
+
         public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
           ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, monitor);
           return Status.OK_STATUS;
         }
-        
+
       };
       job.setRule(ResourcesPlugin.getWorkspace().getRuleFactory().buildRule());
       job.setPriority(Job.BUILD);
@@ -188,14 +188,13 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * Returns the X10 platform configuration for the given project. The given project need to have a C++ X10 nature in order to
    * return a non-null value.
    * 
-   * @param project
-   *          The project for which one wants to access the X10 platform configuration.
+   * @param project The project for which one wants to access the X10 platform configuration.
    * @return A non-null platform configuration instance.
    */
   public IX10PlatformConf getPlatformConfiguration(final IProject project) {
     final IX10PlatformConf platformConf = this.fProjectToPlatform.get(project);
     if (platformConf == null) {
-      final IX10PlatformConf newPConf = X10PlatformConfFactory.load(project);
+      final IX10PlatformConf newPConf = X10PlatformConfFactory.loadOrCreate(project);
       this.fProjectToPlatform.put(project, newPConf);
       return newPConf;
     } else {
@@ -206,36 +205,22 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
   /**
    * Logs (if the plugin is active) the operation outcome provided through the status instance.
    * 
-   * @param status
-   *          The status to log.
+   * @param status The status to log.
    */
   public static final void log(final IStatus status) {
     if (fPlugin != null) {
       fPlugin.getLog().log(status);
     }
   }
-  
-  public static void log(Exception e) {
-      log(e.getMessage());
-  }
-  
-  public static void log(String msg) {
-      Status status= new Status(Status.ERROR, PLUGIN_ID, 0, msg, null);
-      fPlugin.getLog().log(status);
-  }
 
   /**
    * Logs (if the plugin is active) the outcome of an operation with the parameters provided.
    * 
-   * @param severity
-   *          The severity of the message. The code is one of {@link IStatus#OK}, {@link IStatus#ERROR}, {@link IStatus#INFO},
-   *          {@link IStatus#WARNING} or {@link IStatus#CANCEL}.
-   * @param code
-   *          The plug-in-specific status code, or {@link IStatus#OK}.
-   * @param message
-   *          The human-readable message, localized to the current locale.
-   * @param exception
-   *          The exception to log, or <b>null</b> if not applicable.
+   * @param severity The severity of the message. The code is one of {@link IStatus#OK}, {@link IStatus#ERROR},
+   *          {@link IStatus#INFO}, {@link IStatus#WARNING} or {@link IStatus#CANCEL}.
+   * @param code The plug-in-specific status code, or {@link IStatus#OK}.
+   * @param message The human-readable message, localized to the current locale.
+   * @param exception The exception to log, or <b>null</b> if not applicable.
    */
   public static final void log(final int severity, final int code, final String message, final Throwable exception) {
     if (fPlugin != null) {
@@ -249,13 +234,10 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * <p>
    * Similar to {@link #log(int, int, String, Throwable)} with <code>code = IStatus.OK</code>.
    * 
-   * @param severity
-   *          The severity of the message. The code is one of {@link IStatus#OK}, {@link IStatus#ERROR}, {@link IStatus#INFO},
-   *          {@link IStatus#WARNING} or {@link IStatus#CANCEL}.
-   * @param message
-   *          The human-readable message, localized to the current locale.
-   * @param exception
-   *          The exception to log, or <b>null</b> if not applicable.
+   * @param severity The severity of the message. The code is one of {@link IStatus#OK}, {@link IStatus#ERROR},
+   *          {@link IStatus#INFO}, {@link IStatus#WARNING} or {@link IStatus#CANCEL}.
+   * @param message The human-readable message, localized to the current locale.
+   * @param exception The exception to log, or <b>null</b> if not applicable.
    */
   public static final void log(final int severity, final String message, final Throwable exception) {
     if (fPlugin != null) {
@@ -269,11 +251,9 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * <p>
    * Similar to {@link #log(int, int, String, Throwable)} with <code>code = IStatus.OK</code> and <code>exception = null</code>.
    * 
-   * @param severity
-   *          The severity of the message. The code is one of {@link IStatus#OK}, {@link IStatus#ERROR}, {@link IStatus#INFO},
-   *          {@link IStatus#WARNING} or {@link IStatus#CANCEL}.
-   * @param message
-   *          The human-readable message, localized to the current locale.
+   * @param severity The severity of the message. The code is one of {@link IStatus#OK}, {@link IStatus#ERROR},
+   *          {@link IStatus#INFO}, {@link IStatus#WARNING} or {@link IStatus#CANCEL}.
+   * @param message The human-readable message, localized to the current locale.
    */
   public static final void log(final int severity, final String message) {
     if (fPlugin != null) {
@@ -321,7 +301,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     for (final IProject curProject : projects) {
       try {
         if (curProject.isOpen() && curProject.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)) {
-          this.fProjectToPlatform.put(curProject, X10PlatformConfFactory.load(curProject));
+          this.fProjectToPlatform.put(curProject, X10PlatformConfFactory.loadOrCreate(curProject));
         }
       } catch (CoreException except) {
         CppLaunchCore.log(except.getStatus());
@@ -376,9 +356,9 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
           return Status.OK_STATUS;
         }
       }
-      
+
       // --- Overridden methods
-      
+
       public boolean belongsTo(final Object family) {
         return family == FAMILY_PLATFORM_CONF_VALIDATION;
       }
@@ -420,7 +400,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
     public void platformCppCompilationValidationError(final Exception exception) {
     }
 
-    public void platformCppCompilationValidationFailure(final String message) {
+    public void platformCppCompilationValidationFailure(final String topMessage, final String command, 
+                                                        final String errorMessage) {
     }
 
     public void remoteConnectionFailure(final Exception exception) {
@@ -429,8 +410,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
         public void run(final IProgressMonitor localMonitor) throws CoreException {
           CoreResourceUtils.addPlatformConfMarker(CommunicationInterfaceListener.this.fPlatformConfFile,
                                                   NLS.bind(LaunchMessages.XPCFE_RemoteConnFailureMarkerMsg,
-                                                           exception.getMessage()), IMarker.SEVERITY_ERROR, 
-                                                           IMarker.PRIORITY_HIGH);
+                                                           exception.getMessage()), IMarker.SEVERITY_ERROR,
+                                                  IMarker.PRIORITY_HIGH);
         }
 
       });

@@ -28,17 +28,16 @@ public interface ICppCompilationConf extends IStatusConfProvider {
   /**
    * Returns the archiver to use in order to archive compiled generated files.
    * 
-   * @return A null value if the linking step is not required, otherwise a non-empty string.
+   * @return A non-null string but possibly empty.
    */
   public String getArchiver();
   
   /**
    * Returns the archiving options to use in order to archive compiled generated files.
    * 
-   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
-   * @return A null value if the linking step is not required, otherwise a non-empty string.
+   * @return A non-null string but possibly empty.
    */
-  public String getArchivingOpts(final boolean shouldBeInterpreted);
+  public String getArchivingOpts();
   
   /**
    * Returns the computer bits architecture of the X10 platform installation.
@@ -50,17 +49,16 @@ public interface ICppCompilationConf extends IStatusConfProvider {
   /**
    * Returns the compiler to use in order to compile X10 generated code.
    * 
-   * @return A non-null non-empty string.
+   * @return A non-null string but possibly empty.
    */
   public String getCompiler();
   
   /**
    * Returns the compiling options to use in order to compile X10 generated code.
    * 
-   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
-   * @return A non-null non-empty string.
+   * @return A non-null string but possibly empty.
    */
-  public String getCompilingOpts(final boolean shouldBeInterpreted);
+  public String getCompilingOpts();
   
   /**
    * Returns the linker to use in order to create executable from X10 generated files.
@@ -72,30 +70,21 @@ public interface ICppCompilationConf extends IStatusConfProvider {
   /**
    * Returns the linking libraries to use in order to create executable from X10 generated files.
    * 
-   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
-   * @return A possibly null value.
+   * @return A non-null string but possibly empty.
    */
-  public String getLinkingLibs(final boolean shouldBeInterpreted);
+  public String getLinkingLibs();
   
   /**
    * Returns the linking options to use in order to create executable from X10 generated files.
    * 
-   * @param shouldBeInterpreted Indicates if the potential variables in the option should be interpreted or not.
-   * @return A possibly null value.
+   * @return A non-null string but possibly empty.
    */
-  public String getLinkingOpts(final boolean shouldBeInterpreted);
-  
-  /**
-   * Returns the location where PGAS is installed.
-   * 
-   * @return A non-null non-empty string.
-   */
-  public String getPGASLocation();
+  public String getLinkingOpts();
   
   /**
    * Returns the remote output folder location where the generated files will be transferred and compiled.
    * 
-   * @return A non-null empty string if the resource manager is remote, otherwise <b>null</b>.
+   * @return A non-null string but possibly empty.
    */
   public String getRemoteOutputFolder();
   
@@ -109,22 +98,25 @@ public interface ICppCompilationConf extends IStatusConfProvider {
   /**
    * Returns the locations where X10 distribution headers are installed.
    * 
+   * @param isLocal Indicates if this is for local or remote mode.
    * @return A non-null non-empty string.
    */
-  public String[] getX10HeadersLocations();
+  public String[] getX10HeadersLocations(final boolean isLocal);
   
   /**
    * Returns the location where X10 distribution is installed.
    * 
+   * @param isLocal Indicates if this is for local or remote mode.
    * @return A non-null non-empty string.
    */
-  public String getX10DistribLocation();
+  public String getX10DistribLocation(final boolean isLocal);
   
   /**
    * Returns the locations where X10 distribution libraries are installed.
    * 
+   * @param isLocal Indicates if this is for local or remote mode.
    * @return A non-null non-empty string.
    */
-  public String[] getX10LibsLocations();
+  public String[] getX10LibsLocations(final boolean isLocal);
 
 }
