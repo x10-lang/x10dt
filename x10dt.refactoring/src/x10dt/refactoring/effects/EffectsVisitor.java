@@ -250,18 +250,10 @@ public class EffectsVisitor extends NodeVisitor {
         X10LocalInstance li= (X10LocalInstance) l.localInstance();
         Expr rhs= la.right();
 
-        if (((Flags) li.flags()).isValue()) {
-            Effect rhsEff= fEffects.get(rhs);
-//            Effect writeEff= Effects.makeEffect(Effects.FUN);
-//            writeEff.addWrite(Effects.makeLocalLocs(XTerms.makeLocal(new XVarDefWrapper(l))));
-//            result= followedBy(rhsEff, writeEff);
-            result= rhsEff;
-        } else {
-            Effect rhsEff= fEffects.get(rhs);
-            Effect writeEff= Effects.makeEffect(Effects.FUN);
-            writeEff.addWrite(Effects.makeLocalLocs(new XLocal(l)));
-            result= followedBy(rhsEff, writeEff);
-        }
+        Effect rhsEff= fEffects.get(rhs);
+        Effect writeEff= Effects.makeEffect(Effects.FUN);
+        writeEff.addWrite(Effects.makeLocalLocs(new XLocal(l)));
+        result= followedBy(rhsEff, writeEff);
         return result;
     }
 
@@ -271,14 +263,11 @@ public class EffectsVisitor extends NodeVisitor {
         Receiver target= fa.target();
         Expr rhs= fa.right();
 
-        if (((Flags) fi.flags()).isValue()) {
-            Effect rhsEff= fEffects.get(rhs);
-            Effect writeEff= Effects.makeEffect(Effects.FUN);
-            writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target), fi.def().toString()));
-            result= followedBy(rhsEff, writeEff);
-        } else {
-            return Effects.makeBottomEffect();
-        }
+        Effect rhsEff= fEffects.get(rhs);
+        Effect writeEff= Effects.makeEffect(Effects.FUN);
+        writeEff.addWrite(Effects.makeFieldLocs(createTermForReceiver(target), fi.def().toString()));
+        result= followedBy(rhsEff, writeEff);
+
         return result;
     }
 
@@ -483,13 +472,13 @@ public class EffectsVisitor extends NodeVisitor {
         Effect result= effect;
         for(LocalDecl ld: decls) {
             LocalDef localDef= ld.localDef();
-            if (((Flags) ld.flags().flags()).isValue()) {
-                Expr init= ld.init();
-                XTerm initTerm= createTermForExpr(init);
-                result= result.exists(new XLocal(localDef), initTerm);
-            } else {
+//            if (((Flags) ld.flags().flags()).isValue()) {
+//                Expr init= ld.init();
+//                XTerm initTerm= createTermForExpr(init);
+//                result= result.exists(new XLocal(localDef), initTerm);
+//            } else {
                 result= result.exists(Effects.makeLocalLocs(new XLocal(localDef)));
-            }
+//            }
         }
         return result;
     }
