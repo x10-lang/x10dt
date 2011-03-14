@@ -166,7 +166,7 @@ public class ParseController extends SimpleLPGParseController {
             	if (fViolationHandler != null && fCurrentAst != null) {
                     // TODO Tweak appropriate option in Configuration/Options object to include the invariant checking goals
 	            	Job job= fCompiler.getJobFor(source);
-	            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "");
+	            	PositionInvariantChecker pic= new PositionInvariantChecker(job, "", true);
 	            	InstanceInvariantChecker iic= new InstanceInvariantChecker(job);
 
 	            	((Node) fCurrentAst).visit(pic);
