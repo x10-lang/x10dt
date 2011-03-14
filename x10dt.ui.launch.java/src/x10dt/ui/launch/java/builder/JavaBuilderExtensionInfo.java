@@ -65,7 +65,7 @@ public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
 							commandline.add("-nowarn");
 							commandline.add("-classpath");
 							commandline.add(options.constructPostCompilerClasspath());
-							for (Object f : compiler.outputFiles()) {
+							for (Object f : compiler.flatOutputFiles()) {
 								commandline.add((String) f);
 							}
 							final MessageConsole console = UIUtils.findOrCreateX10Console();
