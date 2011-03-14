@@ -60,6 +60,23 @@ public class PolyglotDependencyInfo extends DependencyInfo {
   
     }
     
+    private Collection<String> getPossibleFileNames(String name){
+    	Collection<String> result = new ArrayList<String>();
+    	name = name.replace('.', File.separatorChar);
+    	result.add(name + Constants.X10_EXT);
+    	if (!name.contains(File.separator)){
+    		return result;
+    	}
+    	int i = name.lastIndexOf(File.separatorChar);
+    	while(i != -1){
+    		name = name.substring(0, i);
+    		result.add(name + Constants.X10_EXT);
+    		i = name.lastIndexOf(File.separatorChar);
+    	}
+ 
+    	return result;
+    }
+    
     private Collection<String> getPossiblePaths(ClassType type, String context){
     	Collection<String> result = new ArrayList<String>();
     	String name = type.fullName().toString();
@@ -67,15 +84,14 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	
     	if (name.contains(".") || isInDefaultPackage(context, srcFolders)) { 
     		for (String path: srcFolders){
-    			String n = File.separator + name.replace('.', File.separatorChar) + Constants.X10_EXT;
-    			result.add(path + n);
+    			Collection<String> names = getPossibleFileNames(name);
+    			for(String n: names){
+    				//n = File.separator + name.replace('.', File.separatorChar) + Constants.X10_EXT;
+    				result.add(path + File.separator + n);
+    			}
     		}
     	}
-    	if (name.contains(".")) { // --- if type has a qualified name, then don't consider the imports.
-    		return result;
-    	}
     	
-    	// --- Name is not qualified, consider the imports by looking at the dependencies.
     	name = name + Constants.X10_EXT; 
     	Collection<String> possiblePaths = fDependsUpon.get(context); // --- The dependencies will contain paths from the imports.
     	for (String path: possiblePaths){

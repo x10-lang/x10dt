@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -430,20 +431,17 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                        final IX10BuilderFileOp builderOp, final SubMonitor subMonitor) throws CoreException {
     final IWorkspace workspace = ResourcesPlugin.getWorkspace();
     final ISchedulingRule rule = getSchedulingRule(sourcesToCompile);
-    final IJavaProject project = this.fProjectWrapper;
     final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
       public void run(final IProgressMonitor monitor) throws CoreException {
-    	Collection<File> sources = compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
-    	Collection<File> sourcesToPostCompile = sources;
-    	// The following code will need to be reinstated to fix RTC 937.
-    	 /* Collection<File> sourcesToPostCompile = new ArrayList<File>();
+    	Map<String, Collection<File>> sources = compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
+    	Collection<File> sourcesToPostCompile = new ArrayList<File>();
     	for (IFile f: sourcesToCompile){
-    		File mainGeneratedFile = getMainGeneratedFile(project, f);
-    		if (sources.contains(mainGeneratedFile) && checkPostCompilationCondition(f)){ // --- check if this and related files should be post-compiled
-    			sourcesToPostCompile.add()
+    		String path = getName(f);
+    		if (sources.keySet().contains(path) && checkPostCompilationCondition(f)){ // --- check if this and related files should be post-compiled
+    			sourcesToPostCompile.addAll(sources.get(path));
     		}
-    	}*/
+    	}
         compileGeneratedFiles(builderOp, sourcesToPostCompile, 
                               subMonitor.newChild(65));
       }
@@ -451,6 +449,20 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     };
 
     workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
+  }
+  
+  private String getName(IFile file){
+	  IPath filePath = file.getFullPath();
+	  try {
+		  for(final IClasspathEntry cpEntry : fProjectWrapper.getRawClasspath()) {
+			  if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE && cpEntry.getPath().isPrefixOf(filePath) && !BuildPathUtils.isExcluded(filePath, cpEntry)) {
+				  return filePath.makeRelativeTo(cpEntry.getPath()).removeFileExtension().toOSString();
+			  }
+		  }
+	  } catch (JavaModelException e){
+		  LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, e);
+	  }
+	  return null;
   }
 
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<File> sourcesToPostCompile,
@@ -472,8 +484,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
 	  if (dependencies != null){
 		  for(String path: dependencies){
-			  File f = getMainGeneratedFile(fProjectWrapper, wsRoot.getFile(new Path(path)));
-			  if (!f.exists()){
+			  IFile dep = wsRoot.getFile(new Path(path));
+			  if (!dep.exists()) { // --- Some dependencies are to folders
+				  continue;
+			  }
+			  File f = getMainGeneratedFile(fProjectWrapper, dep);
+			  if (f == null){
 				  return false;
 			  }
 		  }
@@ -482,7 +498,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
  
   
-  private Collection<File> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
+  private Map<String, Collection<File>> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                            final IProgressMonitor monitor) throws CoreException {
 	checkSrcFolders();  
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
@@ -518,19 +534,24 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       // --- when there is a file that imports another one file a bad syntactic error.
       
       
-      
-      final Collection<File> generatedFiles = new LinkedList<File>();
+      final Map<String, Collection<String>> outputFiles = compiler.outputFiles();
+      final Map<String, Collection<File>> generatedFiles = new HashMap<String, Collection<File>>();
       final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
       final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
-      for (final Object outputFile : compiler.flatOutputFiles()) {
-        generatedFiles.add(new File(outputLocation, (String) outputFile));
+      
+      for (final String sourceFile : outputFiles.keySet()) {
+    	  Collection<File> outputs = new ArrayList<File>();
+    	  for(String outputPath: outputFiles.get(sourceFile)){
+    		  outputs.add(new File(outputLocation, outputPath));
+    	  }
+    	  generatedFiles.put(sourceFile, outputs);
       }
       return generatedFiles;
     } catch (InternalCompilerError except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, except);
       // The exception is also pushed on the error queue... A marker will be created accordingly for it.
       sourcesToCompile.clear(); // To prevent post-compilation step.
-      return Collections.emptyList();
+      return Collections.emptyMap();
     } finally {
       analyze(extInfo.scheduler().commandLineJobs());	
       Globals.initialize(null);
