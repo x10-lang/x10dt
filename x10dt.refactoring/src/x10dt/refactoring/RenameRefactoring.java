@@ -370,7 +370,7 @@ public class RenameRefactoring extends X10RefactoringBase {
 
                 parseCtrlr.initialize(declFilePath, srcProject, null);
                 IDocument document= fEditor.getDocumentProvider().getDocument(fileInput);
-                Node declRoot= (Node) parseCtrlr.parse(document.get(), null);
+                Node declRoot= (Node) parseCtrlr.parse(document, null);
 
 //              System.out.println("Root of AST containing declaration: " + declRoot);
                 findDeclaration(declRoot, decl);
