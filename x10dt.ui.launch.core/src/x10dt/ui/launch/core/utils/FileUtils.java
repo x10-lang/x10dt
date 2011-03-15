@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import x10dt.core.utils.IFilter;
+
 /**
  * Utility methods for {@link File}.
  * 

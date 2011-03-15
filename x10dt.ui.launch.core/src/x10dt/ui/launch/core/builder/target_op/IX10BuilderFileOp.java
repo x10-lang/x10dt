@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 
-import x10dt.ui.launch.core.utils.ICountableIterable;
+import x10dt.core.utils.ICountableIterable;
 
 /**
  * Provides file operations useful for X10 builder regarding the X10 generated files.

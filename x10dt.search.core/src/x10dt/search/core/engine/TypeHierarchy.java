@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.db.FactKey;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 
+import x10dt.core.utils.ICountableIterable;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 import x10dt.search.core.elements.ITypeInfo;
@@ -44,7 +45,6 @@ import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.core.pdb.SearchDBTypes;
 import x10dt.search.core.pdb.X10FlagsEncoder.X10;
 import x10dt.search.core.utils.PDBValueUtils;
-import x10dt.ui.launch.core.utils.ICountableIterable;
 
 
 final class TypeHierarchy implements ITypeHierarchy {

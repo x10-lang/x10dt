@@ -19,10 +19,10 @@ import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.ProjectContext;
 import org.eclipse.osgi.util.NLS;
 
+import x10dt.core.utils.CountableIterableFactory;
+import x10dt.core.utils.ICountableIterable;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
-import x10dt.ui.launch.core.utils.CountableIterableFactory;
-import x10dt.ui.launch.core.utils.ICountableIterable;
 
 
 final class X10WorkspaceScope extends AbstractX10SearchScope implements IX10SearchScope {

@@ -9,8 +9,8 @@ package x10dt.ui.launch.core.builder;
 
 import org.eclipse.core.runtime.IPath;
 
+import x10dt.core.utils.IFilter;
 import x10dt.core.utils.X10BundleUtils;
-import x10dt.ui.launch.core.utils.IFilter;
 
 /**
  * Filter selecting the "x10.runtime" packaged plugin.

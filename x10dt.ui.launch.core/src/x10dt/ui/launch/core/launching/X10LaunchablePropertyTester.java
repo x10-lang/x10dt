@@ -5,12 +5,11 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui.launching;
+package x10dt.ui.launch.core.launching;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.eclipse.core.expressions.IPropertyTester;
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IAdaptable;
@@ -18,14 +17,15 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IFileEditorInput;
 
 import polyglot.types.ClassType;
+import x10dt.ui.launching.ResourceToJavaElementAdapter;
 import x10dt.ui.utils.X10Utils;
 
 /**
- * 
+ * Defines the "hasMain" property tester.
  * 
  * @author egeay
  */
-public class X10LaunchablePropertyTester extends PropertyTester implements IPropertyTester {
+public class X10LaunchablePropertyTester extends PropertyTester {
 
   // --- Interface methods implementation
   

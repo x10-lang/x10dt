@@ -63,7 +63,6 @@ import polyglot.frontend.ZipResource;
 import polyglot.visit.NodeVisitor;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
-import x10dt.ui.launch.core.Constants;
 
 
 final class X10FactGenerator implements IFactGenerator, IFactUpdater {
@@ -259,7 +258,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       final Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
       while (zipEntries.hasMoreElements()) {
         final ZipEntry entry = zipEntries.nextElement();
-        if (entry.getName().endsWith(Constants.X10_EXT)) {
+        if (entry.getName().endsWith(".x10")) { //$NON-NLS-1$
           cmpOptBuilder.addSource(isInRuntime ? X10FactTypeNames.RUNTIME : X10FactTypeNames.LIBRARY,
                                               new FileSource(new ZipResource(file, zipFile, entry.getName())));
         }

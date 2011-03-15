@@ -37,6 +37,8 @@ import org.eclipse.imp.pdb.facts.db.FactBase;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 import org.eclipse.imp.pdb.facts.db.context.WorkspaceContext;
 
+import x10dt.core.utils.ICountableIterable;
+import x10dt.core.utils.IFilter;
 import x10dt.search.core.SearchCoreActivator;
 import x10dt.search.core.elements.IFieldInfo;
 import x10dt.search.core.elements.IMethodInfo;
@@ -46,8 +48,6 @@ import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
 import x10dt.search.core.utils.FactBaseUtils;
 import x10dt.search.core.utils.PDBValueUtils;
-import x10dt.ui.launch.core.utils.ICountableIterable;
-import x10dt.ui.launch.core.utils.IFilter;
 
 
 /**

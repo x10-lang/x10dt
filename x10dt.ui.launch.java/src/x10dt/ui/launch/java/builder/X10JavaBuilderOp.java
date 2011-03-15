@@ -11,9 +11,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.JavaCore;
 
+import x10dt.core.utils.ICountableIterable;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import x10dt.ui.launch.core.utils.ICountableIterable;
 
 public class X10JavaBuilderOp implements IX10BuilderFileOp {
 

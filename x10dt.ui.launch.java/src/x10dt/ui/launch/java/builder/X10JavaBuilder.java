@@ -8,10 +8,10 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import x10.ExtensionInfo;
+import x10dt.core.utils.IFilter;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import x10dt.ui.launch.core.utils.IFilter;
 
 public class X10JavaBuilder extends AbstractX10Builder {
 	

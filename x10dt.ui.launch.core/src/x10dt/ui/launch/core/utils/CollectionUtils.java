@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import x10dt.core.utils.ICountableIterable;
+import x10dt.core.utils.IFilter;
+
 /**
  * Utility methods for {@link Collection}.
  * 

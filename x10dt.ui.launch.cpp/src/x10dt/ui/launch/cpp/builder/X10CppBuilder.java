@@ -18,10 +18,10 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import x10.ExtensionInfo;
 import x10cpp.X10CPPCompilerOptions;
+import x10dt.core.utils.IFilter;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import x10dt.ui.launch.core.utils.IFilter;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;

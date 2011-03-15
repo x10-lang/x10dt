@@ -35,7 +35,6 @@ import polyglot.frontend.Source;
 import polyglot.util.ErrorQueue;
 import x10.parser.X10Lexer;
 import x10.parser.X10SemanticRules;
-import x10dt.ui.launch.core.builder.CheckPackageDeclVisitor;
 
 /**
  * Information about our extension of the polyglot compiler. This derives from

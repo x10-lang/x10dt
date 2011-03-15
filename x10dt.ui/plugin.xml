@@ -519,14 +519,4 @@
       <startup
             class="x10dt.ui.EarlyStartup"></startup>
    </extension>
-   <extension
-         point="org.eclipse.core.expressions.propertyTesters">
-      <propertyTester
-            class="x10dt.ui.launching.X10LaunchablePropertyTester"
-            id="x10dt.ui.X10LaunchableTester"
-            namespace="x10dt.ui"
-            properties="hasMain"
-            type="org.eclipse.core.runtime.IAdaptable">
-      </propertyTester>
-   </extension>
 </plugin>

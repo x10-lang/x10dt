@@ -23,8 +23,8 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 import polyglot.visit.PostCompiled;
 import x10cpp.ExtensionInfo;
-import x10dt.ui.launch.core.builder.CheckPackageDeclVisitor;
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.parser.CheckPackageDeclVisitor;
 
 
 final class CppBuilderExtensionInfo extends ExtensionInfo {

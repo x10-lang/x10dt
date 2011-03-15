@@ -1,4 +1,4 @@
-package x10dt.ui.launch.core.builder;
+package x10dt.ui.parser;
 
 import java.io.File;
 
@@ -20,7 +20,7 @@ import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.errors.Errors;
 import x10dt.core.X10DTCorePlugin;
-import x10dt.ui.launch.core.Messages;
+import x10dt.ui.Messages;
 
 public class CheckPackageDeclVisitor extends NodeVisitor {
     private final Job fJob;

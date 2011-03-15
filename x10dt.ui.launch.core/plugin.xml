@@ -10,4 +10,14 @@
             language="x10">
       </toggleBreakpointHandler>
    </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="x10dt.ui.launch.core.launching.X10LaunchablePropertyTester"
+            id="x10dt.ui.X10LaunchableTester"
+            namespace="x10dt.ui"
+            properties="hasMain"
+            type="org.eclipse.core.runtime.IAdaptable">
+      </propertyTester>
+   </extension>
 </plugin>

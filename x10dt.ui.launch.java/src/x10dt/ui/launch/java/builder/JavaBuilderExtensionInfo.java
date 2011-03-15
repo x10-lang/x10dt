@@ -21,8 +21,8 @@ import polyglot.main.Options;
 import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.visit.PostCompiled;
-import x10dt.ui.launch.core.builder.CheckPackageDeclVisitor;
 import x10dt.ui.launch.core.utils.UIUtils;
+import x10dt.ui.parser.CheckPackageDeclVisitor;
 
 public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
     private final X10JavaBuilder fBuilder;

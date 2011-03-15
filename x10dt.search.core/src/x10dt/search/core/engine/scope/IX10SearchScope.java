@@ -9,8 +9,8 @@ package x10dt.search.core.engine.scope;
 
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 
+import x10dt.core.utils.ICountableIterable;
 import x10dt.search.core.engine.X10SearchEngine;
-import x10dt.ui.launch.core.utils.ICountableIterable;
 
 /**
  * Defines where the search should occur when using {@link X10SearchEngine}.

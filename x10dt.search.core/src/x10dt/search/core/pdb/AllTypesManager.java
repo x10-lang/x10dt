@@ -25,9 +25,9 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.visit.NodeVisitor;
+import x10dt.core.utils.IFilter;
 import x10dt.search.core.Messages;
 import x10dt.search.core.facts.FactWriterFactory;
-import x10dt.ui.launch.core.utils.IFilter;
 
 
 
