@@ -462,7 +462,14 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
     final SocketsConf conf = (SocketsConf) super.fCommInterfaceFact.getOrCreate(ciType);
-    conf.fHostList = hostList;
+    final StringBuilder sb = new StringBuilder();
+    for (final String host : hostList) {
+      if (sb.length() > 0) {
+        sb.append(',');
+      }
+      sb.append(host);
+    }
+    conf.fHosts = sb.toString();
   }
   
   public void setShouldUseHostFile(final boolean shouldUseHostFile) {

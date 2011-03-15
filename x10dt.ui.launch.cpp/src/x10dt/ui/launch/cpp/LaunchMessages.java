@@ -435,6 +435,10 @@ public class LaunchMessages extends NLS {
 
   public static String RXBFO_TransferFailureMsg;
 
+  public static String STCP_HostFileText;
+  
+  public static String STCP_HostList;
+
   public static String XCB_ConfigurationError;
 
   public static String XCB_OptionError;

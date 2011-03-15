@@ -587,7 +587,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     final Composite hostPortCompo = toolkit.createComposite(groupCompo, SWT.NONE);
     hostPortCompo.setFont(groupCompo.getFont());
     final TableWrapLayout hostLayout = new TableWrapLayout();
-    hostLayout.numColumns = 4;
+    hostLayout.numColumns = 3;
     hostPortCompo.setLayout(hostLayout);
     hostPortCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
@@ -811,9 +811,9 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     firstGroupControls.add(removeButton);
 
     final TableLayout tableLayout = new TableLayout();
-    tableLayout.addColumnData(new ColumnWeightData(15, 50));
-    tableLayout.addColumnData(new ColumnWeightData(70, 100));
-    tableLayout.addColumnData(new ColumnWeightData(15, 45));
+    tableLayout.addColumnData(new ColumnWeightData(15, 30));
+    tableLayout.addColumnData(new ColumnWeightData(50, 40));
+    tableLayout.addColumnData(new ColumnWeightData(15, 30));
     tableViewer.getTable().setLayout(tableLayout);
     final TableWrapData twData = new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB);
     twData.rowspan = 4;

@@ -202,7 +202,8 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
         if (rmFactory == null) {
           return null;
         }
-        final IRMLaunchConfigurationDynamicTab rmDynamicTab = rmFactory.create(resourceManager, getLaunchConfigurationDialog());
+        final IRMLaunchConfigurationDynamicTab rmDynamicTab = rmFactory.create(resourceManager, 
+                                                                               getLaunchConfigurationDialog());
         if (rmDynamicTab == null) {
           return null;
         }

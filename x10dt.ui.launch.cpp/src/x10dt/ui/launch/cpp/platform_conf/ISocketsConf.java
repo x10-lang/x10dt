@@ -24,11 +24,18 @@ public interface ISocketsConf extends ICommunicationInterfaceConf {
   public String getHostFile();
   
   /**
-   * Returns the list of hosts to use for running.
+   * Returns a comma-separated string of hosts to use for running. Same content as {@link #getHostsAsList()}.
+   * 
+   * @return A non-null, but possibly empty, string.
+   */
+  public String getHosts();
+  
+  /**
+   * Returns the list of hosts to use for running. Same content as {@link #getHosts()}.
    * 
    * @return A non-null, but possibly empty, list.
    */
-  public List<String> getHostList();
+  public List<String> getHostsAsList();
   
   /**
    * Returns if we should use the host file or host list for running with sockets transport.

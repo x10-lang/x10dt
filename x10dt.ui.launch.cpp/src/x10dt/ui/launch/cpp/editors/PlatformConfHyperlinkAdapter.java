@@ -30,7 +30,7 @@ final class PlatformConfHyperlinkAdapter implements IHyperlinkListener {
 
   public void linkActivated(final HyperlinkEvent event) {
     final IMessage[] messages = (IMessage[]) event.data;
-    if (messages.length == 1) {
+    if ((messages.length == 1)  && (messages[0].getKey() instanceof Control)) {
       final Control control = (Control) messages[0].getKey();
       final IFormPage formPage = this.fFormEditor.selectReveal(control);
       if (formPage != null) {

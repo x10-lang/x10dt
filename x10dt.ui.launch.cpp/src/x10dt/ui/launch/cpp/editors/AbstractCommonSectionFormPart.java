@@ -50,7 +50,8 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     if (parent == null) {
       this.fSection = null;
     } else {
-      this.fSection = formToolkit.createSection(parent, Section.DESCRIPTION | ExpandableComposite.TITLE_BAR);
+      this.fSection = formToolkit.createSection(parent, Section.DESCRIPTION | ExpandableComposite.TITLE_BAR |
+                                                ExpandableComposite.LEFT_TEXT_CLIENT_ALIGNMENT);
     }
     this.fFormPage = formPage;
   }

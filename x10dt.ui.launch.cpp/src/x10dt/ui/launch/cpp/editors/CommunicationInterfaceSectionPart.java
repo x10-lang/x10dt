@@ -150,9 +150,8 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
           break;
         }
       }
+      this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
     }
-    
-    this.fCITypeCombo.notifyListeners(SWT.Selection, new Event());
   }
 
   // --- IFormPart's methods implementation
@@ -341,7 +340,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     final Composite comboComposite = toolkit.createComposite(sectionClient);
     comboComposite.setFont(getSection().getFont());
     final TableWrapLayout comboLayout = new TableWrapLayout();
-    comboLayout.numColumns = 4;
+    comboLayout.numColumns = 2;
     comboComposite.setLayout(comboLayout);
     comboComposite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 
@@ -439,6 +438,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       typeConfPart.create(managedForm, toolkit, parent, this);
 
       parent.layout(true, true);
+//      managedForm.reflow(true);
 
       this.fPreviousTypeConfPart = typeConfPart;
 

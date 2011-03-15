@@ -28,9 +28,7 @@ import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration;
-import org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfigurationDefaults;
 import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration;
-import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfigurationDefaults;
 
 import polyglot.types.ClassType;
 import x10dt.core.X10DTCorePlugin;
@@ -40,6 +38,7 @@ import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
+import x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
 /**
@@ -73,26 +72,32 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     
     final String useHostListAttrKey;
     final String hostListAttrKey;
-    if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(platformConf.getCommunicationInterfaceConf().getServiceTypeId())) {
+    final String serviceTypeId = platformConf.getCommunicationInterfaceConf().getServiceTypeId();
+    if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       try {
-        OpenMPILaunchConfigurationDefaults.loadDefaults();
-        setOpenMPIDefaults(workingCopy);
+        new OpenMPIDefaults().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+        
         useHostListAttrKey = OpenMPILaunchConfiguration.ATTR_USEHOSTLIST;
         hostListAttrKey = OpenMPILaunchConfiguration.ATTR_HOSTLIST;
       } catch (CoreException except) {
         CppLaunchCore.log(except.getStatus());
         return;
       }
-    } else if (MPICH2_SERVICE_PROVIDER_ID.equals(platformConf.getCommunicationInterfaceConf().getServiceModeId())) {
+    } else if (MPICH2_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       try {
-        MPICH2LaunchConfigurationDefaults.loadDefaults();
-        setMPICNDefaults(workingCopy);
+        new MPICH2Defaults().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+        
         useHostListAttrKey = MPICH2LaunchConfiguration.ATTR_USEHOSTLIST;
         hostListAttrKey = MPICH2LaunchConfiguration.ATTR_HOSTLIST;
       } catch (CoreException except) {
         CppLaunchCore.log(except.getStatus());
         return;
       }
+    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+      new SocketsDefaults().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+      
+      useHostListAttrKey = null;
+      hostListAttrKey = null;
     } else {
       useHostListAttrKey = null;
       hostListAttrKey = null;
@@ -121,7 +126,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
   
   // --- Overridden methods
   
-  protected void updateLaunchConfig(ILaunchConfigurationWorkingCopy config) throws CoreException {
+  protected void updateLaunchConfig(final ILaunchConfigurationWorkingCopy config) throws CoreException {
     final String projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
@@ -138,43 +143,9 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
   private boolean isOpenMPILaunchConfig(final ILaunchConfiguration config) throws CoreException {
     return config.hasAttribute(OpenMPILaunchConfiguration.ATTR_NUMPROCS);
   }
-
-  private void setMPICNDefaults(final ILaunchConfigurationWorkingCopy workingCopy) throws CoreException {
-    MPICH2LaunchConfigurationDefaults.loadDefaults();
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_NUMPROCS, MPICH2LaunchConfigurationDefaults.ATTR_NUMPROCS);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_NOLOCAL, MPICH2LaunchConfigurationDefaults.ATTR_NOLOCAL);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_PREFIX, MPICH2LaunchConfigurationDefaults.ATTR_PREFIX);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_USEPREFIX, MPICH2LaunchConfigurationDefaults.ATTR_USEPREFIX);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_HOSTFILE, MPICH2LaunchConfigurationDefaults.ATTR_HOSTFILE);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_USEHOSTFILE, MPICH2LaunchConfigurationDefaults.ATTR_USEHOSTFILE);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_HOSTLIST, MPICH2LaunchConfigurationDefaults.ATTR_HOSTLIST);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_USEHOSTLIST, MPICH2LaunchConfigurationDefaults.ATTR_USEHOSTLIST);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_ARGUMENTS, MPICH2LaunchConfigurationDefaults.ATTR_ARGUMENTS);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_USEDEFAULTARGUMENTS, 
-                             MPICH2LaunchConfigurationDefaults.ATTR_USEDEFAULTARGUMENTS);
-    workingCopy.setAttribute(MPICH2LaunchConfiguration.ATTR_USEDEFAULTPARAMETERS, 
-                             MPICH2LaunchConfigurationDefaults.ATTR_USEDEFAULTPARAMETERS);
-  }
   
-  private void setOpenMPIDefaults(final ILaunchConfigurationWorkingCopy workingCopy) throws CoreException {
-    OpenMPILaunchConfigurationDefaults.loadDefaults();
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_NUMPROCS, OpenMPILaunchConfigurationDefaults.ATTR_NUMPROCS);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_USEHOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTLIST);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_HOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_HOSTLIST);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_BYNODE, OpenMPILaunchConfigurationDefaults.ATTR_BYNODE);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_BYSLOT, OpenMPILaunchConfigurationDefaults.ATTR_BYSLOT);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_NOOVERSUBSCRIBE, 
-                             OpenMPILaunchConfigurationDefaults.ATTR_NOOVERSUBSCRIBE);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_NOLOCAL, OpenMPILaunchConfigurationDefaults.ATTR_NOLOCAL);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_PREFIX, OpenMPILaunchConfigurationDefaults.ATTR_PREFIX);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_USEPREFIX, OpenMPILaunchConfigurationDefaults.ATTR_USEPREFIX);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_HOSTFILE, OpenMPILaunchConfigurationDefaults.ATTR_HOSTFILE);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_USEHOSTFILE, OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTFILE);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_ARGUMENTS, OpenMPILaunchConfigurationDefaults.ATTR_ARGUMENTS);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_USEDEFAULTARGUMENTS, 
-                             OpenMPILaunchConfigurationDefaults.ATTR_USEDEFAULTARGUMENTS);
-    workingCopy.setAttribute(OpenMPILaunchConfiguration.ATTR_USEDEFAULTPARAMETERS, 
-                             OpenMPILaunchConfigurationDefaults.ATTR_USEDEFAULTPARAMETERS);
+  private boolean isSocketsLaunchConfig(final ILaunchConfiguration config) throws CoreException {
+    return config.hasAttribute(LaunchConfigConstants.ATTR_NUM_PLACES);    
   }
   
   private void updateCommunicationInterfaceAttributes(final ICommunicationInterfaceConf commIntfConf,
@@ -182,11 +153,15 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     final String serviceTypeId = commIntfConf.getServiceTypeId();
     if (serviceTypeId.equals(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID)) {
       if (! isOpenMPILaunchConfig(config)) {
-        setOpenMPIDefaults(config);
+        new OpenMPIDefaults().setDefaults(config, commIntfConf);
       }
     } else if (serviceTypeId.equals(PTPConstants.MPICH2_SERVICE_PROVIDER_ID)) {
       if (! isMPICH2LaunchConfig(config)) {
-        setMPICNDefaults(config);
+        new MPICH2Defaults().setDefaults(config, commIntfConf);
+      }
+    } else if (serviceTypeId.equals(PTPConstants.SOCKETS_SERVICE_PROVIDER_ID)) {
+      if (! isSocketsLaunchConfig(config)) {
+        new SocketsDefaults().setDefaults(config, commIntfConf);
       }
     }
   }

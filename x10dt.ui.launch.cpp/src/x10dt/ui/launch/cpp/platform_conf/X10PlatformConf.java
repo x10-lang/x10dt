@@ -16,7 +16,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
@@ -510,16 +509,11 @@ class X10PlatformConf implements IX10PlatformConf {
   
   private void load(final IMemento ciMemento, final SocketsConf ciConf) {
     final String hostFile = getTextDataValue(ciMemento, SOCKETS_HOST_FILE);
-    if (hostFile == null) {
+    if (hostFile != null) {
       ciConf.fHostFile = hostFile;
       ciConf.fShouldUseHostFile = true;
     } else {
-      final String hostList = getTextDataValue(ciMemento, SOCKETS_HOST_LIST);
-      if (hostList == null) {
-        ciConf.fHostList = Collections.<String>emptyList();
-      } else {
-        ciConf.fHostList = Arrays.asList(hostList.split(",")); //$NON-NLS-1$
-      }
+      ciConf.fHosts = getTextDataValue(ciMemento, SOCKETS_HOST_LIST);
       ciConf.fShouldUseHostFile = false;
     }
   }
@@ -603,17 +597,9 @@ class X10PlatformConf implements IX10PlatformConf {
   
   private void save(final IMemento ciMemento, final SocketsConf conf) {
     if (conf.shouldUseHostFile()) {
-      ciMemento.putString(SOCKETS_HOST_FILE, conf.getHostFile());
+      ciMemento.createChild(SOCKETS_HOST_FILE).putTextData(conf.getHostFile());
     } else {
-      final StringBuilder sb = new StringBuilder();
-      for (final String host : conf.getHostList()) {
-        if (sb.length() > 0) {
-          sb.append(',');
-        } else {
-          sb.append(host);
-        }
-      }
-      ciMemento.putString(SOCKETS_HOST_LIST, sb.toString());
+      ciMemento.createChild(SOCKETS_HOST_LIST).putTextData(conf.getHosts());
     }
   }
   
@@ -716,7 +702,7 @@ class X10PlatformConf implements IX10PlatformConf {
   
   private static final String SOCKETS_HOST_FILE = "sockets-host-file"; //$NON-NLS-1$
   
-  private static final String SOCKETS_HOST_LIST = "sockets-host-file"; //$NON-NLS-1$
+  private static final String SOCKETS_HOST_LIST = "sockets-host-list"; //$NON-NLS-1$
 
 
   private static final String CPP_COMPILATION_TAG = "cpp-compilation"; //$NON-NLS-1$

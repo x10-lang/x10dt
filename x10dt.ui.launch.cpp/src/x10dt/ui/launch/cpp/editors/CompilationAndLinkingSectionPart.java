@@ -106,6 +106,14 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     if (isValid && shouldDeriveInfo) {
       selectOsAndArchitecture();
       checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
+    } else {
+      handleEmptyTextValidation(this.fCompilerText, LaunchMessages.XPCP_CompilerLabel);
+      handleEmptyTextValidation(this.fCompilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel);
+      handleEmptyTextValidation(this.fArchiverText, LaunchMessages.XPCP_ArchiverLabel);
+      handleEmptyTextValidation(this.fArchivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel);
+      handleEmptyTextValidation(this.fLinkerText, LaunchMessages.XPCP_LinkerLabel);
+      handleEmptyTextValidation(this.fLinkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel);
+      handleEmptyTextValidation(this.fLinkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel);
     }
   }
   

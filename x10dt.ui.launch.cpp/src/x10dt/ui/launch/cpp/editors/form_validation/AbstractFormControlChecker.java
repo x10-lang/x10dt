@@ -25,6 +25,7 @@ public abstract class AbstractFormControlChecker {
   protected final void addMessages(final String messageText, final int type) {
     this.fHeaderMMgr.addMessage(this.fControl, messageText, null /* data */, type);
     this.fPageMMgr.addMessage(this.fControl, messageText, null /* data */, type, this.fControl);
+    this.fPageMMgr.setDecorationPosition(SWT.CENTER);
   }
   
   protected final Control getControl() {
@@ -41,7 +42,6 @@ public abstract class AbstractFormControlChecker {
   protected AbstractFormControlChecker(final IFormPage formPage, final Control control) {
     this.fHeaderMMgr = ((SharedHeaderFormEditor) formPage.getEditor()).getHeaderForm().getMessageManager();
     this.fPageMMgr = formPage.getManagedForm().getMessageManager();
-    this.fPageMMgr.setDecorationPosition(SWT.CENTER);
     this.fControl = control;
   }
   

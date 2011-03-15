@@ -179,7 +179,7 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     final Composite nameCompo = toolkit.createComposite(parent, SWT.NONE);
     nameCompo.setFont(parent.getFont());
     final TableWrapLayout layout = new TableWrapLayout();
-    layout.numColumns = 4;
+    layout.numColumns = 3;
     nameCompo.setLayout(layout);
     nameCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.TOP, 1, 2));
     

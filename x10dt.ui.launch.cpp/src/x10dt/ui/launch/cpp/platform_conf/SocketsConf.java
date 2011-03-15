@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,8 +36,16 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
     return (this.fHostFile == null) ? Constants.EMPTY_STR : this.fHostFile;
   }
   
-  public List<String> getHostList() {
-    return (this.fHostList == null) ? Collections.<String>emptyList() : this.fHostList;
+  public String getHosts() {
+    return this.fHosts;
+  }
+  
+  public List<String> getHostsAsList() {
+    if (this.fHosts == null) {
+      return Collections.<String>emptyList();
+    } else {
+      return Arrays.asList(this.fHosts.split(",")); //$NON-NLS-1$
+    }
   }
   
   public boolean shouldUseHostFile() {
@@ -60,7 +69,7 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
       if (this.fShouldUseHostFile) {
         return CodingUtils.equals(this.fHostFile, rhsObj.fHostFile);
       } else {
-        return getHostList().equals(rhsObj.getHostList());
+        return CodingUtils.equals(this.fHosts, rhsObj.fHosts);
       }
     } else {
       return false;
@@ -68,15 +77,25 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
   }
   
   public int hashCode() {
-    return 65747 + CodingUtils.generateHashCode(3454665, this.fHostFile, this.fHostList);
+    return 65747 + CodingUtils.generateHashCode(3454665, this.fHostFile, this.fHosts);
+  }
+  
+  public String toString() {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(super.toString()).append("\nShould Use HostFile: ").append(this.fShouldUseHostFile) //$NON-NLS-1$
+      .append("\nHost file: ").append(this.fHostFile).append("\nHosts: ").append(this.fHosts); //$NON-NLS-1$ //$NON-NLS-2$
+    return sb.toString();
   }
 
   // --- Private code
   
   SocketsConf() {}
   
-  SocketsConf(final AbstractCommunicationInterfaceConfiguration original) {
+  SocketsConf(final SocketsConf original) {
     super(original);
+    this.fHostFile = original.fHostFile;
+    this.fHosts = original.fHosts;
+    this.fShouldUseHostFile = original.fShouldUseHostFile;
   }
   
   SocketsConf(final IResourceManagerConfiguration rmConf) {
@@ -87,7 +106,7 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
   
   String fHostFile;
   
-  List<String> fHostList;
+  String fHosts;
   
   boolean fShouldUseHostFile;
 

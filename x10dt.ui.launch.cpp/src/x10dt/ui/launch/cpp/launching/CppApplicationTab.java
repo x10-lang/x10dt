@@ -67,10 +67,12 @@ import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
+import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
+import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -144,6 +146,13 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, mainType.first.fullName().toString());
         }
       } catch (Exception except) {
+        // Simply forgets.
+      }
+      
+      final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(context.getProject());
+      try {
+        initCommunicationInterfaceDefaults(configuration, platformConf.getCommunicationInterfaceConf());
+      } catch (CoreException except) {
         // Simply forgets.
       }
     }
@@ -423,6 +432,17 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
     final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
     return TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
+  }
+  
+  private void initCommunicationInterfaceDefaults(final ILaunchConfigurationWorkingCopy config,
+                                                  final ICommunicationInterfaceConf ciConf) throws CoreException {
+    if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
+      new OpenMPIDefaults().setDefaults(config, ciConf);
+    } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
+      new MPICH2Defaults().setDefaults(config, ciConf);
+    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
+      new SocketsDefaults().setDefaults(config, ciConf);
+    }
   }
 
   private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, 
