@@ -38,6 +38,8 @@
     <propertyref name="skipDirector"/>
     <propertyref name="skipMirroring"/>
     <propertyref name="topLevelElementId"/>
+    <propertyref name="x10.tag"/>
+    <propertyref name="x10.revision"/>
     <propertyref name="x10dt.tag"/>
     <propertyref name="x10dt.revision"/>
   </propertyset>

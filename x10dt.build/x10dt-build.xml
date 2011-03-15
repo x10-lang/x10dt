@@ -63,6 +63,17 @@
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.effects" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
     </svn>
+    <!-- Substitute the SVN revision of the X10 core projects into an X10DT source file -->
+    <property name="x10dt.core.activator.file"
+              value="${build.folder}/x10dt.core/src/x10dt/core/X10DTCorePlugin.java"/>
+    <loadfile srcfile="${x10dt.core.activator.file}"
+              property="x10dt.core.plugin.source.replaced">
+      <filterchain>
+        <replaceregex pattern="&quot;%%x10.core.revision%%&quot;" replace="&quot;${x10.revision}&quot;" />
+        <replaceregex pattern="&quot;%%x10.core.tag%%&quot;" replace="&quot;${x10.tag}&quot;" />
+      </filterchain>
+    </loadfile>
+    <echo message="${x10dt.core.plugin.source.replaced}" file="${x10dt.core.activator.file}"/>
   </target>
 
   <target name="pre-build" unless="skipMirroring">
