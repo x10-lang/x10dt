@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Core Launch
 Bundle-SymbolicName: x10dt.ui.launch.core;singleton:=true
-Bundle-Version: 2.1.2.qualifier
+Bundle-Version: 2.2.0.qualifier
 Bundle-Localization: plugin
 Bundle-Activator: x10dt.ui.launch.core.LaunchCore
 Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
@@ -22,7 +22,8 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  org.eclipse.ui.ide,
  x10.common,
  x10.compiler,
- x10dt.core
+ x10dt.core,
+ x10dt.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: x10dt.ui.launch.core,
