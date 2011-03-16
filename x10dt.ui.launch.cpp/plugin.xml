@@ -188,7 +188,7 @@
                            <adapt
                                  type="org.eclipse.core.resources.IResource">
                               <test
-                                    property="x10dt.ui.hasMain">
+                                    property="x10dt.ui.hasMain" args="run">
                               </test>
                            </adapt>
                            <adapt
