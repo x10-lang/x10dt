@@ -54,6 +54,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       super.fCommInterfaceFact.defineCurrentCommInterfaceType(SOCKETS_SERVICE_PROVIDER_ID);
       ciConf.fServiceTypeId = SOCKETS_SERVICE_PROVIDER_ID;
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+      ((SocketsConf) ciConf).fHosts = "localhost"; //$NON-NLS-1$
     }
     if (this.fConnectionConf.fIsLocal) {
       initLocalCppCompilationCommands();
