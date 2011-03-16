@@ -266,6 +266,10 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     
     // --- Code for subclasses
     
+    protected final Text getText() {
+      return this.fText;
+    }
+    
     protected void updateText(final String path) {
       this.fText.setText(path);
     }
@@ -306,6 +310,10 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
     }
     
     // --- Code for subclasses
+    
+    protected final Text getText() {
+      return this.fText;
+    }
     
     protected void updateText(final String path) {
       this.fText.setText(path);

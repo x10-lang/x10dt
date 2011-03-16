@@ -243,8 +243,10 @@ class X10PlatformConf implements IX10PlatformConf {
   public final boolean equals(final Object rhs) {
     final X10PlatformConf rhsObj = (X10PlatformConf) rhs;
     if (CodingUtils.equals(this.fName, rhsObj.fName)) {
-      return Arrays.equals(new Object[] { this.fConnectionConf, this.fCommInterfaceFact, this.fCppCompilationConf },
-                           new Object[] { rhsObj.fConnectionConf, rhsObj.fCommInterfaceFact, rhsObj.fCppCompilationConf });
+      return Arrays.equals(new Object[] { this.fConnectionConf, this.fCommInterfaceFact, this.fCppCompilationConf,
+                                          this.fDebuggingInfoConf },
+                           new Object[] { rhsObj.fConnectionConf, rhsObj.fCommInterfaceFact, rhsObj.fCppCompilationConf,
+                                          rhsObj.fDebuggingInfoConf });
     } else {
       return false;
     }
@@ -252,7 +254,7 @@ class X10PlatformConf implements IX10PlatformConf {
   
   public final int hashCode() {
     return CodingUtils.generateHashCode(565, this.fName, this.fDescription, this.fConnectionConf, this.fCommInterfaceFact,
-                                        this.fCppCompilationConf);
+                                        this.fCppCompilationConf, this.fDebuggingInfoConf);
   }
   
   public final String toString() {

@@ -24,8 +24,8 @@ public abstract class AbstractFormControlChecker {
   
   protected final void addMessages(final String messageText, final int type) {
     this.fHeaderMMgr.addMessage(this.fControl, messageText, null /* data */, type);
-    this.fPageMMgr.addMessage(this.fControl, messageText, null /* data */, type, this.fControl);
     this.fPageMMgr.setDecorationPosition(SWT.CENTER);
+    this.fPageMMgr.addMessage(this.fControl, messageText, null /* data */, type, this.fControl);
   }
   
   protected final Control getControl() {

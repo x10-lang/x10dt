@@ -29,6 +29,7 @@ import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
+import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.platform_conf.IDebuggingInfoConf;
 
@@ -51,15 +52,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
                                 final EValidationStatus validationStatus, final boolean shouldDeriveInfo) {
-    for (final Control control : this.fControlsAffectedByLocalRM) {
-      control.setEnabled(! isLocal);
-    }
-    if (! isLocal) {
-      getPlatformConf().setDebuggerFolder(this.fDebuggerFolderText.getText().trim());
-      getPlatformConf().setDebuggingPort(this.fPortSpinner.getSelection());
-    }
-    this.fBrowseBt.setEnabled(! isLocal && validationStatus == EValidationStatus.VALID);
-    setPartCompleteFlag(hasCompleteInfo());
+    this.fBrowseBt.setEnabled(validationStatus == EValidationStatus.VALID);    
   }
   
   // --- IFormPart's interface methods implementation
@@ -79,6 +72,8 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     final IDebuggingInfoConf debuggingInfoConf = getPlatformConf().getDebuggingInfoConf();
     this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
     this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
+    
+    handlePathValidation(this.fDebuggerFolderText, LaunchMessages.DSP_DebuggerFolder);
   }
   
   protected void postPagesCreation() {
@@ -98,8 +93,9 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
       
       public void modifyText(final ModifyEvent event) {
         getPlatformConf().setDebuggerFolder(debuggerFolderText.getText());
-        setPartCompleteFlag(hasCompleteInfo());
+        
         updateDirtyState(managedForm);
+        setPartCompleteFlag(hasCompleteInfo());
       }
       
     });
@@ -107,8 +103,9 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
       
       public void modifyText(final ModifyEvent event) {
         getPlatformConf().setDebuggingPort(portSpinner.getSelection());
-        setPartCompleteFlag(hasCompleteInfo());
+        
         updateDirtyState(managedForm);
+        setPartCompleteFlag(hasCompleteInfo());
       }
       
     });
@@ -123,11 +120,12 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     sectionClient.setFont(getSection().getFont());
     sectionClient.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
 
-    final Pair<Text, Button> pair = createLabelTextBrowseBt(sectionClient, LaunchMessages.DSP_DebuggerFolder, 
-                                                            LaunchMessages.XPCP_BrowseBt, toolkit, 
-                                                            this.fControlsAffectedByLocalRM);
+    final Pair<Text, Button> pair = SWTFormUtils.createLabelTextButton(sectionClient, LaunchMessages.DSP_DebuggerFolder, 
+                                                                       LaunchMessages.XPCP_BrowseBt, toolkit, 
+                                                                       this.fControlsAffectedByLocalRM);
     this.fDebuggerFolderText = pair.first;
     this.fBrowseBt = pair.second;
+    this.fBrowseBt.addSelectionListener(new DebuggingSectionBrowseSelectionListener(this.fDebuggerFolderText));
     
     final Composite twoColsCompo = toolkit.createComposite(sectionClient);
     final TableWrapLayout twoColsLayout = new TableWrapLayout();
@@ -179,6 +177,23 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
   
   private boolean hasCompleteInfo() {
     return true;
+  }
+  
+  // --- Private classes
+  
+  private class DebuggingSectionBrowseSelectionListener extends DirectoryDialogSelectionListener {
+
+    DebuggingSectionBrowseSelectionListener(final Text text) {
+      super(text);
+    }
+    
+    // --- Overridden methods
+    
+    protected void updateText(final String path) {
+      super.updateText(path);
+      handlePathValidation(getText(), LaunchMessages.DSP_DebuggerFolder);
+    }
+    
   }
   
   // --- Fields
