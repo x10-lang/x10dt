@@ -50,14 +50,18 @@ public class LaunchImages {
   // --- Public services
   
   /**
-   * Creates the descriptor for a given image file name. This version caches the image in the {@link ImageRegistry}.
+   * Finds (from the registry) or creates the descriptor for a given image file name. This version caches the image 
+   * in the {@link ImageRegistry}.
    * 
    * @param imagePath The relative path to the image for which one wants the descriptor.
    * @return A non-null instance of {@link ImageDescriptor}.
    */
-  public static ImageDescriptor createManaged(final String imagePath) {
-    final ImageDescriptor descriptor = createUnmanaged(imagePath);
-    fImageRegistry.put(imagePath, descriptor);
+  public static ImageDescriptor findOrCreateManaged(final String imagePath) {
+    ImageDescriptor descriptor = fImageRegistry.getDescriptor(imagePath);
+    if (descriptor == null) {
+      descriptor = createUnmanaged(imagePath);
+      fImageRegistry.put(imagePath, descriptor);
+    }
     return descriptor;
   }
   

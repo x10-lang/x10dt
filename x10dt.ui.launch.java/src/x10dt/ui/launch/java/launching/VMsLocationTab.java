@@ -87,10 +87,10 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   VMsLocationTab(final PlacesAndHostsTab placesAndHostsTab) {
     this.fPlacesAndHostsTab = placesAndHostsTab;
     LaunchJavaImages.createManaged(LaunchJavaImages.VMS_LOCATION);
-    LaunchImages.createManaged(LaunchImages.RM_STOPPED);
-    LaunchImages.createManaged(LaunchImages.RM_STARTED);
-    LaunchImages.createManaged(LaunchImages.RM_STARTING);
-    LaunchImages.createManaged(LaunchImages.RM_ERROR);
+    LaunchImages.findOrCreateManaged(LaunchImages.RM_STOPPED);
+    LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTED);
+    LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTING);
+    LaunchImages.findOrCreateManaged(LaunchImages.RM_ERROR);
   }
   
   // --- Interface methods implementation

@@ -84,10 +84,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     getSection().setDescription(LaunchMessages.RMCP_ConnectionSectionDescr);
     getSection().setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
-    CppLaunchImages.createManaged(CppLaunchImages.VALID_CONNECTION);
-    CppLaunchImages.createManaged(CppLaunchImages.INVALID_CONNECTION);
-    CppLaunchImages.createManaged(CppLaunchImages.UNKOWN_CONNECTION);
-    CppLaunchImages.createManaged(CppLaunchImages.CUR_CONNECTION);
+    CppLaunchImages.findOrCreateManaged(CppLaunchImages.VALID_CONNECTION);
+    CppLaunchImages.findOrCreateManaged(CppLaunchImages.INVALID_CONNECTION);
+    CppLaunchImages.findOrCreateManaged(CppLaunchImages.UNKOWN_CONNECTION);
+    CppLaunchImages.findOrCreateManaged(CppLaunchImages.CUR_CONNECTION);
     
     this.fConnectionTypeListeners = new ArrayList<IConnectionTypeListener>();
     this.fValidationListeners = new ArrayList<IX10PlatformValidationListener>();
