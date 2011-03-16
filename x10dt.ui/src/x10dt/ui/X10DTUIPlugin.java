@@ -1,14 +1,13 @@
 /*******************************************************************************
-* Copyright (c) 2008 IBM Corporation.
-* All rights reserved. This program and the accompanying materials
-* are made available under the terms of the Eclipse Public License v1.0
-* which accompanies this distribution, and is available at
-* http://www.eclipse.org/legal/epl-v10.html
-*
-* Contributors:
-*    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
-
-*******************************************************************************/
+ * Copyright (c) 2008 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
+ *******************************************************************************/
 
 /*
  * (C) Copyright IBM Corporation 2007
@@ -56,12 +55,12 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
 	private ImageDescriptorRegistry fImageDescriptorRegistry;
 
     public X10DTUIPlugin() {
-	super();
-	sInstance= this;
+        super();
+        sInstance= this;
     }
 
     public static X10DTUIPlugin getInstance() {
-	return sInstance;
+        return sInstance;
     }
 
 	public void maybeWriteInfoMsg(String msg) {
@@ -107,11 +106,11 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
     private static URL fgIconBaseURL= null;
 
     private static URL makeIconFileURL(String name) throws MalformedURLException {
-	if (fgIconBaseURL == null)
-	    sInstance.initImageRegistry();
+        if (fgIconBaseURL == null)
+            sInstance.initImageRegistry();
 //	    throw new MalformedURLException();
 
-	return new URL(fgIconBaseURL, name);
+        return new URL(fgIconBaseURL, name);
     }
 
     public static ImageDescriptor create(String name) {
@@ -151,7 +150,7 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
 	}
     
     /**
-	 * Creates the Java plug-in's standard groups for view context menus.
+	 * Creates the X10DT's standard groups for view context menus.
 	 *
 	 * @param menu the menu manager to be populated
 	 */
@@ -191,6 +190,4 @@ public class X10DTUIPlugin extends AbstractUIPlugin {
 		
 		super.stop(context);
 	}
-    
-	
 }
