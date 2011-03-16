@@ -45,6 +45,22 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   }
   
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) {
+    final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
+    if (! EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI()).fetchInfo().exists()) {
+      final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
+      final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
+      platformConfWorkCopy.initializeToDefaultValues(project);
+      platformConfWorkCopy.applyChanges();
+
+      try {
+        X10PlatformConfFactory.save(platformConfFile, platformConfWorkCopy);
+      } catch (CoreException except) {
+        DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
+                      .createAndOpen(shellProvider, LaunchMessages.CBEPC_PlatformConfSavingErrTitle, 
+                                     LaunchMessages.CBEPC_PlatformConfSavingErrMsg);
+      }
+    }
+    
     final IJavaProject javaProject = JavaCore.create(project);
     final Collection<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
     try {
@@ -65,21 +81,6 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   }
 
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {
-    final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
-    if (! EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI()).fetchInfo().exists()) {
-      final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
-      final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
-      platformConfWorkCopy.initializeToDefaultValues(project);
-      platformConfWorkCopy.applyChanges();
-
-      try {
-        X10PlatformConfFactory.save(platformConfFile, platformConfWorkCopy);
-      } catch (CoreException except) {
-        DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
-                      .createAndOpen(shellProvider, LaunchMessages.CBEPC_PlatformConfSavingErrTitle, 
-                                     LaunchMessages.CBEPC_PlatformConfSavingErrMsg);
-      }
-    }
   }
 
 }
