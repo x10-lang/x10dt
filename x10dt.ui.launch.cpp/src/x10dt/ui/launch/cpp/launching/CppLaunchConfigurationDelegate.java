@@ -35,6 +35,8 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.imp.preferences.PreferencesService;
+import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.AttributeManager;
@@ -62,6 +64,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import x10cpp.X10CPPCompilerOptions;
 import x10cpp.visit.MessagePassingCodeGenerator;
+import x10dt.core.preferences.generated.X10Constants;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.ui.launch.core.Constants;
@@ -100,6 +103,15 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
 
       final IProject project = verifyProject(configuration);
+
+      // The following check shouldn't be necessary, since this ILaunchConfigurationDelegate implementation
+      // isn't used for debug-mode launches. I.e., we should never get here in that case.
+      if (ILaunchManager.DEBUG_MODE.equals(mode) && !new PreferencesService(project).getBooleanPreference(X10Constants.P_DEBUG)) {
+          ErrorDialog.openError(null, "Unable to launch programs without debugging information",
+                  "The application was built without the necessary debug information. Turn on the Debug preference to re-build with that information.",
+                  new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, ""));
+          return;
+      }
       if (!monitor.isCanceled() && shouldProcessToLinkStep(project) &&
           createExecutable(configuration, project, new SubProgressMonitor(monitor, 5)) == 0) {
         // Then, performs the launch.
@@ -236,7 +248,6 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     }
   }
 
-  @SuppressWarnings("null")
   protected AttributeManager getAttributeManager(final ILaunchConfiguration configuration, final String mode,
                                                  final IProgressMonitor monitor) throws CoreException {
     try {
