@@ -5,6 +5,7 @@ package x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -52,7 +53,7 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 
 		BooleanFieldEditor Debug = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
-			"instance", "Debug", "Generate debugging symbols",
+			"instance", "Debug", "Generate debug information. If disabled, it will not be possible to debug the resulting executables.",
 			"",
 			parent,
 			true, true,

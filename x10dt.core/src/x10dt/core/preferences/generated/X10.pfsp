@@ -45,7 +45,10 @@ page X10.Formatting {
 page X10.Compiler {
     fields {
 	        boolean ConservativeBuild { defvalue false; tooltip "When rebuilding, include all files that have no generated files"; }
-		        boolean Debug { label "Generate debugging symbols"; defvalue true; }
+		        boolean Debug {
+		 	       			 	 	  label "Generate debug information. If disabled, it will not be possible to debug the resulting executables.";
+		          	  			defvalue true;
+		        			}
         boolean PermitAssert { label "Permit asserts"; defvalue true; }
         boolean StaticCalls  { label "Strict static call checking"; defvalue false; }
         boolean VerboseCalls { label "Emit warnings for casts inserted at dynamically-checked calls"; defvalue false; }

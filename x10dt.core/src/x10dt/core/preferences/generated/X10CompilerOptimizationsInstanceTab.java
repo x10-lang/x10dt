@@ -5,6 +5,7 @@ package x10dt.core.preferences.generated;
 
 import java.util.List;
 import java.util.ArrayList;
+import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
