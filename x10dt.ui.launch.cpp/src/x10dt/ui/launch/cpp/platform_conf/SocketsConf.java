@@ -37,7 +37,7 @@ final class SocketsConf extends AbstractCommunicationInterfaceConfiguration impl
   }
   
   public String getHosts() {
-    return this.fHosts;
+    return (this.fHosts == null) ? Constants.EMPTY_STR : this.fHosts;
   }
   
   public List<String> getHostsAsList() {
