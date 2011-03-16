@@ -26,6 +26,7 @@ import java.util.Stack;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
+import org.eclipse.help.internal.base.BaseHelpSystem;
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
 import org.eclipse.imp.parser.SimpleLPGParseController;
@@ -87,6 +88,17 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     
 	private final static boolean EMPTY_PREFIX_MATCHES = true;
 	
+    private static final String HELP_PLUGIN_ID = "x10dt.help";
+    private static final String LANG_REF_PREFIX = "/html/langref/";
+
+    private static String getHelpURL(String pluginDocPath) {
+        return BaseHelpSystem.resolve("/" + HELP_PLUGIN_ID + "/" + pluginDocPath, true).toString();
+    }
+
+    private static String getLangRefURL(String section) {
+        return getHelpURL(LANG_REF_PREFIX + section);
+    }
+
 	private boolean emptyPrefixTest(boolean emptyPrefixMatches, String prefix){
 		if (!emptyPrefixMatches)
 			return !prefix.equals("");
@@ -123,24 +135,24 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 		return false;
 	}
 
-	private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {//PORT1.7 2nd arg was List<ReferenceType>
+	private void filterClasses(List<ClassType> classes, List<ClassType> in_classes, String prefix, boolean emptyPrefixMatches) {
         for(ObjectType r: in_classes) {
             ClassType c= r.toClass();
-            String name= c.name().toString();  // PORT1.7 name() replaced with name().toString()
+            String name= c.name().toString();
             if (emptyPrefixTest(emptyPrefixMatches, prefix) && name.startsWith(prefix)) {
                 classes.add(c);
             }
         }
     }
-    // PORT1.7  this should probably take a Type instead of a ReferenceType arg.  cast to StructType or ObjectType to get at what we need now
-    private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix, boolean emptyPrefixMatches) {// PORT1.7 ReferenceType replaced with Type
+
+    private void getFieldCandidates(Type container_type, List<FieldInstance> fields, String prefix, boolean emptyPrefixMatches) {
 		if (container_type == null)
 			return;
 
 		if (container_type instanceof ObjectType) {
 			ObjectType oType = (ObjectType) container_type;
 
-			filterFields(fields, oType.fields(), prefix, emptyPrefixMatches); // PORT1.7 ReferenceType.fields()->ObjectType.fields()
+			filterFields(fields, oType.fields(), prefix, emptyPrefixMatches);
 
 			for (int i = 0; i < oType.interfaces().size(); i++) {
 				ObjectType interf = (ObjectType) oType.interfaces().get(i);
@@ -151,7 +163,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 		}
 	}
 
-    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix, boolean emptyPrefixMatches) {//PORT1.7 ReferenceType->ObjectType
+    private void getMethodCandidates(ObjectType container_type, List<MethodInstance> methods, String prefix, boolean emptyPrefixMatches) {
         if (container_type == null)
             return;
 
@@ -208,11 +220,12 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private final Template fVariableDeclaration = new Template("var", "mutable variable/field declaration", CONTEXT_ID, "var ${name}:${typename};", false );
     private final Template fValueDeclaration = new Template("val", "immutable variable/field declaration", CONTEXT_ID, "val ${name} = ${expression};", false );
     /* CHANGED */ private final Template fMethodTemplate = new Template("def", "method declaration", CONTEXT_ID, "def ${name}(${x}:${typename1}){${constraint}}:${typename2} {  }", false );
-    private final Template fMainMethod = new Template("main method", "main method", CONTEXT_ID, "public static def main(argv:Array[String](1)) {  }", false);   
-    private final Template fConstructorTemplate = new Template("this", "constructor declaration", CONTEXT_ID, "def this(${name}:${typename}) {  }", false);
+    private final Template fMainMethod = new Template("main method", "main method", CONTEXT_ID, "public static def main(argv:Array[String]) {  }", false);   
+    private final Template fConstructorTemplate = new Template("this", "constructor declaration", CONTEXT_ID, "def this(${argname}:${argtype}) {  }", false);
     private final Template fStructTemplate = new Template("struct", "struct declaration", CONTEXT_ID, "struct ${name} {  }", false );
-    private final Template fCovariantGeneric = new Template("[+X]", "generic type, covariant parameter", CONTEXT_ID, "[+${X}]", false);
-    private final Template fContravariantGeneric = new Template("[-X]", "generic type, contravariant parameter", CONTEXT_ID, "[-${X}]", false);
+    private final Template fGenericParameter = new Template("[X]", "generic type parameter", CONTEXT_ID, "[${X}]", false);
+//    private final Template fCovariantGeneric = new Template("[+X]", "generic type, covariant parameter", CONTEXT_ID, "[+${X}]", false);
+//    private final Template fContravariantGeneric = new Template("[-X]", "generic type, contravariant parameter", CONTEXT_ID, "[-${X}]", false);
     private final Template fDependentTypeDeclaration = new Template("dependent type", "class declaration with property", CONTEXT_ID, "class ${name}(${x}:${typename}) { def this(${x}:${typename}){ property(${x}); } }", false);
     private final Template fTypeDefinition = new Template("type", "type definition", CONTEXT_ID, "type ${name1} = ${name2};", false);
     private final Template fFunctionType = new Template("function", "function definition", CONTEXT_ID, "var ${fname}:(${T1},${T2}) => ${T} = (${x1}:${T1}, ${x2}:${T2}) => ${expression};", false);
@@ -263,51 +276,56 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     };
     
     
-    private final String fArrayNewInfo = "\n\nNew Array";
-    private final String fArrayAccessInfo = "\n\n Array access";
-    private final String fCoercionInfo = "\n\nCoercion";
-    private final String fAsyncInfo = "\n\nAsync statement";
-    private final String fAtStatementInfo = "\n\nAt statement";
-    private final String fAtEachInfo = "\n\nAteach statement";
-    private final String fAtomicInfo = "\n\nAtomic statement";
-    private final String fClockedInfo = "\n\nClocked statement";
-    private final String fConstrainedInfo = "\n\nConstrained type";
-    private final String fFinishInfo = "\n\nFinish statement";
-    private final String fFunctionTypeInfo = "\n\nFunction Type";
-    private final String fRegion1DInfo = "\n\n1-D region";
-    private final String fRegion2DInfo = "\n\n2-D Region";
-    private final String fTypeDefinitionInfo = "\n\nType definition";
-    private final String fValueInfo = "\n\nValue declaration";
-    private final String fVariableInfo = "\n\nVariable declaration";
-    private final String fWhenInfo = "\n\nWhen statement";
-    private final String fPropertyInfo = "\n\n Property declaration";
-    private final String fClassInfo = "\n\n Class declaration";
-    private final String fPrintInfo = "\n\n Print statement";
-    
     private static final Map<Template,String> infos = new HashMap<Template,String>();
    
     {
-    	infos.put(fArrayNewTemplate, fArrayNewInfo);
-    	infos.put(fArrayAccessTemplate, fArrayAccessInfo);
-    	infos.put(fCoercionTemplate, fCoercionInfo);
-    	infos.put(fAsyncTemplate, fAsyncInfo);
-    	infos.put(fAtStatementTemplate, fAtStatementInfo);
-    	infos.put(fAtEachTemplate, fAtEachInfo);
-    	infos.put(fAtomicTemplate, fAtomicInfo);
-    	infos.put(fClockedStatement, fClockedInfo);
-    	infos.put(fConstrainedType, fConstrainedInfo);
-    	infos.put(fFinishTemplate, fFinishInfo);
-    	infos.put(fFunctionType, fFunctionTypeInfo);
-    	infos.put(fRegion1DTemplate, fRegion1DInfo);
-    	infos.put(fRegion2DTemplate, fRegion2DInfo);
-    	infos.put(fTypeDefinition, fTypeDefinitionInfo);
-    	infos.put(fValueDeclaration, fValueInfo);
-    	infos.put(fVariableDeclaration, fVariableInfo);
-    	infos.put(fWhenTemplate, fWhenInfo);
-    	infos.put(fPropertyDeclaration, fPropertyInfo);
-    	infos.put(fClassTemplate, fClassInfo);
-    	infos.put(fPrintTemplate, fPrintInfo);
+    	infos.put(fArrayNewTemplate,    "New Array");
+    	infos.put(fArrayAccessTemplate, "Array access");
+    	infos.put(fCoercionTemplate,    "Coercion");
+    	infos.put(fAsyncTemplate,       "Async statement");
+    	infos.put(fAtStatementTemplate, "At statement");
+    	infos.put(fAtEachTemplate,      "Ateach statement");
+    	infos.put(fAtomicTemplate,      "Atomic statement");
+    	infos.put(fClockedStatement,    "Clocked statement");
+    	infos.put(fConstrainedType,     "Constrained type");
+    	infos.put(fFinishTemplate,      "Finish statement");
+    	infos.put(fFunctionType,        "Function Type");
+    	infos.put(fRegion1DTemplate,    "1-D region");
+    	infos.put(fRegion2DTemplate,    "2-D Region");
+    	infos.put(fTypeDefinition,      "Type definition");
+    	infos.put(fValueDeclaration,    "Value declaration");
+    	infos.put(fVariableDeclaration, "Variable declaration");
+    	infos.put(fWhenTemplate,        "When statement");
+    	infos.put(fPropertyDeclaration, "Property declaration");
+    	infos.put(fClassTemplate,       "Class declaration");
+    	infos.put(fPrintTemplate,       "Print statement");
     }
+
+    private static final Map<Template,String> templateLangRefPages = new HashMap<Template,String>();
+
+    {
+        templateLangRefPages.put(fArrayNewTemplate,    "arr-initializer.html");
+        templateLangRefPages.put(fArrayAccessTemplate, "arr-ops.html");
+        templateLangRefPages.put(fCoercionTemplate,    "exp-coercions.html");
+        templateLangRefPages.put(fAsyncTemplate,       "act-spawn.html");
+        templateLangRefPages.put(fAtStatementTemplate, "act-placechanging.html");
+        templateLangRefPages.put(fAtEachTemplate,      "act-ateach.html");
+        templateLangRefPages.put(fAtomicTemplate,      "act-atomicblocks.html");
+        templateLangRefPages.put(fClockedStatement,    "clocks.html");
+        templateLangRefPages.put(fConstrainedType,     "type-constrained.html");
+        templateLangRefPages.put(fFinishTemplate,      "act-finish.html");
+        templateLangRefPages.put(fFunctionType,        "functions.html");
+        templateLangRefPages.put(fRegion1DTemplate,    "arr-regions.html");
+        templateLangRefPages.put(fRegion2DTemplate,    "arr-regions.html");
+        templateLangRefPages.put(fTypeDefinition,      "typ-typedefs.html");
+        templateLangRefPages.put(fValueDeclaration,    "var-final.html");
+        templateLangRefPages.put(fVariableDeclaration, "var-localvars.html");
+        templateLangRefPages.put(fWhenTemplate,        "act-atomicblocks.html");
+        templateLangRefPages.put(fPropertyDeclaration, "cla-properties.html");
+        templateLangRefPages.put(fClassTemplate,       "cla-principles.html");
+        templateLangRefPages.put(fPrintTemplate,       "");
+    }
+
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer) {
     	
         ArrayList<ICompletionProposal> list= new ArrayList<ICompletionProposal>();
@@ -358,7 +376,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         		type = ((FieldAssign)parent).target().type();
         	}
         	if (type != null && type.isReference()){
-        		getCandidates((ObjectType) type, list, prefix, offset, true);//PORT1.7 RefType->ObjectType. can we guarantee it's an ObjectType?
+        		getCandidates((ObjectType) type, list, prefix, offset, true);
         	}
         
         //The next case completes an Id with names in scope  
@@ -406,7 +424,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
             //add type parameter in a class declaration
             if (location instanceof ClassDecl && previousNode instanceof CanonicalTypeNode &&  
             		offset == previousToken.getEndOffset() + 1){
-           		Template[] templates = new Template[]{fContravariantGeneric, fCovariantGeneric};
+           		Template[] templates = new Template[]{fGenericParameter};
         		addTemplateProposals(offset, viewer, list, prefix, templates);
             }
         }
@@ -486,16 +504,25 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         }
     }
     
-    private String createHtml(Template template){
+    private String createHtml(Template template) {
     	StringBuffer buffer= new StringBuffer();
     	HTMLPrinter.insertPageProlog(buffer, 0);
     	buffer.append(X10BrowserInformationControlInput.PATTERN); //Ugly HACK!!! need a placeholder for pattern (it will be evaluated later).
     	//String base = "PLUGINS_ROOT/x10dt.help/html/langref/variables.html";
-    	String langrefurl = "http://dist.codehaus.org/x10/documentation/languagespec/x10-latest.pdf";
-    	if (infos.get(template) != null) 
-    		buffer.append("\n<h4>"+ infos.get(template) + "</h4>\n"); 
+
+    	String langRefURL = getHelpURL(LANG_REF_PREFIX + "toc.html");
+    	String templateInfo = infos.get(template);
+        String templateLangRefPage = templateLangRefPages.get(template);
+
+    	if (templateInfo != null)
+    		buffer.append("\n\n\n<h4>"+ templateInfo + "</h4>\n"); 
     	else buffer.append("\n<h4></h4>\n");
-		buffer.append("\n<a href=\"" + langrefurl + "\">X10 Language Reference</a>\n");
+
+        if (templateLangRefPage != null && templateLangRefPage.length() > 0) {
+    	    buffer.append("\n<a href=\"" + getLangRefURL(templateLangRefPage) + "\">" + " relevant section in the X10 Language Reference</a>\n");
+    	} else {
+    	    buffer.append("<a href=\"" + langRefURL + "\">X10 Language Reference</a>\n");
+    	}
 		HTMLPrinter.addPageEpilog(buffer);
 		return buffer.toString();
     }

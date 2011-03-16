@@ -7,11 +7,12 @@ public class X10BrowserInformationControlInput extends BrowserInformationControl
 	String fHtml;
 	String fName;
 	
-	public X10BrowserInformationControlInput(X10BrowserInformationControlInput previous, String html, String name){
+	public X10BrowserInformationControlInput(X10BrowserInformationControlInput previous, String html, String name) {
 		super(previous);
 		fHtml = html;
 		fName = name;
 	}
+
 	@Override
 	public String getHtml() {
 		return fHtml;
@@ -27,10 +28,10 @@ public class X10BrowserInformationControlInput extends BrowserInformationControl
 		return fName;
 	}
 	
-	public void addToHtml(String info){
-		int here = fHtml.indexOf(PATTERN);
-		if (here == -1) return; //placeholder has already been replaced
-		fHtml = fHtml.substring(0, here) +info + "\n\n\n" + fHtml.substring(here+8);
+	public void addToHtml(String info) {
+		int patIdx = fHtml.indexOf(PATTERN);
+		if (patIdx == -1) return; //placeholder has already been replaced
+		fHtml = fHtml.substring(0, patIdx) +info + "\n\n\n" + fHtml.substring(patIdx + PATTERN.length() + 1);
 		
 	}
 }
