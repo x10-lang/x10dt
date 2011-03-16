@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -21,10 +22,12 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.imp.editor.UniversalEditor;
+import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
@@ -40,6 +43,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 import polyglot.types.ClassType;
+import x10dt.core.preferences.generated.X10Constants;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.utils.LaunchUtils;
@@ -191,6 +195,12 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     try {
       final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(selection, getProjectNatureId(), getShell());
       if (mainType != null) {
+        // The following check shouldn't be necessary, since this ILaunchShortcut implementation
+        // isn't used for debug-mode launches. I.e., we should never get here in that case.
+        if (ILaunchManager.DEBUG_MODE.equals(mode)) {
+          checkCompileDebugPreference(mainType.second.getResource().getProject());
+        }
+
         ILaunchConfiguration config = findLaunchConfiguration(getConfigurationType(), mainType.first.fullName().toString(),
                                                               mainType.second.getJavaProject().getElementName());
         if (config == null) {
@@ -223,6 +233,18 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       }
     } catch (CoreException e) {
       X10DTUIPlugin.getInstance().getLog().log(e.getStatus());
+    }
+  }
+
+  /**
+   * Makes sure that the compiler's debug preference is turned on, so that the X10 application
+   * will have the necessary debug information.
+   */
+  private void checkCompileDebugPreference(IProject project) {
+    if (!new PreferencesService(project).getBooleanPreference(X10Constants.P_DEBUG)) {
+      ErrorDialog.openError(getShell(), "Unable to launch programs without debug info",
+                            "The selected items were built without the necessary debug information. Turn on the Debug preference to re-build with that information.",
+                            new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, ""));
     }
   }
 
