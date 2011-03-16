@@ -823,7 +823,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     tableViewer.getTable().addListener(SWT.MeasureItem, new Listener() {
       
       public void handleEvent(final Event event) {
-        event.height = CppLaunchImages.getImage(CppLaunchImages.VALID_CONNECTION).getBounds().height + 5;
+        final Image image = CppLaunchImages.getImage(CppLaunchImages.VALID_CONNECTION);
+        if (image != null) {
+          event.height = image.getBounds().height + 5;
+        }
       }
       
     });
