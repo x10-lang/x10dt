@@ -94,8 +94,10 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
 		try {
 			cpEntries = javaProject.getResolvedClasspath(true);
 		} catch (JavaModelException e) {
-			X10DTCorePlugin.getInstance().logException(e.getMessage(), e);
-			// remember to test if java nature is still on cpp-backend projects etc.
+		    if (!e.isDoesNotExist()) {
+		        X10DTCorePlugin.getInstance().logException(e.getMessage(), e);
+		        // remember to test if java nature is still on cpp-backend projects etc.
+		    }
 			return null;
 		}
 
