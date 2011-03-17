@@ -34,6 +34,8 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
 
     @Override
     public NodeVisitor begin() {
+    	if (!fProject.exists())
+    		return null;
         String path= fJob.source().path();
         // Don't bother looking for dependencies if the AST in question was from a jar/zip
         if (path.endsWith(".jar") || path.endsWith(".zip")) {
@@ -54,6 +56,8 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
 
     @Override
     public NodeVisitor enter(Node n) {
+    	if (!fProject.exists())
+    		return super.enter(n);
         if (n instanceof PackageNode) {
             PackageNode pkg= (PackageNode) n;
             Source src= fJob.source();
@@ -68,6 +72,8 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
     }
 
     private String determineActualPackage(Source src) {
+    	if (!fProject.exists())
+    		return null;
         String srcPath= src.path();
         String srcFileName= src.name();
         String wsPath= fProject.getLocation().removeLastSegments(1).toOSString();
@@ -121,6 +127,8 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
     }
     @Override
     public void finish() {
+    	if (!fProject.exists())
+    		return;
         if (!fSeenPkg) { // No package decl -> implicitly in the default package
             Source src= fJob.source();
             checkPackage("", determineActualPackage(src), new Position(src.path(), src.path(), 1, 1)); // --- WARNING: passing the path here for file !!!!!
