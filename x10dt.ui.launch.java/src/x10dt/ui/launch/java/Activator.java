@@ -1,10 +1,16 @@
 package x10dt.ui.launch.java;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
@@ -24,13 +30,14 @@ import org.eclipse.ptp.services.core.ServiceModelManager;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.java.launching.rms.MultiVMServiceProvider;
 
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin implements ILaunchConfigurationListener {
+public class Activator extends AbstractUIPlugin implements ILaunchConfigurationListener, IPreferenceChangeListener {
 
 	/**
 	 * The unique plugin id for <b>x10dt.ui.launch.java</b> project.
@@ -101,6 +108,25 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
     }
   }
 	
+  /**
+   * The keys for the set of preferences that can impact compilation results
+   * (semantic errors or generated artifacts) such that a full rebuild would be
+   * required on a preference value change.
+   */
+  private final static Set<String> FULL_BUILD_PREF_KEYS = new HashSet<String>();
+
+  static {
+    // At present, there are no additional preference keys that affect Java back-end
+    // code gen, so just listen for changes to the base set of keys.
+    FULL_BUILD_PREF_KEYS.addAll(X10DTCorePlugin.getFullBuildPreferenceKeys());
+  }
+
+  public void preferenceChange(final PreferenceChangeEvent event) {
+    if (FULL_BUILD_PREF_KEYS.contains(event.getKey())) {
+      X10DTCorePlugin.submitProjectsForFullBuild(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
+    }
+  }
+
 	// --- Overridden methods
 
 	public void start(final BundleContext context) throws Exception {
@@ -110,9 +136,13 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 		// Let's activate magically the PTP core plugin to avoid some late ClassCircularityError !?
 		PTPLaunchPlugin.getDefault();
 		plugin = this;
+	    X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
+                                                                              .addPreferenceChangeListener(this);
 	}
 
 	public void stop(final BundleContext context) throws Exception {
+	    X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
+                                                                           .removePreferenceChangeListener(this);
 		plugin = null;
 		super.stop(context);
 	}

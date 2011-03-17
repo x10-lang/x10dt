@@ -22,7 +22,8 @@ public class Messages extends NLS {
   public static String XCCI_ClasspathResIOError;
   public static String XCCI_NoX10JARFound;
   public static String XCCI_WrongClassPathContainer;
-  
+  public static String XCP_RebuildProjectJobName;
+
   // --- Private code
   
   private Messages() {

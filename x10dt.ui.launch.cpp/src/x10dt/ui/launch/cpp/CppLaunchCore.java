@@ -8,7 +8,9 @@
 package x10dt.ui.launch.cpp;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -23,7 +25,6 @@ import org.eclipse.core.resources.ISaveParticipant;
 import org.eclipse.core.resources.ISavedState;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
@@ -146,8 +147,28 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
 
   // --- IPreferenceChangeListener's interface methods implementation
 
+  /**
+   * The keys for the set of preferences that can impact compilation results
+   * (semantic errors or generated artifacts) such that a full rebuild would be
+   * required on a preference value change.
+   */
+  private final static Set<String> FULL_BUILD_PREF_KEYS = new HashSet<String>();
+
+  static {
+    FULL_BUILD_PREF_KEYS.addAll(X10DTCorePlugin.getFullBuildPreferenceKeys());
+    FULL_BUILD_PREF_KEYS.add(X10Constants.P_OPTIMIZE);
+    FULL_BUILD_PREF_KEYS.add(X10Constants.P_DEBUG);
+  }
+
   public void preferenceChange(final PreferenceChangeEvent event) {
-    if (X10Constants.P_OPTIMIZE.equals(event.getKey())) {
+    if (FULL_BUILD_PREF_KEYS.contains(event.getKey())) {
+      // Technically, the set of keys that can affect the post-compilation commands will be a
+      // subset of the set of keys that require a rebuild. Meanwhile, the following triggers
+      // the refresh of the post-compilation commands on every key that would trigger a rebuild.
+      // In short, it's overly conservative and could result in extra dialogue with the remote
+      // system (to retrieve the lib .properties files that contain the build commands). On the
+      // other hand, it's safer than having to manage two separate sets of preference keys, one
+      // for post-compilation command refresh and one for project rebuilds.
       for (final Map.Entry<IProject, IX10PlatformConf> entry : this.fProjectToPlatform.entrySet()) {
         final IX10PlatformConfWorkCopy workingCopy = entry.getValue().createWorkingCopy();
         workingCopy.updateCompilationCommands();
@@ -159,17 +180,7 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
         }
       }
 
-      final WorkspaceJob job = new WorkspaceJob(LaunchMessages.CLC_RebuildWorkspaceJobName) {
-
-        public IStatus runInWorkspace(final IProgressMonitor monitor) throws CoreException {
-          ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, monitor);
-          return Status.OK_STATUS;
-        }
-
-      };
-      job.setRule(ResourcesPlugin.getWorkspace().getRuleFactory().buildRule());
-      job.setPriority(Job.BUILD);
-      job.schedule();
+      X10DTCorePlugin.submitProjectsForFullBuild(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID);
     }
   }
 
