@@ -42,8 +42,6 @@ public final class KeyboardUtils {
         if ((this.fTimerThread == null) || (! this.fTimerThread.isAlive())) {
           this.fTimerThread = new TimerThread(runnable, time, control);
           this.fTimerThread.start();
-        } else {
-          this.fTimerThread.setShouldBeReseted(false);
         }
       }
       
@@ -80,11 +78,11 @@ public final class KeyboardUtils {
           Thread.sleep(this.fTime);
         } catch (InterruptedException except) {
         }
-        if (! this.fShouldSleepAgain && ! this.fIsReseted && ! this.fControl.isDisposed()) {
+        if (! this.fIsReseted && ! this.fControl.isDisposed()) {
           this.fRunnableAction.run();
           break;
         }
-        this.fShouldSleepAgain = false;
+        this.fIsReseted = false;
       }
     }
     
@@ -92,9 +90,6 @@ public final class KeyboardUtils {
 
     void setShouldBeReseted(final boolean resetFlag) {
       this.fIsReseted = resetFlag;
-      if (resetFlag) {
-        this.fShouldSleepAgain = true;
-      }
     }
     
     // --- Fields
@@ -106,8 +101,6 @@ public final class KeyboardUtils {
     private final Control fControl;
     
     private boolean fIsReseted;
-    
-    private boolean fShouldSleepAgain;
     
   }
   

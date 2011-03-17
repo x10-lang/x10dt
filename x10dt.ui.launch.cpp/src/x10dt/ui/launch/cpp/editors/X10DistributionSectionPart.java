@@ -150,47 +150,46 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart
   }
   
   private void checkX10DistFolderContent(final String serviceTypeId, final boolean shouldDeriveInfo) {
-    if (this.fX10DistLocText.isEnabled()) {
-      final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
+    final boolean isLocal = getPlatformConf().getConnectionConf().isLocal();
 
-      final SharedHeaderFormEditor formEditor = (SharedHeaderFormEditor) getFormPage().getEditor();
-      formEditor.getHeaderForm().getMessageManager().removeMessage(this.fX10DistLocText);
-      getFormPage().getManagedForm().getMessageManager().removeMessage(this.fX10DistLocText, this.fX10DistLocText);
+    final SharedHeaderFormEditor formEditor = (SharedHeaderFormEditor) getFormPage().getEditor();
+    formEditor.getHeaderForm().getMessageManager().removeMessage(this.fX10DistLocText);
+    getFormPage().getManagedForm().getMessageManager().removeMessage(this.fX10DistLocText, this.fX10DistLocText);
 
-      final IFormControlChecker controlChecker;
-      if (!isLocal && !SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId) &&
-          !STANDALONE_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
-        final String transportName;
-        if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId) || MPICH2_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
-          transportName = ETransport.MPI.name().toLowerCase();
-        } else if (PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(serviceTypeId) ||
-                   LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
-          transportName = ETransport.LAPI.name().toLowerCase();
-        } else {
-          transportName = null;
-        }
-        if (transportName != null) {
-          final String propertiesFilePath = String.format(X10RT_PROPERTIES_FILE_FORMAT, transportName);
-          controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText,
-                                                        propertiesFilePath);
-        } else {
-          controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, null);
-        }
-      } else if (!isLocal) {
-        controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, null);
+    final IFormControlChecker controlChecker;
+    if (!isLocal && !SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId) &&
+        !STANDALONE_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+      final String transportName;
+      if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId) || MPICH2_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+        transportName = ETransport.MPI.name().toLowerCase();
+      } else if (PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(serviceTypeId) ||
+                 LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+        transportName = ETransport.LAPI.name().toLowerCase();
       } else {
-        controlChecker = null;
-        this.fIsX10DistValid = true;
+        transportName = null;
+      }
+      if (transportName != null) {
+        final String propertiesFilePath = String.format(X10RT_PROPERTIES_FILE_FORMAT, transportName);
+        controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText,
+                                                      propertiesFilePath);
+      } else {
+        controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, null);
+      }
+    } else if (!isLocal) {
+      controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, null);
+    } else {
+      controlChecker = null;
+      this.fIsX10DistValid = true;
+    }
+
+    if (controlChecker != null) {
+      this.fIsX10DistValid = controlChecker.validate(this.fX10DistLocText.getText().trim());
+      getPlatformConf().setX10DistribLocation(this.fX10DistLocText.getText().trim());
+      for (final IX10DistribChangeListener listener : this.fListeners) {
+        listener.x10DistributionChange(this.fIsX10DistValid, shouldDeriveInfo);
       }
 
-      if (controlChecker != null) {
-        this.fIsX10DistValid = controlChecker.validate(this.fX10DistLocText.getText().trim());
-        for (final IX10DistribChangeListener listener : this.fListeners) {
-          listener.x10DistributionChange(this.fIsX10DistValid, shouldDeriveInfo);
-        }
-
-        setPartCompleteFlag(hasCompleteInfo());
-      }
+      setPartCompleteFlag(hasCompleteInfo());
     }
   }
 
