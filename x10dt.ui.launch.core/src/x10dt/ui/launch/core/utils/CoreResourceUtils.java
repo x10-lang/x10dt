@@ -380,10 +380,11 @@ public final class CoreResourceUtils {
     }
   }
 
-  private static void createMarker(final String markerId, final IResource resource, final String msg, final int severity,
+  private static void createMarker(final String markerId, final IResource resource, final String message, final int severity,
                                    final String loc, final int priority, final int lineNum, final int startOffset,
                                    final int endOffset, final Map<String, Object> attributes) {
     try {
+      final String msg = message.replaceAll("\\n\\s*", " ");
       final IWorkspace workspace = ResourcesPlugin.getWorkspace();
       final ISchedulingRule rule = workspace.getRuleFactory().markerRule(resource);
 
