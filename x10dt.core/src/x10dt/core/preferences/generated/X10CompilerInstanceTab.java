@@ -43,7 +43,7 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 		BooleanFieldEditor ConservativeBuild = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
 			"instance", "ConservativeBuild", "Conservative build",
-			"When rebuilding, include all files that have no generated files",
+			"In addition to recompiling changed files and their change-dependents, recompile all files that have no generated artifacts and no markers.",
 			parent,
 			true, true,
 			true, false,

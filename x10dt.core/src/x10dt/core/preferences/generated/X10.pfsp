@@ -44,7 +44,10 @@ page X10.Formatting {
 
 page X10.Compiler {
     fields {
-	        boolean ConservativeBuild { defvalue false; tooltip "When rebuilding, include all files that have no generated files"; }
+	        boolean ConservativeBuild {
+    	        		defvalue false;
+    	        		tooltip "In addition to recompiling changed files and their change-dependents, recompile all files that have no generated artifacts and no markers.";
+	        		}
 		        boolean Debug {
 		 	       			 	 	  label "Generate debug information. If disabled, it will not be possible to debug the resulting executables.";
 		          	  			defvalue true;
