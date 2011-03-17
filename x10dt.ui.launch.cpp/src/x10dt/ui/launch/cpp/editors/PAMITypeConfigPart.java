@@ -52,7 +52,7 @@ import x10dt.ui.launch.rms.core.Messages;
 
 
 
-final class SocketsTypeConfigPart extends AbstractCITypeConfigurationPart  implements ICITypeConfigurationPart {
+final class PAMITypeConfigPart extends AbstractCITypeConfigurationPart  implements ICITypeConfigurationPart {
 
   // --- Interface methods implementation
   
@@ -79,6 +79,7 @@ final class SocketsTypeConfigPart extends AbstractCITypeConfigurationPart  imple
     final Label placesLabel = toolkit.createLabel(placesCompo, Messages.SRMLCDT_PlacesNumber);
     placesLabel.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
     this.fNumPlacesSpinner = new Spinner(placesCompo, SWT.BORDER);
+    this.fNumPlacesSpinner.setMinimum(1);
     addControl(this.fNumPlacesSpinner);
     
     final Group hostsGroup = new Group(composite, SWT.NONE);
@@ -216,7 +217,7 @@ final class SocketsTypeConfigPart extends AbstractCITypeConfigurationPart  imple
 
           formPart.handleEmptyTextValidation(hostFileText, LaunchMessages.STCP_HostFileText);
           new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
-                                  SocketsTypeConfigPart.this.fHosts).validate(null);
+                                  PAMITypeConfigPart.this.fHosts).validate(null);
 
           formPart.updateDirtyState(managedForm);
           formPart.setPartCompleteFlag(hasCompleteInfo());
@@ -244,7 +245,7 @@ final class SocketsTypeConfigPart extends AbstractCITypeConfigurationPart  imple
 
           formPart.handleEmptyTextValidation(hostFileText, LaunchMessages.STCP_HostFileText);
           new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
-                                  SocketsTypeConfigPart.this.fHosts).validate(null);
+                                  PAMITypeConfigPart.this.fHosts).validate(null);
 
           formPart.updateDirtyState(managedForm);
           formPart.setPartCompleteFlag(hasCompleteInfo());
@@ -266,7 +267,7 @@ final class SocketsTypeConfigPart extends AbstractCITypeConfigurationPart  imple
         hostListViewer.editElement(Constants.EMPTY_STR, 0);
         
         new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
-                                SocketsTypeConfigPart.this.fHosts).validate(null);
+                                PAMITypeConfigPart.this.fHosts).validate(null);
         
         formPart.updateDirtyState(managedForm);
         formPart.setPartCompleteFlag(hasCompleteInfo());
@@ -287,7 +288,7 @@ final class SocketsTypeConfigPart extends AbstractCITypeConfigurationPart  imple
           hostListViewer.remove(hostName);
           
           new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
-                                  SocketsTypeConfigPart.this.fHosts).validate(null);
+                                  PAMITypeConfigPart.this.fHosts).validate(null);
           
           formPart.updateDirtyState(managedForm);
           formPart.setPartCompleteFlag(hasCompleteInfo());

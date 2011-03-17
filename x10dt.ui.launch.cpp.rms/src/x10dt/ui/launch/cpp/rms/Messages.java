@@ -17,6 +17,10 @@ import org.eclipse.osgi.util.NLS;
 @SuppressWarnings("all")
 public class Messages extends NLS {
   
+  public static String PSP_ProviderDescr;
+
+  public static String PSP_ProviderName;
+
   public static String SSS_Sockets;
 
   public static String SSS_SocketsRMDescr;

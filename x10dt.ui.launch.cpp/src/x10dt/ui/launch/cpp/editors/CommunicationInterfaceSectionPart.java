@@ -10,6 +10,7 @@ package x10dt.ui.launch.cpp.editors;
 import static x10dt.ui.launch.core.utils.PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
@@ -385,8 +386,8 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       return new ParallelEnvironmentTypeConfigPart((IPEResourceManagerConfiguration) serviceProvider);
     } else if (LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new LoadLevelerTypeConfigPart((IIBMLLResourceManagerConfiguration) serviceProvider);
-    } else if (SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new SocketsTypeConfigPart();
+    } else if (SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId) || PAMI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+      return new HostFileAndListTypeConfigPart();
     } else if (STANDALONE_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new StandaloneTypeConfigPart();
     }
@@ -438,7 +439,6 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       typeConfPart.create(managedForm, toolkit, parent, this);
 
       parent.layout(true, true);
-//      managedForm.reflow(true);
 
       this.fPreviousTypeConfPart = typeConfPart;
 

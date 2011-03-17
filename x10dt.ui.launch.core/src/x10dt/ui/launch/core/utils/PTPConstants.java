@@ -45,6 +45,11 @@ public final class PTPConstants {
   public static final String OPEN_MPI_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.mpi.openmpi.OpenMPIServiceProvider"; //$NON-NLS-1$
   
   /**
+   * Defines the PAMI service provider id.
+   */
+  public static final String PAMI_SERVICE_PROVIDER_ID = "x10dt.ui.launch.cpp.rms.provider.pami"; //$NON-NLS-1$
+  
+  /**
    * Defines the IBM Parallel Environment service provider id.
    */
   public static final String PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.ibm.pe.PEServiceProvider"; //$NON-NLS-1$
@@ -58,7 +63,7 @@ public final class PTPConstants {
    * Defines the Standalone service provider id.
    */
   public static final String STANDALONE_SERVICE_PROVIDER_ID = "x10dt.ui.launch.cpp.rms.provider.standalone"; //$NON-NLS-1$
-     
+  
   /**
    * Defines the Runtime service category id.
    */
