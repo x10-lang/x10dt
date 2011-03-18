@@ -194,6 +194,7 @@
                            <adapt
                                  type="org.eclipse.ui.IFileEditorInput">
                               <test
+                                    args="run"
                                     property="x10dt.ui.hasMain">
                               </test>
                            </adapt>
