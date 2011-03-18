@@ -211,6 +211,8 @@ public class LaunchMessages extends NLS {
 
   public static String DSP_DebuggingSectionName;
 
+  public static String DSP_GDIAFileMsg;
+
   public static String ES_CompileTaskName;
   
   public static String ES_GeneratingCppCilesTaskName;
