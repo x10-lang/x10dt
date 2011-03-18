@@ -24,6 +24,9 @@ final class CygwinTargetOpHelper extends AbstractTargetOpHelper implements ITarg
   // --- Interface methods implementation
 
   public String getTargetSystemPath(final String resourcePath) {
+    if (resourcePath.startsWith("/cygdrive")) { //$NON-NLS-1$
+      return resourcePath;
+    }
     if (resourcePath.indexOf('\\') != -1 || resourcePath.indexOf('/') != -1) {
       final List<String> cygpathCmd = new ArrayList<String>();
       cygpathCmd.add("cygpath"); //$NON-NLS-1$

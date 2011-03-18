@@ -24,6 +24,7 @@ import x10cpp.postcompiler.PostCompileProperties;
 import x10cpp.postcompiler.PrecompiledLibrary;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.X10BundleUtils;
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
@@ -55,12 +56,13 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
 
     final PostCompileProperties prop = getTransportProperties(transport, x10DistFileStore);
     final X10CompilerOptions options = CompilerOptionsFactory.createOptions(platformConf.getConfFile().getProject());
-    definePrecompiledLibrary(options, isLocal, x10DistribLoc, x10DistFileStore);
+    options.output_directory = new File(x10DistribLoc);
+    definePrecompiledLibrary(options, isLocal, x10DistribLoc, x10DistFileStore, targetOpHelper);
     final CXXCommandBuilder builder = CXXCommandBuilder.getCXXCommandBuilder(options, prop, new X10Utils.ShallowErrorQueue());
 
     this.fPostCompiler = builder.getPostCompiler();
-    this.fPostFileArgs = concatenate(builder.getPostFileArgs());
-    this.fPreFileArgs = concatenate(builder.getPreFileArgs());
+    this.fPostFileArgs = concatenate(builder.getPostFileArgs(), targetOpHelper);
+    this.fPreFileArgs = concatenate(builder.getPreFileArgs(), targetOpHelper);
   }
   
   // --- Interface methods implementation
@@ -93,21 +95,31 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
   // --- Private code
   
-  private String concatenate(final List<String> items) {
+  private String concatenate(final List<String> items, final ITargetOpHelper targetOpHelper) {
     final StringBuilder sb = new StringBuilder();
     for (final String item : items) {
       if (sb.length() > 0) {
         sb.append(' ');
       }
-      sb.append(item);
+      final String element;
+      if (item.startsWith("-I") || item.startsWith("-L")) { //$NON-NLS-1$ //$NON-NLS-2$
+        element = item.substring(0, 2) + targetOpHelper.getTargetSystemPath(item.substring(2));
+      } else {
+        element = item.replace('\\', '/');
+      }
+      if (element.contains(Constants.EMPTY_STR)) {
+        sb.append(element.replaceAll("\\s", "\\\\ ")); //$NON-NLS-1$ //$NON-NLS-2$
+      } else {
+        sb.append(element);
+      }
     }
     return sb.toString();
   }
 
   private void definePrecompiledLibrary(final X10CompilerOptions options, final boolean isLocal, final String x10DistPath,
-                                        final IFileStore x10DistFileStore) throws IOException, CoreException {
+                                        final IFileStore x10DistFileStore, final ITargetOpHelper targetOpHelper) throws IOException, CoreException {
     final IFileStore libX10FileStore = x10DistFileStore.getChild(LIBX10_PROPERTIES_FILE);
-    options.setDistPath(x10DistPath);
+    options.setDistPath(targetOpHelper.getTargetSystemPath(x10DistPath));
 
     final Properties properties = new Properties();
     properties.load(libX10FileStore.openInputStream(EFS.NONE, null /* monitor */));
