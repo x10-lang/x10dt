@@ -55,6 +55,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 
+import polyglot.ast.Node;
 import polyglot.frontend.FileResource;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
@@ -93,28 +94,54 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         typeManager.clearWriter();
       }
     } else {
-      final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
-      if (cmpOptBuilder != null) {
-        update(factBase, type, context, resource, cmpOptBuilder, cmpOptBuilder.getSourceEntrySet());
+      final Map<IResource, IndexedDocumentDescriptor> map;
+      if (workingCopies.isEmpty()) {
+        map = new HashMap<IResource, IndexedDocumentDescriptor>(1);
+        map.put(resource, null);
+      } else {
+        map = workingCopies;
+      }
+      for (final Map.Entry<IResource, IndexedDocumentDescriptor> entry : map.entrySet()) {
+        if (entry.getValue() == null) {
+          final CompilerOptionsBuilder cmpOptBuilder = processResource(entry.getKey());
+          if (cmpOptBuilder != null) {
+            update(factBase, type, context, entry.getKey(), cmpOptBuilder, cmpOptBuilder.getSourceEntrySet());
+          }
+        } else {
+          update(factBase, type, context, entry.getKey(), entry.getValue());
+        }
       }
     }
   }
   
   public void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource, 
                      final Map<IResource, IndexedDocumentDescriptor> workingCopies) throws AnalysisException {
-    final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
-    if (cmpOptBuilder != null) {
-      final Set<Map.Entry<String, Collection<Source>>> entries = cmpOptBuilder.getSourceEntrySet();
-      if (entries.isEmpty()) {
-        final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
-        try {
-          typeManager.initWriter(factBase, context, resource);
-          typeManager.writeDataInFactBase(factBase, context);
-        } finally {
-          typeManager.clearWriter();
+    final Map<IResource, IndexedDocumentDescriptor> map;
+    if (workingCopies.isEmpty()) {
+      map = new HashMap<IResource, IndexedDocumentDescriptor>(1);
+      map.put(resource, null);
+    } else {
+      map = workingCopies;
+    }
+    for (final Map.Entry<IResource, IndexedDocumentDescriptor> entry : map.entrySet()) {
+      if (entry.getValue() == null) {
+        final CompilerOptionsBuilder cmpOptBuilder = processResource(entry.getKey());
+        if (cmpOptBuilder != null) {
+          final Set<Map.Entry<String, Collection<Source>>> entries = cmpOptBuilder.getSourceEntrySet();
+          if (entries.isEmpty()) {
+            final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
+            try {
+              typeManager.initWriter(factBase, context, entry.getKey());
+              typeManager.writeDataInFactBase(factBase, context);
+            } finally {
+              typeManager.clearWriter();
+            }
+          } else {
+            update(factBase, type, context, entry.getKey(), cmpOptBuilder, entries);
+          }
         }
       } else {
-        update(factBase, type, context, resource, cmpOptBuilder, entries);
+        update(factBase, type, context, entry.getKey(), entry.getValue());
       }
     }
   }
@@ -267,8 +294,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   }
   
   private void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource,
-                      final CompilerOptionsBuilder cmpOptBuilder, 
-                      final Set<Map.Entry<String, Collection<Source>>> entries) throws AnalysisException {
+                      final CompilerOptionsBuilder cmpOptBuilder, final Set<Map.Entry<String, Collection<Source>>> entries) throws AnalysisException {
     for (final Map.Entry<String, Collection<Source>> entry : entries) {
       final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
 
@@ -303,6 +329,22 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       } finally {
         typeManager.clearWriter();
       }
+    }
+  }
+  
+  private void update(final FactBase factBase, final Type type, final IFactContext factContext, final IResource resource,
+                      final IndexedDocumentDescriptor documentDescriptor) throws AnalysisException {
+    final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
+
+    typeManager.initWriter(factBase, factContext, resource);
+    
+    final NodeVisitor visitor = typeManager.createNodeVisitor(APPLICATION);
+    try {
+      ((Node) documentDescriptor.astRoot).visit(visitor);
+
+      typeManager.writeDataInFactBase(factBase, factContext);
+    } finally {
+      typeManager.clearWriter();
     }
   }
   

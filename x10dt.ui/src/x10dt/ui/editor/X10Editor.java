@@ -1,5 +1,6 @@
 package x10dt.ui.editor;
 
+import org.eclipse.imp.editor.EditorInputUtils;
 import org.eclipse.imp.editor.StructuredSourceViewerConfiguration;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.ui.DefaultPartListener;
@@ -15,6 +16,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.actions.ActionContext;
 import org.eclipse.ui.texteditor.TextOperationAction;
 
+import x10dt.search.core.SearchCoreActivator;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.typeHierarchy.Messages;
 import x10dt.ui.typeHierarchy.X10Constants;
@@ -48,11 +50,18 @@ public class X10Editor extends UniversalEditor {
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		registerEditorContributionsActivator();
+		if (isEditable()) {
+		  SearchCoreActivator.getIndexer().registerDocument(getDocumentProvider().getDocument(getEditorInput()), 
+		                                                    EditorInputUtils.getFile(getEditorInput()), this);
+		}
 	}
 
 	@Override
 	public void dispose() {
 		unregisterEditorContributionsActivator();
+		if (isEditable()) {
+		  SearchCoreActivator.getIndexer().unregisterDocument(getDocumentProvider().getDocument(getEditorInput()));
+		}
 
 		if (ovg != null) {
 			ovg.dispose();
