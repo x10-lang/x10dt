@@ -60,12 +60,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       initLocalCppCompilationCommands();
       initLocalX10DistribLocation();
     }
-    if (this.fConnectionConf.fTimeout == 0) {
-      this.fConnectionConf.fTimeout = 5;
-    }
-    if (this.fConnectionConf.fLocalAddress == null) {
-      this.fConnectionConf.fLocalAddress = "localhost"; //$NON-NLS-1$
-    }
     if (ciConf.fServiceModeId == null) {
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
     }

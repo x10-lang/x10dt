@@ -298,7 +298,7 @@ final class ConnectionConfiguration implements IConnectionConf {
   
   String fHostName;
   
-  int fPort;
+  int fPort = 22;
   
   String fUserName;
   
@@ -310,10 +310,10 @@ final class ConnectionConfiguration implements IConnectionConf {
   
   String fPassphrase;
   
-  String fLocalAddress;
+  String fLocalAddress = "localhost"; //$NON-NLS-1$
   
   boolean fUsePortForwarding;
   
-  int fTimeout;
+  int fTimeout = 5;
   
 }
