@@ -183,14 +183,24 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
   }
 
   protected final boolean handlePathValidation(final Text text, final String controlInfo) {
-    return handlePathValidation(text, null, controlInfo);
+    return handlePathValidation(text, null, controlInfo, true);
+  }
+  
+  protected final boolean handlePathValidation(final Text text, final String controlInfo, final boolean isEmptyPathAnError) {
+    return handlePathValidation(text, null, controlInfo, isEmptyPathAnError);
+  }
+  
+  protected final boolean handlePathValidation(final Text text, final String pathSuffix, final String controlInfo) {
+    return handlePathValidation(text, pathSuffix, controlInfo, true);
   }
 
-  protected final boolean handlePathValidation(final Text text, final String pathSuffix, final String controlInfo) {
+  protected final boolean handlePathValidation(final Text text, final String pathSuffix, final String controlInfo,
+                                               final boolean isEmptyPathAnError) {
     final ITargetOpHelper targetOpHelper = createTargetOpHelper();
     if (targetOpHelper != null) {
       final IFormControlChecker checker = FormCheckerFactory.createValidPathControlChecker(targetOpHelper, this.fFormPage,
-                                                                                           text, controlInfo);
+                                                                                           text, controlInfo, 
+                                                                                           isEmptyPathAnError);
       final String fieldContents = text.getText().trim();
       final String path = (pathSuffix != null && pathSuffix.length() > 0) ? fieldContents + File.separator + pathSuffix
                                                                          : fieldContents;
@@ -199,6 +209,15 @@ abstract class AbstractCommonSectionFormPart extends AbstractCompleteFormPart im
       return checker.validate(remotePath);
     }
     return false;
+  }
+  
+  protected final boolean handleFolderAndChildValidation(final Text text, final String folderChild,
+                                                         final String folderMsgLabel, final String childMsgLabel,
+                                                         final boolean isEmptyPathAnError) {
+    if (! handlePathValidation(text, folderMsgLabel, isEmptyPathAnError)) {
+      return false;
+    }
+    return handlePathValidation(text, folderChild, childMsgLabel, isEmptyPathAnError);
   }
 
   protected final boolean handleFolderAndChildValidation(final Text text, final String folderChild,

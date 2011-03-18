@@ -18,10 +18,11 @@ import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 final class ValidPathControlChecker extends AbstractFormControlChecker implements IFormControlChecker {
 
   protected ValidPathControlChecker(final ITargetOpHelper targetOpHelper, final IFormPage formPage, final Control control,
-                                    final String controlInfo) {
+                                    final String controlInfo, final boolean isEmptyPathAnError) {
     super(formPage, control);
     this.fTargetOpHelper = targetOpHelper;
     this.fControlInfo = controlInfo;
+    this.fIsEmptyPathAnError = isEmptyPathAnError;
   }
 
   // --- Interface methods implementation
@@ -30,9 +31,11 @@ final class ValidPathControlChecker extends AbstractFormControlChecker implement
     removeMessages();
     if (getControl().isEnabled()) {
       if (path.length() == 0) {
-        addMessages(NLS.bind(LaunchMessages.ETIC_NoEmptyContent, this.fControlInfo), IMessageProvider.ERROR);
+        if (this.fIsEmptyPathAnError) {
+          addMessages(NLS.bind(LaunchMessages.ETIC_NoEmptyContent, this.fControlInfo), IMessageProvider.ERROR);
+        }
         return false;
-      } else if (! validatePath(path)) {
+    } else if (! validatePath(path)) {
         addMessages(NLS.bind(LaunchMessages.LPCC_NonExistentPath, this.fControlInfo), IMessageProvider.ERROR);
         return false;
       }
@@ -62,4 +65,7 @@ final class ValidPathControlChecker extends AbstractFormControlChecker implement
   private final String fControlInfo;
 
   private final ITargetOpHelper fTargetOpHelper;
+  
+  private final boolean fIsEmptyPathAnError;
+  
 }

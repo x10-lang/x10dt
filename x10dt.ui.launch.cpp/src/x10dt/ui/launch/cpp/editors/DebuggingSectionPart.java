@@ -63,6 +63,9 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     final IDebuggingInfoConf debuggingInfoConf = getPlatformConf().getDebuggingInfoConf();
     this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
     this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
+    
+    handleFolderAndChildValidation(this.fDebuggerFolderText, GDIA_FILE, LaunchMessages.DSP_DebuggerFolder, 
+                                   LaunchMessages.DSP_GDIAFileMsg, false /* isEmptyPathAnError */);
   }
   
   protected void postPagesCreation() {
@@ -142,7 +145,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
             // want to use the debugger aren't forced into supplying this info.
             if (debuggerText.getText().length() > 0) {
               handleFolderAndChildValidation(debuggerText, GDIA_FILE, LaunchMessages.DSP_DebuggerFolder, 
-                                             LaunchMessages.DSP_GDIAFileMsg);
+                                             LaunchMessages.DSP_GDIAFileMsg, false /* isEmptyPathAnError */);
             } else {
               final SharedHeaderFormEditor formEditor = (SharedHeaderFormEditor) getFormPage().getEditor();
               formEditor.getHeaderForm().getMessageManager().removeMessage(debuggerText);
@@ -176,7 +179,8 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     
     protected void updateText(final String path) {
       super.updateText(path);
-      handleFolderAndChildValidation(getText(), GDIA_FILE, LaunchMessages.DSP_DebuggerFolder, LaunchMessages.DSP_GDIAFileMsg);
+      handleFolderAndChildValidation(getText(), GDIA_FILE, LaunchMessages.DSP_DebuggerFolder, LaunchMessages.DSP_GDIAFileMsg,
+                                     false /* isEmptyPathAnError */);
     }
     
   }

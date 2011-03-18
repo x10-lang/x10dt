@@ -86,12 +86,13 @@ public final class FormCheckerFactory {
    * @param formPage The form page to get access to the form message managers.
    * @param control The control that contains the text in question.
    * @param controlInfo The information that defines the control content.
+   * @param isEmptyPathAnError Indicates if an empty path should produce an error.
    * @return A non-null instance of {@link IFormControlChecker}.
    */
   public static IFormControlChecker createValidPathControlChecker(final ITargetOpHelper targetOpHelper,
                                                                   final IFormPage formPage, final Control control, 
-                                                                  final String controlInfo) {
-    return new ValidPathControlChecker(targetOpHelper, formPage, control, controlInfo);
+                                                                  final String controlInfo, final boolean isEmptyPathAnError) {
+    return new ValidPathControlChecker(targetOpHelper, formPage, control, controlInfo, isEmptyPathAnError);
   }
   
   // --- Private code
