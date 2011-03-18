@@ -43,6 +43,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
 import polyglot.types.ClassType;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
@@ -241,7 +242,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
    * will have the necessary debug information.
    */
   private void checkCompileDebugPreference(IProject project) {
-    if (!new PreferencesService(project).getBooleanPreference(X10Constants.P_DEBUG)) {
+    if (!new PreferencesService(project, X10DTCorePlugin.kLanguageName).getBooleanPreference(X10Constants.P_DEBUG)) {
       ErrorDialog.openError(getShell(), "Unable to launch programs without debug info",
                             "The selected items were built without the necessary debug information. Turn on the Debug preference to re-build with that information.",
                             new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, ""));
