@@ -12,8 +12,6 @@ import static x10dt.ui.launch.core.Constants.CC_EXT;
 import static x10dt.ui.launch.core.Constants.CPP_EXT;
 import static x10dt.ui.launch.core.Constants.CXX_EXT;
 import static x10dt.ui.launch.core.Constants.EXEC_PATH;
-import static x10dt.ui.launch.core.Constants.H_EXT;
-import static x10dt.ui.launch.core.Constants.INC_EXT;
 import static x10dt.ui.launch.core.Constants.O_EXT;
 
 import java.io.File;
@@ -21,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -38,9 +35,8 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -64,13 +60,14 @@ import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IProject project, 
-                                 final String workspaceDir) throws CoreException {
+  protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IJavaProject javaProject, 
+                                 final String workspaceDir, Map<String, Collection<String>> generatedFiles) throws CoreException {
     if (workspaceDir == null) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.AXBO_NoRemoteOutputFolder));
     }
+
     this.fConfName = platformConf.getName();
-    this.fProject = project;
+    this.fJavaProject = javaProject;
     this.fWorkspaceDir = workspaceDir;
     this.fPlatformConf = platformConf;
     final IConnectionConf connConf = platformConf.getConnectionConf();
@@ -79,19 +76,21 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
     if (this.fTargetOpHelper == null) {
       String msg= NLS.bind(Messages.CPPB_NoValidConnectionError, 
-                           new Object[] { connConf.getHostName(), this.fProject.getName() } );
+                           new Object[] { connConf.getHostName(), this.fJavaProject.getProject().getName() } );
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, msg));
     }
+    this.fGeneratedFiles = generatedFiles;
   }
   
-  protected AbstractX10BuilderOp(final IProject project, final String workspaceDir, final IX10PlatformConf platformConf,
-                                 final ITargetOpHelper targetOpHelper) {
-    this.fConfName = platformConf.getName();
-    this.fProject = project;
+  protected AbstractX10BuilderOp(final IJavaProject javaProject, final String workspaceDir, final IX10PlatformConf platformConf,
+                                 final ITargetOpHelper targetOpHelper, Map<String, Collection<String>> fGeneratedFiles) {
+	this.fConfName = platformConf.getName();
+    this.fJavaProject = javaProject;
     this.fWorkspaceDir = workspaceDir;
     this.fIsLocal = platformConf.getConnectionConf().isLocal();
     this.fPlatformConf = platformConf;
     this.fTargetOpHelper = targetOpHelper;
+    this.fGeneratedFiles = fGeneratedFiles;
   }
   
   // --- Interface methods implementation
@@ -108,7 +107,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     archiveCmd.add(this.fPlatformConf.getCppCompilationConf().getArchiver());
     archiveCmd.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getArchivingOpts()));
     final StringBuilder libName = new StringBuilder();
-    libName.append("lib").append(this.fProject.getName()).append(A_EXT); //$NON-NLS-1$
+    libName.append("lib").append(this.fJavaProject.getProject().getName()).append(A_EXT); //$NON-NLS-1$
     archiveCmd.add(libName.toString());
 
 
@@ -156,22 +155,16 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         if (monitor.isCanceled()) {
           return;
         }
-        String rootName = null;
-        final IJavaProject javaProject = JavaCore.create(this.fProject);
-        for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-          if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-            if (cpEntry.getPath().isPrefixOf(sourceFile.getFullPath())) {
-              rootName = sourceFile.getFullPath().removeFirstSegments(cpEntry.getPath().segmentCount())
-                                   .removeFileExtension().toString();
-              break;
-            }
-          }
-        }
-        if (rootName != null) {
-          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + CC_EXT).toString()), nullMonitor);
-          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + H_EXT).toString()), nullMonitor);
-          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + INC_EXT).toString()), nullMonitor);
-          deleteFile(this.fTargetOpHelper.getStore(wDirPath.append(rootName + O_EXT).toString()), nullMonitor);
+        String path = BuildPathUtils.getBareName(sourceFile, fJavaProject);
+        Collection<String> genStrings = fGeneratedFiles.get(path);
+        if (genStrings != null){
+        	for(String file: genStrings){
+        		if (file.endsWith(CC_EXT)){
+        			String dotO = this.fWorkspaceDir + File.separator + removeExtension(file) + O_EXT;
+        			deleteFile(this.fTargetOpHelper.getStore(dotO), nullMonitor);
+        		}
+        		deleteFile(this.fTargetOpHelper.getStore(this.fWorkspaceDir + File.separator +file), nullMonitor);
+        	}
         }
       
         monitor.worked(1);
@@ -298,7 +291,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   }
 
   protected final IProject getProject() {
-    return this.fProject;
+    return this.fJavaProject.getProject();
   }
   
   protected final ITargetOpHelper getTargetOpHelper() {
@@ -311,21 +304,25 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   // --- Private code
   
+
   private Collection<String> collectAllObjectFiles() throws CoreException {
-    final Collection<String> objectFiles = new LinkedList<String>();
-    collectAllObjectFiles(objectFiles, getTargetOpHelper().getStore(getWorkspaceDir()));
-    return objectFiles;
+	Collection<String> result = new ArrayList<String>();
+	for(Collection<String> strings: fGeneratedFiles.values()){
+		for(String file: strings){
+			if (file.endsWith(CC_EXT)){
+				String oPath = removeExtension(file) + O_EXT;
+				if (this.fTargetOpHelper.getStore(this.fWorkspaceDir + File.separator + oPath).fetchInfo().exists()){
+					result.add(oPath);
+				}
+			}
+		}
+	}
+	return result;
   }
-  
-  private void collectAllObjectFiles(final Collection<String> objectFiles, final IFileStore curDirStore) throws CoreException {
-    for (final IFileStore fileStore : curDirStore.childStores(EFS.NONE, null)) {
-      final String name = fileStore.getName();
-      if (fileStore.fetchInfo().isDirectory()) {
-        collectAllObjectFiles(objectFiles, fileStore);
-      } else if (name.endsWith(O_EXT)) {
-        objectFiles.add(this.fTargetOpHelper.getTargetSystemPath(fileStore.toURI().getPath()));
-      }
-    }
+    
+  private String removeExtension(String path){
+	  int i = path.lastIndexOf('.');
+	  return path.substring(0, i);
   }
   
   private void deleteFile(final IFileStore fileStore, final IProgressMonitor monitor) throws CoreException {
@@ -339,11 +336,13 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     return filePath.substring(index + 1);
   }
   
+
+  
   // --- Fields
   
   private final String fConfName;
   
-  private final IProject fProject;
+  private final IJavaProject fJavaProject;
   
   private final String fWorkspaceDir;
   
@@ -355,7 +354,10 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   private final Map<String, String> fCppFiles = new HashMap<String, String>();
   
+  private final Map<String, Collection<String>> fGeneratedFiles;
   
   private static final String INCLUDE_OPT = "-I"; //$NON-NLS-1$
+
+
 
 }

@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -121,6 +120,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
    */
   public abstract String getFileExtension();
 
+  
   // --- Abstract methods implementation
 
   @SuppressWarnings("rawtypes")
@@ -255,6 +255,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         this.fDependencyInfo = new PolyglotDependencyInfo(fProjectWrapper);
       }
     }
+  }
+  
+  protected IJavaProject getJavaProject(){
+	  return fProjectWrapper;
   }
 
   /**
@@ -434,16 +438,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     final IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 
       public void run(final IProgressMonitor monitor) throws CoreException {
-    	Map<String, Collection<File>> sources = compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
-    	Collection<File> sourcesToPostCompile = new ArrayList<File>();
-    	for (IFile f: sourcesToCompile){
-    		String path = getName(f);
-    		if (sources.keySet().contains(path) && checkPostCompilationCondition(f)){ // --- check if this and related files should be post-compiled
-    			sourcesToPostCompile.addAll(sources.get(path));
-    		}
-    	}
-        compileGeneratedFiles(builderOp, sourcesToPostCompile, 
-                              subMonitor.newChild(65));
+    	Map<String, Collection<String>> generatedFiles = compileX10Files(localOutputDir, sourcesToCompile, subMonitor.newChild(20));
+    	compileGeneratedFiles(builderOp, generatedFiles, sourcesToCompile, subMonitor.newChild(65));
       }
 
     };
@@ -451,34 +447,24 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
   }
   
-  private String getName(IFile file){
-	  IPath filePath = file.getFullPath();
-	  try {
-		  for(final IClasspathEntry cpEntry : fProjectWrapper.getRawClasspath()) {
-			  if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE && cpEntry.getPath().isPrefixOf(filePath) && !BuildPathUtils.isExcluded(filePath, cpEntry)) {
-				  return filePath.makeRelativeTo(cpEntry.getPath()).removeFileExtension().toOSString();
-			  }
-		  }
-	  } catch (JavaModelException e){
-		  LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, e);
-	  }
-	  return null;
-  }
 
-  private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Collection<File> sourcesToPostCompile,
-                                     final SubMonitor monitor) throws CoreException {
-    if (! sourcesToPostCompile.isEmpty()) {
+  private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Map<String, Collection<String>> generatedFiles,
+		  final Collection<IFile> sourcesToCompile, final SubMonitor monitor) throws CoreException {
+    if (! generatedFiles.isEmpty()) {
       monitor.beginTask(null, 100);
-      builderOp.transfer(sourcesToPostCompile, monitor.newChild(10));
-      if (builderOp.compile(monitor.newChild(70))) {
-        builderOp.archive(monitor.newChild(20));
+      Collection<File> sourcesToPostCompile = new ArrayList<File>();
+      for(IFile srcFile: sourcesToCompile){
+    	  String name = BuildPathUtils.getBareName(srcFile, fProjectWrapper);
+    	  if (generatedFiles.containsKey(name) && checkPostCompilationCondition(srcFile)) { // --- Code was generated for srcFile during this build.
+    		  sourcesToPostCompile.addAll(getLocalFiles(generatedFiles.get(name)));
+    	  }
       }
-    } else {
-      builderOp.archive(monitor);
-    }
+      builderOp.transfer(sourcesToPostCompile, monitor.newChild(10));
+      builderOp.compile(monitor.newChild(70));
+    } 
+    builderOp.archive(monitor);
   }
-
-  // --- A file can be post-compiled only if all the files it depends on have generated artifacts.
+  
   private boolean checkPostCompilationCondition(final IFile srcFile)throws CoreException {
 	  Set<String> dependencies = this.fDependencyInfo.getDependencies().get(srcFile.getFullPath().toString());
 	  final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -496,9 +482,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  }
 	  return true;
   }
- 
+
   
-  private Map<String, Collection<File>> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
+  private Collection<File> getLocalFiles(final Collection<String> generatedStrings) throws JavaModelException{
+	  Collection<File> result = new ArrayList<File>();
+	  final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
+      final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
+	  for (String name: generatedStrings){
+		  result.add(new File(outputLocation, name));
+	  }
+	  return result;
+  }
+  
+  private Map<String, Collection<String>> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                            final IProgressMonitor monitor) throws CoreException {
 	checkSrcFolders();  
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
@@ -535,18 +531,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       
       
       final Map<String, Collection<String>> outputFiles = compiler.outputFiles();
-      final Map<String, Collection<File>> generatedFiles = new HashMap<String, Collection<File>>();
-      final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
-      final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
-      
-      for (final String sourceFile : outputFiles.keySet()) {
-    	  Collection<File> outputs = new ArrayList<File>();
-    	  for(String outputPath: outputFiles.get(sourceFile)){
-    		  outputs.add(new File(outputLocation, outputPath));
-    	  }
-    	  generatedFiles.put(sourceFile, outputs);
-      }
-      return generatedFiles;
+      updateGeneratedFiles(outputFiles, sourcesToCompile);
+      return outputFiles;
     } catch (InternalCompilerError except) {
       LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, except);
       // The exception is also pushed on the error queue... A marker will be created accordingly for it.
@@ -557,6 +543,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       Globals.initialize(null);
     }
   }
+  
 
   // Constants that describe the role of each slot in the 2D array that Configuration.options() returns.
   private static final int OPTION_NAME = 0;
@@ -670,6 +657,21 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
     return result;
   }
+  
+  private void updateGeneratedFiles(Map<String, Collection<String>> generatedFiles, Collection<IFile> sourceFiles){
+	  for(IFile srcFile: sourceFiles){
+		  try { 
+		  	String name = BuildPathUtils.getBareName(srcFile, fProjectWrapper);
+		  	if (generatedFiles.containsKey(name)){
+			  fGeneratedFiles.put(name, generatedFiles.get(name));
+		  	} else {
+		  	  fGeneratedFiles.remove(name);
+		  	}
+		  } catch(JavaModelException e){
+			  LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, e);
+		 }
+	  }
+  }
 
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());
@@ -759,6 +761,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private PolyglotDependencyInfo fDependencyInfo;
 
-  private IJavaProject fProjectWrapper;
+  protected IJavaProject fProjectWrapper;
+  
+  protected Map<String, Collection<String>> fGeneratedFiles = new HashMap<String, Collection<String>>(); 
 
 }

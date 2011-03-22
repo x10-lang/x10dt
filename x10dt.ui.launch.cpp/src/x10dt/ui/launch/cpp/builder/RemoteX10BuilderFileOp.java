@@ -11,17 +11,18 @@ import static x10dt.ui.launch.core.Constants.CC_EXT;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.IJavaProject;
 
 import x10dt.core.utils.ICountableIterable;
 import x10dt.ui.launch.core.Messages;
@@ -37,13 +38,13 @@ import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  RemoteX10BuilderFileOp(final IProject project, final IX10PlatformConf platformConf) throws CoreException {
-    super(platformConf, project, platformConf.getCppCompilationConf().getRemoteOutputFolder());
+  RemoteX10BuilderFileOp(final IJavaProject javaProject, final IX10PlatformConf platformConf, Map<String, Collection<String>> generatedFiles) throws CoreException {
+    super(platformConf, javaProject, platformConf.getCppCompilationConf().getRemoteOutputFolder(), generatedFiles);
     this.fTargetOS = platformConf.getCppCompilationConf().getTargetOS();
     
     final ITargetOpHelper localTargetOpHelper = TargetOpHelperFactory.create(true, false, null);
-    this.fLocalX10BuilderOp = new LocalX10BuilderFileOp(project, ProjectUtils.getProjectOutputDirPath(project), platformConf,
-                                                        localTargetOpHelper);
+    this.fLocalX10BuilderOp = new LocalX10BuilderFileOp(javaProject, ProjectUtils.getProjectOutputDirPath(javaProject.getProject()), platformConf,
+                                                        localTargetOpHelper, generatedFiles);
   }
 
   // --- Interface methods implementation

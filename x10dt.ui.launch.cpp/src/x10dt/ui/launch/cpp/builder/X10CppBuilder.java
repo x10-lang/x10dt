@@ -49,9 +49,9 @@ public final class X10CppBuilder extends AbstractX10Builder {
   public IX10BuilderFileOp createX10BuilderFileOp() throws CoreException {
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(getProject());
     if (platformConf.getConnectionConf().isLocal()) {
-      return new LocalX10BuilderFileOp(getProject(), ProjectUtils.getProjectOutputDirPath(getProject()), platformConf);
+      return new LocalX10BuilderFileOp(fProjectWrapper, ProjectUtils.getProjectOutputDirPath(getProject()), platformConf, fGeneratedFiles);
     } else {
-      return new RemoteX10BuilderFileOp(getProject(), platformConf);
+      return new RemoteX10BuilderFileOp(fProjectWrapper, platformConf, fGeneratedFiles);
     }
   }
   
