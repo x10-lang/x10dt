@@ -5,11 +5,10 @@ import java.io.FilenameFilter;
 import java.util.Collection;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.IJavaProject;
 
 import x10dt.core.utils.ICountableIterable;
 import x10dt.ui.launch.core.Constants;
@@ -17,12 +16,12 @@ import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 
 public class X10JavaBuilderOp implements IX10BuilderFileOp {
 
-  private IProject fProject;
+  private IJavaProject fJavaProject;
 
   private X10JavaBuilder fBuilder;
 
-  public X10JavaBuilderOp(IProject project, X10JavaBuilder builder) {
-    this.fProject = project;
+  public X10JavaBuilderOp(IJavaProject project, X10JavaBuilder builder) {
+    this.fJavaProject = project;
     this.fBuilder = builder;
   }
 
@@ -34,7 +33,7 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 
   public void cleanFiles(final ICountableIterable<IFile> files, final SubMonitor monitor) throws CoreException {
     for (final IFile file : files) {
-      final File javaFile = this.fBuilder.getMainGeneratedFile(JavaCore.create(this.fProject), file);
+      final File javaFile = this.fBuilder.getMainGeneratedFile(fJavaProject, file);
       if (javaFile != null) {
         if (javaFile.exists()) {
           javaFile.delete();
@@ -68,7 +67,7 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
   public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
     // NoOp for Java Backend
   }
-
+  
   // --- Private classes
   
   private static final class AnonymousClassFilter implements FilenameFilter {
