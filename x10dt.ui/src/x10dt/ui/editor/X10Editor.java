@@ -1,6 +1,6 @@
 package x10dt.ui.editor;
 
-import org.eclipse.imp.editor.EditorInputUtils;
+import org.eclipse.imp.editor.IResourceDocumentMapListener;
 import org.eclipse.imp.editor.StructuredSourceViewerConfiguration;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.ui.DefaultPartListener;
@@ -26,10 +26,9 @@ import x10dt.ui.typeHierarchy.actions.OpenViewActionGroup;
 public class X10Editor extends UniversalEditor {
 	private DefaultPartListener fRefreshContributions;
 
-	public static final String TYPE_ACTION_SET = X10DTUIPlugin.PLUGIN_ID
-			+ ".typeActionSet";
+	public static final String TYPE_ACTION_SET = X10DTUIPlugin.PLUGIN_ID + ".typeActionSet";
 
-	OpenViewActionGroup ovg;
+	private OpenViewActionGroup ovg;
 
 	public X10Editor() {
 		super();
@@ -37,31 +36,27 @@ public class X10Editor extends UniversalEditor {
 
 	@Override
 	protected StructuredSourceViewerConfiguration createSourceViewerConfiguration() {
-		// RMF 13 Oct 2010 - For some reason, using the X10DTUIPlugin's
-		// preference store
-		// causes the eventStateMask to be 0, which effectively turns
-		// hyperlinking on
-		// even when the Cmd/Ctrl key is UP, the opposite of the normal
-		// behavior.
-		return new X10StructuredSourceViewerConfiguration(getPreferenceStore(),
-				this);
+		// RMF 13 Oct 2010 - For some reason, using the X10DTUIPlugin's preference store
+		// causes the eventStateMask to be 0, which effectively turns hyperlinking on
+		// even when the Cmd/Ctrl key is UP, the opposite of the normal behavior.
+		return new X10StructuredSourceViewerConfiguration(getPreferenceStore(), this);
+	}
+
+	@Override
+	protected IResourceDocumentMapListener getResourceDocumentMapListener() {
+	    // Tells the base editor about our indexer, so that it gets notified of
+	    // document and resource identity changes
+	    return SearchCoreActivator.getIndexer();
 	}
 
 	public void createPartControl(Composite parent) {
 		super.createPartControl(parent);
 		registerEditorContributionsActivator();
-		if (isEditable()) {
-		  SearchCoreActivator.getIndexer().registerDocument(getDocumentProvider().getDocument(getEditorInput()), 
-		                                                    EditorInputUtils.getFile(getEditorInput()), this);
-		}
 	}
 
 	@Override
 	public void dispose() {
 		unregisterEditorContributionsActivator();
-		if (isEditable()) {
-		  SearchCoreActivator.getIndexer().unregisterDocument(getDocumentProvider().getDocument(getEditorInput()));
-		}
 
 		if (ovg != null) {
 			ovg.dispose();
@@ -102,8 +97,7 @@ public class X10Editor extends UniversalEditor {
 	protected void createActions() {
 		super.createActions();
 
-		IAction action = new TextOperationAction(Messages
-				.getBundleForConstructedKeys(),
+		IAction action = new TextOperationAction(Messages.getBundleForConstructedKeys(),
 				"OpenHierarchy.", this, JavaSourceViewer.SHOW_HIERARCHY, true); //$NON-NLS-1$
 		action.setActionDefinitionId(EditorActionDefinitionIds.OPEN_HIERARCHY);
 		setAction(EditorActionDefinitionIds.OPEN_HIERARCHY, action);
@@ -123,8 +117,7 @@ public class X10Editor extends UniversalEditor {
 		menu.insertAfter(IContextMenuConstants.GROUP_OPEN, new GroupMarker(
 				IContextMenuConstants.GROUP_SHOW));
 
-		ActionContext context = new ActionContext(getSelectionProvider()
-				.getSelection());
+		ActionContext context = new ActionContext(getSelectionProvider().getSelection());
 		ovg.setContext(context);
 		ovg.fillContextMenu(menu);
 		ovg.setContext(null);
