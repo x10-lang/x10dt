@@ -31,6 +31,7 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.visit.NodeVisitor;
 import x10.types.MethodInstance;
@@ -113,18 +114,20 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
             Call call= (Call) node;
             MethodInstance mi= call.methodInstance();
             if (mi != null) {
-                return mi.def();  //PORT1.7mi.declaration() -> mi.def();
+                return mi.def();
             }
         } else if (node instanceof Field) {
             Field field= (Field) node;
             FieldInstance fi= field.fieldInstance();
-            if (fi != null)
-                return fi.def();   //PORT1.7 fi.declaration-> fi.def();
+            if (fi != null) {
+                return fi.def();
+            }
         } else if (node instanceof Local) {
             Local local= (Local) node;
             LocalInstance li= local.localInstance();
-            if (li != null)
-                return li.def();  //PORT1.7 li.declaration() -> li.def();
+            if (li != null) {
+                return li.def();
+            }
         } else if (node instanceof Formal) {
 			Formal formal = (Formal) node;
 			return formal.localDef();
@@ -139,21 +142,22 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
     }
 
     public static Node findVarDefinition(Local local, Node ast) {
-        final LocalInstance li= local.localInstance();
-        final LocalDecl ld[]= new LocalDecl[1];
+        final LocalDef localDef= local.localInstance().def();
+        final LocalDecl localDecl[]= new LocalDecl[1];
         NodeVisitor finder= new NodeVisitor() {
             public NodeVisitor enter(Node n) {
                 if (n instanceof LocalDecl) {
                     LocalDecl thisLD= (LocalDecl) n;
-                    LocalInstance tli = thisLD.localDef().asInstance();//PORT1.7 thisLD.localInstance()->thisLD.localDef().asInstance()
-                    if (tli == li)//PORT1.7 was thisLD.localInstance()
-                        ld[0]= thisLD;
+                    LocalDef tld = thisLD.localDef();
+                    if (tld == localDef) {
+                        localDecl[0]= thisLD;
+                    }
                 }
                 return super.enter(n);
             }
         };
         ast.visit(finder);
-        return ld[0];
+        return localDecl[0];
     }
 
     /**
