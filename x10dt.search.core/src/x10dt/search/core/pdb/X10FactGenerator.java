@@ -344,6 +344,8 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       ((Node) documentDescriptor.astRoot).visit(visitor);
 
       typeManager.writeDataInFactBase(factBase, factContext);
+    } catch (Throwable except) {
+      SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
     } finally {
       typeManager.clearWriter();
     }
