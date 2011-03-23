@@ -67,8 +67,8 @@
 
   <target name="test-framework-repo-setup" depends="test-framework-check" unless="test-framework.repo.exists">
     <eclipse.publish.featuresAndBundles repository="file:${repositories}/test-framework">
-      <features dir="${build.folder}/../builds/test-framework/eclipse/features" includes="*" />
-      <bundles dir="${build.folder}/../builds/test-framework/eclipse/plugins" includes="*" />
+      <features dir="${build.folder}/../test-framework/eclipse/features" includes="*" />
+      <bundles dir="${build.folder}/../test-framework/eclipse/plugins" includes="*" />
     </eclipse.publish.featuresAndBundles>
   </target>
 
