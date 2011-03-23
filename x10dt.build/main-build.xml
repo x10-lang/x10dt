@@ -168,7 +168,7 @@
   </target>
 
   <target name="publish-release" if="publish.release">
-    <property name="target.folder" value="${releases.folder}/${buildLabel}"/>
+    <property name="target.folder" value="${publish.site.loc}/${buildLabel}"/>
     <mkdir dir="${target.folder}"/>
     <copy todir="${target.folder}">
       <fileset dir="${x10dtBuildDirectory}/${buildLabel}">
