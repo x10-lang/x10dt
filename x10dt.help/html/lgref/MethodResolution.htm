@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>`</title>
+
+<div class="p"><!----></div>
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+    
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Method Resolution</h2>
+
+
+<a name="sect:MethodResolution">
+</a>
+
+<div class="p"><!----></div>
+Method resolution is the problem of determining, statically, which method (or
+constructor or operator)
+should be invoked, when there are several choices that could be invoked.  For
+example, the following class has two overloaded <b>zap</b> methods, one taking
+an <b>Object</b>, and the other a <b>Resolve</b>.  Method resolution will figure
+out that the call <b>zap(1..4)</b> should call <b>zap(Object)</b>, and
+<b>zap(new Resolve())</b> should call <b>zap(Resolve)</b>.  
+
+<div class="p"><!----></div>
+<pre>
+class Resolve {
+  static def zap(Object) = &#214;bject";
+  static def zap(Resolve) = "Resolve";
+  public static def main(argv:Array[String](1)) {
+    Console.OUT.println(zap(1..4));
+    Console.OUT.println(zap(new Resolve()));
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+The basic concept of method resolution is quite straightforward: 
+
+<ol type="1">
+<li> List all the methods that could possibly be used;
+<div class="p"><!----></div>
+</li>
+
+<li> Pick the most specific one;
+<div class="p"><!----></div>
+</li>
+
+<li> Fail if there is not a unique most specific one.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+In the presence of X10's highly-detailed type system, some subtleties arise. 
+One point, at least, is <em>not</em> subtle. The same procedure is used, <em>
+mutatis mutandis</em> for method, constructor, and operator resolution.  
+
+<div class="p"><!----></div>
+Generics introduce several subtleties, especially with the inference of
+generic types. 
+
+<div class="p"><!----></div>
+For the purposes of method resolution, all that matters about a method,
+constructor, or operator <b>M</b> - we use the word 
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+</html>

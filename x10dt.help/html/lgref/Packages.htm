@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>`</title>
+
+<div class="p"><!----></div>
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+    
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />Names and packages</h1>
+<a name="packages">
+</a> 
+
+<div class="p"><!----></div>
+X10 supports mechanisms for names and packages in the style of Java
+[,&#167; 6,&#167; 7], including <b>public</b>, <b>protected</b>, <b>private</b>
+and package-specific access control.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Packages</h2>
+
+<div class="p"><!----></div>
+A package is a named collection of top-level type declarations, <em>viz</em>, class,
+interface, and struct declarations. Package names are sequences of
+identifiers, like <b>x10.lang</b> and <b>com.ibm.museum</b>. The multiple names
+are simply a convenience, though there is a tenuous relationship between
+packages <b>a</b>, <b>a.b</b>, and <b>a.c</b>. 
+
+<div class="p"><!----></div>
+Packages and protection modifiers determine which top-level names can be used
+where. Only the <b>public</b> members of package <b>pack.age</b> can be accessed
+outside of <b>pack.age</b> itself.  
+<pre>
+package pack.age;
+class Deal {
+  public def make() {}
+}
+public class Stimulus {
+  private def taxCut() = true;
+  protected def benefits() = true;
+  public def jobCreation() = true;
+  /*package*/ def jumpstart() = true;
+}
+</pre>
+
+<div class="p"><!----></div>
+The class <b>Stimulus</b> can be referred to from anywhere outside of
+<b>pack.age</b> by its full name of <b>pack.age.Stimulus</b>, or can be imported
+and referred to simply as <b>Stimulus</b>.  The public <b>jobCreation()</b>
+method of a <b>Stimulus</b> can be referred to from anywhere as well; the other
+methods have smaller visibility.  The non-<b>public</b> class <b>Deal</b> cannot
+be used from outside of <b>pack.age</b>.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Name Collisions</h3>
+
+<div class="p"><!----></div>
+It is a static error for a package to have two members with the same name. For
+example, package <b>pack.age</b> cannot define two classes both named
+<b>Crash</b>, nor a class and an interface with that name.
+
+<div class="p"><!----></div>
+Furthermore, <b>pack.age</b> cannot define a member <b>Crash</b> if there is
+another package named <b>pack.age.Crash</b>, nor vice-versa. (This prohibition
+is the only actual relationship between the two packages.)  This prevents the
+ambiguity of whether <b>pack.age.Crash</b> refers to the class or the package.  
+Note that the naming convention that package names are lower-case and package
+members are capitalized prevents such collisions.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;<b>import</b> Declarations</h2>
+
+
+<div class="p"><!----></div>
+Any public member of a package can be referred to from anywhere through a
+fully-qualified name: <b>pack.age.Stimulus</b>.    
+
+<div class="p"><!----></div>
+Often, this is too awkward.  X10 has two ways to allow code outside of a class
+to refer to the class by its short name (<b>Stimulus</b>): single-type imports
+and on-demand imports.   
+
+<div class="p"><!----></div>
+Imports of either kind appear at the start of the file, immediately after the
+<b>package</b> directive if there is one; their scope is the whole file.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Single-Type Import</h3>
+
+<div class="p"><!----></div>
+The declaration <b>import </b> <em>TypeName</em> <b>;</b> imports a single type
+into the current namespace.  The type it imports must be a fully-qualified
+name of an extant type, and it must either be in the same package (in which
+case the <b>import</b> is redundant) or be declared <b>public</b>.  
+
+<div class="p"><!----></div>
+Furthermore, when importing <b>pack.age.T</b>, there must not be another type
+named <b>T</b> at that point: neither a  <b>T</b> declared in <b>pack.age</b>,
+nor a <b>inst.ant.T</b> imported from some other package.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.2">
+2.2</a>&nbsp;&nbsp;Automatic Import</h3>
+
+<div class="p"><!----></div>
+The automatic import <b>import pack.age.*;</b>, loosely, imports all the public
+members of <b>pack.age</b>.  In fact, it does so somewhat carefully, avoiding
+certain errors that could occur if it were done naively.  Types defined in the
+current package, and those imported by single-type imports, shadow those
+imported by automatic imports.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.3">
+2.3</a>&nbsp;&nbsp;Implicit Imports</h3>
+
+<div class="p"><!----></div>
+The packages <b>x10.lang</b> and <b>x10.array</b> are automatically imported in all files
+without need for further specification.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Conventions on Type Names</h2>
+
+<div class="p"><!----></div>
+<em>
+<table>
+<tr><td align="right">TypeName    ::= Id </td></tr>
+<tr><td align="right">
+    &#124; TypeName <b>.</b> Id</td></tr>
+<tr><td align="right">PackageName    ::= Id </td></tr>
+<tr><td align="right">
+    &#124; PackageName <b>.</b> Id</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+While not enforced by the compiler, classes and interfaces
+in the X10 library follow the following naming conventions.
+Names of types-including classes,
+type parameters, and types specified by type definitions-are in
+CamelCase and begin with an uppercase letter.  (Type variables are often
+single capital letters, such as <b>T</b>.)
+For backward
+compatibility with languages such as C and Java, type
+definitions are provided to allow primitive types
+such as <b>int</b> and <b>boolean</b> to be written in lowercase.
+Names of methods, fields, value properties, and packages are in camelCase and
+begin with a lowercase letter. 
+Names of <b>static val</b> fields are in all uppercase with words
+separated by <b>_</b>'s.
+
+<div class="p"><!----></div>
+
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+</html>

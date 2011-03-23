@@ -1,0 +1,296 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>`</title>
+
+<div class="p"><!----></div>
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+    
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 9 </a><br />Structs</h1>
+<a name="XtenStructs">
+</a>
+<a name="StructClasses">
+</a>
+<a name="Structs">
+</a>
+
+
+<div class="p"><!----></div>
+X10 objects are a powerful general-purpose programming tool. However, the
+power must be paid for in space and time. In space, a typical object
+implementation requires some extra memory for run-time class information, as
+well as a pointer for each reference to the object.  In time, a typical object
+requires an extra indirection to read or write data, and some computation to
+figure out which method body to call.  
+
+<div class="p"><!----></div>
+For high-performance computing, this overhead may not be acceptable for all
+objects. X10 provides structs, which are stripped-down objects. They are less
+powerful than objects; in particular they lack inheritance and mutable fields.
+Without inheritance, method calls do not need to do any lookup; they can be
+implemented directly. Accordingly, structs can be implemented and used more
+cheaply than objects, potentially avoiding the space and time overhead.
+(Currently, the C++ back end avoids the overhead, but the Java back end
+implements structs as Java objects and does not avoid it.)
+
+<div class="p"><!----></div>
+Structs and classes are interoperable. Both can implement interfaces (in
+particular, like all X10 values they implement <b>Any</b>), and subprocedures
+whose arguments are defined by interfaces can take both structs and classes.
+(Some caution is necessary here: referring to a struct through an interface
+requires overhead similar to that required for an object.)
+
+<div class="p"><!----></div>
+They are also interconvertable, within the constraints of structs. If you
+start off defining a struct and decide you need a class instead, the code
+change required is simply changing the keyword <b>struct</b> to <b>class</b>. If
+you have a class that does not use inheritance or mutable fields, it can be
+converted to a struct by changing its keyword. Client code using the struct
+that was a class will need certain changes: the <b>new</b> keyword must be
+added in constructor calls, and structs (unlike classes) do not have default values.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Struct declaration</h2>
+
+A struct declaration has the structure: 
+<pre>
+{<em>{</em>StructModifiers}}<sup>{</sup>{?}}
+struct C[X<sub>1</sub>, &#8230;, X<sub>n</sub>](p<sub>1</sub>:T<sub>1</sub>, &#8230;, p<sub>n</sub>:T<sub>n</sub>){c} 
+   implements I<sub>1</sub>, &#8230;, I<sub>k</sub> {
+{<em>{</em>StructBody}}
+}
+</pre>
+
+<div class="p"><!----></div>
+All fields of a struct must be <b>val</b>.
+
+<div class="p"><!----></div>
+A struct <b>S</b> cannot contain a field of type <b>S</b>, or a field of struct
+type <b>T</b> which, recursively, contains a field of type <b>S</b>.  This
+restriction is necessary to permit <b>S</b> to be implemented as a contiguous
+block of memory of size equal to the sum of the sizes of its fields.  
+
+<div class="p"><!----></div>
+Values of a struct <b>C</b> type can be created by invoking a constructor
+defined in <b>C</b>, but without prefixing it with <b>new</b>: 
+<pre>
+struct Polar(r:Double, theta:Double){
+  def this(r:Double, theta:Double) {property(r,theta);}
+  static val Origin = Polar(0,0);
+  static val x0y1 = Polar(1, 3.14159/2);
+}
+</pre>
+
+<div class="p"><!----></div>
+Structs support the same notions of generics, properties, and constrained
+types that classes do.  For example, the <b>Pair</b> type below provides pairs
+of values; the <b>diag()</b> method applies only when the two elements of the
+pair are equal, and returns that common value: 
+<pre>
+struct Pair[T,U](t:T, u:U) {
+  def this(t:T, u:U) { property(t,u); }
+  def diag(){T==U &amp;&amp; t==u} = t;
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Boxing of structs</h2>
+
+
+
+<a name="auto-boxing">
+</a> 
+If a struct <b>S</b> implements an interface <b>I</b> (<em>e.g.</em>, <b>Any</b>),
+a value {v} of type <b>S</b> can be assigned to a variable of type
+<b>I</b>. The implementation creates an object <b>o</b> that is an
+instance of an anonymous class implementing <b>I</b> and containing
+{v}.  The result of invoking a method of <b>I</b> on <b>o</b> is the
+same as invoking it on {v}. This operation is termed <em>auto-boxing</em>.
+It allows full interoperability of structs and objects-at the cost of losing
+the extra efficiency of the structs when they are boxed.
+
+<div class="p"><!----></div>
+In a generic class or struct obtained by instantiating a type parameter
+<b>T</b> with a struct <b>S</b>, variables declared at type <b>T</b> in the body
+of the class are not boxed. They are implemented as if they were declared at
+type <b>S</b>.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Optional Implementation of <b>Any</b> methods</h2>
+<a name="StructAnyMethods">
+</a>
+
+
+<div class="p"><!----></div>
+Two
+structs are equal (<b>==</b>) if and only if their corresponding fields
+are equal (<b>==</b>). 
+
+<div class="p"><!----></div>
+All structs implement <b>x10.lang.Any</b>. 
+Structs are required to implement the following methods from <b>Any</b>.  
+Programmers need not provide them; X10 will produce them automatically if 
+the program does not include them. 
+<pre>
+  public def equals(Any):Boolean;
+  public def hashCode():Int;
+  public def typeName():String;
+  public def toString():String;  
+</pre>
+
+<div class="p"><!----></div>
+A programmer who provides an explicit implementation
+of <b>equals(Any)</b> for a struct <b>S</b> should also consider
+supplying a definition for <b>equals(S):Boolean</b>. This will often
+yield better performance since the cost of an upcast to <b>Any</b> and
+then a downcast to <b>S</b> can be avoided.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Primitive Types</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="p"><!----></div>
+Certain types that might be built in to other languages are in fact
+implemented as structs in package <b>x10.lang</b> in X10. Their methods and
+operations are often provided with <b>@Native</b> (&#167;) rather
+than X10 code, however. These types are:
+<pre>
+Boolean, Char, Byte, Short, Int, Long
+Float, Double, UByte, UShort, UInt, ULong
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Generic programming with structs</h2>
+
+
+
+<div class="p"><!----></div>
+An unconstrained type variable <b>X</b> can be instantiated with <b>Object</b> or
+its subclasses or structs or functions.
+
+<div class="p"><!----></div>
+Within a generic struct, all the operations of <b>Any</b> are available
+on a variable of type <b>X</b>. Additionally, variables of type <b>X</b> may
+be used with <b>==, !=</b>, in <b>instanceof</b>, and casts.
+
+<div class="p"><!----></div>
+The programmer must be aware of the different interpretations of
+equality for structs and classes and ensure that the code is correctly
+written for both cases. If necessary the programmer can write code
+that distinguishes between the two cases (a type parameter <b>X</b> is
+instantiated to a struct or not) as follows:
+
+<div class="p"><!----></div>
+<pre>
+val x:X = ...;
+if (x instanceof Object) { // x is a real object
+   val x2 = x as Object; // this cast will always succeed.
+   ...
+} else { // x is a struct
+   ...
+}
+</pre>
+
+<div class="p"><!----></div>
+   <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Example structs</h2>
+
+<div class="p"><!----></div>
+<b>x10.lang.Complex</b> provides a detailed example of a practical struct,
+suitable for use in a library.  For a shorter example, we define the
+<b>Pair</b> struct-available in <b>x10.util.Pair</b>.  A <b>Pair</b> packages
+two values of possibly unrelated type together in a single value, <em>e.g.</em>, to
+return two values from a function.
+
+<div class="p"><!----></div>
+<pre>
+struct Pair[T,U] {
+    public val first:T;
+    public val second:U;
+    public def this(first:T, second:U):Pair[T,U] {
+        this.first = first;
+        this.second = second;
+    }
+    public def toString():String {
+        return "(" + first + ", " + second + ")";
+    }
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Nested Structs</h2>
+
+
+
+<div class="p"><!----></div>
+Static nested structs may be defined, essentially as static nested classes
+except for making them structs
+(&#167;).  Inner structs may be defined, essentially as
+inner classes except making them structs (&#167;).
+
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+</html>

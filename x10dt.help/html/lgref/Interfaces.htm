@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>`</title>
+
+<div class="p"><!----></div>
+`\`=13
+
+
+<div class="p"><!----></div>
+`^^M=13 
+
+<div class="p"><!----></div>
+`^^I=13 
+
+<div class="p"><!----></div>
+}}
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+    
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 7 </a><br />Interfaces</h1>
+<a name="XtenInterfaces">
+</a>
+
+<div class="p"><!----></div>
+An interface specifies signatures for public methods, properties,
+<b>static val</b>s, and an invariant. It may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+<div class="p"><!----></div>
+The following puny example illustrates all these features: 
+<pre>
+interface Pushable(text:String, prio:Int) {
+  def push(): void;
+  static val MAX_PRIO = 100;
+}
+class MessageButton(text:String, prio:Int) 
+  implements Pushable{self.prio==Pushable.MAX_PRIO} {
+  public def push() { 
+    x10.io.Console.OUT.println(text + " pushed");
+  }
+}
+</pre>
+
+<b>Pushable</b> defines two properties, a method, and a static value.  
+<b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
+<em>viz</em>&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
+defines the <b>push()</b> method given in the interface, as a <b>public</b>
+method-interface methods are implicitly <b>public</b>.
+
+<div class="p"><!----></div>
+A concrete type-a class or struct-can <em>implement</em> an interface,
+typically by having all the methods and properties that the interface
+requires.
+
+<div class="p"><!----></div>
+A variable may be declared to be of interface type.  Such a variable has all
+the fields and methods declared (directly or indirectly) by the interface;
+nothing else is statically available.  Values of a concrete type which
+implement the interface may be stored in the variable.  
+
+<div class="p"><!----></div>
+<a name="DepType:Interface">
+</a> 
+<em>
+<table>
+<tr><td align="right">NormalInterfaceDecl    ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">
+ TypeParamsWithVariance    ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
+<tr><td align="right">
+ Properties    ::= <b>(</b> PropertyList <b>)</b> </td></tr>
+<tr><td align="right">
+ PropertyList    ::= Property </td></tr>
+<tr><td align="right">
+    &#124; PropertyList <b>,</b> Property</td></tr>
+<tr><td align="right">Property    ::= Annotations<sup>?</sup>&nbsp;Id ResultType </td></tr>
+<tr><td align="right">
+ WhereClause    ::= DepParams </td></tr>
+<tr><td align="right">
+ ExtendsInterfaces    ::= <b>extends</b> Type </td></tr>
+<tr><td align="right">
+    &#124; ExtendsInterfaces <b>,</b> Type</td></tr>
+<tr><td align="right">InterfaceBody    ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">
+ InterfaceMemberDecls    ::= InterfaceMemberDecl </td></tr>
+<tr><td align="right">
+    &#124; InterfaceMemberDecls InterfaceMemberDecl</td></tr>
+<tr><td align="right">InterfaceMemberDecl    ::= MethodDecl </td></tr>
+<tr><td align="right">
+    &#124; PropertyMethodDecl</td></tr>
+<tr><td align="right">&#124; FieldDecl</td></tr>
+<tr><td align="right">&#124; ClassDecl</td></tr>
+<tr><td align="right">&#124; InterfaceDecl</td></tr>
+<tr><td align="right">&#124; TypeDefDecl</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The invariant associated with an interface is the conjunction of the
+invariants associated with its superinterfaces and the invariant
+defined at the interface. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Each interface implicitly defines a nullary getter method
+<b>def p(): T</b> for each property <b>p: T</b>. The interface may not have
+another definition of a method <b>p()</b>. 
+
+<div class="p"><!----></div>
+A class <b>C</b> is said to implement an interface <b>I</b> if
+
+<ul>
+<li> <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
+      of <b>C</b>,
+<div class="p"><!----></div>
+</li>
+
+<li> <b>C</b>'s properties include all the properties of <b>I</b>,
+<div class="p"><!----></div>
+</li>
+
+<li> Each method <b>m</b> defined by <b>I</b> is also a method of <b>C</b> -
+      with the <em><b>public</b></em> modifier added.   These methods may be
+      <b>abstract</b> if <b>C</b> is <b>abstract</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Note that, by definition of <i>inv</i>(&#183;) (see &#167;, <b>C</b>'s class invariant <i>inv</i>(<b>C</b>) implies
+<i>inv</i>(<b>I</b>).
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Field Definitions</h2>
+
+
+<div class="p"><!----></div>
+An interface may declare a <b>val</b> field, with a value.  This field is implicitly
+<b>public static val</b>: 
+<pre>
+interface KnowsPi {
+  PI = 3.14159265358;
+}
+</pre>
+
+<div class="p"><!----></div>
+Classes and structs implementing such an interface get the interface's fields as
+<b>public static</b> fields.  Unlike properties and methods, there is no need
+for the implementing class to declare them. 
+<pre>
+class Circle implements KnowsPi {
+  static def area(r:Double) = PI * r * r;
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Fine Points of Fields</h3>
+
+<div class="p"><!----></div>
+It can happen that two parent interfaces give fields of the same name.  In
+that case, those fields must be referred to by qualified names.
+<pre>
+interface E1 {static val a = 1;}
+interface E2 {static val a = 2;}
+interface E3 extends E1, E2{}
+class Example implements E3 {
+  def example() = E1.a + E2.a;
+}
+</pre>
+
+<div class="p"><!----></div>
+If the <em>same</em> field <b>a</b> is inherited through many paths, there is no need to
+disambiguate it:
+<pre>
+interface I1 { static val a = 1;} 
+interface I2 extends I1 {}
+interface I3 extends I1 {}
+interface I4 extends I2,I3 {}
+class Example implements I4 {
+  def example() = a;
+}
+</pre>
+
+<div class="p"><!----></div>
+
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+</html>
