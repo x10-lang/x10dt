@@ -3,20 +3,30 @@ Bundle-ManifestVersion: 2
 Bundle-Name: X10DT UI Tests
 Bundle-SymbolicName: x10dt.ui.tests
 Bundle-Version: 2.2.0.qualifier
-Fragment-Host: x10dt.ui;bundle-version="2.2.0"
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.apache.log4j,
+Require-Bundle: lpg.runtime.java,
  org.eclipse.compare,
  org.eclipse.swtbot.eclipse.core,
  org.eclipse.swtbot.eclipse.finder,
  org.eclipse.swtbot.eclipse.ui,
  org.eclipse.swtbot.junit4_x,
  org.eclipse.swtbot.swt.finder,
+ org.eclipse.core.filesystem,
+ org.eclipse.core.resources,
+ org.eclipse.core.runtime,
+ org.eclipse.imp.runtime,
+ org.eclipse.jface.text,
+ org.eclipse.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.ui.editors,
  org.hamcrest,
  org.junit4,
- x10dt.tests.services
+ x10.compiler,
+ x10dt.tests.services,
+ x10dt.core,
+ x10dt.search.core,
+ x10dt.ui
 Bundle-ClassPath: ui.jar,.
-Eclipse-RegisterBuddy: org.apache.log4j
 Import-Package: x10dt.ui.launch.cpp,
  x10dt.ui.launch.cpp.builder.target_op
