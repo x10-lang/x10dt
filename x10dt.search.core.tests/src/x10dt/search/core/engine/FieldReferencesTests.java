@@ -30,7 +30,8 @@ public final class FieldReferencesTests extends AbstractIndexerTestBase {
   // --- Test cases
 
   @Test public void refsForA_f() throws Exception {
-    final IProject project = createProject(PROJECT_NAME, "data/references/FieldReferencesExample1.x10", EProjectBackEnd.JAVA);
+    final IProject project = createProject(PROJECT_NAME, "data/engine/references/FieldReferencesExample1.x10", 
+                                           EProjectBackEnd.JAVA);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
     final ITypeInfo[] typeInfo = X10SearchEngine.getTypeInfo(scope, A_CLASS, null);

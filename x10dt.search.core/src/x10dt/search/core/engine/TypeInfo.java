@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 
+import x10dt.search.core.elements.ITypeBaseInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
@@ -22,16 +23,18 @@ import x10dt.search.core.engine.scope.X10SearchScope;
 
 final class TypeInfo extends AbstractMemberInfo implements ITypeInfo {
   
-  TypeInfo(final ITuple tuple, final ITypeInfo declaringType) {
+  TypeInfo(final ITuple tuple, final ITypeBaseInfo[] typeParameters, final ITypeInfo declaringType) {
     this(((IString) tuple.get(0)).getValue(), (ISourceLocation) tuple.get(1), ((IInteger) tuple.get(2)).intValue(), 
-         declaringType);
+         typeParameters, declaringType);
   }
   
-  TypeInfo(final String typeName, final ISourceLocation location, final int x10FlagsCode, final ITypeInfo declaringType) {
+  TypeInfo(final String typeName, final ISourceLocation location, final int x10FlagsCode, 
+           final ITypeBaseInfo[] typeParameters, final ITypeInfo declaringType) {
     super(location, typeName, x10FlagsCode, declaringType);
+    this.fTypeParameters = typeParameters;
   }
 
-  // --- ITypeInfo's interface methods implementation
+  // --- IX10Element's interface methods implementation
   
   public boolean exists(final IProgressMonitor monitor) {
     final IX10SearchScope scope;
@@ -47,5 +50,21 @@ final class TypeInfo extends AbstractMemberInfo implements ITypeInfo {
       return false;
     }
   }
+  
+  // --- ITypeBaseInfo's interface methods implementation
+  
+  public boolean isTypeParameter() {
+    return false;
+  }
+  
+  // --- ITypeInfo's interface methods implementation
+  
+  public ITypeBaseInfo[] getTypeParameters() {
+    return this.fTypeParameters;
+  }
+  
+  // --- Fields
+  
+  private final ITypeBaseInfo[] fTypeParameters;
 
 }

@@ -21,8 +21,6 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
-import org.eclipse.imp.utils.Pair;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
@@ -30,8 +28,8 @@ import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration;
 
-import polyglot.types.ClassType;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
@@ -59,15 +57,15 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
   }
 
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
-                                                  final Pair<ClassType, IJavaElement> type) {
-    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getJavaProject().getElementName());
+                                                  final ITypeInfo typeInfo) {
+    workingCopy.setAttribute(ATTR_PROJECT_NAME, typeInfo.getCompilationUnit().getProject().getName());
     workingCopy.setAttribute(org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
-                             type.second.getJavaProject().getElementName());
-    workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
+                             typeInfo.getCompilationUnit().getProject().getName());
+    workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, typeInfo.getName());
     workingCopy.setAttribute(ATTR_CONSOLE, true);
-    workingCopy.setAttribute(Constants.ATTR_X10_MAIN_CLASS, type.first.fullName().toString());
+    workingCopy.setAttribute(Constants.ATTR_X10_MAIN_CLASS, typeInfo.getName());
     
-    final IProject project = type.second.getResource().getProject();
+    final IProject project = typeInfo.getCompilationUnit().getProject().getRawProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
     
     final String useHostListAttrKey;
@@ -124,10 +122,8 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     }
   }
   
-  // --- Overridden methods
-  
   protected void updateLaunchConfig(final ILaunchConfigurationWorkingCopy config) throws CoreException {
-    final String projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, ""); //$NON-NLS-1$
+    final String projectName = config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, Constants.EMPTY_STR);
     final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
 

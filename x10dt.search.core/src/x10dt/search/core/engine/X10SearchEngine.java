@@ -42,10 +42,12 @@ import x10dt.core.utils.IFilter;
 import x10dt.search.core.SearchCoreActivator;
 import x10dt.search.core.elements.IFieldInfo;
 import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeBaseInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.engine.scope.IX10SearchScope;
 import x10dt.search.core.engine.scope.SearchScopeFactory;
 import x10dt.search.core.engine.scope.X10SearchScope;
+import x10dt.search.core.pdb.X10FlagsEncoder.X10;
 import x10dt.search.core.utils.FactBaseUtils;
 import x10dt.search.core.utils.PDBValueUtils;
 
@@ -147,8 +149,8 @@ public final class X10SearchEngine {
           final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, APPLICATION, 
                                                                     subMonitor);
           collectMethodUses(FactBaseUtils.getFactBaseSetValue(factBase, context, X10_MethodRefs, APPLICATION, subMonitor),
-                               allTypeSets, context, X10SearchScope.APPLICATION >> 1, allMethods, searchResultObserver, 
-                               methodInfo, typeHierarchy, subMonitor);
+                            allTypeSets, context, X10SearchScope.APPLICATION >> 1, allMethods, searchResultObserver, 
+                            methodInfo, typeHierarchy, subMonitor);
         }
         
         if (subMonitor.isCanceled()) {
@@ -157,8 +159,8 @@ public final class X10SearchEngine {
         if ((searchScope.getSearchMask() & X10SearchScope.LIBRARY) != 0) {
           final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, LIBRARY, subMonitor);
           collectMethodUses(FactBaseUtils.getFactBaseSetValue(factBase, context, X10_MethodRefs, LIBRARY, subMonitor),
-                               allTypeSets, context, X10SearchScope.LIBRARY >> 1, allMethods, searchResultObserver, 
-                               methodInfo, typeHierarchy, subMonitor);
+                            allTypeSets, context, X10SearchScope.LIBRARY >> 1, allMethods, searchResultObserver, 
+                            methodInfo, typeHierarchy, subMonitor);
         }
       }
       
@@ -169,9 +171,9 @@ public final class X10SearchEngine {
         final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), X10_AllMethods, 
                                                                   RUNTIME, subMonitor);
         collectMethodUses(FactBaseUtils.getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), X10_MethodRefs, 
-                                                               RUNTIME, subMonitor),
-                             allTypeSets, WorkspaceContext.getInstance(), X10SearchScope.RUNTIME >> 1, allMethods, 
-                             searchResultObserver, methodInfo, typeHierarchy, subMonitor);
+                                                            RUNTIME, subMonitor),
+                          allTypeSets, WorkspaceContext.getInstance(), X10SearchScope.RUNTIME >> 1, allMethods, 
+                          searchResultObserver, methodInfo, typeHierarchy, subMonitor);
       }
     } finally {
       subMonitor.done();
@@ -360,6 +362,63 @@ public final class X10SearchEngine {
   }
   
   /**
+   * Returns all the type information that contains an X10 main method for the given search scope.
+   * 
+   * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
+   * 
+   * @param searchScope The scope of the search. See {@link SearchScopeFactory}.
+   * @param monitor The monitor to use to report progress or cancel the operation.
+   * @return A non-null, but possibly empty (if no match was found), array of type information.
+   * @throws InterruptedException Occurs if the operation gets canceled.
+   */
+  public static ITypeInfo[] getAllTypesWithMainMethod(final IX10SearchScope searchScope,
+                                                      final IProgressMonitor monitor) throws InterruptedException {
+    final FactBase factBase = SearchCoreActivator.getIndexer().getFactBase();
+    final SubMonitor subMonitor = SubMonitor.convert(monitor);
+    final Collection<ITypeInfo> typeInfos = new ArrayList<ITypeInfo>();
+    try {
+      final ICountableIterable<IFactContext> searchContexts = searchScope.createSearchContexts();
+      subMonitor.beginTask(null, 2 * searchContexts.getSize() + 1);
+      
+      ISet[] allTypeSets = null;
+      for (final IFactContext context : searchContexts) {
+        if (subMonitor.isCanceled()) {
+          throw new InterruptedException();
+        }
+        allTypeSets = getAllTypeSets(factBase, context, subMonitor);
+        if ((searchScope.getSearchMask() & X10SearchScope.APPLICATION) != 0) {
+          final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, APPLICATION, 
+                                                                    subMonitor);
+          collectMainMethodsInfo(typeInfos, allMethods, allTypeSets, X10SearchScope.APPLICATION >> 1, searchScope, 
+                                 subMonitor.newChild(1));
+        }
+        
+        if (subMonitor.isCanceled()) {
+          throw new InterruptedException();
+        }
+        if ((searchScope.getSearchMask() & X10SearchScope.LIBRARY) != 0) {
+          final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, context, X10_AllMethods, LIBRARY, subMonitor);
+          collectMainMethodsInfo(typeInfos, allMethods, allTypeSets, X10SearchScope.LIBRARY >> 1, searchScope,
+                                 subMonitor.newChild(1));
+        }
+      }
+      
+      if (subMonitor.isCanceled()) {
+        throw new InterruptedException();
+      }
+      if ((allTypeSets != null) && (searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
+        final ISet allMethods = FactBaseUtils.getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), X10_AllMethods, 
+                                                                  RUNTIME, subMonitor);
+        collectMainMethodsInfo(typeInfos, allMethods, allTypeSets, X10SearchScope.RUNTIME >> 1, searchScope,
+                               subMonitor.newChild(1));
+      }
+    } finally {
+      subMonitor.done();
+    }
+    return typeInfos.toArray(new ITypeInfo[typeInfos.size()]);
+  }
+
+  /**
    * Returns the field info wrapper for a given type and field name.
    * 
    * <p>Such method <b>must</b> be executed <b>outside of the UI thread</b>.
@@ -412,18 +471,43 @@ public final class X10SearchEngine {
   }
   
   // --- Internal services
-
-  static ITypeInfo findTypeInfo(final ISet allTypes, final ITuple typeTuple) {
-    if ((allTypes != null) && allTypes.contains(typeTuple)) {
-      if (typeTuple.arity() < 4) {
-        return new TypeInfo(typeTuple, null);
-      } else {
-        return new TypeInfo(typeTuple, findDeclaringTypeInfo(allTypes, ((IString) typeTuple.get(3)).getValue(), 
-                                                             (ISourceLocation) typeTuple.get(1)));
+  
+  static ITypeInfo findTypeInfo(final ISet[] allTypes, final int scopeIndex, final ITuple typeTuple,
+                                final IProgressMonitor monitor) throws InterruptedException {
+    for (int i = scopeIndex; i <= 2; ++i) {
+      if (monitor.isCanceled()) {
+        throw new InterruptedException();
       }
-    } else {
-      return null;
+      if ((allTypes[i] != null) && allTypes[i].contains(typeTuple)) {
+        final IList typeParams = (IList) typeTuple.get(3);
+        final ITypeBaseInfo[] typeParamsInfo;
+        if (typeParams.length() > 0) {
+          typeParamsInfo = new ITypeBaseInfo[typeParams.length()];
+          int j = -1;
+          for (final IValue typeParam : typeParams) {
+            final ITuple typeParamTuple = (ITuple) typeParam;
+            final String typeParamName = ((IString) typeParamTuple.get(0)).getValue();
+            if (typeParamName.charAt(0) == '[') {
+              typeParamsInfo[++j] = new TypeParameterInfo(typeParamName.substring(1), (ISourceLocation) typeParamTuple.get(1));
+            } else {
+              typeParamsInfo[++j] = findTypeInfo(allTypes, scopeIndex, typeParamTuple, monitor);
+            }
+          }
+        } else {
+          typeParamsInfo = new ITypeInfo[0];
+        }
+        
+        final ITypeInfo declaringTypeInfo;
+        if (typeTuple.arity() < 5) {
+          declaringTypeInfo = null;
+        } else {
+          declaringTypeInfo = findTypeInfo(allTypes, scopeIndex, (ITuple) typeTuple.get(4), monitor);
+        }
+        
+        return new TypeInfo(typeTuple, typeParamsInfo, declaringTypeInfo);
+      }
     }
+    return null;
   }
   
   // --- Private code
@@ -467,9 +551,32 @@ public final class X10SearchEngine {
           for (final IValue typeToMethodsValue : allMethodsSet) {
             final ITuple typeToMethods = (ITuple) typeToMethodsValue;
             if (((IList) typeToMethods.get(1)).contains(foundMethod)) {
-              final ITypeInfo declaringType = findTypeInfo(allTypesSets[scopeIndex], (ITuple) typeToMethods.get(0));
+              final ITypeInfo declaringType = findTypeInfo(allTypesSets, scopeIndex, (ITuple) typeToMethods.get(0), monitor);
               searchResultObserver.accept(createMethodInfo(foundMethod, allTypesSets, scopeIndex, declaringType, monitor),
                                           (ISourceLocation) finding.get(1));
+              break;
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  private static void collectMainMethodsInfo(final Collection<ITypeInfo> typeInfos, final ISet allMethods, 
+                                             final ISet[] allTypes, final int scopeIndex, final IX10SearchScope searchScope, 
+                                             final SubMonitor monitor) throws InterruptedException {
+    if (allMethods != null) {
+      for (final IValue allMethodTuple : allMethods) {
+        final ITuple tuple = (ITuple) allMethodTuple;
+        final IList methods = (IList) tuple.get(1);
+        for (final IValue method : methods) {
+          final ITuple methodTuple = (ITuple) method;
+          final ISourceLocation sourceLoc = (ISourceLocation) methodTuple.get(0);
+          if (isMainMethod(methodTuple) &&
+              ((scopeIndex == X10SearchScope.RUNTIME >> 1) || searchScope.contains(sourceLoc.getURI().toString()))) {
+            final ITypeInfo typeInfo = findTypeInfo(allTypes, scopeIndex, (ITuple) tuple.get(0), monitor);
+            if (typeInfo != null) {
+              typeInfos.add(typeInfo);
               break;
             }
           }
@@ -527,7 +634,7 @@ public final class X10SearchEngine {
           for (final IValue typeToMethodsValue : allMethodsSet) {
             final ITuple typeToMethods = (ITuple) typeToMethodsValue;
             if (((IList) typeToMethods.get(1)).contains(foundMethod)) {
-              final ITypeInfo declaringType = findTypeInfo(allTypesSets[scopeIndex], (ITuple) typeToMethods.get(0));
+              final ITypeInfo declaringType = findTypeInfo(allTypesSets, scopeIndex, (ITuple) typeToMethods.get(0), monitor);
               searchResultObserver.accept(createMethodInfo(foundMethod, allTypesSets, scopeIndex, declaringType, monitor),
                                           (ISourceLocation) finding.get(1));
               break;
@@ -604,28 +711,23 @@ public final class X10SearchEngine {
     return null;
   }
   
-  private static void collectTypeInfo(final Collection<ITypeInfo> typeInfos, final ISet allTypes, 
-                                      final IFilter<String> filter,  final String scopeTypeName, 
-                                      final IX10SearchScope searchScope,  
+  private static void collectTypeInfo(final Collection<ITypeInfo> typeInfos, final ISet[] allTypes, final int scopeIndex, 
+                                      final IFilter<String> filter,  final IX10SearchScope searchScope,  
                                       final IProgressMonitor monitor) throws InterruptedException {
-    if (allTypes != null) {
-      for (final IValue value : allTypes) {
+    if (allTypes[scopeIndex] != null) {
+      for (final IValue value : allTypes[scopeIndex]) {
         if (monitor.isCanceled()) {
           throw new InterruptedException();
         }
         final ITuple tuple = (ITuple) value;
         final String name = ((IString) tuple.get(0)).getValue();
         final ISourceLocation sourceLoc = (ISourceLocation) tuple.get(1);
-        final int x10FlagsCode = ((IInteger) tuple.get(2)).intValue();
-        if (filter.accepts(name) && ((scopeTypeName == RUNTIME) || searchScope.contains(sourceLoc.getURI().toString()))) {
-          final ITypeInfo declaringType;
-          if (tuple.arity() < 4) {
-            declaringType = null;
-          } else {
-            final IString declaringTypeName = (IString) tuple.get(3);
-            declaringType = findDeclaringTypeInfo(allTypes, declaringTypeName.getValue(), sourceLoc);
+        if (filter.accepts(name) && 
+            ((scopeIndex == X10SearchScope.RUNTIME >> 1) || searchScope.contains(sourceLoc.getURI().toString()))) {
+          final ITypeInfo typeInfo = findTypeInfo(allTypes, scopeIndex, tuple, monitor);
+          if (typeInfo != null) {
+            typeInfos.add(typeInfo);
           }
-          typeInfos.add(new TypeInfo(name, sourceLoc, x10FlagsCode, declaringType));
         }
       }
     }
@@ -648,7 +750,7 @@ public final class X10SearchEngine {
           for (final IValue typeToMethodsValue : allMethods) {
             final ITuple typeToMethods = (ITuple) typeToMethodsValue;
             if (((IList) typeToMethods.get(1)).contains(foundMethod)) {
-              final ITypeInfo declaringType = findTypeInfo(allTypes[scopeIndex], (ITuple) typeToMethods.get(0));
+              final ITypeInfo declaringType = findTypeInfo(allTypes, scopeIndex, (ITuple) typeToMethods.get(0), monitor);
               searchResultObserver.accept(createMethodInfo(foundMethod, allTypes, scopeIndex, declaringType, monitor),
                                           (ISourceLocation) finding.get(1));
               break;
@@ -702,49 +804,11 @@ public final class X10SearchEngine {
                           ((IInteger) tuple.get(4)).intValue(), declaringTypeInfo);
   }
   
-  private static ITypeInfo findDeclaringTypeInfo(final ISet allTypes, final String typeName,
-                                                 final ISourceLocation sourceLocation) {
-    for (final IValue value : allTypes) {
-      final ITuple tuple = (ITuple) value;
-      if (((IString) tuple.get(0)).getValue().equals(typeName) && 
-           hasOverlappingLocation((ISourceLocation) tuple.get(1), sourceLocation)) {
-        final ITypeInfo declaringType;
-        if (tuple.arity() < 4) {
-          declaringType = null;
-        } else {
-          final IString declaringTypeName = (IString) tuple.get(3);
-          declaringType = findDeclaringTypeInfo(allTypes, declaringTypeName.getValue(), 
-                                                (ISourceLocation) tuple.get(1));
-        }
-        return new TypeInfo(tuple, declaringType);
-      }
-    }
-    return null;
-  }
-  
   private static ITuple findTupleInReferences(final ISet references, final ITuple targetTuple) {
     for (final IValue reference : references) {
       final ITuple refTuple = (ITuple) reference;
       if (refTuple.get(0).equals(targetTuple)) {
         return refTuple;
-      }
-    }
-    return null;
-  }
-  
-  private static ITypeInfo findTypeInfo(final ISet[] allTypes, final int scopeIndex, final ITuple typeTuple,
-                                        final IProgressMonitor monitor) throws InterruptedException {
-    final String typeName = ((IString) typeTuple.get(0)).getValue();
-    if (typeName.charAt(0) == '[') {
-      return new ParameterTypeInfo(typeName.substring(1));
-    }
-    for (int i = scopeIndex; i <= 2; ++i) {
-      if (monitor.isCanceled()) {
-        throw new InterruptedException();
-      }
-      ITypeInfo typeInfo = findTypeInfo(allTypes[i], typeTuple);
-      if (typeInfo != null) {
-        return typeInfo;
       }
     }
     return null;
@@ -880,14 +944,15 @@ public final class X10SearchEngine {
         }
         allTypeSets = getAllTypeSets(factBase, context, subMonitor);
         if ((searchScope.getSearchMask() & X10SearchScope.APPLICATION) != 0) {
-          collectTypeInfo(typeInfos, allTypeSets[0], filter, APPLICATION, searchScope, subMonitor.newChild(1));
+          collectTypeInfo(typeInfos, allTypeSets, X10SearchScope.APPLICATION >> 1, filter, searchScope, 
+                          subMonitor.newChild(1));
         }
         
         if (subMonitor.isCanceled()) {
           throw new InterruptedException();
         }
         if ((searchScope.getSearchMask() & X10SearchScope.LIBRARY) != 0) {
-          collectTypeInfo(typeInfos, allTypeSets[1], filter, LIBRARY, searchScope, subMonitor.newChild(1));
+          collectTypeInfo(typeInfos, allTypeSets, X10SearchScope.LIBRARY >> 1, filter, searchScope, subMonitor.newChild(1));
         }
       }
       
@@ -895,7 +960,7 @@ public final class X10SearchEngine {
         throw new InterruptedException();
       }
       if ((allTypeSets != null) && (searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
-        collectTypeInfo(typeInfos, allTypeSets[2], filter, RUNTIME, searchScope, subMonitor.newChild(1));
+        collectTypeInfo(typeInfos, allTypeSets, X10SearchScope.RUNTIME >> 1, filter, searchScope, subMonitor.newChild(1));
       }
     } finally {
       subMonitor.done();
@@ -903,13 +968,23 @@ public final class X10SearchEngine {
     return typeInfos.toArray(new ITypeInfo[typeInfos.size()]);
   }
   
-  private static boolean hasOverlappingLocation(final ISourceLocation container, final ISourceLocation contained) {
-    if (container.getURI().equals(contained.getURI())) {
-      return (container.getOffset() <= contained.getOffset()) &&
-             ((container.getOffset() + container.getLength()) >= (contained.getOffset() + contained.getLength()));
-    } else {
-      return false;
+  private static boolean isMainMethod(final ITuple methodTuple) {
+    if (MAIN_METHOD_NAME.equals(((IString) methodTuple.get(1)).getValue())) {
+      final int modifiers = ((IInteger) methodTuple.get(4)).intValue();
+      if (((X10.PUBLIC.getCode() & modifiers) != 0) && ((X10.STATIC.getCode() & modifiers) != 0)) {
+        final IList parameters = (IList) methodTuple.get(3);
+        if (parameters.length() == 1) {
+          final ITuple parameterType = (ITuple) parameters.get(0);
+          if (ARRAY_TYPE.equals(((IString) parameterType.get(0)).getValue())) {
+            final IList typeParams = (IList) parameterType.get(3);
+            if (typeParams.length() == 1) {
+              return STRING_TYPE.equals(((IString) ((ITuple) typeParams.get(0)).get(0)).getValue());
+            }
+          }
+        }
+      }
     }
+    return false;
   }
   
   private static boolean isSameType(final ITuple tuple, final ITypeInfo typeInfo) {
@@ -980,5 +1055,13 @@ public final class X10SearchEngine {
     private final Pattern fPattern;
     
   }
+  
+  // --- Fields
+  
+  private static final String MAIN_METHOD_NAME = "main"; //$NON-NLS-1$
+  
+  private static final String ARRAY_TYPE = "x10.array.Array"; //$NON-NLS-1$
+  
+  private static final String STRING_TYPE = "x10.lang.String"; //$NON-NLS-1$
 
 }

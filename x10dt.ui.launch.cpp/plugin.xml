@@ -188,13 +188,13 @@
                            <adapt
                                  type="org.eclipse.core.resources.IResource">
                               <test
-                                    property="x10dt.ui.hasMain" args="run">
+                                    property="x10dt.ui.hasMain" args="run,x10dt.ui.launch.cpp.x10nature">
                               </test>
                            </adapt>
                            <adapt
                                  type="org.eclipse.ui.IFileEditorInput">
                               <test
-                                    args="run"
+                                    args="run,x10dt.ui.launch.cpp.x10nature"
                                     property="x10dt.ui.hasMain">
                               </test>
                            </adapt>

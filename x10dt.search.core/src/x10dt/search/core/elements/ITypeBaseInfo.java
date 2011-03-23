@@ -7,18 +7,21 @@
  *******************************************************************************/
 package x10dt.search.core.elements;
 
+
 /**
- * Provides access to a general X10 type definition.
+ * Provides minimal type information for a type name coming from the search index database.
  * 
  * @author egeay
  */
-public interface ITypeInfo extends ITypeBaseInfo, IMemberInfo {
+public interface ITypeBaseInfo extends IX10Element {
   
   /**
-   * Returns the potential generic type parameters for the given type.
+   * Indicates if this type definition is a type parameter or not.
+   * If it returns true it can safely be casted into an {@link ITypeParameterInfo}. Otherwise it can safely be casted into
+   * an {@link ITypeInfo}.
    * 
-   * @return A non-null but possibly empty list of type parameters.
+   * @return True if it is a type parameter, false otherwise.
    */
-  public ITypeBaseInfo[] getTypeParameters();
-
+  public boolean isTypeParameter();
+  
 }

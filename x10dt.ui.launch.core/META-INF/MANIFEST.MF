@@ -24,6 +24,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  x10.common,
  x10.compiler,
  x10dt.core,
+ x10dt.search.core,
  x10dt.ui
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

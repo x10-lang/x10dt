@@ -8,17 +8,9 @@
 package x10dt.search.core.elements;
 
 /**
- * Provides access to a general X10 type definition.
+ * Provides access to an X10 type parameter definition.
  * 
  * @author egeay
  */
-public interface ITypeInfo extends ITypeBaseInfo, IMemberInfo {
-  
-  /**
-   * Returns the potential generic type parameters for the given type.
-   * 
-   * @return A non-null but possibly empty list of type parameters.
-   */
-  public ITypeBaseInfo[] getTypeParameters();
-
+public interface ITypeParameterInfo extends ITypeBaseInfo {
 }

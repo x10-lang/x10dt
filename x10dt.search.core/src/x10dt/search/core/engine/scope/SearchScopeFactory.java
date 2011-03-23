@@ -34,7 +34,18 @@ public final class SearchScopeFactory {
    * @return A non-null instance of {@link IX10SearchScope}.
    */
   public static IX10SearchScope createWorkspaceScope(final int searchMask) {
-    return new X10WorkspaceScope(searchMask);
+    return new X10WorkspaceScope(searchMask, null /* projectNatureId */);
+  }
+  
+  /**
+   * Creates a workspace search scope on all the projects that satisfy the nature id transmitted.
+   * 
+   * @param searchMask Defines the scope level of the search. Most of the time, {@link X10SearchScope#ALL} will be wanted. 
+   * @param projectNatureId The project nature id of interest to filter the X10 projects to look at.
+   * @return A non-null instance of {@link IX10SearchScope}.
+   */
+  public static IX10SearchScope createWorkspaceScope(final int searchMask, final String projectNatureId) {
+    return new X10WorkspaceScope(searchMask, projectNatureId);
   }
   
   // --- Private code

@@ -8,51 +8,27 @@
 package x10dt.search.core.engine;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.imp.model.ICompilationUnit;
-import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
-import x10dt.search.core.elements.ITypeInfo;
+import x10dt.search.core.elements.ITypeParameterInfo;
 
 
-final class VoidTypeInfo implements ITypeInfo {
+final class TypeParameterInfo extends AbstractX10Element implements ITypeParameterInfo {
+
+  TypeParameterInfo(final String typeName, final ISourceLocation sourceLocation) {
+    super(typeName, sourceLocation);
+  }
   
   // --- IX10Element's interface methods implementation
   
   public boolean exists(final IProgressMonitor monitor) {
     return true;
   }
-
-  public ISourceLocation getLocation() {
-    return null;
+  
+  // --- ITypeBaseInfo's interface methods implementation
+  
+  public boolean isTypeParameter() {
+    return true;
   }
-  
-  public final ISourceEntity getSourceEntity() {
-    return null;
-  }
-  
-  // --- IMemberInfo's interface methods implementation
-  
-  public ITypeInfo getDeclaringType() {
-    return null;
-  }
-  
-  public String getName() {
-    return VOID_TYPE_NAME;
-  }
-
-  public int getX10FlagsCode() {
-    return 0;
-  }
-  
-  // --- ITypeInfo's interface methods implementation
-  
-  public ICompilationUnit getCompilationUnit() {
-    return null;
-  }
-  
-  // --- Fields
-  
-  static final String VOID_TYPE_NAME = "x10.lang.Void"; //$NON-NLS-1$
 
 }

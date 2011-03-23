@@ -77,37 +77,27 @@ final class TypeHierarchy implements ITypeHierarchy {
         jobMonitor.beginTask(null, searchContexts.getSize() + 20);
         jobMonitor.subTask(Messages.TH_CollectingData);
         
-        ISet allTypesAppValue = null;
-        ISet allTypesLibValue = null;
-        ISet allTypesRuntimeValue = null;
-        ISet typeHierarchyAppValue = null;
-        ISet typeHierarchyLibValue = null;
-        ISet typeHierarchyRuntimeValue = null;
+        final ISet[] allTypes = new ISet[3];
+        final ISet[] typeHierarchySets = new ISet[3];
         for (final IFactContext context : searchContexts) {
           if ((searchScope.getSearchMask() & X10SearchScope.APPLICATION) != 0) {
-            allTypesAppValue = union(allTypesAppValue, getFactBaseSetValue(factBase, context, X10_AllTypes, APPLICATION));
-            typeHierarchyAppValue = union(typeHierarchyAppValue, 
-                                          getFactBaseSetValue(factBase, context, X10_TypeHierarchy, APPLICATION));
+            allTypes[0] = getFactBaseSetValue(factBase, context, X10_AllTypes, APPLICATION);
+            typeHierarchySets[0] = getFactBaseSetValue(factBase, context, X10_TypeHierarchy, APPLICATION);
           }
           if ((searchScope.getSearchMask() & X10SearchScope.LIBRARY) != 0) {
-            allTypesLibValue = union(allTypesLibValue, getFactBaseSetValue(factBase, context, X10_AllTypes, LIBRARY));
-            typeHierarchyLibValue = union(typeHierarchyLibValue, 
-                                          getFactBaseSetValue(factBase, context, X10_TypeHierarchy, LIBRARY));
+            allTypes[1] = getFactBaseSetValue(factBase, context, X10_AllTypes, LIBRARY);
+            typeHierarchySets[1] = getFactBaseSetValue(factBase, context, X10_TypeHierarchy, LIBRARY);
           }
           if ((searchScope.getSearchMask() & X10SearchScope.RUNTIME) != 0) {
-            allTypesRuntimeValue = union(allTypesRuntimeValue, getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), 
-                                                                                   X10_AllTypes, RUNTIME));
-            typeHierarchyRuntimeValue = union(typeHierarchyRuntimeValue, 
-                                              getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), 
-                                                                  X10_TypeHierarchy, RUNTIME));
+            allTypes[2] = getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), X10_AllTypes, RUNTIME);
+            typeHierarchySets[2] = getFactBaseSetValue(factBase, WorkspaceContext.getInstance(), 
+                                                       X10_TypeHierarchy, RUNTIME);
           }
           jobMonitor.worked(1);
         }
         
         try {
-          buildHierarchy(union(allTypesAppValue, allTypesLibValue, allTypesRuntimeValue),
-                         union(typeHierarchyAppValue, typeHierarchyLibValue, typeHierarchyRuntimeValue),
-                         new SubProgressMonitor(monitor, 20));
+          buildHierarchy(allTypes, typeHierarchySets, new SubProgressMonitor(monitor, 20));
           return Status.OK_STATUS;
         } catch (InterruptedException except) {
           return new Status(IStatus.CANCEL, SearchCoreActivator.PLUGIN_ID, Messages.TH_SearchCanceled);
@@ -259,7 +249,7 @@ final class TypeHierarchy implements ITypeHierarchy {
     }
   }
   
-  private void buildHierarchy(final ISet allTypes, final ISet globalTypeHierarchy, 
+  private void buildHierarchy(final ISet[] allTypes, final ISet[] typeHierarchySets, 
                               final IProgressMonitor monitor) throws InterruptedException {
     final Queue<IValue> subTypesWork = new LinkedList<IValue>();
     final Queue<IValue> superTypesWork = new LinkedList<IValue>();
@@ -280,18 +270,22 @@ final class TypeHierarchy implements ITypeHierarchy {
       
       final IValue superWorkItem = superTypesWork.isEmpty() ? null : superTypesWork.poll();
       final IValue subWorkItem = subTypesWork.isEmpty() ? null : subTypesWork.poll();
-        
-      for (final IValue value : globalTypeHierarchy) {
-        final ITuple tuple = (ITuple) value;
-        if ((superWorkItem != null) && superWorkItem.equals(tuple.get(0))) {
-          buildHierarchy(allTypes, tuple);
-          superTypesWork.offer(tuple.get(1));
-          progress.worked(1);
-        }
-        if ((subWorkItem != null) && subWorkItem.equals(tuple.get(1))) {
-          buildHierarchy(allTypes, tuple);
-          subTypesWork.offer(tuple.get(0));
-          progress.worked(1);
+       
+      for (int scopeIndex = 0; scopeIndex < 3; ++scopeIndex) {
+        if (typeHierarchySets[scopeIndex] != null) {
+          for (final IValue value : typeHierarchySets[scopeIndex]) {
+            final ITuple tuple = (ITuple) value;
+            if ((superWorkItem != null) && superWorkItem.equals(tuple.get(0))) {
+              buildHierarchy(allTypes, scopeIndex, tuple, progress);
+              superTypesWork.offer(tuple.get(1));
+              progress.worked(1);
+            }
+            if ((subWorkItem != null) && subWorkItem.equals(tuple.get(1))) {
+              buildHierarchy(allTypes, scopeIndex, tuple, progress);
+              subTypesWork.offer(tuple.get(0));
+              progress.worked(1);
+            }
+          }
         }
       }
     }
@@ -299,14 +293,15 @@ final class TypeHierarchy implements ITypeHierarchy {
     progress.done();
   }
 
-  private void buildHierarchy(final ISet allTypes, final ITuple tuple) {
+  private void buildHierarchy(final ISet[] allTypes, final int scopeIndex, final ITuple tuple,
+                              final IProgressMonitor monitor) throws InterruptedException {
     final ITuple type = (ITuple) tuple.get(0);
     final ITuple parentType = (ITuple) tuple.get(1);
 
-    final ITypeInfo typeInfo = X10SearchEngine.findTypeInfo(allTypes, type);
+    final ITypeInfo typeInfo = X10SearchEngine.findTypeInfo(allTypes, scopeIndex, type, monitor);
     if (type != null) {
       this.fAllTypes.add(typeInfo);
-      final ITypeInfo parentTypeInfo = X10SearchEngine.findTypeInfo(allTypes, parentType);
+      final ITypeInfo parentTypeInfo = X10SearchEngine.findTypeInfo(allTypes, scopeIndex, parentType, monitor);
       if (parentTypeInfo != null) {
         this.fAllTypes.add(parentTypeInfo);
 
@@ -351,20 +346,6 @@ final class TypeHierarchy implements ITypeHierarchy {
                                    final String scopeTypeName) {
     return (ISet) factBase.queryFact(new FactKey(SearchDBTypes.getInstance().getType(parametricTypeName, scopeTypeName), 
                                                  context));
-  }
-  
-  private <T extends ISet> T union(final T ... sets) {
-    T finalSet = null;
-    for (final T set : sets) {
-      if (finalSet == null) {
-        if (set != null) {
-          finalSet = set;
-        }
-      } else if (set != null) {
-        finalSet = finalSet.union(set);
-      }
-    }
-    return finalSet;
   }
   
   // --- Fields

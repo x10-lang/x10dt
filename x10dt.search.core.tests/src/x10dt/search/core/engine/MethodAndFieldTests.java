@@ -76,7 +76,8 @@ public final class MethodAndFieldTests extends AbstractIndexerTestBase {
     assertEquals(DOUBLE, recEvalInfo[0].getParameters()[2].getName());
     assertEquals(DOUBLE, recEvalInfo[0].getParameters()[3].getName());
     assertEquals(DOUBLE, recEvalInfo[0].getParameters()[4].getName());
-    assertTrue("Method recEval should be marked private", (recEvalInfo[0].getX10FlagsCode() & X10FlagsEncoder.X10.PRIVATE.getCode()) != 0);
+    assertTrue("Method recEval should be marked private", 
+               (recEvalInfo[0].getX10FlagsCode() & X10FlagsEncoder.X10.PRIVATE.getCode()) != 0);
     
     final IMethodInfo[] allMethods = X10SearchEngine.getAllMatchingMethodInfo(scope, typeInfo[0], ".*", true, nullMonitor);
     assertEquals("Incorrect # of methods found on class " + INTEGRATE_CLASS, 4, allMethods.length);

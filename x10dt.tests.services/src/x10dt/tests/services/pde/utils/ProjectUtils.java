@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -165,10 +166,11 @@ public final class ProjectUtils {
       project.create(null);
       project.open(null);
       
-      final IProjectDescription description = project.getDescription();
+      IProjectDescription description = project.getDescription();
       description.setNatureIds(new String[] {
         backEndNature, SmapiProjectNature.k_natureID, JavaCore.NATURE_ID                        
       });
+      project.setDescription(description, null);
       
       final IPath srcPath = new Path('/' + name + "/src"); //$NON-NLS-1$
       final IPath binPath = new Path('/' + name + "/bin"); //$NON-NLS-1$
@@ -177,7 +179,22 @@ public final class ProjectUtils {
       final IFolder binFolder = project.getFolder(new Path("bin")); //$NON-NLS-1$
       binFolder.create(false /* force */, true /* local */, null);
       
-      project.setDescription(description, null);
+      // We need to remove the Java builder.
+      if (X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID.equals(backEndNature)) {
+        description = project.getDescription();
+        final ICommand[] commands = description.getBuildSpec();
+        final ICommand[] newCommands = new ICommand[commands.length - 1];
+        for (int i = 0; i < commands.length; ++i) {
+          if (JavaCore.BUILDER_ID.equals(commands[i].getBuilderName())) {
+            System.arraycopy(commands, 0, newCommands, 0, i);
+            System.arraycopy(commands, i + 1, newCommands, i, commands.length - i - 1);
+            break;
+          }
+        }
+        description.setBuildSpec(newCommands);
+        
+        project.setDescription(description, null);
+      }
       
       final IJavaProject javaProject = JavaCore.create(project);
       

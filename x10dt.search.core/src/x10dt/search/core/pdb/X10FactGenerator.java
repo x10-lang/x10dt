@@ -294,7 +294,8 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   }
   
   private void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource,
-                      final CompilerOptionsBuilder cmpOptBuilder, final Set<Map.Entry<String, Collection<Source>>> entries) throws AnalysisException {
+                      final CompilerOptionsBuilder cmpOptBuilder, 
+                      final Set<Map.Entry<String, Collection<Source>>> entries) throws AnalysisException {
     for (final Map.Entry<String, Collection<Source>> entry : entries) {
       final IFactContext factContext = RUNTIME.equals(entry.getKey()) ? WorkspaceContext.getInstance() : context;
 

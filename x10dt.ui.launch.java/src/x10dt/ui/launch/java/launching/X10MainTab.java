@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -33,8 +32,8 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
-import polyglot.types.ClassType;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.java.Activator;
@@ -54,11 +53,11 @@ final class X10MainTab extends JavaMainTab {
     }
     if (javaElement != null) {
       try {
-        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(new IJavaElement[] { javaElement }, 
-                                                                                X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID,
-                                                                                getShell());
+        final ITypeInfo mainType = LaunchUtils.findMainType(new IResource[] { javaElement.getResource() }, 
+                                                            X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID,
+                                                            getShell());
         if (mainType != null) {
-          config.setAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, mainType.first.fullName().toString());
+          config.setAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, mainType.getName());
         }  
       } catch (Exception except) {
         // Simply forgets the initialization of main type.
@@ -118,21 +117,20 @@ final class X10MainTab extends JavaMainTab {
   }
 
   protected void handleSearchButtonSelected() {
-    final IJavaProject project = getJavaProject();
-    final IJavaElement[] scope;
-    if ((project == null) || !project.exists()) {
+    final IJavaProject javaProject = getJavaProject();
+    final IResource[] scope;
+    if ((javaProject == null) || !javaProject.exists()) {
       scope = null;
     } else {
-      final boolean hasValidNature = hasX10ProjectJavaBackEndNature(project.getProject());
-      scope = hasValidNature ? new IJavaElement[] { project } : null;
+      final boolean hasValidNature = hasX10ProjectJavaBackEndNature(javaProject.getProject());
+      scope = hasValidNature ? new IResource[] { javaProject.getProject() } : null;
     }
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID,
-                                                                              getShell());
+      final ITypeInfo mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID, getShell());
       if (mainType != null) {
-        super.fMainText.setText(mainType.first.fullName().toString());
-        if ((project == null) || !project.exists()) {
-          super.fProjText.setText(mainType.second.getJavaProject().getElementName());
+        super.fMainText.setText(mainType.getName());
+        if ((javaProject == null) || !javaProject.exists()) {
+          super.fProjText.setText(mainType.getCompilationUnit().getProject().getName());
         }
       }
     } catch (InvocationTargetException except) {

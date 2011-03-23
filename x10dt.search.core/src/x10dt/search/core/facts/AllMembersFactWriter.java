@@ -32,14 +32,13 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassDef;
-import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.MethodDef;
 import x10.types.MethodInstance;
-import x10.types.VoidType;
+import x10.types.X10ClassType;
 
 
 final class AllMembersFactWriter extends AbstractFactWriter implements IFactWriter {
@@ -55,7 +54,7 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
     this.fClassMemberStack.addFirst(classDecl);
     
     final ClassDef classDef = classDecl.classDef();
-    final ClassType classType = classDef.asType();
+    final X10ClassType classType = classDef.asType();
     final IValue x10Type = findOrCreateType(classType);
     insertValue(X10_AllTypes, x10Type);
 
@@ -163,13 +162,12 @@ final class AllMembersFactWriter extends AbstractFactWriter implements IFactWrit
   }
   
   public void visit(final TypeNode typeNode) {
-    if (! (typeNode.typeRef().get() instanceof VoidType)) {
+    final polyglot.types.Type type = typeNode.typeRef().get();
+    if (type instanceof X10ClassType) {
       if (this.fClassMemberStack.peek() instanceof MethodDecl) {
-        this.fMethodToTypeRefs.add(getValueFactory().tuple(findOrCreateType(typeNode.typeRef().get()),
-                                                           createSourceLocation(typeNode.position())));
+        this.fMethodToTypeRefs.add(getValueFactory().tuple(findOrCreateType(type), createSourceLocation(typeNode.position())));
       } else {
-        this.fTypeToTypeRefs.add(getValueFactory().tuple(findOrCreateType(typeNode.typeRef().get()),
-                                                         createSourceLocation(typeNode.position())));
+        this.fTypeToTypeRefs.add(getValueFactory().tuple(findOrCreateType(type), createSourceLocation(typeNode.position())));
       }
     }
   }

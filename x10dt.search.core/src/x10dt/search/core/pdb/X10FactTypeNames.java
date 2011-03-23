@@ -36,7 +36,7 @@ public final class X10FactTypeNames {
   
   /**
    * Fact type name identifying X10 type as a tuple of ({@value #X10_TypeName}, [{@link ISourceLocation}], [int],
-   * [{@value #X10_TypeName}]).
+   * [list({@link #X10_Type})], [{@value #X10_Type}]).
    */
   public static final String X10_Type = "x10.type"; //$NON-NLS-1$
   

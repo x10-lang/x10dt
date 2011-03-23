@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -25,7 +26,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.osgi.util.NLS;
 
-import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -37,6 +37,7 @@ import polyglot.util.Position;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.ParameterType;
+import x10.types.X10ClassType;
 import x10dt.search.core.Messages;
 import x10dt.search.core.pdb.ITypeManager;
 import x10dt.search.core.pdb.SearchDBTypes;
@@ -146,7 +147,7 @@ abstract class AbstractFactWriter implements IFactWriter {
     final IValue[] args = new IValue[formalTypes.size()];
     int i = -1;
     for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createType(formalType.get());
+      args[++i] = findOrCreateType(formalType.get());
     }
     return getValueFactory().tuple(createSourceLocation(methodDef.position()), this.fThisMethodName, this.fVoidType,  
                                    getValueFactory().list(args), createModifiersCodeValue(methodDef.flags()));
@@ -155,7 +156,7 @@ abstract class AbstractFactWriter implements IFactWriter {
   private IValue createFieldValue(final FieldDef fieldDef) {
     return getValueFactory().tuple(createSourceLocation(fieldDef.position()), 
                                    this.fFieldName.make(getValueFactory(), fieldDef.name().toString()),
-                                   createType(fieldDef.asInstance().type()), createModifiersCodeValue(fieldDef.flags()));
+                                   findOrCreateType(fieldDef.asInstance().type()), createModifiersCodeValue(fieldDef.flags()));
   }
   
   private IValue createMethodValue(final MethodDef methodDef) {
@@ -163,11 +164,11 @@ abstract class AbstractFactWriter implements IFactWriter {
     final IValue[] args = new IValue[formalTypes.size()];
     int i = -1;
     for (final Ref<? extends polyglot.types.Type> formalType : formalTypes) {
-      args[++i] = createType(formalType.get());
+      args[++i] = findOrCreateType(formalType.get());
     }
     return getValueFactory().tuple(createSourceLocation(methodDef.position()),
                                    this.fMethodName.make(getValueFactory(), methodDef.name().toString()),
-                                   createType(methodDef.returnType().get()), getValueFactory().list(args),
+                                   findOrCreateType(methodDef.returnType().get()), getValueFactory().list(args),
                                    createModifiersCodeValue(methodDef.flags()));
   }
   
@@ -183,25 +184,35 @@ abstract class AbstractFactWriter implements IFactWriter {
         return getValueFactory().tuple(createTypeName(type.toString()), createSourceLocation(type.position()),
                                        this.fIntType.make(this.fValueFactory, -1));
       }
-    } else if (type instanceof ClassType) {
-      final ClassType classType = (ClassType) type;
+    } else if (type instanceof X10ClassType) {
+      final X10ClassType classType = (X10ClassType) type;
       if (classType.position().isCompilerGenerated()) {
         return getValueFactory().tuple(createTypeName(type.fullName().toString()));
       } else {
+        final IList params;
+        if (classType.hasParams() && (classType.typeArguments() != null)) {
+          final ITuple[] parameters = new ITuple[classType.typeArguments().size()];
+          int i = -1;
+          for (final polyglot.types.Type arg : classType.typeArguments()) {
+            parameters[++i] = findOrCreateType(arg);
+          }
+          params = getValueFactory().list(parameters);
+        } else {
+          params = getValueFactory().list(SearchDBTypes.getInstance().getType(X10FactTypeNames.X10_Type));
+        }
         if (classType.outer() == null) {
           return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
-                                         createModifiersCodeValue(classType.flags()));
+                                         createModifiersCodeValue(classType.flags()), params);
         } else {
-          final IValue outerTypeNameValue = createTypeName(classType.outer().fullName().toString());
           return getValueFactory().tuple(createTypeName(type.fullName().toString()), createSourceLocation(type.position()),
-                                         createModifiersCodeValue(classType.flags()), outerTypeNameValue);
+                                         createModifiersCodeValue(classType.flags()), params, 
+                                         findOrCreateType(classType.outer()));
         }
       }
     } else if (type instanceof ConstrainedType) {
-      return createType(((ConstrainedType) type).baseType().get());
+      return findOrCreateType(((ConstrainedType) type).baseType().get());
     } else if (type instanceof ParameterType) {
-      return getValueFactory().tuple(createTypeName('[' + type.fullName().toString()), createSourceLocation(type.position()), 
-                                     this.fIntType.make(this.fValueFactory, -1));
+      return getValueFactory().tuple(createTypeName('[' + type.fullName().toString()), createSourceLocation(type.position()));
     } else {
       if ((type.position() == null) || type.position().isCompilerGenerated()) {
         if (type instanceof UnknownType) {

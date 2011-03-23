@@ -23,6 +23,7 @@ import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.postcompiler.PostCompileProperties;
 import x10cpp.postcompiler.PrecompiledLibrary;
 import x10dt.core.utils.CompilerOptionsFactory;
+import x10dt.core.utils.ShallowErrorQueue;
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -33,7 +34,6 @@ import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
-import x10dt.ui.utils.X10Utils;
 
 abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
 
@@ -58,7 +58,7 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     final X10CompilerOptions options = CompilerOptionsFactory.createOptions(platformConf.getConfFile().getProject());
     options.output_directory = new File(x10DistribLoc);
     definePrecompiledLibrary(options, isLocal, x10DistribLoc, x10DistFileStore, targetOpHelper);
-    final CXXCommandBuilder builder = CXXCommandBuilder.getCXXCommandBuilder(options, prop, new X10Utils.ShallowErrorQueue());
+    final CXXCommandBuilder builder = CXXCommandBuilder.getCXXCommandBuilder(options, prop, new ShallowErrorQueue());
 
     this.fPostCompiler = builder.getPostCompiler();
     this.fPostFileArgs = concatenate(builder.getPostFileArgs(), targetOpHelper);
@@ -117,7 +117,8 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   }
 
   private void definePrecompiledLibrary(final X10CompilerOptions options, final boolean isLocal, final String x10DistPath,
-                                        final IFileStore x10DistFileStore, final ITargetOpHelper targetOpHelper) throws IOException, CoreException {
+                                        final IFileStore x10DistFileStore, 
+                                        final ITargetOpHelper targetOpHelper) throws IOException, CoreException {
     final IFileStore libX10FileStore = x10DistFileStore.getChild(LIBX10_PROPERTIES_FILE);
     options.setDistPath(targetOpHelper.getTargetSystemPath(x10DistPath));
 

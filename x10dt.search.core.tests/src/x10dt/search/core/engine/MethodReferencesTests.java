@@ -32,7 +32,8 @@ public final class MethodReferencesTests extends AbstractIndexerTestBase {
   // --- Test cases
 
   @Test public void refsForA_m() throws Exception {
-    final IProject project = createProject(PROJECT_NAME, "data/references/MethodReferencesExample1.x10", EProjectBackEnd.JAVA);
+    final IProject project = createProject(PROJECT_NAME, "data/engine/references/MethodReferencesExample1.x10", 
+                                           EProjectBackEnd.JAVA);
     final IX10SearchScope scope = SearchScopeFactory.createSelectiveScope(X10SearchScope.ALL, project);
     
     final IProgressMonitor nullMonitor = new NullProgressMonitor();

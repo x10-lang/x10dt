@@ -12,6 +12,7 @@ import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
@@ -27,8 +28,9 @@ import x10dt.search.core.SearchCoreActivator;
 
 final class X10WorkspaceScope extends AbstractX10SearchScope implements IX10SearchScope {
   
-  X10WorkspaceScope(final int searchMask) {
+  X10WorkspaceScope(final int searchMask, final String projectNatureId) {
     super(searchMask);
+    this.fProjectNatureId = projectNatureId;
   }
 
   // --- Interface methods implementation
@@ -40,7 +42,7 @@ final class X10WorkspaceScope extends AbstractX10SearchScope implements IX10Sear
   public ICountableIterable<IFactContext> createSearchContexts() {
     final Collection<IFactContext> searchContexts = new ArrayList<IFactContext>();
     for (final IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
-      if (project.isAccessible()) {
+      if (project.isAccessible() && satisfiesProjectNature(project)) {
         try {
           searchContexts.add(new ProjectContext(ModelFactory.open(project)));
         } catch (ModelException except) {
@@ -51,5 +53,20 @@ final class X10WorkspaceScope extends AbstractX10SearchScope implements IX10Sear
     }
     return CountableIterableFactory.create(searchContexts);
   }
+  
+  // --- Private code
+  
+  private boolean satisfiesProjectNature(final IProject project) {
+    try {
+      return (this.fProjectNatureId == null) ? true : project.hasNature(this.fProjectNatureId);
+    } catch (CoreException except) {
+      // We can't verify the nature. Let's be conservative and not consider it as a potential match.
+      return false;
+    }
+  }
+  
+  // --- Fields
+  
+  private final String fProjectNatureId;
 
 }

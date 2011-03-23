@@ -7,22 +7,20 @@
  *******************************************************************************/
 package x10dt.ui.launch.core.launching;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import org.eclipse.core.expressions.PropertyTester;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.PlatformUI;
 
-import polyglot.types.ClassType;
 import x10dt.core.preferences.generated.X10Constants;
-import x10dt.ui.X10DTUIPlugin;
-import x10dt.ui.launching.ResourceToJavaElementAdapter;
-import x10dt.ui.utils.X10Utils;
+import x10dt.search.core.elements.ITypeInfo;
+import x10dt.ui.launch.core.LaunchCore;
+import x10dt.ui.utils.LaunchUtils;
 
 /**
  * Defines the "hasMain" property tester.
@@ -34,27 +32,34 @@ public class X10LaunchablePropertyTester extends PropertyTester {
   // --- Interface methods implementation
   
   public boolean test(final Object receiver, final String property, final Object[] args, final Object expectedValue) {
-    IFile file = getFileFor(receiver);
+    final IFile file = getFileFor(receiver);
 
     if (file == null) {
-      X10DTUIPlugin.getInstance().writeErrorMsg("Attempt to use X10LaunchablePropertyTester to test a non-file object: " + receiver.getClass());
+      LaunchCore.log(IStatus.ERROR, 
+                     String.format("Attempt to use X10LaunchablePropertyTester to test a non-file object: %s", //$NON-NLS-1$
+                                   receiver.getClass()));
       return false;
     }
 
-    if (!PROPERTY_HAS_MAIN.equals(property)) {
+    if (! PROPERTY_HAS_MAIN.equals(property)) {
       // N.B. if we get here, the extension is wrong, since this class handles only this one property
-      X10DTUIPlugin.getInstance().writeErrorMsg("Attempt to use X10LaunchablePropertyTester for a property it doesn't handle: " + property);
+      LaunchCore.log(IStatus.ERROR, 
+                     String.format("Attempt to use X10LaunchablePropertyTester for a property it doesn't handle: %s", //$NON-NLS-1$ 
+                                   property));
       return false;
     }
-    if (!hasMain(file)) {
+    
+    final String launchMode = (args.length > 0) ? (String) args[0] : null;
+    final String projectNatureId = (args.length > 1) ? (String) args[1] : null;
+    
+    if (! hasMain(file, projectNatureId)) {
       return false;
     }
-    if (args.length > 0) {
-      String launchMode = (String) args[0];
+    if (launchMode != null) {
       if (ILaunchManager.DEBUG_MODE.equals(launchMode)) {
         // Check that the -DEBUG preference is on; otherwise, debugging any X10 program in this
         // project is not possible, since the necessary debugging info won't be present.
-        if (!new PreferencesService(file.getProject()).getBooleanPreference(X10Constants.P_DEBUG)) {
+        if (! new PreferencesService(file.getProject()).getBooleanPreference(X10Constants.P_DEBUG)) {
           return false;
         }
       }
@@ -81,16 +86,12 @@ public class X10LaunchablePropertyTester extends PropertyTester {
     return null;
   }
     
-  private boolean hasMain(final IFile file) {
+  private boolean hasMain(final IFile file, final String projectNatureId) {
     if (X10_EXT.equals(file.getFileExtension())) {
       try {
-        final Collection<ClassType> x10Types = new ArrayList<ClassType>();
-        X10Utils.collectX10MainTypes(x10Types, new ResourceToJavaElementAdapter(file), new NullProgressMonitor());
-        if (x10Types.size() == 0) {
-          return false;
-        } else {
-          return true;
-        }
+        final ITypeInfo[] mainTypes = LaunchUtils.findMainTypes(new IResource[] { file }, projectNatureId, 
+                                                                PlatformUI.getWorkbench().getProgressService());
+        return mainTypes.length > 0;
       } catch (Exception except) {
         // Simply forget
       }

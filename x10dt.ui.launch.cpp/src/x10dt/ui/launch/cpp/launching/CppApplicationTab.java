@@ -11,6 +11,7 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMEN
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
+import static x10dt.ui.utils.LaunchUtils.findMainType;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -28,9 +29,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.StringVariableSelectionDialog;
-import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.JavaElementLabelProvider;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.viewers.ILabelProvider;
@@ -60,8 +59,8 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
-import polyglot.types.ClassType;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.Constants;
@@ -78,7 +77,6 @@ import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
-import x10dt.ui.launching.ResourceToJavaElementAdapter;
 import x10dt.ui.utils.LaunchUtils;
 
 final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchConfigurationTab {
@@ -138,12 +136,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
     } else {
       configuration.setAttribute(ATTR_PROJECT_NAME, context.getProject().getName());
-      final IJavaElement[] scope = new IJavaElement[] { new ResourceToJavaElementAdapter(context) };
+      final IResource[] scope = new IResource[] { context };
       try {
-        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID,
-                                                                                getShell());
+        final ITypeInfo mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID, getShell());
         if (mainType != null) {
-          configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, mainType.first.fullName().toString());
+          configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, mainType.getName());
         }
       } catch (Exception except) {
         // Simply forgets.
@@ -543,7 +540,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       } else {
         project = null;
       }
-      final IJavaElement[] scope;
+      final IResource[] scope;
       if ((project == null) || !project.exists()) {
         scope = null;
       } else {
@@ -553,15 +550,14 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         } catch (CoreException except) {
           // Do nothing.
         }
-        scope = hasValidNature ? new IJavaElement[] { JavaCore.create(project) } : null;
+        scope = hasValidNature ? new IResource[] { project } : null;
       }
       try {
-        final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID,
-                                                                                getShell());
+        final ITypeInfo mainType = findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID, getShell());
         if (mainType != null) {
-          CppApplicationTab.this.fMainTypeText.setText(mainType.first.fullName().toString());
+          CppApplicationTab.this.fMainTypeText.setText(mainType.getName());
           if (scope == null) {
-            CppApplicationTab.this.fProjectText.setText(mainType.second.getJavaProject().getElementName());
+            CppApplicationTab.this.fProjectText.setText(mainType.getCompilationUnit().getProject().getName());
           }
         }
       } catch (InvocationTargetException except) {

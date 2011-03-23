@@ -22,6 +22,7 @@ import polyglot.ast.New;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.Type;
+import x10.types.X10ClassType;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 
@@ -36,7 +37,7 @@ final class TypeHierarchyFactWriter extends AbstractFactWriter implements IFactW
   // --- Interface methods implementation
   
   public void classDeclVisitBegin(final ClassDecl classDecl) {
-    final ClassType classType = classDecl.classDef().asType();
+    final X10ClassType classType = classDecl.classDef().asType();
     if (! classType.position().isCompilerGenerated()) {
       this.fAllMembersFactWriter.classDeclVisitBegin(classDecl);
 
@@ -56,14 +57,16 @@ final class TypeHierarchyFactWriter extends AbstractFactWriter implements IFactW
       }
       if ((superClass != null) && ! superClass.position().isCompilerGenerated()) {
         insertValue(X10_TypeHierarchy, 
-                    getValueFactory().tuple(classTypeTuple, this.fAllMembersFactWriter.findOrCreateType(superClass)));
+                    getValueFactory().tuple(classTypeTuple, 
+                                            this.fAllMembersFactWriter.findOrCreateType(superClass)));
       }
 
       for (final Type interfaceType : classType.interfaces()) {
         if ((interfaceType != null) && (interfaceType instanceof ClassType) &&
             ! interfaceType.position().isCompilerGenerated()) {
           insertValue(X10_TypeHierarchy, 
-                      getValueFactory().tuple(classTypeTuple, this.fAllMembersFactWriter.findOrCreateType(interfaceType)));
+                      getValueFactory().tuple(classTypeTuple, 
+                                              this.fAllMembersFactWriter.findOrCreateType(interfaceType)));
         }
       }
     }

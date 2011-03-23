@@ -19,13 +19,11 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
-import org.eclipse.imp.utils.Pair;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elements.IResourceManager;
 
-import polyglot.types.ClassType;
 import x10dt.core.X10DTCorePlugin;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.launch.java.Activator;
 import x10dt.ui.launch.java.Messages;
 import x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants;
@@ -49,9 +47,9 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
   }
   
   protected void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
-                                                  final Pair<ClassType, IJavaElement> type) {
-    workingCopy.setAttribute(ATTR_PROJECT_NAME, type.second.getJavaProject().getElementName());
-    workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, type.first.fullName().toString());
+                                                  final ITypeInfo typeInfo) {
+    workingCopy.setAttribute(ATTR_PROJECT_NAME, typeInfo.getCompilationUnit().getProject().getName());
+    workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, typeInfo.getName());
     
     workingCopy.setAttribute(LaunchConfigConstants.ATTR_NUM_PLACES, 1);
     workingCopy.setAttribute(LaunchConfigConstants.ATTR_USE_HOSTFILE, false);
@@ -66,6 +64,10 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
       Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 
                                                      Messages.XJLS_RMCreationError, except));
     }
+  }
+  
+  protected void updateLaunchConfig(final ILaunchConfigurationWorkingCopy config) {
+    // Nothing to do.
   }
   
   // --- Fields

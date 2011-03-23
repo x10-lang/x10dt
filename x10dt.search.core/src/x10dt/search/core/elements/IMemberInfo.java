@@ -7,7 +7,7 @@
  *******************************************************************************/
 package x10dt.search.core.elements;
 
-import org.eclipse.imp.model.ICompilationUnit;
+import x10dt.search.core.pdb.X10FlagsEncoder.X10;
 
 /**
  * Provides information for a given member coming from the search index database.
@@ -17,26 +17,12 @@ import org.eclipse.imp.model.ICompilationUnit;
 public interface IMemberInfo extends IX10Element {
   
   /**
-   * Returns the enclosing compilation unit entity for this type.
-   * 
-   * @return A <b>possibly null</b> object instance if we not could access the enclosing entity.
-   */
-  public ICompilationUnit getCompilationUnit();
-  
-  /**
    * Returns the type in which this member is declared, or <b>null</b> if this member is not declared in a type 
    * (for example, a top-level type).
    *
    * @return The type in which this member is declared, or <b>null</b> if there is none.
    */
   public ITypeInfo getDeclaringType();
-  
-  /**
-   * Returns the member name represented.
-   * 
-   * @return A non-null string.
-   */
-  public String getName();
   
   /**
    * Returns a code identifying uniquely the list of flags relevant for the member.

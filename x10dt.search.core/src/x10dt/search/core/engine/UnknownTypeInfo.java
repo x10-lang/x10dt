@@ -26,9 +26,17 @@ final class UnknownTypeInfo implements ITypeInfo {
   public boolean exists(final IProgressMonitor monitor) {
     return true;
   }
+  
+  public ICompilationUnit getCompilationUnit() {
+    return null;
+  }
 
   public ISourceLocation getLocation() {
     return null;
+  }
+  
+  public String getName() {
+    return this.fTypeName;
   }
   
   public final ISourceEntity getSourceEntity() {
@@ -41,18 +49,20 @@ final class UnknownTypeInfo implements ITypeInfo {
     return null;
   }
   
-  public String getName() {
-    return this.fTypeName;
-  }
-  
   public int getX10FlagsCode() {
     return 0;
   }
   
+  // --- ITypeBaseInfo's interface methods implementation
+  
+  public boolean isTypeParameter() {
+    return false;
+  }
+  
   // --- ITypeInfo's interface methods implementation
   
-  public ICompilationUnit getCompilationUnit() {
-    return null;
+  public ITypeInfo[] getTypeParameters() {
+    return new ITypeInfo[0];
   }
   
   // --- Overridden methods

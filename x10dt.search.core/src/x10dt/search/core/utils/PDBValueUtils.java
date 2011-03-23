@@ -9,8 +9,10 @@ package x10dt.search.core.utils;
 
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_FieldName;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_MethodName;
+import static x10dt.search.core.pdb.X10FactTypeNames.X10_Type;
 import static x10dt.search.core.pdb.X10FactTypeNames.X10_TypeName;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -21,6 +23,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 import x10dt.search.core.elements.IFieldInfo;
 import x10dt.search.core.elements.IMethodInfo;
+import x10dt.search.core.elements.ITypeBaseInfo;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.search.core.elements.IX10Element;
 import x10dt.search.core.pdb.SearchDBTypes;
@@ -43,15 +46,31 @@ public final class PDBValueUtils {
     final Type typeNameFactory = SearchDBTypes.getInstance().getType(X10_TypeName);
     final IValue typeName = typeNameFactory.make(valueFactory, typeInfo.getName());
     final IValue modifier = TypeFactory.getInstance().integerType().make(valueFactory, typeInfo.getX10FlagsCode());
+    final IList typeParamsList;
+    if (typeInfo.getTypeParameters().length == 0) {
+      typeParamsList = valueFactory.list(SearchDBTypes.getInstance().getType(X10_Type));
+    } else {
+      final ITuple[] typeParameters = new ITuple[typeInfo.getTypeParameters().length];
+      int i = -1;
+      for (final ITypeBaseInfo typeParam : typeInfo.getTypeParameters()) {
+        if (typeParam.isTypeParameter()) {
+          typeParameters[++i] = valueFactory.tuple(typeNameFactory.make(valueFactory, typeParam.getName()), 
+                                                   getLocation(valueFactory, typeParam.getLocation()));
+        } else {
+          typeParameters[++i] = convert((ITypeInfo) typeParam);
+        }
+      }
+      typeParamsList = valueFactory.list(typeParameters);
+    }
     if (typeInfo.getDeclaringType() == null) {
       if (typeInfo.getLocation() == null) {
         return valueFactory.tuple(typeName);
       } else {
-        return valueFactory.tuple(typeName, getLocation(valueFactory, typeInfo.getLocation()), modifier);
+        return valueFactory.tuple(typeName, getLocation(valueFactory, typeInfo.getLocation()), modifier, typeParamsList);
       }
     } else {
       return valueFactory.tuple(typeName, getLocation(valueFactory, typeInfo.getLocation()), modifier,
-                                typeNameFactory.make(valueFactory, typeInfo.getDeclaringType().getName()));
+                                typeParamsList, convert(typeInfo.getDeclaringType()));
     }
   }
   

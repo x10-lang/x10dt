@@ -8,6 +8,7 @@
 package x10dt.search.core.elements;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.imp.model.ICompilationUnit;
 import org.eclipse.imp.model.ISourceEntity;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 
@@ -27,11 +28,25 @@ public interface IX10Element {
   public boolean exists(final IProgressMonitor monitor);
   
   /**
+   * Returns the enclosing compilation unit entity for this X10 element.
+   * 
+   * @return A <b>possibly null</b> object instance if we not could access the enclosing entity.
+   */
+  public ICompilationUnit getCompilationUnit();
+  
+  /**
    * Returns the location of the type declaration.
    * 
    * @return The location or <b>null</b> if there is none.
    */
   public ISourceLocation getLocation();
+  
+  /**
+   * Returns the member name represented.
+   * 
+   * @return A non-null string.
+   */
+  public String getName();
   
   /**
    * Returns the source entity enclosing or representing the particular X10 element.

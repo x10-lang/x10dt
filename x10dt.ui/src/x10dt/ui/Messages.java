@@ -39,7 +39,9 @@ public class Messages extends NLS {
 	public static String AXLS_MainTypeSearchInternalError;
 	public static String AXLS_MultipleConfDialogMsg;
 	public static String AXLS_MultipleConfDialogTitle;
-	public static String CPD_PackageDeclError;
+	public static String AXLS_NoDebugInfoErrorMsg;
+  public static String AXLS_NoDebugInfoErrorTitle;
+  public static String CPD_PackageDeclError;
 	public static String LU_MainTypeSearchResult;
 	public static String LU_NoMainTypeFound;
   public static String XTSD_SelectX10TypeDlgTitle;

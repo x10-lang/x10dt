@@ -9,6 +9,7 @@ package x10dt.ui.launching;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -28,7 +29,6 @@ import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.preferences.PreferencesService;
-import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -42,9 +42,9 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.ElementListSelectionDialog;
 
-import polyglot.types.ClassType;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
+import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.utils.LaunchUtils;
@@ -80,7 +80,16 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
    * @param type The X10 main type of interest.
    */
   protected abstract void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
-                                                           final Pair<ClassType, IJavaElement> type);
+                                                           final ITypeInfo type);
+  
+  /**
+   * Responsible for making sure the launch configuration's attributes are in sync with the platform configuration
+   * or any other project-level settings.
+   * 
+   * @param launchConfigWC The current launch configuration working copy.
+   * @throws CoreException Occurs if we were unable to retrieve some attribute value.
+   */
+  protected abstract void updateLaunchConfig(final ILaunchConfigurationWorkingCopy launchConfigWC) throws CoreException;
   
   // --- Interface methods implementation
 
@@ -88,35 +97,57 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     
     if (selection instanceof IStructuredSelection) {
       final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
-      final IJavaElement[] elements = new IJavaElement[structuredSelection.size()];
+      final Collection<IResource> resources = new ArrayList<IResource>();
       final Iterator<?> it = structuredSelection.iterator();
       for (int i = 0, size = structuredSelection.size(); i < size; ++i) {
         final Object obj = it.next();
         if (obj instanceof IResource) {
-          elements[i] = new ResourceToJavaElementAdapter((IFile) obj);
-        } else {
-          elements[i] = (IJavaElement) obj;
+          resources.add((IResource) obj);
+        } else if (obj instanceof IJavaElement) {
+          resources.add(((IJavaElement) obj).getResource());
         }
       }
-      searchAndLaunch(elements, mode);
+      searchAndLaunch(resources.toArray(new IResource[resources.size()]), mode);
     }
   }
 
   public final void launch(final IEditorPart editor, final String mode) {
     if (editor instanceof UniversalEditor) {
       final IFile file = ((IFileEditorInput) editor.getEditorInput()).getFile();
-      searchAndLaunch(new IJavaElement[] { new ResourceToJavaElementAdapter(file) }, mode);
+      searchAndLaunch(new IResource[] { file }, mode);
     }
   }
   
-  // --- Code for descendants
+  // --- Code for sub-classes
   
   protected final Shell getShell() {
     final IWorkbenchWindow window = X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow();
     return (window == null) ? null : window.getShell();
   }
   
+  protected boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
+                                        final String projectName) throws CoreException {
+    // This is a fairly loose match, based only on the project and main type names.
+    // This is based on the notion that the most common scenario is to have a single
+    // launch configuration for a given project and main type.
+    // If we want to support multiple launch types (e.g. with different comm interfaces)
+    // for a given project/main type better, we should tighten this match.
+    return config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName) && //$NON-NLS-1$
+           config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName); //$NON-NLS-1$
+  }
+
   // --- Private code
+  
+  /**
+   * Makes sure that the compiler's debug preference is turned on, so that the X10 application
+   * will have the necessary debug information.
+   */
+  private void checkCompileDebugPreference(final IProject project) {
+    if (!new PreferencesService(project, X10DTCorePlugin.kLanguageName).getBooleanPreference(X10Constants.P_DEBUG)) {
+      ErrorDialog.openError(getShell(), Messages.AXLS_NoDebugInfoErrorTitle, Messages.AXLS_NoDebugInfoErrorMsg,
+                            new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, "")); //$NON-NLS-1$
+    }
+  }
   
   private ILaunchConfiguration chooseConfiguration(final List<ILaunchConfiguration> configList) {
     final IDebugModelPresentation labelProvider = DebugUITools.newDebugModelPresentation();
@@ -135,14 +166,14 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   
   @SuppressWarnings("deprecation")
   // We will need to use the new method "generateLaunchConfigurationName" once Galileo won't be supported anymore by X10DT.
-  private ILaunchConfiguration createConfiguration(final Pair<ClassType, IJavaElement> type) {
+  private ILaunchConfiguration createConfiguration(final ITypeInfo typeInfo) {
     final ILaunchConfigurationType launchConfType = getConfigurationType();
-    final String namePrefix = type.first.fullName().toString();
+    final String namePrefix = typeInfo.getName();
     final String confName = DebugPlugin.getDefault().getLaunchManager().generateUniqueLaunchConfigurationNameFrom(namePrefix);
     try {
       final ILaunchConfigurationWorkingCopy workingCopy = launchConfType.newInstance(null, confName);
-      setLaunchConfigurationAttributes(workingCopy, type);
-      workingCopy.setMappedResources(new IResource[] { type.second.getResource().getProject() });
+      setLaunchConfigurationAttributes(workingCopy, typeInfo);
+      workingCopy.setMappedResources(new IResource[] { typeInfo.getCompilationUnit().getProject().getRawProject() });
       return workingCopy.doSave();
     } catch (CoreException except) {
       ErrorDialog.openError(getShell(), Messages.AXLS_ConfCreationError, 
@@ -157,7 +188,7 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     try {
       final ILaunchConfiguration[] configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
       for (final ILaunchConfiguration config : configs) {
-        if (launchConfigMatches(config, typeName, projectName)) { //$NON-NLS-1$
+        if (launchConfigMatches(config, typeName, projectName)) {
           candidateConfigs.add(config);
         }
       }
@@ -166,44 +197,25 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     }
     int candidateCount = candidateConfigs.size();
     if (candidateCount == 1) {
-      return (ILaunchConfiguration) candidateConfigs.get(0);
+      return candidateConfigs.get(0);
     } else if (candidateCount > 1) {
       return chooseConfiguration(candidateConfigs);
     }
     return null;
   }
 
-  protected boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
-		  								final String projectName) throws CoreException {
-    // This is a fairly loose match, based only on the project and main type names.
-    // This is based on the notion that the most common scenario is to have a single
-    // launch configuration for a given project and main type.
-    // If we want to support multiple launch types (e.g. with different comm interfaces)
-    // for a given project/main type better, we should tighten this match.
-	return config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName) && //$NON-NLS-1$
-		   config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName);
-  }
-
-  /**
-   * Makes sure the launch configuration's attributes are in sync with the platform conf
-   * or any other project-level settings.
-   */
-  protected void updateLaunchConfig(ILaunchConfigurationWorkingCopy launchConfigWC) throws CoreException {
-    // do nothing by default
-  }
-
-  private void searchAndLaunch(final IJavaElement[] selection, final String mode) {
+  private void searchAndLaunch(final IResource[] selection, final String mode) {
     try {
-      final Pair<ClassType, IJavaElement> mainType = LaunchUtils.findMainType(selection, getProjectNatureId(), getShell());
+      final ITypeInfo mainType = LaunchUtils.findMainType(selection, getProjectNatureId(), getShell());
       if (mainType != null) {
         // The following check shouldn't be necessary, since this ILaunchShortcut implementation
         // isn't used for debug-mode launches. I.e., we should never get here in that case.
         if (ILaunchManager.DEBUG_MODE.equals(mode)) {
-          checkCompileDebugPreference(mainType.second.getResource().getProject());
+          checkCompileDebugPreference(mainType.getCompilationUnit().getProject().getRawProject());
         }
 
-        ILaunchConfiguration config = findLaunchConfiguration(getConfigurationType(), mainType.first.fullName().toString(),
-                                                              mainType.second.getJavaProject().getElementName());
+        ILaunchConfiguration config = findLaunchConfiguration(getConfigurationType(), mainType.getName(),
+                                                              mainType.getCompilationUnit().getProject().getName());
         if (config == null) {
           config = createConfiguration(mainType);
         } else {
@@ -234,18 +246,6 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       }
     } catch (CoreException e) {
       X10DTUIPlugin.getInstance().getLog().log(e.getStatus());
-    }
-  }
-
-  /**
-   * Makes sure that the compiler's debug preference is turned on, so that the X10 application
-   * will have the necessary debug information.
-   */
-  private void checkCompileDebugPreference(IProject project) {
-    if (!new PreferencesService(project, X10DTCorePlugin.kLanguageName).getBooleanPreference(X10Constants.P_DEBUG)) {
-      ErrorDialog.openError(getShell(), "Unable to launch programs without debug info",
-                            "The selected items were built without the necessary debug information. Turn on the Debug preference to re-build with that information.",
-                            new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, ""));
     }
   }
 
