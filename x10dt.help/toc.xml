@@ -211,10 +211,14 @@
 	<topic label="Places" href="html/langref/places.html"> 
 		<topic label="The Structure of Places" href="html/langref/pla-structure.html"/> 
 		<topic label="here" href="html/langref/pla-here.html"/> 
+		<topic label="at: Place changing" href="html/langref/pla-atplacechanging.html"/>  
+		<topic label="athome: Returning values from at blocks" href="html/langref/pla-athome.html"/>  
 	</topic>
 	<topic label="Activities" href="html/langref/activities.html"> 
 		<topic label="The X10 rooted exception model" href="html/langref/act-rootedexmodel.html"/>
+<!--		
 		<topic label="at: Place changing" href="html/langref/act-placechanging.html"/>  
+-->		
 		<topic label="async: Spawning an Activity" href="html/langref/act-spawn.html"/> 
 		<topic label="Finish" href="html/langref/act-finish.html"/> 
 		<topic label="Initial activity" href="html/langref/act-initial.html"/> 	
@@ -266,7 +270,7 @@
 	<topic label="Options" href="html/langref/options.html"/>
 </topic>
 
-<!--
+
 <topic label="X10 Language Reference (Proposed)" href="html/lgref/toc.html">
 	<topic label="Summary"  href="html/lgref/first.htm"/> 
 	<topic label="Introduction"  href="html/lgref/Intro.htm"/> 
@@ -292,7 +296,7 @@
 	<topic label="Changes" href="html/lgref/changelog.htm"/>
 	<topic label="Options" href="html/lgref/options.html"/> 
 </topic>
--->
+
 
 <topic label="What&apos;s new" href="html/whatsNew/whatsnew-2.1.2.html">
 	<topic label="What&apos;s new 2.1.2" href="html/whatsNew/whatsnew-2.1.2.html"/>
