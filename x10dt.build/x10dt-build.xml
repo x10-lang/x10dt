@@ -64,12 +64,26 @@
                 revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
     </svn>
     <!-- Substitute the SVN revision of the X10 core projects into an X10DT source file -->
+    <svn>
+      <info target="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}" propPrefix="x10.svn.info"/>
+    </svn>
+
+    <condition property="x10.revision.used" value="${x10.svn.info.lastRev}">
+      <equals arg1="${x10.revision}" arg2="HEAD"/>
+    </condition>
+
+    <condition property="x10.revision.used" value="${x10.revision.requested}">
+      <not>
+        <equals arg1="${x10.revision}" arg2="HEAD"/>
+      </not>
+    </condition>
+
     <property name="x10dt.core.activator.file"
               value="${build.folder}/x10dt.core/src/x10dt/core/X10DTCorePlugin.java"/>
     <loadfile srcfile="${x10dt.core.activator.file}"
               property="x10dt.core.plugin.source.replaced">
       <filterchain>
-        <replaceregex pattern="&quot;%%x10.core.revision%%&quot;" replace="&quot;${x10.revision}&quot;" />
+        <replaceregex pattern="&quot;%%x10.core.revision%%&quot;" replace="&quot;${x10.revision.used}&quot;" />
         <replaceregex pattern="&quot;%%x10.core.tag%%&quot;" replace="&quot;${x10.tag}&quot;" />
       </filterchain>
     </loadfile>
