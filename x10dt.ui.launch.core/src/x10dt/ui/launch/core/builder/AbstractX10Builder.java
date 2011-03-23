@@ -165,6 +165,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       x10BuilderOp.copyToOutputDir(nativeFiles, subMonitor.newChild(5));
 
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
+      
+      
 
       this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
@@ -173,6 +175,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.XEQ_InternalCompilerErrorMsg, getProject().getName()),
               IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
     } finally {
+      info();	
       monitor.done();
     }
     return new IProject[0];
@@ -397,7 +400,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             final IFile file = (IFile) resource;
             if (isX10File(file)) {
               final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
-              if (buildAll || ((generatedFile == null) && ! CoreResourceUtils.hasBuildErrorMarkers(file))) {
+              boolean unprocessed = ((generatedFile == null) && ! CoreResourceUtils.hasBuildErrorMarkers(file));
+              if (buildAll || (conservativeBuild && unprocessed)) {
                 sourcesToCompile.add(file);
 
                 if (!resource.getProject().equals(project)) {
@@ -430,6 +434,42 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       monitor.done();
     }
   }
+  
+  private void info() throws CoreException {
+	  final IResourceVisitor visitor = new IResourceVisitor() {
+
+	        // --- Interface methods implementation
+
+	        public boolean visit(final IResource resource) throws CoreException {
+	          if ((resource.getType() == IResource.FILE) && !resource.isDerived()) {
+	            final IFile file = (IFile) resource;
+	            if (isX10File(file)) {
+	              final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
+	              boolean unprocessed = ((generatedFile == null) && ! CoreResourceUtils.hasBuildErrorMarkers(file));
+	              if (unprocessed){
+	            	  LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.AXB_UnprocessedFile, file.getFullPath().toOSString()));
+	              }
+	            }
+	          }
+	          return true;
+	        }
+
+	  };
+	  
+	  final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+	  for (final IClasspathEntry cpEntry : fProjectWrapper.getRawClasspath()) {
+	    if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+		 if (cpEntry.getPath().segmentCount() > 1) {
+			 final IFolder folder = root.getFolder(cpEntry.getPath());
+			 if (folder.exists()){
+				 folder.accept(visitor);
+			 }
+		 }
+	   }
+	}  
+  }
+	      
+  
 
   private void compile(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                        final IX10BuilderFileOp builderOp, final SubMonitor subMonitor) throws CoreException {

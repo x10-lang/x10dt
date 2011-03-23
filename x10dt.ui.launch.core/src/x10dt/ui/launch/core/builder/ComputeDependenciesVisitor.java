@@ -201,14 +201,14 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 				
 				Call call = (Call) n;
 				MethodInstance mi = call.methodInstance();
-				recordTypeDependency(mi.container());
-				recordTypeDependency(mi.returnType());
+				recordTypeDependency(mi.def().container().get());
+				recordTypeDependency(mi.def().returnType().get());
 
 			} else if (n instanceof New) {
 				
 				New nw = (New) n;
 				ConstructorInstance ci = nw.constructorInstance();
-				recordTypeDependency(ci.container());
+				recordTypeDependency(ci.def().container().get());
 
 			} else if (n instanceof ClassDecl) {
 				
