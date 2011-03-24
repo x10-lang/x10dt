@@ -325,7 +325,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         if (RUNTIME.equals(entry.getKey()) && !hasIndexingFile(typeManager.getType().getName())) {
           typeManager.createIndexingFile(factBase, factContext);
         }
-      } catch (Throwable except) {
+      } catch (RuntimeException except) {
         SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
       } finally {
         typeManager.clearWriter();
@@ -344,7 +344,7 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
       ((Node) documentDescriptor.astRoot).visit(visitor);
 
       typeManager.writeDataInFactBase(factBase, factContext);
-    } catch (Throwable except) {
+    } catch (RuntimeException except) {
       SearchCoreActivator.log(IStatus.ERROR, Messages.XFG_IndexerCompilationLogError, except);
     } finally {
       typeManager.clearWriter();
