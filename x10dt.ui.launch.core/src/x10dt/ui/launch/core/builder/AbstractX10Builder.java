@@ -437,7 +437,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private void info() throws CoreException {
 	  final IResourceVisitor visitor = new IResourceVisitor() {
-
+		   public boolean first = true;
 	        // --- Interface methods implementation
 
 	        public boolean visit(final IResource resource) throws CoreException {
@@ -447,6 +447,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	              final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
 	              boolean unprocessed = ((generatedFile == null) && ! CoreResourceUtils.hasBuildErrorMarkers(file));
 	              if (unprocessed){
+	            	  if (first) {
+	            		  first = false;
+	            		  CoreResourceUtils.addBuildMarkerTo(getProject(), Messages.AXB_Unprocessed, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
+	            	  }
 	            	  LaunchCore.log(IStatus.ERROR, NLS.bind(Messages.AXB_UnprocessedFile, file.getFullPath().toOSString()));
 	              }
 	            }
@@ -524,7 +528,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
 
   
-  private Collection<File> getLocalFiles(final Collection<String> generatedStrings) throws JavaModelException{
+  public Collection<File> getLocalFiles(final Collection<String> generatedStrings) throws JavaModelException{
 	  Collection<File> result = new ArrayList<File>();
 	  final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
       final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
