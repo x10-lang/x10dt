@@ -74,6 +74,7 @@ public class Messages extends NLS {
   public static String AXB_NoSRCFolder;
   public static String AXBO_NoRemoteOutputFolder;
   public static String AXB_UnprocessedFile;
+  public static String AXB_BuilderProblem;
  
   // --- Private code
   

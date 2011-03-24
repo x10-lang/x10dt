@@ -658,7 +658,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                     IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
 		}
 	} catch (JavaModelException e) {
-		LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, e);
+		LaunchCore.log(IStatus.ERROR, Messages.AXB_BuilderProblem, e);
 	}
   }
   
@@ -708,7 +708,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 		  	  fGeneratedFiles.remove(name);
 		  	}
 		  } catch(JavaModelException e){
-			  LaunchCore.log(IStatus.ERROR, Messages.AXB_CompilerInternalError, e);
+			  LaunchCore.log(IStatus.ERROR, Messages.AXB_BuilderProblem, e);
 		 }
 	  }
   }
