@@ -33,11 +33,7 @@ public class X10LaunchablePropertyTester extends PropertyTester {
   
   public boolean test(final Object receiver, final String property, final Object[] args, final Object expectedValue) {
     final IFile file = getFileFor(receiver);
-
     if (file == null) {
-      LaunchCore.log(IStatus.ERROR, 
-                     String.format("Attempt to use X10LaunchablePropertyTester to test a non-file object: %s", //$NON-NLS-1$
-                                   receiver.getClass()));
       return false;
     }
 
