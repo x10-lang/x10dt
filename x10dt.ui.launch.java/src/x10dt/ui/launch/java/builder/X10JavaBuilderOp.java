@@ -3,11 +3,14 @@ package x10dt.ui.launch.java.builder;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Collection;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IJavaProject;
 
 import x10dt.core.utils.ICountableIterable;
@@ -19,10 +22,13 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
   private IJavaProject fJavaProject;
 
   private X10JavaBuilder fBuilder;
+  
+  private Map<String, Collection<String>> fGeneratedFiles;
 
-  public X10JavaBuilderOp(IJavaProject project, X10JavaBuilder builder) {
+  public X10JavaBuilderOp(IJavaProject project, X10JavaBuilder builder, Map<String, Collection<String>> generatedFiles) {
     this.fJavaProject = project;
     this.fBuilder = builder;
+    this.fGeneratedFiles = generatedFiles;
   }
 
   // --- Interface methods implementation
@@ -33,21 +39,25 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 
   public void cleanFiles(final ICountableIterable<IFile> files, final SubMonitor monitor) throws CoreException {
     for (final IFile file : files) {
-      final File javaFile = this.fBuilder.getMainGeneratedFile(fJavaProject, file);
-      if (javaFile != null) {
-        if (javaFile.exists()) {
-          javaFile.delete();
-        }
-        final String javaFilePath = javaFile.getAbsolutePath();
-        final File classFile = new File(javaFilePath.substring(0, javaFilePath.length() - 5).concat(Constants.CLASS_EXT));
-        if (classFile.exists()) {
-          classFile.delete();
-        }
-        // We need to take care of possible anonymous classes now.
-        final String typeName = javaFile.getName().substring(0, javaFile.getName().length() - 5);
-        for (final File f : javaFile.getParentFile().listFiles(new AnonymousClassFilter(typeName))) {
-          f.delete();
-        }
+      String name = BuildPathUtils.getBareName(file, fJavaProject);
+      Collection<String> gens  = fGeneratedFiles.get(name);
+      if (gens != null){
+    	  Collection<File> genFiles = fBuilder.getLocalFiles(gens);
+    	  for (File gen: genFiles){
+    		  if (gen.exists()){
+    			  gen.delete();
+    		  }
+    		  final String javaFilePath =  gen.getAbsolutePath();
+    	      final File classFile = new File(javaFilePath.substring(0, javaFilePath.length() - 5).concat(Constants.CLASS_EXT));
+    	      if (classFile.exists()) {
+    	        classFile.delete();
+    	      }
+    	      // We need to take care of possible anonymous classes now.
+    	      final String typeName = gen.getName().substring(0, gen.getName().length() - 5);
+    	      for (final File f : gen.getParentFile().listFiles(new AnonymousClassFilter(typeName))) {
+    	        f.delete();
+    	      }
+    	  }
       }
     }
   }

@@ -35,7 +35,7 @@ public class X10JavaBuilder extends AbstractX10Builder {
 	}
 
 	public IX10BuilderFileOp createX10BuilderFileOp() throws CoreException {
-		return new X10JavaBuilderOp(getJavaProject(), this);
+		return new X10JavaBuilderOp(getJavaProject(), this, this.fGeneratedFiles);
 	}
 
 	public String getFileExtension() {
