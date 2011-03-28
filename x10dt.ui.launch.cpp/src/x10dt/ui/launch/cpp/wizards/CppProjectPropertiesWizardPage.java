@@ -150,15 +150,13 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
       // We need to remove Java builder in the case of X10 CPP Back-end.
       final IProjectDescription newDescr = this.fCurrProject.getDescription();
       final ICommand[] commands = newDescr.getBuildSpec();
-      final ICommand[] newCommands = new ICommand[commands.length - 1];
-      for (int i = 0; i < commands.length; ++i) {
-        if (JavaCore.BUILDER_ID.equals(commands[i].getBuilderName())) {
-          System.arraycopy(commands, 0, newCommands, 0, i);
-          System.arraycopy(commands, i + 1, newCommands, i, commands.length - i - 1);
-          break;
+      final List<ICommand> newCommands = new ArrayList<ICommand>(commands.length - 1);
+      for (final ICommand command : commands) {
+        if ((command != null) && ! JavaCore.BUILDER_ID.equals(command.getBuilderName())) {
+          newCommands.add(command);
         }
       }
-      newDescr.setBuildSpec(newCommands);
+      newDescr.setBuildSpec(newCommands.toArray(new ICommand[newCommands.size()]));
       this.fCurrProject.setDescription(newDescr, monitor);
 
       getJavaProject().setRawClasspath(getRawClassPath(), getOutputLocation(), monitor);
