@@ -286,7 +286,7 @@
   </target>
 
   <target name="test-and-collect">
-    <property name="vmargs" value="-Xmx1000m -XX:MaxPermSize=256m"/>
+    <property name="vmargs" value="-Xmx2000m -XX:MaxPermSize=256m"/>
     <property name="os" value="linux"/>
     <property name="ws" value="gtk"/>
     <property name="arch" value="x86_64"/>
