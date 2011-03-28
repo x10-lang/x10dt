@@ -198,6 +198,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       collectSourceFilesToCompile(sourcesToCompile, nativeFiles, deletedSources, this.fProjectWrapper, dependentProjects,
                                   createNativeFilesFilter(), shouldBuildAll, subMonitor.newChild(5));
       CoreResourceUtils.deleteBuildMarkers(getProject(), IResource.DEPTH_ZERO);
+      clearDependencyInfoAsNeeded(sourcesToCompile, deletedSources);
       clearMarkers(sourcesToCompile); // --- This needs to happen before filter because we need to clear markers on files that have been recently excluded from the class path.
       filter(sourcesToCompile);
       if (subMonitor.isCanceled()) {
@@ -435,6 +436,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
   
+  private void clearDependencyInfoAsNeeded(Collection<IFile> sourcesToCompile, Collection<IFile> deletedSources){
+	  for (IFile srcFile: sourcesToCompile){
+		  fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
+	  }
+	  
+	  for (IFile srcFile: deletedSources){
+		  fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
+	  }
+  }
+  
   private void info() throws CoreException {
 	  final IResourceVisitor visitor = new IResourceVisitor() {
 		   public boolean first = true;
@@ -491,7 +502,6 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
   }
   
-
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Map<String, Collection<String>> generatedFiles,
 		  final Collection<IFile> sourcesToCompile, final SubMonitor monitor) throws CoreException {
     if (! generatedFiles.isEmpty()) {
@@ -499,9 +509,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       Collection<File> sourcesToPostCompile = new ArrayList<File>();
       for(IFile srcFile: sourcesToCompile){
     	  String name = BuildPathUtils.getBareName(srcFile, fProjectWrapper);
-    	  if (generatedFiles.containsKey(name) && checkPostCompilationCondition(srcFile)) { // --- Code was generated for srcFile during this build.
-    		  sourcesToPostCompile.addAll(getLocalFiles(generatedFiles.get(name)));
+    	  if (generatedFiles.containsKey(name)){ // --- Code was generated for srcFile during this build.
+    		  if (checkPostCompilationCondition(srcFile.getFullPath().toString())) { 
+    			  sourcesToPostCompile.addAll(getLocalFiles(generatedFiles.get(name)));
+    		  }
+    		  sourcesToPostCompile.addAll(getFilesBlockedForPostCompilation(name) );
     	  }
+    	  
       }
       builderOp.transfer(sourcesToPostCompile, monitor.newChild(10));
       builderOp.compile(monitor.newChild(70));
@@ -509,8 +523,25 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     builderOp.archive(monitor);
   }
   
-  private boolean checkPostCompilationCondition(final IFile srcFile)throws CoreException {
-	  Set<String> dependencies = this.fDependencyInfo.getDependencies().get(srcFile.getFullPath().toString());
+  private Collection<File> getFilesBlockedForPostCompilation(String name) throws CoreException {
+	  Collection<File> result = new ArrayList<File>();
+	  Collection<String> paths = fBlockingPostCompilation.get(name);
+	  Collection<String> pathsToRemove = new ArrayList<String>();
+	  if (paths != null) { 
+		  for(String path: paths){
+			  if (checkPostCompilationCondition(path)){
+				  Collection<String> gens = fGeneratedFiles.get(BuildPathUtils.getBareName(path, fProjectWrapper));
+				  result.addAll(getLocalFiles(gens));
+				  pathsToRemove.add(path);
+			  }
+		  }
+		  paths.removeAll(pathsToRemove);
+	  }
+	  return result;
+  }
+  
+  private boolean checkPostCompilationCondition(final String srcPath)throws CoreException {
+	  Set<String> dependencies = this.fDependencyInfo.getDependencies().get(srcPath);
 	  final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
 	  if (dependencies != null){
 		  for(String path: dependencies){
@@ -520,6 +551,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 			  }
 			  File f = getMainGeneratedFile(fProjectWrapper, dep);
 			  if (f == null){
+				  addToBlockingPostCompilation(BuildPathUtils.getBareName(path, fProjectWrapper), srcPath);
 				  return false;
 			  }
 		  }
@@ -528,12 +560,27 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
 
   
+  private void addToBlockingPostCompilation(String name, String path){
+	  Collection<String> blocked = fBlockingPostCompilation.get(name);
+	  if (blocked == null){
+		  blocked = new ArrayList<String>();
+		  fBlockingPostCompilation.put(name, blocked);
+	  }
+	  blocked.add(path);
+  }
+  
   public Collection<File> getLocalFiles(final Collection<String> generatedStrings) throws JavaModelException{
 	  Collection<File> result = new ArrayList<File>();
-	  final File wsRoot = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile();
+	  final IPath root = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+	  final File wsRoot = root.toFile();
       final File outputLocation = new File(wsRoot, this.fProjectWrapper.getOutputLocation().toString().substring(1));
 	  for (String name: generatedStrings){
-		  result.add(new File(outputLocation, name));
+		  if (name.startsWith(root.toOSString())){
+			  result.add(new File(name));
+		  }
+		  else {
+			  result.add(new File(outputLocation, name));
+		  }
 	  }
 	  return result;
   }
@@ -808,5 +855,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   protected IJavaProject fProjectWrapper;
   
   protected Map<String, Collection<String>> fGeneratedFiles = new HashMap<String, Collection<String>>(); 
+  
+  protected Map<String, Collection<String>> fBlockingPostCompilation = new HashMap<String, Collection<String>>(); // --- X10 sources.
 
 }

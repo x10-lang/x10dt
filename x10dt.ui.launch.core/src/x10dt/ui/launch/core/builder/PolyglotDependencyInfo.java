@@ -81,14 +81,12 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	Collection<String> result = new ArrayList<String>();
     	String name = type.fullName().toString();
     	Collection<String> srcFolders = getSrcFolders();
-    	
-    	if (name.contains(".") || isInDefaultPackage(context, srcFolders)) { 
-    		for (String path: srcFolders){
-    			Collection<String> names = getPossibleFileNames(name);
-    			for(String n: names){
-    				//n = File.separator + name.replace('.', File.separatorChar) + Constants.X10_EXT;
-    				result.add(path + File.separator + n);
-    			}
+    	String pac = getPackageFragment(context, srcFolders);
+    	for(String path: srcFolders){
+    		Collection<String> names = getPossibleFileNames(name);
+    		for (String n: names){
+    			String middle = !pac.equals("") ? pac + File.separator : "";
+    			result.add(path + File.separator + middle + n);
     		}
     	}
     	
@@ -106,16 +104,20 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	return result;
     }
     
-    private boolean isInDefaultPackage(String context, Collection<String> srcFolders){
+    private String getPackageFragment(String context, Collection<String> srcFolders){
     	for(String path: srcFolders){
     		if (context.startsWith(path)){
     			String rest = normalize(context.substring(path.length()));
-    			if (!rest.contains(File.separator))
-    				return true;
+    			if (!rest.contains(File.separator)) { // --- Default package.
+    				return "";
+    			}
+    			int i = rest.lastIndexOf(File.separator);
+    			return rest.substring(0,i);
     		}
     	}
-    	return false;
+    	return null;
     }
+    
     
     private String normalize(String path){
     	if (path.startsWith(File.separator))
