@@ -2,20 +2,28 @@ package x10dt.ui.launch.java.builder;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 import x10dt.core.utils.ICountableIterable;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
+import x10dt.ui.launch.core.utils.CoreResourceUtils;
+import x10dt.ui.launch.core.utils.UIUtils;
+import x10dt.ui.launch.java.Messages;
 
 public class X10JavaBuilderOp implements IX10BuilderFileOp {
 
@@ -24,6 +32,8 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
   private X10JavaBuilder fBuilder;
   
   private Map<String, Collection<String>> fGeneratedFiles;
+  
+  private Collection<String> fJavaFiles = new ArrayList<String>();
 
   public X10JavaBuilderOp(IJavaProject project, X10JavaBuilder builder, Map<String, Collection<String>> generatedFiles) {
     this.fJavaProject = project;
@@ -63,7 +73,25 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
   }
 
   public boolean compile(final IProgressMonitor monitor) throws CoreException {
-    return true; // NoOp for Java Backend -- This is done using the post-compilation goal. See JavaBuilderExtensionInfo
+	    if (fJavaFiles.isEmpty()){
+	    	return true;
+	    }
+	    Collection<String> commandline = new ArrayList<String>();
+        commandline.add("-1.5");
+		commandline.add("-nowarn");
+		commandline.add("-classpath");
+		commandline.add(fBuilder.getOptions().constructPostCompilerClasspath());
+		for (String file: fJavaFiles) {
+			commandline.add(file);
+		}
+		final MessageConsole console = UIUtils.findOrCreateX10Console();
+		final MessageConsoleStream consoleStream = console.newMessageStream();
+		boolean success = BatchCompiler.compile(commandline.toArray(new String[0]), new PrintWriter(System.out), new PrintWriter(consoleStream), null);
+		if (!success){
+			CoreResourceUtils.addBuildMarkerTo(fBuilder.getProject(), Messages.XJB_CompileErrors , 
+                    IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+		}
+		return success;
   }
 
   public void copyToOutputDir(final Collection<IFile> files, final SubMonitor monitor) throws CoreException {
@@ -75,7 +103,9 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
   }
 
   public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
-    // NoOp for Java Backend
+    for(File file: files){
+    	fJavaFiles.add(file.getAbsolutePath());
+    }
   }
   
   // --- Private classes

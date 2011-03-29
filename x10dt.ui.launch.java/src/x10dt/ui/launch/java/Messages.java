@@ -107,6 +107,9 @@ public class Messages extends NLS {
   public static String XLCD_ResourceNotFound;
 
   public static String XLCD_WorkDirDoNotExist;
+  
+  public static String XJB_CompileErrors;
+  
 
   private Messages() {
   }

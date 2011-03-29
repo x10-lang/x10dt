@@ -55,30 +55,6 @@ public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
             protected Goal PackageDeclGoal(Job job, IProject project){
             	return new ForgivingVisitorGoal("PackageDeclarationCheck", job, new CheckPackageDeclVisitor(job, project)).intern(this);
             }
-            
-            protected Goal PostCompiled() {
-                return new PostCompiled(extInfo) {
-					protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
-						if (options.post_compiler != null && !options.output_stdout && !compiler.outputFiles().isEmpty()) {
-							Collection<String> commandline = new ArrayList<String>();
-							commandline.add("-1.5");
-							commandline.add("-nowarn");
-							commandline.add("-classpath");
-							commandline.add(options.constructPostCompilerClasspath());
-							for (Object f : compiler.flatOutputFiles()) {
-								commandline.add((String) f);
-							}
-							final MessageConsole console = UIUtils.findOrCreateX10Console();
-							final MessageConsoleStream consoleStream = console.newMessageStream();
-							if (!BatchCompiler.compile(commandline.toArray(new String[0]), new PrintWriter(System.out), new PrintWriter(consoleStream), null)) {
-								throw new InternalCompilerError(
-										"Generated Java file has compilation errors. See Console for details.");
-							}
-						}
-						return true;
-					}
-                }.intern(this);
-            }
            
         };
     }

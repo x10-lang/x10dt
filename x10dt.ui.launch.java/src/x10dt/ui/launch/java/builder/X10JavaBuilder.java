@@ -7,6 +7,8 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import polyglot.main.Options;
+
 import x10.ExtensionInfo;
 import x10dt.core.utils.IFilter;
 import x10dt.ui.launch.core.Constants;
@@ -14,12 +16,16 @@ import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 
 public class X10JavaBuilder extends AbstractX10Builder {
+	private Options fOptions;
 	
 	public ExtensionInfo createExtensionInfo(String classPath,
 			List<File> sourcePath, String localOutputDir,
 			boolean withMainMethod, IProgressMonitor monitor) {
 		final ExtensionInfo extInfo = new JavaBuilderExtensionInfo(this);
 	    buildOptions(classPath, sourcePath, localOutputDir, extInfo.getOptions(), withMainMethod);
+	    fOptions = extInfo.getOptions();
+	    fOptions.post_compiler = null;
+	    
 	    return extInfo;
 	}
 
@@ -42,7 +48,9 @@ public class X10JavaBuilder extends AbstractX10Builder {
 		return Constants.JAVA_EXT;
 	}
 	
-	  
+	public Options getOptions(){
+		return fOptions;
+	}
 	 
 	  
 
