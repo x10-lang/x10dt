@@ -506,7 +506,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 		  final Collection<IFile> sourcesToCompile, final SubMonitor monitor) throws CoreException {
     if (! generatedFiles.isEmpty()) {
       monitor.beginTask(null, 100);
-      Collection<File> sourcesToPostCompile = new ArrayList<File>();
+      Collection<File> sourcesToPostCompile = new HashSet<File>();
       for(IFile srcFile: sourcesToCompile){
     	  String name = BuildPathUtils.getBareName(srcFile, fProjectWrapper);
     	  if (generatedFiles.containsKey(name)){ // --- Code was generated for srcFile during this build.
