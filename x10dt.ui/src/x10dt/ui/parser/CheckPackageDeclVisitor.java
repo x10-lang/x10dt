@@ -105,9 +105,9 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
 			IClasspathEntry classpathEntry = cpEntries[i];
 			if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 				IPath cpPath= classpathEntry.getPath(); // ws rel
-				String cpPathStr = cpPath.toOSString();	
-				if (pkgPath.startsWith(cpPathStr) && !BuildPathUtils.isExcluded(new Path(pkgPath), classpathEntry)) {
-					int cpPathLen = cpPathStr.length();
+				IPath pkg = new Path(pkgPath);
+				if (cpPath.isPrefixOf(pkg) && !BuildPathUtils.isExcluded(pkg, classpathEntry)){
+					int cpPathLen = cpPath.toOSString().length();
 					String srcFolderRelPath= pkgPath.substring(cpPathLen + 1, pkgPath.length() - srcFileName.length() );
 					String result= srcFolderRelPath.replace(File.separatorChar, '.');
 					if(result.endsWith(".")) {
