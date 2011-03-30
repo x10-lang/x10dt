@@ -46,17 +46,18 @@ distribution.
 
 <div class="p"><!----></div>
 Instead of writing <b>ateach (p in D) S</b> the programmer should write 
-<b>for(p in D) at(D(p)) async S</b> to get the same effect. 
-For each point <b>p</b> in <b>D</b>, at place <b>D(p)</b>, <b>S</b> is
+<b>for(p in D) at(D(p);F) async S</b> to get the same effect. 
+For each point <b>p</b> in <b>D</b>, at place <b>D(p)</b>, transmitting
+information as specified by <b>F</b>, 
+<b>S</b> is
 executed simultaneously.
 
 <div class="p"><!----></div>
 However, this often results in excessive communication and parallelism. Instead the
 programmer may want to write: 
 <pre>
-for (place in D.places()) async at (place) {
-    for (p in D</td><td width="150">
-&#124;here) {
+for (place in D.places()) async at (place; p, D, *) {
+    for (p in D&#124;here) {
         S(p);
     }
 }

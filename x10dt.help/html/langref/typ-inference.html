@@ -289,16 +289,14 @@ C(r) = { F<sub>l</sub> == G<sub>l</sub> </td><td width="150">
 
 <div class="p"><!----></div>
 If r is a type comparison, and the l<sup>th</sup> type parameter of <b>K</b> is
-invariant (resp. covariant or contravariant), then 
+invariant, 
+then 
 C(r) has F<sub>l</sub> =  = G<sub>l</sub>
 (resp. {F<sub>l</sub>  &lt; : G<sub>l</sub>} or {G<sub>l</sub>  &lt; : F<sub>l</sub>}) . 
 
 <div class="p"><!----></div>
 For example, the constraint "List[X] == List[Y]" produces the
-constraint <b>X==Y</b>, because <b>List</b> is nonvariant.  
-If <b>Contra[X]</b> is contravariant, 
-the constraint <b>Contra[X] &lt;: Contra[List[Y]]</b> 
-produces the constraint <b>List[Y] &lt;: X</b>.
+constraint <b>X==Y</b>.
 <div class="p"><!----></div>
 </li>
 
@@ -309,10 +307,9 @@ produces the constraint <b>List[Y] &lt;: X</b>.
 </ul>
 
 <div class="p"><!----></div>
-Suppose we have: 
 <pre>
 import x10.util.*;
-class Cl[C1, +C2, -C3]{}
+class Cl[C1, C2, C3]{}
 class Example {
   static def me[X1, X2](Cl[Int, X1, X2]) = 
      new Cl[X1, X2, Point]();

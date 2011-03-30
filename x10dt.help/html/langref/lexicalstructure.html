@@ -58,6 +58,20 @@ identifiers, <b>as</b> is a keyword, but <b>As</b> and <b>AS</b> are identifiers
 and type-tags of numeric literals - 0xbabe = 0XBABE.)
 
 <div class="p"><!----></div>
+In addition, any string of characters may be enclosed in backquotes <b>`</b> to
+form an identifier - though the backquote character itself, and the backslash 
+character, must be quoted by a backslash if they are to be included.
+This allows,
+for example, keywords to be used as identifiers.  The following are
+backquoted identifiers: 
+<pre>
+`while`, `!`, `(unbalanced(`, `0xbabe`, `\`<br />`
+</pre>
+
+Certain  back ends and compilation options do not support all choices of
+identifier.  
+
+<div class="p"><!----></div>
 
 <b>Keywords&nbsp;&nbsp;</b>
 

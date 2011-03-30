@@ -126,16 +126,43 @@ features are unavailable because they don't make sense.
 entails no compile-time or runtime cost.  Some cannot be, <em>e.g.</em>, in cases where
 cyclic structures of <b>val</b> fields are required.
 <div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We use <b>Pt</b>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>This only
+applies to nullary property methods, not nullary instance methods.  Nullary
+property methods perform limited computations, have no side effects, and
+always return the same value, since
+they have to be expressed in the constraint sublanguage.  In this sense, a
+nullary property method does not behave hugely different from a property.
+indeed, a compilation scheme which cached the value of the property method
+would all but erase the distinction.  Other methods may
+have more behavior, <em>e.g.</em>, side effects, so we keep the <b>()</b> to make it
+clear that a method call is potentially large.
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Indeed, even for the
+standard types, these operators are defined in the library.  Not even as basic
+an operation as integer addition is built into the language.  Conversely, if
+you define a full-featured numeric type, it will have most of the privileges that
+the standard ones enjoy.  The missing priveleges are (1) literals; (2) 
+the <b>..</b> operator won't compute the <b>zeroBased</b> and <b>rail</b>
+properties as it does for <b>Int</b> ranges; (3) <b>*</b> won't track ranks, as
+it does for <b>Region</b>s; 
+(4) <b>&amp;&amp;</b> and <b>&#124;&#124;</b> won't short-circuit, as they do for <b>Boolean</b>s, 
+ and (5) <b>a==b</b> will only coincide with
+<b>a.equals(b)</b> if coded that way.  For example, a <b>Polar</b> type might
+have many representations for the origin, as radius 0 and any angle; these
+will be <b>equals()</b>, but will not be <b>==</b>.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>We use <b>Pt</b>
 to avoid any possible confusion with the built-in class <b>Point</b>.
 <div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>This is abominable behavior for 
-<b>toString</b>, but nonetheless it is allowed.
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>This is abominable behavior for
+<b>toString</b>, but it cannot be prevented - save by a scheme such as we
+present in this section.
 <div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>The
+<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>The
       variable names are relevant because one formal can be mentioned in a
       later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
-<br /><br />
+<br /><br /><hr />
 
 </body>
 </html>

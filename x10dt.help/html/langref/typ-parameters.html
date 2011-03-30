@@ -135,50 +135,6 @@ class NameMap[T]{T &lt;: Named} {
 }
 </pre>
 
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc2.1">
-2.2</a>&nbsp;&nbsp;Variance of Type Parameters</h3>
-
-
-
-
-
-
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-Class, struct and interface definitions are permitted to specify a <em>
-  variance</em> 
-for each type parameter. 
-There are three variance specifications: 
-<b>+</b> indicates <em>co-variance</em>,  <b>-</b> indicates <em>
-  contravariance</em> and the absence of  <b>+</b> and 
- <b>-</b> indicates <em>invariance</em>. For a class (or struct or
- interface) <b>S</b> specifying that a particular parameter position
- (say, <b>i</b>) is covariant means that 
-if <b>Si &lt;: Ti</b> then
-"S[S1,&#8230;,Sn] &lt;: S[S1,&#8230;, Si-1,Ti,Si+1,&#8230; Sn]".
-Similarly, saying that position <b>i</b> is is contravariant means
-that 
-if <b>Si &lt;: Ti</b> then
-"S[S1,&#8230;, Si-1,Ti,Si+1,&#8230; Sn] &lt;: S[S1,&#8230;,Sn]". If the
-position is invariant, then no such relationship is asserted between
-<b>Si &lt;: Ti</b> 
-and
-"S[S1,&#8230;, Si-1,Ti,Si+1,&#8230; Sn]". The compiler must perform
-several checks on the body of the class (or struct or interface) to
-establish that type parameters with a variance are used in a manner
-that is consistent with their semantics.
-
-<div class="p"><!----></div>
-<em><em>Limitation</em> </em> The implementation of variance specifications  suffers from
-various limitations in X10 v2.1. Users are strongly encouraged not
-to use variance. (Some classes, structs, and interfaces in the standard
-libraries use variance specifications in a careful way that
-circumvents these limitations.)
-
 <div class="p"><!----></div>
 
 </body>

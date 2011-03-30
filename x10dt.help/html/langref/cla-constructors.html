@@ -25,11 +25,16 @@
 <div class="p"><!----></div>
 Instances of classes are created by the <b>new</b> expression: <br />
 
+ 
+ 
+  
+  
+  
   <em>
   
 <table>
 
-<tr><td align="right">ClassInstCreationExp ::= <b>new</b> TypeName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">ClassInstCreationExp ::= <b>new</b> TypeName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;= </td></tr>
 <tr><td align="right">&#124; <b>new</b> TypeName <b>[</b> Type <b>]</b> <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b> </td></tr>
 <tr><td align="right">&#124; Primary <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">&#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
@@ -45,7 +50,7 @@ Constructors are defined like methods, except that they are named <b>this</b>
 and ordinary methods may not be.    The content of a constructor body has
 certain capabilities (<em>e.g.</em>, <b>val</b> fields of the object may be initialized)
 and certain restrictions (<em>e.g.</em>, most methods cannot be called); see
-&#167; for the details.
+ for the details.
 
 <div class="p"><!----></div>
 The following class provides two constructors.  The unary constructor 
@@ -53,11 +58,12 @@ The following class provides two constructors.  The unary constructor
 arbitrary value.  The nullary constructor <b>def this()</b> gives it a default
 value of 10.  The <b>example</b> method illustrates both of these calls.
 
+<div class="p"><!----></div>
 <pre>
 class C {
   public val a : Int;
   def this(b : Int) { a = b; } 
-  def this() { a = 10; }
+  def this()        { a = 10; }
   static def example() {
      val two = new C(2);
      assert two.a == 2;
@@ -81,9 +87,10 @@ if the class has <b>val</b> fields that need to be initialized in a
 constructor), the class has no constructor, which is a static error.
 
 <div class="p"><!----></div>
-The following class has no explicit constructor.   
-
-<div class="p"><!----></div>
+The following class has no explicit constructor.
+Its implicit constructor is 
+<b>def this(x:Int)property(x);</b>
+This implicit constructor is valid, and so is the class. 
 <pre>
 class C(x:Int) {
   static def example() {
@@ -92,20 +99,21 @@ class C(x:Int) {
   }
 }
 </pre>
+ 
 
 <div class="p"><!----></div>
+The following class has the same default constructor.  However, that
+constructor does not initialize <b>d</b>, and thus is invalid.  This 
+class does not compile; it needs an explicit constructor.
 <pre>
-class C(x:Int) {
+// THIS CODE DOES NOT COMPILE
+class Cfail(x:Int) {
   val d: Int;
   static def example() {
-    val thisShouldBeWrong = new C(40);
+    val wrong = new Cfail(40);
   }
 }
 </pre>
-
-<div class="p"><!----></div>
-Thus, it has an implicit constructor: 
-<b>def this(x:Int)property(x);</b>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc5.2">

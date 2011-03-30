@@ -42,8 +42,8 @@ The label on the outer <b>for</b> statement allows <b>continue</b> and
 <b>continue</b> or <b>break</b> would only continue or break the inner <b>for</b>
 loop. 
 <pre>
-lbl : for ([i] in 1..10) {
-   for ([j] in i..10) {  
+lbl : for (i in 1..10) {
+   for (j in i..10) { 
       if (a(i,j) == 0) break lbl;
       if (a(i,j) == 1) continue lbl;
       if (a(i,j) == a(j,i)) break lbl;

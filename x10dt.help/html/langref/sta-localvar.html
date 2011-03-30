@@ -62,7 +62,9 @@ A local variable of a given name, say <b>x</b>, cannot shadow another local
 variable or parameter named <b>x</b> unless there is an intervening method or
 closure declaration, or unless the inner <b>x</b> is declared inside an
 <b>async</b> or <b>at</b> statement and the outer variable is declared outside
-of that. 
+of that.   Strictly, <b>at</b> introduces a new scope that does not share the
+variables of the external scope, so its variables do not actually shadow those
+outside. 
 
 <div class="p"><!----></div>
 The following code illustrates both legal and illegal uses of shadowing.
@@ -86,7 +88,7 @@ class Shadow{
         val x = "can shadow through async";
      }        
      at (here;) {
-        val x = "can shadow through at";
+        val x = &#228;t gives a whole new namespace";
      }        
      val f = () =&#62; { 
        val x = "can shadow through closure";

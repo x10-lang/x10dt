@@ -13,29 +13,32 @@
  span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
  span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
-	<title>Distributed Arrays</title>
+	<title>IntRange</title>
 </head>
 
 <body>
- <h2><a name="tth_sEc5">
-6</a>&nbsp;&nbsp;Distributed Arrays</h2>
-
-
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;IntRange</h2>
+<a name="sect:intrange">
+</a>
 
 
 
 <div class="p"><!----></div>
-Distributed arrays, instances of <b>DistArray[T]</b>, are very much like
-<b>Array</b>s, except that they distribute information among multiple
-<b>Place</b>s according to a <b>Dist</b> value passed in as a constructor
-argument.  For example, the following code creates a distributed array holding
-a thousand cells, each initialized to 0.0, distributed via a block
-distribution over all places.
-<pre>
-val R &lt;: Region = 1..1000;
-val D &lt;: Dist = Dist.makeBlock(R);
-val da &lt;: DistArray[Float] = DistArray.make[Float](D, (Point(1))=&#62;0.0f);
-</pre>
+An <b>IntRange</b> is a representation of a set of consecutive integers: 
+<b>1..10</b> is the numbers 1 through 10.  There is nothing special about
+<b>x10.lang.IntRange</b>, beyond its package.  However, it appears frequently
+in idioms involving arrays and related constructs, especially rectangular
+arrays.
+
+<div class="p"><!----></div>
+One notable idiom involving <b>IntRange</b> is the integer iteration idiom.  
+<b>for(i in 1..10)use(i);</b> calls 
+<b>use</b> on each number 1,2, ..., 10, in turn.
+
+<div class="p"><!----></div>
+If <b>m &#62; n</b>, the <b>IntRange</b> <b>m..n</b> is empty.  It has no elements,
+and iterating over it will not execute the body of the loop.
 
 <div class="p"><!----></div>
 

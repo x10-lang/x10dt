@@ -18,7 +18,7 @@
 
 <body>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;Regions</h2><a name="XtenRegions">
+3</a>&nbsp;&nbsp;Regions</h2><a name="XtenRegions">
 </a>
 
 
@@ -33,18 +33,29 @@ all the points in it.
 <pre>
 val MAX_HEIGHT=20;
 val Null = Region.makeUnit();  // Empty 0-dimensional region
-val R1 = 1..100; // 1-dim region with extent 1..100
-val R2 = (1..100) as Region(1); // same as R1
+val R1 = 1..100; // IntRange 
+val R2 = R1 as Region(1);
 val R3 = (0..99) * (-1..MAX_HEIGHT);
 val R4 = Region.makeUpperTriangular(10);
 val R5 = R4 &amp;&amp; R3; // intersection of two regions
 </pre>
 
 <div class="p"><!----></div>
-The expression `m..n`, for integer expressions <b>m</b> and <b>n</b>,
-evaluates to the rectangular, rank-1 region consisting of the points
-{`[m]`, ..., `[n]`}. If `m` is greater than
-`n`, the region <b>m..n</b> is empty.
+The <b>IntRange</b> value <b>1..100</b> can be implicitly or explicitly coerced
+to a one-dimensional <b>Region</b> consisting of the points
+{, ..., }.  <b>IntRange</b>s are useful in
+building up regions, especially rectangular regions.  
+In general, we ignore the distinction between an <b>IntRange</b> and a rank-one
+<b>Region</b>, except for those occasional situations where the compiler
+requires attending to the distinction.
+
+<div class="p"><!----></div>
+By a special dispensation, the compiler knows that, if <b>r : Region(m)</b> and
+<b>s : Region(n)</b>, then <b>r*s : Region(m+n)</b>.  (The X10 type system
+ordinarily could not specify the sum; the best it could do 
+would be <b>r*s : Region</b>, with the rank of the region unknown.)  This
+feature allows more convenient use of arrays; in particular, one does not need
+to keep track of ranks nearly so much.
 
 <div class="p"><!----></div>
 <pre>
@@ -141,7 +152,10 @@ iterate over the points in a region in the canonical order.
 <div class="p"><!----></div>
 A region is said to be <em>rectangular</em> if it is of
 the form `(T<sub>1</sub> * &#8230; * T<sub>k</sub>)` for some set of intervals
-`T$<sub>i</sub> = l<sub>i</sub> .. h<sub>i</sub>`. Such a
+`T<sub>i</sub> =  l<sub>i</sub> .. h<sub>i</sub> `. 
+In particular an <b>IntRange</b> turned into a <b>Region</b> is rectangular: 
+<b>(1..10) as Region(1)</b>.
+Such a
 region satisfies the property that if two points p<sub>1</sub> and p<sub>3</sub> are
 in the region, then so is every point p<sub>2</sub> between them (that is, it is <em>convex</em>). 
 (Banded and triangular regions are not rectangular.)

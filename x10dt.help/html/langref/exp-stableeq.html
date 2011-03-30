@@ -64,8 +64,12 @@ and all their fields or components must be <b>==</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> If the operands have numeric types, they are coerced into the larger of
-      the two types (see &#167;) and then compared for numeric equality.
+<li> No implicit coercions are performed by <b>==</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> It is a static error to have an expression <b>a == b</b> if the types of
+      <b>a</b> and <b>b</b> are disjoint.
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -96,6 +100,121 @@ val eq2 = (a == b);
 assert eq1 == eq2;
 </pre>
 
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc20.1">
+20.1</a>&nbsp;&nbsp;No Implicit Coercions</h3>
+<a name="sect:eqeq-no-coerce">
+</a>
+
+<div class="p"><!----></div>
+<b>==</b> is a primitive operation in X10 - one of very few. Most operations,
+like <b>+</b> and <b>&lt;=</b>, are defined as <b>operator</b>s. <b>==</b> and
+<b>!=</b> are not. As non-<b>operator</b>s, they need not and do not follow the
+general method resolution procedure of &#167;. In
+particular, while <b>operator</b>s perform implicit conversions on their
+arguments, <b>==</b> and <b>!=</b> do not.
+
+<div class="p"><!----></div>
+The advantage of this restriction is that <b>==</b>'s behavior is as simple and
+efficient as possible.  It never runs user-defined code, and the compiler can
+analyze and understand it in detail - and guarantee that it is efficient.
+
+<div class="p"><!----></div>
+The disadvantage is that certain straightforward-looking idioms do not work.
+One may not, for example, write
+<pre>
+// NOT ALLOWED
+for(var i : Long = 0; i != 100; i++) 
+</pre>
+A <b>Long</b> like <b>i</b> can never <b>==</b> an <b>Int</b> like <b>100</b>.
+
+<div class="p"><!----></div>
+We can write <b>i = i + 1;</b>, adding an <b>Int</b> to <b>i</b>. This works 
+because the expression uses <b>+</b>,  an ordinary <b>operator</b>.
+There is an implicit coercion from <b>Int</b> to <b>Long</b>, so the
+<b>1</b> can be converted to <b>1L</b>, which can be added to <b>i</b>.  
+
+<div class="p"><!----></div>
+However, <b>==</b> does not permit implicit coercions, and so the <b>100</b>
+stays an <b>Int</b>.  The loop must be written with a comparison of two
+<b>Long</b>s: 
+<pre>
+for(var i : Long = 0; i != 100L; i++) 
+</pre>
+
+<div class="p"><!----></div>
+Incidentally, it could also be written 
+<pre>
+for(var i : Long = 0; i &lt;= 100; i++) 
+</pre>
+The operation <b>&lt;=</b> is a regular operator, and thus uses coercions in its
+arguments, so <b>100</b> gets coerced to <b>100L</b>.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc20.2">
+20.2</a>&nbsp;&nbsp;Non-Disjointness Requirement</h3>
+
+<div class="p"><!----></div>
+It is a static error to have an expression <b>a==b</b> where <b>a</b> and
+<b>b</b> could not possibly be equal, based on their types.  This is a
+practical codicil to &#167;<a href="#sect:eqeq-no-coerce">20.1</a>.  Consider the illegal code 
+<pre>
+// NOT ALLOWED
+for(var i : Long = 0; i != 100; i++) 
+</pre>
+
+<div class="p"><!----></div>
+<b>100</b> and <b>100L</b> are different values; they are not <b>==</b>. A
+coercion could make them equal, but <b>==</b> does not allow coercions. So, if
+<b>100 == 100L</b> were going to return anything, it would have to return
+<b>false</b>. This would have the unfortunate effect of making the <b>for</b>
+loop diverge.
+
+<div class="p"><!----></div>
+Since this and related idioms are so common, and since so many programmers are
+used to languages which are less precise about their numeric types, X10 avoids
+the mistake by declaring it a static error in most cases.  Specifically,
+<b>a==b</b> is not allowed if, by inspection of the types, <b>a</b> and <b>b</b>
+could not possibly be equal.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> Numbers of different base types cannot be compared for equality.  
+<b>100==100L</b> is a static error.  To compare numbers, explicitly cast them
+to the same type: <b>100 as Long == 100L</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Indeed, structs of different types cannot be equal, and so they cannot be
+compared for equality.
+<div class="p"><!----></div>
+</li>
+
+<li> For objects, the story is different. Unconstrained object types can
+      always be compared for equality. Given objects <b>a:Person</b> and
+      <b>b:Theory</b>, <b>a==b</b> could be true if <b>a==null</b> and
+      <b>b==null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Constrained object types may or may not be comparable.  For example,  
+      if <b>Person</b> and <b>Theory</b> are both direct subclasses of
+      <b>Object</b>, and <b>a:Person{self!=null}</b> and <b>b:Theory</b>, then
+      <b>a==b</b> is not allowed, since the two could not possibly be equal.
+<div class="p"><!----></div>
+</li>
+
+<li> Explicit casts erase type information.  If you wanted
+      to have a comparison <b>a==b</b> for <b>a:Person{self!=null}</b> and
+      <b>b:Theory</b>, you could write it as <b>a as Object == b as Object</b>.
+      It would, of course, return <b>false</b>, but it would not be a compiler
+      error.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+      A struct and an object may both be cast to <b>Any</b> and compared for
+      equality, though they, too, will always be different.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
 

@@ -47,9 +47,9 @@ to determine whether an object is an instance of the given type:
 
 <div class="p"><!----></div>
 In the above expression, <em>Type</em> is any type. At run time, the
-result of this operator is <b>true</b> if the
-<em>RelationalExpression</em> can be coerced to <em>Type</em>
-without a <b>TypeCastException</b> being thrown or static error occurring.
+result of <b>e instanceof T</b>
+is <b>true</b> if the
+value of <b>e</b> is an instance of type <b>T</b>.
 Otherwise the result is <b>false</b>. This determination may involve checking
 that the constraint, if any, associated with the type is true for the given
 expression.

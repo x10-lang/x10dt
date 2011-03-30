@@ -19,8 +19,35 @@
 <body>
  <h2><a name="tth_sEc7">
 7</a>&nbsp;&nbsp;User-Defined Operators</h2>
+<a name="sect:operators">
+</a>
 
 
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody = </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 It is often convenient to have methods named by symbols rather than words.
@@ -32,15 +59,13 @@ polynomials by the usual operations: <b>+</b> to add, <b>*</b> to multiply,
 argument <b>x</b>.  We would like to write code thus: 
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
 <pre>
   public static def main(Array[String](1)):void {
      val X = new Poly([0,1]);
      val t &lt;: Poly = 7 * X + 6 * X * X * X; 
      val u &lt;: Poly = 3 + 5*X - 7*X*X;
      val v &lt;: Poly = t * u - 1;
-     for( [i] in -3 .. 3) {
+     for( i in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X(i) + "	t:" + t(i) 
          + "	u:" + u(i) + "	v:" + v(i)
@@ -55,15 +80,15 @@ argument <b>x</b>.  We would like to write code thus:
 Writing the same code with method calls, while possible, is far less elegant: 
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
 <pre>
   public static def uglymain() {
      val X = new UglyPoly([0,1]);
-     val t &lt;: UglyPoly = X.mult(7).plus(X.mult(X).mult(X).mult(6));  
-     val u &lt;: UglyPoly = const(3).plus(X.mult(5)).minus(X.mult(X).mult(7));
+     val t &lt;: UglyPoly = X.mult(7).plus(
+                          X.mult(X).mult(X).mult(6));  
+     val u &lt;: UglyPoly = const(3).plus(
+                           X.mult(5)).minus(X.mult(X).mult(7));
      val v &lt;: UglyPoly = t.mult(u).minus(1);
-     for( [i] in -3 .. 3) {
+     for( i in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X.apply(i) + "	t:" + t.apply(i) 
           + "	u:" + u.apply(i) + "	v:" + v.apply(i)
@@ -77,11 +102,15 @@ The operator-using code can be written in X10, though a few variations are
 necessary to handle such exotic cases as <b>1+X</b>.
 
 <div class="p"><!----></div>
-Most X10 operators can be given definitions.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  However, <b>&amp;&amp;</b> and
+
+<div class="p"><!----></div>
+Most X10 operators can be given definitions.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>  (However, <b>&amp;&amp;</b> and
 <b>&#124;&#124;</b> 
 are only short-circuiting for <b>Boolean</b> expressions; user-defined versions
-of these operators have no special execution behavior.  
-These are: <br />
+of these operators have no special execution behavior.)
+
+<div class="p"><!----></div>
+The user-definable operations are (in order of precedence): <br />
 
 <table>
 <tr><td align="left">implicit type coercions</td></tr>
@@ -102,8 +131,62 @@ These are: <br />
 
 
 <div class="p"><!----></div>
+Many operators may be defined either in <b>static</b> or instance forms.  Those
+defined in instance form are dynamically dispatched, just like an instance
+method.  Those defined in static form are statically dispatched, just like a
+static method.  
+
+<div class="p"><!----></div>
+<pre>
+static class Trace(n:Int){
+  public static operator !(f:Trace) = new Trace(10 * f.n + 1);
+  public operator -this = new Trace (10 * this.n + 2);
+}
+static class Brace extends Trace{
+  def this(n:Int) { super(n); }
+  public operator -this = new Brace (10 * this.n + 3);
+  static def example() {
+     val t = new Trace(1);
+     assert (!t).n == 11;
+     assert (-t).n == 12 &amp;&amp; (-t instanceof Trace);
+     val b = new Brace(1);
+     assert (!b).n == 11;
+     assert (-b).n == 13 &amp;&amp; (-b instanceof Brace);
+  }
+}
+
+<div class="p"><!----></div>
+</pre>
+
+
+<div class="p"><!----></div>
+Operators may be invoked by unambiguous syntax, loosely akin to a
+fully-qualified name. For example, <b>!t</b> above may be invoked as
+<b>Trace.operator !(t)</b>. This unambiguous syntax may be used even if there
+are several <b>!</b> operators that could apply to <b>t</b>, rendering the
+convenient short form <b>!t</b> unavailable in some context.
+
+<div class="p"><!----></div>
      <h3><a name="tth_sEc7.1">
 7.1</a>&nbsp;&nbsp;Binary Operators</h3>
+
+<div class="p"><!----></div>
+Binary operators, illustrated by <b>+</b>, may be defined statically in a
+container <b>A</b> as:
+<pre>
+static operator (b:B) + (c:C) = ...;
+</pre>
+In this case it may be invoked as <b>A.operator +(b,c)</b>.
+Or, it may be defined as  as an instance operator by one of the forms:
+<pre>
+operator this + (b:B) = ...;
+operator (b:B) + this = ...;
+</pre>
+and be invoked as 
+<b>a.operator +(b)</b>
+and as 
+<b>a.operator ()+(b)</b> 
+respectively.
 
 <div class="p"><!----></div>
 Defining the sum <b>P+Q</b> of two polynomials looks much like a method
@@ -116,15 +199,13 @@ appear in a use of the operator.  So,
 class Poly {
   public val coeff : Array[Int](1);
   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-  public def degree() = coeff.size()-1;
-  public def  a(i:Int) = (i&lt;0 </td><td width="150">
-&#124;</td><td width="150">
-&#124; i&#62;this.degree()) ? 0 : coeff(i);
+  public def degree() = coeff.size-1;
+  public def  a(i:Int) = (i&lt;0 &#124;&#124; i&#62;this.degree()) ? 0 : coeff(i);
 
 <div class="p"><!----></div>
   public operator this + (p:Poly) =  new Poly(
      new Array[Int](
-        Math.max(this.coeff.size(), p.coeff.size()),
+        Math.max(this.coeff.size, p.coeff.size),
         (i:Int) =&#62; this.a(i) + p.a(i)
      )); 
   // ... 
@@ -156,29 +237,12 @@ The definition for the sum of two
 <pre>
   public static operator (p:Poly) + (q:Poly) =  new Poly(
      new Array[Int](
-        Math.max(q.coeff.size(), p.coeff.size()),
+        Math.max(q.coeff.size, p.coeff.size),
         (i:Int) =&#62; q.a(i) + p.a(i)
      ));
 </pre>
 
 <div class="p"><!----></div>
-This requires the following grammar: <br />
-<em>  
-<table>
-
-<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
 When X10 attempts to typecheck a binary operator expression like <b>P+Q</b>, it
 first typechecks <b>P</b> and <b>Q</b>. Then, it looks for operator declarations
 for <b>+</b> in the types of <b>P</b> and <b>Q</b>. If there are none, it is a
@@ -192,31 +256,39 @@ conversion. If even the best-matching operation is not uniquely determined,
 the compiler will report a static error.
 
 <div class="p"><!----></div>
-The main difference between expressing a binary operation as an instance
-method (with a <b>this</b> in the definition) and a static one (no <b>this</b>)
-is that instance methods don't apply any conversions, while static methods
-attempt to convert both arguments. 
-
-
-<div class="p"><!----></div>
      <h3><a name="tth_sEc7.2">
 7.2</a>&nbsp;&nbsp;Unary Operators</h3>
 
 <div class="p"><!----></div>
-Unary operators are defined in a similar way, with <b>this</b> appearing in the
-<b>operator</b> definition where an actual value would occur in a unary
-expression.  The operator to negate a polynomial is: 
+Unary operators,  illustrated by <b>!</b>, may be defined statically in
+container 
+<b>A</b> as 
+<pre>
+static operator !(x:A) = ...;
+</pre>
+or as instance operators by: 
+<pre>
+operator !this = ...;
+</pre>
 
 <div class="p"><!----></div>
-<pre>
-  public operator - this = new Poly(
-    new Array[Int](coeff.size(), (i:Int) =&#62; -coeff(i))
-    );
-</pre>
+A statically-defined unary operator <b>!</b> may be invoked on <b>a:A</b> as 
+<b>A.operator !(a)</b>.  An instance operator may be invoked as
+<b>a.operator !()</b>.  
 
 <div class="p"><!----></div>
 The rules for typechecking a unary operation are the same as for methods; the
 complexities of binary operations are not needed.
+
+<div class="p"><!----></div>
+The operator to negate a polynomial is: 
+
+<div class="p"><!----></div>
+<pre>
+  public operator - this = new Poly(
+    new Array[Int](coeff.size, (i:Int) =&#62; -coeff(i))
+    );
+</pre>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc7.3">
@@ -224,8 +296,16 @@ complexities of binary operations are not needed.
 
 
 <div class="p"><!----></div>
-Explicit type conversions, <b>e as T{c}</b>, can be defined as operators on
-class <b>T</b>.
+Explicit type conversions, <b>e as A</b>, can be defined as operators on
+class <b>A</b>.  These must be static operators, and are defined in the 
+the form: 
+<pre>
+static operator (x:B) as A{c} = ... 
+</pre>
+They may be invoked by the unambiguous syntax: 
+<pre>
+A.operator as[A](b)
+</pre>
 
 <div class="p"><!----></div>
 <pre>
@@ -239,6 +319,24 @@ class Poly {
 }
 </pre>
 
+
+<div class="p"><!----></div>
+Furthermore, <b>T</b> may be written as <b>?</b> in the definition of a type
+conversion operator (and only there) to have it inferred from context: 
+
+<div class="p"><!----></div>
+<pre>
+class Caster(n:Int) {
+  public static operator (a:Int) as ? = new Caster(a); 
+  public static def example() {
+    val c : Caster{n==3} = 3 as Caster{n==3};
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+The <b>?</b> may be given a bound, such as <b>as ? &lt;: Caster</b>, if desired.
+
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
@@ -249,15 +347,24 @@ class Poly {
 <div class="p"><!----></div>
      <h3><a name="tth_sEc7.4">
 7.4</a>&nbsp;&nbsp;Implicit Type Coercions</h3>
+<a name="sect:ImplicitCoercion">
+</a>
 
 
 <div class="p"><!----></div>
-You may also define <em>implicit</em> type coercions to <b>T{c}</b> as static
-operators in class <b>T</b>.  The syntax for this is
-<b>static operator (x:U) : T{c} = e</b>.
-Implicit coercions are used automatically by the compiler on method calls 
-(&#167;) and assignments (&#167;).  
+An implicit type conversion from <b>U</b>  to <b>T</b> may be specified in
+either <b>U</b> or <b>T</b>.  
+The syntax for it, in either case, is: 
+<pre>
+static operator (u:U) : T = e;
+</pre>
+which may be invoked by the unambiguous syntax 
+<b>T.operator[T](u)</b> or <b>U.operator[T](u)</b>.
 
+
+<div class="p"><!----></div>
+Implicit coercions are used automatically by the compiler on method calls 
+() and assignments ().
 
 <div class="p"><!----></div>
 For example, we can define an implicit coercion from <b>Int</b> to <b>Poly</b>,
@@ -277,7 +384,7 @@ addition to add it to <b>x</b>.
 <div class="p"><!----></div>
   public static operator (p:Poly) + (q:Poly) = new Poly(
       new Array[Int](
-        Math.max(p.coeff.size(), q.coeff.size()),
+        Math.max(p.coeff.size, q.coeff.size),
         (i:Int) =&#62; p.a(i) + q.a(i)
      ));
 
@@ -290,7 +397,7 @@ addition to add it to <b>x</b>.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc7.5">
-7.5</a>&nbsp;&nbsp;<b>set</b> and <b>apply</b></h3>
+7.5</a>&nbsp;&nbsp;Assignment and Application Operators</h3>
 
 
 
@@ -324,8 +431,8 @@ both the application and assignment <b>operator</b>s must be defined.
 The <b>Oddvec</b> class of somewhat peculiar vectors illustrates this.
 <b>a()</b> returns a string representation of the oddvec, which probably should
 be done by <b>toString()</b> instead.  
-<b>a(i)</b> picks out one of the three
-coordinates of <b>a</b>, which is sensible.  
+<b>a(i)</b> sensibly picks out one of the three
+coordinates of <b>a</b>.
 <b>a()=b</b> sets all the coordinates of <b>a</b> to <b>b</b>.
 <b>a(i)=b</b> assigns to one of the
 coordinates.  <b>a(i,j)=b</b> assigns different values to <b>a(i)</b> and
@@ -335,7 +442,8 @@ coordinates.  <b>a(i,j)=b</b> assigns different values to <b>a(i)</b> and
 <pre>
 class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=&#62;0);
-  public operator this () = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
+  public operator this () = 
+      "(" + v(0) + "," + v(1) + "," + v(2) + ")";
   public operator this () = (newval: Int) { 
     for(p in v) v(p) = newval;
   }

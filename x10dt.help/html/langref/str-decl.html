@@ -77,13 +77,10 @@ Structs support the same notions of generics, properties, and constrained
 types that classes do.  
 
 <div class="p"><!----></div>
-The <b>Pair</b> type below provides pairs
-of values; the <b>diag()</b> method applies only when the two elements of the
-pair are equal, and returns that common value: 
 <pre>
-struct Pair[T,U](t:T, u:U) {
-  def this(t:T, u:U) { property(t,u); }
-  def diag(){T==U &amp;&amp; t==u} = t;
+struct Exam[T](nQuestions:Int){T &lt;: Question} {
+  public static interface Question {}
+  // ... 
 }
 </pre>
 

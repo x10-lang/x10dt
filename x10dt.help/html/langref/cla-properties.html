@@ -33,6 +33,8 @@ properties are desired.
 <div class="p"><!----></div>
 Properties are defined in parentheses, after the name of the class.  They are
 given values by the <b>property</b> command in constructors.
+
+<div class="p"><!----></div>
 <pre>
 class Proper(t:Int) {
   def this(t:Int) {property(t);}
@@ -40,11 +42,9 @@ class Proper(t:Int) {
 </pre>
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-It is a compile-time error for a class
-defining a property <b>x: T</b> to have an ancestor class that defines
-a property with the name <b>x</b>.  
-
+It is a static error for a class
+defining a property <b>x: T</b> to have a subclass class that defines
+a property or a field with the name <b>x</b>.
 
 <div class="p"><!----></div>
 A property <b>x:T</b> induces a field with the same name and type, 
@@ -58,20 +58,8 @@ public final def x()=x;
 </pre>
 
 <div class="p"><!----></div>
- (As noted in &#167;, interfaces can define
-properties too. They define the same nullary getter methods, though they do
-not require fields.)
-
-<div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-It is a compile-time error for a class or
-interface defining a property <b>x :T</b> to have an existing method with
-the signature <b>x(): T</b>.
-
-
-<div class="p"><!----></div>
 Properties are initialized by the invocation of a special <b>property</b>
-statement, which must be performed by each constructor of the class:
+statement: 
 <pre>
 property(e1,..., en);
 </pre>
@@ -79,8 +67,6 @@ The number and types of arguments to the <b>property</b> statement must match
 the number and types of the properties in the class declaration.  
 Every constructor of a class with properties must invoke <b>property(...)</b>
 precisely once; it is a static error if X10 cannot prove that this holds.
-
-<div class="p"><!----></div>
 The requirement to use the <b>property</b> statement means that all properties
 must be given values at the same time.  
 
@@ -90,8 +76,39 @@ properties is acyclic.  <em>E.g.</em>, there cannot be values <b>a</b> and <b>b<
 properties <b>c</b> and <b>d</b> such that <b>a.c == b</b> and <b>b.d == a</b>.
 
 <div class="p"><!----></div>
-<a name="PropertyCall">
-</a>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;Properties and Fields</h3>
+
+<div class="p"><!----></div>
+A container with a property named <b>p</b>, or a nullary property method named
+<b>p()</b>, cannot have a field named <b>p</b> - either defined in that
+container, or inherited from a superclass.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.2">
+3.2</a>&nbsp;&nbsp;Acyclicity of Properties</h3>
+
+
+<div class="p"><!----></div>
+X10 has certain restrictions that, ultimately, require that properties are
+simpler than their containers.  For example, <b>class A(a:A)</b> is not
+allowed.  
+Formally, this requirement is that there is  a total order \preceq 
+on all classes and
+structs such that, if A extends B, then A \prec B, and
+if A has a property of type B, then A \prec B, where A \prec B means
+A \preceq B and A  &#8800; B.   
+For example, the preceding class <b>A</b> is ruled out because we would need
+<b>A</b>\prec<b>A</b>, which violates the definition of \prec.
+The programmer need not (and cannot) specify
+\preceq, and rarely need worry about its existence.  
+
+<div class="p"><!----></div>
+Similarly, 
+the type of a property may not simply be a type parameter.  
+For example, <b>class A[X](x:X)</b> is illegal.
+
+<div class="p"><!----></div>
 
 </body>
 </html>

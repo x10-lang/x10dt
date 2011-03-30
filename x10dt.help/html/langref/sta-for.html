@@ -140,23 +140,17 @@ static def sum(a: Array[Int]): Int {
 </pre>
 
 <div class="p"><!----></div>
-Iteration variables have the <b>for</b> statement as scope.  They shadow other
-variables of the same names.
-
-<div class="p"><!----></div>
-In practice, the ability to do destructuring in a <b>for</b> statement is
-mainly used for iterate over ranges of numbers.  
-<b>for ([i] in 1..10)</b> iterates over numbers from 1 to 10.
-The brackets are important. 
-<b>for (i in 1..10</b> iterates over <b>Point</b>s from 
-<b>[1] as Point</b> to <b>[10] as Point</b>.
-
-<div class="p"><!----></div>
+Iteration over an <b>IntRange</b> () is quite common. This
+allows looping while varying an integer index: 
 <pre>
-  var sum : Int = 0;
-  for ([i] in 1..n) sum += i;
+var sum : Int = 0;
+for(i in 1..10) sum += i;
+assert sum == 55;
 </pre>
 
+<div class="p"><!----></div>
+Iteration variables have the <b>for</b> statement as scope.  They shadow other
+variables of the same names.
 
 <div class="p"><!----></div>
 

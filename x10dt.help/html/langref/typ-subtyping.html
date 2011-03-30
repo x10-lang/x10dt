@@ -144,28 +144,6 @@ Inside the scope of a constraint <b>c</b> which entails <b>A &lt;: B</b>, we hav
 <b>A &lt;: B</b>.  <em>e.g.</em>, <b>upcast</b> above.
 <div class="p"><!----></div>
 </li>
-
-<li> 
-<b>Covariant Generic Types:</b> 
-If <b>C</b> is a generic type whose ith type parameter is covariant, 
-and "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>"
-and  "T&#8242;<sub>j</sub> == T<sub>j</sub>" for all j  &#8800; i, 
-then "C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>] &lt;: C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>]".
-<em>E.g.</em>, <b>class C[T1, +T2, T3]</b> with i=2, and <b>U2 &lt;: T2</b>, then
-<b>C[T1,U2,T3] &lt;: C[T1,T2,T3]</b>.
-<div class="p"><!----></div>
-</li>
-
-<li> 
-<b>Contravariant Generic Types:</b> 
-If <b>C</b> is a generic type whose ith type parameter is contravariant, 
-and "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>"
-and  "T&#8242;<sub>j</sub> == T<sub>j</sub>" for all j  &#8800; i, 
-then "C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>] :&#62; C[T&#8242;<sub>1</sub>, &#8230;, T&#8242;<sub>n</sub>]".
-<em>E.g.</em>, <b>class C[T1, -T2, T3]</b> with i=2, and &#220;2 &lt;: T2", then
-<b>C[T1,U2,T3] :&#62; C[T1,T2,T3]</b>.
-<div class="p"><!----></div>
-</li>
 </ul>
 
 <div class="p"><!----></div>
