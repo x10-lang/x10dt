@@ -141,9 +141,7 @@ public class LaunchMessages extends NLS {
 
   public static String CLCD_LinkCmdError;
 
-  public static String CLCD_LinkingCheck;
-
-	public static String CLCD_LinkingInterrupted;
+  public static String CLCD_LinkingInterrupted;
 
   public static String CLCD_LinkIOError;
 

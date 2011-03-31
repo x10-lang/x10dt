@@ -76,6 +76,7 @@ public class Messages extends NLS {
   public static String AXB_UnprocessedFile;
   public static String AXB_BuilderProblem;
   public static String AXB_Unprocessed;
+  public static String LCD_LaunchWithErrorsCheck;
  
   // --- Private code
   

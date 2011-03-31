@@ -18,6 +18,7 @@ import java.util.jar.Manifest;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -31,6 +32,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
+import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -52,6 +54,8 @@ import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.utils.core.ArgumentParser;
 
 import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.core.utils.CoreResourceUtils;
+import x10dt.ui.launch.core.utils.LaunchUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.java.Activator;
 import x10dt.ui.launch.java.Messages;
@@ -65,7 +69,25 @@ import x10dt.ui.launch.rms.core.launch_configuration.X10EnvVarsConfDynamicTab;
 public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigurationDelegate {
   
   // --- Overridden methods
-  
+
+  @Override
+  public void launch(ILaunchConfiguration configuration, String mode, ILaunch launch, IProgressMonitor monitor) throws CoreException {
+    IJavaProject javaProject = fLocalConfDelegate.verifyJavaProject(configuration);
+    IProject project= javaProject.getProject();
+    boolean shouldLaunch= true;
+    int errorCount = CoreResourceUtils.getNumberOfBuildErrorMarkers(project);
+
+    if (errorCount > 0) {
+      // Oops, there are errors on the project... ask the user whether to proceed with the launch
+      String message = (errorCount == 0) ? null : NLS.bind(x10dt.ui.launch.core.Messages.LCD_LaunchWithErrorsCheck, errorCount, project.getName());
+      shouldLaunch= LaunchUtils.queryUserToLaunchWithErrors(message);
+    }
+
+    if (shouldLaunch) {
+      super.launch(configuration, mode, launch, monitor);
+    }
+  }
+
   protected AttributeManager getAttributeManager(final ILaunchConfiguration configuration, final String mode,
                                                  final IProgressMonitor monitor) throws CoreException {
     final SubMonitor progress = SubMonitor.convert(monitor, 30);

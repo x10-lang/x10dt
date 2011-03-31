@@ -56,9 +56,6 @@ import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
@@ -73,6 +70,7 @@ import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
+import x10dt.ui.launch.core.utils.LaunchUtils;
 import x10dt.ui.launch.core.utils.UIUtils;
 import x10dt.ui.launch.core.utils.X10BuilderUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
@@ -369,21 +367,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     if (message == null) {
       return true;
     } else {
-      final String boxMessage = message;
-      final IWorkbench workbench = LaunchCore.getInstance().getWorkbench();
-      final boolean[] result = new boolean[1];
-      workbench.getDisplay().syncExec(new Runnable() {
-
-        public void run() {
-          final MessageBox msgBox = new MessageBox(workbench.getActiveWorkbenchWindow().getShell(), SWT.ICON_QUESTION |
-                                                                                                    SWT.YES | SWT.NO);
-          msgBox.setMessage(boxMessage);
-          msgBox.setText(LaunchMessages.CLCD_LinkingCheck);
-          result[0] = (msgBox.open() == SWT.YES);
-        }
-
-      });
-      return result[0];
+      return LaunchUtils.queryUserToLaunchWithErrors(message);
     }
   }
 
