@@ -9,6 +9,8 @@ package x10dt.ui.launch.core.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -123,10 +125,27 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   // --- Abstract methods implementation
 
+  static Map<Integer, String> BUILD_TYPE_NAME= new HashMap<Integer, String>();
+  static {
+    BUILD_TYPE_NAME.put(IncrementalProjectBuilder.AUTO_BUILD, "auto");
+    BUILD_TYPE_NAME.put(IncrementalProjectBuilder.CLEAN_BUILD, "clean");
+    BUILD_TYPE_NAME.put(IncrementalProjectBuilder.FULL_BUILD, "full");
+    BUILD_TYPE_NAME.put(IncrementalProjectBuilder.INCREMENTAL_BUILD, "incremental");
+  }
+
+  private void logBuildTypeToConsole(final int kind, PrintStream ps) {
+    IResourceDelta delta= this.getDelta(getProject());
+
+    ps.println("Build initiated: type = " + BUILD_TYPE_NAME.get(kind) + "; delta = " + (delta != null ? delta.toString() : "<none>"));
+  }
+
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
 	final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
     messageConsole.clearConsole();
+
+    logBuildTypeToConsole(kind, new PrintStream(messageConsole.newMessageStream()));
+
     if (!getProject().isAccessible()) {
       return null;
     }
