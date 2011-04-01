@@ -90,9 +90,12 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
         } 
         
         IJavaProject javaProject = JavaCore.create(fProject);
-        IClasspathEntry[] cpEntries;
-		try {
-			cpEntries = javaProject.getResolvedClasspath(true);
+        try {
+        	String name = BuildPathUtils.getBareName(pkgPath, javaProject).replaceAll(File.separator, ".");
+        	if (!name.contains("."))
+        		return "";
+        	int i = name.lastIndexOf(".");
+        	return name.substring(0, i);
 		} catch (JavaModelException e) {
 		    if (!e.isDoesNotExist()) {
 		        X10DTCorePlugin.getInstance().logException(e.getMessage(), e);
@@ -100,24 +103,6 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
 		    }
 			return null;
 		}
-
-        for (int i = 0; i < cpEntries.length; i++) {
-			IClasspathEntry classpathEntry = cpEntries[i];
-			if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-				IPath cpPath= classpathEntry.getPath(); // ws rel
-				IPath pkg = new Path(pkgPath);
-				if (cpPath.isPrefixOf(pkg) && !BuildPathUtils.isExcluded(pkg, classpathEntry)){
-					int cpPathLen = cpPath.toOSString().length();
-					String srcFolderRelPath= pkgPath.substring(cpPathLen + 1, pkgPath.length() - srcFileName.length() );
-					String result= srcFolderRelPath.replace(File.separatorChar, '.');
-					if(result.endsWith(".")) {
-						result=result.substring(0, result.length()-1);
-					}
-					return result;
-				}
-			}
-		}
-        return null;
     }
 
     @Override
