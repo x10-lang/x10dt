@@ -13,7 +13,7 @@ import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 
-import x10dt.ui.launch.rms.core.launch_configuration.X10EnvVarsConfDynamicTab;
+import x10dt.ui.launch.rms.core.launch_configuration.X10PlacesAndHostsDynamicTab;
 
 /**
  * Provides the implementation for dynamic configuration tabs for the X10 Sockets Resource Manager.
@@ -30,7 +30,7 @@ public final class MultiVMLaunchConfigurationFactory extends AbstractRMLaunchCon
 
   protected IRMLaunchConfigurationDynamicTab doCreate(final IResourceManager resourceManager,
                                                       final ILaunchConfigurationDialog launchDialog) throws CoreException {
-    return new X10EnvVarsConfDynamicTab();
+    return new X10PlacesAndHostsDynamicTab();
   }
 
 }

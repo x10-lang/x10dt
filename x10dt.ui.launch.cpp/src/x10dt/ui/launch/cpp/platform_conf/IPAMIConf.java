@@ -8,9 +8,9 @@
 package x10dt.ui.launch.cpp.platform_conf;
 
 /**
- * Contains the communication interface options for Sockets.
+ * Contains the communication interface options for PAMI.
  * 
  * @author egeay
  */
-public interface ISocketsConf extends IHostsBasedConf {
+public interface IPAMIConf extends IHostsBasedConf {
 }

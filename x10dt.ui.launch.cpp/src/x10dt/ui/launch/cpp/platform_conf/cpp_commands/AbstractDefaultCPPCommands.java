@@ -22,6 +22,7 @@ import x10.X10CompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
 import x10cpp.postcompiler.PostCompileProperties;
 import x10cpp.postcompiler.PrecompiledLibrary;
+import x10cpp.postcompiler.SharedLibProperties;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.ShallowErrorQueue;
 import x10dt.core.utils.X10BundleUtils;
@@ -58,7 +59,9 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     final X10CompilerOptions options = CompilerOptionsFactory.createOptions(platformConf.getConfFile().getProject());
     options.output_directory = new File(x10DistribLoc);
     definePrecompiledLibrary(options, isLocal, x10DistribLoc, x10DistFileStore, targetOpHelper);
-    final CXXCommandBuilder builder = CXXCommandBuilder.getCXXCommandBuilder(options, prop, new ShallowErrorQueue());
+    final SharedLibProperties sharedLibProp = getSharedLibProperties(x10DistFileStore);
+    final CXXCommandBuilder builder = CXXCommandBuilder.getCXXCommandBuilder(options, prop, sharedLibProp, 
+                                                                             new ShallowErrorQueue());
 
     this.fPostCompiler = builder.getPostCompiler();
     this.fPostFileArgs = concatenate(builder.getPostFileArgs(), targetOpHelper);
@@ -132,6 +135,13 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     }
   }
   
+  private SharedLibProperties getSharedLibProperties(final IFileStore x10DistFileStore) throws IOException, CoreException {
+    final IFileStore propertiesFileStore = x10DistFileStore.getChild(SHARED_LIB_PROPERTIES_FILE);
+    final Properties properties = new Properties();
+    properties.load(propertiesFileStore.openInputStream(EFS.NONE, null /* monitor */));
+    return new SharedLibProperties(properties);
+  }
+  
   private PostCompileProperties getTransportProperties(final ETransport transport, 
                                                        final IFileStore x10DistFileStore) throws CoreException, IOException {
     final String propertiesFileName = String.format(X10RT_PROPERTIES_FILE_FORMAT, transport.name().toLowerCase());
@@ -154,4 +164,6 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
   private static final String LIBX10_PROPERTIES_FILE = "stdlib/libx10.properties"; //$NON-NLS-1$
 
+  private static final String SHARED_LIB_PROPERTIES_FILE = "etc/sharedlib.properties"; //$NON-NLS-1$
+  
 }

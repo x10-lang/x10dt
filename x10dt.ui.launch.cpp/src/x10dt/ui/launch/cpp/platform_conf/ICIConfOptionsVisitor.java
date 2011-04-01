@@ -48,5 +48,12 @@ public interface ICIConfOptionsVisitor {
    * @param configuration The current Sockets configuration.
    */
   public void visit(final ISocketsConf configuration);
+  
+  /**
+   * Visits the communication interface configuration for PAMI.
+   * 
+   * @param configuration The current PAMI configuration.
+   */
+  public void visit(final IPAMIConf configuration);
 
 }

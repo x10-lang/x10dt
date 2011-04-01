@@ -25,7 +25,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import x10dt.ui.launch.java.LaunchJavaImages;
 import x10dt.ui.launch.java.Messages;
-import x10dt.ui.launch.rms.core.launch_configuration.X10EnvVarsConfDynamicTab;
+import x10dt.ui.launch.rms.core.launch_configuration.X10PlacesAndHostsDynamicTab;
 
 
 final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab {
@@ -93,7 +93,7 @@ final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements 
   // --- Private code
     
   private void createX10EnvVarsInfo(final Composite parent) {
-    this.fX10EnvVarsConfTab = new X10EnvVarsConfDynamicTab();
+    this.fX10EnvVarsConfTab = new X10PlacesAndHostsDynamicTab();
     try {
       this.fX10EnvVarsConfTab.createControl(parent, null /* resourceManager */, null /* queue */);
       this.fX10EnvVarsConfTab.addContentsChangedListener(new IRMLaunchConfigurationContentsChangedListener() {
@@ -116,7 +116,7 @@ final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements 
     
   // --- Fields
     
-  private X10EnvVarsConfDynamicTab fX10EnvVarsConfTab;
+  private X10PlacesAndHostsDynamicTab fX10EnvVarsConfTab;
   
   private IResourceManager fResourceManager;
   

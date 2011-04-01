@@ -53,7 +53,7 @@ public class X10CompilerInstanceTab extends InstancePreferencesTab {
 
 		BooleanFieldEditor Debug = fPrefUtils.makeNewBooleanField(
 			page, this, fPrefService,
-			"instance", "Debug", "Generate debug information. If disabled, it will not be possible to debug the resulting executables.",
+			"instance", "Debug", "Generate debug information. If disabled, it will not be\npossible to debug the resulting executables.",
 			"",
 			parent,
 			true, true,

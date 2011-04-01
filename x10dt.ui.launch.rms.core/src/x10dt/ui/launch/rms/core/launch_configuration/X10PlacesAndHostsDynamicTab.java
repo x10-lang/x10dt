@@ -79,12 +79,12 @@ import x10dt.ui.launch.rms.core.RMSCoreActivator;
  * 
  * @author egeay
  */
-public final class X10EnvVarsConfDynamicTab implements IRMLaunchConfigurationDynamicTab {
+public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfigurationDynamicTab {
   
   /**
    * Creates the dynamic tab.
    */
-  public X10EnvVarsConfDynamicTab() {
+  public X10PlacesAndHostsDynamicTab() {
     this.fHosts = new ArrayList<String>();
     this.fListeners = new ArrayList<IRMLaunchConfigurationContentsChangedListener>();
   }
@@ -176,7 +176,7 @@ public final class X10EnvVarsConfDynamicTab implements IRMLaunchConfigurationDyn
         } else {
           final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(servicesId);
           final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(conf.getConnectionName());
-          path = remoteBrowse(parent.getShell(), connection, Messages.SRMLCDT_SelectHostFileDialogTitle, ""); //$NON-NLS-1$
+          path = remoteBrowse(parent.getShell(), connection, Messages.SRMLCDT_SelectHostFileDialogTitle, Constants.EMPTY_STR);
         }
         if (path != null) {
           hostFileText.setText(path);
@@ -281,10 +281,10 @@ public final class X10EnvVarsConfDynamicTab implements IRMLaunchConfigurationDyn
       
       @SuppressWarnings("unqualified-field-access")
       public void widgetSelected(final SelectionEvent event) {
-        fHosts.add(""); //$NON-NLS-1$
+        fHosts.add(Constants.EMPTY_STR);
         viewer.getTable().select(viewer.getTable().getItemCount() - 1);
-        viewer.add(""); //$NON-NLS-1$
-        viewer.editElement("", 0); //$NON-NLS-1$
+        viewer.add(Constants.EMPTY_STR);
+        viewer.editElement(Constants.EMPTY_STR, 0);
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {

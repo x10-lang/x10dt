@@ -46,7 +46,7 @@ import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.form_validation.AbstractFormControlChecker;
 import x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
-import x10dt.ui.launch.cpp.platform_conf.ISocketsConf;
+import x10dt.ui.launch.cpp.platform_conf.IHostsBasedConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import x10dt.ui.launch.rms.core.Messages;
 
@@ -143,7 +143,7 @@ final class PAMITypeConfigPart extends AbstractCITypeConfigurationPart  implemen
     
     addViewerProviders(formPart, managedForm, this.fHostListViewer, column, editor, this.fHosts, formPart.getPlatformConf());
     
-    initializeControls(formPart, (ISocketsConf) formPart.getPlatformConf().getCommunicationInterfaceConf(), addButton,
+    initializeControls(formPart, (IHostsBasedConf) formPart.getPlatformConf().getCommunicationInterfaceConf(), addButton,
                        removeButton);
     
     addListeners(formPart, managedForm, formPart.getPlatformConf(), this.fNumPlacesSpinner, this.fHostFileBt, 
@@ -356,7 +356,7 @@ final class PAMITypeConfigPart extends AbstractCITypeConfigurationPart  implemen
     });
   }
   
-  private void initializeControls(final AbstractCommonSectionFormPart formPart, final ISocketsConf socketsConf,
+  private void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf,
                                   final Button addButton, final Button removeButton) {
     this.fNumPlacesSpinner.setSelection(socketsConf.getNumberOfPlaces());
     final boolean shouldUseHostFile = socketsConf.shouldUseHostFile();

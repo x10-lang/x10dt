@@ -42,13 +42,13 @@ public final class Constants {
   public static final String A_EXT = ".a"; //$NON-NLS-1$
   
   public static final String X10_EXT = ".x10"; //$NON-NLS-1$
-
-  // --- Constants for Launch Configuration
-  
-  public static final String ATTR_X10_MAIN_CLASS = LaunchCore.PLUGIN_ID + ".X10MainClass"; //$NON-NLS-1$
   
   // --- Constant for X10 builder
   
   public static final QualifiedName EXEC_PATH = new QualifiedName(LaunchCore.PLUGIN_ID, "exec.path"); //$NON-NLS-1$
+  
+  // --- Private code
+  
+  private Constants() {}
   
 }

@@ -12,6 +12,9 @@ import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_P
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
 import static x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_X10_MAIN_CLASS;
+
+import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -21,14 +24,19 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
+import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.imp.preferences.PreferencesService;
+import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration;
+import org.eclipse.ui.dialogs.AbstractElementListSelectionDialog;
 
 import x10dt.core.X10DTCorePlugin;
+import x10dt.core.preferences.generated.X10Constants;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
@@ -63,7 +71,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
                              typeInfo.getCompilationUnit().getProject().getName());
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, typeInfo.getName());
     workingCopy.setAttribute(ATTR_CONSOLE, true);
-    workingCopy.setAttribute(Constants.ATTR_X10_MAIN_CLASS, typeInfo.getName());
+    workingCopy.setAttribute(ATTR_X10_MAIN_CLASS, typeInfo.getName());
     
     final IProject project = typeInfo.getCompilationUnit().getProject().getRawProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
@@ -73,7 +81,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     final String serviceTypeId = platformConf.getCommunicationInterfaceConf().getServiceTypeId();
     if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       try {
-        new OpenMPIDefaults().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+        new OpenMPILaunchConfServices().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
         
         useHostListAttrKey = OpenMPILaunchConfiguration.ATTR_USEHOSTLIST;
         hostListAttrKey = OpenMPILaunchConfiguration.ATTR_HOSTLIST;
@@ -83,7 +91,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
       }
     } else if (MPICH2_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       try {
-        new MPICH2Defaults().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+        new MPICH2LaunchConfServices().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
         
         useHostListAttrKey = MPICH2LaunchConfiguration.ATTR_USEHOSTLIST;
         hostListAttrKey = MPICH2LaunchConfiguration.ATTR_HOSTLIST;
@@ -92,7 +100,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
         return;
       }
     } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
-      new SocketsDefaults().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+      new SocketsLaunchConfServices().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
       
       useHostListAttrKey = null;
       hostListAttrKey = null;
@@ -130,6 +138,44 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     updateCommunicationInterfaceAttributes(platformConf.getCommunicationInterfaceConf(), config);
   }
   
+  // --- Overridden methods
+  
+  protected Pair<Integer, ILaunchConfiguration> chooseConfiguration(final List<ILaunchConfiguration> configList,
+                                                                    final String mode) {
+    final AbstractElementListSelectionDialog dialog = new SelectExistingLaunchConfigsDialog(getShell(), configList, mode);
+    final int result = dialog.open();
+    return new Pair<Integer, ILaunchConfiguration>(result, (ILaunchConfiguration) dialog.getFirstResult());
+  }
+  
+  protected boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
+                                        final String projectName) throws CoreException {
+    if (super.launchConfigMatches(config, typeName, projectName)) {
+      final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
+      final IPreferencesService prefsService = new PreferencesService(project, X10DTCorePlugin.kLanguageName);
+      if (prefsService.getBooleanPreference(X10Constants.P_LAUNCHCONFIGRESTRICTIVEMATCHINGPOLICY)) {
+        final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+        final ICommunicationInterfaceConf commIntfConf = platformConf.getCommunicationInterfaceConf();
+        final String serviceTypeId = commIntfConf.getServiceTypeId();
+        
+        final ICommInterfaceLaunchConfServices commIntfLaunchConfServices;
+        if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+          commIntfLaunchConfServices = new OpenMPILaunchConfServices();
+        } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+          commIntfLaunchConfServices = new MPICH2LaunchConfServices();
+        } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+          commIntfLaunchConfServices = new SocketsLaunchConfServices();
+        } else {
+          commIntfLaunchConfServices = null;
+        }
+        return (commIntfLaunchConfServices == null) ? true : commIntfLaunchConfServices.equals(config, commIntfConf);
+      } else {
+        return true;
+      }
+    } else {
+      return false;
+    }
+  }
+  
   // --- Private code
  
   private boolean isMPICH2LaunchConfig(final ILaunchConfiguration config) throws CoreException {
@@ -149,15 +195,15 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     final String serviceTypeId = commIntfConf.getServiceTypeId();
     if (serviceTypeId.equals(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID)) {
       if (! isOpenMPILaunchConfig(config)) {
-        new OpenMPIDefaults().setDefaults(config, commIntfConf);
+        new OpenMPILaunchConfServices().setDefaults(config, commIntfConf);
       }
     } else if (serviceTypeId.equals(PTPConstants.MPICH2_SERVICE_PROVIDER_ID)) {
       if (! isMPICH2LaunchConfig(config)) {
-        new MPICH2Defaults().setDefaults(config, commIntfConf);
+        new MPICH2LaunchConfServices().setDefaults(config, commIntfConf);
       }
     } else if (serviceTypeId.equals(PTPConstants.SOCKETS_SERVICE_PROVIDER_ID)) {
       if (! isSocketsLaunchConfig(config)) {
-        new SocketsDefaults().setDefaults(config, commIntfConf);
+        new SocketsLaunchConfServices().setDefaults(config, commIntfConf);
       }
     }
   }

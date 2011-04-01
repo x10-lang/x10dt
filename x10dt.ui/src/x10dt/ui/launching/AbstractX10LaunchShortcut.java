@@ -29,6 +29,7 @@ import org.eclipse.debug.ui.IDebugModelPresentation;
 import org.eclipse.debug.ui.ILaunchShortcut;
 import org.eclipse.imp.editor.UniversalEditor;
 import org.eclipse.imp.preferences.PreferencesService;
+import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -94,7 +95,6 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   // --- Interface methods implementation
 
   public final void launch(final ISelection selection, final String mode) {
-    
     if (selection instanceof IStructuredSelection) {
       final IStructuredSelection structuredSelection = (IStructuredSelection) selection;
       final Collection<IResource> resources = new ArrayList<IResource>();
@@ -120,6 +120,19 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   
   // --- Code for sub-classes
   
+  protected Pair<Integer, ILaunchConfiguration> chooseConfiguration(final List<ILaunchConfiguration> configList,
+                                                                    @SuppressWarnings("unused") final String mode) {
+    final IDebugModelPresentation labelProvider = DebugUITools.newDebugModelPresentation();
+    final ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
+    dialog.setElements(configList.toArray());
+    dialog.setTitle(Messages.AXLS_MultipleConfDialogTitle);
+    dialog.setMessage(Messages.AXLS_MultipleConfDialogMsg);
+    dialog.setMultipleSelection(false);
+    final int result = dialog.open();
+    labelProvider.dispose();
+    return new Pair<Integer, ILaunchConfiguration>(result, (ILaunchConfiguration) dialog.getFirstResult());
+  }
+  
   protected final Shell getShell() {
     final IWorkbenchWindow window = X10DTUIPlugin.getInstance().getWorkbench().getActiveWorkbenchWindow();
     return (window == null) ? null : window.getShell();
@@ -127,11 +140,8 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   
   protected boolean launchConfigMatches(final ILaunchConfiguration config, final String typeName,
                                         final String projectName) throws CoreException {
-    // This is a fairly loose match, based only on the project and main type names.
-    // This is based on the notion that the most common scenario is to have a single
-    // launch configuration for a given project and main type.
-    // If we want to support multiple launch types (e.g. with different comm interfaces)
-    // for a given project/main type better, we should tighten this match.
+    // By default, we consider (like for JDT) only the project and main type to find a possible match.
+    // One should override this method if he/she wants a more restrictive matching policy.
     return config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, "").equals(typeName) && //$NON-NLS-1$
            config.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, "").equals(projectName); //$NON-NLS-1$
   }
@@ -147,21 +157,6 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       ErrorDialog.openError(getShell(), Messages.AXLS_NoDebugInfoErrorTitle, Messages.AXLS_NoDebugInfoErrorMsg,
                             new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, "")); //$NON-NLS-1$
     }
-  }
-  
-  private ILaunchConfiguration chooseConfiguration(final List<ILaunchConfiguration> configList) {
-    final IDebugModelPresentation labelProvider = DebugUITools.newDebugModelPresentation();
-    final ElementListSelectionDialog dialog = new ElementListSelectionDialog(getShell(), labelProvider);
-    dialog.setElements(configList.toArray());
-    dialog.setTitle(Messages.AXLS_MultipleConfDialogTitle);
-    dialog.setMessage(Messages.AXLS_MultipleConfDialogMsg);
-    dialog.setMultipleSelection(false);
-    final int result = dialog.open();
-    labelProvider.dispose();
-    if (result == Window.OK) {
-      return (ILaunchConfiguration) dialog.getFirstResult();
-    }
-    return null;    
   }
   
   @SuppressWarnings("deprecation")
@@ -182,8 +177,9 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     return null;
   }
   
-  private ILaunchConfiguration findLaunchConfiguration(final ILaunchConfigurationType configType, final String typeName,
-                                                       final String projectName) {
+  private Pair<Integer, ILaunchConfiguration> findLaunchConfiguration(final ILaunchConfigurationType configType, 
+                                                                      final String typeName, final String projectName,
+                                                                      final String mode) {
     final List<ILaunchConfiguration> candidateConfigs = new ArrayList<ILaunchConfiguration>();
     try {
       final ILaunchConfiguration[] configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
@@ -196,12 +192,14 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       X10DTUIPlugin.getInstance().getLog().log(except.getStatus());
     }
     int candidateCount = candidateConfigs.size();
-    if (candidateCount == 1) {
-      return candidateConfigs.get(0);
-    } else if (candidateCount > 1) {
-      return chooseConfiguration(candidateConfigs);
+    switch (candidateCount) {
+      case 0:
+        return new Pair<Integer, ILaunchConfiguration>(Window.OK, null);
+      case 1:
+        return new Pair<Integer, ILaunchConfiguration>(Window.OK, candidateConfigs.get(0));
+      default:
+        return chooseConfiguration(candidateConfigs, mode);
     }
-    return null;
   }
 
   private void searchAndLaunch(final IResource[] selection, final String mode) {
@@ -214,21 +212,25 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
           checkCompileDebugPreference(mainType.getCompilationUnit().getProject().getRawProject());
         }
 
-        ILaunchConfiguration config = findLaunchConfiguration(getConfigurationType(), mainType.getName(),
-                                                              mainType.getCompilationUnit().getProject().getName());
-        if (config == null) {
-          config = createConfiguration(mainType);
-        } else {
-          // The assumption here is that whatever launch config is found by launchConfigMatches(),
-          // if any, should be updated with the latest info from the platform configuration, or
-          // other project-specific settings.
-          ILaunchConfigurationWorkingCopy workingCopy= config.getWorkingCopy();
-          updateLaunchConfig(workingCopy);
-          workingCopy.doSave();
-          config= workingCopy;
-        }
-        if (config != null) {
-          DebugUITools.launch(config, mode);
+        final String projectName = mainType.getCompilationUnit().getProject().getName();
+        final Pair<Integer, ILaunchConfiguration> pair = findLaunchConfiguration(getConfigurationType(), mainType.getName(),
+                                                                                 projectName, mode);
+        if (pair.first == Window.OK) {
+          ILaunchConfiguration config = pair.second;
+          if (config == null) {
+            config = createConfiguration(mainType);
+          } else {
+            // The assumption here is that whatever launch config is found by launchConfigMatches(),
+            // if any, should be updated with the latest info from the platform configuration, or
+            // other project-specific settings.
+            final ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
+            updateLaunchConfig(workingCopy);
+            workingCopy.doSave();
+            config = workingCopy;
+          }
+          if (config != null) {
+            DebugUITools.launch(config, mode);
+          }          
         }
       }
     } catch (InterruptedException except) {

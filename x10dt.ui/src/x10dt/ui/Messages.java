@@ -34,6 +34,9 @@ public class Messages extends NLS {
 	
 	public static String AXLS_ConfCreationError;
 	public static String AXLS_ConfCreationSavingErrorMsg;
+  public static String AXLS_CreateNewConfBt;
+  public static String AXLS_DiffError;
+  public static String AXLS_EditBt;
 	public static String AXLS_MainTypeSearchError;
 	public static String AXLS_MainTypeSearchErrorMsg;
 	public static String AXLS_MainTypeSearchInternalError;
@@ -41,6 +44,8 @@ public class Messages extends NLS {
 	public static String AXLS_MultipleConfDialogTitle;
 	public static String AXLS_NoDebugInfoErrorMsg;
   public static String AXLS_NoDebugInfoErrorTitle;
+  public static String AXLS_OneLaunchConfAllowed;
+  public static String AXLS_ResumeError;
   public static String CPD_PackageDeclError;
 	public static String LU_MainTypeSearchResult;
 	public static String LU_NoMainTypeFound;

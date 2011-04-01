@@ -423,8 +423,8 @@ class X10PlatformConf implements IX10PlatformConf {
         load(ciMemento, (ParallelEnvironmentConf) ciConf);
       } else if (ciConf instanceof LoadLevelerConf) {
         load(ciMemento, (LoadLevelerConf) ciConf);
-      } else if (ciConf instanceof SocketsConf) {
-        load(ciMemento, (SocketsConf) ciConf);
+      } else if (ciConf instanceof AbstractHostsBasedConf) {
+        load(ciMemento, (AbstractHostsBasedConf) ciConf);
       }
     }
     
@@ -509,7 +509,7 @@ class X10PlatformConf implements IX10PlatformConf {
     ciConf.fTemplateOpt = (tmpOpt == null) ? null : ELLTemplateOpt.valueOf(tmpOpt.getTextData());
   }
   
-  private void load(final IMemento ciMemento, final SocketsConf ciConf) {
+  private void load(final IMemento ciMemento, final AbstractHostsBasedConf ciConf) {
     final String hostFile = getTextDataValue(ciMemento, SOCKETS_HOST_FILE);
     if (hostFile != null) {
       ciConf.fHostFile = hostFile;
@@ -597,7 +597,7 @@ class X10PlatformConf implements IX10PlatformConf {
     }
   }
   
-  private void save(final IMemento ciMemento, final SocketsConf conf) {
+  private void save(final IMemento ciMemento, final AbstractHostsBasedConf conf) {
     if (conf.shouldUseHostFile()) {
       ciMemento.createChild(SOCKETS_HOST_FILE).putTextData(conf.getHostFile());
     } else {

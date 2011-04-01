@@ -11,6 +11,7 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMEN
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
+import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_X10_MAIN_CLASS;
 import static x10dt.ui.utils.LaunchUtils.findMainType;
 
 import java.lang.reflect.InvocationTargetException;
@@ -108,6 +109,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     final String projectName = this.fProjectText.getText().trim();
     if (projectName.length() > 0) {
       configuration.setAttribute(ATTR_PROJECT_NAME, projectName);
+      configuration.setAttribute(org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectName);
 
       final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(projectName);
       if (project.exists()) {
@@ -120,7 +122,9 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         }
       }
 
-      configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, this.fMainTypeText.getText().trim());
+      configuration.setAttribute(org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, 
+                                 this.fMainTypeText.getText().trim());
+      configuration.setAttribute(ATTR_X10_MAIN_CLASS, this.fMainTypeText.getText().trim());
 
       final String content = this.fPgrmArgsText.getText().trim();
       configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
@@ -133,14 +137,14 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     final IResource context = getCurrentSelectionContext();
     if (context == null) {
       configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
-      configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, (String) null);
+      configuration.setAttribute(ATTR_X10_MAIN_CLASS, (String) null);
     } else {
       configuration.setAttribute(ATTR_PROJECT_NAME, context.getProject().getName());
       final IResource[] scope = new IResource[] { context };
       try {
         final ITypeInfo mainType = LaunchUtils.findMainType(scope, X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID, getShell());
         if (mainType != null) {
-          configuration.setAttribute(Constants.ATTR_X10_MAIN_CLASS, mainType.getName());
+          configuration.setAttribute(ATTR_X10_MAIN_CLASS, mainType.getName());
         }
       } catch (Exception except) {
         // Simply forgets.
@@ -176,12 +180,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         incomingPlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(incomingProject);
       }
 
+      setTextWithoutNotification(this.fProjectText, configuration, ATTR_PROJECT_NAME);
+      setTextWithoutNotification(this.fMainTypeText, configuration, ATTR_X10_MAIN_CLASS);
+      setTextWithoutNotification(this.fPgrmArgsText, configuration, ATTR_ARGUMENTS);
+      this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
       if (this.fX10PlatformConf == null || this.fX10PlatformConf != incomingPlatformConf) {
-        setTextWithoutNotification(this.fProjectText, configuration, ATTR_PROJECT_NAME);
-        setTextWithoutNotification(this.fMainTypeText, configuration, Constants.ATTR_X10_MAIN_CLASS);
-        setTextWithoutNotification(this.fPgrmArgsText, configuration, ATTR_ARGUMENTS);
-        this.fToConsoleBt.setSelection(configuration.getAttribute(ATTR_CONSOLE, true));
-
         if (this.fProjectText.getText().length() > 0) {
           final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(this.fProjectText.getText());
           if (project.exists()) {
@@ -434,11 +437,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private void initCommunicationInterfaceDefaults(final ILaunchConfigurationWorkingCopy config,
                                                   final ICommunicationInterfaceConf ciConf) throws CoreException {
     if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new OpenMPIDefaults().setDefaults(config, ciConf);
+      new OpenMPILaunchConfServices().setDefaults(config, ciConf);
     } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new MPICH2Defaults().setDefaults(config, ciConf);
+      new MPICH2LaunchConfServices().setDefaults(config, ciConf);
     } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new SocketsDefaults().setDefaults(config, ciConf);
+      new SocketsLaunchConfServices().setDefaults(config, ciConf);
     }
   }
 
@@ -509,6 +512,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
             if (errors == 0) {
               CppApplicationTab.this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
               for (final ILaunchTabPlatformConfServices services : CppApplicationTab.this.fPConfServices) {
+                services.setLaunchConfiguration(getLaunchConfiguration());
                 services.platformConfSelected(CppApplicationTab.this.fX10PlatformConf); 
               }
             }

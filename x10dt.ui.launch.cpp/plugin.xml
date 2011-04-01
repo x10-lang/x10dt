@@ -2,6 +2,7 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension-point id="debuggerTab" name="debuggerTab" schema="schema/debuggerTab.exsd"/>
+   <extension-point id="launchAttrDataBuilder" name="Launch Configuration Attribute Data Builder" schema="schema/launchAttrDataBuilder.exsd"/>
    <extension
          id="X10CppBuilder"
          name="X10 Compiler (Cpp Back-end)"

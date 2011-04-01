@@ -8,12 +8,15 @@
 package x10dt.ui.launch.cpp.launching;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 
 
-interface ICommunicationInterfaceDefaults {
+interface ICommInterfaceLaunchConfServices {
+ 
+  boolean equals(final ILaunchConfiguration launchConfig, final ICommunicationInterfaceConf ciConf) throws CoreException;
   
   void setDefaults(final ILaunchConfigurationWorkingCopy launchConfig, 
                    final ICommunicationInterfaceConf ciConf) throws CoreException;

@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching;
 
+import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_X10_MAIN_CLASS;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -104,10 +106,10 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
 
       // The following check shouldn't be necessary, since this ILaunchConfigurationDelegate implementation
       // isn't used for debug-mode launches. I.e., we should never get here in that case.
-      if (ILaunchManager.DEBUG_MODE.equals(mode) && !new PreferencesService(project).getBooleanPreference(X10Constants.P_DEBUG)) {
-          ErrorDialog.openError(null, "Unable to launch programs without debugging information",
-                  "The application was built without the necessary debug information. Turn on the Debug preference to re-build with that information.",
-                  new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, ""));
+      if (ILaunchManager.DEBUG_MODE.equals(mode) && 
+          !new PreferencesService(project).getBooleanPreference(X10Constants.P_DEBUG)) {
+          ErrorDialog.openError(null, x10dt.ui.Messages.AXLS_NoDebugInfoErrorTitle, LaunchMessages.CLCD_AppBuiltWithoutDebug,
+                                new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Constants.EMPTY_STR));
           return;
       }
       if (!monitor.isCanceled() && shouldProcessToLinkStep(project) &&
@@ -153,7 +155,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       if (!wDirStore.fetchInfo().exists()) {
         throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoOutputDir));
       }
-      final String x10MainType = configuration.getAttribute(Constants.ATTR_X10_MAIN_CLASS, Constants.EMPTY_STR);
+      final String x10MainType = configuration.getAttribute(ATTR_X10_MAIN_CLASS, Constants.EMPTY_STR);
       final String mainX10FilePath = createX10MainFile(this.fTargetOpHelper, x10MainType.replace(PACKAGE_SEP, NAMESPACE_SEP),
                                                        this.fWorkspaceDir, project, subMonitor.newChild(1));
 
@@ -292,7 +294,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
             System.arraycopy(envArr, 0, newArray, 1, envArr.length);
           }
           envArr = newArray;
-        } else {
+        } else if (envArr != null) {
           sb.append(';').append(envArr[pathIndex]);
           envArr[pathIndex] = sb.toString();
         }

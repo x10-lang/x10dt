@@ -40,6 +40,8 @@ final class CommInterfaceFactory {
       configuration = new ParallelEnvironmentConf((IPEResourceManagerConfiguration) rmConf);
     } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciType)) {
       configuration = new SocketsConf(rmConf);
+    } else if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(ciType)) {
+      configuration = new PAMIConf(rmConf);
     } else if (PTPConstants.STANDALONE_SERVICE_PROVIDER_ID.equals(ciType)) {
       configuration = new StandaloneConf(rmConf);
     } else {
@@ -84,6 +86,8 @@ final class CommInterfaceFactory {
         configuration = new ParallelEnvironmentConf();
       } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciType)) {
         configuration = new SocketsConf();
+      } else if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(ciType)) {
+        configuration = new PAMIConf();
       } else if (PTPConstants.STANDALONE_SERVICE_PROVIDER_ID.equals(ciType)) {
         configuration = new StandaloneConf();
       } else {

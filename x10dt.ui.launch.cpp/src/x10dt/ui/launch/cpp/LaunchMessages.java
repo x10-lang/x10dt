@@ -17,6 +17,14 @@ import org.eclipse.osgi.util.NLS;
 @SuppressWarnings("all")
 public class LaunchMessages extends NLS {
   
+  public static String ACLCS_EnvVarSection;
+
+  public static String ACLCS_ProgArgsSection;
+
+  public static String ACLCS_RunParamSection;
+
+  public static String ACLCS_SameConfig;
+
   public static String ACSFP_SelectDirLoc;
 
   public static String ACSFP_SelectFileLoc;
@@ -125,11 +133,17 @@ public class LaunchMessages extends NLS {
 
   public static String CIT_NoX10ProjectIdentified;
 
+  public static String CIT_PreviousStateStorageError;
+
+  public static String CIT_UseDataFromPlatformConf;
+
   public static String CLC_CheckConnAndCommJobMsg;
 
   public static String CLC_RMShutdownError;
 
-	public static String CLCD_CmdUsedMsg;
+	public static String CLCD_AppBuiltWithoutDebug;
+
+  public static String CLCD_CmdUsedMsg;
 
   public static String CLCD_ExecCreationTaskName;
 
@@ -433,9 +447,23 @@ public class LaunchMessages extends NLS {
 
   public static String RXBFO_TransferFailureMsg;
 
+  public static String SLCS_CIType;
+
+  public static String SLCS_HostFile;
+
+  public static String SLCS_HostList;
+
+  public static String SLCS_NumOfPlaces;
+
+  public static String SLCS_Sockets;
+
+  public static String SLCS_X10PlatformConfSync;
+
   public static String STCP_HostFileText;
   
   public static String STCP_HostList;
+  
+  public static String STCP_NoHostNameError;
 
   public static String XCB_ConfigurationError;
 

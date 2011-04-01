@@ -14,6 +14,7 @@ public class X10Constants {
 	public static final String P_TABWIDTH = "tabWidth";
 	public static final String P_SPACESFORTABS = "spacesForTabs";
 	public static final String P_EDITORPERFORMANCEMODE = "editorPerformanceMode";
+	public static final String P_LAUNCHCONFIGRESTRICTIVEMATCHINGPOLICY = "launchConfigRestrictiveMatchingPolicy";
 	public static final String P_INDENTWIDTH = "indentWidth";
 	public static final String P_INDENTBLOCKSTATEMENTS = "indentBlockStatements";
 	public static final String P_INDENTMETHODBODY = "indentMethodBody";

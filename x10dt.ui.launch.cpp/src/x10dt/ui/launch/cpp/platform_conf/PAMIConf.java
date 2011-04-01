@@ -12,12 +12,12 @@ import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import x10dt.ui.launch.core.utils.PTPConstants;
 
 
-final class SocketsConf extends AbstractHostsBasedConf implements ISocketsConf {
+final class PAMIConf extends AbstractHostsBasedConf implements IPAMIConf {
 
   // --- ICommunicationInterfaceConf's interface methods implementation
   
   public boolean hasSameCommunicationInterfaceInfo(final IResourceManagerConfiguration rmConfiguration) {
-    return PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(rmConfiguration.getResourceManagerId());
+    return PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(rmConfiguration.getResourceManagerId());
   }
 
   public void visitInterfaceOptions(final ICIConfOptionsVisitor visitor) {
@@ -27,18 +27,18 @@ final class SocketsConf extends AbstractHostsBasedConf implements ISocketsConf {
   // --- Abstract methods implementation
   
   AbstractCommunicationInterfaceConfiguration copy() {
-    return new SocketsConf(this);
+    return new PAMIConf(this);
   }
 
   // --- Private code
   
-  SocketsConf() {}
+  PAMIConf() {}
   
-  SocketsConf(final SocketsConf original) {
+  PAMIConf(final PAMIConf original) {
     super(original);
   }
   
-  SocketsConf(final IResourceManagerConfiguration rmConf) {
+  PAMIConf(final IResourceManagerConfiguration rmConf) {
     super(rmConf);
   }
 

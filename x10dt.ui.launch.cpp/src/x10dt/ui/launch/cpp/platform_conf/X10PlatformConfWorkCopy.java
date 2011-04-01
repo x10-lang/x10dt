@@ -54,7 +54,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       super.fCommInterfaceFact.defineCurrentCommInterfaceType(SOCKETS_SERVICE_PROVIDER_ID);
       ciConf.fServiceTypeId = SOCKETS_SERVICE_PROVIDER_ID;
       ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
-      ((SocketsConf) ciConf).fHosts = "localhost"; //$NON-NLS-1$
+      ((AbstractHostsBasedConf) ciConf).fHosts = "localhost"; //$NON-NLS-1$
     }
     if (this.fConnectionConf.fIsLocal) {
       initLocalCppCompilationCommands();
@@ -449,14 +449,15 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   public void setHostFile(final String hostFile) {
     final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final SocketsConf conf = (SocketsConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fHostFile = hostFile;
+    updateDirtyFlag();
   }
   
   public void setHostList(final List<String> hostList) {
     final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final SocketsConf conf = (SocketsConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
     final StringBuilder sb = new StringBuilder();
     for (final String host : hostList) {
       if (sb.length() > 0) {
@@ -465,13 +466,15 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       sb.append(host);
     }
     conf.fHosts = sb.toString();
+    updateDirtyFlag();
   }
   
   public void setShouldUseHostFile(final boolean shouldUseHostFile) {
     final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
     super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final SocketsConf conf = (SocketsConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
     conf.fShouldUseHostFile = shouldUseHostFile;
+    updateDirtyFlag();
   }
   
   // --- IDebuggingInfoConf's setter methods

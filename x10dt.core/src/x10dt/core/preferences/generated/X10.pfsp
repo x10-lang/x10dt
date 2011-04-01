@@ -24,6 +24,10 @@ page X10 {
             label "Disable editor features (hyperlinking, hover help, etc.) for performance scalability";
           	  tooltip "When turned on, certain editor features like hyperlinking and hover help are disabled, in order to improve performance when working on large source files.";
           	  defvalue false; }
+        boolean launchConfigRestrictiveMatchingPolicy {
+            label "When launching, use the Communication Interface and Debugging sections\nfrom the X10 platform configuration to find a suitable launch configuration";
+            tooltip "When turned on, the data from the Communication Interface section and Debugging section will be compared to current values of some existing launch configurations to find a subset of them that could match. If the value is off, it means that only the project and main class will be used to find the set of possible existing configurations of interest";
+            defvalue false; }
     }
 }
 
@@ -49,7 +53,7 @@ page X10.Compiler {
     	        		tooltip "In addition to recompiling changed files and their change-dependents, recompile all files that have no generated artifacts and no markers.";
 	        		}
 		        boolean Debug {
-		 	       			 	 	  label "Generate debug information. If disabled, it will not be possible to debug the resulting executables.";
+		 	       			 	label "Generate debug information. If disabled, it will not be\npossible to debug the resulting executables.";
 		          	  			defvalue true;
 		        			}
         boolean PermitAssert { label "Permit asserts"; defvalue true; }

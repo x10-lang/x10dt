@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IManagedForm;
+import org.eclipse.ui.forms.IMessageManager;
 import org.eclipse.ui.forms.editor.IFormPage;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
@@ -46,7 +47,7 @@ import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.form_validation.AbstractFormControlChecker;
 import x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
-import x10dt.ui.launch.cpp.platform_conf.ISocketsConf;
+import x10dt.ui.launch.cpp.platform_conf.IHostsBasedConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import x10dt.ui.launch.rms.core.Messages;
 
@@ -143,7 +144,7 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
     
     addViewerProviders(formPart, managedForm, this.fHostListViewer, column, editor, this.fHosts, formPart.getPlatformConf());
     
-    initializeControls(formPart, (ISocketsConf) formPart.getPlatformConf().getCommunicationInterfaceConf(), addButton,
+    initializeControls(formPart, (IHostsBasedConf) formPart.getPlatformConf().getCommunicationInterfaceConf(), addButton,
                        removeButton);
     
     addListeners(formPart, managedForm, formPart.getPlatformConf(), this.fNumPlacesSpinner, this.fHostFileBt, 
@@ -168,6 +169,13 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
   public boolean setFormInput(final Object input) {
     return (input == this.fHostFileText) || ((this.fHostListViewer != null) && (input == this.fHostListViewer.getTable())) || 
            (input == this.fNumPlacesSpinner);
+  }
+  
+  // --- Overridden methods
+  
+  public void dispose(final IMessageManager ... messageManagers) {
+    super.dispose(messageManagers);
+    this.fHosts.clear();
   }
   
   // --- Private code
@@ -266,6 +274,8 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
         hostListViewer.add(Constants.EMPTY_STR);
         hostListViewer.editElement(Constants.EMPTY_STR, 0);
         
+        x10PlatformConf.setHostList(hosts);
+        
         new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
                                 HostFileAndListTypeConfigPart.this.fHosts).validate(null);
         
@@ -286,6 +296,8 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
         if (hostName != null) {
           hosts.remove(hostName);
           hostListViewer.remove(hostName);
+          
+          x10PlatformConf.setHostList(hosts);
           
           new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
                                   HostFileAndListTypeConfigPart.this.fHosts).validate(null);
@@ -347,6 +359,9 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
         hosts.add(index, (String) value);
         hostListViewer.refresh();
         
+        new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
+                                HostFileAndListTypeConfigPart.this.fHosts).validate((String) value);
+        
         platformConf.setHostList(hosts);
         
         formPart.updateDirtyState(managedForm);
@@ -356,7 +371,7 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
     });
   }
   
-  private void initializeControls(final AbstractCommonSectionFormPart formPart, final ISocketsConf socketsConf,
+  private void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf,
                                   final Button addButton, final Button removeButton) {
     this.fNumPlacesSpinner.setSelection(socketsConf.getNumberOfPlaces());
     final boolean shouldUseHostFile = socketsConf.shouldUseHostFile();
@@ -396,6 +411,9 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
       if (getControl().isEnabled()) {
         if (this.fHosts.isEmpty()) {
           addMessages(NLS.bind(LaunchMessages.ETIC_NoEmptyContent, LaunchMessages.STCP_HostList), IMessageProvider.ERROR);
+          return false;
+        } else if ((text != null) && (text.trim().length() == 0)) {
+          addMessages(LaunchMessages.STCP_NoHostNameError, IMessageProvider.ERROR);
           return false;
         }
       }

@@ -72,6 +72,17 @@ public class X10InstanceTab extends InstancePreferencesTab {
 			false);
 		fields.add(editorPerformanceMode);
 
+
+		BooleanFieldEditor launchConfigRestrictiveMatchingPolicy = fPrefUtils.makeNewBooleanField(
+			page, this, fPrefService,
+			"instance", "launchConfigRestrictiveMatchingPolicy", "When launching, use the Communication Interface and Debugging sections\nfrom the X10 platform configuration to find a suitable launch configuration",
+			"When turned on, the data from the Communication Interface section and Debugging section will be compared to current values of some existing launch configurations to find a subset of them that could match. If the value is off, it means that only the project and main class will be used to find the set of possible existing configurations of interest",
+			parent,
+			true, true,
+			true, false,
+			false);
+		fields.add(launchConfigRestrictiveMatchingPolicy);
+
 		return fields.toArray(new FieldEditor[fields.size()]);
 	}
 }

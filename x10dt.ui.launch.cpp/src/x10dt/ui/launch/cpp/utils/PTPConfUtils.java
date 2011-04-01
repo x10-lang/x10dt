@@ -75,6 +75,7 @@ import x10dt.ui.launch.cpp.platform_conf.ILoadLevelerConf;
 import x10dt.ui.launch.cpp.platform_conf.IMPICH2InterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IMessagePassingInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IOpenMPIInterfaceConf;
+import x10dt.ui.launch.cpp.platform_conf.IPAMIConf;
 import x10dt.ui.launch.cpp.platform_conf.IParallelEnvironmentConf;
 import x10dt.ui.launch.cpp.platform_conf.ISocketsConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -541,6 +542,10 @@ public final class PTPConfUtils {
     }
     
     public void visit(final ISocketsConf configuration) {
+      // Nothing to do.
+    }
+    
+    public void visit(final IPAMIConf configuration) {
       // Nothing to do.
     }
     

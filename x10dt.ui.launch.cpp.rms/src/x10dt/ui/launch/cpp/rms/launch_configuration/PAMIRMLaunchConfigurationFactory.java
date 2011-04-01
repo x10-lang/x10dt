@@ -14,7 +14,7 @@ import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 
 import x10dt.ui.launch.cpp.rms.provider.PAMIResourceManager;
-import x10dt.ui.launch.rms.core.launch_configuration.X10EnvVarsConfDynamicTab;
+import x10dt.ui.launch.rms.core.launch_configuration.X10PlacesAndHostsDynamicTab;
 
 /**
  * Provides the implementation for dynamic configuration tabs for the PAMI Resource Manager.
@@ -31,7 +31,7 @@ public final class PAMIRMLaunchConfigurationFactory extends AbstractRMLaunchConf
 
   protected IRMLaunchConfigurationDynamicTab doCreate(final IResourceManager resourceManager,
                                                       final ILaunchConfigurationDialog launchDialog) throws CoreException {
-    return new X10EnvVarsConfDynamicTab();
+    return new X10PlacesAndHostsDynamicTab();
   }
 
 }
