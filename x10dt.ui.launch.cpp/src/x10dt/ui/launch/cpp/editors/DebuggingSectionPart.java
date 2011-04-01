@@ -84,7 +84,7 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     debuggerFolderText.addModifyListener(new ModifyListener() {
       
       public void modifyText(final ModifyEvent event) {
-        getPlatformConf().setDebuggerFolder(debuggerFolderText.getText());
+        getPlatformConf().setDebuggerFolder(debuggerFolderText.getText().trim());
         
         updateDirtyState(managedForm);
         setPartCompleteFlag(hasCompleteInfo());
