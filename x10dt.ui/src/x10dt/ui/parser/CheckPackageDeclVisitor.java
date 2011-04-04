@@ -91,7 +91,7 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
         
         IJavaProject javaProject = JavaCore.create(fProject);
         try {
-        	String name = BuildPathUtils.getBareName(pkgPath, javaProject).replaceAll(File.separator, ".");
+        	String name = BuildPathUtils.getBareName(pkgPath, javaProject).replace(File.separatorChar, '.');
         	if (!name.contains("."))
         		return "";
         	int i = name.lastIndexOf(".");
