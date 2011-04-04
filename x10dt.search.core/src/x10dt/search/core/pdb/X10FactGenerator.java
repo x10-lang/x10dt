@@ -85,6 +85,9 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   public void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource, 
                      final int changeKind, 
                      final Map<IResource, IndexedDocumentDescriptor> workingCopies) throws AnalysisException {
+    if ((resource.getType() == IResource.FILE) && ! X10_EXT.equals(((IFile) resource).getFileExtension())) {
+      return;
+    }
     if (changeKind == IResourceDelta.REMOVED) {
       final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
       try {
@@ -116,6 +119,9 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   
   public void update(final FactBase factBase, final Type type, final IFactContext context, final IResource resource, 
                      final Map<IResource, IndexedDocumentDescriptor> workingCopies) throws AnalysisException {
+    if ((resource.getType() == IResource.FILE) && ! X10_EXT.equals(((IFile) resource).getFileExtension())) {
+      return;
+    }
     final Map<IResource, IndexedDocumentDescriptor> map;
     if (workingCopies.isEmpty()) {
       map = new HashMap<IResource, IndexedDocumentDescriptor>(1);
@@ -222,11 +228,6 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
   private CompilerOptionsBuilder processResource(final IResource resource) throws AnalysisException {
     final IJavaProject javaProject = JavaCore.create(resource.getProject());  
     if (javaProject.exists()) {
-      if (resource.getType() == IResource.FILE) {
-        if ( ! X10_EXT.equals(((IFile) resource).getFileExtension())) {
-          return null;
-        }
-      }
       final CompilerOptionsBuilder cmpOptBuilder = new CompilerOptionsBuilder();
       final IWorkspaceRoot wsRoot = javaProject.getProject().getWorkspace().getRoot();
       try {
