@@ -184,6 +184,8 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 				Type type = typeNode.type();
 				List<Type> types = new ArrayList<Type>();
 				extractAllClassTypes(type, types);
+				X10ClassType classType = (X10ClassType) Types.baseType(type);
+				superTypes(classType, types);
 				for (Type t : types) {
 					recordTypeDependency(t);
 				}
@@ -217,9 +219,9 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 				if (classDef != null) {
 					fFromType = classDef.asType(); // PORT1.7
 												// classDecl.type()->classDecl.classDef().asType()
-					List<ClassType> supers = new ArrayList<ClassType>();
+					List<Type> supers = new ArrayList<Type>();
 					superTypes(classDef.asType(), supers);
-					for (ClassType supert : supers) {
+					for (Type supert : supers) {
 						recordTypeDependency(supert);
 					}
 				}
@@ -292,7 +294,7 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 		}
 	}
 	
-	private void superTypes(ClassType type, List<ClassType> types){
+	private void superTypes(ClassType type, List<Type> types){
 		Type parentClass = type.superClass();
 		if (parentClass != null){
 			X10ClassType classType = (X10ClassType) Types.baseType(parentClass);

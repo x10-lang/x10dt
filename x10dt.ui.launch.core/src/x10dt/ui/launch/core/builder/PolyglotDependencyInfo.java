@@ -140,7 +140,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     }
     
     protected String getPath(Position pos){
-    	String filePath= pos.file().replace(File.separatorChar, '/');
+    	String filePath= pos.file();
     	if (filePath.contains("x10.jar"))
     		return null;
     	String result=null;
