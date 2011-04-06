@@ -147,7 +147,7 @@ final class MessagesFormDialog extends FormDialog {
       
       if (message.getData() instanceof Exception) {
         final Exception exception = (Exception) message.getData();
-        toolkit.createLabel(composite, StringUtils.getStackTrace(exception));
+        toolkit.createText(composite, StringUtils.getStackTrace(exception), SWT.READ_ONLY);
       } else {
         @SuppressWarnings("unchecked")
         final Pair<String,String> error = (Pair<String,String>) message.getData();
