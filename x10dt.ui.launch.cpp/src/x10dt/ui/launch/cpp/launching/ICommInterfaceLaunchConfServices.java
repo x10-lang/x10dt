@@ -18,7 +18,7 @@ interface ICommInterfaceLaunchConfServices {
  
   boolean equals(final ILaunchConfiguration launchConfig, final ICommunicationInterfaceConf ciConf) throws CoreException;
   
-  void setDefaults(final ILaunchConfigurationWorkingCopy launchConfig, 
-                   final ICommunicationInterfaceConf ciConf) throws CoreException;
+  void initOrUpdate(final ILaunchConfigurationWorkingCopy launchConfig, final ICommunicationInterfaceConf ciConf, 
+                    final boolean shouldInitialize) throws CoreException;
 
 }

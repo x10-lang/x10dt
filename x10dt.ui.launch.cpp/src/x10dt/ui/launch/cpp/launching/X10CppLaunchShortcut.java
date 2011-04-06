@@ -44,7 +44,6 @@ import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
-import x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
 /**
@@ -81,7 +80,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     final String serviceTypeId = platformConf.getCommunicationInterfaceConf().getServiceTypeId();
     if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       try {
-        new OpenMPILaunchConfServices().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+        new OpenMPILaunchConfServices().initOrUpdate(workingCopy, platformConf.getCommunicationInterfaceConf(), true);
         
         useHostListAttrKey = OpenMPILaunchConfiguration.ATTR_USEHOSTLIST;
         hostListAttrKey = OpenMPILaunchConfiguration.ATTR_HOSTLIST;
@@ -91,7 +90,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
       }
     } else if (MPICH2_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       try {
-        new MPICH2LaunchConfServices().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+        new MPICH2LaunchConfServices().initOrUpdate(workingCopy, platformConf.getCommunicationInterfaceConf(), true);
         
         useHostListAttrKey = MPICH2LaunchConfiguration.ATTR_USEHOSTLIST;
         hostListAttrKey = MPICH2LaunchConfiguration.ATTR_HOSTLIST;
@@ -100,10 +99,15 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
         return;
       }
     } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
-      new SocketsLaunchConfServices().setDefaults(workingCopy, platformConf.getCommunicationInterfaceConf());
+      try {
+        new SocketsLaunchConfServices().initOrUpdate(workingCopy, platformConf.getCommunicationInterfaceConf(), true);
       
-      useHostListAttrKey = null;
-      hostListAttrKey = null;
+        useHostListAttrKey = null;
+        hostListAttrKey = null;
+      } catch (CoreException except) {
+        CppLaunchCore.log(except.getStatus());
+        return;
+      }
     } else {
       useHostListAttrKey = null;
       hostListAttrKey = null;
@@ -177,34 +181,16 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
   }
   
   // --- Private code
- 
-  private boolean isMPICH2LaunchConfig(final ILaunchConfiguration config) throws CoreException {
-    return config.hasAttribute(MPICH2LaunchConfiguration.ATTR_NUMPROCS);
-  }
-  
-  private boolean isOpenMPILaunchConfig(final ILaunchConfiguration config) throws CoreException {
-    return config.hasAttribute(OpenMPILaunchConfiguration.ATTR_NUMPROCS);
-  }
-  
-  private boolean isSocketsLaunchConfig(final ILaunchConfiguration config) throws CoreException {
-    return config.hasAttribute(LaunchConfigConstants.ATTR_NUM_PLACES);    
-  }
   
   private void updateCommunicationInterfaceAttributes(final ICommunicationInterfaceConf commIntfConf,
                                                       final ILaunchConfigurationWorkingCopy config) throws CoreException {
     final String serviceTypeId = commIntfConf.getServiceTypeId();
     if (serviceTypeId.equals(PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID)) {
-      if (! isOpenMPILaunchConfig(config)) {
-        new OpenMPILaunchConfServices().setDefaults(config, commIntfConf);
-      }
+      new OpenMPILaunchConfServices().initOrUpdate(config, commIntfConf, false);
     } else if (serviceTypeId.equals(PTPConstants.MPICH2_SERVICE_PROVIDER_ID)) {
-      if (! isMPICH2LaunchConfig(config)) {
-        new MPICH2LaunchConfServices().setDefaults(config, commIntfConf);
-      }
+      new MPICH2LaunchConfServices().initOrUpdate(config, commIntfConf, false);
     } else if (serviceTypeId.equals(PTPConstants.SOCKETS_SERVICE_PROVIDER_ID)) {
-      if (! isSocketsLaunchConfig(config)) {
-        new SocketsLaunchConfServices().setDefaults(config, commIntfConf);
-      }
+      new SocketsLaunchConfServices().initOrUpdate(config, commIntfConf, false);
     }
   }
   

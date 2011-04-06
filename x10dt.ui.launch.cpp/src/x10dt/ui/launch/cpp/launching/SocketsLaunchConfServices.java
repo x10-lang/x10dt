@@ -48,15 +48,18 @@ final class SocketsLaunchConfServices implements ICommInterfaceLaunchConfService
     }
   }
   
-  public void setDefaults(final ILaunchConfigurationWorkingCopy launchConfig, final ICommunicationInterfaceConf ciConf) {
+  public void initOrUpdate(final ILaunchConfigurationWorkingCopy launchConfig, final ICommunicationInterfaceConf ciConf,
+                           final boolean shouldInitialize) throws CoreException {
     final IHostsBasedConf socketsConf = (IHostsBasedConf) ciConf;
     
-    launchConfig.setAttribute(ATTR_NUM_PLACES, socketsConf.getNumberOfPlaces());
-    launchConfig.setAttribute(ATTR_USE_HOSTFILE, socketsConf.shouldUseHostFile());
-    if (socketsConf.shouldUseHostFile()) {
-      launchConfig.setAttribute(ATTR_HOSTFILE, socketsConf.getHostFile());
-    } else {
-      launchConfig.setAttribute(ATTR_HOSTLIST, socketsConf.getHostsAsList());
+    if (shouldInitialize || launchConfig.getAttribute(ATTR_USE_PLATFORM_CONF_DATA, true)) {
+      launchConfig.setAttribute(ATTR_NUM_PLACES, socketsConf.getNumberOfPlaces());
+      launchConfig.setAttribute(ATTR_USE_HOSTFILE, socketsConf.shouldUseHostFile());
+      if (socketsConf.shouldUseHostFile()) {
+        launchConfig.setAttribute(ATTR_HOSTFILE, socketsConf.getHostFile());
+      } else {
+        launchConfig.setAttribute(ATTR_HOSTLIST, socketsConf.getHostsAsList());
+      }
     }
   }
   

@@ -437,11 +437,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private void initCommunicationInterfaceDefaults(final ILaunchConfigurationWorkingCopy config,
                                                   final ICommunicationInterfaceConf ciConf) throws CoreException {
     if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new OpenMPILaunchConfServices().setDefaults(config, ciConf);
+      new OpenMPILaunchConfServices().initOrUpdate(config, ciConf, true);
     } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new MPICH2LaunchConfServices().setDefaults(config, ciConf);
+      new MPICH2LaunchConfServices().initOrUpdate(config, ciConf, true);
     } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new SocketsLaunchConfServices().setDefaults(config, ciConf);
+      new SocketsLaunchConfServices().initOrUpdate(config, ciConf, true);
     }
   }
 

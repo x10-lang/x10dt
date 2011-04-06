@@ -185,11 +185,16 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       final ILaunchConfiguration[] configs = DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations(configType);
       for (final ILaunchConfiguration config : configs) {
         if (launchConfigMatches(config, typeName, projectName)) {
-          candidateConfigs.add(config);
+          final ILaunchConfigurationWorkingCopy launchConfigWC = config.getWorkingCopy();
+          // Possibly the launch configuration needs to be updated with information from the X10 platform configuration.
+          updateLaunchConfig(launchConfigWC);
+          
+          candidateConfigs.add(launchConfigWC);
         }
       }
     } catch (CoreException except) {
       X10DTUIPlugin.getInstance().getLog().log(except.getStatus());
+      return new Pair<Integer, ILaunchConfiguration>(Window.CANCEL, null);
     }
     int candidateCount = candidateConfigs.size();
     switch (candidateCount) {
@@ -219,14 +224,6 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
           ILaunchConfiguration config = pair.second;
           if (config == null) {
             config = createConfiguration(mainType);
-          } else {
-            // The assumption here is that whatever launch config is found by launchConfigMatches(),
-            // if any, should be updated with the latest info from the platform configuration, or
-            // other project-specific settings.
-            final ILaunchConfigurationWorkingCopy workingCopy = config.getWorkingCopy();
-            updateLaunchConfig(workingCopy);
-            workingCopy.doSave();
-            config = workingCopy;
           }
           if (config != null) {
             DebugUITools.launch(config, mode);
@@ -246,8 +243,6 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
         ErrorDialog.openError(getShell(), Messages.AXLS_MainTypeSearchError, Messages.AXLS_MainTypeSearchErrorMsg, status);
         X10DTUIPlugin.getInstance().getLog().log(status);
       }
-    } catch (CoreException e) {
-      X10DTUIPlugin.getInstance().getLog().log(e.getStatus());
     }
   }
 

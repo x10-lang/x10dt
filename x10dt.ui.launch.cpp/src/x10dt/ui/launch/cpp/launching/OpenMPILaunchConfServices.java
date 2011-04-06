@@ -39,24 +39,26 @@ final class OpenMPILaunchConfServices implements ICommInterfaceLaunchConfService
     return true;
   }
 
-  public void setDefaults(final ILaunchConfigurationWorkingCopy launchConfig,
-                          final ICommunicationInterfaceConf ciConf) throws CoreException {
-    OpenMPILaunchConfigurationDefaults.loadDefaults();
-    launchConfig.setAttribute(ATTR_NUMPROCS, OpenMPILaunchConfigurationDefaults.ATTR_NUMPROCS);
-    launchConfig.setAttribute(ATTR_USEHOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTLIST);
-    launchConfig.setAttribute(ATTR_HOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_HOSTLIST);
-    launchConfig.setAttribute(ATTR_HOSTFILE, OpenMPILaunchConfigurationDefaults.ATTR_HOSTFILE);
-    launchConfig.setAttribute(ATTR_USEHOSTFILE, OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTFILE);
-    
-    launchConfig.setAttribute(ATTR_BYNODE, OpenMPILaunchConfigurationDefaults.ATTR_BYNODE);
-    launchConfig.setAttribute(ATTR_BYSLOT, OpenMPILaunchConfigurationDefaults.ATTR_BYSLOT);
-    launchConfig.setAttribute(ATTR_NOOVERSUBSCRIBE, OpenMPILaunchConfigurationDefaults.ATTR_NOOVERSUBSCRIBE);
-    launchConfig.setAttribute(ATTR_NOLOCAL, OpenMPILaunchConfigurationDefaults.ATTR_NOLOCAL);
-    launchConfig.setAttribute(ATTR_PREFIX, OpenMPILaunchConfigurationDefaults.ATTR_PREFIX);
-    launchConfig.setAttribute(ATTR_USEPREFIX, OpenMPILaunchConfigurationDefaults.ATTR_USEPREFIX);
-    launchConfig.setAttribute(ATTR_ARGUMENTS, OpenMPILaunchConfigurationDefaults.ATTR_ARGUMENTS);
-    launchConfig.setAttribute(ATTR_USEDEFAULTARGUMENTS, OpenMPILaunchConfigurationDefaults.ATTR_USEDEFAULTARGUMENTS);
-    launchConfig.setAttribute(ATTR_USEDEFAULTPARAMETERS, OpenMPILaunchConfigurationDefaults.ATTR_USEDEFAULTPARAMETERS);
+  public void initOrUpdate(final ILaunchConfigurationWorkingCopy launchConfig, final ICommunicationInterfaceConf ciConf,
+                           final boolean shouldInitialize) throws CoreException {
+    if (shouldInitialize) {
+      OpenMPILaunchConfigurationDefaults.loadDefaults();
+      launchConfig.setAttribute(ATTR_NUMPROCS, OpenMPILaunchConfigurationDefaults.ATTR_NUMPROCS);
+      launchConfig.setAttribute(ATTR_USEHOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTLIST);
+      launchConfig.setAttribute(ATTR_HOSTLIST, OpenMPILaunchConfigurationDefaults.ATTR_HOSTLIST);
+      launchConfig.setAttribute(ATTR_HOSTFILE, OpenMPILaunchConfigurationDefaults.ATTR_HOSTFILE);
+      launchConfig.setAttribute(ATTR_USEHOSTFILE, OpenMPILaunchConfigurationDefaults.ATTR_USEHOSTFILE);
+
+      launchConfig.setAttribute(ATTR_BYNODE, OpenMPILaunchConfigurationDefaults.ATTR_BYNODE);
+      launchConfig.setAttribute(ATTR_BYSLOT, OpenMPILaunchConfigurationDefaults.ATTR_BYSLOT);
+      launchConfig.setAttribute(ATTR_NOOVERSUBSCRIBE, OpenMPILaunchConfigurationDefaults.ATTR_NOOVERSUBSCRIBE);
+      launchConfig.setAttribute(ATTR_NOLOCAL, OpenMPILaunchConfigurationDefaults.ATTR_NOLOCAL);
+      launchConfig.setAttribute(ATTR_PREFIX, OpenMPILaunchConfigurationDefaults.ATTR_PREFIX);
+      launchConfig.setAttribute(ATTR_USEPREFIX, OpenMPILaunchConfigurationDefaults.ATTR_USEPREFIX);
+      launchConfig.setAttribute(ATTR_ARGUMENTS, OpenMPILaunchConfigurationDefaults.ATTR_ARGUMENTS);
+      launchConfig.setAttribute(ATTR_USEDEFAULTARGUMENTS, OpenMPILaunchConfigurationDefaults.ATTR_USEDEFAULTARGUMENTS);
+      launchConfig.setAttribute(ATTR_USEDEFAULTPARAMETERS, OpenMPILaunchConfigurationDefaults.ATTR_USEDEFAULTPARAMETERS);
+    }
   }
 
 }
