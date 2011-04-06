@@ -152,7 +152,7 @@ final class MessagesFormDialog extends FormDialog {
         @SuppressWarnings("unchecked")
         final Pair<String,String> error = (Pair<String,String>) message.getData();
         toolkit.createLabel(expandableCompo, NLS.bind(LaunchMessages.MFD_CommandPrefix, error.first), SWT.WRAP);
-        toolkit.createLabel(composite, NLS.bind(LaunchMessages.MFD_ErrorPrefix, error.second));
+        toolkit.createText(composite, NLS.bind(LaunchMessages.MFD_ErrorPrefix, error.second), SWT.READ_ONLY);
       }
       
       expandableCompo.setClient(composite);
