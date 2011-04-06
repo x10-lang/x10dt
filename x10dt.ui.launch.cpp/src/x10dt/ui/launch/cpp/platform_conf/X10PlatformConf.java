@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.imp.utils.Pair;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ui.IMemento;
@@ -36,12 +37,15 @@ import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CodingUtils;
-import x10dt.ui.launch.core.utils.EnumUtils;
+import x10dt.ui.launch.core.utils.JREPropertiesUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
+import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 class X10PlatformConf implements IX10PlatformConf {
@@ -273,9 +277,21 @@ class X10PlatformConf implements IX10PlatformConf {
   }
   
   protected final void initLocalCppCompilationCommands() {
-    this.fCppCompilationConf.fTargetOS = EnumUtils.getLocalOS();
-    final boolean is64Arch = is64Arch();
-    this.fCppCompilationConf.fBitsArchitecture = is64Arch ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
+    final ETargetOS targetOS = JREPropertiesUtils.getLocalOS();
+    this.fCppCompilationConf.fTargetOS = targetOS;
+    final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(this.fConnectionConf.fIsLocal, 
+                                                                        (targetOS == ETargetOS.WINDOWS), 
+                                                                        this.fConnectionConf.fConnectionName);
+    final Pair<EArchitecture, EBitsArchitecture> pair;
+    if (targetOpHelper == null) {
+      pair = null;
+    } else {
+      pair = PlatformConfUtils.detectArchitecture(targetOpHelper);
+    }
+    // We define default values even if we could not successfully execute "uname". This may lead to some future issues
+    // with compilation of course.
+    this.fCppCompilationConf.fArchitecture = ((pair == null) || (pair.first == null)) ? EArchitecture.x86 : pair.first;
+    this.fCppCompilationConf.fBitsArchitecture = (pair == null) ? EBitsArchitecture.E32Arch : pair.second;
     
     try {
       final IDefaultCPPCommands defaultCPPCommands = DefaultCPPCommandsFactory.create(this);
@@ -290,7 +306,6 @@ class X10PlatformConf implements IX10PlatformConf {
       // Should not occur since we are in local mode. Still we are logging just in case.
       CppLaunchCore.log(except.getStatus());
     }
-    this.fCppCompilationConf.fBitsArchitecture = (is64Arch) ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
   }
 
   protected final void initLocalX10DistribLocation() {
@@ -299,10 +314,6 @@ class X10PlatformConf implements IX10PlatformConf {
     } catch (IOException except) {
       // Let's forget.
     }
-  }
-  
-  protected final boolean is64Arch() {
-    return false; //TODO
   }
   
   // --- Private code
@@ -430,13 +441,25 @@ class X10PlatformConf implements IX10PlatformConf {
     
     final IMemento cppCmdsMemento = platformMemento.getChild(CPP_COMPILATION_TAG);
     final IMemento targetOSMemento = cppCmdsMemento.getChild(TARGET_OS_TAG);
-    this.fCppCompilationConf.fTargetOS = (targetOSMemento == null) ? null : ETargetOS.valueOf(targetOSMemento.getTextData());
+    try {
+      this.fCppCompilationConf.fTargetOS = (targetOSMemento == null) ? null : ETargetOS.valueOf(targetOSMemento.getTextData());
+    } catch (IllegalArgumentException except) {
+      this.fCppCompilationConf.fTargetOS = JREPropertiesUtils.getLocalOS();
+    }
     final IMemento bitsArchMmt = cppCmdsMemento.getChild(BITS_ARCH_TAG);
-    this.fCppCompilationConf.fBitsArchitecture = (bitsArchMmt == null) ? EBitsArchitecture.E32Arch : 
-                                                                         EBitsArchitecture.valueOf(bitsArchMmt.getTextData());
+    try {
+      this.fCppCompilationConf.fBitsArchitecture = (bitsArchMmt == null) ? EBitsArchitecture.E32Arch : 
+                                                                           EBitsArchitecture.valueOf(bitsArchMmt.getTextData());
+    } catch (IllegalArgumentException except) {
+      this.fCppCompilationConf.fBitsArchitecture = EBitsArchitecture.E32Arch;
+    }
     final IMemento archMemento = cppCmdsMemento.getChild(ARCH_TAG);
-    this.fCppCompilationConf.fArchitecture = (archMemento == null) ? EArchitecture.x86 : 
-                                                                     EArchitecture.valueOf(archMemento.getTextData());
+    try {
+      this.fCppCompilationConf.fArchitecture = (archMemento == null) ? EArchitecture.x86 : 
+                                                                       EArchitecture.valueOf(archMemento.getTextData());
+    } catch (IllegalArgumentException except) {
+      this.fCppCompilationConf.fArchitecture = EArchitecture.x86;
+    }
     this.fCppCompilationConf.fCompiler = getTextDataValue(cppCmdsMemento, COMPILER_TAG);
     this.fCppCompilationConf.fCompilingOpts = getTextDataValue(cppCmdsMemento, COMPILING_OPTS_TAG);
     this.fCppCompilationConf.fArchiver = getTextDataValue(cppCmdsMemento, ARCHIVER_TAG);

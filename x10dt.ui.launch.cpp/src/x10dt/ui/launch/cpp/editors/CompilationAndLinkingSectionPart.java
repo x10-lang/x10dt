@@ -8,7 +8,6 @@
 package x10dt.ui.launch.cpp.editors;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import org.eclipse.core.runtime.CoreException;
@@ -37,7 +36,6 @@ import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
@@ -50,6 +48,7 @@ import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
+import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 
 final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPart 
@@ -399,6 +398,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     this.fControlsAffectedByCIType.add(this.fArchCombo);
     
     this.fBitsArchBt = toolkit.createButton(archComposite, LaunchMessages.XPCP_64BitsArchitectureBt, SWT.CHECK);
+    this.fBitsArchBt.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
     this.fControlsAffectedByCIType.add(this.fBitsArchBt);
     
     final Group compilingGroup = new Group(sectionClient, SWT.NONE);
@@ -481,63 +481,36 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   private boolean hasCompleteInfo() {
     return this.fOSCombo.isEnabled() && (this.fOSCombo.getSelectionIndex() != -1) && 
-           (this.fCompilerText.getText().trim().length() > 0) && (this.fCompilingOptsText.getText().trim().length() > 0) && 
-           (this.fArchiverText.getText().trim().length() > 0) && (this.fArchivingOptsText.getText().trim().length() > 0) && 
-           (this.fLinkerText.getText().trim().length() > 0) && (this.fLinkingOptsText.getText().trim().length() > 0) && 
-           (this.fLinkingLibsText.getText().trim().length() > 0);
+           (this.fArchCombo.getSelectionIndex() != -1) && (this.fCompilerText.getText().trim().length() > 0) && 
+           (this.fCompilingOptsText.getText().trim().length() > 0) && (this.fArchiverText.getText().trim().length() > 0) && 
+           (this.fArchivingOptsText.getText().trim().length() > 0) && (this.fLinkerText.getText().trim().length() > 0) && 
+           (this.fLinkingOptsText.getText().trim().length() > 0) && (this.fLinkingLibsText.getText().trim().length() > 0);
   }
   
   private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
-    final LastLineOutputListener processorListener = new LastLineOutputListener();
-    try {
-      targetOpHelper.run(Arrays.asList(UNAME, UNAME_P_OPT), processorListener);
-    } catch (Exception except) {
-      // Do nothing.
-    }
-
-    String output = processorListener.getOutput();
-    if (output == null) {
-      // We fail to get an output with "uname -p". Last option is to try with "uname -m".
-      final LastLineOutputListener machineListener = new LastLineOutputListener();
-      try {
-        targetOpHelper.run(Arrays.asList(UNAME, UNAME_M_OPT), machineListener);
-        
-        output = machineListener.getOutput();
-      } catch (Exception except) {
-        // Do nothing.
-      }
-    }
+    final Pair<EArchitecture, EBitsArchitecture> pair = PlatformConfUtils.detectArchitecture(targetOpHelper);
+    if (pair != null) {
+      this.fBitsArchBt.setSelection(pair.second == EBitsArchitecture.E64Arch);
+      getPlatformConf().setBitsArchitecture(pair.second);
       
-    EArchitecture architecture = null;
-    if (output != null) {  
-      if (output.matches(I86_REGEX) || output.startsWith(X86_PROC)) {
-        architecture = EArchitecture.x86;
-      } else if (output.contains(POWER) || output.contains(PPC)) {
-        architecture = EArchitecture.Power;
-      }
-      this.fBitsArchBt.setSelection(output.contains(A64BITS));
-      getPlatformConf().setBitsArchitecture(output.contains(A64BITS) ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch);
-    }
-    
-    if (architecture != null) {
-      int index = -1;
-      for (final String archName : this.fArchCombo.getItems()) {
-        ++index;
-        final EArchitecture curArch = (EArchitecture) this.fArchCombo.getData(archName);
-        if (curArch == architecture) {
-          getPlatformConf().setArchitecture(curArch);
-          this.fArchCombo.select(index);
-          break;
+      if (pair.first != null) {
+        int index = -1;
+        for (final String archName : this.fArchCombo.getItems()) {
+          ++index;
+          final EArchitecture curArch = (EArchitecture) this.fArchCombo.getData(archName);
+          if (curArch == pair.first) {
+            getPlatformConf().setArchitecture(curArch);
+            this.fArchCombo.select(index);
+            break;
+          }
         }
       }
     }
   }
   
   private void selectOS(final ITargetOpHelper targetOpHelper) {
-    final OSDetectionListener osDetectionListener = new OSDetectionListener();
-    try {
-      targetOpHelper.run(Arrays.asList(UNAME, UNAME_S_OPT), osDetectionListener);
-      final ETargetOS detectedOS = osDetectionListener.getDetectedOS();
+    final ETargetOS detectedOS = PlatformConfUtils.detectOS(targetOpHelper);
+    if (detectedOS != null) {
       int index = -1;
       for (final String osName : this.fOSCombo.getItems()) {
         ++index;
@@ -548,8 +521,6 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
           break;
         }
       }
-    } catch (Exception except) {
-      // Do nothing. Simply forgets.
     }
   }
   
@@ -581,74 +552,6 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
   }
   
-  // --- Private classes
-  
-  private static final class OSDetectionListener implements IProcessOuputListener {
-
-    // --- Interface methods implementation
-    
-    public void read(final String line) {
-      this.fOutput = line;
-    }
-
-    public void readError(final String line) {
-    }
-    
-    // --- Internal services
-    
-    ETargetOS getDetectedOS() {
-      final String output = this.fOutput.toLowerCase();
-      if (LINUX.equals(output)) {
-        return ETargetOS.LINUX;
-      } else if (AIX.equals(output)) {
-        return ETargetOS.AIX;
-      } else if (DARWIN.equals(output)) {
-        return ETargetOS.MAC;
-      } else if (output.startsWith(CYGWIN)) {
-        return ETargetOS.WINDOWS;
-      } else {
-        return ETargetOS.UNIX;
-      }
-    }
-    
-    // --- Fields
-    
-    private String fOutput;
-    
-    
-    private static final String LINUX = "linux"; //$NON-NLS-1$
-    
-    private static final String CYGWIN = "cygwin"; //$NON-NLS-1$
-    
-    private static final String AIX = "aix"; //$NON-NLS-1$
-    
-    private static final String DARWIN = "darwin"; //$NON-NLS-1$
-    
-  }
-  
-  private static final class LastLineOutputListener implements IProcessOuputListener {
-
-    // --- Interface methods implementation
-    
-    public void read(final String line) {
-      this.fOutput = line;
-    }
-
-    public void readError(final String line) {
-    }
-    
-    // --- Internal services
-    
-    String getOutput() {
-      return this.fOutput;
-    }
-    
-    // --- Fields
-    
-    private String fOutput;
-    
-  }
-  
   // --- Fields
   
   private Combo fOSCombo;
@@ -678,24 +581,5 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   private Button fLinkerBrowseBt;
 
   private final Collection<Control> fControlsAffectedByCIType = new ArrayList<Control>();
-  
-  
-  private static final String UNAME = "uname"; //$NON-NLS-1$
-  
-  private static final String UNAME_S_OPT = "-s"; //$NON-NLS-1$
-  
-  private static final String UNAME_P_OPT = "-p"; //$NON-NLS-1$
-  
-  private static final String UNAME_M_OPT = "-m"; //$NON-NLS-1$
-  
-  private static final String X86_PROC = "x86"; //$NON-NLS-1$
-  
-  private static final String I86_REGEX = "i.86"; //$NON-NLS-1$
-  
-  private static final String POWER = "power"; //$NON-NLS-1$
-  
-  private static final String PPC = "ppc"; //$NON-NLS-1$
-  
-  private static final String A64BITS = "64"; //$NON-NLS-1$
     
 }

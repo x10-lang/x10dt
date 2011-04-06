@@ -10,11 +10,11 @@ package x10dt.ui.launch.core.utils;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 
 /**
- * Utility methods around Java enumerations.
+ * Utility methods around JRE property values.
  * 
  * @author egeay
  */
-public final class EnumUtils {
+public final class JREPropertiesUtils {
   
   /**
    * Returns the local target operating system as defined in the Java Runtime Environment variable "os.name".
@@ -38,7 +38,7 @@ public final class EnumUtils {
   
   // --- Private code
   
-  private EnumUtils() {}
+  private JREPropertiesUtils() {}
   
   // --- Fields
 

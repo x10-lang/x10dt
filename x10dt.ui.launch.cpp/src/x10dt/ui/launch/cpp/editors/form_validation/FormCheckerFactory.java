@@ -66,7 +66,7 @@ public final class FormCheckerFactory {
   
   /**
    * Creates a checker that is responsible for validating that a given local path exists. This check is independent of
-   * the current connection, as opposed to {@link #createValidPathControlChecker(ITargetOpHelper, IFormPage, Control, String)}.
+   * the current connection, as opposed to {@link #createValidPathControlChecker}.
    * 
    * @param formPage The form page to get access to the form message managers.
    * @param control The control that contains the text in question.
