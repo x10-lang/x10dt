@@ -68,6 +68,12 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setName(final String name);
   
+  // --- IStatusConfProvider's setter methods
+  
+  public void setCompilationCommandsErrorMessage(final String errorMessage);
+  
+  public void setCompilationCommandsStatus(final EValidationStatus validationStatus);
+  
   // --- ICppCompilationConf's setter methods
   
   public void setArchitecture(final EArchitecture architecture);

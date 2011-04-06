@@ -71,6 +71,14 @@ public interface IX10BuilderFileOp {
   public boolean hasAllPrerequisites();
   
   /**
+   * Returns whether we can go on or not with the compilation step. Such method should be called before starting to use the 
+   * other services.
+   * 
+   * @return True if we can go on. If we can't, calling the other operations is unsafe and unsupported.
+   */
+  public boolean hasValidCompilationCommands();
+  
+  /**
    * Transfers (if necessary) the generated files from the local output directory to the workspace directory of 
    * the target platform.
    * 

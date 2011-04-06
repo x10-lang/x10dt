@@ -11,8 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -26,10 +27,12 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.IFormPart;
 import org.eclipse.ui.forms.IManagedForm;
+import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
@@ -37,7 +40,6 @@ import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
-import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
@@ -82,8 +84,22 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
           control.setEnabled(true);
         }
       }
-      selectOsAndArchitecture();
-      checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
+      final SharedHeaderFormEditor formEditor = (SharedHeaderFormEditor) getFormPage().getEditor();
+      formEditor.getHeaderForm().getMessageManager().removeMessage(this.fOSCombo);
+      try {
+        selectOsAndArchitecture();
+        checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
+        getPlatformConf().setCompilationCommandsStatus(EValidationStatus.UNKNOWN);
+        getPlatformConf().setCompilationCommandsErrorMessage(Constants.EMPTY_STR);
+      } catch (Exception except) {
+        getPlatformConf().setCompilationCommandsStatus(EValidationStatus.FAILURE);
+        getPlatformConf().setCompilationCommandsErrorMessage(except.getMessage());
+        formEditor.getHeaderForm().getMessageManager().addMessage(this.fOSCombo, except.getMessage(), null /* data */, 
+                                                                  IMessageProvider.ERROR);
+        for (final Control control : this.fControlsAffectedByCIType) {
+          control.setEnabled(false);
+        }
+      }
     }
   }
   
@@ -102,10 +118,27 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
         control.setEnabled(enable);
       }
     }
+    final SharedHeaderFormEditor formEditor = (SharedHeaderFormEditor) getFormPage().getEditor();
+    formEditor.getHeaderForm().getMessageManager().removeMessage(this.fOSCombo);
     
-    if (isValid && shouldDeriveInfo) {
-      selectOsAndArchitecture();
-      checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
+    if (isValid) {
+      try {
+        if (shouldDeriveInfo) {
+          selectOsAndArchitecture();
+        }
+        checkCompilerVersion(this.fCompilerText, this.fOSCombo, this.fArchCombo);
+        getPlatformConf().setCompilationCommandsStatus(EValidationStatus.UNKNOWN);
+        getPlatformConf().setCompilationCommandsErrorMessage(Constants.EMPTY_STR);
+      } catch (Exception except) {
+        getPlatformConf().setCompilationCommandsStatus(EValidationStatus.FAILURE);
+        getPlatformConf().setCompilationCommandsErrorMessage(except.getMessage());
+        formEditor.getHeaderForm().getMessageManager().addMessage(this.fOSCombo, except.getMessage(), null /* data */, 
+                                                                  IMessageProvider.ERROR);
+        
+        for (final Control control : this.fControlsAffectedByCIType) {
+          control.setEnabled(false);
+        }
+      }
     } else {
       handleEmptyTextValidation(this.fCompilerText, LaunchMessages.XPCP_CompilerLabel);
       handleEmptyTextValidation(this.fCompilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel);
@@ -248,8 +281,12 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
       public void widgetSelected(final SelectionEvent event) {
         getPlatformConf().setBitsArchitecture(bitsArchBt.getSelection() ? EBitsArchitecture.E64Arch : 
                                                                           EBitsArchitecture.E32Arch);        
-        updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
-                                  linkingOptsText, linkingLibsText);
+        try {
+          updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
+                                    linkingOptsText, linkingLibsText);
+        } catch (Exception except) {
+          
+        }
         
         updateDirtyState(managedForm);
       }
@@ -266,8 +303,12 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
         final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
         getPlatformConf().setTargetOS(targetOs);
         
-        updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
-                                  linkingOptsText, linkingLibsText);
+        try {
+          updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
+                                    linkingOptsText, linkingLibsText);
+        } catch (Exception except) {
+          
+        }
         updateDirtyState(managedForm);
       }
       
@@ -283,8 +324,12 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
         final EArchitecture architecture = (EArchitecture) archCombo.getData(archName);
         getPlatformConf().setArchitecture(architecture);
         
-        updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
-                                  linkingOptsText, linkingLibsText);
+        try {
+          updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText,
+                                    linkingOptsText, linkingLibsText);
+        } catch (Exception except) {
+          
+        }
         updateDirtyState(managedForm);
       }
       
@@ -508,7 +553,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     }
   }
   
-  private void selectOsAndArchitecture() {
+  private void selectOsAndArchitecture() throws CoreException {
     final IX10PlatformConf platformConf = getPlatformConf();
     final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
     final IConnectionConf connConf = platformConf.getConnectionConf();
@@ -525,20 +570,15 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
   
   private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText,
                                          final Text archivingOptsText, final Text linkerText, final Text linkingOptsText,
-                                         final Text linkingLibsText) {
-    try {
-      final IDefaultCPPCommands defaultCPPCommands = DefaultCPPCommandsFactory.create(getPlatformConf());
-      compilerText.setText(defaultCPPCommands.getCompiler());
-      compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
-      archiverText.setText(defaultCPPCommands.getArchiver());
-      archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
-      linkerText.setText(defaultCPPCommands.getLinker());
-      linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
-      linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
-    } catch (Exception except) {
-      // Should not occur since we are doing the verification before. Still we are logging just in case.
-      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.XPC_PropertiesFileLoadingError, except);
-    }
+                                         final Text linkingLibsText) throws CoreException {
+    final IDefaultCPPCommands defaultCPPCommands = DefaultCPPCommandsFactory.create(getPlatformConf());
+    compilerText.setText(defaultCPPCommands.getCompiler());
+    compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
+    archiverText.setText(defaultCPPCommands.getArchiver());
+    archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
+    linkerText.setText(defaultCPPCommands.getLinker());
+    linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
+    linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
   }
   
   // --- Private classes

@@ -14,6 +14,8 @@ import static x10dt.ui.launch.core.utils.PTPConstants.PARALLEL_ENVIRONMENT_SERVI
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.X10RT_PROPERTIES_FILE_FORMAT;
+import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.SHARED_LIB_PROPERTIES_FILE;
+import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.LIBX10_PROPERTIES_FILE;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -171,12 +173,14 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart
       if (transportName != null) {
         final String propertiesFilePath = String.format(X10RT_PROPERTIES_FILE_FORMAT, transportName);
         controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText,
-                                                      propertiesFilePath);
+                                                      SHARED_LIB_PROPERTIES_FILE, LIBX10_PROPERTIES_FILE, propertiesFilePath);
       } else {
-        controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, null);
+        controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, 
+                                                      SHARED_LIB_PROPERTIES_FILE, LIBX10_PROPERTIES_FILE);
       }
     } else if (!isLocal) {
-      controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, null);
+      controlChecker = new X10DistribControlChecker(createTargetOpHelper(), getFormPage(), this.fX10DistLocText, 
+                                                    SHARED_LIB_PROPERTIES_FILE, LIBX10_PROPERTIES_FILE);
     } else {
       controlChecker = null;
       this.fIsX10DistValid = true;
@@ -238,42 +242,47 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart
   
   // --- Private classes
   
-  private static final class X10DistribControlChecker extends AbstractFormControlChecker implements IFormControlChecker {
+  private final class X10DistribControlChecker extends AbstractFormControlChecker implements IFormControlChecker {
     
     X10DistribControlChecker(final ITargetOpHelper targetOpHelper, final IFormPage formPage, final Control control,
-                             final String propertiesFilePath) {
+                             final String ... propertiesFiles) {
       super(formPage, control);
       this.fTargetOpHelper = targetOpHelper;
-      this.fPropertiesFilePath = propertiesFilePath;
+      this.fPropertiesFiles = propertiesFiles;
     }
     
     // --- Interface methods implementation
     
     public boolean validate(final String path) {
       removeMessages();
-      if (getControl().isEnabled()) {
-        if (path.length() == 0) {
-          addMessages(NLS.bind(LaunchMessages.ETIC_NoEmptyContent, LaunchMessages.XPCP_X10DistLabel), IMessageProvider.ERROR);
-          return false;
-        } else if (! checkPathExistence(path)) {
-          addMessages(NLS.bind(LaunchMessages.LPCC_NonExistentPath, LaunchMessages.XPCP_X10DistLabel), IMessageProvider.ERROR);
-          return false;
-        } else if (! checkPathExistence(String.format(PATH_FORMAT, path, INCLUDE_X10RT_PATH))) {
-          addMessages(NLS.bind(LaunchMessages.LPCC_NonExistentPath, LaunchMessages.XPCP_X10DistRootIncludeLabel), 
-                      IMessageProvider.ERROR);
-          return false;
-        } else if ((this.fPropertiesFilePath != null) && 
-                   ! checkPathExistence(String.format(PATH_FORMAT, path, this.fPropertiesFilePath))) {
-          addMessages(NLS.bind(LaunchMessages.LPCC_NonExistentPath, 
-                               NLS.bind(LaunchMessages.XDSP_X10DistPropFileMissing, this.fPropertiesFilePath)), 
-                      IMessageProvider.ERROR);
-          return false;
+      if (path.length() == 0) {
+        addMessages(NLS.bind(LaunchMessages.ETIC_NoEmptyContent, LaunchMessages.XPCP_X10DistLabel));
+        return false;
+      } else if (! checkPathExistence(path)) {
+        addMessages(NLS.bind(LaunchMessages.LPCC_NonExistentPath, LaunchMessages.XPCP_X10DistLabel));
+        return false;
+      } else if (! checkPathExistence(String.format(PATH_FORMAT, path, INCLUDE_X10RT_PATH))) {
+        addMessages(NLS.bind(LaunchMessages.LPCC_NonExistentPath, LaunchMessages.XPCP_X10DistRootIncludeLabel));
+        return false;
+      } else {
+        for (final String propertiesFile : this.fPropertiesFiles) {
+          if (! checkPathExistence(String.format(PATH_FORMAT, path, propertiesFile))) {
+            addMessages(NLS.bind(LaunchMessages.LPCC_NonExistentPath, 
+                                 NLS.bind(LaunchMessages.XDSP_X10DistPropFileMissing, propertiesFile)));
+            return false;
+          }
         }
       }
       return true;
     }
     
     // --- Private code
+    
+    private void addMessages(final String message) {
+      getPlatformConf().setCompilationCommandsStatus(EValidationStatus.FAILURE);
+      getPlatformConf().setCompilationCommandsErrorMessage(message);
+      super.addMessages(message, IMessageProvider.ERROR);
+    }
     
     private boolean checkPathExistence(final String path) {
       return (this.fTargetOpHelper == null) ? false : this.fTargetOpHelper.getStore(path).fetchInfo().exists();
@@ -283,7 +292,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart
 
     private final ITargetOpHelper fTargetOpHelper;
     
-    private final String fPropertiesFilePath;
+    private final String[] fPropertiesFiles;
     
   }
   

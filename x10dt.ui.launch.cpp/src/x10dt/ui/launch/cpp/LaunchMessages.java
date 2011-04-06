@@ -29,6 +29,10 @@ public class LaunchMessages extends NLS {
 
   public static String ACSFP_SelectFileLoc;
 
+  public static String ADCC_NoEtcFolder;
+
+  public static String ADCC_PropFileReadingError;
+
   public static String APCC_ArchivingTaskMsg;
   
   public static String APCC_CompilationTaskMsg;

@@ -12,7 +12,7 @@ import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_I
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
@@ -97,6 +97,16 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
+  // --- IStatusConfProvider's setter methods
+  
+  public void setCompilationCommandsErrorMessage(final String errorMessage) {
+    this.fCppCompilationConf.fValidationErrorMsg = errorMessage;
+  }
+  
+  public void setCompilationCommandsStatus(final EValidationStatus validationStatus) {
+    this.fCppCompilationConf.fValidationStatus = validationStatus;
+  }
+  
   // --- ICppCompilationConf's setter methods
   
   public void setArchitecture(final EArchitecture architecture) {
@@ -179,9 +189,9 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
       this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
       this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
       this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
-    } catch (Exception except) {
+    } catch (CoreException except) {
       // We can't update the commands so we keep the previous state as is.
-      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.XPC_PropertiesFileLoadingError, except);
+      CppLaunchCore.log(except.getStatus());
     }
     updateDirtyFlag();
   }

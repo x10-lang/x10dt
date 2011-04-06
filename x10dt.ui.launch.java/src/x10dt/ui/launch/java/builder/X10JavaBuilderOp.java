@@ -101,6 +101,10 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
   public boolean hasAllPrerequisites() {
     return true;
   }
+  
+  public boolean hasValidCompilationCommands() {
+    return true;
+  }
 
   public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
     for(File file: files){

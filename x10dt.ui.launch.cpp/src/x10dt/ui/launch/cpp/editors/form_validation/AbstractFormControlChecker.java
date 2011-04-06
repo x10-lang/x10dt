@@ -9,6 +9,7 @@ package x10dt.ui.launch.cpp.editors.form_validation;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.forms.IMessageManager;
 import org.eclipse.ui.forms.editor.IFormPage;
 import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
@@ -23,9 +24,14 @@ public abstract class AbstractFormControlChecker {
   // --- Code for descendants
   
   protected final void addMessages(final String messageText, final int type) {
-    this.fHeaderMMgr.addMessage(this.fControl, messageText, null /* data */, type);
-    this.fPageMMgr.setDecorationPosition(SWT.CENTER);
-    this.fPageMMgr.addMessage(this.fControl, messageText, null /* data */, type, this.fControl);
+    final Control control = this.fControl;
+    Display.getDefault().asyncExec(new Runnable() {
+      public void run() {
+        AbstractFormControlChecker.this.fHeaderMMgr.addMessage(control, messageText, null /* data */, type);
+        AbstractFormControlChecker.this.fPageMMgr.setDecorationPosition(SWT.CENTER);
+        AbstractFormControlChecker.this.fPageMMgr.addMessage(control, messageText, null /* data */, type, control);
+      }
+    });
   }
   
   protected final Control getControl() {

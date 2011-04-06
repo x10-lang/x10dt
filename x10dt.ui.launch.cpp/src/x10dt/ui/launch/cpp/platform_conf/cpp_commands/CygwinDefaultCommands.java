@@ -7,8 +7,6 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
-import java.io.IOException;
-
 import org.eclipse.core.runtime.CoreException;
 
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
@@ -16,7 +14,7 @@ import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 final class CygwinDefaultCommands extends AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   
-  CygwinDefaultCommands(final IX10PlatformConf platformConf) throws IOException, CoreException {
+  CygwinDefaultCommands(final IX10PlatformConf platformConf) throws CoreException {
     super(platformConf);
   }
   

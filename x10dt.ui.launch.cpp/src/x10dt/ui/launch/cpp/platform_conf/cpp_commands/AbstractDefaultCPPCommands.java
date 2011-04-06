@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf.cpp_commands;
 
+import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.LIBX10_PROPERTIES_FILE;
+import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.SHARED_LIB_PROPERTIES_FILE;
 import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.X10RT_PROPERTIES_FILE_FORMAT;
 
 import java.io.File;
@@ -17,6 +19,9 @@ import java.util.Properties;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.osgi.util.NLS;
 
 import x10.X10CompilerOptions;
 import x10cpp.postcompiler.CXXCommandBuilder;
@@ -29,6 +34,8 @@ import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.ETransport;
+import x10dt.ui.launch.cpp.CppLaunchCore;
+import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
@@ -38,7 +45,7 @@ import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
 
-  protected AbstractDefaultCPPCommands(final IX10PlatformConf platformConf) throws CoreException, IOException {
+  protected AbstractDefaultCPPCommands(final IX10PlatformConf platformConf) throws CoreException {
     final ICppCompilationConf cppCompConf = platformConf.getCppCompilationConf();
     final ICommunicationInterfaceConf ciConf = platformConf.getCommunicationInterfaceConf();
     this.fIs64Arch = false;
@@ -48,10 +55,14 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(isLocal, cppCompConf.getTargetOS() == ETargetOS.WINDOWS,
                                                                         platformConf.getConnectionConf().getConnectionName());
     final String x10DistribLoc;
-    if (isLocal) {
-      x10DistribLoc = new File(X10BundleUtils.getX10DistHostResource("etc").getFile()).getParentFile().getAbsolutePath(); //$NON-NLS-1$
-    } else {
-      x10DistribLoc = cppCompConf.getX10DistribLocation(isLocal);
+    try {
+      if (isLocal) {
+        x10DistribLoc = new File(X10BundleUtils.getX10DistHostResource("etc").getFile()).getParentFile().getAbsolutePath(); //$NON-NLS-1$
+      } else {
+        x10DistribLoc = cppCompConf.getX10DistribLocation(isLocal);
+      }
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.ADCC_NoEtcFolder, except));
     }
     final IFileStore x10DistFileStore = targetOpHelper.getStore(x10DistribLoc);
 
@@ -121,12 +132,20 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
 
   private void definePrecompiledLibrary(final X10CompilerOptions options, final boolean isLocal, final String x10DistPath,
                                         final IFileStore x10DistFileStore, 
-                                        final ITargetOpHelper targetOpHelper) throws IOException, CoreException {
+                                        final ITargetOpHelper targetOpHelper) throws CoreException {
     final IFileStore libX10FileStore = x10DistFileStore.getChild(LIBX10_PROPERTIES_FILE);
     options.setDistPath(targetOpHelper.getTargetSystemPath(x10DistPath));
 
     final Properties properties = new Properties();
-    properties.load(libX10FileStore.openInputStream(EFS.NONE, null /* monitor */));
+    try {
+      properties.load(libX10FileStore.openInputStream(EFS.NONE, null /* monitor */));
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
+                                         NLS.bind(LaunchMessages.ADCC_PropFileReadingError, LIBX10_PROPERTIES_FILE)));
+    } catch (CoreException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
+                                         NLS.bind(LaunchMessages.XPC_PropertiesFileLoadingError, LIBX10_PROPERTIES_FILE)));
+    }
     final PrecompiledLibrary lib = new PrecompiledLibrary(String.format("%s/%s", x10DistPath, "stdlib"), properties); //$NON-NLS-1$ //$NON-NLS-2$
     if (isLocal) {
       options.addLocalPrecompiledLibrary(lib);
@@ -135,19 +154,35 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
     }
   }
   
-  private SharedLibProperties getSharedLibProperties(final IFileStore x10DistFileStore) throws IOException, CoreException {
+  private SharedLibProperties getSharedLibProperties(final IFileStore x10DistFileStore) throws CoreException {
     final IFileStore propertiesFileStore = x10DistFileStore.getChild(SHARED_LIB_PROPERTIES_FILE);
     final Properties properties = new Properties();
-    properties.load(propertiesFileStore.openInputStream(EFS.NONE, null /* monitor */));
+    try {
+      properties.load(propertiesFileStore.openInputStream(EFS.NONE, null /* monitor */));
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
+                                         NLS.bind(LaunchMessages.ADCC_PropFileReadingError, SHARED_LIB_PROPERTIES_FILE)));
+    } catch (CoreException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
+                                         NLS.bind(LaunchMessages.XPC_PropertiesFileLoadingError, SHARED_LIB_PROPERTIES_FILE)));
+    }
     return new SharedLibProperties(properties);
   }
   
   private PostCompileProperties getTransportProperties(final ETransport transport, 
-                                                       final IFileStore x10DistFileStore) throws CoreException, IOException {
+                                                       final IFileStore x10DistFileStore) throws CoreException {
     final String propertiesFileName = String.format(X10RT_PROPERTIES_FILE_FORMAT, transport.name().toLowerCase());
     final IFileStore propertiesFileStore = x10DistFileStore.getChild(propertiesFileName);
     final Properties properties = new Properties();
-    properties.load(propertiesFileStore.openInputStream(EFS.NONE, null /* monitor */));
+    try {
+      properties.load(propertiesFileStore.openInputStream(EFS.NONE, null /* monitor */));
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
+                                         NLS.bind(LaunchMessages.ADCC_PropFileReadingError, propertiesFileName)));
+    } catch (CoreException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, 
+                                         NLS.bind(LaunchMessages.XPC_PropertiesFileLoadingError, propertiesFileName)));
+    }
     return new PostCompileProperties(properties);
   }
 
@@ -160,10 +195,5 @@ abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
   protected final String fPreFileArgs;
 
   protected final String fPostFileArgs;
-  
-  
-  private static final String LIBX10_PROPERTIES_FILE = "stdlib/libx10.properties"; //$NON-NLS-1$
-
-  private static final String SHARED_LIB_PROPERTIES_FILE = "etc/sharedlib.properties"; //$NON-NLS-1$
   
 }

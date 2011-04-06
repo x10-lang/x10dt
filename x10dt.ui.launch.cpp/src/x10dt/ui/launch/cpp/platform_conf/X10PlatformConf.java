@@ -286,9 +286,9 @@ class X10PlatformConf implements IX10PlatformConf {
       this.fCppCompilationConf.fLinker = defaultCPPCommands.getLinker();
       this.fCppCompilationConf.fLinkingOpts = defaultCPPCommands.getLinkingOptions();
       this.fCppCompilationConf.fLinkingLibs = defaultCPPCommands.getLinkingLibraries();
-    } catch (Exception except) {
+    } catch (CoreException except) {
       // Should not occur since we are in local mode. Still we are logging just in case.
-      CppLaunchCore.log(IStatus.ERROR, LaunchMessages.XPC_PropertiesFileLoadingError, except);
+      CppLaunchCore.log(except.getStatus());
     }
     this.fCppCompilationConf.fBitsArchitecture = (is64Arch) ? EBitsArchitecture.E64Arch : EBitsArchitecture.E32Arch;
   }

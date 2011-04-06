@@ -24,6 +24,7 @@ public class Messages extends NLS {
   public static String ACXPA_FoundMultipleExtPoints;
   public static String ACXPA_NoExtensionFound;
   public static String AXB_IncompleteConfMsg;
+  public static String AXB_InvalidCommands;
   public static String CLCD_CmdUsedMsg;
   public static String CPPB_LibCreationError;
   public static String CPPB_ArchivingCmdLabel;

@@ -10,7 +10,6 @@ package x10dt.ui.launch.core.builder;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -168,8 +167,14 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       if (x10BuilderOp == null) {
         return new IProject[0];
       }
-      if (!x10BuilderOp.hasAllPrerequisites()) {
+      if (! x10BuilderOp.hasAllPrerequisites()) {
         CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_IncompleteConfMsg, getProject().getName()),
+                                           IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+        UIUtils.showProblemsView();
+        return null;
+      }
+      if (! x10BuilderOp.hasValidCompilationCommands()) {
+        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_InvalidCommands, getProject().getName()),
                                            IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
         UIUtils.showProblemsView();
         return null;

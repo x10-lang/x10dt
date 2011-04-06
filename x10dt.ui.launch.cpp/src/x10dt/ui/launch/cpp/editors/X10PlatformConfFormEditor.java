@@ -426,6 +426,11 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
       CoreResourceUtils.addPlatformConfValidationMarker(file, LaunchMessages.XPCFE_PlatformConfNotComplete, 
                                                         IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
     }
+    final EValidationStatus compValidationStatus = getCurrentPlatformConf().getCppCompilationConf().getValidationStatus();
+    if ((compValidationStatus == EValidationStatus.ERROR) || (compValidationStatus == EValidationStatus.FAILURE)) {
+      final String message = getCurrentPlatformConf().getCppCompilationConf().getValidationErrorMessage();
+      CoreResourceUtils.addPlatformConfValidationMarker(file, message, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+    }
   }
   
   private synchronized void validate() {
