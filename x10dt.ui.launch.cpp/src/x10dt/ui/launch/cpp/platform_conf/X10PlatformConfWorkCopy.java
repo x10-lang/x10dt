@@ -44,6 +44,7 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fSource.fConnectionConf.applyChanges(this.fConnectionConf);
     this.fSource.fCommInterfaceFact.applyChanges(super.fCommInterfaceFact);
     this.fSource.fCppCompilationConf.applyChanges(this.fCppCompilationConf, this.fSource.fConnectionConf.fIsLocal);
+    this.fSource.fDebuggingInfoConf.applyChanges(this.fDebuggingInfoConf);
     this.fIsDirty = false;
   }
   
