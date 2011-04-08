@@ -215,7 +215,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         for (final String str : command) {
           cmdBuilder.append(str).append(' ');
         }
-        final int returnCode = this.fTargetOpHelper.run(command, new IProcessOuputListener() {
+        final int returnCode = this.fTargetOpHelper.run(command, this.fWorkspaceDir, new IProcessOuputListener() {
 
           public void read(final String line) {
           }

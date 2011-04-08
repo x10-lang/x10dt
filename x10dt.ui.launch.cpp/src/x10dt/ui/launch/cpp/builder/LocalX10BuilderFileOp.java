@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaProject;
 
@@ -35,10 +36,12 @@ final class LocalX10BuilderFileOp extends AbstractX10BuilderOp implements IX10Bu
   
   // --- Interface methods implementation
 
-  public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
-    for (final File file : files) {
-      if (file.getAbsolutePath().endsWith(Constants.CC_EXT)) {
-        addCppFile(file.getAbsolutePath(), file.getAbsolutePath());
+  public void transfer(final Map<IPath, Collection<File>> files, final IProgressMonitor monitor) throws CoreException {
+    for (final Collection<File> collection : files.values()) {
+      for (final File file : collection) {
+        if (file.getAbsolutePath().endsWith(Constants.CC_EXT)) {
+          addCppFile(file.getAbsolutePath(), file.getAbsolutePath());
+        }
       }
     }
   }

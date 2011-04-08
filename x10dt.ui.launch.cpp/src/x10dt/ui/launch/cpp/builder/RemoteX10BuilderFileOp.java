@@ -19,6 +19,7 @@ import org.eclipse.core.filesystem.IFileSystem;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
@@ -38,18 +39,20 @@ import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  RemoteX10BuilderFileOp(final IJavaProject javaProject, final IX10PlatformConf platformConf, Map<String, Collection<String>> generatedFiles) throws CoreException {
+  RemoteX10BuilderFileOp(final IJavaProject javaProject, final IX10PlatformConf platformConf, 
+                         final Map<String, Collection<String>> generatedFiles) throws CoreException {
     super(platformConf, javaProject, platformConf.getCppCompilationConf().getRemoteOutputFolder(), generatedFiles);
     this.fTargetOS = platformConf.getCppCompilationConf().getTargetOS();
     
     final ITargetOpHelper localTargetOpHelper = TargetOpHelperFactory.create(true, false, null);
-    this.fLocalX10BuilderOp = new LocalX10BuilderFileOp(javaProject, ProjectUtils.getProjectOutputDirPath(javaProject.getProject()), platformConf,
-                                                        localTargetOpHelper, generatedFiles);
+    this.fLocalX10BuilderOp = new LocalX10BuilderFileOp(javaProject, 
+                                                        ProjectUtils.getProjectOutputDirPath(javaProject.getProject()), 
+                                                        platformConf, localTargetOpHelper, generatedFiles);
   }
 
   // --- Interface methods implementation
 
-  public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
+  public void transfer(final Map<IPath,Collection<File>> files, final IProgressMonitor monitor) throws CoreException {
     try {
       final IFileStore fileStore = getTargetOpHelper().getStore(getWorkspaceDir());
       monitor.subTask(Messages.CPPB_TransferTaskName);
@@ -71,28 +74,34 @@ final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10B
   
   // --- Private code
   
-  private void copyGeneratedFiles(final IFileStore destDir, final Collection<File> files, 
+  private void copyGeneratedFiles(final IFileStore destDir, final Map<IPath,Collection<File>> files, 
                                   final IProgressMonitor monitor) throws CoreException {
     if (! destDir.fetchInfo().exists()) {
       destDir.mkdir(EFS.NONE, null);
     }
     final IFileSystem localFileSystem = EFS.getLocalFileSystem();
     monitor.beginTask(null, files.size());
-    for (final File file : files) {
-      final String filePath = file.getAbsolutePath();
-      final String destPath = copyGeneratedFile(destDir, localFileSystem, filePath);
-      if (filePath.endsWith(CC_EXT)) {
-        addCppFile(filePath, destPath);
+    for (final Map.Entry<IPath, Collection<File>> entry : files.entrySet()) {
+      for (final File file : entry.getValue()) {
+        final String filePath = file.getAbsolutePath();
+        final String destPath = copyGeneratedFile(destDir, localFileSystem, entry.getKey(), filePath);
+        if (filePath.endsWith(CC_EXT)) {
+          addCppFile(filePath, destPath);
+        }
+        monitor.worked(1);
       }
-      monitor.worked(1);
     }
   }
 
   private String copyGeneratedFile(final IFileStore destDir, final IFileSystem localFileSystem, 
-                                 final String filePath) throws CoreException {
+                                   final IPath pkgPath, final String filePath) throws CoreException {
     final IFileStore fileStore = localFileSystem.getStore(new Path(filePath));
     final String name = fileStore.getName();
-    final IFileStore destFile = destDir.getChild(name);
+    final IFileStore parentDir = destDir.getFileStore(pkgPath);
+    if (! parentDir.fetchInfo().exists()) {
+      parentDir.mkdir(EFS.NONE, null);
+    }
+    final IFileStore destFile = parentDir.getChild(name);
     fileStore.copy(destFile, EFS.OVERWRITE, null);
     final String destPath = destFile.toURI().getPath();
     if (this.fTargetOS == ETargetOS.WINDOWS && destPath.startsWith("/")) { //$NON-NLS-1$

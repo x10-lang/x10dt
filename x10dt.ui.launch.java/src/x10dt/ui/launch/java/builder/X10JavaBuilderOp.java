@@ -10,6 +10,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
@@ -106,9 +107,11 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
     return true;
   }
 
-  public void transfer(final Collection<File> files, final IProgressMonitor monitor) throws CoreException {
-    for(File file: files){
-    	fJavaFiles.add(file.getAbsolutePath());
+  public void transfer(final Map<IPath, Collection<File>> files, final IProgressMonitor monitor) throws CoreException {
+    for(Collection<File> collection: files.values()) {
+      for (final File file : collection) {
+        fJavaFiles.add(file.getAbsolutePath());
+      }
     }
   }
   

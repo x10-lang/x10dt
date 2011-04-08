@@ -527,17 +527,18 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
   
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Map<String, Collection<String>> generatedFiles,
-		  final Collection<IFile> sourcesToCompile, final SubMonitor monitor) throws CoreException {
+                                     final Collection<IFile> sourcesToCompile, final SubMonitor monitor) throws CoreException {
     if (! generatedFiles.isEmpty()) {
-      monitor.beginTask(null, 100);
-      Collection<File> sourcesToPostCompile = new HashSet<File>();
-      for(IFile srcFile: sourcesToCompile){
-    	  String name = BuildPathUtils.getBareName(srcFile, fProjectWrapper);
+      monitor.beginTask(null, 80);
+      final Map<IPath, Collection<File>> sourcesToPostCompile = new HashMap<IPath, Collection<File>>();
+      for(IFile srcFile: sourcesToCompile){ 
+    	  final String name = BuildPathUtils.getBareName(srcFile, this.fProjectWrapper);
+    	  final IPath packagePath = getPackagePath(srcFile);
     	  if (generatedFiles.containsKey(name)){ // --- Code was generated for srcFile during this build.
-    		  if (checkPostCompilationCondition(srcFile.getFullPath().toString())) { 
-    			  sourcesToPostCompile.addAll(getLocalFiles(generatedFiles.get(name)));
+    		  if (checkPostCompilationCondition(srcFile.getFullPath().toString())) {
+    			  addGeneratedFile(sourcesToPostCompile, packagePath, getLocalFiles(generatedFiles.get(name)));
     		  }
-    		  sourcesToPostCompile.addAll(getFilesBlockedForPostCompilation(name) );
+    		  addGeneratedFile(sourcesToPostCompile, packagePath, getFilesBlockedForPostCompilation(name));
     	  }
     	  
       }
@@ -545,6 +546,38 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       builderOp.compile(monitor.newChild(70));
     } 
     builderOp.archive(monitor);
+  }
+  
+  private void addGeneratedFile(final Map<IPath, Collection<File>> map, final IPath pkgPath, final Collection<File> files) {
+    final Collection<File> values = map.get(pkgPath);
+    if (values == null) {
+      map.put(pkgPath, files);
+    } else {
+      values.addAll(files);
+    }
+  }
+  
+  private IPath getPackagePath(final IFile file) {
+    final IPath projectRelativePath = file.getProjectRelativePath().removeLastSegments(1);
+    final String src = projectRelativePath.segment(0);
+    if (src == null) {
+      return projectRelativePath;
+    } else {
+      final IJavaProject javaProject = JavaCore.create(file.getProject());
+      final IPath srcPath = file.getProject().getFolder(src).getFullPath();
+      try {
+        for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
+          if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+            if (srcPath.equals(cpEntry.getPath())) {
+              return projectRelativePath.removeFirstSegments(1);
+            }
+          }
+        }
+      } catch (JavaModelException except) {
+        // Let's forget and try with the current relative path given from Core Resources.        
+      }
+      return projectRelativePath;
+    }
   }
   
   private Collection<File> getFilesBlockedForPostCompilation(String name) throws CoreException {

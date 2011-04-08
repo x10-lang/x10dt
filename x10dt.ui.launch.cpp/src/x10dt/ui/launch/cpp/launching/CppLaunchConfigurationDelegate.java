@@ -207,7 +207,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       for (final String str : command) {
         cmdBuilder.append(str).append(' ');
       }
-      final int returnCode = this.fTargetOpHelper.run(command, new IProcessOuputListener() {
+      final int returnCode = this.fTargetOpHelper.run(command, this.fWorkspaceDir, new IProcessOuputListener() {
 
         public void read(final String line) {
         }
@@ -415,13 +415,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
                                    final String workspaceDir, IProject project, final IProgressMonitor monitor) throws CoreException {
     final X10CPPCompilerOptions options = (X10CPPCompilerOptions) CompilerOptionsFactory.createOptions(project);
     final StringBuilder sb = new StringBuilder();
-    final int namespaceIndex = mainClassName.lastIndexOf(NAMESPACE_SEP);
     sb.append("#include \""); //$NON-NLS-1$
-    if (namespaceIndex == -1) {
-      sb.append(mainClassName);
-    } else {
-      sb.append(mainClassName.substring(namespaceIndex + 2));
-    }
+    sb.append(mainClassName.replace(NAMESPACE_SEP, "/")); //$NON-NLS-1$ 
     sb.append(".h\"\n"); //$NON-NLS-1$
     sb.append(MessagePassingCodeGenerator.createMainStub(mainClassName, options));
     final InputStream is = new ByteArrayInputStream(sb.toString().getBytes());
