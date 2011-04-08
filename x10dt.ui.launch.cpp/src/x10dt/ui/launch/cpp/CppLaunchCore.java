@@ -113,11 +113,8 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
           final IPath path = X10PlatformConfFactory.getFile(resourceDelta.getResource().getProject()).getFullPath();
           final IResourceDelta platformConfDelta = rootResourceDelta.findMember(path);
           if ((platformConfDelta != null) && (platformConfDelta.getFlags() != IResourceDelta.MARKERS)) {
-            IX10PlatformConf platformConf = this.fProjectToPlatform.get(project);
-            if (platformConf == null) {
-              final IFile platformConfFile = (IFile) platformConfDelta.getResource();
-              platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
-            }
+            final IFile platformConfFile = (IFile) platformConfDelta.getResource();
+            final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
             if (platformConf.isComplete(false)) {
               startResourceManager(project, platformConf);
             }
