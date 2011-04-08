@@ -39,7 +39,9 @@ class StatusConfProvider implements IStatusConfProvider {
   
   public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("Validation Status: ").append(this.fValidationStatus.name()); //$NON-NLS-1$
+    if (this.fValidationStatus != null) {
+      sb.append("Validation Status: ").append(this.fValidationStatus.name()); //$NON-NLS-1$
+    }
     if (this.fValidationErrorMsg != null) {
       sb.append("\nValidation Error Message: ").append(this.fValidationErrorMsg); //$NON-NLS-1$
     }
