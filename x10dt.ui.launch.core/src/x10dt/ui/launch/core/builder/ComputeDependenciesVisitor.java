@@ -158,7 +158,7 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 
     @Override
     public NodeVisitor begin() {
-        String wsPath= ResourcesPlugin.getWorkspace().getRoot().getLocation().toPortableString();
+        String wsPath= ResourcesPlugin.getWorkspace().getRoot().getLocation().toOSString();
 
         String path= fJob.source().path();
         //PORT1.7 don't bother looking for dependencies if we're in jar/zip

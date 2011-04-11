@@ -144,7 +144,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	if (filePath.contains("x10.jar"))
     		return null;
     	String result=null;
-        String wsPath= fWorkspacePath;
+        String wsPath= fProject.getProject().getWorkspace().getRoot().getLocation().toOSString();
         if(filePath.startsWith(wsPath)){
         	result = filePath.substring(fWorkspacePath.length());
         }else{

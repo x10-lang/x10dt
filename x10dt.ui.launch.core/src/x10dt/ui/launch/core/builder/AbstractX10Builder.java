@@ -462,11 +462,11 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   
   private void clearDependencyInfoAsNeeded(Collection<IFile> sourcesToCompile, Collection<IFile> deletedSources){
 	  for (IFile srcFile: sourcesToCompile){
-		  fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
+		  fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toOSString());
 	  }
 	  
 	  for (IFile srcFile: deletedSources){
-		  fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toString());
+		  fDependencyInfo.clearDependenciesOf(srcFile.getFullPath().toOSString());
 	  }
   }
   
@@ -796,7 +796,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private Collection<IFile> getChangeDependents(final IResource srcFile) {
     final Collection<IFile> result = new ArrayList<IFile>();
-    final Set<String> fileDependents = this.fDependencyInfo.getDependentsOf(srcFile.getFullPath().toString());
+    final Set<String> fileDependents = this.fDependencyInfo.getDependentsOf(srcFile.getFullPath().toOSString());
     final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
     if (fileDependents != null) {
       for (final String dependent : fileDependents) {
