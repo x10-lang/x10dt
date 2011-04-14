@@ -49,6 +49,11 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 	 */
 	public static final String BUILDER_ID = PLUGIN_ID + ".X10JavaBuilder"; //$NON-NLS-1$
 	
+	/**
+	 * Launch configuration type for Java back-end.
+	 */
+	public static final String LAUNCH_CONF_TYPE = "x10dt.ui.launch.java.launching.X10LaunchConfigurationType"; //$NON-NLS-1$
+	
 	// --- Public services
 	
   /**
@@ -79,32 +84,31 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
             final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
             for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
               final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
-              resourceManager.shutdown();
-              
-              final PTPRemoteCorePlugin rmPlugin = PTPRemoteCorePlugin.getDefault();
-              final IRemoteServices rmServices = rmPlugin.getRemoteServices(rmConf.getRemoteServicesId());
-              final IRemoteConnectionManager rmConnManager = rmServices.getConnectionManager();
-              final IRemoteConnection rmConnection = rmConnManager.getConnection(rmConf.getConnectionName());
-              rmConnManager.removeConnection(rmConnection);
-              final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
-              for (final ITargetElement targetElement : targetTypeElement.getElements()) {
-                if (targetElement.getName().equals(rmConf.getConnectionName())) {
-                  targetTypeElement.removeElement(targetElement);
-                  break;
-                }
-              }
-              
               if (rmConf.getUniqueName().equals(serviceProvider.getProperties().get("uniqName"))) { //$NON-NLS-1$
+                resourceManager.shutdown();
+              
+                final PTPRemoteCorePlugin rmPlugin = PTPRemoteCorePlugin.getDefault();
+                final IRemoteServices rmServices = rmPlugin.getRemoteServices(rmConf.getRemoteServicesId());
+                final IRemoteConnectionManager rmConnManager = rmServices.getConnectionManager();
+                final IRemoteConnection rmConnection = rmConnManager.getConnection(rmConf.getConnectionName());
+                rmConnManager.removeConnection(rmConnection);
+                final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
+                for (final ITargetElement targetElement : targetTypeElement.getElements()) {
+                  if (targetElement.getName().equals(rmConf.getConnectionName())) {
+                    targetTypeElement.removeElement(targetElement);
+                    break;
+                  }
+                }
+              
                 serviceModelManager.remove(serviceConfiguration);
                 return;
               }
-              resourceManager.getConfiguration().getConnectionName();
             }
           }
         }
       }
     } catch (CoreException except) {
-      // Let's forget.
+      getLog().log(except.getStatus());
     }
   }
 	
@@ -150,7 +154,5 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 	// --- Fields
 	
   private static Activator plugin;
-  
-  private static final String LAUNCH_CONF_TYPE = "x10dt.ui.launch.java.launching.X10LaunchConfigurationType"; //$NON-NLS-1$
 
 }

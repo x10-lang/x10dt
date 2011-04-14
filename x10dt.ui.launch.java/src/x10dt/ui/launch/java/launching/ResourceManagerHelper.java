@@ -14,8 +14,9 @@ import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_IS_LOCAL;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_IS_PASSWORD_BASED;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_LOCAL_ADDRESS;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PASSPHRASE;
+import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PASSWORD;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PORT;
-import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.*;
+import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_PRIVATE_KEY_FILE;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_TIMEOUT;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_USERNAME;
 import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_USE_PORT_FORWARDING;
@@ -26,6 +27,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.ptp.core.PTPCorePlugin;
+import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IResourceManager;
 import org.eclipse.ptp.core.events.IChangedResourceManagerEvent;
 import org.eclipse.ptp.core.events.INewResourceManagerEvent;
@@ -42,6 +44,7 @@ import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
+import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IService;
 import org.eclipse.ptp.services.core.IServiceConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
@@ -177,6 +180,24 @@ final class ResourceManagerHelper {
     updateControlAttributes(targetElement.getControl().getConfig());
     
     rmConnManager.getConnections(); // Side effect of creating connection.
+  }
+  
+  public void deleteResourceManager(final IResourceManager resourceManager) throws CoreException {
+    resourceManager.shutdown();
+    final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) resourceManager).getConfiguration();
+    final ServiceModelManager modelManager = ServiceModelManager.getInstance();
+    loop:
+    for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
+      for (final IService service : serviceConf.getServices()) {
+        if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
+          final IServiceProvider provider = serviceConf.getServiceProvider(service);
+          if (rmConf.getUniqueName().equals(provider.getProperties().get("uniqName"))) { //$NON-NLS-1$
+            modelManager.remove(serviceConf);
+            break loop;
+          }
+        }
+      }
+    }
   }
   
   // --- Private code

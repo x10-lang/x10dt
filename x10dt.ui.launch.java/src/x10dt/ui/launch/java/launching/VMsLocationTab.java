@@ -25,14 +25,19 @@ import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_X10_DISTR
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
@@ -44,14 +49,10 @@ import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
-import org.eclipse.ptp.remote.remotetools.core.RemoteToolsServices;
 import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
-import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
-import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
@@ -77,12 +78,14 @@ import org.eclipse.swt.widgets.Text;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchImages;
 import x10dt.ui.launch.core.utils.PTPConstants;
+import x10dt.ui.launch.java.Activator;
 import x10dt.ui.launch.java.LaunchJavaImages;
 import x10dt.ui.launch.java.Messages;
 import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
 
 
-final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab {
+final class VMsLocationTab extends AbstractLaunchConfigurationTab 
+                           implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   VMsLocationTab(final PlacesAndHostsTab placesAndHostsTab) {
     this.fPlacesAndHostsTab = placesAndHostsTab;
@@ -91,9 +94,11 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTED);
     LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTING);
     LaunchImages.findOrCreateManaged(LaunchImages.RM_ERROR);
+    
+    DebugPlugin.getDefault().getLaunchManager().addLaunchConfigurationListener(this);
   }
   
-  // --- Interface methods implementation
+  // --- ILaunchConfigurationTab's interface methods implementation
 
   public void createControl(final Composite parent) {
     final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
@@ -113,33 +118,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-    configuration.setAttribute(ATTR_IS_LOCAL, true);
-    ITargetElement foundTargetElement = null;
-    final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
-    for (final ITargetElement targetElement : targetTypeElement.getElements()) {
-      if (targetElement.getName().equals(this.fLaunchConfigName)) {
-        foundTargetElement = targetElement;
-        break;
-      }
-    }
-    if (foundTargetElement != null) {
-      try {
-        final ITargetConfig targetConfig = foundTargetElement.getControl().getConfig();
-        configuration.setAttribute(ATTR_HOST, targetConfig.getConnectionAddress());
-        configuration.setAttribute(ATTR_PORT, targetConfig.getConnectionPort());
-        configuration.setAttribute(ATTR_USERNAME, targetConfig.getLoginUsername());
-        configuration.setAttribute(ATTR_IS_PASSWORD_BASED, targetConfig.isPasswordAuth());
-        if (! targetConfig.isPasswordAuth()) {
-          configuration.setAttribute(ATTR_PRIVATE_KEY_FILE, targetConfig.getKeyPath());
-          configuration.setAttribute(ATTR_PASSPHRASE, targetConfig.getKeyPassphrase());
-        } else {
-          configuration.setAttribute(ATTR_PASSWORD, targetConfig.getLoginPassword());
-        }
-        configuration.setAttribute(ATTR_TIMEOUT, targetConfig.getConnectionTimeout());
-      } catch (CoreException except) {
-        // Let's forget.
-      }
-    }
   }
 
   public void initializeFrom(final ILaunchConfiguration configuration) {
@@ -172,10 +150,28 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     } catch (CoreException except) {
       // Let's forget.
     }
+    
+    if (configuration instanceof ILaunchConfigurationWorkingCopy) {
+      if (this.fRMUpdateRunning) {
+        while (this.fRMUpdateRunning) {
+          getShell().getDisplay().readAndDispatch();
+        }
+      }
+      updateResourceManager();    
+      while (this.fRMUpdateRunning) {
+        getShell().getDisplay().readAndDispatch();
+      }
+      if (this.fResourceManager != null) {
+        final ILaunchConfigurationWorkingCopy launchWC = (ILaunchConfigurationWorkingCopy) configuration;
+        launchWC.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME,
+                              this.fResourceManager.getUniqueName());
+      }
+    }
   }
 
   public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(ATTR_IS_LOCAL, this.fLocalConnBt.getSelection());
+
     if (this.fResourceManager != null) {
       configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, 
                                  this.fResourceManager.getUniqueName());
@@ -203,9 +199,47 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     return Messages.VMLT_TabName;
   }
   
+  // --- ILaunchConfigurationListener's interface methods implementation
+  
+  public void launchConfigurationAdded(final ILaunchConfiguration configuration) {
+    try {
+      final String projectName = configuration.getAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
+                                                            Constants.EMPTY_STR);
+      final ILaunchConfigurationWorkingCopy launchWC = this.fWCMap.get(configuration.getName());
+      if ((projectName.length() > 0) && (launchWC != null)) {
+        if (Activator.LAUNCH_CONF_TYPE.equals(configuration.getType().getIdentifier()) &&
+            (! configuration.getName().equals(this.fLaunchConfigName))) {
+          this.fResourceManager = null;
+          this.fLaunchConfigName = configuration.getName();
+          updateResourceManager();
+          while (this.fRMUpdateRunning) {
+            getShell().getDisplay().readAndDispatch();
+          }
+          if (this.fResourceManager != null) {
+            launchWC.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME,
+                                  this.fResourceManager.getUniqueName());
+          }
+        }
+      }
+    } catch (CoreException except) {
+      Activator.getDefault().getLog().log(except.getStatus());
+    }
+  }
+
+  public void launchConfigurationChanged(final ILaunchConfiguration configuration) {
+    if (configuration instanceof ILaunchConfigurationWorkingCopy) {
+      this.fWCMap.put(configuration.getName(), (ILaunchConfigurationWorkingCopy) configuration);
+    }
+  }
+
+  public void launchConfigurationRemoved(final ILaunchConfiguration configuration) {
+    this.fWCMap.remove(configuration.getName());
+  }
+  
   // --- Overridden methods
   
   public void dispose() {
+    DebugPlugin.getDefault().getLaunchManager().removeLaunchConfigurationListener(this);
     LaunchJavaImages.removeImage(LaunchJavaImages.VMS_LOCATION);
     LaunchImages.removeImage(LaunchImages.RM_STOPPED);
     LaunchImages.removeImage(LaunchImages.RM_STARTED);
@@ -538,6 +572,19 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
     return new Pair<Text, Button>(text, button);
   }
   
+  private ResourceManagerHelper createResourceManagerHelper() {
+    if (this.fLocalConnBt.getSelection()) {
+      return new ResourceManagerHelper(this.fLaunchConfigName);
+    } else {
+      return new ResourceManagerHelper(this.fLaunchConfigName, this.fHostText.getText(), this.fPortText.getSelection(),
+                                       this.fUserNameText.getText(), !this.fPrivateKeyFileAuthBt.getSelection(),
+                                       this.fPasswordText.getText(), this.fPrivateKeyFileText.getText(),
+                                       this.fPassphraseText.getText(), this.fLocalAddressText.getText(),
+                                       this.fConnectionTimeoutSpinner.getSelection(),
+                                       this.fUsePortForwardingBt.getSelection());
+    }
+  }
+  
   private String getFolderFromDialog(final String dialogText) {
     if (this.fLocalConnBt.getSelection()) {
       final DirectoryDialog dialog = new DirectoryDialog(getShell());
@@ -597,28 +644,12 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   
   private void updateResourceManager() {
     if (! this.fRMUpdateRunning && (this.fLaunchConfigName != null) && hasAllConnectionInfo()) {
-      final ResourceManagerHelper rmHelper;
-      if (this.fLocalConnBt.getSelection()) {
-        rmHelper = new ResourceManagerHelper(this.fLaunchConfigName);
-      } else {
-        rmHelper = new ResourceManagerHelper(this.fLaunchConfigName, this.fHostText.getText(), this.fPortText.getSelection(),
-                                             this.fUserNameText.getText(), !this.fPrivateKeyFileAuthBt.getSelection(),
-                                             this.fPasswordText.getText(), this.fPrivateKeyFileText.getText(),
-                                             this.fPassphraseText.getText(), this.fLocalAddressText.getText(),
-                                             this.fConnectionTimeoutSpinner.getSelection(),
-                                             this.fUsePortForwardingBt.getSelection());
-      }
-      if (this.fRemoteConnBt.getSelection()) {
-        this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STARTING));
-        this.fStatusLabel.setText(Messages.VMLT_Checking);
-      }
+      final ResourceManagerHelper rmHelper = createResourceManagerHelper();
       
       final Display display = getShell().getDisplay();
-
       new Thread(new Runnable() {
 
         public void run() {
-          VMsLocationTab.this.fRMUpdateRunning = true;
           try {
             final CoreException[] exception = new CoreException[1];
             display.syncExec(new Runnable() {
@@ -634,12 +665,12 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
                   exception[0] = except;
                 }
               }
-              
+
             });
             if (exception[0] != null) {
               throw exception[0];
             }
-            
+
             VMsLocationTab.this.fResourceManager.startUp(new NullProgressMonitor());
 
             if (VMsLocationTab.this.fLocalConnBt.isDisposed() || VMsLocationTab.this.fStatusLabel.isDisposed()) {
@@ -662,7 +693,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
 
             VMsLocationTab.this.fPlacesAndHostsTab.setResourceManager(VMsLocationTab.this.fResourceManager);
           } catch (final CoreException except) {
-            if (! VMsLocationTab.this.fStatusLabel.isDisposed()) {
+            if (!VMsLocationTab.this.fStatusLabel.isDisposed()) {
               display.syncExec(new Runnable() {
 
                 public void run() {
@@ -678,6 +709,8 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
         }
 
       }).start();
+     
+      this.fRMUpdateRunning = true;
     }
   }
   
@@ -759,6 +792,8 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab implements ILa
   private final PlacesAndHostsTab fPlacesAndHostsTab;
   
   private final Button[] fBrowseBts = new Button[2];
+  
+  private final Map<String, ILaunchConfigurationWorkingCopy> fWCMap = new HashMap<String, ILaunchConfigurationWorkingCopy>();
   
   private Button fLocalConnBt;
   
