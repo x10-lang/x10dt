@@ -3,7 +3,7 @@
 <schema targetNamespace="x10dt.ui.launch.cpp" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="x10dt.ui.launch.cpp" id="launchAttrDataBuilder" name="Launch Configuration Attribute Data Builder"/>
+         <meta.schema plugin="x10dt.ui.launch.cpp" id="launchConfServices" name="Launch Configuration Services"/>
       </appinfo>
       <documentation>
          [Enter description of this extension point.]
@@ -18,7 +18,7 @@
       </annotation>
       <complexType>
          <choice minOccurs="0" maxOccurs="unbounded">
-            <element ref="builder" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="launchConfServices" minOccurs="0" maxOccurs="unbounded"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
@@ -47,15 +47,25 @@
       </complexType>
    </element>
 
-   <element name="builder">
+   <element name="launchConfServices">
       <complexType>
-         <attribute name="class" type="string" use="required">
+         <attribute name="attrDataBuilder" type="string">
             <annotation>
                <documentation>
                   
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn=":x10dt.ui.launch.cpp.launching.services.ILaunchConfAttrDataBuilder"/>
+               </appinfo>
+            </annotation>
+         </attribute>
+         <attribute name="platformConfLaunchSyncBuilder" type="string">
+            <annotation>
+               <documentation>
+                  
+               </documentation>
+               <appinfo>
+                  <meta.attribute kind="java" basedOn=":x10dt.ui.launch.cpp.launching.services.IPlatformConfLaunchConfServices"/>
                </appinfo>
             </annotation>
          </attribute>

@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui.launch.cpp.launching;
+package x10dt.ui.launch.cpp.launching.services;
 
 import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_HOSTFILE;
@@ -24,18 +24,17 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfigurationDefaults;
 
-import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
+import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
-final class MPICH2LaunchConfServices implements ICommInterfaceLaunchConfServices {
+final class MPICH2LaunchConfSyncServices implements IPlatformConfLaunchConfSyncServices {
 
   // --- Interface methods implementation
 
-  public boolean equals(final ILaunchConfiguration launchConfig, final ICommunicationInterfaceConf ciConf)
-                                                                                                          throws CoreException {
+  public boolean equals(final ILaunchConfiguration launchConfig, final IX10PlatformConf platformConf) throws CoreException {
     return true;
   }
 
-  public void initOrUpdate(final ILaunchConfigurationWorkingCopy launchConfig, final ICommunicationInterfaceConf ciConf,
+  public void initOrUpdate(final ILaunchConfigurationWorkingCopy launchConfig, final IX10PlatformConf platformConf,
                            final boolean shouldInitialize) throws CoreException {
     if (shouldInitialize) {
       MPICH2LaunchConfigurationDefaults.loadDefaults();

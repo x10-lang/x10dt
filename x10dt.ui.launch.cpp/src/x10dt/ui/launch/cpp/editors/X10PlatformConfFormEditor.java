@@ -23,6 +23,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -32,6 +37,7 @@ import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ui.IEditorInput;
@@ -44,12 +50,17 @@ import org.eclipse.ui.forms.editor.IFormPage;
 import org.eclipse.ui.forms.editor.SharedHeaderFormEditor;
 import org.eclipse.ui.forms.widgets.Form;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.dialogs.DialogsFactory;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.CppLaunchImages;
 import x10dt.ui.launch.cpp.LaunchMessages;
+import x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs;
+import x10dt.ui.launch.cpp.launching.services.IPlatformConfLaunchConfSyncServices;
+import x10dt.ui.launch.cpp.launching.services.LaunchConfServicesFactory;
+import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
@@ -283,6 +294,7 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
         
         commitPages(true);
         updateMarkers();
+        updateExistingLaunchConfigurations(file.getProject().getName());
         monitor.worked(1);
       } catch (CoreException except) {
         DialogsFactory.createErrorBuilder().setDetailedMessage(except.getStatus())
@@ -412,6 +424,29 @@ public final class X10PlatformConfFormEditor extends SharedHeaderFormEditor
   
   private FormEditorActionBarContributor getContributor() {
     return (FormEditorActionBarContributor) getEditorSite().getActionBarContributor();
+  }
+  
+  private void updateExistingLaunchConfigurations(final String projectName) {
+    final ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+    final ILaunchConfigurationType launchConfType = launchManager.getLaunchConfigurationType(CppLaunchCore.LAUNCH_CONF_TYPE);
+    try {
+      for (final ILaunchConfiguration launchConf : launchManager.getLaunchConfigurations(launchConfType)) {
+        final String curPrjName = launchConf.getAttribute(IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME, 
+                                                          Constants.EMPTY_STR);
+        if (projectName.equals(curPrjName) && 
+            launchConf.getAttribute(CppBackEndLaunchConfAttrs.ATTR_USE_PLATFORM_CONF_DATA, true)) {
+          final ICommunicationInterfaceConf commIntfConf = getCurrentPlatformConf().getCommunicationInterfaceConf();
+          final IPlatformConfLaunchConfSyncServices launchConfServices = LaunchConfServicesFactory.create(commIntfConf);
+          if (launchConfServices != null) {
+            final ILaunchConfigurationWorkingCopy launchConfWC = launchConf.getWorkingCopy();
+            launchConfServices.initOrUpdate(launchConfWC, getCurrentPlatformConf(), false);
+            launchConfWC.doSave();
+          }
+        }
+      }
+    } catch (CoreException except) {
+      CppLaunchCore.log(except.getStatus());
+    }
   }
   
   private void updateMarkers() {

@@ -78,7 +78,7 @@ public final class AttrServicesFactory {
   /**
    * Creates an implementation of {@link ILaunchConfAttrDataBuilder} that will process the Application, 
    * Communication Interface and Environment tabs of an X10 launch configuration with C++ back-end, and whatever extra tabs 
-   * are added via the extension point <b>x10dt.ui.launch.cpp.launchAttrDataBuilder</b>.
+   * are added to the extension <b>attrDataBuilder</b> of the extension point <b>x10dt.ui.launch.cpp.launchConfServices</b>.
    * 
    * @param commIntfConf The Communication Interface Configuration to consider for the launch configuration that the
    * builder will have to process.
@@ -94,12 +94,12 @@ public final class AttrServicesFactory {
     }
     
     final IExtensionPoint extPt = Platform.getExtensionRegistry().getExtensionPoint(CppLaunchCore.PLUGIN_ID, 
-                                                                                    ATTR_BUILDER_EXT_ID);
+                                                                                    LAUNCH_CONF_SERVICES_EXT_POINT_ID);
     final LinkedList<ILaunchConfAttrDataBuilder> extBuilders = new LinkedList<ILaunchConfAttrDataBuilder>();
     if (extPt != null) {
       for (final IConfigurationElement configElement : extPt.getConfigurationElements()) {
         try {
-          extBuilders.add((ILaunchConfAttrDataBuilder) configElement.createExecutableExtension(CLASS_ATTR));
+          extBuilders.add((ILaunchConfAttrDataBuilder) configElement.createExecutableExtension(ATTR_BUILDER));
         } catch (CoreException except) {
           CppLaunchCore.log(except.getStatus());
         }
@@ -119,8 +119,8 @@ public final class AttrServicesFactory {
   
   // --- Fields
   
-  private static final String CLASS_ATTR = "class"; //$NON-NLS-1$
+  private static final String LAUNCH_CONF_SERVICES_EXT_POINT_ID = "launchConfServices"; //$NON-NLS-1$
   
-  private static final String ATTR_BUILDER_EXT_ID = "launchAttrDataBuilder"; //$NON-NLS-1$
+  private static final String ATTR_BUILDER = "attrDataBuilder"; //$NON-NLS-1$
 
 }

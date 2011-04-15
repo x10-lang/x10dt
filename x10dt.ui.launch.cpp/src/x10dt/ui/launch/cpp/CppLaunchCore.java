@@ -75,6 +75,11 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    * Constant identifying the job family identifier for the X10 Platform Conf Validation background job.
    */
   public static final Object FAMILY_PLATFORM_CONF_VALIDATION = new Object();
+  
+  /**
+   * Launch configuration type for C++ back-end.
+   */
+  public static final String LAUNCH_CONF_TYPE = "x10dt.ui.cpp.launch.X10LaunchConfigurationType"; //$NON-NLS-1$
 
   // --- IResourceChangeListener's interface methods implementation
 

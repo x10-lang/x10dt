@@ -79,9 +79,10 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
    * 
    * @param workingCopy The launch configuration working copy to consider.
    * @param type The X10 main type of interest.
+   * @throws CoreException Occurs if we could not read some attributes from the working copy.
    */
   protected abstract void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
-                                                           final ITypeInfo type);
+                                                           final ITypeInfo type) throws CoreException;
   
   /**
    * Responsible for making sure the launch configuration's attributes are in sync with the platform configuration

@@ -67,11 +67,12 @@ import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
-import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
+import x10dt.ui.launch.cpp.launching.services.IPlatformConfLaunchConfSyncServices;
+import x10dt.ui.launch.cpp.launching.services.LaunchConfServicesFactory;
 import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
 import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
@@ -151,10 +152,14 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       }
       
       final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(context.getProject());
+      final ICommunicationInterfaceConf commIntfConf = platformConf.getCommunicationInterfaceConf();
       try {
-        initCommunicationInterfaceDefaults(configuration, platformConf.getCommunicationInterfaceConf());
+        final IPlatformConfLaunchConfSyncServices launchConfServices = LaunchConfServicesFactory.create(commIntfConf);
+        if (launchConfServices != null) {
+          launchConfServices.initOrUpdate(configuration, platformConf, true);
+        }
       } catch (CoreException except) {
-        // Simply forgets.
+        CppLaunchCore.log(except.getStatus());
       }
     }
     configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
@@ -432,17 +437,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
     final boolean isCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
     return TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
-  }
-  
-  private void initCommunicationInterfaceDefaults(final ILaunchConfigurationWorkingCopy config,
-                                                  final ICommunicationInterfaceConf ciConf) throws CoreException {
-    if (PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new OpenMPILaunchConfServices().initOrUpdate(config, ciConf, true);
-    } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new MPICH2LaunchConfServices().initOrUpdate(config, ciConf, true);
-    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciConf.getServiceTypeId())) {
-      new SocketsLaunchConfServices().initOrUpdate(config, ciConf, true);
-    }
   }
 
   private void setTextWithoutNotification(final Text text, final ILaunchConfiguration configuration, 
