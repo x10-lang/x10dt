@@ -85,8 +85,13 @@ public class X10LaunchablePropertyTester extends PropertyTester {
   private boolean hasMain(final IFile file, final String projectNatureId) {
     if (X10_EXT.equals(file.getFileExtension())) {
       try {
+        // Pass null for the IProgressService here - on Win32, if the property
+        // tester uses a progress monitor, that could cause the owning context
+        // menu to be dismissed. Ultimately, this causes an SWT invalid widget
+        // exception, b/c the menu has already been dispose()'d.
+        // 
         final ITypeInfo[] mainTypes = LaunchUtils.findMainTypes(new IResource[] { file }, projectNatureId, 
-                                                                PlatformUI.getWorkbench().getProgressService());
+                                                                null /*PlatformUI.getWorkbench().getProgressService()*/);
         return mainTypes.length > 0;
       } catch (Exception except) {
         // Simply forget

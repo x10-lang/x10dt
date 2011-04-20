@@ -71,7 +71,8 @@ public final class LaunchUtils {
    * @param resources The resources representing the searching scope. Can be <b>null</b> or empty. In such case,
    * it will automatically search within the all workspace.
    * @param projectNatureId The nature id for the projects of interest in case we receive no resources.
-   * @param progressService The progress service to use for running the search operation.
+   * @param progressService The progress service to use for running the search operation. Can be null,
+   * in which case the search is executed synchronously without progress.
    * @return A non-null but possibly empty array.
    * @throws InterruptedException Occurs if the operation got canceled by end-user.
    * @throws InvocationTargetException Occurs if something wrong happened during the search. Such wrapper will contain a 
@@ -92,7 +93,11 @@ public final class LaunchUtils {
         mainTypes[0] = X10SearchEngine.getAllTypesWithMainMethod(searchScope, monitor);
       }
     };
-    progressService.busyCursorWhile(runnable);
+    if (progressService != null) {
+        progressService.busyCursorWhile(runnable);
+    } else {
+        runnable.run(null);
+    }
     return mainTypes[0];
   }
   
