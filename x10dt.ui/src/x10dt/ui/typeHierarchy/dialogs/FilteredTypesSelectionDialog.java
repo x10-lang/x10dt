@@ -96,12 +96,9 @@ import x10dt.ui.typeHierarchy.TypeNameMatchLabelProvider;
 import x10dt.ui.typeHierarchy.TypeNameMatchRequestor;
 import x10dt.ui.typeHierarchy.TypeSelectionExtension;
 
-
 /**
- * Shows a list of Java types to the user with a text entry field for a string
+ * Shows a list of X10 types to the user with a text entry field for a string
  * pattern used to filter the list of types.
- *
- * @since 3.3
  */
 public class FilteredTypesSelectionDialog extends FilteredItemsSelectionDialog implements ITypeSelectionComponent {
 
