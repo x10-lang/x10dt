@@ -142,7 +142,10 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart
       public void modifyText(final ModifyEvent event) {
         if (! getPlatformConf().getConnectionConf().isLocal()) {
           handleEmptyTextValidation(x10DistLocText, LaunchMessages.XPCP_X10DistLabel);
-          getPlatformConf().setX10DistribLocation(x10DistLocText.getText());
+
+          String text= x10DistLocText.getText().trim(); // RTC 1034
+
+          getPlatformConf().setX10DistribLocation(text);
 
           setPartCompleteFlag(hasCompleteInfo());
           updateDirtyState(managedForm);
