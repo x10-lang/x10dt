@@ -637,7 +637,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     final Button browseBt = pair.second;
     
     this.fPassphraseText = SWTFormUtils.createLabelAndText(groupCompo, LaunchMessages.RMCP_PassphraseLabel, toolkit, 
-                                                           this.fKeyFileControls);
+                                                           this.fKeyFileControls, 1, SWT.PASSWORD);
     
     final Label separator2 = new Label(groupCompo, SWT.SEPARATOR | SWT.SHADOW_OUT | SWT.HORIZONTAL);
     separator2.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
