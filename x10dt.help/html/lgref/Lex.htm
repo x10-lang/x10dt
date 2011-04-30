@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -47,23 +47,23 @@
 
 <div class="p"><!----></div>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Lexical structure</h1>
+Chapter 1 </a><br />Lexical and Grammatical structure</h1>
 
 <div class="p"><!----></div>
 Lexically a program consists of a stream of white space, comments,
 identifiers, keywords, literals, separators and operators, all of them
-composed of ASCII characters. 
+composed of Unicode characters in the UTF-8 encoding. 
 
 <div class="p"><!----></div>
-
-<b>Whitespace&nbsp;&nbsp;</b>
+ <h2><a name="tth_sEc1">
+3</a>&nbsp;&nbsp;Whitespace</h2>
 
 ASCII space, horizontal tab (HT), form feed (FF) and line
 terminators constitute white space.
 
 <div class="p"><!----></div>
-
-<b>Comments&nbsp;&nbsp;</b>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Comments</h2>
 
 All text included within the ASCII characters "<b>/*</b>" and
 "<b>*/</b>" is
@@ -72,49 +72,120 @@ allowed.  All text from the ASCII characters
 "<b>//</b>" to the end of line is considered a comment and is ignored.
 
 <div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Identifiers</h2>
 
-<b>Identifiers&nbsp;&nbsp;</b>
 
-
-
-<div class="p"><!----></div>
-Identifiers consist of a single letter followed by zero or more
-letters or digits.
-The letters are the ASCII characters <b>a</b> through <b>z</b>, <b>A</b> through
-<b>Z</b>, and <b>_</b>.
-Digits are defined as the ASCII characters <b>0</b> through <b>9</b>.
 
 <div class="p"><!----></div>
+Identifiers consist of a single letter followed by zero or more letters or
+digits. The letters are the ASCII characters <b>a</b> through <b>z</b>, <b>A</b>
+through <b>Z</b>, and <b>_</b>. Digits are defined as the ASCII characters
+<b>0</b> through <b>9</b>. Case is significant; <b>a</b> and <b>A</b> are distinct
+identifiers, <b>as</b> is a keyword, but <b>As</b> and <b>AS</b> are identifiers.
+(However, case is insignificant in the hexadecimal numbers, exponent markers,
+and type-tags of numeric literals - 0xbabe = 0XBABE.)
 
-<b>Keywords&nbsp;&nbsp;</b>
-
-X10 reserves the following keywords:
+<div class="p"><!----></div>
+In addition, any string of characters may be enclosed in backquotes <b>`</b> to
+form an identifier - though the backquote character itself, and the backslash 
+character, must be quoted by a backslash if they are to be included.
+This allows,
+for example, keywords to be used as identifiers.  The following are
+backquoted identifiers: 
 <pre>
-abstract       false          offers         transient      
-as             final          operator       true           
-assert         finally        package        try            
-async          finish         private        var            
-ateach         for            property       when           
-break          goto           protected      while          
-case           if             public         at             
-catch          implements     return         atomic         
-class          import         self           await          
-continue       in             static         clocked        
-def            instanceof     struct         here           
-default        interface      super          next           
-do             native         switch         offer          
-else           new            this           resume         
-extends        null           throw          type           
+`while`, `!`, `(unbalanced(`,  `\'\\`, `0`
 </pre>
-Note that the primitive types are not considered keywords.
+
+Certain  back ends and compilation options do not support all choices of
+identifier.  
 
 <div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Keywords</h2>
 
-<b>Literals&nbsp;&nbsp;</b><a name="Literals">
+X10 uses the following keywords:<br />
+<tt>
+
+<table>
+<tr><td align="left"><b>abstract</b></td>
+    <td><b>as</b></td>
+    <td><b>assert</b></td>
+    <td><b>async</b></td>
+    <td><b>at</b></td></tr>
+<tr><td align="left"><b>athome</b></td>   
+		<td><b>ateach</b></td>
+		<td><b>atomic</b></td>
+    <td><b>break</b></td>
+    <td><b>case</b></td></tr>
+<tr><td align="left"><b>catch</b></td>
+    <td><b>class</b></td>
+    <td><b>clocked</b></td>
+		<td><b>continue</b></td>
+    <td><b>def</b></td></tr>
+<tr><td align="left"><b>default</b></td>
+		<td><b>do</b></td>
+    <td><b>else</b></td>
+    <td><b>extends</b></td>
+		<td><b>false</b></td></tr>
+<tr><td align="left"><b>final</b></td>
+    <td><b>finally</b></td>
+		<td><b>finish</b></td>
+    <td><b>for</b></td>
+    <td><b>goto</b></td></tr>
+<tr><td align="left"><b>haszero</b></td>
+    <td><i>here</i></td>
+    <td><b>if</b></td>
+		<td><b>implements</b></td>
+    <td><b>import</b></td></tr>
+<tr><td align="left"><b>in</b></td>
+		<td><b>instanceof</b></td>
+    <td><b>interface</b></td>
+    <td><b>native</b></td>
+		<td><b>new</b></td></tr>
+<tr><td align="left"><b>null</b></td>
+		<td><b>offer</b></td>
+    <td><b>offers</b></td>
+    <td><b>operator</b></td>
+		<td><b>package</b></td></tr>
+<tr><td align="left"><b>private</b></td>
+    <td><b>property</b></td>
+		<td><b>protected</b></td>
+    <td><b>public</b></td>
+		<td><b>return</b></td></tr>
+<tr><td align="left"><b>self</b></td>
+    <td><b>static</b></td>
+		<td><b>struct</b></td>
+    <td><b>super</b></td>
+    <td><b>switch</b></td></tr>
+<tr><td align="left"><b>this</b></td>
+    <td><b>throw</b></td>
+    <td><b>transient</b></td>
+		<td><b>true</b></td>
+    <td><b>try</b></td></tr>
+<tr><td align="left"><b>type</b></td>
+		<td><b>val</b></td>
+    <td><b>var</b></td>
+    <td><b>void</b></td>
+		<td><b>when</b></td></tr>
+<tr><td align="left"><b>while</b></td> 
+</tr></table>
+
+<div class="p"><!----></div>
+</td></tr></table>
+</tt>Keywords may be used as identifiers by enclosing them in backquotes:
+"<b>new</b>" is an identifier, <b>new</b> is a keyword but not an identifier.  
+
+<div class="p"><!----></div>
+Note that the primitive type names are not considered keywords.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Literals</h2><a name="Literals">
 </a>
 
 <div class="p"><!----></div>
-Briefly, X10 v2.1 uses fairly standard syntax for its literals:
+Briefly, X10 v2.2 uses fairly standard syntax for its literals:
 integers, unsigned integers, floating point numbers, booleans, 
 characters, strings, and <b>null</b>.  The most exotic points are (1) unsigned
 numbers are marked by a <b>u</b> and cannot have a sign; (2) <b>true</b> and
@@ -133,7 +204,7 @@ d = <span class="roman">one</span> <span class="roman">or</span> <span class="ro
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 d<sub>8</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">octal</span> <span class="roman">digits</span></td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
-d<sub>16</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">hexadecimal</span> <span class="roman">digits</span><span class="roman">,</span> <span class="roman">using</span> <b><b>a</b></b>&#8722;<b><b>f</b></b><span class="roman">for</span> <span class="roman">10</span>&#8722;<span class="roman">15</span></td></tr></table></td></tr>
+d<sub>16</sub> = <span class="roman">one</span> <span class="roman">or</span> <span class="roman">more</span> <span class="roman">hexadecimal</span> <span class="roman">digits</span><span class="roman">,</span> <span class="roman">using</span> <b><b>a</b></b>&#8722;<b><b>f</b></b><span class="roman">or</span> <b><b>A</b></b>&#8722;<b><b>F</b></b><span class="roman">for</span> <span class="roman">10</span>&#8722;<span class="roman">15</span></td></tr></table></td></tr>
 <tr><td align="right"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 i = d  </td></tr></table></td><td align="center"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
 &#124; <tt>0</tt> d<sub>8</sub>  </td></tr></table></td><td align="left"><table border="0" cellspacing="0" cellpadding="0"><tr><td nowrap="nowrap" align="center">
@@ -178,7 +249,7 @@ f = b x</td></tr></table></td></tr></table>
 </li>
 
 <li> <b>Long</b> literals have the form si<tt>l</tt> or
-      si<tt>L</tt>. <em>E.g.</em>, <b>1234567890L</b>  and <b>0xBAGEL</b> are <b>Long</b> literals.
+      si<tt>L</tt>. <em>E.g.</em>, <b>1234567890L</b>  and <b>0xBABEL</b> are <b>Long</b> literals.
 <div class="p"><!----></div>
 </li>
 
@@ -190,6 +261,29 @@ f = b x</td></tr></table></td></tr></table>
 <li> <b>ULong</b> literals have the form i <tt>ul</tt> or i  <tt>lu</tt>, or capital versions of those.  For example, 
       <b>123ul</b>, <b>0124567012ul</b>,  <b>0xFLU</b>, <b>OXba1eful</b>, and <b>0xDecafC0ffeefUL</b> are <b>ULong</b>
       literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Short</b> literals have the form si<tt>s</tt> or
+      si<tt>S</tt>. <em>E.g.</em>,  414S, <b>OxACES</b> and <b>7001s</b> are short
+      literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>UShort</b> literals  form i <tt>us</tt> or i  <tt>su</tt>, or capital versions of those.  For example, <b>609US</b>, 
+      <b>107us</b>, and <b>OxBeaus</b> are unsigned short literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Byte</b> literals have the form  si<tt>y</tt> or
+      si<tt>Y</tt>.  (The letter <b>B</b> cannot be used for bytes, as it is
+      a hexadecimal digit.)  <b>50Y</b> and <b>OxBABY</b> are byte literals.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>UByte</b> literals have the form i <tt>uy</tt> or i <tt>yu</tt>, or
+      capitalized versions of those.  For example, <b>9uy</b> and <b>OxBUY</b>
+      are <b>UByte</b> literals.
 <div class="p"><!----></div>
 </li>
 
@@ -262,24 +356,19 @@ f = b x</td></tr></table></td></tr></table>
       another double quote.  <em>E.g.</em>, <b>"hi!"</b>, <b>""</b>.
 <div class="p"><!----></div>
 </li>
-
-<li> There are no literals of type <b>Byte</b>, <b>UByte</b>, <b>Short</b>, or
-      <b>UShort</b>.
-<div class="p"><!----></div>
-</li>
 </ul>
 
 <div class="p"><!----></div>
-
-<b>Separators&nbsp;&nbsp;</b>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Separators</h2>
 X10 has the following separators and delimiters:
 <pre>
 ( )  { }  [ ]  ;  ,  .
 </pre>
 
 <div class="p"><!----></div>
-
-<b>Operators&nbsp;&nbsp;</b>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Operators</h2>
 
 X10 has the following operator,  type constructor, and miscellaneous symbols.  (<b>?</b> and
 <b>:</b> comprise a single ternary operator, but are written separately.)
@@ -292,28 +381,106 @@ X10 has the following operator,  type constructor, and miscellaneous symbols.  (
 &amp;=  &#124;=  ^=
 &lt;&lt;= &#62;&#62;= &#62;&#62;&#62;=
 +=  -=  *=  /=  %=
-=   ?   :  =&#62;  -&#62;
+=   ?   :   =&#62;  -&#62;
 &lt;:  :&#62;  @   ..
+**  !&#126;  -&lt;  &#62;-
 </pre>
 
 <div class="p"><!----></div>
+The precedence of the operators is as follows.  Earlier rows of the
+table have higher precedence than later rows, binding more tightly.
+For example, <b>a+b*c&lt;d</b> parses as <b>(a+(b*c))&lt;d</b>, 
+and <b>-1 as Byte</b> parses as <b>-(1 as Byte)</b>. 
 
 <div class="p"><!----></div>
-</li>
+
+<table>
+<tr><td align="left">postfix <b>()</b></td></tr>
+<tr><td align="left"><b>as T</b>, postfix <b>++</b>, postfix <b>-</b></td></tr>
+<tr><td align="left">unary <b>-</b>, unary <b>+</b>, prefix <b>++</b>, prefix <b>-</b></td></tr>
+<tr><td align="left">unary operators <b>!</b>, <b>&#126;</b>, <b>^</b>, <b>*</b>, <b>&#124;</b>,
+<b>&amp;</b>, <b>/</b>, and <b>%</b>
+</td></tr>
+<tr><td align="left"><b>..</b></td></tr>
+<tr><td align="left"><b>*     </b>  <b>/     </b>  <b>%   </b> <b>**</b> </td></tr>
+<tr><td align="left"><b>+</b> <b>     -</b> </td></tr>
+<tr><td align="left"><b>&lt;&lt;    </b> <b>&#62;&#62;    </b> <b>&#62;&#62;&#62;   </b> <b>-&#62;   &#62;-    -&lt;     &lt;-     !</b> </td></tr>
+<tr><td align="left"><b>&#62;     </b> <b>&#62;=    </b> <b>&lt;     </b> <b>&lt;=  </b> 
+<b>instanceof</b> </td></tr>
+<tr><td align="left"><b>==    </b>  <b>!=    </b>  <b>!     </b> <b>!&#126;   </b>   </td></tr>
+<tr><td align="left"><b>&amp;</b> </td></tr>
+<tr><td align="left"><b>^</b> </td></tr>
+<tr><td align="left"><b>&#124;</b> </td></tr>
+<tr><td align="left"><b>&amp;&amp;</b> </td></tr>
+<tr><td align="left"><b>&#124;&#124;</b> </td></tr>
+<tr><td align="left"><b>? :</b> </td></tr>
+<tr><td align="left"><b>=</b>, <b>*=</b>, <b>/=</b>, <b>%=</b>, 
+<b>+=</b>, <b>-=</b>, <b>&lt;&lt;=</b>, <b>&#62;&#62;=</b>, <b>&#62;&#62;&#62;=</b>,
+<b>&amp;=</b>, <b>^=</b>, <b>&#124;=</b>
+</td></tr></table>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Grammatical Notation</h2>
+
+<div class="p"><!----></div>
+In this manual, ordinary BNF notation is used to specify grammatical
+constructions, with a few minor extensions. 
+Grammatical rules look like this: <br />
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">Adj ::= Adv<sup>?</sup>&nbsp;<b>happy</b></td></tr>
+<tr><td align="right">&#124; Adv<sup>?</sup>&nbsp;<b>sad</b></td></tr>
+<tr><td align="right">Adv ::= <b>very</b></td></tr>
+<tr><td align="right">&#124; Adv Adv 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+Terms in <em>italics</em> are called <b>non-terminals</b>.  They 
+represent kinds of phrases; for example, <em>ForStatement</em>
+() describes all <b>for</b> statements.  
+Equation numbers refer to the full X10 grammar, in &#167;.  
+The small example has two non-terminals, <em>Adv</em> and <em>Adj</em>.  
+
+<div class="p"><!----></div>
+Terms in <b>fixed-width font</b> are <b>terminals</b>.  They represent the words
+and symbols of the language itself.  In X10, the terminals are the words
+described in this chapter.
+
+<div class="p"><!----></div>
+A single grammatical rule has the form  A ::= X<sub>1</sub> X<sub>2</sub> ... X<sub>n</sub> ,
+where the X<sub>i</sub>'s are either terminals or nonterminals.  This indicates that
+the non-terminal A could be an instance of X<sub>1</sub>, followed by an instance of
+X<sub>2</sub>, ..., followed by an instance of X<sub>n</sub>.  Multiple rules for the same
+A are allowed, giving several possible phrasings of A's.  For brevity,
+two rules with the same left-hand side are written with the left-hand side
+appearing once, and the right-hand sides 
+separated by &#124;.  
+
+<div class="p"><!----></div>
+In the Adj example, there are two rules for Adv,  and Adv ::= very and Adv ::= Adv Adv.  
+So, an adverb could be <b>very</b>, or (by threeuses of the rule) <b>very very</b>, or, one or more <b>very</b>s.  
+
+<div class="p"><!----></div>
+The notation A<sup>?</sup> ::= &#124; A <br>
+indicates an optional .  This is an ordinary non-terminal, defined by the rules:  :  | A::=  &#124; A <br>
+The first rule says that A<sup>?</sup> can amount to nothing; the second, that it can amount to an A.  
+This concept shows up so often that it is worth having a separate notation for it.  
+In the Adj example, an adjective phrase may bepreceded by an optional adverb. Thus, it may be <b>happy</b>, or <b>very happy</b>, or <b>very very sad</b>, etc. 
+
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Except that
-
-
-      literals like <b>1</b> 
-      which match both i and f are counted as
-      integers, not <b>Double</b>; <b>Double</b>s require a decimal
-      point, an exponent, or the <b>d</b> marker.
-      
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+<a name="tthFtNtAAB"></a>Except that      literals like 1       which match both  and  are counted as      integers, not Double; Doubles require a decimal      point, an exponent, or the d marker.      
+<br /><br />
 </html>

@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -52,41 +52,38 @@ Chapter 1 </a><br />Introduction</h1>
 <div class="p"><!----></div>
 
 <h3>Background</h3>
-Larger computational problems require more powerful computers capable of
-performing a larger number of operations per second. The era of
-increasing performance by simply increasing clocking frequency now
-seems to be behind us. It has become increasingly difficult
-to manage chip power and heat.  Instead, computer
-designers are starting to look at <em>scale out</em> systems in which the
-system's computational capacity is increased by adding additional
-nodes of comparable power to existing nodes, and connecting nodes with
-a high-speed communication network.
 
 <div class="p"><!----></div>
-A central problem with scale out systems is a definition of the <em>
-memory model</em>, that is, a model of the interaction between shared
-memory and  simultaneous (read, write) operations on that
-memory by multiple processors. The traditional "one operation at a
-time, to completion" model that underlies Lamport's notion of <em>
-sequential consistency</em> (SC) proves too expensive to implement in
-hardware, at scale. Various models of <em>relaxed consistency</em> have
-proven too difficult for programmers to work with.  
+The era of the mighty single-processor computer is over. Now, when more
+computing power is needed, one does not buy a faster uniprocessor-one buys
+another processor just like those one already has, or another hundred, or
+another million, and connects them with a high-speed communication network.
+Or, perhaps, one rents them instead, with a cloud computer. This gives one
+whatever quantity of computer cycles that one can desire and afford.
 
 <div class="p"><!----></div>
-One response to this problem has been to move to a <em>fragmented
-memory model</em>. Multiple processors are made to interact via a
-relatively language-neutral message-passing format such as MPI
-[]. This model has enjoyed some success: several
-high-performance applications have been written in this
+Then, one has the problem of how to use those computer cycles effectively.
+Programming a multiprocessor is far more agonizing than programming a
+uniprocessor.   One can use models of computation which give somewhat of the
+illusion of programming a uniprocessor.  Unfortunately, the models which give
+the closest imitations of uniprocessing are very expensive to implement,
+either increasing the monetary cost of the computer tremendously, or slowing
+it down dreadfully. 
+
+<div class="p"><!----></div>
+One response to this problem has been to move to a <em>fragmented memory
+  model</em>. Multiple processors are programmed largely as if they were
+uniprocessors, but are made to interact via a relatively language-neutral
+message-passing format such as MPI []. This model has enjoyed some
+success: several high-performance applications have been written in this
 style. Unfortunately, this model leads to a <em>loss of programmer
-productivity</em>: the message-passing format is integrated into the host
+  productivity</em>: the message-passing format is integrated into the host
 language by means of an application-programming interface (API), the
-programmer must explicitly represent and manage the interaction
-between multiple processes and choreograph their data exchange; large
-data-structures (such as distributed arrays, graphs, hash-tables) that
-are conceptually unitary must be thought of as fragmented across
-different nodes; all processors must generally execute the same code
-(in an SPMD fashion) etc.
+programmer must explicitly represent and manage the interaction between
+multiple processes and choreograph their data exchange; large data-structures
+(such as distributed arrays, graphs, hash-tables) that are conceptually
+unitary must be thought of as fragmented across different nodes; all
+processors must generally execute the same code (in an SPMD fashion) etc.
 
 <div class="p"><!----></div>
 One response to this problem has been the advent of the <em>
@@ -94,11 +91,11 @@ partitioned global address space</em> (PGAS) model underlying languages
 such as UPC, Titanium and Co-Array Fortran [,]. These
 languages permit the programmer to think of a single computation
 running across multiple processors, sharing a common address
-space. All data resides at some processors, which is said to have <em>
+space. All data resides at some processor, which is said to have <em>
 affinity</em> to the data.  Each processor may operate directly on the
 data it contains but must use some indirect mechanism to access or
 update data at other processors. Some kind of global <em>barriers</em>
-are used to ensure that processors remain roughly in lock-step.
+are used to ensure that processors remain roughly synchronized.
 
 <div class="p"><!----></div>
 X10 is a modern object-oriented programming language
@@ -152,15 +149,5 @@ system tracks which memory accesses are local. The programmer may
 introduce place casts which verify the access is local at run time.
 Linking with native code is supported.
 
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+<br /><br />
 </html>

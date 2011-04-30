@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -52,76 +52,122 @@ Chapter 7 </a><br />Interfaces</h1>
 </a>
 
 <div class="p"><!----></div>
-An interface specifies signatures for public methods, properties,
-<b>static val</b>s, and an invariant. It may extend several interfaces, giving
-X10 a large fraction of the power of multiple inheritance at a tiny fraction
-of the cost.
+An interface specifies signatures for zero or more public methods, property
+methods,
+<b>static val</b>s, 
+classes, structs, interfaces, types
+and an invariant. 
 
 <div class="p"><!----></div>
 The following puny example illustrates all these features: 
 <pre>
-interface Pushable(text:String, prio:Int) {
+interface Pushable{prio() != 0} {
   def push(): void;
   static val MAX_PRIO = 100;
+  abstract class Pushedness{}
+  struct Pushy{}
+  interface Pushing{}
+  static type Shove = Int;
+  property text():Int;
+  property prio():Int;
 }
-class MessageButton(text:String, prio:Int) 
-  implements Pushable{self.prio==Pushable.MAX_PRIO} {
+class MessageButton(text:String, prio:Int)
+  implements Pushable{self.prio()==Pushable.MAX_PRIO} {
   public def push() { 
     x10.io.Console.OUT.println(text + " pushed");
   }
+  public property text() = text;
+  public property prio() = prio;
 }
 </pre>
 
-<b>Pushable</b> defines two properties, a method, and a static value.  
+<b>Pushable</b> defines two property methods, one normal method, and a static
+value.  It also 
+establishes an invariant, that <b>prio() != 0</b>. 
 <b>MessageButton</b> implements a constrained version of <b>Pushable</b>,
-<em>viz</em>&nbsp;one with maximum priority.  It also has <b>Pushable</b>'s properties.  It
+<em>viz</em>&nbsp;one with maximum priority.  It
 defines the <b>push()</b> method given in the interface, as a <b>public</b>
 method-interface methods are implicitly <b>public</b>.
 
 <div class="p"><!----></div>
-A concrete type-a class or struct-can <em>implement</em> an interface,
-typically by having all the methods and properties that the interface
-requires.
+A container-a class or struct-can <em>implement</em> an interface,
+typically by having all the methods and property methods that the interface
+requires, and by providing a suitable <b>implements</b> clause in its definition.
 
 <div class="p"><!----></div>
 A variable may be declared to be of interface type.  Such a variable has all
-the fields and methods declared (directly or indirectly) by the interface;
-nothing else is statically available.  Values of a concrete type which
+the property and normal methods declared (directly or indirectly) by the
+interface; 
+nothing else is statically available.  Values of any concrete type which
 implement the interface may be stored in the variable.  
 
 <div class="p"><!----></div>
+The following code puts two quite different objects into the variable
+<b>star</b>, both of which satisfy the interface <b>Star</b>.
+<pre>
+interface Star { def rise():void; }
+class AlphaCentauri implements Star {
+   public def rise() {}
+}
+class ElvisPresley implements Star {
+   public def rise() {}
+}
+class Example {
+   static def example() {
+      var star : Star;
+      star = new AlphaCentauri();
+      star.rise();
+      star = new ElvisPresley();
+      star.rise();
+   }
+}
+</pre>
+
+An interface may extend several interfaces, giving
+X10 a large fraction of the power of multiple inheritance at a tiny fraction
+of the cost.
+
+<div class="p"><!----></div>
+<pre>
+interface Star{}
+interface Dog{}
+class Sirius implements Dog, Star{}
+class Lassie implements Dog, Star{}
+</pre>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Interface Syntax</h2>
+
+<div class="p"><!----></div>
 <a name="DepType:Interface">
-</a> 
-<em>
+</a>
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">NormalInterfaceDecl    ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
-<tr><td align="right">
- TypeParamsWithVariance    ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
-<tr><td align="right">
- Properties    ::= <b>(</b> PropertyList <b>)</b> </td></tr>
-<tr><td align="right">
- PropertyList    ::= Property </td></tr>
-<tr><td align="right">
-    &#124; PropertyList <b>,</b> Property</td></tr>
-<tr><td align="right">Property    ::= Annotations<sup>?</sup>&nbsp;Id ResultType </td></tr>
-<tr><td align="right">
- WhereClause    ::= DepParams </td></tr>
-<tr><td align="right">
- ExtendsInterfaces    ::= <b>extends</b> Type </td></tr>
-<tr><td align="right">
-    &#124; ExtendsInterfaces <b>,</b> Type</td></tr>
-<tr><td align="right">InterfaceBody    ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- InterfaceMemberDecls    ::= InterfaceMemberDecl </td></tr>
-<tr><td align="right">
-    &#124; InterfaceMemberDecls InterfaceMemberDecl</td></tr>
-<tr><td align="right">InterfaceMemberDecl    ::= MethodDecl </td></tr>
-<tr><td align="right">
-    &#124; PropertyMethodDecl</td></tr>
-<tr><td align="right">&#124; FieldDecl</td></tr>
-<tr><td align="right">&#124; ClassDecl</td></tr>
-<tr><td align="right">&#124; InterfaceDecl</td></tr>
-<tr><td align="right">&#124; TypeDefDecl</td></tr>
+
+<tr><td align="right">NormalInterfaceDecl ::= Mods<sup>?</sup>&nbsp;<b>interface</b> Id TypeParamsI<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;ExtendsInterfaces<sup>?</sup>&nbsp;InterfaceBody </td></tr>
+<tr><td align="right">TypeParamsI ::= <b>[</b> TypeParamIList <b>]</b> </td></tr>
+<tr><td align="right">TypeParamI ::= Id </td></tr>
+<tr><td align="right">&#124; <b>+</b> Id </td></tr>
+<tr><td align="right">&#124; <b>-</b> Id </td></tr>
+<tr><td align="right">Guard ::= DepParams </td></tr>
+<tr><td align="right">ExtendsInterfaces ::= <b>extends</b> Type </td></tr>
+<tr><td align="right">&#124; ExtendsInterfaces <b>,</b> Type </td></tr>
+<tr><td align="right">InterfaceBody ::= <b>{</b> InterfaceMemberDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">InterfaceMemberDecl ::= MethodDecl </td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl </td></tr>
+<tr><td align="right">&#124; FieldDecl </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; InterfaceDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -131,14 +177,7 @@ invariants associated with its superinterfaces and the invariant
 defined at the interface. 
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
-Each interface implicitly defines a nullary getter method
-<b>def p(): T</b> for each property <b>p: T</b>. The interface may not have
-another definition of a method <b>p()</b>. 
-
-<div class="p"><!----></div>
-A class <b>C</b> is said to implement an interface <b>I</b> if
+A class <b>C</b>  implements an interface <b>I</b> if
 
 <ul>
 <li> <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
@@ -146,7 +185,7 @@ A class <b>C</b> is said to implement an interface <b>I</b> if
 <div class="p"><!----></div>
 </li>
 
-<li> <b>C</b>'s properties include all the properties of <b>I</b>,
+<li> <b>C</b>'s property methods include all the property methods  of <b>I</b>,
 <div class="p"><!----></div>
 </li>
 
@@ -158,17 +197,39 @@ A class <b>C</b> is said to implement an interface <b>I</b> if
 </ul>
 
 <div class="p"><!----></div>
-Note that, by definition of <i>inv</i>(&#183;) (see &#167;, <b>C</b>'s class invariant <i>inv</i>(<b>C</b>) implies
-<i>inv</i>(<b>I</b>).
+If <b>C</b> implements <b>I</b>, then the class invariant
+(&#167;) for <b>C</b>,   <i>inv</i>(<b>C</b>), implies
+the class invariant for <b>I</b>, <i>inv</i>(<b>I</b>).  That is, if the
+interface <b>I</b> specifies some requirement, then every class <b>C</b> that
+implements it satisfies that requirement.
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc1">
-1</a>&nbsp;&nbsp;Field Definitions</h2>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Access to Members</h2>
+
+<div class="p"><!----></div>
+All interface members are <b>public</b>, whether or not they are declared
+public.  There is little purpose to non-public methods of an interface; they
+would specify that implementing classes and structs have methods that cannot
+be seen.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Property Methods</h2>
+
+<div class="p"><!----></div>
+An interface may declare <b>property</b> methods.  All non-<b>abstract</b>
+containers implementing such an interface must provide all the <b>property</b>
+methods specified.  
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Field Definitions</h2>
 
 
 <div class="p"><!----></div>
 An interface may declare a <b>val</b> field, with a value.  This field is implicitly
-<b>public static val</b>: 
+<b>public static val</b>.  In particular, it is <em>not</em> an instance field. 
 <pre>
 interface KnowsPi {
   PI = 3.14159265358;
@@ -177,21 +238,24 @@ interface KnowsPi {
 
 <div class="p"><!----></div>
 Classes and structs implementing such an interface get the interface's fields as
-<b>public static</b> fields.  Unlike properties and methods, there is no need
+<b>public static</b> fields.  Unlike  methods, there is no need
 for the implementing class to declare them. 
 <pre>
 class Circle implements KnowsPi {
   static def area(r:Double) = PI * r * r;
 }
+class UsesPi {
+  def circumf(r:Double) = 2 * r * KnowsPi.PI;
+}
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc1.1">
-1.1</a>&nbsp;&nbsp;Fine Points of Fields</h3>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Fine Points of Fields</h3>
 
 <div class="p"><!----></div>
-It can happen that two parent interfaces give fields of the same name.  In
-that case, those fields must be referred to by qualified names.
+If two parent interfaces give different static fields of the same name, 
+those fields must be referred to by qualified names.
 <pre>
 interface E1 {static val a = 1;}
 interface E2 {static val a = 2;}
@@ -215,10 +279,84 @@ class Example implements I4 {
 </pre>
 
 <div class="p"><!----></div>
+The initializer of a field in an interface may be any expression.  It is
+evaluated under the same rules as a <b>static</b> field of a class. 
 
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+<div class="p"><!----></div>
+In this example, a local class (&#167;) <b>B</b> is defined,
+with an inner interface <b>I</b>.  The field <b>V</b> of <b>I</b> uses a variable
+<b>n</b> which is global to <b>B</b>.   In this case it is a truly baroque way
+to bind a <b>val</b>, but other uses are nontrivial.
+
+<div class="p"><!----></div>
+<pre>
+class A {
+  static def example(n: Int) {
+    class B {
+      interface I { val V = n*n; }
+    }
+   return B.I.V + 1;
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Generic Interfaces</h2>
+
+<div class="p"><!----></div>
+Interfaces, like classes and structs, can have type parameters.  
+The discussion of generics in &#167; applies to interfaces,
+without modification.
+
+<div class="p"><!----></div>
+<pre>
+interface ListOfFuns[T,U] extends x10.util.List[(T)=&#62;U] {}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Interface Inheritance</h2>
+
+<div class="p"><!----></div>
+The <em>direct superinterfaces</em> of a non-generic interface <b>I</b> are the interfaces
+(if any) mentioned in the <b>extends</b> clause of <b>I</b>'s definition.
+If <b>I</b>  is generic, the direct superinterfaces are of an instantiation of
+<b>I</b> are the corresponding instantiations of those interfaces.
+A <em>superinterface</em> of <b>I</b> is either <b>I</b> itself, or a direct
+superinterface of a superinterface of <b>I</b>, and similarly for generic
+interfaces.    
+
+<div class="p"><!----></div>
+<b>I</b> inherits the members of all of its superinterfaces. Any class or
+struct that has <b>I</b> in its <b>implements</b> clause also implements all of
+<b>I</b>'s superinterfaces. 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Members of an Interface</h2>
+
+<div class="p"><!----></div>
+The members of an interface <b>I</b> are the union of the following sets: 
+
+<ol type="1">
+<li> All of the members appearing in <b>I</b>'s declaration;
+<div class="p"><!----></div>
+</li>
+
+<li> All the members of its direct super-interfaces, except those which are
+      hidden (&#167;) by <b>I</b>
+<div class="p"><!----></div>
+</li>
+
+<li> The members of <b>Any</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+Overriding for instances is defined as for classes, &#167;
+
+<br /><br />
 </html>
