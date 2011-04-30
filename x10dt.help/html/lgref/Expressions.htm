@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -46,7 +46,7 @@
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
- <h1><a name="tth_chAp1">
+  <h1><a name="tth_chAp1">
 Chapter 11 </a><br />Expressions</h1><a name="XtenExpressions">
 </a>
 
@@ -56,8 +56,6 @@ Evaluating an expression produces a value, or, in a few cases, no value.
 Expression evaluation may have side effects, such as change of the value of a 
 <b>var</b> variable or a data structure, allocation of new values, or throwing
 an exception. 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc1">
@@ -75,16 +73,15 @@ is of type <b>Int{self==1}</b>, and <b>true</b> is of type
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc2">
-2</a>&nbsp;&nbsp;<b>this</b></h2>
+2</a>&nbsp;&nbsp;<tt>this</tt></h2>
 
 
 
 <div class="p"><!----></div>
-<em>
+       <em>  
 <table>
-<tr><td align="right">Primary    ::=      <b>this</b> </td></tr>
-<tr><td align="right">
-    &#124; ClassName <b>.</b> <b>this</b></td></tr>
+<tr><td align="right">Primary ::= <b>this</b> () </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>this</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -99,10 +96,14 @@ where there is an instance of the class under consideration.
 Within an inner class, <b>this</b> may be qualified with the
 name of a lexically enclosing class.  In this case, it
 represents an instance of that enclosing class.  
-For example, <b>Outer</b> is a class containing <b>Inner</b>.  Each instance of
+
+<div class="p"><!----></div>
+<b>Outer</b> is a class containing <b>Inner</b>.  Each instance of
 <b>Inner</b> has a reference <b>Outer.this</b> to the <b>Outer</b> involved in its
-creation.  <b>Inner</b> has access to the fields of <b>Outer.this</b>, as seen
-in the <b>outerThree</b> and <b>alwaysTrue</b> methods.  Note that <b>Inner</b>
+creation.  <b>Inner</b> has access to the fields of <b>Outer.this</b>.  Note
+that <b>Inner</b>
+
+<div class="p"><!----></div>
 has its own <b>three</b> field, which is different from and not even the same
 type as <b>Outer.this.three</b>. 
 <pre>
@@ -110,11 +111,15 @@ class Outer {
   val three = 3;
   class Inner {
      val three = "THREE";
-     def outerThree() = Outer.this.three;
-     def alwaysTrue() = outerThree() == 3;
+     def example()  {
+       assert Outer.this.three == 3;
+       assert three.equals("THREE");
+       assert this.three.equals("THREE");
+     }
   }
 }
 </pre>
+
 
 <div class="p"><!----></div>
 The type of a <b>this</b> expression is the
@@ -135,18 +140,29 @@ body or in supertypes, are accessible through <b>this</b>.
 3</a>&nbsp;&nbsp;Local variables</h2>
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">Id    ::= identifier </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">Id ::= <b>IDENTIFIER</b>  </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 A local variable expression consists simply of the name of the local variable,
 field of the current object, formal parameter in scope, etc. It evaluates to
-the value of the local variable. <b>n</b> in the second line below is a local
-variable expression. 
+the value of the local variable. 
+
+<div class="p"><!----></div>
+<b>n</b> in the second line below is a local
+variable expression.  The <b>n</b> in the first line is not; it is part of a
+local variable declaration.
 <pre>
 val n = 22;
 val m = n + 56;
@@ -160,13 +176,23 @@ val m = n + 56;
 
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">FieldAccess    ::= Primary <b>.</b> Id </td></tr>
-<tr><td align="right">
-    &#124; <b>super</b> <b>.</b> Id</td></tr>
-<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id
-</td></tr></table>
+
+<tr><td align="right">FieldAccess ::= Primary <b>.</b> Id </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>class</b>  </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> <b>class</b>  </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> <b>class</b>  </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -178,22 +204,41 @@ The type of the access is the declared type of the field with the
 actual target substituted for <b>this</b> in the type. 
 
 <div class="p"><!----></div>
+The declaration of <b>b</b> below has a constraint involving <b>this</b>.  
+The use of an instance of it, <b>f.b</b>, has the same constraint involving
+<b>f</b> instead of <b>this</b>, as required.
+<pre>
+class Fielded {
+  public val a : Int = 1;
+  public val b : Int{this.a == b} = this.a;
+  static def example() {
+    val f : Fielded = new Fielded();
+    assert f.a == 1 &amp;&amp; f.b == 1;
+    val fb : Int{fb == f.a} = f.b;
+    assert fb == 1;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
 The field accessed is selected from the fields and value properties
 of the static type of the target and its superclasses.
 
 <div class="p"><!----></div>
 If the field target is given by the keyword <b>super</b>, the target's type is
 the superclass of the enclosing class.  This form is used to access fields of
-the parent class shadowed by same-named fields of the current class.
+the parent class hidden by same-named fields of the current class.
 
 <div class="p"><!----></div>
 If the field target is <b>Cls.super</b>, then the target's type is <b>Cls</b>,
 which must be an  enclosing class.  This (admittedly
 obscure) form is used to access fields of an ancestor class which are shadowed
-by same-named fields of some more recent ancestor.  The following example
-illustrates all four cases:
+by same-named fields of some more recent ancestor.  
 
 <div class="p"><!----></div>
+This illustrates all four cases of field access.
 <pre>
 class Uncle {
   public static val f = 1;
@@ -205,31 +250,32 @@ class Ego extends Parent {
   public val f = 3;
   class Child extends Ego {
      public val f = 4;
-     def expDotId() = this.f; // 4
-     def superDotId() = super.f; // 3
-     def classNameDotId() = Uncle.f; // 1;
-     def cnDotSuperDotId() = Ego.super.f; // 2
+     def example() { 
+        assert Uncle.f == 1; 
+        assert Ego.super.f == 2;
+        assert super.f == 3;
+        assert this.f == 4;
+        assert f == 4;
+     }
   }
 }
 </pre>
 
+
 <div class="p"><!----></div>
 If the field target is <b>null</b>, a <b>NullPointerException</b>
 is thrown.
-
-<div class="p"><!----></div>
 If the field target is a class name, a static field is selected.
-
-<div class="p"><!----></div>
 It is illegal to access  a field that is not visible from
 the current context.
 It is illegal to access a non-static field
-through a static field access expression.
+through a static field access expression.  However, it is legal to access a
+static field through a non-static reference.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc5">
 5</a>&nbsp;&nbsp;Function Literals</h2>
-Function literals are described in &#167;10.
+Function literals are described in &#167;.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc6">
@@ -250,17 +296,25 @@ Function literals are described in &#167;10.
 
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">MethodInvocation    ::= MethodName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">
-    &#124; Primary <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">&#124; <b>super</b> <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">&#124; Primary TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b></td></tr>
-<tr><td align="right">ArgumentList    ::= Exp </td></tr>
-<tr><td align="right">
-    &#124; ArgumentList <b>,</b> Exp</td></tr>
+
+<tr><td align="right">MethodInvocation ::= MethodName TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; <b>super</b> <b>.</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; ClassName <b>.</b> <b>super</b>  <b>.</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">&#124; Primary TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">ArgumentList ::= Exp </td></tr>
+<tr><td align="right">&#124; ArgumentList <b>,</b> Exp </td></tr>
+<tr><td align="right">MethodName ::= Id </td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> Id </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -269,45 +323,105 @@ A <em>MethodInvocation</em> may be to either a <b>static</b> method, an
 instance method, or a closure.
 
 <div class="p"><!----></div>
-The syntax is ambiguous; the target must be type-checked to determine if it is
-the name of a method or if it refers to a field containing a closure. It is a
-static error if a call may resolve to both a closure call or to a method call.
+The syntax for method invocations is ambiguous. <b>ob.m()</b> could either be
+the invocation of a method named <b>m</b> on object <b>ob</b>, or the
+application of a function held in a field <b>ob.m</b>.   If both are defined on
+the same class, X10 resolves <b>ob.m()</b> to the invocation of the 
+method.  If the application of a function in a field is desired, use
+an alternate syntax which makes the intent clear to X10, such as
+<b>(ob.m)()</b>. 
+
+<div class="p"><!----></div>
 <pre>
 class Callsome {
-  static val closure = () =&#62; 1;
-  static def method () = 2;
-  static val closureEvaluated = Callsome.closure();
-  static val methodEvaluated = Callsome.method();
+  static val closure : () =&#62; Int = () =&#62; 1;
+  static def method()            = 2;
+  static def example() {
+     assert Callsome.closure() == 1;
+     assert Callsome.method()  == 2;
+  } 
 }
 </pre>
-However, adding a static method called <b>closure</b> makes <b>Callsome.closure()</b>
-ambiguous: it could be a call to the closure, or to the static method: 
-
-<div class="p"><!----></div>
+However, adding a static method [mis]named <b>closure</b> makes
+<b>Callsome.closure()</b> 
+refer to the method, rather than the closure
 <pre>
   static def closure () = 3;
-  // ERROR: static errory = Callsome.closure();
+  static def example() {
+     assert Callsome.closure() == 3;
+     assert (Callsome.closure)() == 1;
+  }
 </pre>
 
+
 <div class="p"><!----></div>
-A closure call &#235;(...)" is shorthand for a method call
-&#235;.apply(...)". 
+The application form <b>e(f,g)</b>, when <b>e</b> evaluates to an object or
+struct, invokes the application <b>operator</b>, 
+defined in the form 
+<pre>
+public operator this(f:F, g:G) = "value";
+</pre>
 
 <div class="p"><!----></div>
 Method selection rules are given in &#167;.
 
 <div class="p"><!----></div>
-It is a static error if a method's <em>Guard</em> is not satisfied by the
-caller.  For example: 
+Guard satisfaction depends on the <b>STATIC_CHECKS</b> compiler flag. 
+With the flag on,
+it is a static error if a method's <em>Guard</em> is not statically
+satisfied by the 
+caller.  
+With <b>STATIC_CHECKS</b> off, the guard will be checked at runtime if
+necessary. 
+
+<div class="p"><!----></div>
+In this example, a <b>DivideBy</b> object provides the service of dividing
+numbers by <b>denom</b> - so long as <b>denom</b> is not zero. 
+X10's strictness of checking this is under control of the <b>STATIC_CHECKS</b>
+compiler option (&#167;).  
+
+<div class="p"><!----></div>
+With <b>STATIC_CHECKS</b> turned on,  the <b>example</b> method will not
+compile.  The call <b>this.div(100)</b>  is not allowed; there is no
+guarantee that <b>denom != 0</b>.  Casting <b>this</b> to a type 
+whose constraint implies <b>denom != 0</b> permits the method call.
+
+<div class="p"><!----></div>
+With <b>STATIC_CHECKS</b> turned off, the call will compile.
+X10 will insert a dynamic check that the denominator is non-zero, and will
+fail at runtime if it is zero.
+
+<div class="p"><!----></div>
 <pre>
 class DivideBy(denom:Int) {
-  def doIt(numer:Int){denom != 0} = numer / denom;
+  def div(numer:Int){denom != 0} = numer / denom;
   def example() {
-     //ERROR: denom might be zero: this.doIt(100); 
-     (this as DivideBy{self.denom != 0}).doIt(100);
+     val thisCast = (this as DivideBy{self.denom != 0});
+     thisCast.div(100);
+     //ERROR (with STATIC_CHECKS): this.div(100);  
   }
 }
 </pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc6.1">
+6.1</a>&nbsp;&nbsp;<tt>super</tt> calls</h3>
+
+
+
+<div class="p"><!----></div>
+The expression <b>super.f(e1...en)</b> may appear in an instance method
+definition.   This causes the method invocation to be a <b>super</b>
+invocation, as described in &#167;.  
+
+<div class="p"><!----></div>
+Informally, suppose the invocation appears in class <b>Cl</b>, which extends
+class <b>Sup</b>. An invocation <b>this.f()</b> will call a nullary method named
+<b>f</b> that appears in class <b>Cl</b> itself, if there is one.  An invocation
+<b>super.f()</b> will call the nullary  <b>f</b> method in <b>Sup</b> or an
+ancestor thereof, but not one in <b>Cl</b>.  Note that <b>super.f()</b> may be
+used to invoke an <b>f</b> method in <b>Sup</b> which has been overridden by one
+appearing in <b>Cl</b>.  
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc7">
@@ -315,36 +429,41 @@ class DivideBy(denom:Int) {
 </a>
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">Assignment    ::= LeftHandSide AssignmentOperator AssignmentExp </td></tr>
-<tr><td align="right">
-    &#124; ExpName  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AssignmentOperator AssignmentExp</td></tr>
-<tr><td align="right">&#124; Primary  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AssignmentOperator AssignmentExp</td></tr>
-<tr><td align="right">LeftHandSide    ::= ExpName </td></tr>
-<tr><td align="right">
-    &#124; FieldAccess</td></tr>
-<tr><td align="right">AssignmentOperator    ::= <b>=</b> </td></tr>
-<tr><td align="right">
-    &#124; <b>*=</b></td></tr>
-<tr><td align="right">&#124; <b>/=</b></td></tr>
-<tr><td align="right">&#124; <b>%=</b></td></tr>
-<tr><td align="right">&#124; <b>+=</b></td></tr>
-<tr><td align="right">&#124; <b>-=</b></td></tr>
-<tr><td align="right">&#124; <b>&lt;&lt;=</b></td></tr>
-<tr><td align="right">&#124; <b>&#62;&#62;=</b></td></tr>
-<tr><td align="right">&#124; <b>&#62;&#62;&#62;=</b></td></tr>
-<tr><td align="right">&#124; <b>&amp;=</b></td></tr>
-<tr><td align="right">&#124; <b>^=</b></td></tr>
-<tr><td align="right">&#124; <b></td><td align="center">&#124;=</b>
-</td></tr></table>
+
+<tr><td align="right">Assignment ::= LeftHandSide AsstOp AsstExp </td></tr>
+<tr><td align="right">&#124; ExpName  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AsstOp AsstExp </td></tr>
+<tr><td align="right">&#124; Primary  <b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> AsstOp AsstExp </td></tr>
+<tr><td align="right">LeftHandSide ::= ExpName </td></tr>
+<tr><td align="right">&#124; FieldAccess </td></tr>
+<tr><td align="right">AsstOp ::= <b>=</b> </td></tr>
+<tr><td align="right">&#124; <b>*=</b> </td></tr>
+<tr><td align="right">&#124; <b>/=</b> </td></tr>
+<tr><td align="right">&#124; <b>%=</b> </td></tr>
+<tr><td align="right">&#124; <b>+=</b> </td></tr>
+<tr><td align="right">&#124; <b>-=</b> </td></tr>
+<tr><td align="right">&#124; <b>&lt;&lt;=</b> </td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;=</b> </td></tr>
+<tr><td align="right">&#124; <b>&#62;&#62;&#62;=</b> </td></tr>
+<tr><td align="right">&#124; <b>&amp;=</b> </td></tr>
+<tr><td align="right">&#124; <b>^=</b> </td></tr>
+<tr><td align="right">&#124; <b></td><td align="center">&#124;=</b> </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 The assignment expression <b>x = e</b> assigns a value given by
 expression <b>e</b>
 to a variable <b>x</b>.  
-Most often, <b>x</b> is a mutable (<b>var</b> variable).  The same syntax is
+Most often, <b>x</b> is mutable, a <b>var</b> variable.  The same syntax is
 used for delayed initialization of a <b>val</b>, but <b>val</b>s can only be
 initialized once.
 <pre>
@@ -353,7 +472,7 @@ initialized once.
   x = 1;
   y = 2; // Correct; initializes y
   x = 3; 
-  // Incorrect: y = 4;
+  // ERROR: y = 4;
 </pre>
 
 <div class="p"><!----></div>
@@ -371,9 +490,11 @@ assignment:
 </li>
 
 <li> `a(i<sub>1</sub>,&#8230;,i<sub>n</sub>) = v;`, where n  &#8805; 0, assigning to
-      an element of an array or some other such structure. This is syntactic
-      sugar for a method call: `a.set(v,i<sub>1</sub>,&#8230;,i<sub>n</sub>)`.
-      Naturally, it is a static error if no suitable <b>set</b> method exists
+      an element of an array or some other such structure. This is an operator
+      call (&#167;).  For well-behaved classes it works like
+      array assignment, mutatis mutandis, but there is no actual guarantee,
+      and the compiler makes no assumptions about how this works for arbitrary <b>a</b>.
+      Naturally, it is a static error if no suitable assignment operator
       for <b>a</b>.
 <div class="p"><!----></div>
 </li>
@@ -384,14 +505,20 @@ For a binary operator &#9674;, the &#9674;-assignment expression
 "x &#9674;= e" combines the current value of <b>x</b> with the value
 of <b>e</b> by &#9674;, and stores the result back into <b>x</b>.  
 <b>i += 2</b>, for example, adds 2 to <b>i</b>. For variables and fields, 
-"x &#9674;= e" behaves just like "x = x &#9674; e". 
+<pre>
+x &#9674;= e 
+</pre>
+behaves just like 
+<pre>
+x = x &#9674; e.
+</pre>
 
 <div class="p"><!----></div>
 The subscripting forms of &#228;(i) &#9674;= b" are slightly subtle.
 Subexpressions of <b>a</b> and <b>i</b> are only evaluated once.  However,
 <b>a(i)</b> and <b>a(i)=c</b> are each executed once-in particular, there is
-one call to <b>a.apply(i)</b> and one to <b>a.set(i,c)</b>, the desugared forms
-of <b>a(i)</b> and <b>a(i)=c</b>.  If subscripting is implemented strangely for
+one call to the application operator, and one to the assignment operator.
+If subscripting is implemented strangely for
 the class of <b>a</b>, the behavior is <em>not</em> necessarily updating a single
 storage location. Specifically, <b>A()(I()) += B()</b> is tantamount to: 
 <pre>
@@ -405,9 +532,6 @@ storage location. Specifically, <b>A()(I()) += B()</b> is tantamount to:
 </pre>
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> += does not currently meet this specification.</em>
-
-<div class="p"><!----></div>
  <h2><a name="tth_sEc8">
 8</a>&nbsp;&nbsp;Increment and decrement</h2>
 
@@ -419,15 +543,18 @@ storage location. Specifically, <b>A()(I()) += B()</b> is tantamount to:
 The operators <b>++</b> and <b>--</b> increment and decrement
 a variable, respectively.  
 <b>x++</b> and <b>++x</b> both increment <b>x</b>, just as the statement 
-<b>x += 1</b> would, and similarly for <b>-</b>.  
+<b>x += (1 as T)</b> would (where <b>x:T</b>), and similarly for <b>-</b>.  
 
 <div class="p"><!----></div>
 The difference between the two is the return value.  
-<b>++x</b> returns the <em>new</em> value of <b>x</b>, after incrementing.
-<b>x++</b> returns the <em>old</em> value of <b>, before incrementing.</b>
+<b>++x</b> and <b>-x</b> return the <em>new</em> value of <b>x</b>, after
+incrementing or decrementing.
+<b>x++</b> and <b>x-</b> return the <em>old</em> value of <b>x</b>, before
+incrementing or decrementing.
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> This currently only works for numeric types.</em>
+These operators work for any <b>x</b> for which <b>1 as T</b> is defined, where
+<b>T</b> is the type of <b>x</b>.  
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc9">
@@ -441,15 +568,21 @@ The difference between the two is the return value.
 
 <div class="p"><!----></div>
 Numeric types (<b>Byte</b>, <b>Short</b>, <b>Int</b>, <b>Long</b>, <b>Float</b>,
-<b>Double</b>, and unsigned variants of fixed-point types) are normal X10
+<b>Double</b>, <b>Complex</b>, and unsigned variants of fixed-point types) are normal X10
 structs, though most of their methods are implemented via native code. They
 obey the same general rules as other X10 structs. For example, numeric
-operations are defined by <b>operator</b> definitions, the same way you could
+operations, coercions, and conversions are defined by <b>operator</b> definitions, the same way you could
 for any struct.
 
 <div class="p"><!----></div>
 Promoting a numeric value to a longer numeric type preserves the sign of the
-value.  For example, <b>(255 as UByte) as UInt</b> is 255.  
+value.  For example, <b>(255 as UByte) as UInt</b> is 255. 
+
+<div class="p"><!----></div>
+Most of these operations can be defined on user-defined types as well.  While
+it is good practice to keep such operations consistent with the numeric
+operations whenever possible, the compiler neither enforces nor assumes any
+particular semantics of user-defined operations. 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc9.1">
@@ -458,11 +591,13 @@ value.  For example, <b>(255 as UByte) as UInt</b> is 255.
 <div class="p"><!----></div>
 Specifically, each numeric type can be converted or coerced into each other
 numeric type, perhaps with loss of accuracy.
+
 <pre>
 val n : Byte = 123 as Byte; // explicit 
 val f : (Int)=&#62;Boolean = (Int) =&#62; true; 
 val ok = f(n); // implicit
 </pre>
+
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc9.2">
@@ -507,8 +642,11 @@ if the right operand is zero.
 12</a>&nbsp;&nbsp;Binary shift operations</h2>
 
 <div class="p"><!----></div>
-The operands of the binary shift operations must be of integral type.
+When operands of the binary shift operations are of integral type, the
+expression performs bitwise shifts. 
 The type of the result is the type of the left operand.
+The right operand, describing a number of bits, must be unsigned: 
+<b>x &lt;&lt; 1U</b>.  
 
 <div class="p"><!----></div>
 If the promoted type of the left operand is <b>Int</b>,
@@ -545,8 +683,7 @@ language.
 The binary bitwise operations operate on integral types, which are promoted to
 the longer of the two types.
 The <b>&amp;</b> operator  performs the bitwise AND of the promoted operands.
-The <b></td><td width="150">
-&#124;</b> operator  performs the bitwise inclusive OR of the promoted operands.
+The <b>&#124;</b> operator  performs the bitwise inclusive OR of the promoted operands.
 The <b>^</b> operator  performs the bitwise exclusive OR of the promoted operands.
 
 <div class="p"><!----></div>
@@ -578,8 +715,9 @@ The type of the result is <b>String</b>.
 15</a>&nbsp;&nbsp;Logical negation</h2>
 
 <div class="p"><!----></div>
-The operand of the  unary <b>!</b> operator 
-must be of type <b>x10.lang.Boolean</b>.
+The  unary <b>!</b> operator 
+applied to type <b>x10.lang.Boolean</b> 
+performs logical negation.
 The type of the result is <b>Boolean</b>.
 If the value of the operand is <b>true</b>, the result is <b>false</b>; if
 if the value of the operand  is <b>false</b>, the result is <b>true</b>.
@@ -589,8 +727,9 @@ if the value of the operand  is <b>false</b>, the result is <b>true</b>.
 16</a>&nbsp;&nbsp;Boolean logical operations</h2>
 
 <div class="p"><!----></div>
-Operands of the binary boolean logical operators must be of type <b>Boolean</b>.
-The type of the result is <b>Boolean</b>
+The binary  operations <b>&amp;</b> and <b>&#124;</b> 
+at type <b>Boolean</b>
+perform Boolean logical operations.
 
 <div class="p"><!----></div>
 The <b>&amp;</b> operator  evaluates to <b>true</b> if both of its
@@ -598,8 +737,7 @@ operands evaluate to <b>true</b>; otherwise, the operator
 evaluates to <b>false</b>.
 
 <div class="p"><!----></div>
-The <b></td><td width="150">
-&#124;</b> operator  evaluates to <b>false</b> if both of its
+The <b>&#124;</b> operator  evaluates to <b>false</b> if both of its
 operands evaluate to <b>false</b>; otherwise, the operator
 evaluates to <b>true</b>.
 
@@ -607,10 +745,10 @@ evaluates to <b>true</b>.
  <h2><a name="tth_sEc17">
 17</a>&nbsp;&nbsp;Boolean conditional operations</h2>
 
+
 <div class="p"><!----></div>
-Operands of the binary boolean conditional operators must be of type
-<b>Boolean</b>. 
-The type of the result is <b>Boolean</b>
+The binary <b>&amp;&amp;</b> and <b>&#124;&#124;</b> operations, on 
+<b>Boolean</b> values, give conditional or short-circuiting Boolean operations.  
 
 <div class="p"><!----></div>
 The <b>&amp;&amp;</b> operator  evaluates to <b>true</b> if both of its
@@ -621,14 +759,10 @@ if the first operand is <b>false</b>,
 the second operand is not evaluated.
 
 <div class="p"><!----></div>
-The <b></td><td width="150">
-&#124;</td><td width="150">
-&#124;</b> operator  evaluates to <b>false</b> if both of its
+The <b>&#124;&#124;</b> operator  evaluates to <b>false</b> if both of its
 operands evaluate to <b>false</b>; otherwise, the operator
 evaluates to <b>true</b>.
-Unlike the logical operator <b></td><td width="150">
-&#124;</td><td width="150">
-&#124;</b>,
+Unlike the logical operator <b>&#124;&#124;</b>,
 if the first operand is <b>true</b>,
 the second operand is not evaluated.
 
@@ -637,7 +771,8 @@ the second operand is not evaluated.
 18</a>&nbsp;&nbsp;Relational operations</h2> 
 
 <div class="p"><!----></div>
-The relational operations compare numbers, producing <b>Boolean</b> results.  
+The relational operations on numeric types compare numbers, producing
+<b>Boolean</b> results.
 
 <div class="p"><!----></div>
 The <b>&lt;</b> operator evaluates to <b>true</b> if the left operand is
@@ -667,12 +802,22 @@ than negative infinity.
 </a>
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">ConditionalExp    ::= 
-     ConditionalOrExp <b>?</b> Exp <b>:</b> ConditionalExp</td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">ConditionalExp ::= ConditionalOrExp </td></tr>
+<tr><td align="right">&#124; ClosureExp </td></tr>
+<tr><td align="right">&#124; AtExp </td></tr>
+<tr><td align="right">&#124; FinishExp </td></tr>
+<tr><td align="right">&#124; ConditionalOrExp <b>?</b> Exp <b>:</b> ConditionalExp </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -688,15 +833,33 @@ ancestor (as constrained by &#167;) of the types of the consequent and the
 alternative. 
 
 <div class="p"><!----></div>
-For example, 
 <b>a == b ? 1 : 2</b>
 evaluates to <b>1</b> if <b>a</b> and <b>b</b> are the same, and <b>2</b> if they
 are different.   As the type of <b>1</b> is <b>Int{self==1}</b> and of <b>2</b>
 is <b>Int{self==2}</b>, the type of the conditional expression has the form
 <b>Int{c}</b>, where <b>self==1</b> and <b>self==2</b> both imply <b>c</b>.  For
-example, it might be <b>Int{true}</b> - or perhaps it might be 
-<b>Int{self != 8}</b>. Note that this term has no most accurate type in the X10
-type system.
+example, it might be <b>Int{true}</b> - or perhaps it might be a more accurate
+type, like <b>Int{self != 8}</b>. Note that this term has no most accurate type
+in the X10 type system.
+
+
+<div class="p"><!----></div>
+The subexpression not selected is not evaluated.
+
+<div class="p"><!----></div>
+The following use of the conditional expression prevents division by zero.  If
+<b>den==0</b>, the division is not performed at all.
+<pre>
+(den == 0) ? 0 : num/den
+</pre>
+
+<div class="p"><!----></div>
+Similarly, the following code performs a method call if <b>op</b> is non-null,
+and avoids the null pointer error if it is null.  Defensive coding like this
+is quite common when working with possibly-null objects.
+<pre>
+(ob == null) ? null : ob.toString();
+</pre>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc20">
@@ -707,11 +870,10 @@ type system.
 
 
 <div class="p"><!----></div>
-<em>
+  :  |        <em>  
 <table>
-<tr><td align="right">EqualityExp    ::= RelationalExp </td></tr>
-<tr><td align="right">
-    &#124; EqualityExp <b>==</b> RelationalExp</td></tr>
+<tr><td align="right">EqualityExp    ::= RelationalExp =</td></tr>
+<tr><td align="right">&#124; EqualityExp <b>==</b> RelationalExp</td></tr>
 <tr><td align="right">&#124; EqualityExp <b>!=</b> RelationalExp</td></tr>
 <tr><td align="right">&#124; Type  <b>==</b> Type </td></tr>
 <tr><td align="right"></td></tr></table>
@@ -735,7 +897,7 @@ and <b>b</b> are extremely identical.
 <div class="p"><!----></div>
 </li>
 
-<li> If the operands both have struct type, then they must be structurally equal;
+<li> If the operands both have struct type and are not in <b>x10.lang</b>, then they must be structurally equal;
 that is, they must be instances of the same struct
 and all their fields or components must be <b>==</b>.
 <div class="p"><!----></div>
@@ -746,8 +908,40 @@ and all their fields or components must be <b>==</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> If the operands have numeric types, they are coerced into the larger of
-      the two types (see &#167;) and then compared for numeric equality.
+<li> No implicit coercions are performed by <b>==</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> It is a static error to have an expression <b>a == b</b> if the types of
+      <b>a</b> and <b>b</b> are disjoint.
+<div class="p"><!----></div>
+</li>
+
+<li> The structs in <b>x10.lang</b> have unsurprising concepts of <b>==</b>: 
+     
+<ul>
+<li> In <b>Boolean</b>, <b>true == true</b> and <b>false == false</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> In <b>Char</b>, <b>c == d</b> iff <b>c.ord() == d.ord()</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Equality in <b>Double</b> and <b>Float</b> is IEEE floating-point
+           equality.
+<div class="p"><!----></div>
+</li>
+
+<li> Two <b>GlobalRef</b>s are <b>==</b> if they refer to the same object.
+<div class="p"><!----></div>
+</li>
+
+<li> The integral types, <b>Byte</b>, <b>Short</b>, <b>Int</b>, <b>Long</b>,
+           and their unsigned versions, use binary equality.
+<div class="p"><!----></div>
+</li>
+</ul>
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -758,9 +952,165 @@ is true iff <b>a==b</b> is false.
 
 <div class="p"><!----></div>
 The predicates <b>==</b> and <b>!=</b> may not be overridden by the programmer.
-Note that <b>a==b</b> is a form of <em>stable equality</em>; that is, the result of
-the equality operation is not affected by the mutable state of the program,
-after evaluation of <b>a</b> and <b>b</b>. 
+
+<div class="p"><!----></div>
+<b>==</b> provides a <em>stable</em> notion of equality.  If two values are
+<b>==</b> at any time, they remain <b>==</b> forevermore, regardless of what
+happens to the mutable state of the program. 
+
+<div class="p"><!----></div>
+Regardless of the values and types of <b>a</b> and <b>b</b>, 
+or the behavior of <b>any_code_at_all</b> (which may, indeed, be
+any code at all-not just a method call), the value of 
+<b>a==b</b> does not change: 
+<pre>
+val a = something();
+val b = something_else();
+val eq1 = (a == b);
+any_code_at_all();
+val eq2 = (a == b);
+assert eq1 == eq2;
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc20.1">
+20.1</a>&nbsp;&nbsp;No Implicit Coercions for == </h3>
+<a name="sect:eqeq-no-coerce">
+</a>
+
+<div class="p"><!----></div>
+<b>==</b> is a primitive operation in X10 - one of very few. Most operations,
+like <b>+</b> and <b>&lt;=</b>, are defined as <b>operator</b>s. <b>==</b> and
+<b>!=</b> are not. As non-<b>operator</b>s, they need not and do not follow the
+general method resolution procedure of &#167;. In
+particular, while <b>operator</b>s perform implicit conversions on their
+arguments, <b>==</b> and <b>!=</b> do not.
+
+<div class="p"><!----></div>
+The advantage of this restriction is that <b>==</b>'s behavior is as simple and
+efficient as possible.  It never runs user-defined code, and the compiler can
+analyze and understand it in detail - and guarantee that it is efficient.
+
+<div class="p"><!----></div>
+The disadvantage is that certain straightforward-looking idioms do not work.
+One may not test that a <b>Long</b> variable is <b>==</b> to an integer like
+<b>0</b>: 
+<pre>
+//ERROR: for(var i : Long = 0; i != 100; i++)  {}
+</pre>
+
+<div class="p"><!----></div>
+A <b>Long</b> like <b>i</b> can never <b>==</b> an <b>Int</b> like <b>100</b>.
+
+<div class="p"><!----></div>
+We can write <b>i = i + 1;</b>, adding an <b>Int</b> to <b>i</b>. This works 
+because the expression uses <b>+</b>,  an ordinary <b>operator</b>.
+There is an implicit coercion from <b>Int</b> to <b>Long</b>, so the
+<b>1</b> can be converted to <b>1L</b>, which can be added to <b>i</b>.  
+
+<div class="p"><!----></div>
+However, <b>==</b> does not permit implicit coercions, and so the <b>100</b>
+stays an <b>Int</b>.  The loop must be written with a comparison of two
+<b>Long</b>s: 
+<pre>
+for(var i : Long = 0; i != 100L; i++) {}
+</pre>
+
+<div class="p"><!----></div>
+Incidentally, it could also be written 
+<pre>
+for(var i : Long = 0; i &lt;= 100; i++) {}
+</pre>
+
+<div class="p"><!----></div>
+<pre>
+
+<div class="p"><!----></div>
+</pre>
+The operation <b>&lt;=</b> is a regular operator, and thus uses coercions in its
+arguments, so <b>100</b> gets coerced to <b>100L</b>.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc20.2">
+20.2</a>&nbsp;&nbsp;Non-Disjointness Requirement</h3>
+
+<div class="p"><!----></div>
+It is a static error to have an expression <b>a==b</b> where <b>a</b> and
+<b>b</b> could not possibly be equal, based on their types.  This is a
+practical codicil to &#167;<a href="#sect:eqeq-no-coerce">20.1</a>.  Consider the illegal code 
+<pre>
+// NOT ALLOWED
+for(var i : Long = 0; i != 100; i++) 
+</pre>
+
+<div class="p"><!----></div>
+<b>100</b> and <b>100L</b> are different values; they are not <b>==</b>. A
+coercion could make them equal, but <b>==</b> does not allow coercions. So, if
+<b>100 == 100L</b> were going to return anything, it would have to return
+<b>false</b>. This would have the unfortunate effect of making the <b>for</b>
+loop run forever.
+
+<div class="p"><!----></div>
+Since this and related idioms are so common, and since so many programmers are
+used to languages which are less precise about their numeric types, X10 avoids
+the mistake by declaring it a static error in most cases.  Specifically,
+<b>a==b</b> is not allowed if, by inspection of the types, <b>a</b> and <b>b</b>
+could not possibly be equal.
+
+<div class="p"><!----></div>
+Nonetheless, it is possible to wind up comparing values of different numeric
+types.   Even though, say, <b>0</b> and <b>0L</b> represent the same number,
+they are different values and of different types, and hence, <b>0 != 0L</b>.  
+The expression <b>0 == 0L</b> does not compile.  However, if you hide type
+information from X10, you can get a similar expression to compile: 
+
+<div class="p"><!----></div>
+<pre>
+   val a : Any = 0;
+   val b : Any = 0L;
+   assert a != b;
+</pre>
+
+<div class="p"><!----></div>
+
+<ul>
+<li> Numbers of different base types cannot be equal, and thus cannot compared for equality.  
+<b>100==100L</b> is a static error.  To compare numbers, explicitly cast them
+to the same type: <b>100 as Long == 100L</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Indeed, structs of different types cannot be equal, and so they cannot be
+compared for equality.
+<div class="p"><!----></div>
+</li>
+
+<li> For objects, the story is different. Unconstrained object types can
+      always be compared for equality. Given objects of unrelated classes
+      <b>a:Person</b> and 
+      <b>b:Theory</b>, <b>a==b</b> could be true if <b>a==null</b> and
+      <b>b==null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Constrained object types may or may not be comparable.  For example,  
+      if <b>Person</b> and <b>Theory</b> are both direct subclasses of
+      <b>Object</b>, and <b>a:Person</b> and <b>b:Theory{self!=null}</b>, then
+      <b>a==b</b> is not allowed, since the two could not possibly be equal.
+<div class="p"><!----></div>
+</li>
+
+<li> Explicit casts erase type information.  If you wanted
+      to have a comparison <b>a==b</b> for <b>a:Person{self!=null}</b> and
+      <b>b:Theory</b>, you could write it as <b>a as Object == b as Object</b>.
+      It would, of course, return <b>false</b>, but it would not be a compiler
+      error.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+      A struct and an object may both be cast to <b>Any</b> and compared for
+      equality, though they, too, will always be different.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc21">
@@ -776,13 +1126,19 @@ after evaluation of <b>a</b> and <b>b</b>.
 
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">ClassInstCreationExp    ::= <b>new</b> TypeName TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">
-    &#124; <b>new</b> TypeName <b>[</b> Type <b>]</b> <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b></td></tr>
-<tr><td align="right">&#124; Primary <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">&#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArguments<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+
+<tr><td align="right">ClassInstCreationExp ::= <b>new</b> TypeName TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -812,53 +1168,142 @@ substitutions  of actual arguments for formal parameters, as
 specified in &#167;<a href="#MethodInvocationSubstitution">6</a>.
 
 <div class="p"><!----></div>
+&#167; describes allocation expressions for inner classes. 
+
+<div class="p"><!----></div>
 It is illegal to allocate an instance of an <b>abstract</b> class.
-It is illegal to allocate an instance of a class or to invoke a
+The usual visibility rules apply to allocations: 
+it is illegal to allocate an instance of a class or to invoke a
 constructor that is not visible at
 the allocation expression.
 
 <div class="p"><!----></div>
-Note that instantiating a struct type uses function application syntax, not
-<b>new</b>.  As structs do not have subclassing, there is no need or
+Note that instantiating a struct type can use function application syntax; 
+<b>new</b> is optional.  As structs do not have subclassing, there is no need or
 possibility of a <em>ClassBody</em>.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc22">
-22</a>&nbsp;&nbsp;Casts</h2><a name="ClassCast">
+22</a>&nbsp;&nbsp;Casts and Conversions</h2><a name="ClassCast">
 </a>
 
 
 <div class="p"><!----></div>
-The cast operation may be used to cast an expression to a given type:
 
-<div class="p"><!----></div>
-<em>
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">CastExp    ::= 
-     CastExp <b>as</b> Type </td></tr>
-<tr><td align="right"></td></tr>
+
+<tr><td align="right">CastExp ::= Primary </td></tr>
+<tr><td align="right">&#124; ExpName </td></tr>
+<tr><td align="right">&#124; CastExp <b>as</b> Type </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The result of this operation is a value of the given type if the cast
-is permissible at run time, and either a compile-time error or a runtime
+The cast and conversion  operation <b>e as T</b> may be used to force an
+expression into a given type <b>T</b>, 
+if is permissible at run time, and either a compile-time error or a runtime
 exception 
 (<b>x10.lang.TypeCastException</b>) if it is not.  
 
 <div class="p"><!----></div>
+The <b>e as T</b> operation comes in two forms.  Which form applies depends on
+both the source type (the type of <b>e</b>) and the target type <b>T</b>.
+
+<ul>
+<li> <b>Cast:</b> A cast makes a value have a different type, without changing
+      the value's identity.  For example, <b>&#228; String" as Object</b> simply
+      reconsiders the <b>String</b> object as an <b>Object</b>.  
+      This cast does not need to do any 
+      run-time computation, since every <b>String</b> is an <b>Object</b>; a
+      cast in the reverse direction, from <b>Object</b> to <b>String</b>, would
+      need a run-time check that the <b>Object</b>
+      was in fact a <b>String</b>.
+      Casts are all system-defined, following from the
+      X10 type system.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Conversions:</b> A conversion takes a value of one type and produces
+      one of a different type which, conceptually, means the same thing.  
+      For example, <b>1 as Float</b> is a conversion.  It performs some
+      computation on <b>1</b>  to come up with a <b>Float</b> value.
+      Conversions are all library- or user-defined.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc22.1">
+22.1</a>&nbsp;&nbsp;Casts</h3>
+
+<div class="p"><!----></div>
+A cast <b>v as T2</b> re-imagines a value <b>v</b> of one type <b>T1</b> as being
+a value of another 
+type <b>T2</b>.  The
+value itself does not change, nor is a new value computed.  The only
+run-time computation that happens is to check that <b>v</b> is indeed a value
+of type <b>T2</b> (which, in many cases, is unnecessary), and auto-boxing (&#167;).
+
+<div class="p"><!----></div>
+There are two forms of casts.  <em>Upcasts</em> happen when <b>T1 &lt;: T2</b>, that
+is, when a value is being cast to a more general type.  Upcasts often don't require
+any runtime computation at all, since, if <b>T1 &lt;: T2 &lt;: Object</b>, every value of type
+<b>T1</b> is automatically one of type <b>T2</b>.   For example, 
+<b>&#196; String" as Object</b> is an upcast: every <b>String</b> is already an
+<b>Object</b>, and no work need be done to make it one.  Other upcasts may
+require auto-boxing, such as <b>1 as Any</b>.  
+
+<div class="p"><!----></div>
+<em>Downcasts</em> are casts which are not upcasts.  Often they are recasting
+something from a more general to a more specific type, 
+though casts that cross the type hierarchy laterally are also called
+downcasts.   
+<pre>
+   val ob : Object = &#228; String" as Object; // upcast
+   val st : String = ob as String;         // downcast
+   assert st == ob;
+</pre>
+
+<div class="p"><!----></div>
+In
+the following example, <b>Snack</b> and <b>Crunchy</b> are unrelated interfaces:
+neither inherits from the other.  Some objects are both; some are one but not
+the other.  Casting from a <b>Crunchy</b> to a <b>Snack</b> requires confirming
+that the value being cast is indeed a <b>Snack</b>.  
+<pre>
+interface Snack {}
+interface Crunchy {} 
+class Pretzel implements Snack, Crunchy{}
+class Apricot implements Snack{}
+class Gravel  implements Crunchy{}
+class Example{
+  def example(crunchy : Crunchy) { 
+    if (crunchy instanceof Snack) { 
+       val snack = crunchy as Snack; 
+    } } } 
+</pre>
+
+<div class="p"><!----></div>
+An upcast <b>v as T2</b> requires no computation.  
+A downcast <b>v as T2</b> requires testing that <b>v</b> really is a value of
+type <b>T2</b>.  In either case, the cast returns the value <b>v</b>; casts do
+not change value identity.
+
+<div class="p"><!----></div>
 When evaluating <b>E as T{c}</b>, first the value of <b>E</b> is converted to
-type <b>T</b> (which may fail), and then the constraint <b>{c}</b> is checked. 
+type <b>T</b> (which may fail), and then the constraint <b>{c}</b> is checked
+(which may also fail). 
 
 <div class="p"><!----></div>
 
 <ul>
-<li> If <b>T</b> is a primitive type, then <b>E</b>'s value is converted to type
-      <b>T</b> according to the rules of
-      &#167;.
-<div class="p"><!----></div>
-</li>
-
 <li> If <b>T</b> is a class, then the first half of the cast succeeds if the
       run-time value of <b>E</b> is an instance of class <b>T</b>, or of a
       subclass.
@@ -866,7 +1311,8 @@ type <b>T</b> (which may fail), and then the constraint <b>{c}</b> is checked.
 </li>
 
 <li> If <b>T</b> is an interface, then the first half of the cast succeeds if
-      the run-time value of <b>E</b> is an instance of a class implementing
+      the run-time value of <b>E</b> is an instance of a class or struct
+      implementing 
       <b>T</b>.
 <div class="p"><!----></div>
 </li>
@@ -877,7 +1323,8 @@ type <b>T</b> (which may fail), and then the constraint <b>{c}</b> is checked.
 </li>
 
 <li> If <b>T</b> is a function type, then the first half of the cast succeeds
-      if the run-time value of <b>X</b> is a function of precisely that type.
+      if the run-time value of <b>X</b> is a function of that type, or an
+      object or struct which implements it.
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -898,12 +1345,77 @@ knows that <b>1</b>, which has type <b>Int{self==1}</b>, cannot possibly be of
 type <b>Int{self==2}</b>. 
 
 <div class="p"><!----></div>
+If, for some reason, you need to write one of these forbidden casts, cast to
+<b>Any</b> first.  <b>(1 as Any) as Int{self==2}</b> always returns false, but 
 
 <div class="p"><!----></div>
+     <h3><a name="tth_sEc22.2">
+22.2</a>&nbsp;&nbsp;Explicit Conversions</h3>
 
 <div class="p"><!----></div>
+Explicit conversions are written with the same syntax as casts: <b>v as T2</b>.  
+Explicit conversions transform a value of one type <b>T1</b> to an unrelated
+type <b>T2</b>.  Unlike casts, conversions <em>do</em> execute code, and <em>may</em>
+(and generally do) return new values.  
 
 <div class="p"><!----></div>
+Explicit conversions do not arise spontaneously, as casts do. They may be
+programmed directly, using the <b>operator</b> syntax of &#167;.  
+Implicit coercions can also be called explicitly as conversions.  (The reverse
+is not true - explicit conversions cannot be used as implicit conversions.) 
+
+<div class="p"><!----></div>
+The numeric types in <b>x10.lang</b> have explicit conversions, as described in
+&#167;.  These conversions enable 
+<b>1 as Float</b> and the like.  
+
+<div class="p"><!----></div>
+<b>Knot</b>s have an explicit conversion operator to <b>String</b>, and an
+implicit coercion to <b>Int</b>.  Note that the implicit coercion can be used
+explicitly, with <b>k as Int</b>, as well as implicitly in <b>Math.abs(k)</b>. 
+<pre>
+class Knot(s:String) { 
+  // explicit conversion
+  public static operator (x:Knot) as String = x.s + "!";
+  // implicit coercion
+  public static operator (x:Knot) : Int = x.s.length();
+  public static def example() {
+     val k = new Knot("frayed");
+     assert "frayed!".equals(k as String);
+     assert (k as Int) == 6;
+     assert Math.abs(k) == 6; 
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc22.3">
+22.3</a>&nbsp;&nbsp;Resolving Ambiguity</h3>
+<a name="sect:ambig-cast">
+</a>
+
+<div class="p"><!----></div>
+If <b>v as T</b> could either be a cast or an explicit coercion, X10 treats its
+as a cast.  
+
+<div class="p"><!----></div>
+The <b>Thing</b> class provides an explicit conversion to <b>Object</b>.
+However, since <b>Thing</b> is a subclass of <b>Object</b>, 
+using the <b>as</b> operator invokes the upcast, rather than the explicit
+conversion.  
+<pre>
+class Thing {
+  public static operator (x:Thing) as Object = "different";
+  public static def example() {
+    val t = new Thing();
+    val o = t as Object;
+    assert o instanceof Thing;
+  }
+}
+</pre>
+The definition of an explicit conversion in this case is of little value,
+since any use of it in the <b>t as Object</b> syntax will invoke the upcast.  
+
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc23">
@@ -918,19 +1430,32 @@ X10 permits types to be used in an in instanceof expression
 to determine whether an object is an instance of the given type:
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">RelationalExp    ::=  RelationalExp <b>instanceof</b> Type
- </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">RelationalExp ::= ShiftExp </td></tr>
+<tr><td align="right">&#124; HasZeroConstraint </td></tr>
+<tr><td align="right">&#124; SubtypeConstraint </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;=</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;=</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>instanceof</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 In the above expression, <em>Type</em> is any type. At run time, the
-result of this operator is <b>true</b> if the
-<em>RelationalExpression</em> can be coerced to <em>Type</em>
-without a <b>TypeCastException</b> being thrown or static error occurring.
+result of <b>e instanceof T</b>
+is <b>true</b> if the
+value of <b>e</b> is an instance of type <b>T</b>.
 Otherwise the result is <b>false</b>. This determination may involve checking
 that the constraint, if any, associated with the type is true for the given
 expression.
@@ -946,7 +1471,7 @@ However, it is a static error if <b>e</b> cannot possibly be an instance of
 String</b> is a static error, rather than an expression always returning false. 
 
 <div class="p"><!----></div>
-<em>Limitation</em>
+<b>Limitation: </b>
 X10 does not currently handle <b>instanceof</b> of generics in the way you
 might expect.  For example, <b>r instanceof Array[Int{self != 0}]</b> does
 not test that every element of <b>r</b> is non-zero; instead, the compiler
@@ -960,25 +1485,33 @@ rejects it.
 
 
 <div class="p"><!----></div>
-<em>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">SubtypbeConstraint    ::= Type  <b>&lt;:</b> Type  </td></tr>
-<tr><td align="right">
-    &#124; Type  <b>:&#62;</b> Type </td></tr>
+
+<tr><td align="right">SubtypeConstraint ::= Type  <b>&lt;:</b> Type  </td></tr>
+<tr><td align="right">&#124; Type  <b>:&#62;</b> Type  </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The subtyping expression  evaluates to <b>true</b>
+The subtyping expression  evaluates to <b>true</b> if
 "T<sub>1</sub>" is a subtype of "T<sub>2</sub>".
 
 <div class="p"><!----></div>
-The expression  evaluates to <b>true</b>
+The expression  evaluates to <b>true</b> if
 "T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
 
 <div class="p"><!----></div>
 The expression "T<sub>1</sub> == T<sub>2</sub>"
-evaluates to  <b>true</b>  is a subtype of  and
+evaluates to  <b>true</b> if 
+"T<sub>1</sub>" is a subtype of "T<sub>2</sub>" and
 if "T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
 
 <div class="p"><!----></div>
@@ -996,58 +1529,44 @@ class OrderedList[T]{T &lt;: x10.util.Ordered[T]} {
 }
 </pre>
 
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+
 <div class="p"><!----></div>
  <h2><a name="tth_sEc25">
-25</a>&nbsp;&nbsp;Contains expressions</h2>
-
-
-<div class="p"><!----></div>
-<em>
-<table>
-<tr><td align="right">RelationalExp    ::= RelationalExp <b>in</b> ShiftExp</td></tr>
-<tr><td align="right"></td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-The expression <b>p in r</b> tests if a value <b>p</b> is in a collection
-<b>r</b>; it evaluates to <b>r.contains(p)</b>.
-The collection <b>r</b>
-must be of type <b>Collection[T]</b> and the value <b>p</b> must
-be of type <b>T</b>.
-
-<div class="p"><!----></div>
- <h2><a name="tth_sEc26">
-26</a>&nbsp;&nbsp;Array Constructors</h2>
+25</a>&nbsp;&nbsp;Array Constructors</h2>
 <a name="sect:ArrayCtors">
 </a>
 
 
 
 <div class="p"><!----></div>
-<em>
+  :  |        <em>  
 <table>
-<tr><td align="right">Primary    ::= <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b></td></tr>
-<tr><td align="right">
- ClassInstCreationExp    ::=<b>new</b> TypeName <b>[</b> Type <b>]</b> <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b></td></tr>
-<tr><td align="right">
-
-<div class="p"><!----></div>
+<tr><td align="right">Primary ::= 
+                    <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b> 
 </td></tr></table>
 </em>
+
+<div class="p"><!----></div>
 X10 includes short syntactic forms for constructing one-dimensional arrays.
-The shortest form is to enclose some expressions in brackets: 
+Enclose some expressions in brackets to put them in an array: 
 <pre>
 val ints &lt;: Array[Int](1) = [1,3,7,21];
 </pre>
 
 <div class="p"><!----></div>
-The expression <b>[e1,e2,e3, ..., en]</b> produces an <b>n</b>-element
-<b>Array[T](1)</b>, where <b>T</b> is the least common supertype of the <b>
-  base types</b> of the expressions <b>ei</b>. For example, the type of
-<b>[0,1,2]</b> is <b>Array[Int](1)</b>.    
+The expression "[e<sub>1</sub>, &#8230;, e<sub>n</sub>]" produces an <b>n</b>-element
+<b>Array[T](1)</b>, where <b>T</b> is the computed common supertype (&#167;) of the <b>
+base types</b> of the expressions  &#235;<sub>i</sub>". 
 
 <div class="p"><!----></div>
+The type of
+<b>[0,1,2]</b> is <b>Array[Int](1)</b>.    
 More importantly, the type of 
 <b>[0]</b> is also <b>Array[Int](1)</b>.  It is <em>not</em> 
 <b>Array[Int{self==0}](1)</b>, even though all the elements are all 
@@ -1057,39 +1576,37 @@ These functions do <em>not</em> take
 <b>Array[Int{self==0}]</b>'s.
 
 <div class="p"><!----></div>
-(Suppose that the function took <b>a:Array[Int](1)</b> and did 
-the operation <b>a(i)=100</b>.   This operation is perfectly fine for
+(Suppose that the function took <b>a:Array[Int](1)</b> and 
+performed 
+the operation <b>a(i)=100</b>.   This operation is fine for
 an <b>Array[Int](1)</b>, which is all the compiler knows about <b>a</b>.  
-However, it is invalid for an <b>Array[Int{self==0}](1)</b>, because it assigns
+However, it is wrong for an <b>Array[Int{self==0}](1)</b>, because it assigns
 a non-zero value to an element of the array, violating the type constraint
 which says that all the elements are zero.  So, <b>Array[Int{self==0}](1)</b>
-is not a subtype of <b>Array[Int](1)</b> - the two types are simply unrelated.)
-Since there are far more uses for <b>Array[Int](1)</b> than
-<b>Array[Int{self==0}](1)</b>, the compiler produces the former.
+is not and must not be a subtype of <b>Array[Int](1)</b> - the two types are simply unrelated.
+<b>Array[Int](1)</b> is far more useful than 
+<b>Array[Int{self==0}](1)</b>, and so the compiler produces the former.)
+
 
 <div class="p"><!----></div>
-Still, occasionally one does actually need <b>Array[Int{self==0}](1)</b>, 
+Occasionally one does actually need <b>Array[Int{self==0}](1)</b>, 
 or, say, <b>Array[Eel{self != null}](1)</b>, an array of non-null <b>Eel</b>s.  
-For these cases, X10 provides an array constructor which does allow
-specification of the element type: <b>new Array[T][e1...en]</b>.  Each
-element <b>ei</b> must be of type <b>T</b>.  The resulting array is of type
-<b>Array[T](1)</b>.  
+For these cases, cast one or more of the elements of the array to the desired type,
+and the array constructor will do the right thing.  
 <pre>
-val zero &lt;: Array[Int{self == 0}](1) = new Array[Int{self == 0}][0];
-val non1 &lt;: Array[Int{self != 1}](1) = new Array[Int{self != 1}][0];
-val eels &lt;: Array[Eel{self != null}](1) = 
-    new Array[Eel{self != null}][ new Eel() ];
+val zero &lt;: Array[Int{self == 0}](1) 
+          = [0];
+val non1 &lt;: Array[Int{self != 1}](1) 
+          = [0 as Int{self != 1}];
+val eels &lt;: Array[Eel{self != null}](1) 
+          = [new Eel() as Eel{self != null}, 
+             new Eel(), new Eel()];
 </pre>
 
-<div class="p"><!----></div>
-<pre>
-</pre>
-<pre>
-</pre>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc27">
-27</a>&nbsp;&nbsp;Coercions and conversions</h2>
+ <h2><a name="tth_sEc26">
+26</a>&nbsp;&nbsp;Coercions and conversions</h2>
 <a name="XtenConversions">
 </a>
 <a name="User-definedCoercions">
@@ -1098,48 +1615,119 @@ val eels &lt;: Array[Eel{self != null}](1) =
 
 
 <div class="p"><!----></div>
-X10 v2.1 supports the following coercions and conversions.
-
-<div class="p"><!----></div>
-     <h3><a name="tth_sEc27.1">
-27.1</a>&nbsp;&nbsp;Coercions</h3>
-
-<div class="p"><!----></div>
-<em>
-<table>
-<tr><td align="right">CastExp    ::=  CastExp <b>as</b> Type</td></tr>
-<tr><td align="right">
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
 A <em>coercion</em> does not change object identity; a coerced object may
 be explicitly coerced back to its original type through a cast. A <em>
   conversion</em> may change object identity if the type being converted
-to is not the same as the type converted from. X10 permits
-user-defined conversions (&#167;).
+to is not the same as the type converted from. X10 permits both 
+user-defined coercions and conversions (&#167;).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc26.1">
+26.1</a>&nbsp;&nbsp;Coercions</h3>
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">CastExp ::= Primary </td></tr>
+<tr><td align="right">&#124; ExpName </td></tr>
+<tr><td align="right">&#124; CastExp <b>as</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 
 <b>Subsumption coercion.&nbsp;&nbsp;</b>
-A subtype may be implicitly coerced to any supertype.
+A value of a subtype may be implicitly coerced to any supertype.  
 
 
 <div class="p"><!----></div>
-
-<b>Explicit coercion (casting with <b>as</b>)&nbsp;&nbsp;</b>
-
-<div class="p"><!----></div>
-An object of any class may be explicitly coerced to any other
-class type using the <b>as</b> operation.  If <b>Child &lt;: Person</b> and
-<b>rhys:Child</b>, then 
+If <b>Child &lt;: Person</b> and <b>val rhys:Child</b>, then <b>rhys</b> may be used
+in any context that expects a <b>Person</b>.  For example, 
 <pre>
-  rhys as Person
+class Example {
+  def greet(Person) = "Hi!";
+  def example(rhys: Child) {
+     greet(rhys);
+  }
+}
 </pre>
-is an expression of type <b>Person</b>.  
+
+<div class="p"><!----></div>
+Similarly, <b>2</b> (whose innate type is <b>Int{self==2}</b>)
+is usable in a context requiring a non-zero integer
+(<b>Int{self != 0}</b>).  
+
+
+<div class="p"><!----></div>
+
+<b>Explicit Coercion (Casting with <b>as</b>)&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+All classes and interfaces allow the use of the <b>as</b> operator for explicit
+type coercion.  
+Any class or
+interface may be cast to any interface.  
+Any interface may be cast to
+any class.  Also, any interface can be cast to a struct that implements
+(directly or indirectly) that interface.
+
+<div class="p"><!----></div>
+In the following code, a <b>Person</b> is cast to <b>Childlike</b>.  There is
+nothing in the class definition of <b>Person</b> that suggests that a
+<b>Person</b> can be <b>Childlike</b>.  However, the <b>Person</b> in question,
+<b>p</b>, is actually a <b>HappyChild</b> - a subclass of <b>Person</b> - and
+is, in fact, <b>Childlike</b>.  
+
+<div class="p"><!----></div>
+Similarly, the <b>Childlike</b> value <b>cl</b> is cast to <b>Happy</b>.  Though
+these two interfaces are unrelated, the value of <b>cl</b> is, in fact,
+<b>Happy</b>.  And the <b>Happy</b> value <b>hc</b> is cast to the class
+<b>Child</b>, though there is no relationship between the two, but the actual
+value is a <b>HappyChild</b>, and thus the cast is correct at runtime.
+
+<div class="p"><!----></div>
+<b>Cyborg</b> is a struct rather than a class.  So, it cannot have substructs,
+and all the interfaces of all <b>Cyborg</b>s are known: a <b>Cyborg</b> is
+<b>Personable</b>, but not <b>Childlike</b> or <b>Happy</b>.  So, it is correct
+and meaningful to cast <b>r</b> to <b>Personable</b>.  There is no way that a
+cast to <b>Childlike</b> could succeed, so <b>r as Childlike</b> is a static error.
+
+<div class="p"><!----></div>
+<pre>
+interface Personable {}
+class Person implements Personable {}
+interface Childlike extends Personable {}
+class Child extends Person implements Childlike {}
+struct Cyborg implements Personable {}
+interface Happy {}
+class HappyChild extends Child implements Happy {}
+class Example {
+  static def example() {
+    var p : Person = new HappyChild();
+    // class -&#62; interface
+    val cl : Childlike = p as Childlike; 
+    // interface -&#62; interface
+    val hc : Happy = cl as Happy; 
+    // interface -&#62; class
+    val ch : Child = hc as Child; 
+    var r : Cyborg = Cyborg();
+    val rl : Personable = r as Personable; 
+    // ERROR: val no = r as Childlike;
+  }
+}
+</pre>
 
 <div class="p"><!----></div>
 If the value coerced is not an instance of the target type,
+and no coercion operators that can convert it to that type are defined, 
 a <b>ClassCastException</b> is thrown.  Casting to a constrained
 type may require a run-time check that the constraint is
 satisfied.
@@ -1148,9 +1736,9 @@ satisfied.
 
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> It is currently a static error, rather than the specified
+<b><b>Limitation: </b></b> It is currently a static error, rather than a 
 <b>ClassCastException</b>, when the cast is statically determinable to be
-impossible.</em>
+impossible.
 
 <div class="p"><!----></div>
 
@@ -1180,12 +1768,12 @@ approximation is good enough.
       If the floating-point value is too large to represent as that kind of
       integer, the coercion returns the largest or smallest value of that type
       instead: <b>1e110 as Int</b> is 
-      <b>Int.MAX_VALUE</b>, <b>2147483647</b>.
+      <b>Int.MAX_VALUE</b>, <em>viz</em> <b>2147483647</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> Casting a <b>Double</b> to a <b>Float</b> normally truncates digits: 
-      <b>0.12345678901234567890 as Float</b> is <b>0.12345679f</b>.  This can
+<li> Casting a <b>Double</b> to a <b>Float</b> normally truncates binary digits: <br />
+      <b>0.12345678901234567890 as Float</b> is approximately <b>0.12345679f</b>.  This can
       turn a nonzero <b>Double</b> into <b>0.0f</b>, the zero of type
       <b>Float</b>: 
       <b>1e-100 as Float</b> is <b>0.0f</b>.  Since 
@@ -1203,14 +1791,51 @@ approximation is good enough.
       <b>-12 as Byte</b> is -12. 
       However, if the larger integer <em>doesn't</em> fit in the smaller type,
       the numeric value and even the sign can change: <b>254 as Byte</b> is
-      <b>Byte</b>-sized <b>-2</b>.
+      the <b>Byte</b>sized <b>-2y</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Casting an unsigned integer type to a signed integer type of the same
+      size (<em>e.g.</em>, <b>UInt</b> to <b>Int</b>) preserves 2's-complement bit pattern
+      (<em>e.g.</em>,  <br />
+      <b>UInt.MAX_VALUE as Int == -1</b>.   Casting an unsigned integer type to
+      a signed integer type of a different size is equivalent to first casting
+      to an unsigned integer type of the target size, and then casting to a
+      signed integer type.
+<div class="p"><!----></div>
+</li>
+
+<li> Casting a signed integer type to an unsigned one is similar.
 <div class="p"><!----></div>
 </li>
 </ul>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc27.2">
-27.2</a>&nbsp;&nbsp;Conversions</h3>
+      <h4><a name="tth_sEc26.1.1">
+26.1.1</a>&nbsp;&nbsp;User-defined Coercions</h4>
+
+
+<div class="p"><!----></div>
+Users may define coercions from arbitrary types into the container type
+<b>B</b>, and coercions from <b>B</b> to arbitrary types, by providing
+<b>static operator</b> definitions for the <b>as</b> operator in the definition of
+<b>B</b>.  
+
+<div class="p"><!----></div>
+<pre>
+class Bee {
+  public static operator (x:Bee) as Int = 1;
+  public static operator (x:Int) as Bee = new Bee();
+  def example() {
+    val b:Bee = 2 as Bee; 
+    assert (b as Int) == 1;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc26.2">
+26.2</a>&nbsp;&nbsp;Conversions</h3>
 
 
 
@@ -1226,7 +1851,22 @@ type and a type to its right, below:
 <div class="p"><!----></div>
 <pre>
 Byte &lt; Short &lt; Int &lt; Long &lt; Float &lt; Double
+UByte &lt; UShort &lt; UInt &lt; ULong
 </pre>
+
+<div class="p"><!----></div>
+Furthermore, an unsigned integer type may be implicitly coerced a signed type
+large 
+enough to hold any value of the type: <b>UByte</b> to <b>Short</b>, <b>UShort</b>
+to <b>Int</b>, <b>UInt</b> to <b>Long</b>.  There are no implicit conversions
+from signed to unsigned numbers, since they cannot treat negatives properly.
+
+<div class="p"><!----></div>
+There are no implicit conversions in cases when overflow is possible.  For
+example, there is no implicit conversion between <b>Int</b> and <b>UInt</b>.  If
+it is necessary to convert between these types, use <b>n as Int</b> or 
+<b>n as UInt</b>, generally with a test to ensure that the value will fit and
+code to handle the case in which it does not.  
 
 <div class="p"><!----></div>
 
@@ -1244,8 +1884,8 @@ method.
 
 
 <div class="p"><!----></div>
-The user may define conversion operators from type <b>A</b> <em>to</em> a
-container type <b>B</b> by specifying a method on <b>B</b> as follows:
+The user may define implicit conversion operators from type <b>A</b> <em>to</em> a
+container type <b>B</b> by specifying an operator in <b>B</b>'s definition of the form:
 
 <div class="p"><!----></div>
 <pre>
@@ -1257,41 +1897,67 @@ The return type <b>T</b> should be a subtype of <b>B</b>. The return
 type need not be specified explicitly; it will be computed in the
 usual fashion if it is not. However, it is good practice for the
 programmer to specify the return type for such operators explicitly.
+The return type can be more specific than simply <b>B</b>, for cases when there
+is more information available.
 
 <div class="p"><!----></div>
-For instance, the code for <b>x10.lang.Point</b> contains:
-
-<div class="p"><!----></div>
+The code for <b>x10.lang.Point</b> contains a conversion from 
+one-dimensional <b>Array</b>s of integers to <b>Point</b>s of the same length: 
 <pre>
-  public operator (r: Array[int](1)): Point(r.length) = make(r);
+  public operator (r: Array[Int](1)): Point(r.length) 
+         = make(r);
+</pre>
+This conversion is used whenever an array of integers appears in a 
+context that requires a <b>Point</b>, such as subscripting. Note 
+that <b>a</b> requires a <b>Point</b> of rank 2 as a subscript, and that 
+a two-element <b>Array</b> (like <b>[2,4]</b>) is converted to a 
+<b>Point(2)</b>.
+<pre>
+val a = new Array[String]((2..3) * (4..5), "hi!");
+a([2,4]) = "converted!";
 </pre>
 
 <div class="p"><!----></div>
-The compiler looks for such operators on the container type <b>B</b>
-when it encounters an expression of the form <b>r as B</b> (where
-<b>r</b> is of type <b>A</b>). If it finds such a method, it sets the
-type of the expression <b>r as B</b> to be the return type of the
-method. Thus the type of <b>r as B</b> is guaranteed to be some subtype
-of <b>B</b>.
+ <h2><a name="tth_sEc27">
+27</a>&nbsp;&nbsp;Parenthesized Expressions</h2>
 
 <div class="p"><!----></div>
-Consider the following code:  
+If <b>E</b> is any expression, <b>(E)</b> is an expression which, when
+evaluated, produces the same result as <b>E</b>.   
 
 <div class="p"><!----></div>
+The main use of parentheses is to write complex expressions for which the 
+standard precedence order of operations is not appropriate: <b>1+2*3</b> is 7,
+but <b>(1+2)*3</b> is 9.  
+
+<div class="p"><!----></div>
+Similarly, but perhaps less familiarly, 
+parentheses can disambiguate other expressions.  In the following code, 
+<b>funny.f</b> is a field-selection expression, and so <b>(funny.f)()</b> means
+&#223;elect the <b>f</b> field from <b>funny</b>, and evaluate it".  However, 
+<b>funny.f()</b> means &#235;valuate the <b>f</b> method on object <b>funny</b>." 
 <pre>
-val p  = [2, 2, 2, 2, 2] as Point;
-val q = [1, 1, 1, 1, 1] as Point;
-val a = p - q;    
+class Funny {
+  def f () = 1;
+  val f = () =&#62; 2;
+  static def example() {
+    val funny = new Funny();
+    assert funny.f() == 1;
+    assert (funny.f)() == 2;
+  }
+}
 </pre>
-This code fragment compiles successfully, given the above operator definition. 
-The type of <b>p</b> is inferred to be <b>Point(5)</b> (i.e. the type 
-<b>Point{self.rank==5}</b>.
-Similarly for <b>q</b>. Hence the application of the operator "<b>-</b>" is legal (it requires both arguments to have the same rank). The type of <b>a</b> is computed as <b>Point(5)</b>.
 
+<div class="p"><!----></div>
+Note that this does <em>
+not</em> mean that <b>E</b> and <b>(E)</b> are identical in all respects; for
+example, if <b>i</b> is an <b>Int</b> variable, <b>i++</b> increments <b>i</b>,
+but <b>(i)++</b> is not allowed.    <b>++</b> is an assignment; it operates on
+variables, not merely values, and <b>(i)</b> is simply an expression whose <em>
+value</em> is the same as that of <b>i</b>. 
+<hr /><h3>Footnotes:</h3>
 
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Code generators often find this trick to be useful.
+<br /><br />
 </html>

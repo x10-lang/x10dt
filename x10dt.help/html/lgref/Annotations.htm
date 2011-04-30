@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -57,7 +57,7 @@ compiler to be extended with new static analyses and new
 transformations.
 
 <div class="p"><!----></div>
-Annotations are interface types that decorate the abstract syntax tree
+Annotations are constraint-free interface types that decorate the abstract syntax tree
 of an X10 program.  The X10 type-checker ensures that an annotation
 is a legal interface type.
 In X10, interfaces may declare
@@ -73,13 +73,20 @@ one or more of its interface's properties.
 The annotation syntax consists of an "<tt>@</tt>" followed by an interface type.
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">Annotations    ::= Annotation </td></tr>
-<tr><td width="right"> &#124; Annotations Annotation</td></tr>
-<tr><td align="right">Annotation    ::= <b>@</b> NamedType </td></tr>
-<tr><td width="right">
-</td></tr></table>
+
+<tr><td align="right">Annotations ::= Annotation </td></tr>
+<tr><td align="right">&#124; Annotations Annotation </td></tr>
+<tr><td align="right">Annotation ::= <b>@</b> NamedTypeNoConstraints </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -205,15 +212,5 @@ Annotations on particular static entities must extend the corresponding
 </li>
 </ul>
 
-<div class="p"><!----></div>
-<pre>
-</pre>
-
-<div class="p"><!----></div>
-
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+<br /><br />
 </html>

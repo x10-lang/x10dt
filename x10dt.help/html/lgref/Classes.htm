@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -55,7 +55,7 @@ Chapter 1 </a><br />Classes</h1>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc1">
-1</a>&nbsp;&nbsp;Principles of X10 Objects</h2><a name="XtenObjects">
+8</a>&nbsp;&nbsp;Principles of X10 Objects</h2><a name="XtenObjects">
 </a>
 
 
@@ -72,21 +72,47 @@ from it, directly or indirectly.
 
 <div class="p"><!----></div>
 Classes are structured in a single-inheritance code
-hierarchy, may implement multiple interfaces, may have static and
-instance fields, may have static and instance methods, may have
-constructors, 
-may have static and instance nested classes and interfaces. X10 does not
-permit mutable static state.
+hierarchy.   They may have any or all of these features: 
+
+<ul>
+<li> Implementing any number of interfaces;
+<div class="p"><!----></div>
+</li>
+
+<li> Static and instance <b>val</b> fields;
+<div class="p"><!----></div>
+</li>
+
+<li> Instance <b>var</b> fields;
+<div class="p"><!----></div>
+</li>
+
+<li> Static and instance methods;
+<div class="p"><!----></div>
+</li>
+
+<li> Constructors;
+<div class="p"><!----></div>
+</li>
+
+<li> Properties;
+<div class="p"><!----></div>
+</li>
+
+<li> Static and instance nested containers.
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
-X10 objects do not have locks associated with them.
-Programmers should use atomic blocks (&#167;) for mutual
+X10 objects (unlike Java objects) do not have locks associated with them.
+Programmers may use atomic blocks (&#167;) for mutual
 exclusion and clocks (&#167;) for sequencing multiple parallel
 operations.
 
 <div class="p"><!----></div>
 An object exists in a single location: the place that it was created.  One
-place cannot directly refer to an object in a different place.   A
+place cannot use or even directly refer to an object in a different place.   A
 special type, <b>GlobalRef[T]</b>, allows explicit cross-place references. 
 
 <div class="p"><!----></div>
@@ -94,7 +120,7 @@ The basic operations on objects are:
 
 <ul>
 <li> Field access (&#167;). 
-The static and instance fields of an object can be retrieved; <b>var</b> fields
+The static, instance, and property fields of an object can be retrieved; <b>var</b> fields
 can be set.  
 
 <div class="p"><!----></div>
@@ -103,7 +129,7 @@ can be set.
 </li>
 
 <li> Method invocation (&#167;).  
-Static and instance methods of an object can be invoked.
+Static, instance, and property methods of an object can be invoked.
 
 <div class="p"><!----></div>
 
@@ -115,7 +141,7 @@ Static and instance methods of an object can be invoked.
 <div class="p"><!----></div>
 </li>
 
-<li> The equality operators <b>==</b> and <b>!=</b>
+<li> The equality operators <b>==</b> and <b>!=</b>.  
 Objects can be compared for equality with the <b>==</b> operation.  This checks
 object <em>identity</em>: two objects are <b>==</b> iff they are the same object.
 <div class="p"><!----></div>
@@ -123,64 +149,50 @@ object <em>identity</em>: two objects are <b>==</b> iff they are the same object
 </ul>
 
 <div class="p"><!----></div>
-        <h3><a name="tth_sEc1.2">
+       <h3><a name="tth_sEc1.2">
 1.2</a>&nbsp;&nbsp;Class Declaration Syntax</h3>
 
 <div class="p"><!----></div>
-The <em>class declaration</em> has a list of type parameters, properties, a
-constraint (the <em>class invariant</em>), a single superclass, zero or more
-interfaces, and a class body containing the the definition of fields,
-properties, methods, and member types. Each such declaration introduces a
-class type (&#167;).
+The <em>class declaration</em> has a list of type parameters, a list of
+properties, a constraint (the <em>class invariant</em>), a single superclass,
+zero or more interfaces that it implements, and a class body containing the
+the definition of fields, properties, methods, and member types. Each such
+declaration introduces a class type (&#167;).
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">NormalClassDecl    ::= Mods<sup>?</sup>&nbsp;<b>class</b> Id TypeParamsWithVariance<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;WhereClause<sup>?</sup>&nbsp;Super<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
-<tr><td align="right">
- TypeParamsWithVariance    ::= <b>[</b> TypeParamWithVarianceList <b>]</b> </td></tr>
-<tr><td align="right">
- TypeParamWithVarianceList    ::= TypeParamWithVariance </td></tr>
-<tr><td align="right">
-    &#124; TypeParamWithVarianceList <b>,</b> TypeParamWithVariance</td></tr>
-<tr><td align="right">TypeParamWithVariance    ::= Id </td></tr>
-<tr><td align="right">
-    &#124; <b>+</b> Id</td></tr>
-<tr><td align="right">&#124; <b>-</b> Id</td></tr>
-<tr><td align="right">Properties    ::= <b>(</b> PropertyList <b>)</b> </td></tr>
-<tr><td align="right">
- PropertyList    ::= Property </td></tr>
-<tr><td align="right">
-    &#124; PropertyList <b>,</b> Property</td></tr>
-<tr><td align="right">Property    ::= Annotations<sup>?</sup>&nbsp;Id ResultType </td></tr>
-<tr><td align="right">
- WhereClause    ::= DepParams </td></tr>
-<tr><td align="right">
- DepParams    ::= <b>{</b> ExistentialList<sup>?</sup>&nbsp;Conjunction<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- Super    ::= <b>extends</b> ClassType </td></tr>
-<tr><td align="right">
- Interfaces    ::= <b>implements</b> InterfaceTypeList </td></tr>
-<tr><td align="right">
- InterfaceTypeList    ::= Type </td></tr>
-<tr><td align="right">
-    &#124; InterfaceTypeList <b>,</b> Type</td></tr>
-<tr><td align="right">ClassBody    ::= <b>{</b> ClassBodyDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- ClassBodyDecls    ::= ClassBodyDecl </td></tr>
-<tr><td align="right">
-    &#124; ClassBodyDecls ClassBodyDecl</td></tr>
-<tr><td align="right">ClassBodyDecl    ::= ClassMemberDecl </td></tr>
-<tr><td align="right">
-    &#124; CtorDecl</td></tr>
-<tr><td align="right">ClassMemberDecl    ::= FieldDecl </td></tr>
-<tr><td align="right">
-    &#124; MethodDecl</td></tr>
-<tr><td align="right">&#124; PropertyMethodDecl</td></tr>
-<tr><td align="right">&#124; TypeDefDecl</td></tr>
-<tr><td align="right">&#124; ClassDecl</td></tr>
-<tr><td align="right">&#124; InterfaceDecl</td></tr>
-<tr><td align="right">&#124; <b>;</b></td></tr>
+
+<tr><td align="right">NormalClassDecl ::= Mods<sup>?</sup>&nbsp;<b>class</b> Id TypeParamsI<sup>?</sup>&nbsp;Properties<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;Super<sup>?</sup>&nbsp;Interfaces<sup>?</sup>&nbsp;ClassBody </td></tr>
+<tr><td align="right">TypeParamsI ::= <b>[</b> TypeParamIList <b>]</b> </td></tr>
+<tr><td align="right">TypeParamIList ::= TypeParamI </td></tr>
+<tr><td align="right">&#124; TypeParamIList <b>,</b> TypeParamI </td></tr>
+<tr><td align="right">Properties ::= <b>(</b> PropertyList <b>)</b> </td></tr>
+<tr><td align="right">PropertyList ::= Property </td></tr>
+<tr><td align="right">&#124; PropertyList <b>,</b> Property </td></tr>
+<tr><td align="right">Property ::= Annotations<sup>?</sup>&nbsp;Id ResultType </td></tr>
+<tr><td align="right">Guard ::= DepParams </td></tr>
+<tr><td align="right">Super ::= <b>extends</b> ClassType </td></tr>
+<tr><td align="right">Interfaces ::= <b>implements</b> InterfaceTypeList </td></tr>
+<tr><td align="right">InterfaceTypeList ::= Type </td></tr>
+<tr><td align="right">&#124; InterfaceTypeList <b>,</b> Type </td></tr>
+<tr><td align="right">ClassBody ::= <b>{</b> ClassBodyDecls<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">ClassBodyDecls ::= ClassBodyDecl </td></tr>
+<tr><td align="right">&#124; ClassBodyDecls ClassBodyDecl </td></tr>
+<tr><td align="right">ClassMemberDecl ::= FieldDecl </td></tr>
+<tr><td align="right">&#124; MethodDecl </td></tr>
+<tr><td align="right">&#124; PropertyMethodDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; InterfaceDecl </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -193,10 +205,10 @@ class type (&#167;).
 
 
 <div class="p"><!----></div>
-Objects may have <em>instance fields</em>, or simply <em>fields</em>: places to
-store data that is pertinent to the object. Fields, like variables, may be
-mutable (<b>var</b>) or immutable (<b>val</b>)
-.
+Objects may have <em>instance fields</em>, or simply <em>fields</em> (called
+"instance variables" in C++ and Smalltalk, and "slots" in CLOS): places to
+store data that is pertinent to the object.  Fields, like variables, may be
+mutable (<b>var</b>) or immutable (<b>val</b>).  
 
 <div class="p"><!----></div>
 Class may have <em>static fields</em>, which store data pertinent to the
@@ -204,22 +216,9 @@ entire class of objects.
 See &#167; for more information.
 
 <div class="p"><!----></div>
-No two fields of the same class may have the same name.
-
-<div class="p"><!----></div>
-To avoid an ambiguity, it is a static error to invoke  a field with a function
-type (&#167;) that has 
-the same name and signature  as a method of the same class.  
-(Consider the class 
-<pre>
-class Crash {
-  val f : (Int) =&#62; Boolean = (Int)=&#62;true;
-  def f(Int) = false;
-}
-</pre>
-
-Then <b>crash.f(3)</b> might either mean "call the function <b>crash.f</b> on
-argument <b>3</b>", or &#239;nvoke the method <b>f</b> on argument <b>3</b>".)
+No two fields of the same class may have the same name.  A field may have the
+same name as a method, although for fields of functional type there is a
+subtlety (&#167;).  
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.1">
@@ -231,7 +230,9 @@ argument <b>3</b>", or &#239;nvoke the method <b>f</b> on argument <b>3</b>".)
 Fields may be given values via <em>field initialization expressions</em>:
 <b>val f1 = E;</b> and <b>var f2 : Int = F;</b>. Other fields of <b>this</b> may
 be referenced, but only those that <em>precede</em> the field being initialized.
-For example, the following is correct, but would not be if the fields were
+
+<div class="p"><!----></div>
+The following is correct, but would not be if the fields were
 reversed:
 
 <div class="p"><!----></div>
@@ -242,9 +243,11 @@ class Fld{
 }
 </pre>
 
+
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.2">
 2.2</a>&nbsp;&nbsp;Field hiding</h3>
+
 
 <div class="p"><!----></div>
 A subclass that defines a field <b>f</b> hides any field <b>f</b>
@@ -253,9 +256,16 @@ superclass field <b>f</b> may be accessed within the body of
 the subclass via the reference <b>super.f</b>.
 
 <div class="p"><!----></div>
+With inner classes, it is occasionally necessary to 
+write <b>Cls.super.f</b> to get at a hidden field <b>f</b> of an outer class
+<b>Cls</b>. 
+
+<div class="p"><!----></div>
+The <b>f</b> field in <b>Sub</b> hides the <b>f</b> field in <b>Super</b>
+The <b>superf</b> method provides access to the <b>f</b> field in <b>Super</b>.
 <pre>
 class Super{ 
-  val f = 1; 
+  public val f = 1; 
 }
 class Sub extends Super {
   val f = true;
@@ -263,10 +273,9 @@ class Sub extends Super {
 }
 </pre>
 
+
 <div class="p"><!----></div>
-With inner classes, it is occasionally necessary to 
-write <b>Cls.super.f</b> to get at a hidden field <b>f</b> of an outer class
-<b>Cls</b>, as in 
+Hidden fields of outer classes can be accessed by suitable forms: 
 <pre>
 class A {
    val f = 3;
@@ -276,20 +285,23 @@ class B extends A {
    class C extends B {
       // C is both a subclass and inner class of B
       val f = 5;
-      def foo()
-         = f          // 5
-         + super.f    // 4
-         + B.this.f   // 4 (the "f" of the outer instance)
-         + B.super.f; // 3 (the &#223;uper.f" of the outer instance)
+       def example() {
+         assert f         == 5 : "field of C";
+         assert super.f   == 4 : "field of superclass";
+         assert B.this.f  == 4 : "field of outer instance";
+         assert B.super.f == 3 : &#223;uper.f of outer instance";
+       }
     }
 }
 </pre>
+
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.3">
 2.3</a>&nbsp;&nbsp;Field qualifiers</h3>
 <a name="FieldQualifier">
 </a>
+
 
 
 <div class="p"><!----></div>
@@ -320,20 +332,24 @@ place in an <b>at</b> statement.    The value of a transient field of a copied
 object is the default value of its type, regardless of the value of the field
 in the original.  If the type of a field has no
 default value, it cannot be marked <b>transient</b>.
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+
+<div class="p"><!----></div>
 <pre>
 class Trans { 
    val copied = "copied";
    transient var transy : String = &#228; very long string";
    def example() {
-      at (here) { // causes copying
+      at (here) { // causes copying of 'this'
          assert(this.copied.equals("copied"));
          assert(this.transy == null);
       }
    }
 }
 </pre>
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc3">
@@ -352,6 +368,10 @@ properties are desired.
 <div class="p"><!----></div>
 Properties are defined in parentheses, after the name of the class.  They are
 given values by the <b>property</b> command in constructors.
+
+<div class="p"><!----></div>
+<b>Proper</b> has a single property, <b>t</b>.  <b>new Proper(4)</b> creates a
+<b>Proper</b> object with <b>t==4</b>. 
 <pre>
 class Proper(t:Int) {
   def this(t:Int) {property(t);}
@@ -359,11 +379,9 @@ class Proper(t:Int) {
 </pre>
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-It is a compile-time error for a class
-defining a property <b>x: T</b> to have an ancestor class that defines
-a property with the name <b>x</b>.  
-
+It is a static error for a class
+defining a property <b>x: T</b> to have a subclass class that defines
+a property or a field with the name <b>x</b>.
 
 <div class="p"><!----></div>
 A property <b>x:T</b> induces a field with the same name and type, 
@@ -377,31 +395,17 @@ public final def x()=x;
 </pre>
 
 <div class="p"><!----></div>
- (As noted in &#167;, interfaces can define
-properties too. They define the same nullary getter methods, though they do
-not require fields.)
-
-<div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-It is a compile-time error for a class or
-interface defining a property <b>x :T</b> to have an existing method with
-the signature <b>x(): T</b>.
-
-
-<div class="p"><!----></div>
-Properties are initialized by the invocation of a special <b>property</b>
-statement, which must be performed by each constructor of the class:
+Properties are initialized in a constructor by the invocation of a special <b>property</b>
+statement. The requirement to use the <b>property</b> statement means that all properties
+must be given values at the same time: a container either has its properties
+or it does not.
 <pre>
 property(e1,..., en);
 </pre>
 The number and types of arguments to the <b>property</b> statement must match
-the number and types of the properties in the class declaration.  
+the number and types of the properties in the class declaration, in order.  
 Every constructor of a class with properties must invoke <b>property(...)</b>
 precisely once; it is a static error if X10 cannot prove that this holds.
-
-<div class="p"><!----></div>
-The requirement to use the <b>property</b> statement means that all properties
-must be given values at the same time.  
 
 <div class="p"><!----></div>
 By construction, the graph whose nodes are values and whose edges are
@@ -409,9 +413,62 @@ properties is acyclic.  <em>E.g.</em>, there cannot be values <b>a</b> and <b>b<
 properties <b>c</b> and <b>d</b> such that <b>a.c == b</b> and <b>b.d == a</b>.
 
 <div class="p"><!----></div>
-<a name="PropertyCall">
-</a> <h2><a name="tth_sEc4">
+<pre>
+class Proper(a:Int, b:String) {
+  def this(a:Int, b:String) {
+      property(a, b);
+  }
+  def this(z:Int) {
+      val theA = z+5;
+      val theB = "X"+z;
+      property(theA, theB);
+  }
+  static def example() {
+      val p = new Proper(1, &#246;ne");
+      assert p.a == 1 &amp;&amp; p.b.equals(&#246;ne");
+      val q = new Proper(10);
+      assert q.a == 15 &amp;&amp; q.b.equals("X10");
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;Properties and Fields</h3>
+
+<div class="p"><!----></div>
+A container with a property named <b>p</b>, or a nullary property method named
+<b>p()</b>, cannot have a field named <b>p</b> - either defined in that
+container, or inherited from a superclass.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.2">
+3.2</a>&nbsp;&nbsp;Acyclicity of Properties</h3>
+
+
+<div class="p"><!----></div>
+X10 has certain restrictions that, ultimately, require that properties are
+simpler than their containers.  For example, <b>class A(a:A)</b> is not
+allowed.  
+Formally, this requirement is that there is  a total order &le; 
+on all classes and
+structs such that, if A extends B, then A &lt; B, and
+if A has a property of type B, then A &lt; B, where A &lt; B means
+A &le; B and A  &#8800; B.   
+For example, the preceding class <b>A</b> is ruled out because we would need
+<b>A</b>&lt;<b>A</b>, which violates the definition of &lt;.
+The programmer need not (and cannot) specify
+&le;, and rarely need worry about its existence.  
+
+<div class="p"><!----></div>
+Similarly, 
+the type of a property may not simply be a type parameter.  
+For example, <b>class A[X](x:X)</b> is illegal.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
 4</a>&nbsp;&nbsp;Methods</h2>
+
 
 
 
@@ -426,39 +483,52 @@ convenient access to that instance's fields.
 
 <div class="p"><!----></div>
 Each method has a <em>signature</em>, telling what arguments it accepts, what
-type it returns, what precondition it requires. Method definitions may be
+type it returns, and what precondition it requires. Method definitions may be
 overridden by subclasses; the overriding definition may have a declared return
 type that is a subtype of the return type of the definition being overridden.
 Multiple methods with the same name but different signatures may be provided
+
+
 on a class (called "overloading" or "ad hoc polymorphism"). Methods may be
 declared <b>public</b>, <b>private</b>, <b>protected</b>, or given default package-level access
 rights.
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">MethMods    ::= Mods<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">
-    &#124; MethMods <b>property</b> </td></tr>
-<tr><td align="right">&#124; MethMods Mod</td></tr>
-<tr><td align="right">MethodDecl    ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
-<tr><td align="right">
- TypeParams    ::= <b>[</b> TypeParamList <b>]</b> </td></tr>
-<tr><td align="right">
- FormalParams    ::= <b>(</b> FormalParamList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
-<tr><td align="right">
- FormalParamList    ::= FormalParam </td></tr>
-<tr><td align="right">
-    &#124; FormalParamList <b>,</b> FormalParam</td></tr>
-<tr><td align="right">HasResultType    ::= <b>:</b> Type </td></tr>
-<tr><td align="right">
-    &#124; <b>&lt;:</b> Type</td></tr>
-<tr><td align="right">MethodBody    ::= <b>=</b> LastExp <b>;</b> </td></tr>
-<tr><td align="right">
-    &#124; <b>=</b> Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b></td></tr>
-<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;Block</td></tr>
-<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block</td></tr>
-<tr><td align="right">&#124; <b>;</b></td></tr>
+
+<tr><td align="right">MethMods ::= Mods<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; MethMods <b>property</b>  </td></tr>
+<tr><td align="right">&#124; MethMods Mod </td></tr>
+<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;Formals Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> BinOp <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> BinOp <b>this</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;Formals Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;Formals <b>=</b> <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> <b>as</b> Type Guard<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> <b>as</b> <b>?</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">TypeParams ::= <b>[</b> TypeParamList <b>]</b> </td></tr>
+<tr><td align="right">Formals ::= <b>(</b> FormalList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">FormalList ::= Formal </td></tr>
+<tr><td align="right">&#124; FormalList <b>,</b> Formal </td></tr>
+<tr><td align="right">HasResultType ::= <b>:</b> Type </td></tr>
+<tr><td align="right">&#124; <b>&lt;:</b> Type </td></tr>
+<tr><td align="right">MethodBody ::= <b>=</b> LastExp <b>;</b> </td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;<b>{</b> BlockStatements<sup>?</sup>&nbsp;LastExp <b>}</b> </td></tr>
+<tr><td align="right">&#124; <b>=</b> Annotations<sup>?</sup>&nbsp;Block </td></tr>
+<tr><td align="right">&#124; Annotations<sup>?</sup>&nbsp;Block </td></tr>
+<tr><td align="right">&#124; <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -469,12 +539,55 @@ The body of the method is executed in an environment in which
 each formal parameter corresponds to a local variable (<b>var</b> iff the
 formal parameter is <b>var</b>)
 and is initialized with the value of the actual parameter.
-<pre>
-</pre>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.1">
-4.1</a>&nbsp;&nbsp;Method Guards</h3>
+4.1</a>&nbsp;&nbsp;Forms of Method Definition</h3>
+
+<div class="p"><!----></div>
+There are several syntactic forms for definining methods.   The forms that
+include a block, such as <b>def m()S</b>, allow an arbitrary block.  These
+forms can define a <b>void</b> method, which does not return a value. 
+
+<div class="p"><!----></div>
+The
+forms that include an expression, such as <b>def m()=E</b>, require a
+syntactically and semantically valid expression.   These forms cannot define a
+<b>void</b> method, because expressions cannot be <b>void</b>.  
+
+<div class="p"><!----></div>
+There are no other semantic differences between the two forms. 
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Final Methods</h3>
+
+
+An instance method may be given the <b>final</b> qualifier.  <b>final</b>
+methods may not be overridden.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Generic Instance Methods</h3>
+
+
+<div class="p"><!----></div>
+<b>Limitation: </b>
+In X10, an instance method may be generic: 
+<pre>
+class Example {
+  def example[T](t:T) = &#207; like " + t;
+}
+</pre>
+
+<div class="p"><!----></div>
+However, the C++ back end does not currently support generic virtual instance
+methods like <b>example</b>.  It does allow generic instance methods which are
+<b>final</b> or <b>private</b>, and it does allow generic static methods.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Method Guards</h3>
 <a name="MethodGuard">
 </a>
 
@@ -482,36 +595,58 @@ and is initialized with the value of the actual parameter.
 
 <div class="p"><!----></div>
 Often, a method will only make sense to invoke under certain
-statically-determinable conditions.  For example, <b>example(x)</b> is only
+statically-determinable conditions.  These conditions may be expressed as a
+guard on the method.
+
+<div class="p"><!----></div>
+For example, <b>example(x)</b> is only
 well-defined when <b>x != null</b>, as <b>null.toString()</b> throws a null
 pointer exception: 
 <pre>
 class Example {
    var f : String = "";
-   def example(x:Object){x != null} = {
+   def setF(x:Object){x != null} = {
       this.f = x.toString();
    }
 }
 </pre>
 
-(We could have used a constrained type <b>Object{self!=null}</b> instead; in
+(We could have used a constrained type <b>Object{self!=null}</b> for <b>x</b>
+instead; in
 most cases it is a matter of personal preference or convenience of expression
 which one to use.) 
 
+
 <div class="p"><!----></div>
-The requirement of having a method guard is that callers must demonstrate to
+The requirement of having a method guard 
+is that callers must demonstrate to
 the X10
-compiler that the guard is satisfied.  (As usual with static constraint
+compiler that the guard is satisfied.  
+With the <b>STATIC_CHECKS</b> compiler option in force (&#167;), this is
+checked at compile time. 
+As usual with static constraint
 checking, there is no runtime cost.  Indeed, this code can be more efficient
-than usual, as it is statically provable that <b>x != null</b>.)
-This may require a cast: 
+than usual, as it is statically provable that <b>x != null</b>.
+
+<div class="p"><!----></div>
+When <b>STATIC_CHECKS</b> is not in force, dynamic checks are generated as
+needed; method guards are checked at runtime. This is potentially more
+expensive, but may be more convenient. 
+
+<div class="p"><!----></div>
+The following code fragment contains a line which will not compile 
+with <b>STATIC_CHECKS</b> on (assuming the guarded <b>example</b> method above).  (X10's type system does not attempt to propagate 
+information from <b>if</b>s.)  It will compile with <b>STATIC_CHECKS</b> off,
+but it may insert an extra <b>null</b>-test for <b>x</b>.  
 <pre>
   def exam(e:Example, x:Object) {
     if (x != null) 
        e.example(x as Object{x != null});
-    // WRONG: if (x != null) e.example(x);
+       // If STATIC_CHECKS is in force: 
+       // ERROR: if (x != null) e.example(x); 
   }
 </pre>
+
 
 <div class="p"><!----></div>
 The guard <b>{c}</b> 
@@ -519,13 +654,14 @@ in a guarded method
 <b>def m(){c} = E;</b>
 specifies a constraint <b>c</b> on the
 properties of the class <b>C</b> on which the method is being defined. The
-method exists only for those instances of <b>C</b> which satisfy <b>c</b>.  It is
+method, in effect, only exists  for those instances of <b>C</b> which satisfy
+<b>c</b>.  It is 
 illegal for code to invoke the method on objects whose static type is
 not a subtype of <b>C{c}</b>.
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-The compiler checks that every method invocation
+Specifically: 
+    the compiler checks that every method invocation
     &#246;.m(e<sub>1</sub>, ..., e<sub>n</sub>)"
     is type correct. Each argument
     &#235;<sub>i</sub>" must have a
@@ -554,24 +690,47 @@ The compiler checks that every method invocation
     "x<sub>1</sub>, ..., x<sub>n</sub>" are the formal
     parameters of the method.
 
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> 
+Using a reference to an outer class, <b>Outer.this</b>, in a constraint, is not supported.
 
 <div class="p"><!----></div>
-<em><em>Limitation</em> 
-Using a reference to an outer class, <b>Outer.this</b>, in a constraint, is not supported.
+     <h3><a name="tth_sEc4.5">
+4.5</a>&nbsp;&nbsp;Property methods</h3>
+
+
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">PropertyMethodDecl ::= MethMods Id TypeParams<sup>?</sup>&nbsp;Formals Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods Id Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.2">
-4.2</a>&nbsp;&nbsp;Property methods</h3>
-
-
+Property methods are methods that can be evaluated in constraints, as
+properties can.   They provide a means of abstraction over properties; <em>e.g.</em>,
+interfaces can specify property methods that implementing containers must
+provide, but, just as they cannot specify ordinary fields, they cannot specify
+property fields.   Property methods are very limited in computing power: they
+must obey the same restrictions as constraint expressions.  In particular,
+they cannot have side effects, or even much code in their bodies.
 
 <div class="p"><!----></div>
-Property methods are methods that can be evaluated in constraints.  
-For example, the <b>eq()</b> method below tells if the <b>x</b> and <b>y</b>
+The <b>eq()</b> method below tells if the <b>x</b> and <b>y</b>
 properties are equal; the <b>is(z)</b> method tells if they are both equal to
-<b>z</b>.  These can be used in constraints, as illustrated in the
-<b>example()</b> method.
+<b>z</b>.  
+The <b>eq</b> and <b>is</b> property methods are used in types in the
+<b>example</b> method.
 <pre>
 class Example(x:Int, y:Int) {
    def this(x:Int, y:Int) { property(x,y); }
@@ -581,13 +740,16 @@ class Example(x:Int, y:Int) {
 }
 </pre>
 
+
 <div class="p"><!----></div>
-A method declared with the modifier <b>property</b> may be used
-in constraints.  A property method declared in a class must have
+A property method declared in a class must have
 a body and must not be <b>void</b>.  The body of the method must
-consist of only a single <b>return</b> statement or a single
+consist of only a single <b>return</b> statement with an expression,  or a single
 expression.  It is a static error if the expression cannot be
-represented in the constraint system. 
+represented in the constraint system.   Property methods may be <b>abstract</b>
+in <b>abstract</b> classes, and may be specified in interfaces, but are
+implicitly <b>final</b> in 
+non-<b>abstract</b> classes. 
 
 <div class="p"><!----></div>
 The expression may contain invocations of other property methods. It is the
@@ -597,46 +759,60 @@ the program will fail to compile in a potentially most unfortunate way.
 
 <div class="p"><!----></div>
 Property methods in classes are implicitly <b>final</b>; they cannot be
-overridden.
+overridden.  It is a static error if a superclass has a property method with a
+given signature, and a subclass has a method or property method with the same
+signature.   It is a static error if a superclass has a property with some
+name <b>p</b>, and a subclass has a nullary method of any kind (instance,
+static, or property) also named <b>p</b>. 
 
 <div class="p"><!----></div>
-A nullary property method definition may omit the formal parameters and
+A nullary property method definition may omit 
 the <b>def</b> keyword.  That is, the following are equivalent:
 
 <div class="p"><!----></div>
 <pre>
-property def rail(): Boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
+property def rail(): Boolean = 
+   rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
 </pre>
 and
 <pre>
-property rail: Boolean = rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
+property rail(): Boolean = 
+   rect &amp;&amp; onePlace == here &amp;&amp; zeroBased;
 </pre>
 
 <div class="p"><!----></div>
 Similarly, nullary property methods can be inspected in constraints without
-<b>()</b>.  
+<b>()</b>. If <b>ob</b>'s type has a property <b>p</b>, then <b>ob.p</b> is that
+property. Otherwise, if it has a nullary property method <b>p()</b>, <b>ob.p</b>
+is equivalent to <b>ob.p()</b>. As a consequence, if the type provides both a
+property <b>p</b> and a nullary method <b>p()</b>, then the property can be
+accessed as <b>ob.p</b> and the method as <b>ob.p()</b>.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
+
+<div class="p"><!----></div>
 <b>w.rail</b>, with either definition above, 
 is equivalent to 
 <b>w.rail()</b>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.3">
-4.3</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
+     <h3><a name="tth_sEc4.6">
+4.6</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
 <a name="MethodOverload">
 </a>
 
 
 <div class="p"><!----></div>
-The definitions of method overloading, overriding, hiding, shadowing
-and obscuring in X10 are the same as in Java, modulo the following
-considerations motivated by type parameters and dependent types.
+The definitions of method overloading, overriding, hiding, shadowing and
+obscuring in X10 are familiar from languages such as Java, modulo the
+following considerations motivated by type parameters and dependent types.
 
 <div class="p"><!----></div>
 Two or more methods of a class or interface may have the same
 name if they have a different number of type parameters, or
-they have formal parameters of different types.  <em>E.g.</em>, the following is legal: 
+they have formal parameters of different constraint-erased types (in some instantiation of the
+generic parameters). 
 
 <div class="p"><!----></div>
+The following overloading of <b>m</b> is unproblematic.
 <pre>
 class Mful{
    def m() = 1;
@@ -646,8 +822,50 @@ class Mful{
 }
 </pre>
 
+
 <div class="p"><!----></div>
-X10 v2.1 does not permit overloading based on constraints. That is, the
+A class definition may include methods which are ambiguous in <em>some</em>
+generic instantiation. (It is a compile-time error if the methods are
+ambiguous in <em>every</em> generic instantiation, but excluding class
+definitions which are are ambiguous in <em>some</em> instantiation would exclude
+useful cases.)  It is a compile-time error to <em>use</em> an ambiguous method
+call. 
+
+<div class="p"><!----></div>
+The following class definition is acceptable.  However, the marked method
+calls are ambiguous, and hence not acceptable.
+<pre>
+class Two[T,U]{
+  def m(x:T)=1;
+  def m(x:Int)=2;
+  def m[X](x:X)=3;
+  def m(x:U)=4;
+  static def example() {
+    val t12 = new Two[Int, Any]();
+    // ERROR: t12.m(2);
+    val t13  = new Two[String, Any]();
+    t13.m("ferret");
+    val t14 = new Two[Boolean,Boolean]();
+    // ERROR: t14.m(true);
+  }
+}
+</pre>
+
+The call <b>t12.m(2)</b> could refer to either the <b>1</b> or <b>2</b>
+definition of <b>m</b>, so it is not allowed.   
+The call <b>t14.m(true)</b> could refer to either the <b>1</b> or <b>4</b>
+definition, so it, too, is not allowed.
+
+<div class="p"><!----></div>
+The call <b>t13.m("ferret")</b> refers only to the <b>1</b> definition.  If
+the <b>1</b> definition were absent, type argument inference would make it
+refer to the <b>3</b> definition.  However, X10 will choose a fully-specified
+call if there is one, before trying type inference, so this call unambiguously
+refers to <b>1</b>.
+
+
+<div class="p"><!----></div>
+X10 v2.2 does not permit overloading based on constraints. That is, the
 following is <em>not</em> legal, although either method definition individually
 is legal:
 <pre>
@@ -660,47 +878,47 @@ The definition of a method declaration "m<sub>1</sub>" "having the same signatur
 as" a method declaration "m<sub>2</sub>" involves identity of types. 
 
 <div class="p"><!----></div>
-The <em>constraint erasure</em> of a type "T" is defined as follows.
-The constraint erasure of  (a)&#227; class, interface or struct type "T" is 
-"T"; (b)&#227; type "T{c}" is the constraint erasure of 
-"T"; (b)&#227; type "T[S<sub>1</sub>,&#8230;,S<sub>n</sub>]" 
-is "T'[S<sub>1</sub>',&#8230;,S<sub>n</sub>']" where each primed type is the erasure of 
-the corresponding unprimed type.
- Two methods are said to have <em>the
-  same signature</em> if (a) they have the same number of type parameters,
+The <em>constraint erasure</em> of a type "T", 
+"ce(T)",
+is obtained by removing all the constraints outside of functions in <b>T</b>,
+specificially: 
+
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table border="0" cellspacing="0" cellpadding="0">
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
+ce(<tt>T</tt>) = <tt>T</tt>  <span class="roman">if</span> <b><b>T</b></b> <span class="roman">is</span> <span class="roman">a</span> <span class="roman">container</span> <span class="roman">or</span> <span class="roman">interface</span></td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
+ce(<tt>T</tt>{<tt>c</tt>}) = ce(<tt>T</tt>)</td></tr></table></td><td width="50%"></td><td width="1" align="right">(2)</td></tr>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
+ce(<tt>T</tt><tt>[</tt><tt>S</tt><sub>1</sub><tt>,</tt>&#8230;<tt>,</tt><tt>S</tt><sub>n</sub><tt>]</tt>) =ce(<tt>T</tt>)<tt>[</tt> ce(<tt>S</tt><sub>1</sub>)<tt>,</tt>&#8230;<tt>,</tt> ce(<tt>S</tt><sub>n</sub>)<tt>]</tt></td></tr></table></td><td width="50%"></td><td width="1" align="right">(3)</td></tr>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table><tr><td nowrap="nowrap" align="right" colspan="1">ce(<tt>(</tt><tt>S</tt><sub>1</sub><tt>,</tt>&#8230;<tt>,</tt><tt>S</tt><sub>n</sub><tt>)</tt><tt> = </tt> &gt;  <tt>T</tt>) =<tt>(</tt> ce(<tt>S</tt><sub>1</sub>)<tt>,</tt>&#8230;<tt>,</tt> ce(<tt>S</tt><sub>n</sub>)<tt>)</tt><tt> = </tt> &gt;   ce(<tt>T</tt>)</td></tr></table></td><td width="50%"></td><td width="1" align="right">(4)</td></tr></table>
+</td></tr></table>
+
+
+
+<div class="p"><!----></div>
+ Two methods are said to have <em>equivalent signatures</em> if (a) they have the
+ same number of type parameters, 
 (b) they have the same number of formal (value) parameters, and (c)
-for each formal parameter the constraint erasure of its types are equivalent. It is a
+for each formal parameter the constraint erasure of its types are equivalent.
+It is a 
 compile-time error for there to be two methods with the same name and
-same signature in a class (either defined in that class or in a
-superclass).
+equivalent signatures in a class (either defined in that class or in a
+superclass), unless the signatures are identical and one of the methods is
+defined in a superclass (in which case the superclass's method is overridden
+by the subclass's).
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-A class <b>C</b> may not have two declarations for a method named <b>m</b>-either
-  defined at <b>C</b> or inherited:
-<pre>
-def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: T<sub>1</sub>, ..., v<sub>n</sub>: T<sub>n</sub>){tc}: T {...}
-def m[X<sub>1</sub>, ..., X<sub>m</sub>](v<sub>1</sub>: S<sub>1</sub>, ..., v<sub>n</sub>: S<sub>n</sub>){sc}: S {...}
-</pre>
-
-if it is the case that the constraint erasures of the types "T<sub>1</sub>",
-..., "T<sub>n</sub>" are
-equivalent to the constraint erasures of the types "S<sub>1</sub>, ..., T<sub>n</sub>"
-respectively.
-
-
-<div class="p"><!----></div>
-In addition, the guard of a overriding method must be 
-no stronger than the guard of the overridden method.   This
+ In addition, the guard of a overriding method
+must entail
+the guard of the overridden method.   This
 ensures that any virtual call to the method
 satisfies the guard of the callee.
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font>:
-If a class <b>C</b> overrides a method of a class or interface
+  If a class <b>C</b> overrides a method of a class or interface
   <b>B</b>, the guard of the method in <b>B</b> must entail
   the guard of the method in <b>C</b>.
-
 
 <div class="p"><!----></div>
 A class <b>C</b> inherits from its direct superclass and superinterfaces all
@@ -708,41 +926,150 @@ their methods visible according to the access modifiers
 of the superclass/superinterfaces that are not hidden or overridden. A method "M<sub>1</sub>" in a class
 <b>C</b> overrides
 a method  in a superclass <b>D</b> if
-"M<sub>1</sub>" and "M<sub>2</sub>" have the same signature with constraints erased.
-Methods are overriden on a signature-by-signature basis.
+"M<sub>1</sub>" and "M<sub>2</sub>" have equivalent signatures.
+Methods are overriden on a signature-by-signature basis.  It is a compile-time
+error if an instance method overrides a static method.  (But is it permitted
+for an instance <em>field</em> to hide a static <em>field</em>; that's hiding, not
+overriding, and hence totally different.)
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-<pre>
-</pre>
-
  <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Static initialization</h2>
+5</a>&nbsp;&nbsp;Constructors</h2>
+<a name="sect:constructors">
+</a>
+
+
+<div class="p"><!----></div>
+Instances of classes are created by the <b>new</b> expression: <br />
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">ClassInstCreationExp ::= <b>new</b> TypeName TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; Primary <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+This constructs a new object, and calls some code, called a <em>constructor</em>,
+to initialize the newly-created object properly.
+
+<div class="p"><!----></div>
+Constructors are defined like methods, except that they must be named <b>this</b>
+and ordinary methods may not be.    The content of a constructor body has
+certain capabilities (<em>e.g.</em>, <b>val</b> fields of the object may be initialized)
+and certain restrictions (<em>e.g.</em>, most methods cannot be called); see
+&#167; for the details.
+
+<div class="p"><!----></div>
+The following class provides two constructors.  The unary constructor 
+<b>def this(b : Int)</b> allows initialization of the <b>a</b> field to an 
+arbitrary value.  The nullary constructor <b>def this()</b> gives it a default
+value of 10.  The <b>example</b> method illustrates both of these calls.
+
+<div class="p"><!----></div>
+<pre>
+class C {
+  public val a : Int;
+  def this(b : Int) { a = b; } 
+  def this()        { a = 10; }
+  static def example() {
+     val two = new C(2);
+     assert two.a == 2;
+     val ten = new C(); 
+     assert ten.a == 10;
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;Automatic Generation of Constructors</h3>
+
+
+<div class="p"><!----></div>
+Classes that have no constructors written in the class declaration are
+automatically given a constructor which sets the class properties and does
+nothing else. If this automatically-generated constructor is not valid (<em>e.g.</em>,
+if the class has <b>val</b> fields that need to be initialized in a
+constructor), the class has no constructor, which is a static error.
+
+<div class="p"><!----></div>
+The following class has no explicit constructor.
+Its implicit constructor is 
+<b>def this(x:Int)property(x);</b>
+This implicit constructor is valid, and so is the class. 
+<pre>
+class C(x:Int) {
+  static def example() {
+    val c : C = new C(4);
+    assert c.x == 4;
+  }
+}
+</pre>
+ 
+
+<div class="p"><!----></div>
+The following class has the same default constructor.  However, that
+constructor does not initialize <b>d</b>, and thus is invalid.  This 
+class does not compile; it needs an explicit constructor.
+<pre>
+// THIS CODE DOES NOT COMPILE
+class Cfail(x:Int) {
+  val d: Int;
+  static def example() {
+    val wrong = new Cfail(40);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;Calling Other Constructors</h3>
+<a name="sect:call-another-ctor">
+</a>
+
+<div class="p"><!----></div>
+The <em>first</em> statement of a constructor body may be a call of the form 
+<b>this(a,b,c)</b> or <b>super(a,b,c)</b>.  The former will execute the body of
+the matching constructor of the current class; the latter, of the superclass. 
+This allows a measure of abstraction in constructor definitions; one may be
+defined in terms of another.
+
+<div class="p"><!----></div>
+The following class has two constructors.  <b>new Ctors(123)</b> constructs a
+new <b>Ctors</b> object with parameter 123.  <b>new Ctors()</b> constructs one
+whose parameter has a default value of 100: 
+<pre>
+class Ctors {
+  public val a : Int;
+  def this(a:Int) { this.a = a; }
+  def this()      { this(100);  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+In the case of a class which implements <b>operator ()</b> 
+- or any other constructor and application with the same signature - 
+this can be ambiguous.  If <b>this()</b> appears as the first statement of a
+constructor body, it could, in principle, mean either a constructor call or an
+operator evaluation.   This ambiguity is resolved so that <b>this()</b> always
+means the constructor invocation.  If, for some reason, it is necessary to
+invoke an application operator as the first meaningful statement of a
+constructor, precede it with a dummy statement, such as <b>if(false);</b>  
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Static initialization</h2>
 <a name="StaticInitialization">
 </a>
 
@@ -750,14 +1077,15 @@ The X10 runtime implements the following procedure to ensure
 reliable initialization of the static state of classes.
 
 <div class="p"><!----></div>
-Execution commences with a single thread executing the
+Execution (of an entire X10 program) commences with a single thread executing
+the 
 <em>initialization</em> phase of an X10 computation at place <b>0</b>. This
 phase must complete successfully before the body of the <b>main</b> method is
 executed.
 
 <div class="p"><!----></div>
-The initialization phase must be thought of as if it is implemented in
-the following fashion: (The implementation may do something more
+The initialization phase should be thought of as if it is implemented in
+the following fashion. (The implementation may do something more
 efficient as long as it is faithful to this semantics.)
 
 <div class="p"><!----></div>
@@ -784,7 +1112,7 @@ as follows
 <div class="p"><!----></div>
 <pre>
 def read_f():T {
-   await (initialized(C.f));
+   when (initialized(C.f)){};
    return C.f;
 }
 </pre>
@@ -811,10 +1139,37 @@ the initialization phase as described above, it can be accessed from
 any place.
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc6">
-6</a>&nbsp;&nbsp;User-Defined Operators</h2>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;User-Defined Operators</h2>
+<a name="sect:operators">
+</a>
 
 
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">MethodDecl ::= MethMods <b>def</b> Id TypeParams<sup>?</sup>&nbsp;Formals Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> BinOp <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> BinOp <b>this</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;Formals Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;Formals <b>=</b> <b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> <b>as</b> Type Guard<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> <b>as</b> <b>?</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> Formal  <b>)</b> Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 
 <div class="p"><!----></div>
 It is often convenient to have methods named by symbols rather than words.
@@ -826,15 +1181,13 @@ polynomials by the usual operations: <b>+</b> to add, <b>*</b> to multiply,
 argument <b>x</b>.  We would like to write code thus: 
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
 <pre>
   public static def main(Array[String](1)):void {
      val X = new Poly([0,1]);
      val t &lt;: Poly = 7 * X + 6 * X * X * X; 
      val u &lt;: Poly = 3 + 5*X - 7*X*X;
      val v &lt;: Poly = t * u - 1;
-     for( [i] in -3 .. 3) {
+     for( i in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X(i) + "	t:" + t(i) 
          + "	u:" + u(i) + "	v:" + v(i)
@@ -849,15 +1202,17 @@ argument <b>x</b>.  We would like to write code thus:
 Writing the same code with method calls, while possible, is far less elegant: 
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
 <pre>
   public static def uglymain() {
      val X = new UglyPoly([0,1]);
-     val t &lt;: UglyPoly = X.mult(7).plus(X.mult(X).mult(X).mult(6));  
-     val u &lt;: UglyPoly = const(3).plus(X.mult(5)).minus(X.mult(X).mult(7));
+     val t &lt;: UglyPoly 
+           = X.mult(7).plus(
+               X.mult(X).mult(X).mult(6));  
+     val u &lt;: UglyPoly 
+           = const(3).plus(
+               X.mult(5)).minus(X.mult(X).mult(7));
      val v &lt;: UglyPoly = t.mult(u).minus(1);
-     for( [i] in -3 .. 3) {
+     for( i in -3 .. 3) {
        x10.io.Console.OUT.println(
          "" + i + "	X:" + X.apply(i) + "	t:" + t.apply(i) 
           + "	u:" + u.apply(i) + "	v:" + v.apply(i)
@@ -871,8 +1226,84 @@ The operator-using code can be written in X10, though a few variations are
 necessary to handle such exotic cases as <b>1+X</b>.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.1">
-6.1</a>&nbsp;&nbsp;Binary Operators</h3>
+Most X10 operators can be given definitions.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>  (However, <b>&amp;&amp;</b> and
+<b>&#124;&#124;</b> 
+are only short-circuiting for <b>Boolean</b> expressions; user-defined versions
+of these operators have no special execution behavior.)
+
+<div class="p"><!----></div>
+The user-definable operations are (in order of precedence): <br />
+
+<table>
+<tr><td align="left">implicit type coercions</td></tr>
+<tr><td align="left">postfix <b>()</b></td></tr>
+<tr><td align="left"><b>as T</b></td></tr>
+<tr><td align="left">these unary operators:  <b>- + ! &#126; </td><td align="left">&#124; &amp; / ^ * %</b></td></tr>
+<tr><td align="left"><b>..</b></td></tr>
+<tr><td align="left"><b>*      /       %      **</b></td></tr>
+<tr><td align="left"><b>+</b> <b>     -</b> </td></tr>
+<tr><td align="left"><b>&lt;&lt;     &#62;&#62;      &#62;&#62;&#62;    -&#62;     &lt;-     &#62;-      -&lt;      !</b></td></tr>
+<tr><td align="left"><b>&#62;      </b> <b>&#62;=     </b> <b>&lt;     </b> <b>&lt;=     </b> 
+<b>&#126;      !&#126;</b></td></tr>
+<tr><td align="left"><b>&amp;</b> </td></tr>
+<tr><td align="left"><b>^</b> </td></tr>
+<tr><td align="left"><b>&#124;</b> </td></tr>
+<tr><td align="left"><b>&amp;&amp;</b> </td></tr>
+<tr><td align="left"><b>&#124;&#124;</b> </td></tr></table>
+
+
+<div class="p"><!----></div>
+Several of these operators have no standard meaning on any library type, and
+are included purely for programmer convenience.  
+
+<div class="p"><!----></div>
+Many operators may be defined either in <b>static</b> or instance forms.  Those
+defined in instance form are dynamically dispatched, just like an instance
+method.  Those defined in static form are statically dispatched, just like a
+static method.  Operators are scoped like methods; static operators are scoped
+like static methods.
+
+<div class="p"><!----></div>
+<pre>
+static class Trace(n:Int){
+  public static operator !(f:Trace) 
+      = new Trace(10 * f.n + 1);
+  public operator -this = new Trace (10 * this.n + 2);
+}
+static class Brace extends Trace{
+  def this(n:Int) { super(n); }
+  public operator -this = new Brace (10 * this.n + 3);
+  static def example() {
+     val t = new Trace(1);
+     assert (!t).n == 11;
+     assert (-t).n == 12 &amp;&amp; (-t instanceof Trace);
+     val b = new Brace(1);
+     assert (!b).n == 11;
+     assert (-b).n == 13 &amp;&amp; (-b instanceof Brace);
+  }
+}
+
+<div class="p"><!----></div>
+</pre>
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.1">
+7.1</a>&nbsp;&nbsp;Binary Operators</h3>
+
+<div class="p"><!----></div>
+Binary operators, illustrated by <b>+</b>, may be defined statically in a
+container <b>A</b> as:
+<pre>
+static operator (b:B) + (c:C) = ...;
+</pre>
+Or, it may be defined as  as an instance operator by one of the forms:
+<pre>
+operator this + (b:B) = ...;
+operator (b:B) + this = ...;
+</pre>
 
 <div class="p"><!----></div>
 Defining the sum <b>P+Q</b> of two polynomials looks much like a method
@@ -884,16 +1315,14 @@ appear in a use of the operator.  So,
 <pre>
 class Poly {
   public val coeff : Array[Int](1);
-  public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-  public def degree() = coeff.size()-1;
-  public def  a(i:Int) = (i&lt;0 </td><td width="150">
-&#124;</td><td width="150">
-&#124; i&#62;this.degree()) ? 0 : coeff(i);
-
-<div class="p"><!----></div>
+  public def this(coeff: Array[Int](1)) { 
+    this.coeff = coeff;}
+  public def degree() = coeff.size-1;
+  public def  a(i:Int) 
+    = (i&lt;0 &#124;&#124; i&#62;this.degree()) ? 0 : coeff(i);
   public operator this + (p:Poly) =  new Poly(
      new Array[Int](
-        Math.max(this.coeff.size(), p.coeff.size()),
+        Math.max(this.coeff.size, p.coeff.size),
         (i:Int) =&#62; this.a(i) + p.a(i)
      )); 
   // ... 
@@ -903,7 +1332,8 @@ class Poly {
 The sum of a polynomial and an integer, <b>P+3</b>, looks like
 an overloaded method definition.  
 <pre>
-   public operator this + (n : Int) = new Poly([n]) + this;
+   public operator this + (n : Int) 
+          = new Poly([n as Int]) + this;
 </pre>
 
 <div class="p"><!----></div>
@@ -914,7 +1344,8 @@ allow it as a method on <b>Poly</b> as well.
 
 <div class="p"><!----></div>
 <pre>
-   public operator (n : Int) + this = new Poly([n]) + this;
+   public operator (n : Int) + this 
+          = new Poly([n as Int]) + this;
 </pre>
 
 <div class="p"><!----></div>
@@ -925,28 +1356,12 @@ The definition for the sum of two
 <pre>
   public static operator (p:Poly) + (q:Poly) =  new Poly(
      new Array[Int](
-        Math.max(q.coeff.size(), p.coeff.size()),
+        Math.max(q.coeff.size, p.coeff.size),
         (i:Int) =&#62; q.a(i) + p.a(i)
      ));
 </pre>
 
 <div class="p"><!----></div>
-This requires the following grammar: <br />
-<em>  
-<table>
-
-<tr><td align="right">MethodDecl    ::= MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>this</b> BinOp <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> BinOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;PrefixOp <b>this</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams <b>=</b> <b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> Type WhereClause<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> <b>as</b> <b>?</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right">&#124; MethMods <b>operator</b> TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalParam  <b>)</b> WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;MethodBody</td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
 When X10 attempts to typecheck a binary operator expression like <b>P+Q</b>, it
 first typechecks <b>P</b> and <b>Q</b>. Then, it looks for operator declarations
 for <b>+</b> in the types of <b>P</b> and <b>Q</b>. If there are none, it is a
@@ -960,78 +1375,131 @@ conversion. If even the best-matching operation is not uniquely determined,
 the compiler will report a static error.
 
 <div class="p"><!----></div>
-The main difference between expressing a binary operation as an instance
-method (with a <b>this</b> in the definition) and a static one (no <b>this</b>)
-is that instance methods don't apply any conversions, while static methods
-attempt to convert both arguments. 
-
+     <h3><a name="tth_sEc7.2">
+7.2</a>&nbsp;&nbsp;Unary Operators</h3>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.2">
-6.2</a>&nbsp;&nbsp;Unary Operators</h3>
-
-<div class="p"><!----></div>
-Unary operators are defined in a similar way, with <b>this</b> appearing in the
-<b>operator</b> definition where an actual value would occur in a unary
-expression.  The operator to negate a polynomial is: 
-
-<div class="p"><!----></div>
+Unary operators,  illustrated by <b>!</b>, may be defined statically in
+container 
+<b>A</b> as 
 <pre>
-  public operator - this = new Poly(
-    new Array[Int](coeff.size(), (i:Int) =&#62; -coeff(i))
-    );
+static operator !(x:A) = ...;
 </pre>
+or as instance operators by: 
+<pre>
+operator !this = ...;
+</pre>
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 The rules for typechecking a unary operation are the same as for methods; the
 complexities of binary operations are not needed.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.3">
-6.3</a>&nbsp;&nbsp;Type Conversions</h3>
+The operator to negate a polynomial is: 
+
+<div class="p"><!----></div>
+<pre>
+  public operator - this = new Poly(
+    new Array[Int](coeff.size, (i:Int) =&#62; -coeff(i))
+    );
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.3">
+7.3</a>&nbsp;&nbsp;Type Conversions</h3>
+<a name="sect:type-conv">
+</a>
 
 
 <div class="p"><!----></div>
-Explicit type conversions, <b>e as T{c}</b>, can be defined as operators on
-class <b>T</b>.
+Explicit type conversions, <b>e as A</b>, can be defined as operators on
+class <b>A</b>, or on the container type of <b>e</b>.  These must be static
+operators, 
+
+<div class="p"><!----></div>
+To define an operator in <b>class A</b> (or <b>struct A)</b> converting values
+of ttype <b>B</b> into type <b>A</b>, use the syntax: 
+<pre>
+static operator (x:B) as ? {c} = ... 
+</pre>
+The <b>?</b> indicates the containing type <b>A</b>.  
+The guard clause <b>{c}</b> may be omitted.
 
 <div class="p"><!----></div>
 <pre>
 class Poly {
   public val coeff : Array[Int](1);
   public def this(coeff: Array[Int](1)) { this.coeff = coeff;}
-  public static operator (a:Int) as Poly = new Poly([a]);
+  public static operator (a:Int) as ? = new Poly([a as Int]);
   public static def main(Array[String](1)):void {
      val three : Poly = 3 as Poly;
   }
 }
 </pre>
 
+
 <div class="p"><!----></div>
+The <b>?</b> may be given a bound, such as <b>as ? &lt;: Caster</b>, if desired.
+
+<div class="p"><!----></div>
+Explicit type conversions <em>out</em> of container <b>B</b> to some other
+container <b>A</b> may be defined in <b>B</b>, as well.  The syntax for this
+does not involve <b>?</b>.  
 
 <div class="p"><!----></div>
 <pre>
+class Numbered(n:Int) {
+  public static operator (x:Numbered) as Int = x.n;
+  public static def example(){
+     val n3 = new Numbered(3);
+     assert n3 as Int == 3;
+  }
+}
 </pre>
 
+<div class="p"><!----></div>
+There is little difference between an explicit conversion <b>e as T</b> and a
+method call <b>e.asT()</b>.  The explicit conversion does say undeniably what
+the result type will be.  However, as described in &#167;,
+sometimes the built-in meaning of <b>as</b> as a cast overrides the
+user-defined explicit conversion.  
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.4">
-6.4</a>&nbsp;&nbsp;Implicit Type Coercions</h3>
+Explicit casts are most suitable for cases
+which resemble the use of explicit casts among the arithmetic types, where, 
+for example, <b>1.0 as Int</b> is a way to turn a floating-point number into the
+corresponding integer.  
+While there is nothing in X10 which
+requires it, <b>e as T</b> has the connotation that it gives a good
+approximation of <b>e</b> in type <b>T</b>, just as <b>1</b> is a good
+(indeed, perfect) approximation of <b>1.0</b> in type <b>Int</b>.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc7.4">
+7.4</a>&nbsp;&nbsp;Implicit Type Coercions</h3>
+<a name="sect:ImplicitCoercion">
+</a>
 
 
 <div class="p"><!----></div>
-You may also define <em>implicit</em> type coercions to <b>T{c}</b> as static
-operators in class <b>T</b>.  The syntax for this is
-<b>static operator (x:U) : T{c} = e</b>.
-Implicit coercions are used automatically by the compiler.  
-
+An implicit type conversion from <b>U</b>  to <b>T</b> may be specified in
+either <b>U</b> or <b>T</b>.  
+The syntax for it, in either case, is: 
+<pre>
+static operator (u:U) : T = e;
+</pre>
 
 <div class="p"><!----></div>
-For example, we can define an implicit coercion from <b>Int</b> to <b>Poly</b>,
+Implicit coercions are used automatically by the compiler on method calls 
+(&#167;) and assignments (&#167;).
+
+<div class="p"><!----></div>
+We can define an implicit coercion from <b>Int</b> to <b>Poly</b>,
 and avoid having to define the sum of an integer and a polynomial
 as many special cases.  In the following example, we only define <b>+</b> on
-two polynomials (using a <b>static</b> operator, so that implicit coercions
-will be used - they would not be for an instance method operator).  The
+two polynomials.  The
 calculation <b>1+x</b> coerces <b>1</b> to a polynomial and uses polynomial
 addition to add it to <b>x</b>.
 
@@ -1039,12 +1507,13 @@ addition to add it to <b>x</b>.
 
 <div class="p"><!----></div>
 <pre>
-  public static operator (c : Int) : Poly = new Poly([c]);
+  public static operator (c : Int) : Poly 
+     = new Poly([c as Int]);
 
 <div class="p"><!----></div>
   public static operator (p:Poly) + (q:Poly) = new Poly(
       new Array[Int](
-        Math.max(p.coeff.size(), q.coeff.size()),
+        Math.max(p.coeff.size, q.coeff.size),
         (i:Int) =&#62; p.a(i) + q.a(i)
      ));
 
@@ -1055,9 +1524,10 @@ addition to add it to <b>x</b>.
   }
 </pre>
 
+
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc6.5">
-6.5</a>&nbsp;&nbsp;<b>set</b> and <b>apply</b></h3>
+     <h3><a name="tth_sEc7.5">
+7.5</a>&nbsp;&nbsp;Assignment and Application Operators</h3>
 
 
 
@@ -1066,51 +1536,67 @@ addition to add it to <b>x</b>.
 </a>
 X10 allows types to implement the subscripting / function application
 operator, and indexed assignment.  The <b>Array</b>-like classes take advantage
-of both of these in <b>a(i) = a(i) + 1</b>.  Unlike unary and binary operators,
-subscripting and indexed assignment are done by methods, <b>apply</b> and
-<b>set</b> respectively.
+of both of these in <b>a(i) = a(i) + 1</b>.  
 
 <div class="p"><!----></div>
-<b>a(b,c,d)</b> is short for the method call <b>a.apply(b,c,d)</b>.  Since it is
-possible to overload methods, the application syntax can be overloaded.  For
+<b>a(b,c,d)</b>
+is an operator call, to an operator defined with 
+<b>public operator this(b:B, c:C, d:D)</b>.  It may be overloaded.
+For
 example, an ordered dictionary structure could allow subscripting by numbers
-with <b>def apply(i:Int)</b>, and by string-valued keys with 
-<b>def apply(s:String)</b>.  
+with <b>public operator this(i:Int)</b>, and by strings with 
+<b>public operator this(s:String)</b>.  
 
 <div class="p"><!----></div>
-<b>a(i)=b</b> is short for the method call <b>a.set(b,i)</b>, with one or more
-indices <b>i</b>. (This has a
-possibly surprising consequence for the order of evaluation: in <b>a(i)=b</b>,
-as in <b>a.set(b,i)</b>, <b>a</b> is evaluated first, then <b>b</b>, and finally
-<b>i</b>.)  Again, it is possible to overload <b>set</b> to provide a variety of
-subscripting operations.  Each <b>set</b> method must have a corresponding
-<b>apply</b> method; that is, <b>a(i,j)=b</b> is only defined when <b>a(i,j)</b>
-is defined, despite the fact that <b>a(i,j)=b</b> does not evaluate <b>a(i,j)</b>.
+<b>a(i,j)=b</b> is an <b>operator</b> as well, with zero or more indices
+<b>i,j</b>.  It may also be overloaded. 
+
+<div class="p"><!----></div>
+The update operations <b>a(i) += b</b> 
+(for all binary operators in place of <b>+</b>)
+are defined to be the same as the
+corresponding <b>a(i) = a(i) + b</b>. This applies for all arities of
+arguments, and all types, and all binary operations. Of course to use this,
+the <b>+</b>, application and assignment <b>operator</b>s must be defined.
 
 <div class="p"><!----></div>
 The <b>Oddvec</b> class of somewhat peculiar vectors illustrates this.
-<b>a()</b> returns a string representation of the oddvec, which probably should
-be done by <b>toString()</b> instead.  <b>a(i)</b> picks out one of the three
-coordinates of <b>a</b>, which is sensible.  <b>a(i)=b</b> assigns to one of the
+
+<div class="p"><!----></div>
+<b>a()</b> returns a string representation of the oddvec, which ordinarily
+would 
+be done by <b>toString()</b> instead.  
+<b>a(i)</b> sensibly picks out one of the three
+coordinates of <b>a</b>.
+<b>a()=b</b> sets all the coordinates of <b>a</b> to <b>b</b>.
+<b>a(i)=b</b> assigns to one of the
 coordinates.  <b>a(i,j)=b</b> assigns different values to <b>a(i)</b> and
-<b>a(j)</b>, purely for the sake of the example.
+<b>a(j)</b>.  
 
 <div class="p"><!----></div>
 <pre>
 class Oddvec {
   var v : Array[Int](1) = new Array[Int](3, (Int)=&#62;0);
-  public def apply() = "(" + v(0) + "," + v(1) + "," + v(2) + ")";
-  public def apply(i:Int) = v(i);
-  public def apply(i:Int, j:Int) = [v(i),v(j)];
-  public def set(newval:Int, i:Int) = {v(i) = newval;}
-  public def set(newval:Int, i:Int, j:Int) = {
-       v(i) = newval; v(j) = newval+1;} 
-  // ... 
+  public operator this () = 
+      "(" + v(0) + "," + v(1) + "," + v(2) + ")";
+  public operator this () = (newval: Int) { 
+    for(p in v) v(p) = newval;
+  }
+  public operator this(i:Int) = v(i);
+  public operator this(i:Int, j:Int) = [v(i),v(j)];
+  public operator this(i:Int) = (newval:Int) 
+      = {v(i) = newval;}
+  public operator this(i:Int, j:Int) = (newval:Int) 
+      = { v(i) = newval; v(j) = newval+1;} 
+  public def example() {
+    this(1) = 6;   assert this(1) == 6;
+    this(1) += 7;  assert this(1) == 13;
+  }
 </pre>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc7">
-7</a>&nbsp;&nbsp;Class Guards and Invariants</h2><a name="DepType:ClassGuard">
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Class Guards and Invariants</h2><a name="DepType:ClassGuard">
 </a>
 
 
@@ -1121,7 +1607,7 @@ class Oddvec {
 <div class="p"><!----></div>
 Classes (and structs and interfaces) may specify a <em>class guard</em>, a
 constraint which must hold on all values of the class.    In the following
-example, a <b>Line</b> is defined by two distinct <b>Pt</b>s<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
+example, a <b>Line</b> is defined by two distinct <b>Pt</b>s<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
 <pre>
 class Pt(x:Int, y:Int){}
 class Line(a:Pt, b:Pt){a != b} {}
@@ -1139,7 +1625,7 @@ class Line(a:Pt, b:Pt{a != b}) {}
 <div class="p"><!----></div>
 <a name="DepType:TypeInvariant">
 </a><a name="DepType:ClassGuardDef">
-</a>With every defined class, struct,  or interface <b>T</b> we associate a <em>type
+</a>With every container  or interface <b>T</b> we associate a <em>type
 invariant</em> <i>inv</i>(<b>T</b>), which describes the guarantees on the
 properties of values of type <b>T</b>.  
 
@@ -1164,9 +1650,9 @@ specifies a guard <b>c</b> is given by:
 
 <div class="p"><!----></div>
 <pre>
-{inv}(I<sub>1</sub>) &amp;&amp; ... &amp;&amp; {inv}(I<sub>k</sub>) 
-    &amp;&amp; self.x<sub>1</sub> instanceof P<sub>1</sub> &amp;&amp;  ... &amp;&amp;  self.x<sub>n</sub> instanceof P<sub>n</sub> 
-    &amp;&amp; c  
+{inv}(I<sub>1</sub>) &amp;&amp; ... &amp;&amp; {inv}(I<sub>k</sub>) &amp;&amp;
+self.x<sub>1</sub> instanceof P<sub>1</sub> &amp;&amp;  ... &amp;&amp;  self.x<sub>n</sub> instanceof P<sub>n</sub> 
+&amp;&amp; c  
 </pre>
 
 <div class="p"><!----></div>
@@ -1178,9 +1664,9 @@ specifies a guard <b>c</b> is
 given by the same thing with the invariant of the superclass <b>D</b> conjoined:
 <pre>
 {inv}(I<sub>1</sub>) &amp;&amp; ... &amp;&amp; {inv}(I<sub>k</sub>) 
-    &amp;&amp; self.x<sub>1</sub> instanceof P<sub>1</sub> &amp;&amp;  ... &amp;&amp;  self.x<sub>n</sub> instanceof P<sub>n</sub> 
-    &amp;&amp; c  
-    &amp;&amp; {inv}(D)
+&amp;&amp; self.x<sub>1</sub> instanceof P<sub>1</sub> &amp;&amp;  ... &amp;&amp;  self.x<sub>n</sub> instanceof P<sub>n</sub> 
+&amp;&amp; c  
+&amp;&amp; {inv}(D)
 </pre>
 
 <div class="p"><!----></div>
@@ -1193,8 +1679,8 @@ objects <b>o</b> that may be stored in <b>v</b> are such that <b>o</b> satisfies
 <i>inv</i>(T[o/this])&#8743;c[o/self].
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.1">
-7.1</a>&nbsp;&nbsp;Invariants for <b>implements</b> and <b>extends</b> clauses</h3><a name="DepType:Implements">
+     <h3><a name="tth_sEc8.1">
+8.1</a>&nbsp;&nbsp;Invariants for <tt>implements</tt> and <tt>extends</tt> clauses</h3><a name="DepType:Implements">
 </a>
 <a name="DepType:Extends">
 </a>
@@ -1204,37 +1690,39 @@ objects <b>o</b> that may be stored in <b>v</b> are such that <b>o</b> satisfies
 
 Consider a class definition
 <pre>
-ClassModifiers<sup>?</sup>
+{<em>{</em>ClassModifiers}}<sup>{</sup>{?}}
 class C(x<sub>1</sub>: P<sub>1</sub>, ..., x<sub>n</sub>: P<sub>n</sub>) extends D{d}
    implements I<sub>1</sub>{c<sub>1</sub>}, ..., I<sub>k</sub>{c<sub>k</sub>}
-ClassBody
+{<em>{</em>ClassBody}}
 </pre>
 
 <div class="p"><!----></div>
-Each of the following static semantics rules must be satisfied:
+These two rules must be satisfied:
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Int-implements):
-The type invariant  of <b>C</b> must entail
+
+<ul>
+<li> The type invariant  of <b>C</b> must entail
 "c<sub>i</sub>[this/self]" for each i in {{1, ..., k}}
-
-
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Super-extends):
-The return type <b>c</b> of each constructor in a class <b>C</b>
+</li>
+
+<li> The return type <b>c</b> of each constructor in a class <b>C</b>
 must entail the invariant "<i>inv</i>(C)".
-
+<div class="p"><!----></div>
+</li>
+</ul>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.2">
-7.2</a>&nbsp;&nbsp;Invariants and constructor definitions</h3>
+     <h3><a name="tth_sEc8.2">
+8.2</a>&nbsp;&nbsp;Invariants and constructor definitions</h3>
 
 
 
 <div class="p"><!----></div>
 A constructor for a class <b>C</b> is guaranteed to return an object of the
 class on successful termination. This object must satisfy  "<i>inv</i>(C)", the
-class invariant associated with <b>C</b> (&#167;<a href="#DepType:TypeInvariant">7</a>).
+class invariant associated with <b>C</b> (&#167;<a href="#DepType:TypeInvariant">8</a>).
 However,
 often the objects returned by a constructor may satisfy <em>stronger</em>
 properties than the class invariant. X10's dependent type system
@@ -1242,11 +1730,18 @@ permits these extra properties to be asserted with the constructor in
 the form of a constrained type (the "return type" of the constructor):
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">CtorDecl    ::= Mods<sup>?</sup>&nbsp;<b>def</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;FormalParams WhereClause<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;CtorBody </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">CtorDecl ::= Mods<sup>?</sup>&nbsp;<b>def</b> <b>this</b> TypeParams<sup>?</sup>&nbsp;Formals Guard<sup>?</sup>&nbsp;HasResultType<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;CtorBody </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -1257,8 +1752,8 @@ to the list.
 
 <div class="p"><!----></div>
 Here is another example, constructed as a simplified 
-version of <b>x10.lang.Region</b>.  The <b>mockUnion</b> method 
-has the type that a true <b>union</b> method would have.
+version of <b>x10.array.Region</b>.  The <b>mockUnion</b> method 
+has the type, though not the value, that a true <b>union</b> method would have.
 
 <div class="p"><!----></div>
 <pre>
@@ -1272,7 +1767,7 @@ class MyRegion(rank:Int) {
   }
   def mockUnion(r:MyRegion(rank)):MyRegion(rank) = this;
   def example() {
-    val R1 : MyRegion(3) = new MyRegion([4,4,4]); 
+    val R1 : MyRegion(3) = new MyRegion([4,4,4 as Int]); 
     val R2 : MyRegion(3) = new MyRegion([5,4,1]); 
     val R3 = R1.mockUnion(R2); // inferred type MyRegion(3)
   }
@@ -1289,10 +1784,10 @@ The code in <b>example</b> typechecks, and <b>R3</b>'s type is inferred as
 <b>MyRegion(3)</b>.  
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Super-invoke):
    Let <b>C</b> be a class with properties
-   , invariant <b>c</b>
-   extending the constrained type <b>D{d}</b> (where <b>D</b> is the name of a class).
+   , and invariant <b>c</b>
+   extending the constrained type <b>D{d}</b> (where <b>D</b> is the name of a
+   class).
 
 <div class="p"><!----></div>
    For every constructor in <b>C</b> the compiler checks that the call to
@@ -1305,32 +1800,30 @@ The code in <b>example</b> typechecks, and <b>R3</b>'s type is inferred as
 "def this(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>k</sub>: T<sub>k</sub>){c}: D{d<sub>1</sub>}"
    then it must be the case that 
 <pre>
-x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>i</sub>: S<sub>i</sub> &#124;&mdash; x<sub>i</sub>: T<sub>i</sub>  (for i  &#8712; {1, ..., k})
-x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> &#124;&mdash; c  
-d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> &#124;&mdash; d[a/self]      
+x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>i</sub>: S<sub>i</sub> entails x<sub>i</sub>: T<sub>i</sub>  (for i  &#8712; {1, ..., k})
+x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> entails c  
+d<sub>1</sub>[a/self], x<sub>1</sub>: S<sub>1</sub>, ..., x<sub>k</sub>: S<sub>k</sub> entails d[a/self]      
 </pre>
  where <b>a</b> is a constant that does not appear in 
 "x<sub>1</sub>: S<sub>1</sub> &#8743; ... &#8743; x<sub>k</sub>: S<sub>k</sub>".
 
-
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Constructor return):
    The compiler checks that every constructor for <b>C</b> ensures that
    the properties "p<sub>1</sub>,..., p<sub>n</sub>" are initialized with values which satisfy
-   , and its own return type <b>c'</b> as follows.  In each constructor, the
+   <i>inv</i>(<b>T</b>), and its own return type <b>c'</b> as follows.  In each constructor, the
    compiler checks that the static types "T<sub>i</sub>" of the expressions &#235;<sub>i</sub>"
    assigned to "p<sub>i</sub>" are such that the following is
    true:
 <pre>
-p<sub>1</sub>: T<sub>1</sub>, ..., p<sub>n</sub>: T<sub>n</sub> &#124;&mdash; t(C) &#8743; c'     
+p<sub>1</sub>: T<sub>1</sub>, ..., p<sub>n</sub>: T<sub>n</sub> entails {inv}(T) &#8743; c'     
 </pre>
 
+<div class="p"><!----></div>
 (Note that for the assignment of &#235;<sub>i</sub>" to "p<sub>i</sub>"
 to be type-correct it must be the
     case that "p<sub>i</sub>: T<sub>i</sub> &#8743; p<sub>i</sub>: P<sub>i</sub>".) 
 
 <div class="p"><!----></div>
- S<font size="-2">TATIC</font> S<font size="-2">EMANTICS</font> R<font size="-2">ULE</font> (Constructor invocation):
 The compiler must check that every invocation "C(e<sub>1</sub>, ..., e<sub>n</sub>)" to a
 constructor is type correct: each argument &#235;<sub>i</sub>" must have a static type
 that is a subtype of the declared type "T<sub>i</sub>" for the ith
@@ -1338,7 +1831,6 @@ argument of the
 constructor, and the conjunction of static types of the argument must
 entail the constraint in the parameter list of the constructor.
 
-
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
@@ -1352,25 +1844,25 @@ entail the constraint in the parameter list of the constructor.
 
 <div class="p"><!----></div>
 
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -1382,22 +1874,33 @@ entail the constraint in the parameter list of the constructor.
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.3">
-7.3</a>&nbsp;&nbsp;Object Initialization</h3>
+     <h3><a name="tth_sEc8.3">
+8.3</a>&nbsp;&nbsp;Object Initialization</h3>
+<a name="ObjectInitialization">
+</a>
 
 
 
 
 
 <div class="p"><!----></div>
-X10 does object initialization safely.  It avoids a few classes of bad things: 
+
+<div class="p"><!----></div>
+X10 does object initialization safely.  It avoids certain bad things which
+trouble some other languages:
 
 <ol type="1">
 <li> Use of a field before the field has been initialized.
 <div class="p"><!----></div>
 </li>
 
-<li> <b>this</b> escaping from a constructor;
+<li> A program reading two different values from a <b>val</b> field of a
+      container.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>this</b> escaping from a constructor, which can cause problems as
+      noted below.
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -1407,7 +1910,7 @@ It should be unsurprising that fields must not be used before they are
 initialized. At best, it is uncertain what value will be in them, as in
 <b>x</b> below. Worse, the value might not even be an allowable value; <b>y</b>,
 declared to be nonzero in the following example, might be zero before it is
-initialized. 
+initialized.
 <pre>
 // Not correct X10
 class ThisIsWrong {
@@ -1424,19 +1927,19 @@ class ThisIsWrong {
 One particularly insidious way to read uninitialized fields is to allow
 <b>this</b> to escape from a constructor. For example, the constructor could
 put <b>this</b> into a data structure before initializing it, and another
-activity could read it from the data structure and look at its fields: 
+activity could read it from the data structure and look at its fields:
 <pre>
 class Wrong {
   val shouldBe8 : Int;
   static Cell[Wrong] wrongCell = new Cell[Wrong]();
   static def doItWrong() {
-     finish { 
+     finish {
        async { new Wrong(); } // (A)
        assert( wrongCell().shouldBe8 == 8); // (B)
      }
   }
   def this() {
-     wrongCell.set(this); // (C) - ILLEGAL 
+     wrongCell.set(this); // (C) - ILLEGAL
      this.shouldBe8 = 8; // (D)
   }
 }
@@ -1446,7 +1949,7 @@ In this example, the underconstructed <b>Wrong</b> object is leaked into a
 storage cell at line <b>(C)</b>, and then initialized.  The <b>doItWrong</b>
 method constructs a new <b>Wrong</b> object, and looks at the <b>Wrong</b>
 object in the storage cell to check on its <b>shouldBe8</b> field.  One
-possible order of events is the following: 
+possible order of events is the following:
 
 <ol type="1">
 <li> <b>doItWrong()</b> is called.
@@ -1465,7 +1968,7 @@ possible order of events is the following:
 <div class="p"><!----></div>
 </li>
 
-<li> Now, the initialization activity is paused, and execution of the main activity 
+<li> Now, the initialization activity is paused, and execution of the main activity
       proceeds from <b>(B)</b>.
 <div class="p"><!----></div>
 </li>
@@ -1482,23 +1985,46 @@ possible order of events is the following:
 </ol>
 
 <div class="p"><!----></div>
+The <b>at</b> statement (&#167;) introduces the potential for
+escape as well. The following class prints an uninitialized value: 
+<pre>
+class Example {
+  val a: Int;
+  def this() { 
+    at(here.next()) {
+      // Recall that 'this' is a copy of 'this' outside 'at'.
+      Console.OUT.println("this.a = " + this.a);
+    }
+    this.a = 1;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
 X10 must protect against such possibilities.  The rules explaining how
 constructors can be written are somewhat intricate; they are designed to allow
 as much programming as possible without leading to potential problems.
 Ultimately, they simply are elaborations of the fundamental principles that
-uninitialized fields must never be read, and <b>this</b> must never be leaked.  
+uninitialized fields must never be read, and <b>this</b> must never be leaked.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.4">
-7.4</a>&nbsp;&nbsp;Constructors and NonEscaping Methods</h3>
 
 <div class="p"><!----></div>
-In general, constructors must not be allowed to call methods with<b>this</b> as
+     <h3><a name="tth_sEc8.4">
+8.4</a>&nbsp;&nbsp;Constructors and Non-Escaping Methods</h3>
+
+<a name="sect:nonescaping">
+</a>
+
+<div class="p"><!----></div>
+In general, constructors must not be allowed to call methods with <b>this</b> as
 an argument or receiver. Such calls could leak references to <b>this</b>,
 either directly from a call to <b>cell.set(this)</b>, or indirectly because
-<b>toString</b> leaks <b>this</b>, and the concatenation 
-`&#203;scaper = "+this` calls <b>toString</b>.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
+<b>toString</b> leaks <b>this</b>, and the concatenation
+`&#203;scaper = "+this` calls <b>toString</b>.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>
 <pre>
+// This code violates this chapter's constraints
+// and thus will not compile in X10.
 class Escaper {
   static val Cell[Escaper] cell = new Cell[Escaper]();
   def toString() {
@@ -1515,20 +2041,20 @@ class Escaper {
 <div class="p"><!----></div>
 However, it is convenient to be able to call methods from constructors; <em>
 e.g.</em>, a class might have eleven constructors whose common behavior is best
-described by three methods.  
+described by three methods.
 Under certain stringent conditions, it <em>is</em>
 safe to call a method: the method called must not leak references to
 <b>this</b>, and must not read <b>val</b>s or <b>var</b>s which might not have
-been assigned.   
+been assigned.
 
 <div class="p"><!----></div>
 So, X10 performs a static dataflow analysis, sufficient to guarantee that
 method calls in constructors are safe.  This analysis requires having access
 to or guarantees about all the code that could possibly be called.  This can
-be accomplished in two ways: 
+be accomplished in two ways:
 
 <ol type="1">
-<li> Ensuring that only code from the class itself can be called, by 
+<li> Ensuring that only code from the class itself can be called, by
       forbidding overriding of
       methods called from the constructor: they can be marked <b>final</b> or
       <b>private</b>, or the whole class can be <b>final</b>.
@@ -1542,8 +2068,8 @@ be accomplished in two ways:
 </ol>
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc7.4.1">
-7.4.1</a>&nbsp;&nbsp;Non-Escaping Methods</h4>
+      <h4><a name="tth_sEc8.4.1">
+8.4.1</a>&nbsp;&nbsp;Non-Escaping Methods</h4>
 
 
 
@@ -1558,7 +2084,7 @@ imposes several restrictions on the method body, and on all methods overriding
 it.  However, it is the only way that a method can be called from
 constructors.  The
 <b>@NonEscaping</b> annotation makes explicit all the X10 compiler's needs for
-constructor-safety.  
+constructor-safety.
 
 <div class="p"><!----></div>
 A method can, however, be safe to call from constructors without being marked
@@ -1586,21 +2112,23 @@ non-escaping methods.
 Finally, if a method <b>m</b> in class <b>C</b> is marked
 <b>@NonEscaping</b>, then every method which overrides <b>m</b> in any
 subclass of <b>C</b> must be annotated with precisely the same annotation,
-<b>@NonEscaping</b>, as well.  
+<b>@NonEscaping</b>, as well.
 
 <div class="p"><!----></div>
 The following example uses most of the possible variations (leaving out
 <b>final</b> class).  <b>aplomb()</b> explicitly forbids reading any field but
 <b>a</b>. <b>boric()</b> is called after <b>a</b> and <b>b</b> are set, but
-{c} is not. 
+{c} is not.
 The <b>@NonEscaping</b> annotation on <b>boric()</b> is optional, but the
 compiler will print a warning if it is left out.
 <b>cajoled()</b> is only called after all fields are set, so it
 can read anything; its annotation, too, is not required.   <b>SeeAlso</b> is able to override <b>aplomb()</b>, because
-<b>aplomb()</b> is <b>@NonEscaping(&#228;")</b>; it cannot override the final method
-<b>boric()</b> or the private one <b>cajoled()</b>.  Even for overriding
-<b>aplomb()</b>, it is crucial that <b>SeeAlso.aplomb()</b> be 
-declared <b>@NonEscaping(&#228;")</b>, just like <b>C2.aplomb()</b>.
+<b>aplomb()</b> is <b>@NonEscaping</b>; it cannot override the final method
+<b>boric()</b> or the private one <b>cajoled()</b>.  
+The method <b>aplomb()</b> can be overridden, but it is crucial that the 
+subclass's version, 
+<b>SeeAlso.aplomb()</b>, be 
+declared <b>@NonEscaping</b>, just like <b>C2.aplomb()</b>.
 <pre>
 import x10.compiler.*;
 
@@ -1623,20 +2151,21 @@ final class C2 {
   }
   @NonEscaping final def boric() {
     y = b;
-    this.aplomb(); // allowed; a is definitely set before boric is called
-    // z = c; // not allowed; c is not definitely written 
+    this.aplomb(); // allowed; 
+       // a is definitely set before boric is called
+    // z = c; // not allowed; c is not definitely written
   }
   @NonEscaping private def cajoled() {
     z = c;
-  }  
+  }
 }
 
 <div class="p"><!----></div>
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.5">
-7.5</a>&nbsp;&nbsp;Fine Structure of Constructors</h3>
+     <h3><a name="tth_sEc8.5">
+8.5</a>&nbsp;&nbsp;Fine Structure of Constructors</h3>
 <a name="SFineStructCtors">
 </a>
 
@@ -1657,7 +2186,7 @@ and one of them implicit.
       through the constructor must go through this <b>property(...)</b> command
       precisely once.   The second segment of the constructor is the code
       following the first segment, up to and including the <b>property()</b>
-      statement.  
+      statement.
 
 <div class="p"><!----></div>
       If the class or struct has no properties, the <b>property()</b> call must
@@ -1667,10 +2196,10 @@ and one of them implicit.
 </li>
 
 <li> The third segment is automatically generated.  Fields with initializers
-      are initialized immediately after the <b>property</b> statement.  
+      are initialized immediately after the <b>property</b> statement.
       In the following example, <b>b</b> is initialized to <b>y*9000</b> in
       segment three.  The initialization makes sense and does the right
-      thing; <b>b</b> will be <b>y*9000</b> for every <b>Overdone</b> object. 
+      thing; <b>b</b> will be <b>y*9000</b> for every <b>Overdone</b> object.
       (This would not be possible if field initializers were processed
       earlier, before properties were set.)
 <div class="p"><!----></div>
@@ -1693,7 +2222,8 @@ class Overdone(y:Int) extends Overlord  {
   def this(r:Int) {
     super(r);                      // (1)
     x10.io.Console.OUT.println(r); // (2)
-    property(r+1);                 // (2)
+    val rp1 = r+1;
+    property(rp1);                 // (2)
     // field initializations here  // (3)
     a = r + 2;                     // (4)
   }
@@ -1703,20 +2233,20 @@ class Overdone(y:Int) extends Overlord  {
 <div class="p"><!----></div>
 The rules of what is allowed in the three segments are different, though
 unsurprising.  For example, properties of the current class can only be read
-in segment 3 or 4-naturally, because they are set at the end of segment 2.  
+in segment 3 or 4-naturally, because they are set at the end of segment 2.
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc7.5.1">
-7.5.1</a>&nbsp;&nbsp;Initialization and Inner Classses</h4>
+      <h4><a name="tth_sEc8.5.1">
+8.5.1</a>&nbsp;&nbsp;Initialization and Inner Classses</h4>
 
 
 <div class="p"><!----></div>
-Constructors of inner classes are tantamount to method calls on <b>this</b>.  
+Constructors of inner classes are tantamount to method calls on <b>this</b>.
 For example, the constructor for Inner <b>is</b> acceptable.  It does not leak
-<b>this</b>.  It leaks <b>Outer.this</b>, which is an utterly different object.  
+<b>this</b>.  It leaks <b>Outer.this</b>, which is an utterly different object.
 So, the call to <b>this.new Inner()</b> in the <b>Outer</b> constructor <em>
 is</em> illegal.  It would leak <b>this</b>.  There is no special rule in effect
-preventing this; a constructor call of an inner class is no 
+preventing this; a constructor call of an inner class is no
 different from a method as far as leaking is concerned.
 <pre>
 class Outer {
@@ -1725,34 +2255,38 @@ class Outer {
      def this() {Outer.leak.set(Outer.this);}
   }
   def /*Outer*/this() {
-     //ILLEGAL: val inner = this.new Inner(); 
+     //ERROR: val inner = this.new Inner();
   }
 }
 </pre>
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc7.5.2">
-7.5.2</a>&nbsp;&nbsp;Initialization and Closures</h4>
+      <h4><a name="tth_sEc8.5.2">
+8.5.2</a>&nbsp;&nbsp;Initialization and Closures</h4>
 
 
 <div class="p"><!----></div>
-Closures in constructors are valid if they were invoked (or inlined) at the
-place of creation. For example, <b>closure</b> below is acceptable because it
-only refers to fields defined at the point it was written.  <b>badClosure</b>
-would not be acceptable, because it refers to fields that were not defined at
-that point, although they were defined later.
+Closures in constructors may not refer to <b>this</b>.  They may not even refer
+to fields of <b>this</b> that have been initialized.   For example, the
+closure <b>bad1</b> is not allowed because it refers to <b>this</b>; <b>bad2</b>
+is not allowed because it mentions <b>a</b> - which is, of course, identical
+to <b>this.a</b>. 
+
+<div class="p"><!----></div>
 <pre>
 class C {
-  val a = 3;
-  val closure = () =&#62; a*10; // This is OK
-  //val badClosure = () =&#62; b*10; 
-  val b = 4;
+  val a:Int;
+  def this() {
+    this.a = 1;
+    //ERROR: val bad1 = () =&#62; this; 
+    //ERROR: val bad2 = () =&#62; a*10;
+  }
 }
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.6">
-7.6</a>&nbsp;&nbsp;Definite Initialization in Constructors</h3>
+     <h3><a name="tth_sEc8.6">
+8.6</a>&nbsp;&nbsp;Definite Initialization in Constructors</h3>
 
 <div class="p"><!----></div>
 An instance field <b>var x:T</b>, when <b>T</b> has a default value, need not be
@@ -1772,10 +2306,10 @@ default value.  It would be silly to have a field <b>val z : Int</b> that was
 always given default value of <b>0</b> and, since it is <b>val</b>, can never be
 changed.  <b>var</b> fields whose type has no default value must be initialized
 as well, such as <b>var y : Int{y != 0}</b>, since it cannot be assigned a
-sensible initial value. 
+sensible initial value.
 
 <div class="p"><!----></div>
-The fundamental principles are: 
+The fundamental principles are:
 
 <ol type="1">
 <li> <b>val</b> fields must be assigned precisely once in each constructor on every
@@ -1798,14 +2332,14 @@ assigned.
       Int = y+z</b>), or by uninitialized fields <b>val x : Int;</b> plus
 an initializing assignment <b>x = y+z</b>.  Recall that field initialization
 expressions are performed after the <b>property</b> statement, in segment 3 in
-the terminology of &#167;<a href="#SFineStructCtors">7.5</a>.
+the terminology of &#167;<a href="#SFineStructCtors">8.5</a>.
 <div class="p"><!----></div>
 </li>
 </ol>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc7.7">
-7.7</a>&nbsp;&nbsp;Summary of Restrictions on Classes and Constructors</h3>
+     <h3><a name="tth_sEc8.7">
+8.7</a>&nbsp;&nbsp;Summary of Restrictions on Classes and Constructors</h3>
 
 <div class="p"><!----></div>
 The following table tells whether a given feature is (yes), is not (no) or is
@@ -1816,7 +2350,7 @@ examples, by line of the following code body.
 
 <div class="p"><!----></div>
 
-<table border=1>
+<table border='1'>
 <tr><td align="left">&nbsp;</td>
   <td><b>Example</b></td>
   <td><b>Prop.</b></td>
@@ -1825,8 +2359,8 @@ examples, by line of the following code body.
   <td><b><tt>this</tt></b></td>
   <td><b>fields</b></td>
 </td></tr>
-<tr><td align="left">Type of property</td> 
-  <td>(A)</td> 
+<tr><td align="left">Type of property</td>
+  <td>(A)</td>
   
   <td>yes (2)</td>
   <td>no</td>
@@ -1835,7 +2369,7 @@ examples, by line of the following code body.
   <td>no</td>
 </td></tr>
 <tr><td align="left">Class Invariant</td>
-  <td>(B)</td> 
+  <td>(B)</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
@@ -1851,7 +2385,7 @@ examples, by line of the following code body.
   <td>no</td>
 </td></tr>
 <tr><td align="left">Property Method Body</td>
-  <td>(E)</td> 
+  <td>(E)</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
@@ -1859,7 +2393,7 @@ examples, by line of the following code body.
   <td>no</td>
 </td></tr>
 <tr><td align="left">Static field (4)</td>
-  <td>(F) (G)</td> 
+  <td>(F) (G)</td>
   <td>no</td>
   <td>no</td>
   <td>no</td>
@@ -1867,7 +2401,7 @@ examples, by line of the following code body.
   <td>no</td>
 </td></tr>
 <tr><td align="left">Instance field (5)</td>
-  <td>(H), (I)</td> 
+  <td>(H), (I)</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
@@ -1875,31 +2409,31 @@ examples, by line of the following code body.
   <td>yes</td>
 </td></tr>
 <tr><td align="left">Constructor arg. type</td>
-  <td>(J)</td> 
+  <td>(J)</td>
   <td>no</td>
-  <td>yes</td>
   <td>no</td>
-  <td>yes</td>
+  <td>no</td>
+  <td>no</td>
   <td>no</td>
 </td></tr>
 <tr><td align="left">Constructor guard</td>
-  <td>(K)</td> 
+  <td>(K)</td>
   <td>no</td>
-  <td>yes</td>
+  <td>no</td>
   <td>no</td>
   <td>no</td>
   <td>no</td>
 </td></tr>
 <tr><td align="left">Constructor ret. type</td>
-  <td>(L)</td> 
+  <td>(L)</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
-  <td>no</td>
+  <td>yes</td>
 </td></tr>
-<tr><td align="left">Constructor segment 1</td> 
-  <td>(M)</td> 
+<tr><td align="left">Constructor segment 1</td>
+  <td>(M)</td>
   <td>no</td>
   <td>yes</td>
   <td>no</td>
@@ -1907,7 +2441,7 @@ examples, by line of the following code body.
   <td>no</td>
 </td></tr>
 <tr><td align="left">Constructor segment 2</td>
-  <td>(N)</td> 
+  <td>(N)</td>
   <td>no</td>
   <td>yes</td>
   <td>no</td>
@@ -1915,7 +2449,7 @@ examples, by line of the following code body.
   <td>no</td>
 </td></tr>
 <tr><td align="left">Constructor segment 4</td>
-  <td>(O)</td> 
+  <td>(O)</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
@@ -1923,24 +2457,21 @@ examples, by line of the following code body.
   <td>yes</td>
 </td></tr>
 <tr><td align="left">Methods</td>
-  <td>(P)</td> 
+  <td>(P)</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
   <td>yes</td>
 </td></tr>
-<!--
 <tr><td align="left">place</td>
-  <td>(pos)</td> 
+  <td>(pos)</td>
   
   <td>&nbsp;</td>
   <td>&nbsp;</td>
   <td>&nbsp;</td>
   <td>&nbsp;</td>
-</td></tr>
--->
-</table>
+</td></tr></table>
 
 
 <div class="p"><!----></div>
@@ -1968,7 +2499,7 @@ Details:
 </ul>
 
 <div class="p"><!----></div>
-The example indices refer to the following code: 
+The example indices refer to the following code:
 <pre>
 class Example (
    prop : Int,
@@ -1980,10 +2511,10 @@ class Example (
    implements SuperInterface[Int{self != prop}] // (D)
 {
    property def propmeth() = (prop == pror);    // (E)
-   static staticField 
+   static staticField
       : Cell[Int{self != 0}]                    // (F)
       = new Cell[Int{self != 0}](1);            // (G)
-   var instanceField                            
+   var instanceField
       : Int {self != prop}                      // (H)
       = (prop + 1) as Int{self != prop};        // (I)
    def this(
@@ -2000,7 +2531,7 @@ class Example (
    }
 
 <div class="p"><!----></div>
-   def someMethod() = 
+   def someMethod() =
         prop + staticField + instanceField;     // (P)
 }
 </pre>
@@ -2019,25 +2550,25 @@ class Example (
 
 <div class="p"><!----></div>
 
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -2049,8 +2580,8 @@ class Example (
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc8">
-8</a>&nbsp;&nbsp;Method Resolution</h2>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Method Resolution</h2>
 
 
 <a name="sect:MethodResolution">
@@ -2067,29 +2598,114 @@ out that the call <b>zap(1..4)</b> should call <b>zap(Object)</b>, and
 
 <div class="p"><!----></div>
 <pre>
-class Resolve {
-  static def zap(Object) = &#214;bject";
-  static def zap(Resolve) = "Resolve";
-  public static def main(argv:Array[String](1)) {
-    Console.OUT.println(zap(1..4));
-    Console.OUT.println(zap(new Resolve()));
+class Res {
+  public static interface Surface {}
+  public static interface Deface {}
+
+<div class="p"><!----></div>
+  public static class Ace implements Surface {
+    public static operator (Boolean) : Ace = new Ace();
+    public static operator (Place) : Ace = new Ace();
   }
-}
+  public static class Face implements Surface, Deface{}
+
+<div class="p"><!----></div>
+  public static class A {}
+  public static class B extends A {}
+  public static class C extends B {}
+
+<div class="p"><!----></div>
+  def m(x:A) = 0;
+  def m(x:Int) = 1;
+  def m(x:Boolean) = 2;
+  def m(x:Surface) = 3;
+  def m(x:Deface) = 4; 
+
+<div class="p"><!----></div>
+  def example() {
+     assert m(100) == 1 : &#207;nt"; 
+     assert m(new C()) == 0 : "C";
+     // An Ace is a Surface, unambiguous best choice
+     assert m(new Ace()) == 3 : &#196;ce";
+     // ERROR: m(new Face());
+
+<div class="p"><!----></div>
+     // Boolean could be handled directly, or by 
+     // implicit coercion Boolean -&#62; Ace.
+     // Direct matches always win.
+     assert m(here) == 3 : "Place";
+     assert m(true) == 2 : "Boolean"; 
+
+<div class="p"><!----></div>
+  }
 </pre>
 
 <div class="p"><!----></div>
-The basic concept of method resolution is quite straightforward: 
+In the <b>&#207;nt"</b> line, there is a very close match.  <b>100</b> is an
+<b>Int</b>.  In fact, <b>100</b> is an <b>Int{self==100}</b>, so even in this
+case the type of the actual parameter is not <em>precisely</em> equal to the type
+of the method.
+
+<div class="p"><!----></div>
+In the <b>"C"</b> line of the example, <b>new C()</b> is an instance of <b>C</b>,
+which is a subtype of <b>A</b>, so the <b>A</b> method applies.  No other method
+does, and so the <b>A</b> method will be invoked.
+
+<div class="p"><!----></div>
+Similarly, in the <b>&#196;ce"</b> line, the <b>Ace</b> class implements
+<b>Surface</b>, and so <b>new Ace()</b> matches the <b>Surface</b> method. 
+
+<div class="p"><!----></div>
+However, a <b>Face</b> is both a <b>Surface</b> and a <b>Deface</b>, so there is
+no unique best match for the invocation <b>m(new Face())</b>.  This invocation
+would be forbidden, and a compile-time error issued.
+
+<div class="p"><!----></div>
+None of the defined methods match <b>Place</b>. However, there is an implicit
+coercion (&#167;<a href="#sect:ImplicitCoercion">7.4</a>) from <b>Place</b> to <b>Ace</b>.  So, 
+the <b>Ace</b> method will be called for <b>m(here)</b> - with the implicit
+coercion applied to <b>here</b> before the method call.
+(<b>Limitation: </b>: this does not currently compile in all cases.)
+
+<div class="p"><!----></div>
+For <b>m(true)</b>, both the <b>Boolean</b> and, with the implicit coercion,
+<b>Ace</b> methods could apply.  Since the <b>Boolean</b> method applies
+directly, and the <b>Ace</b> method requires an implicit coercion, this call
+resolves to the <b>Boolean</b> method, without an error.
+
+<div class="p"><!----></div>
+The basic concept of method resolution is:
 
 <ol type="1">
-<li> List all the methods that could possibly be used;
+<li> List all the methods that could possibly be used, inferring generic
+      types but not performing implicit coercions.    If the
+      <b>STATIC_CHECKS</b> compiler flag is specified, the constraints must
+      match exactly at this step; if not, they do not, but run-time tests will
+      be generated if necessary.
 <div class="p"><!----></div>
 </li>
 
-<li> Pick the most specific one;
+<li> If one possible method is more specific than all the others, that one 
+      is the desired method.
 <div class="p"><!----></div>
 </li>
 
-<li> Fail if there is not a unique most specific one.
+<li> If there are two or more methods neither of which is more specific than
+      the others, then the method invocation is ambiguous.  Method resolution
+      fails and reports an error.
+<div class="p"><!----></div>
+</li>
+
+<li> Otherwise, no possible methods were found without implicit coercions.
+      Try the preceding steps again, but with coercions allowed: zero or one
+      implicit coercion for each argument.  If a single
+      most specific method is found with coercions, it is the desired method.
+      If there are several, the invocation is ambiguous and erronious.
+<div class="p"><!----></div>
+</li>
+
+<li> If no methods were found even with coercions, then the method invocation
+      is undetermined.  Method resolution fails and reports an error.
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -2099,32 +2715,220 @@ One point, at least, is <em>not</em> subtle. The same procedure is used, <em>
 mutatis mutandis</em> for method, constructor, and operator resolution.  
 
 <div class="p"><!----></div>
-Generics introduce several subtleties, especially with the inference of
-generic types. 
+     <h3><a name="tth_sEc9.1">
+9.1</a>&nbsp;&nbsp;Space of Methods</h3>
 
 <div class="p"><!----></div>
+X10 allows some constructs, particularly <b>operator</b>s, to be defined in a
+number of ways, and invoked in a number of ways. This section specifies which
+forms of definition could correspond to a given definiendum.
+
+<div class="p"><!----></div>
+Method invocations <b>a.m(b)</b>, where <b>a</b> is an expression, can be either
+of the following forms.  There may be any number of arguments.
+
+<ul>
+<li> An instance method on <b>a</b>, of the form <b>def m(B)</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A static method on <b>a</b>'s class, of the form <b>static def m(B)</b>.
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Static method invocations, <b>A.m(b)</b>, where <b>A</b> is a container name,
+can only be static.  There may be any number of arguments.
+
+<ul>
+<li> A static method on <b>A</b>, of the form <b>static def m(B)</b>.
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Constructor invocations, <b>new A(b)</b>, must invoke constructors. There may
+be any number of arguments. 
+
+<ul>
+<li> A constructor on <b>A</b>, of the form <b>def this(B)</b>.
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+A unary operator "&#8727; a" may be defined as: 
+
+<ul>
+<li> An instance operator on <b>A</b>, defined as 
+      &#246;perator &#8727; this()".
+<div class="p"><!----></div>
+</li>
+
+<li> A static operator on <b>A</b>, defined as 
+      &#246;perator &#8727;(a:A)".
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+A binary operator &#228; &#8727; b" may be defined as: 
+
+<ul>
+<li> An instance operator on <b>A</b>, defined as 
+      &#246;perator this &#8727;(b:B)";
+or
+<div class="p"><!----></div>
+</li>
+
+<li> A right-hand operator on <b>B</b>, defined as
+      &#246;perator (a:A) &#8727; this"; or
+<div class="p"><!----></div>
+</li>
+
+<li> A static operator on <b>A</b>, defined as
+      &#246;perator (a:A) &#8727; (b:B)", 
+; or
+<div class="p"><!----></div>
+</li>
+
+<li> A static operator on <b>B</b>, if <b>A</b> and <b>B</b> are different
+      classes, defined as
+      &#246;perator (a:A) &#8727; (b:B)"
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+If none of those resolve to a method, then either operand may be cast to the
+other. 
+The following alternate calls are attempted: 
+
+<ul>
+<li> "(a as B)&#8727;(b)"
+<div class="p"><!----></div>
+</li>
+
+<li> &#228; &#8727; (b as A)"
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+An application <b>a(b)</b>, for any number of arguments, can come from a number
+of things. 
+
+<ul>
+<li> an application operator on <b>a</b>, defined as <b>operator this(b:B)</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>a</b> is an identifier, <b>a(b)</b> can also be a method invocation
+      equivalent to <b>this.a(b)</b>, which  invokes <b>a</b> as
+      either an instance or static method on <b>this</b>
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>a</b> is a qualified identifier, <b>a(b)</b> can also be an
+      invocation of a struct constructor.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+An indexed assignment, <b>a(b)=c</b>, for any number of <b>b</b>'s, can only
+come from an indexed assignment definition: 
+
+<ul>
+<li> <b>operator this(b:B)=(c:C) {...}</b>
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+An implicit coercion, in 
+which a value <b>a:A</b> is used in a context which requires a value of some
+other non-subtype <b>B</b>, 
+can come from one of two places: an implicit coercion operation defined on
+<b>B</b>, or, failing that, one defined on <b>A</b>:
+
+<ol type="1">
+<li> an implicit coercion in <b>B</b>:
+      <b>static operator (a:A):B</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> or, failing that, an implicit coercion in <b>A</b>:
+      <b>static operator this():B</b>.
+
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+An explicit conversion <b>a as B</b> can come from an explicit conversion
+operator, or an implicit coercion operator.  X10 tries three things, in order,
+only checking 2 if 1 fails, and 3 if 2 fails: 
+
+<ol type="1">
+<li> An <b>as</b> operator in <b>B</b>: 
+      &#223;tatic operator (a:A) as ?";
+<div class="p"><!----></div>
+</li>
+
+<li> or, failing that, an implicit coercion in <b>B</b>:
+      <b>static operator (a:A):B</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> or, failing that, an implicit coercion in <b>A</b>:
+      <b>static operator this():B</b>.
+
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc9.2">
+9.2</a>&nbsp;&nbsp;Possible Methods</h3>
+
+<div class="p"><!----></div>
+This section describes what it means for a method to be a <em>possible</em>
+resolution of a method invocation.  
+
+<div class="p"><!----></div>
+Generics introduce several subtleties, especially with the inference of
+generic types. 
 For the purposes of method resolution, all that matters about a method,
-constructor, or operator <b>M</b> - we use the word method" to include all
+constructor, or operator <b>M</b> - we use the word "method" to include all
 three choices for this section - is its signature, plus which method it is.
 So, a typical <b>M</b> might look like 
 "def m[G<sub>1</sub>,&#8230;, G<sub>g</sub>](x<sub>1</sub>:T<sub>1</sub>,&#8230;, x<sub>f</sub>:T<sub>f</sub>){c} =...".  The code body <b>...</b> is irrelevant for the purpose of whether a
 given method call means <b>M</b> or not, so we ignore it for this section.
 
 <div class="p"><!----></div>
+All that matters about a method definition, for the purposes of method
+resolution, is: 
 
 <ol type="1">
 <li> The method name <b>m</b>;
 <div class="p"><!----></div>
 </li>
 
-<li> The generic type parameters of the method <b>M</b>,  "G<sub>1</sub>,&#8230;, G<sub>g</sub>".  If there
+<li> The generic type parameters of the method <b>m</b>,  "G<sub>1</sub>,&#8230;, G<sub>g</sub>".  If there
       are no generic type parameters, g=0.
 <div class="p"><!----></div>
 </li>
 
 <li> The types "x<sub>1</sub>:T<sub>1</sub>,&#8230;, x<sub>f</sub>:T<sub>f</sub>" of the formal parameters.  If
       there are no formal parameters, f=0. In the case of an instance
-      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
+      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAG" name="tthFrefAAG"><sup>6</sup></a>
 <div class="p"><!----></div>
 </li>
 
@@ -2161,11 +2965,13 @@ All that matters about an invocation <b>I</b> is:
 </li>
 
 <li> The generic type parameters "G&#8242;<sub>1</sub>,&#8230;, G&#8242;<sub>g</sub>".  If there
-      are no generic type parameters, x=0.
+      are no generic type parameters, g=0.
 <div class="p"><!----></div>
 </li>
 
-<li> The names and types "x<sub>1</sub>:T&#8242;<sub>1</sub>,&#8230;, x<sub>f</sub>:T&#8242;<sub>f</sub>" of the actual parameters.  If
+<li> The names and types "x<sub>1</sub>:T&#8242;<sub>1</sub>,&#8230;, x<sub>f</sub>:T&#8242;<sub>f</sub>" of the
+      actual parameters.
+      If
       there are no actual parameters, f=0. In the case of an instance
       method, the receiver is the first actual parameter.
 <div class="p"><!----></div>
@@ -2203,7 +3009,14 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 </li>
 
 <li> The actual parameter types must be subtypes of the formal
-            parameter types:  "T&#8242;<sub>i</sub> &lt;: Ti<sub>i</sub>" for each <em>i</em>.
+            parameter types, or be coercible to such subtypes.  Parameter i
+            is a subtype if "T&#8242;<sub>i</sub> &lt;: T<sub>i</sub>".  It is implicitly
+            coercible to a subtype if either it is a subtype, or if there is
+            an implicit coercion operator 
+            defined from "T&#8242;<sub>i</sub>" to some type <b>U</b>, and 
+            &#220; &lt;: T<sub>i</sub>".  .  If coercions are
+            used to resolve the method, they will be called on the arguments
+            before the method is invoked.
 <div class="p"><!----></div>
 </li>
 
@@ -2220,6 +3033,12 @@ The procedure for computing <b>resolve(invo, context)</b> is:
       constraints, such as methods from other classes marked <b>private</b>.
       The remaining methods are both acceptable and available; they might be
       the one that is intended.
+<div class="p"><!----></div>
+</li>
+
+<li> If the method invocation is a <b>super</b> invocation appearing in class
+      <b>Cl</b>, methods of <b>Cl</b> and its subclasses are considered
+      unavailable as well.
 <div class="p"><!----></div>
 </li>
 
@@ -2270,12 +3089,97 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 </li>
 
 <li> If <b>m2</b> is acceptable for the invocation <b>invo1</b>,
-      <b>specific(m1,m2)</b> returns true; otherwise, it returns false.
+      <b>specific(m1,m2)</b> returns true;
+<div class="p"><!----></div>
+</li>
+
+<li> Construct an invocation <b>invo2p</b>, which is <b>invo1</b> with the
+      generic parameters erased.  Let <b>invo2</b> be <b>invo2p</b> with generic
+      parameters as inferred by X10's type inference algorithm.  If type
+      inference fails, <b>specific(m1,m2)</b> returns false.
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>m2</b> is acceptable for the invocation <b>invo2</b>,
+      <b>specific(m1,m2)</b> returns true;
+<div class="p"><!----></div>
+</li>
+
+<li> Otherwise, <b>specific(m1,m2)</b> returns false.
 <div class="p"><!----></div>
 </li>
 </ol>
 
 <div class="p"><!----></div>
+     <h3><a name="tth_sEc9.3">
+9.3</a>&nbsp;&nbsp;Other Disambiguations</h3>
+<a name="sect:disambiguations">
+</a>
+
+<div class="p"><!----></div>
+It is possible to have a field of the same name as a method.
+Indeed, it is a common pattern to have private field and a public
+method of the same name to access it:
+
+<pre>
+class Xhaver {
+  private var x: Int = 0;
+  public def x() = x;
+  public def bumpX() { x ++; }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+However, this can lead to syntactic ambiguity in the case where the field
+<b>f</b> of object <b>a</b> is a
+function, array, list, or the like, and where <b>a</b> has a method also named
+<b>f</b>.  The term <b>a.f(b)</b> could either mean "call method <b>f</b> of <b>a</b> upon
+<b>b</b>", or apply the function <b>a.f</b> to argument <b>b</b>".  
+
+<div class="p"><!----></div>
+<pre>
+class Ambig {
+  public val f : (Int)=&#62;Int =  (x:Int) =&#62; x*x;
+  public def f(y:int) = y+1;
+  public def example() {
+      val v = this.f(10);
+      // is v 100, or 11?
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+In the case where a syntactic form &#203;.m(F<sub>1</sub>, &#8230;, F<sub>n</sub>)" could
+be resolved as either a method call, or the application of a field <b>E.m</b>
+to some arguments, it will be treated as a method call.  
+The application of <b>E.m</b> to some arguments can be specified by adding
+parentheses:  "(E.m)(F<sub>1</sub>, &#8230;, F<sub>n</sub>)".
+
+<div class="p"><!----></div>
+<pre>
+class Disambig {
+  public val f : (Int)=&#62;Int =  (x:Int) =&#62; x*x;
+  public def f(y:int) = y+1;
+  public def example() {
+      assert(  this.f(10)  == 11  );
+      assert( (this.f)(10) == 100 );
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Similarly, it is possible to have a method with the same name as a struct, say
+<b>ambig</b>, giving an ambiguity as to whether <b>ambig()</b> is a struct
+constructor invocation or a method invocation.  This ambiguity is resolved by
+treating it as a method invocation.  If the constructor invocation is desired,
+it can be achieved by including the optional <b>new</b>.  That is, 
+<b>new ambig()</b> is struct constructor invocation; <b>ambig()</b> is a 
+method invocation.
+
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
@@ -2288,25 +3192,25 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 
 <div class="p"><!----></div>
 
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -2318,8 +3222,8 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc9">
-9</a>&nbsp;&nbsp;Static Nested Classes</h2>
+ <h2><a name="tth_sEc10">
+10</a>&nbsp;&nbsp;Static Nested Classes</h2>
 <a name="StaticNestedClasses">
 </a>
 
@@ -2328,9 +3232,11 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 
 <div class="p"><!----></div>
 One class (or struct or interface) may be nested within another.  The simplest
-way to do this is as a <b>static</b> nested class. 
+way to do this is as a <b>static</b> nested class, written by putting one class
+definition at top level inside another, with the inner one having a
+<b>static</b> modifier.  
 For most purposes, a static nested class behaves like a top-level class.
-However, a static inner class has access to private static
+However, a static nested class has access to private static
 fields and methods of its containing class.  
 
 <div class="p"><!----></div>
@@ -2348,8 +3254,8 @@ class Outer {
 </pre>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc10">
-10</a>&nbsp;&nbsp;Inner Classes</h2>
+ <h2><a name="tth_sEc11">
+11</a>&nbsp;&nbsp;Inner Classes</h2>
 <a name="InnerClasses">
 </a>
 
@@ -2385,8 +3291,8 @@ interfere with the inner class's ability to refer to the outer class's <b>n</b>
 field: the cursor initialization 
 refers to the <b>Range</b>'s lower bound through a fully qualified name
 <b>Range.this.n</b>.
-Its <b>hasNext()</b> method refers to the outer class's <b>m</b> field, which is
-not shadowed.
+The initialization of its <b>n</b> field refers to the outer class's <b>m</b> field, which is
+not shadowed and can be referred to directly, as <b>m</b>.
 
 <div class="p"><!----></div>
 <pre>
@@ -2403,6 +3309,7 @@ class Range(m:Int, n:Int) implements Iterable[Int]{
   }
 }
 </pre>
+
 
 <div class="p"><!----></div>
 An inner class has full access to the members of its enclosing class, both
@@ -2425,14 +3332,19 @@ inner class's superclass. If it is necessary to refer to the outer classes's
 superclass, use a qualified name of the form <em>Outer</em><b>.super</b>.
 
 <div class="p"><!----></div>
-The only restriction placed on the members of inner classes is that static
+The only restriction placed on the members of inner classes is that the static
 fields of an inner class must be compile-time constant expressions. 
 
 <div class="p"><!----></div>
-An inner class <b>IC1</b> of some outer class <b>OC1</b> can be extended by
+Consider
+an inner class <b>IC1</b> of some outer class <b>OC1</b>, being extended by 
 another class <b>IC2</b>. However, since an <b>IC1</b> only exists as a
 dependent of an <b>OC1</b>, each <b>IC2</b> must be associated with an <b>OC1</b>
-- or a subtype thereof - as well.   For example, one often extends an
+- or a subtype thereof - as well.   So, <b>IC2</b> must be an inner class
+of either <b>OC1</b> or some subclass <b>OC2 &lt;: OC1</b>.
+
+<div class="p"><!----></div>
+For example, one often extends an
 inner class when one extends its outer class: 
 <pre>
 class OC1 {
@@ -2442,6 +3354,7 @@ class OC2 extends OC1 {
    class IC2 extends IC1 {} 
 }
 </pre>
+
 
 <div class="p"><!----></div>
 The hiding of method names has one fine point.  If an inner class defines a
@@ -2469,8 +3382,10 @@ class Outer {
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc10.1">
-10.1</a>&nbsp;&nbsp;Constructors and Inner Classes</h3>
+     <h3><a name="tth_sEc11.1">
+11.1</a>&nbsp;&nbsp;Constructors and Inner Classes</h3>
+<a name="sect:InnerClassCtor">
+</a>
 
 
 <div class="p"><!----></div>
@@ -2507,10 +3422,53 @@ class Elsewhere{
 </pre>
 
 <div class="p"><!----></div>
+ <h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;Local Classes</h2>
+<a name="sect:LocalClasses">
+</a>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc11">
-11</a>&nbsp;&nbsp;Anonymous Classes</h2>
+Classes can be defined and instantiated in the middle of methods and other
+code blocks.
+A local class in a static method is a static class; a local class in an
+instance method is an inner class.
+ Local classes are local to the block in which they are defined.
+They have access to almost everything defined at that point in the method; the
+one exception is that they cannot use <b>var</b> variables. Local classes
+cannot be <b>public</b> <b>protected</b>, or <b>private</b>, because they are
+only visible from within the block of declaration. They cannot be
+<b>static</b>.
+
+<div class="p"><!----></div>
+The following example illustrates the use of a local class <b>Local</b>, 
+defined inside the body of method <b>m()</b>. 
+<pre>
+class Outer {
+  val a = 1;
+  def m() {
+    val a = -2; 
+    val b = 2;
+    class Local {
+      val a = 3;
+      def m() = 100*Outer.this.a + 10*b + a; 
+    }
+    val l : Local = new Local();
+    assert l.m() == 123;
+  }//end of m()
+}
+</pre>
+Note that the middle <b>a</b>,
+whose value is <b>-2</b>, is not accessible inside of <b>Local</b>; it is
+shadowed by <b>Local</b>'s <b>a</b> field.  <b>Outer</b>'s <b>a</b> is also
+shadowed, but the notation <b>Outer.this</b> gives a reference to the enclosing
+<b>Outer</b> object.  There is no corresponding notation to access shadowed local
+variables from the enclosing block; if you need to get them, rename the fields
+of <b>Local</b>.    
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc13">
+13</a>&nbsp;&nbsp;Anonymous Classes</h2>
 
 
 
@@ -2519,7 +3477,7 @@ It is possible to define a new class and instantiate it as part of an
 expression.  The new class can extend an extant class or interface.  Its body
 can include all of the usual members of a class. It can refer to any
 identifiers available at that point in the expression - except for <b>var</b>
-variables.  
+variables.  An anonymous class in a static context is a static inner class.
 
 <div class="p"><!----></div>
 Anonymous classes are useful when you want to package several pieces of
@@ -2553,7 +3511,8 @@ rather roundabout manner.
 <pre>
 abstract class Choice(name: String) {
   def this(name:String) {property(name);}
-  def choose(b:Boolean) { if (b) this.yes(); else this.no(); }
+  def choose(b:Boolean) { 
+     if (b) this.yes(); else this.no(); }
   abstract def yes():void;
   abstract def no():void;
 }
@@ -2574,6 +3533,7 @@ class Example {
 <div class="p"><!----></div>
 </pre>
 
+
 <div class="p"><!----></div>
 Anonymous classes have many of the features of classes in general.  A few
 features are unavailable because they don't make sense.
@@ -2589,9 +3549,12 @@ features are unavailable because they don't make sense.
 <div class="p"><!----></div>
 </li>
 
-<li> Certain modifiers don't make sense for anonymous classes: <b>public</b>,
-      <b>private</b>, and <b>protected.</b>  Anonymous classes, being anonymous,
-      cannot be referenced at all.
+<li> The <b>public</b>,
+      <b>private</b>, and <b>protected</b>  modifiers don't make sense for
+      anonymous classes:  
+      Anonymous classes, being anonymous,
+      cannot be referenced at all, so references to them can't be public,
+      private, or protected.
 <div class="p"><!----></div>
 </li>
 
@@ -2618,18 +3581,43 @@ features are unavailable because they don't make sense.
 entails no compile-time or runtime cost.  Some cannot be, <em>e.g.</em>, in cases where
 cyclic structures of <b>val</b> fields are required.
 <div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We use <b>Pt</b>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>This only
+applies to nullary property methods, not nullary instance methods.  Nullary
+property methods perform limited computations, have no side effects, and
+always return the same value, since
+they have to be expressed in the constraint sublanguage.  In this sense, a
+nullary property method does not behave hugely different from a property.
+indeed, a compilation scheme which cached the value of the property method
+would all but erase the distinction.  Other methods may
+have more behavior, <em>e.g.</em>, side effects, so we keep the <b>()</b> to make it
+clear that a method call is potentially large.
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Indeed, even for the
+standard types, these operators are defined in the library.  Not even as basic
+an operation as integer addition is built into the language.  Conversely, if
+you define a full-featured numeric type, it will have most of the privileges that
+the standard ones enjoy.  The missing priveleges are (1) literals; (2) 
+the <b>..</b> operator won't compute the <b>zeroBased</b> and <b>rail</b>
+properties as it does for <b>Int</b> ranges; (3) <b>*</b> won't track ranks, as
+it does for <b>Region</b>s; 
+(4) <b>&amp;&amp;</b> and <b>&#124;&#124;</b> won't short-circuit, as they do for <b>Boolean</b>s, 
+(5) <b>a==b</b> will only coincide with
+<b>a.equals(b)</b> if coded that way; and (6) it is impossible to define an
+operation like <b>String.+</b> which converts both its left and right arguments
+from any type.  For example, a <b>Polar</b> type might
+have many representations for the origin, as radius 0 and any angle; these
+will be <b>equals()</b>, but will not be <b>==</b>.
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>We use <b>Pt</b>
 to avoid any possible confusion with the built-in class <b>Point</b>.
 <div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>This is abominable behavior for 
-<b>toString</b>, but nonetheless it is allowed.
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>This is abominable behavior for
+<b>toString</b>, but it cannot be prevented - save by a scheme such as we
+present in this section.
 <div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>The
+<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>The
       variable names are relevant because one formal can be mentioned in a
       later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+<br /><br />
 </html>
