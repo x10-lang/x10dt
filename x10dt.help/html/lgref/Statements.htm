@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -53,22 +53,29 @@ Chapter 12 </a><br />Statements</h1><a name="XtenStatements">
 <div class="p"><!----></div>
 This chapter describes the statements in the sequential core of
 X10.  Statements involving concurrency and distribution
-are described in &#167;14.
+are described in &#167;.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc1">
 1</a>&nbsp;&nbsp;Empty statement</h2>
 
 <div class="p"><!----></div>
-The empty statement <b>;</b> does nothing.  It is useful when a
-loop header is evaluated for its side effects.  For example,
-the following code sums the elements of a 1-dimensional array.
+The empty statement <b>;</b> does nothing.  
 
 <div class="p"><!----></div>
+Sometimes, the syntax of X10 requires a statement in some position, but you do
+not actually want to do any computation there.   
+The following code searches the array <b>a</b> for the value <b>v</b>, assumed
+to appear somewhere in <b>a</b>, and returns the index at which it was found.  
+There is no computation to do in the loop body, so we use an empty statement
+there. 
 <pre>
-var sum: Int = 0;
-for (var i: Int = 0; i &lt; a.size; i++, sum += a(i))
-    ;
+static def search[T](a: Array[T](1), v: T):Int {
+  var i : Int;
+  for(i = a.region.min(0); a(i) != v; i++)
+     ;
+  return i;
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -79,34 +86,39 @@ for (var i: Int = 0; i &lt; a.size; i++, sum += a(i))
 
 
 <div class="p"><!----></div>
-<em> 
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">LocalVariableDeclStatement    ::= LocalVariableDecl <b>;</b> </td></tr>
-<tr><td align="right">
- LocalVariableDecl    ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators </td></tr>
-<tr><td align="right">
-    &#124; Mods<sup>?</sup>&nbsp;VariableDeclaratorsWithType</td></tr>
-<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators</td></tr>
-<tr><td align="right">VariableDeclaratorsWithType    ::= VariableDeclaratorWithType </td></tr>
-<tr><td align="right">
-    &#124; VariableDeclaratorsWithType <b>,</b> VariableDeclaratorWithType</td></tr>
-<tr><td align="right">VariableDeclarators    ::= VariableDeclarator </td></tr>
-<tr><td align="right">
-    &#124; VariableDeclarators <b>,</b> VariableDeclarator</td></tr>
-<tr><td align="right">VariableInitializer    ::= Exp </td></tr>
-<tr><td align="right">
- FormalDeclarators    ::= FormalDeclarator </td></tr>
-<tr><td align="right">
-    &#124; FormalDeclarators <b>,</b> FormalDeclarator</td></tr>
+
+<tr><td align="right">LocVarDecl ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarDeclsWType </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators </td></tr>
+<tr><td align="right">LocVarDeclStmt ::= LocVarDecl <b>;</b> </td></tr>
+<tr><td align="right">VarDeclWType ::= Id HasResultType <b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType <b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType <b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">VarDeclsWType ::= VarDeclWType </td></tr>
+<tr><td align="right">&#124; VarDeclsWType <b>,</b> VarDeclWType </td></tr>
+<tr><td align="right">VariableDeclarators ::= VariableDeclarator </td></tr>
+<tr><td align="right">&#124; VariableDeclarators <b>,</b> VariableDeclarator </td></tr>
+<tr><td align="right">VariableInitializer ::= Exp </td></tr>
+<tr><td align="right">FormalDeclarators ::= FormalDeclarator </td></tr>
+<tr><td align="right">&#124; FormalDeclarators <b>,</b> FormalDeclarator </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 Short-lived variables are introduced by local variables declarations, as
-described in &#167;5. Local variables may be declared only
+described in &#167;. Local variables may be declared only
 within a block statement (&#167;). The scope of a local variable
-declaration is the statement itself and the subsequent statements in the
-block.
+declaration is the subsequent statements in the
+block.   
 <pre>
   if (a &#62; 1) {
      val b = a/2;
@@ -117,6 +129,63 @@ block.
 </pre>
 
 <div class="p"><!----></div>
+Variables declared in such statements shadow variables of the same
+name declared elsewhere.
+A local variable of a given name, say <b>x</b>, cannot shadow another local
+variable or parameter named <b>x</b> unless there is an intervening method or
+closure declaration, or unless the inner <b>x</b> is declared inside an
+<b>async</b> or <b>at</b> statement and the outer variable is declared outside
+of that.   Strictly, <b>at</b> introduces a new scope that does not share the
+variables of the external scope, so its variables do not actually shadow those
+outside.  
+
+<div class="p"><!----></div>
+The following code illustrates both legal and illegal uses of shadowing.
+Note that a shadowed <em>field</em> name <b>x</b> can still be accessed 
+as <b>this.x</b>. 
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+class Shadow{
+  var x : Int; 
+  def this(x:Int) { 
+     // Parameter can shadow field
+     this.x = x; 
+  }
+  def example(y:Int) {
+     val x = &#223;hadows a field";
+     // ERROR: val y = &#223;hadows a param";
+     val z = "local";
+     for (a in [1,2,3]) {
+        // ERROR: val x = "can't shadow local var";
+     }
+     async {
+        val x = "can shadow through async";
+     }        
+     val f = () =&#62; { 
+       val x = "can shadow through closure";
+       x
+     };
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Note that recursive definitions of local variables is not allowed.  There are
+few useful recursive declarations of objects and structs; <b>x</b>, in the
+following example, has no meaningful definition.  Recursive declarations of
+local functions is forbidden, even though (like <b>f</b> below) there are
+meaningful uses of it.  
+<pre>
+val x : Int = x + 1; // ERROR: recursive local declaration
+val f : (Int)=&#62;Int 
+      = (n:Int) =&#62; (n &lt;= 2) ? 1 : f(n-1) + f(n-2);
+      // ERROR: recursive local declaration
+</pre>
+
+<div class="p"><!----></div>
  <h2><a name="tth_sEc3">
 3</a>&nbsp;&nbsp;Block statement</h2>
 
@@ -124,18 +193,23 @@ block.
 </a>
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">Block    ::= <b>{</b> BlockStatements<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- BlockStatements    ::= BlockStatement </td></tr>
-<tr><td align="right">
-    &#124; BlockStatements BlockStatement</td></tr>
-<tr><td align="right">BlockStatement    ::= LocalVariableDeclStatement </td></tr>
-<tr><td align="right">
-    &#124; ClassDecl</td></tr>
-<tr><td align="right">&#124; TypeDefDecl</td></tr>
-<tr><td align="right">&#124; Statement</td></tr>
+
+<tr><td align="right">Block ::= <b>{</b> BlockStatements<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">BlockStatements ::= BlockStatement </td></tr>
+<tr><td align="right">&#124; BlockStatements BlockStatement </td></tr>
+<tr><td align="right">BlockStatement ::= LocVarDeclStmt </td></tr>
+<tr><td align="right">&#124; ClassDecl </td></tr>
+<tr><td align="right">&#124; TypeDefDecl </td></tr>
+<tr><td align="right">&#124; Statement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -159,29 +233,44 @@ if (b) {
 4</a>&nbsp;&nbsp;Expression statement</h2>
 
 <div class="p"><!----></div>
-<em>  
+Any expression may be used as a statement.
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">ExpStatement    ::= StatementExp <b>;</b> </td></tr>
-<tr><td align="right">
- StatementExp    ::= Assignment </td></tr>
-<tr><td align="right">
-    &#124; PreIncrementExp</td></tr>
-<tr><td align="right">&#124; PreDecrementExp</td></tr>
-<tr><td align="right">&#124; PostIncrementExp</td></tr>
-<tr><td align="right">&#124; PostDecrementExp</td></tr>
-<tr><td align="right">&#124; MethodInvocation</td></tr>
-<tr><td align="right">&#124; ClassInstCreationExp</td></tr>
+
+<tr><td align="right">ExpStatement ::= StatementExp <b>;</b> </td></tr>
+<tr><td align="right">StatementExp ::= Assignment </td></tr>
+<tr><td align="right">&#124; PreIncrementExp </td></tr>
+<tr><td align="right">&#124; PreDecrementExp </td></tr>
+<tr><td align="right">&#124; PostIncrementExp </td></tr>
+<tr><td align="right">&#124; PostDecrementExp </td></tr>
+<tr><td align="right">&#124; MethodInvocation </td></tr>
+<tr><td align="right">&#124; ClassInstCreationExp </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-The expression statement evaluates an expression.  The value of the expression
-is not used.
-Side effects of the expression occur.  
+The expression statement evaluates an expression. The value of the expression
+is not used. Side effects of the expression occur, and may produce results
+used by following statements. Indeed, statement expressions which terminate
+without side effects cannot have any visible effect on the results of the
+computation. 
+
+<div class="p"><!----></div>
 <pre>
 class StmtEx {
-  def this() { x10.io.Console.OUT.println("New StmtEx made");  }
-  static def call() { x10.io.Console.OUT.println("call!");  }
+  def this() { 
+     x10.io.Console.OUT.println("New StmtEx made");  }
+  static def call() { 
+     x10.io.Console.OUT.println("call!");}
   def example() {
      var a : Int = 0;
      a = 1; // assignment
@@ -190,9 +279,7 @@ class StmtEx {
   }
 }
 </pre>
-Only selected forms of expression can appear in expression
-statements: assignments, increments, decrements, method invocations, and
-constructor invocations. 
+
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc5">
@@ -201,24 +288,27 @@ constructor invocations.
 
 
 <div class="p"><!----></div>
-<em>  
+  :  |        <em>  
 <table>
-<tr><td align="right">LabeledStatement    ::= Id <b>:</b> LoopStatement </td></tr>
-<tr><td align="right">
- LoopStatement    ::= ForStatement </td></tr>
-<tr><td align="right">
-    &#124; WhileStatement</td></tr>
-<tr><td align="right">&#124; DoStatement</td></tr>
-<tr><td align="right">&#124; AtEachStatement</td></tr>
-<tr><td align="right"></td></tr></table>
+<tr><td align="right">LabeledStatement ::= Id <b>:</b> Statement 
+</td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-Loop statements (<b>for</b>, <b>while</b>, <b>do</b>, <b>ateach</b>) may be labeled. The label may be used as the target of a break
-or continue statement. The scope of a label is the statement labeled.
+Statements may be labeled. The label may be used to describe the target of a
+<b>break</b> statement appearing within a substatement (which, when executed,
+ends the labeled statement), or, in the case of a loop, a <b>continue</b> as
+well (which, when executed, proceeds to the next iteration of the loop). The
+scope of a label is the statement labeled.
+
+<div class="p"><!----></div>
+The label on the outer <b>for</b> statement allows <b>continue</b> and
+<b>break</b> statements to continue or break it.  Without the label,
+<b>continue</b> or <b>break</b> would only continue or break the inner <b>for</b>
+loop. 
 <pre>
-lbl : for ([i] in 1..10) {
-   for ([j] in i..10) {  
+lbl : for (i in 1..10) {
+   for (j in i..10) {  
       if (a(i,j) == 0) break lbl;
       if (a(i,j) == 1) continue lbl;
       if (a(i,j) == a(j,i)) break lbl;
@@ -226,40 +316,69 @@ lbl : for ([i] in 1..10) {
 }
 </pre>
 
+
+<div class="p"><!----></div>
+In particular, a block statement may be labeled: <b> L:S</b>.  This allows
+the use of <b>break L</b> within <b>S</b> to leave <b>S</b>, which can, if
+carefully used, avoid deeply-nested <b>if</b>s. 
+
+<div class="p"><!----></div>
+<pre>
+multiphase: {
+  if (!exists(filename)) break multiphase;
+  phase1(filename);
+  if (!suitable_for_phase_2(filename)) break multiphase;
+  phase2(filename);
+  if (!suitable_for_phase_3(filename)) break multiphase;
+  phase3(filename);
+}
+// Now the file has been phased as much as possible
+</pre>
+
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> Blocks cannot currently be labeled.
+
 <div class="p"><!----></div>
  <h2><a name="tth_sEc6">
 6</a>&nbsp;&nbsp;Break statement</h2>
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">BreakStatement    ::= <b>break</b> Id<sup>?</sup>&nbsp;<b>;</b> </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">BreakStatement ::= <b>break</b> Id<sup>?</sup>&nbsp;<b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 An unlabeled break statement exits the currently enclosing loop or switch
-statement. An labeled break statement exits the enclosing loop or switch
+statement. A labeled break statement exits the enclosing 
 statement with the given label.
-It is illegal to break out of a loop not defined in the current
+It is illegal to break out of a statement not defined in the current
 method, constructor, initializer, or closure.  
 
 <div class="p"><!----></div>
 The following code searches for an element of a two-dimensional
 array and breaks out of the loop when it is found:
-
-<div class="p"><!----></div>
 <pre>
 var found: Boolean = false;
-outer: for (var i: Int = 0; i &lt; a.length; i++)
-    for (var j: Int = 0; j &lt; a(i).length; j++)
+outer: for (var i: Int = 0; i &lt; a.size; i++)
+    for (var j: Int = 0; j &lt; a(i).size; j++)
         if (a(i)(j) == v) {
             found = true;
             break outer;
         }
 </pre>
+
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc7">
@@ -267,14 +386,19 @@ outer: for (var i: Int = 0; i &lt; a.length; i++)
 
 
 <div class="p"><!----></div>
-<em>  
-<table>
-<tr><td align="right">ContinueStatement    ::= <b>continue</b> Id<sup>?</sup>&nbsp;<b>;</b> </td></tr>
-<tr><td align="right">
-</td></tr></table>
-</em>
 
-<div class="p"><!----></div>
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">ContinueStatement ::= <b>continue</b> Id<sup>?</sup>&nbsp;<b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
 An unlabeled <b>continue</b> skips the rest of the current iteration of the
 innermost enclosing loop, and proceeds on to the next.  A labeled
 <b>continue</b> does the same to the enclosing loop with that label.
@@ -287,13 +411,19 @@ method, constructor, initializer, or closure.
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">IfThenStatement    ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
-<tr><td align="right">
- IfThenElseStatement    ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement  <b>else</b> Statement  </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">IfThenStatement ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right">IfThenElseStatement ::= <b>if</b> <b>(</b> Exp <b>)</b> Statement  <b>else</b> Statement  </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -306,7 +436,7 @@ The if-then statement evaluates a condition expression, which must be of type
 If the condition is <b>false</b>, the if-then statement completes normally.
 
 <div class="p"><!----></div>
-The if-then-else statement evaluates a condition expression and 
+The if-then-else statement evaluates a <b>Boolean</b> expression and 
 evaluates the then-clause if the condition is
 <b>true</b>; otherwise, the <b>else</b>-clause is evaluated.
 
@@ -335,49 +465,49 @@ This example is interpreted as
 
 
 <div class="p"><!----></div>
-<em>  
-<table>
-<tr><td align="right">SwitchStatement    ::= <b>switch</b> <b>(</b> Exp <b>)</b> SwitchBlock </td></tr>
-<tr><td align="right">
 
-<div class="p"><!----></div>
- SwitchBlock    ::= <b>{</b> SwitchBlockStatementGroups<sup>?</sup>&nbsp;SwitchLabels<sup>?</sup>&nbsp;<b>}</b> </td></tr>
-<tr><td align="right">
- SwitchBlockStatementGroups    ::= SwitchBlockStatementGroup </td></tr>
-<tr><td align="right">
-    &#124; SwitchBlockStatementGroups SwitchBlockStatementGroup</td></tr>
-<tr><td align="right">SwitchBlockStatementGroup    ::= SwitchLabels BlockStatements </td></tr>
-<tr><td align="right">
- SwitchLabels    ::= SwitchLabel </td></tr>
-<tr><td align="right">
-    &#124; SwitchLabels SwitchLabel</td></tr>
-<tr><td align="right">SwitchLabel    ::= <b>case</b> ConstantExp <b>:</b> </td></tr>
-<tr><td align="right">
-    &#124; <b>default</b> <b>:</b></td></tr>
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">SwitchStatement ::= <b>switch</b> <b>(</b> Exp <b>)</b> SwitchBlock </td></tr>
+<tr><td align="right">SwitchBlock ::= <b>{</b> SwitchBlockGroups<sup>?</sup>&nbsp;SwitchLabels<sup>?</sup>&nbsp;<b>}</b> </td></tr>
+<tr><td align="right">SwitchBlockGroups ::= SwitchBlockGroup </td></tr>
+<tr><td align="right">&#124; SwitchBlockGroups SwitchBlockGroup </td></tr>
+<tr><td align="right">SwitchBlockGroup ::= SwitchLabels BlockStatements </td></tr>
+<tr><td align="right">SwitchLabels ::= SwitchLabel </td></tr>
+<tr><td align="right">&#124; SwitchLabels SwitchLabel </td></tr>
+<tr><td align="right">SwitchLabel ::= <b>case</b> ConstantExp <b>:</b> </td></tr>
+<tr><td align="right">&#124; <b>default</b> <b>:</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 A switch statement evaluates an index expression and then branches to
-a case whose value equal to the value of the index expression.
+a case whose value is equal to the value of the index expression.
 If no such case exists, the switch branches to the 
 <b>default</b> case, if any.
 
 <div class="p"><!----></div>
-Statements in each case branch evaluated in sequence.  At the
+Statements in each case branch are evaluated in sequence.  At the
 end of the branch, normal control-flow falls through to the next case, if
 any.  To prevent fall-through, a case branch may be exited using
 a <b>break</b> statement.
 
 <div class="p"><!----></div>
 The index expression must be of type <b>Int</b>.
-Case labels must be of type <b>Int</b>, <b>Byte</b>, <b>Short</b>, or <b>Char</b>
+Case labels must be of type <b>Int</b>, <b>Byte</b>, or <b>Short</b>, 
 and must be compile-time 
 constants.  Case labels cannot be duplicated within the
 <b>switch</b> statement.
 
 <div class="p"><!----></div>
-In the following example, case <b>1</b> falls through to case <b>2</b>.  The
+In this <b>switch</b>, case <b>1</b> falls through to case <b>2</b>.  The
 other cases are separated by <b>break</b>s.
 <pre>
 switch (i) {
@@ -391,17 +521,25 @@ switch (i) {
 }
 </pre>
 
+
 <div class="p"><!----></div>
  <h2><a name="tth_sEc10">
 10</a>&nbsp;&nbsp;While statement</h2>
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">WhileStatement    ::= <b>while</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">WhileStatement ::= <b>while</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -412,27 +550,37 @@ target), the condition is reevaluated and the loop repeats if <b>true</b>. If
 the condition is <b>false</b>, the loop exits.
 
 <div class="p"><!----></div>
+A loop to execute the process in the Collatz conjecture (a.k.a. 3n+1 problem,
+Ulam conjecture, Kakutani's problem, Thwaites conjecture, Hasse's algorithm,
+and Syracuse problem) can be written as follows:
 <pre>
   while (n &#62; 1) {
      n = (n % 2 == 1) ? 3*n+1 : n/2;
   }
 </pre>
 
-<div class="p"><!----></div>
+
  <h2><a name="tth_sEc11">
 11</a>&nbsp;&nbsp;Do-while statement</h2>
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">DoStatement    ::= <b>do</b> Statement <b>while</b> <b>(</b> Exp <b>)</b> <b>;</b> </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">DoStatement ::= <b>do</b> Statement <b>while</b> <b>(</b> Exp <b>)</b> <b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
-A do-while statement executes a loop body, and then evaluates a
+A <b>do-while</b> statement executes the loop body, and then evaluates a
 <b>Boolean</b>-valued condition expression. If <b>true</b>, the loop repeats.
 Otherwise, the loop exits.
 
@@ -442,24 +590,26 @@ Otherwise, the loop exits.
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">ForStatement    ::= BasicForStatement </td></tr>
-<tr><td align="right">
-    &#124; EnhancedForStatement</td></tr>
-<tr><td align="right">BasicForStatement    ::= <b>for</b> <b>(</b> ForInit<sup>?</sup>&nbsp;<b>;</b> Exp<sup>?</sup>&nbsp;<b>;</b> ForUpdate<sup>?</sup>&nbsp;<b>)</b> Statement </td></tr>
-<tr><td align="right">
- ForInit    ::= StatementExpList </td></tr>
-<tr><td align="right">
-    &#124; LocalVariableDecl</td></tr>
-<tr><td align="right">ForUpdate    ::= StatementExpList </td></tr>
-<tr><td align="right">
- StatementExpList    ::= StatementExp </td></tr>
-<tr><td align="right">
-    &#124; StatementExpList <b>,</b> StatementExp</td></tr>
-<tr><td align="right">EnhancedForStatement    ::= <b>for</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> Statement </td></tr>
-<tr><td align="right">
-    &#124; <b>for</b> <b>(</b> Exp <b>)</b> Statement</td></tr>
+
+<tr><td align="right">ForStatement ::= BasicForStatement </td></tr>
+<tr><td align="right">&#124; EnhancedForStatement </td></tr>
+<tr><td align="right">BasicForStatement ::= <b>for</b> <b>(</b> ForInit<sup>?</sup>&nbsp;<b>;</b> Exp<sup>?</sup>&nbsp;<b>;</b> ForUpdate<sup>?</sup>&nbsp;<b>)</b> Statement </td></tr>
+<tr><td align="right">ForInit ::= StatementExpList </td></tr>
+<tr><td align="right">&#124; LocVarDecl </td></tr>
+<tr><td align="right">ForUpdate ::= StatementExpList </td></tr>
+<tr><td align="right">StatementExpList ::= StatementExp </td></tr>
+<tr><td align="right">&#124; StatementExpList <b>,</b> StatementExp </td></tr>
+<tr><td align="right">EnhancedForStatement ::= <b>for</b> <b>(</b> LoopIndex <b>in</b> Exp <b>)</b> Statement </td></tr>
+<tr><td align="right">&#124; <b>for</b> <b>(</b> Exp <b>)</b> Statement </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -470,8 +620,9 @@ C, and an enhanced form designed to iterate over a collection.
 
 <div class="p"><!----></div>
 A basic <b>for</b> statement provides for arbitrary iteration in a somewhat
-more organized fashion than a <b>while</b>.  <b>for(init; test; step)body</b> is
-equivalent to: 
+more organized fashion than a <b>while</b>.  The loop 
+<b>for(init; test; step)body</b> is
+similar to: 
 <pre>
 {
    init;
@@ -481,6 +632,9 @@ equivalent to:
    }
 }
 </pre>
+
+except that <b>continue</b> statements which continue the <b>for</b> loop will
+perform the <b>step</b>, which, in the <b>while</b> loop, they will not do. 
 
 <div class="p"><!----></div>
 <b>init</b> is performed before the loop, and is traditionally used to declare
@@ -495,14 +649,14 @@ If omitted, <b>init</b> does nothing.
 <div class="p"><!----></div>
 <b>test</b> is a Boolean-valued expression; an iteration of the loop will only
 proceed if <b>test</b> is true at the beginning of the loop, after <b>init</b>
-on the first iteration or or <b>step</b> on later ones. If omitted, <b>test</b>
+on the first iteration or after <b>step</b> on later ones. If omitted, <b>test</b>
 defaults to <b>true</b>, giving a loop that will run until stopped by some
 other means such as <b>break</b>, <b>return</b>, or <b>throw</b>.
 
 <div class="p"><!----></div>
 <b>step</b> is performed after the loop body, between one iteration and the
 next. It traditionally updates the loop variables from one iteration to the
-next: <em>e.g.</em>, <b>i++</b> and <b>i++,j--</b>.  If omitted, <b>step</b> does nothing.
+next: <em>e.g.</em>, <b>i++</b> and <b>i++,j-</b>.  If omitted, <b>step</b> does nothing.
 
 <div class="p"><!----></div>
 <b>body</b> is a statement, often a code block, which is performed whenever
@@ -514,23 +668,65 @@ next: <em>e.g.</em>, <b>i++</b> and <b>i++,j--</b>.  If omitted, <b>step</b> doe
 structure designed to support iteration by implementing the interface
 <b>Iterable[T]</b>.    The loop variable must be of type <b>T</b>, 
 or destructurable from a value of type <b>T</b>
-(&#167;; in practice, this means that 
-<b>for ([i] in 1..10)</b> iterates over numbers from 1 to 10, while 
-<b>for (i in 1..10</b> iterates over <b>Point</b>s from 1 to 10).
+(&#167;).  
 Each iteration of the loop
 binds the iteration variable to another element of the collection.
-
-<div class="p"><!----></div>
+The loop <b>for(x in c)S</b> behaves like: 
 <pre>
-  var sum : Int = 0;
-  for ([i] in 1..n) sum += i;
+val iterator: Iterator[T] = c.iterator();
+while (iterator.hasNext()) {
+  val x : T = iterator.next();
+  S();
+}
 </pre>
 
 <div class="p"><!----></div>
 A number of library classes implement <b>Iterable</b>, and thus can be iterated
 over.  For example, iterating over a <b>Region</b> iterates the <b>Point</b>s in
-the region, and iterating over a <b>DistArray</b> iterates over the
-<b>Point</b>s at which the distributed array is defined.
+the region, and iterating over an <b>Array</b> iterates over the
+<b>Point</b>s at which the  array is defined.
+
+<div class="p"><!----></div>
+The type of the loop variable may be supplied as <b>x &lt;: T</b>.  In this case
+the iterable <b>c</b> must have type <b>Iterable[U</b> for some <b>U &lt;: T</b>,
+and <b>x</b> will be given the type <b>U</b>.
+
+<div class="p"><!----></div>
+This loop adds up the elements of a <b>List[Int]</b>.
+Note that iterating over a list yields the elements of the list, as specified
+in the <b>List</b> API. 
+<pre>
+static def sum(a:x10.util.List[Int]):Int {
+  var s : Int = 0;
+  for(x in a) s += x;
+  return s;
+}
+</pre>
+
+<div class="p"><!----></div>
+The following code sums the elements of an integer array.  Note that the
+<b>for</b> loop iterates over the indices of the array, not the elements, as
+specified in the <b>Array</b> API.  
+<pre>
+static def sum(a: Array[Int]): Int {
+  var s : Int = 0;
+  for(p in a) s += a(p);
+  return s;
+}
+</pre>
+
+<div class="p"><!----></div>
+Iteration over an <b>IntRange</b> () is quite common. This
+allows looping while varying an integer index: 
+<pre>
+var sum : Int = 0;
+for(i in 1..10) sum += i;
+assert sum == 55;
+</pre>
+
+<div class="p"><!----></div>
+Iteration variables have the <b>for</b> statement as scope.  They shadow other
+variables of the same names.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc13">
@@ -540,18 +736,38 @@ the region, and iterating over a <b>DistArray</b> iterates over the
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">ReturnStatement    ::= <b>return</b> Exp<sup>?</sup>&nbsp;<b>;</b> </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">ReturnStatement ::= <b>return</b> Exp<sup>?</sup>&nbsp;<b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 Methods and closures may return values using a return statement.
-If the method's return type is expliclty declared <b>void</b>,
+If the method's return type is explicitely declared <b>void</b>,
 the method must return without a value; otherwise, it must return
 a value of the appropriate type.
+
+<div class="p"><!----></div>
+The following code illustrates returning values from a closure and a method.
+The <b>return</b> inside of <b>closure</b> returns from <b>closure</b>, not from
+<b>method</b>.  
+<pre>
+def method(x:Int) {
+  val closure = (y:Int) =&#62; {return x+y;}; 
+  val res = closure(0);
+  assert res == x;
+  return res == x;
+}
+</pre>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc14">
@@ -559,45 +775,58 @@ a value of the appropriate type.
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">AssertStatement    ::= <b>assert</b> Exp <b>;</b> </td></tr>
-<tr><td align="right">
-    &#124; <b>assert</b> Exp  <b>:</b> Exp  <b>;</b></td></tr>
+
+<tr><td align="right">AssertStatement ::= <b>assert</b> Exp <b>;</b> </td></tr>
+<tr><td align="right">&#124; <b>assert</b> Exp  <b>:</b> Exp  <b>;</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
 The statement <b>assert E</b> checks that the Boolean expression <b>E</b>
 evaluates to true, and, if not, throws an <b>x10.lang.Error</b>  exception.  
-The annotated assertion <b>assert E : F;</b> checks <b>E</b>, and, if it is
+The annotated assertion statement <b>assert E : F;</b> checks <b>E</b>, and, if
+it is 
 false, throws an <b>x10.lang.Error</b> exception with <b>F</b>'s value attached
 to it. 
 
 <div class="p"><!----></div>
-For example, 
+The following code compiles properly.  
 <pre>
 class Example {
   public static def main(argv:Array[String](1)) {
     val a = 1;
-    assert a != 1 : "Changed my mind about a";
+    assert a != 1 : "Changed my mind about a.";
   }
 }
 </pre>
 
-compiles properly, but prints a stack trace starting with 
+However, when run, it 
+prints a stack trace starting with 
 <pre>
-x10.lang.Error: Changed my mind about a
+x10.lang.Error: Changed my mind about a.
 </pre>
+
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc15">
 15</a>&nbsp;&nbsp;Exceptions in X10</h2>
 
 
+
+
 <div class="p"><!----></div>
 X10 programs can throw <em>Exceptions</em> to indicate unusual or problematic
-situations.  Exceptions, as data values, are objects which which inherit from
+situations; this is <em>abrupt termination</em>.  Exceptions, as data values, are
+objects which which inherit from 
 <b>x10.lang.Throwable</b>.    Exceptions may be thrown intentionally with the
 <b>throw</b> statement. Many primitives and library functions throw exceptions
 if they encounter problems; <em>e.g.</em>, dividing by zero throws an instance of
@@ -617,7 +846,7 @@ exception from the point at which the method was called.
 This process continues until the exception is handled or there are no more
 calling methods in the activity. In the latter case, the activity will
 terminate abnormally, and the exception will propagate to the activity's root;
-see &#167; for details.
+see  for details.
 
 <div class="p"><!----></div>
 Unlike some statically-typed languages with exceptions, X10's exceptions are
@@ -630,11 +859,18 @@ any method can, potentially, throw any exception.
 
 
 <div class="p"><!----></div>
-<em>  
+
+ 
+ 
+  
+  
+  
+  <em>
+  
 <table>
-<tr><td align="right">ThrowStatement    ::= <b>throw</b> Exp <b>;</b> </td></tr>
-<tr><td align="right">
-</td></tr></table>
+
+<tr><td align="right">ThrowStatement ::= <b>throw</b> Exp <b>;</b> </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -642,35 +878,45 @@ any method can, potentially, throw any exception.
 instance of a subtype of <b>x10.lang.Throwable</b>. 
 
 <div class="p"><!----></div>
-For example, the following code checks if an index is in range and
+The following code checks if an index is in range and
 throws an exception if not.
 
 <div class="p"><!----></div>
 <pre>
-if (i &lt; 0 &#124;&#124; i &#62;= x.length)
+if (i &lt; 0 &#124;&#124; i &#62;= x.size)
     throw new MyIndexOutOfBoundsException();
 </pre>
+
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc17">
 17</a>&nbsp;&nbsp;Try-catch statement</h2>
-<em>  
-<table>
 
-<tr><td align="right">TryStatement    ::= <b>try</b> Block Catches </td></tr>
-<tr><td align="right">
-    &#124; <b>try</b> Block Catches<sup>?</sup>&nbsp;Finally</td></tr>
-<tr><td align="right">Catches    ::= CatchClause </td></tr>
-<tr><td align="right">
-    &#124; Catches CatchClause</td></tr>
-<tr><td align="right">CatchClause    ::= <b>catch</b> <b>(</b> FormalParam <b>)</b> Block </td></tr>
-<tr><td align="right">
- Finally    ::= <b>finally</b> Block </td></tr>
-<tr><td align="right">
+
+
+
 
 <div class="p"><!----></div>
-</td></tr></table>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">TryStatement ::= <b>try</b> Block Catches </td></tr>
+<tr><td align="right">&#124; <b>try</b> Block Catches<sup>?</sup>&nbsp;Finally </td></tr>
+<tr><td align="right">Catches ::= CatchClause </td></tr>
+<tr><td align="right">&#124; Catches CatchClause </td></tr>
+<tr><td align="right">CatchClause ::= <b>catch</b> <b>(</b> Formal <b>)</b> Block </td></tr>
+<tr><td align="right">Finally ::= <b>finally</b> Block </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
+
+<div class="p"><!----></div>
 Exceptions are handled with a <b>try</b> statement.
 A <b>try</b> statement consists of a <b>try</b> block, zero or more
 <b>catch</b> blocks, and an optional <b>finally</b> block.
@@ -698,10 +944,67 @@ matching <b>catch</b> block, if any, and then the
 exception is rethrown.
 
 <div class="p"><!----></div>
+The parameter of a <b>catch</b> block has the block as scope.  It shadows other
+variables of the same name.
 
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 16 Oct 2010, 13:23.</small>
+<div class="p"><!----></div>
+The <b>example()</b> method below executes without any assertion errors
+<pre>
+class Exn extends Throwable{}
+class SubExn(n:Int) extends Exn{}
+class Example {
+  static def example() {
+    var correct : Boolean = false;
+    try {
+       throw new SubExn(4);
+    }
+    catch (e : Exn)          { correct = true; }
+    catch (e : SubExn)       { assert false; }
+    catch (e : Throwable)    { assert false; }
+    assert correct; 
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc18">
+18</a>&nbsp;&nbsp;Assert</h2>
+
+<div class="p"><!----></div>
+The <b>assert</b> statement 
+<b>assert B;</b> 
+checks that the Boolean expression <b>B</b> evaluates to true.  If so,
+computation proceeds.  If not, it throws <b>x10.lang.AssertionError</b>.
+
+<div class="p"><!----></div>
+The extended form 
+<b>assert B:A;</b>
+is similar, but provides more debugging information.  The value of the
+expression <b>A</b> is available as part of the <b>AssertionError</b>, <em>e.g.</em>, to
+be printed on the console.
+
+<div class="p"><!----></div>
+<b>assert</b> is useful for confirming properties that you believe to be true
+and wish to rely on.  In particular, well-chosen <b>assert</b>s make a program
+robust in the face of code changes and unexpected uses of methods.
+For example, the following method compute percent differences, but asserts
+that it is not dividing by zero.  If the mean is zero, it throws an exception,
+including the values of the numbers as potentially useful debugging
+information. 
+<pre>
+static def percentDiff(x:Double, y:Double) {
+  val diff = x-y;
+  val mean = (x+y)/2;
+  assert mean != 0.0  : [x,y]; 
+  return Math.abs(100 * (diff / mean));
+}
+</pre>
+
+<div class="p"><!----></div>
+At times it may be considered important not to check <b>assert</b> statements;
+<em>e.g.</em>, if the test is expensive and the code is sufficiently well-tested.  The
+<b>-noassert</b> command line option causes the compiler to ignore all
+<b>assert</b> statements. 
+
+<br /><br />
 </html>
