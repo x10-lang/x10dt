@@ -69,8 +69,8 @@ public class CompilerOptionsFactory {
     }
     
     public static void setOptionsNoCodeGen(IPreferencesService prefService, X10CompilerOptions options){
-        options.x10_config.STATIC_CALLS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
-        options.x10_config.VERBOSE_CALLS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
+        options.x10_config.STATIC_CHECKS = prefService.getBooleanPreference(X10Constants.P_STATICCALLS);
+        options.x10_config.VERBOSE_CHECKS = prefService.getBooleanPreference(X10Constants.P_VERBOSECALLS);
         options.x10_config.OPTIMIZE = prefService.getBooleanPreference(X10Constants.P_OPTIMIZE);
     }
 }
