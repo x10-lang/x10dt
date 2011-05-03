@@ -27,14 +27,15 @@
   <target name="x10-checkouts-existence">
     <condition property="are-plugins-present">
       <and>
-        <available file="${x10.build.loc}/x10.common" type="dir" />
+        <available file="${x10.build.loc}/x10.common"      type="dir" />
         <available file="${x10.build.loc}/x10.constraints" type="dir" />
-        <available file="${x10.build.loc}/x10.compiler" type="dir" />
-        <available file="${x10.build.loc}/x10.runtime" type="dir" />
-        <available file="${x10.build.loc}/x10.wala" type="dir" />
-        <available file="${x10.build.loc}/x10dt.update" type="dir" />
-        <available file="${x10.build.loc}/x10dt.feature" type="dir" />
-        <available file="${x10.build.loc}/x10.dist.host" type="dir" />
+        <available file="${x10.build.loc}/x10.compiler"    type="dir" />
+        <available file="${x10.build.loc}/x10.doc"         type="dir" />
+        <available file="${x10.build.loc}/x10.runtime"     type="dir" />
+        <available file="${x10.build.loc}/x10.wala"        type="dir" />
+        <available file="${x10.build.loc}/x10dt.update"    type="dir" />
+        <available file="${x10.build.loc}/x10dt.feature"   type="dir" />
+        <available file="${x10.build.loc}/x10.dist.host"   type="dir" />
       </and>
     </condition>
   </target>
@@ -48,6 +49,8 @@
                 destPath="${x10.build.loc}/x10.common" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.constraints" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.constraints" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.doc" revision="${x10.revision}" 
+                destPath="${x10.build.loc}/x10.doc" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.runtime" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.runtime" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}/x10.wala" revision="${x10.revision}" 
