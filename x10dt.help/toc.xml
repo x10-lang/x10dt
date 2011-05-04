@@ -257,7 +257,7 @@
 		<topic label="Compiler plugins" href="html/langref/ann-plugins.html"/> 
 -->
 	</topic>
-	<topic label="Native Code Integration" href="html/langref/extern.html"> 
+	<topic label="Native Code Integration" href="html/langref/NativeCode.html"> 
 		<topic label="Native static Methods" href="html/langref/ext-static.html"/> 
 		<topic label="Native Blocks" href="html/langref/ext-blocks.html"/> 
 		<topic label="External Java Code" href="html/langref/ext-javacode.html"/> 
@@ -277,6 +277,7 @@
 	<topic label="Overview of X10"  href="html/lgref/Overview.htm"/>
 	<topic label="Lexical structure"  href="html/lgref/Lex.htm"/> 
 	<topic label="Types" href="html/lgref/Types.htm"/>
+	<topic label="Variables" href="html/lgref/Vars.htm"/>
 	<topic label="Names and packages" href="html/lgref/Packages.htm"/>
 	<topic label="Interfaces" href="html/lgref/Interfaces.htm"/>
 	<topic label="Classes" href="html/lgref/Classes.htm"/> 
@@ -289,12 +290,15 @@
 	<topic label="Clocks" href="html/lgref/Clocks.htm"/> 
 	<topic label="Local and Distributed Arrays" href="html/lgref/Arrays.htm"/> 
 	<topic label="Annotations" href="html/lgref/Annotations.htm"/> 
-	<topic label="Native Code Integration" href="html/lgref/extern.htm"/> 
+	<topic label="Native Code Integration" href="html/lgref/NativeCode.htm"/> 
+<!--	
 	<topic label="Definite Assignment" href="html/lgref/DefiniteAssignment.htm"/>
+-->	
 	<topic label="Grammar" href="html/lgref/grammar.htm"/>
 	<topic label="References" href="html/lgref/refs.html"/>
-	<topic label="Changes" href="html/lgref/changelog.htm"/>
-	<topic label="Options" href="html/lgref/options.html"/> 
+	<topic label="Deprecations" href="html/lgref/NotCovered.html"/>
+	<topic label="Change Log" href="html/lgref/ChangeLog.htm"/>
+	<topic label="Options" href="html/lgref/Options.html"/> 
 </topic>
 
 
