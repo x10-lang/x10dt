@@ -13,28 +13,33 @@
  span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
  
       
-<title>`</title>
+C:\tth\tth_exe>go3 InnerClasses.htm
+<li><a href="#tth_sEc1">Static Nested Classes</a> <br/>
+<li><a href="#tth_sEc2">Inner Classes</a> <br/>
+<li><a href="#tth_sEc3">Local Classes</a> <br/>
+<li><a href="#tth_sEc4">Anonymous Classes</a> <br/>
+</ul>
 
 <div class="p"><!----></div>
-`\`=13
-
-
-<div class="p"><!----></div>
-`^^M=13 
-
-<div class="p"><!----></div>
-`^^I=13 
-
-<div class="p"><!----></div>
-}}
+ 
 
 
 <div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -56,9 +61,11 @@
 
 <div class="p"><!----></div>
 One class (or struct or interface) may be nested within another.  The simplest
-way to do this is as a <b>static</b> nested class. 
+way to do this is as a <b>static</b> nested class, written by putting one class
+definition at top level inside another, with the inner one having a
+<b>static</b> modifier.  
 For most purposes, a static nested class behaves like a top-level class.
-However, a static inner class has access to private static
+However, a static nested class has access to private static
 fields and methods of its containing class.  
 
 <div class="p"><!----></div>
@@ -113,8 +120,8 @@ interfere with the inner class's ability to refer to the outer class's <b>n</b>
 field: the cursor initialization 
 refers to the <b>Range</b>'s lower bound through a fully qualified name
 <b>Range.this.n</b>.
-Its <b>hasNext()</b> method refers to the outer class's <b>m</b> field, which is
-not shadowed.
+The initialization of its <b>n</b> field refers to the outer class's <b>m</b> field, which is
+not shadowed and can be referred to directly, as <b>m</b>.
 
 <div class="p"><!----></div>
 <pre>
@@ -131,6 +138,7 @@ class Range(m:Int, n:Int) implements Iterable[Int]{
   }
 }
 </pre>
+
 
 <div class="p"><!----></div>
 An inner class has full access to the members of its enclosing class, both
@@ -153,14 +161,19 @@ inner class's superclass. If it is necessary to refer to the outer classes's
 superclass, use a qualified name of the form <em>Outer</em><b>.super</b>.
 
 <div class="p"><!----></div>
-The only restriction placed on the members of inner classes is that static
+The only restriction placed on the members of inner classes is that the static
 fields of an inner class must be compile-time constant expressions. 
 
 <div class="p"><!----></div>
-An inner class <b>IC1</b> of some outer class <b>OC1</b> can be extended by
+Consider
+an inner class <b>IC1</b> of some outer class <b>OC1</b>, being extended by 
 another class <b>IC2</b>. However, since an <b>IC1</b> only exists as a
 dependent of an <b>OC1</b>, each <b>IC2</b> must be associated with an <b>OC1</b>
-- or a subtype thereof - as well.   For example, one often extends an
+- or a subtype thereof - as well.   So, <b>IC2</b> must be an inner class
+of either <b>OC1</b> or some subclass <b>OC2 &lt;: OC1</b>.
+
+<div class="p"><!----></div>
+For example, one often extends an
 inner class when one extends its outer class: 
 <pre>
 class OC1 {
@@ -170,6 +183,7 @@ class OC2 extends OC1 {
    class IC2 extends IC1 {} 
 }
 </pre>
+
 
 <div class="p"><!----></div>
 The hiding of method names has one fine point.  If an inner class defines a
@@ -199,6 +213,8 @@ class Outer {
 <div class="p"><!----></div>
      <h3><a name="tth_sEc2.1">
 2.1</a>&nbsp;&nbsp;Constructors and Inner Classes</h3>
+<a name="sect:InnerClassCtor">
+</a>
 
 
 <div class="p"><!----></div>
@@ -235,10 +251,53 @@ class Elsewhere{
 </pre>
 
 <div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Local Classes</h2>
+<a name="sect:LocalClasses">
+</a>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc3">
-3</a>&nbsp;&nbsp;Anonymous Classes</h2>
+Classes can be defined and instantiated in the middle of methods and other
+code blocks.
+A local class in a static method is a static class; a local class in an
+instance method is an inner class.
+ Local classes are local to the block in which they are defined.
+They have access to almost everything defined at that point in the method; the
+one exception is that they cannot use <b>var</b> variables. Local classes
+cannot be <b>public</b> <b>protected</b>, or <b>private</b>, because they are
+only visible from within the block of declaration. They cannot be
+<b>static</b>.
+
+<div class="p"><!----></div>
+The following example illustrates the use of a local class <b>Local</b>, 
+defined inside the body of method <b>m()</b>. 
+<pre>
+class Outer {
+  val a = 1;
+  def m() {
+    val a = -2; 
+    val b = 2;
+    class Local {
+      val a = 3;
+      def m() = 100*Outer.this.a + 10*b + a; 
+    }
+    val l : Local = new Local();
+    assert l.m() == 123;
+  }//end of m()
+}
+</pre>
+Note that the middle <b>a</b>,
+whose value is <b>-2</b>, is not accessible inside of <b>Local</b>; it is
+shadowed by <b>Local</b>'s <b>a</b> field.  <b>Outer</b>'s <b>a</b> is also
+shadowed, but the notation <b>Outer.this</b> gives a reference to the enclosing
+<b>Outer</b> object.  There is no corresponding notation to access shadowed local
+variables from the enclosing block; if you need to get them, rename the fields
+of <b>Local</b>.    
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Anonymous Classes</h2>
 
 
 
@@ -247,7 +306,7 @@ It is possible to define a new class and instantiate it as part of an
 expression.  The new class can extend an extant class or interface.  Its body
 can include all of the usual members of a class. It can refer to any
 identifiers available at that point in the expression - except for <b>var</b>
-variables.  
+variables.  An anonymous class in a static context is a static inner class.
 
 <div class="p"><!----></div>
 Anonymous classes are useful when you want to package several pieces of
@@ -281,7 +340,8 @@ rather roundabout manner.
 <pre>
 abstract class Choice(name: String) {
   def this(name:String) {property(name);}
-  def choose(b:Boolean) { if (b) this.yes(); else this.no(); }
+  def choose(b:Boolean) { 
+     if (b) this.yes(); else this.no(); }
   abstract def yes():void;
   abstract def no():void;
 }
@@ -302,6 +362,7 @@ class Example {
 <div class="p"><!----></div>
 </pre>
 
+
 <div class="p"><!----></div>
 Anonymous classes have many of the features of classes in general.  A few
 features are unavailable because they don't make sense.
@@ -317,9 +378,12 @@ features are unavailable because they don't make sense.
 <div class="p"><!----></div>
 </li>
 
-<li> Certain modifiers don't make sense for anonymous classes: <b>public</b>,
-      <b>private</b>, and <b>protected.</b>  Anonymous classes, being anonymous,
-      cannot be referenced at all.
+<li> The <b>public</b>,
+      <b>private</b>, and <b>protected</b>  modifiers don't make sense for
+      anonymous classes:  
+      Anonymous classes, being anonymous,
+      cannot be referenced at all, so references to them can't be public,
+      private, or protected.
 <div class="p"><!----></div>
 </li>
 

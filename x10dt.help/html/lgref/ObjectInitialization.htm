@@ -16,25 +16,25 @@
 <title>`</title>
 
 <div class="p"><!----></div>
-`\`=13
+ 
 
 
 <div class="p"><!----></div>
-`^^M=13 
+ 
 
 <div class="p"><!----></div>
-`^^I=13 
+ 
 
 <div class="p"><!----></div>
-}}
+ 
 
-
-<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 
 <div class="p"><!----></div>
-    
+
+<div class="p"><!----></div>
+  
 
 
 
@@ -48,20 +48,31 @@
 <div class="p"><!----></div>
      <h3><a name="tth_sEc0.1">
 0.1</a>&nbsp;&nbsp;Object Initialization</h3>
+<a name="ObjectInitialization">
+</a>
 
 
 
 
 
 <div class="p"><!----></div>
-X10 does object initialization safely.  It avoids a few classes of bad things: 
+
+<div class="p"><!----></div>
+X10 does object initialization safely.  It avoids certain bad things which
+trouble some other languages:
 
 <ol type="1">
 <li> Use of a field before the field has been initialized.
 <div class="p"><!----></div>
 </li>
 
-<li> <b>this</b> escaping from a constructor;
+<li> A program reading two different values from a <b>val</b> field of a
+      container.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>this</b> escaping from a constructor, which can cause problems as
+      noted below.
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -71,7 +82,7 @@ It should be unsurprising that fields must not be used before they are
 initialized. At best, it is uncertain what value will be in them, as in
 <b>x</b> below. Worse, the value might not even be an allowable value; <b>y</b>,
 declared to be nonzero in the following example, might be zero before it is
-initialized. 
+initialized.
 <pre>
 // Not correct X10
 class ThisIsWrong {
@@ -88,19 +99,19 @@ class ThisIsWrong {
 One particularly insidious way to read uninitialized fields is to allow
 <b>this</b> to escape from a constructor. For example, the constructor could
 put <b>this</b> into a data structure before initializing it, and another
-activity could read it from the data structure and look at its fields: 
+activity could read it from the data structure and look at its fields:
 <pre>
 class Wrong {
   val shouldBe8 : Int;
   static Cell[Wrong] wrongCell = new Cell[Wrong]();
   static def doItWrong() {
-     finish { 
+     finish {
        async { new Wrong(); } // (A)
        assert( wrongCell().shouldBe8 == 8); // (B)
      }
   }
   def this() {
-     wrongCell.set(this); // (C) - ILLEGAL 
+     wrongCell.set(this); // (C) - ILLEGAL
      this.shouldBe8 = 8; // (D)
   }
 }
@@ -110,7 +121,7 @@ In this example, the underconstructed <b>Wrong</b> object is leaked into a
 storage cell at line <b>(C)</b>, and then initialized.  The <b>doItWrong</b>
 method constructs a new <b>Wrong</b> object, and looks at the <b>Wrong</b>
 object in the storage cell to check on its <b>shouldBe8</b> field.  One
-possible order of events is the following: 
+possible order of events is the following:
 
 <ol type="1">
 <li> <b>doItWrong()</b> is called.
@@ -129,7 +140,7 @@ possible order of events is the following:
 <div class="p"><!----></div>
 </li>
 
-<li> Now, the initialization activity is paused, and execution of the main activity 
+<li> Now, the initialization activity is paused, and execution of the main activity
       proceeds from <b>(B)</b>.
 <div class="p"><!----></div>
 </li>
@@ -146,23 +157,46 @@ possible order of events is the following:
 </ol>
 
 <div class="p"><!----></div>
+The <b>at</b> statement (&#167;) introduces the potential for
+escape as well. The following class prints an uninitialized value: 
+<pre>
+class Example {
+  val a: Int;
+  def this() { 
+    at(here.next()) {
+      // Recall that 'this' is a copy of 'this' outside 'at'.
+      Console.OUT.println("this.a = " + this.a);
+    }
+    this.a = 1;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
 X10 must protect against such possibilities.  The rules explaining how
 constructors can be written are somewhat intricate; they are designed to allow
 as much programming as possible without leading to potential problems.
 Ultimately, they simply are elaborations of the fundamental principles that
-uninitialized fields must never be read, and <b>this</b> must never be leaked.  
+uninitialized fields must never be read, and <b>this</b> must never be leaked.
+
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc0.2">
-0.2</a>&nbsp;&nbsp;Constructors and NonEscaping Methods</h3>
+0.2</a>&nbsp;&nbsp;Constructors and Non-Escaping Methods</h3>
+
+<a name="sect:nonescaping">
+</a>
 
 <div class="p"><!----></div>
-In general, constructors must not be allowed to call methods with<b>this</b> as
+In general, constructors must not be allowed to call methods with <b>this</b> as
 an argument or receiver. Such calls could leak references to <b>this</b>,
 either directly from a call to <b>cell.set(this)</b>, or indirectly because
-<b>toString</b> leaks <b>this</b>, and the concatenation 
+<b>toString</b> leaks <b>this</b>, and the concatenation
 `&#203;scaper = "+this` calls <b>toString</b>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
 <pre>
+// This code violates this chapter's constraints
+// and thus will not compile in X10.
 class Escaper {
   static val Cell[Escaper] cell = new Cell[Escaper]();
   def toString() {
@@ -179,20 +213,20 @@ class Escaper {
 <div class="p"><!----></div>
 However, it is convenient to be able to call methods from constructors; <em>
 e.g.</em>, a class might have eleven constructors whose common behavior is best
-described by three methods.  
+described by three methods.
 Under certain stringent conditions, it <em>is</em>
 safe to call a method: the method called must not leak references to
 <b>this</b>, and must not read <b>val</b>s or <b>var</b>s which might not have
-been assigned.   
+been assigned.
 
 <div class="p"><!----></div>
 So, X10 performs a static dataflow analysis, sufficient to guarantee that
 method calls in constructors are safe.  This analysis requires having access
 to or guarantees about all the code that could possibly be called.  This can
-be accomplished in two ways: 
+be accomplished in two ways:
 
 <ol type="1">
-<li> Ensuring that only code from the class itself can be called, by 
+<li> Ensuring that only code from the class itself can be called, by
       forbidding overriding of
       methods called from the constructor: they can be marked <b>final</b> or
       <b>private</b>, or the whole class can be <b>final</b>.
@@ -222,7 +256,7 @@ imposes several restrictions on the method body, and on all methods overriding
 it.  However, it is the only way that a method can be called from
 constructors.  The
 <b>@NonEscaping</b> annotation makes explicit all the X10 compiler's needs for
-constructor-safety.  
+constructor-safety.
 
 <div class="p"><!----></div>
 A method can, however, be safe to call from constructors without being marked
@@ -250,21 +284,23 @@ non-escaping methods.
 Finally, if a method <b>m</b> in class <b>C</b> is marked
 <b>@NonEscaping</b>, then every method which overrides <b>m</b> in any
 subclass of <b>C</b> must be annotated with precisely the same annotation,
-<b>@NonEscaping</b>, as well.  
+<b>@NonEscaping</b>, as well.
 
 <div class="p"><!----></div>
 The following example uses most of the possible variations (leaving out
 <b>final</b> class).  <b>aplomb()</b> explicitly forbids reading any field but
 <b>a</b>. <b>boric()</b> is called after <b>a</b> and <b>b</b> are set, but
-{c} is not. 
+{c} is not.
 The <b>@NonEscaping</b> annotation on <b>boric()</b> is optional, but the
 compiler will print a warning if it is left out.
 <b>cajoled()</b> is only called after all fields are set, so it
 can read anything; its annotation, too, is not required.   <b>SeeAlso</b> is able to override <b>aplomb()</b>, because
-<b>aplomb()</b> is <b>@NonEscaping(&#228;")</b>; it cannot override the final method
-<b>boric()</b> or the private one <b>cajoled()</b>.  Even for overriding
-<b>aplomb()</b>, it is crucial that <b>SeeAlso.aplomb()</b> be 
-declared <b>@NonEscaping(&#228;")</b>, just like <b>C2.aplomb()</b>.
+<b>aplomb()</b> is <b>@NonEscaping</b>; it cannot override the final method
+<b>boric()</b> or the private one <b>cajoled()</b>.  
+The method <b>aplomb()</b> can be overridden, but it is crucial that the 
+subclass's version, 
+<b>SeeAlso.aplomb()</b>, be 
+declared <b>@NonEscaping</b>, just like <b>C2.aplomb()</b>.
 <pre>
 import x10.compiler.*;
 
@@ -287,12 +323,13 @@ final class C2 {
   }
   @NonEscaping final def boric() {
     y = b;
-    this.aplomb(); // allowed; a is definitely set before boric is called
-    // z = c; // not allowed; c is not definitely written 
+    this.aplomb(); // allowed; 
+       // a is definitely set before boric is called
+    // z = c; // not allowed; c is not definitely written
   }
   @NonEscaping private def cajoled() {
     z = c;
-  }  
+  }
 }
 
 <div class="p"><!----></div>
@@ -321,7 +358,7 @@ and one of them implicit.
       through the constructor must go through this <b>property(...)</b> command
       precisely once.   The second segment of the constructor is the code
       following the first segment, up to and including the <b>property()</b>
-      statement.  
+      statement.
 
 <div class="p"><!----></div>
       If the class or struct has no properties, the <b>property()</b> call must
@@ -331,10 +368,10 @@ and one of them implicit.
 </li>
 
 <li> The third segment is automatically generated.  Fields with initializers
-      are initialized immediately after the <b>property</b> statement.  
+      are initialized immediately after the <b>property</b> statement.
       In the following example, <b>b</b> is initialized to <b>y*9000</b> in
       segment three.  The initialization makes sense and does the right
-      thing; <b>b</b> will be <b>y*9000</b> for every <b>Overdone</b> object. 
+      thing; <b>b</b> will be <b>y*9000</b> for every <b>Overdone</b> object.
       (This would not be possible if field initializers were processed
       earlier, before properties were set.)
 <div class="p"><!----></div>
@@ -357,7 +394,8 @@ class Overdone(y:Int) extends Overlord  {
   def this(r:Int) {
     super(r);                      // (1)
     x10.io.Console.OUT.println(r); // (2)
-    property(r+1);                 // (2)
+    val rp1 = r+1;
+    property(rp1);                 // (2)
     // field initializations here  // (3)
     a = r + 2;                     // (4)
   }
@@ -367,7 +405,7 @@ class Overdone(y:Int) extends Overlord  {
 <div class="p"><!----></div>
 The rules of what is allowed in the three segments are different, though
 unsurprising.  For example, properties of the current class can only be read
-in segment 3 or 4-naturally, because they are set at the end of segment 2.  
+in segment 3 or 4-naturally, because they are set at the end of segment 2.
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc0.3.1">
@@ -375,12 +413,12 @@ in segment 3 or 4-naturally, because they are set at the end of segment 2.
 
 
 <div class="p"><!----></div>
-Constructors of inner classes are tantamount to method calls on <b>this</b>.  
+Constructors of inner classes are tantamount to method calls on <b>this</b>.
 For example, the constructor for Inner <b>is</b> acceptable.  It does not leak
-<b>this</b>.  It leaks <b>Outer.this</b>, which is an utterly different object.  
+<b>this</b>.  It leaks <b>Outer.this</b>, which is an utterly different object.
 So, the call to <b>this.new Inner()</b> in the <b>Outer</b> constructor <em>
 is</em> illegal.  It would leak <b>this</b>.  There is no special rule in effect
-preventing this; a constructor call of an inner class is no 
+preventing this; a constructor call of an inner class is no
 different from a method as far as leaking is concerned.
 <pre>
 class Outer {
@@ -389,7 +427,7 @@ class Outer {
      def this() {Outer.leak.set(Outer.this);}
   }
   def /*Outer*/this() {
-     //ILLEGAL: val inner = this.new Inner(); 
+     //ERROR: val inner = this.new Inner();
   }
 }
 </pre>
@@ -400,17 +438,21 @@ class Outer {
 
 
 <div class="p"><!----></div>
-Closures in constructors are valid if they were invoked (or inlined) at the
-place of creation. For example, <b>closure</b> below is acceptable because it
-only refers to fields defined at the point it was written.  <b>badClosure</b>
-would not be acceptable, because it refers to fields that were not defined at
-that point, although they were defined later.
+Closures in constructors may not refer to <b>this</b>.  They may not even refer
+to fields of <b>this</b> that have been initialized.   For example, the
+closure <b>bad1</b> is not allowed because it refers to <b>this</b>; <b>bad2</b>
+is not allowed because it mentions <b>a</b> - which is, of course, identical
+to <b>this.a</b>. 
+
+<div class="p"><!----></div>
 <pre>
 class C {
-  val a = 3;
-  val closure = () =&#62; a*10; // This is OK
-  //val badClosure = () =&#62; b*10; 
-  val b = 4;
+  val a:Int;
+  def this() {
+    this.a = 1;
+    //ERROR: val bad1 = () =&#62; this; 
+    //ERROR: val bad2 = () =&#62; a*10;
+  }
 }
 </pre>
 
@@ -436,10 +478,10 @@ default value.  It would be silly to have a field <b>val z : Int</b> that was
 always given default value of <b>0</b> and, since it is <b>val</b>, can never be
 changed.  <b>var</b> fields whose type has no default value must be initialized
 as well, such as <b>var y : Int{y != 0}</b>, since it cannot be assigned a
-sensible initial value. 
+sensible initial value.
 
 <div class="p"><!----></div>
-The fundamental principles are: 
+The fundamental principles are:
 
 <ol type="1">
 <li> <b>val</b> fields must be assigned precisely once in each constructor on every
@@ -489,8 +531,8 @@ examples, by line of the following code body.
   &amp; <b><tt>this</tt></b>
   &amp; <b>fields</b>
 </td></tr>
-<tr><td align="left">Type of property 
-  &amp; (A) 
+<tr><td align="left">Type of property
+  &amp; (A)
   &amp; %?properties
     yes (2)
   &amp; no %? self==this
@@ -499,7 +541,7 @@ examples, by line of the following code body.
   &amp; no %? fields may be used
 </td></tr>
 <tr><td align="left">Class Invariant
-  &amp; (B) 
+  &amp; (B)
   &amp; yes %?properties
   &amp; yes %? self==this
   &amp; yes %? property methods
@@ -515,7 +557,7 @@ examples, by line of the following code body.
   &amp; no%? fields may be used
 </td></tr>
 <tr><td align="left">Property Method Body
-  &amp; (E) 
+  &amp; (E)
   &amp; yes %?properties
   &amp; yes %? self==this
   &amp; yes %? property methods
@@ -523,7 +565,7 @@ examples, by line of the following code body.
   &amp; no %? fields may be used
 </td></tr>
 <tr><td align="left">Static field (4)
-  &amp; (F) (G) 
+  &amp; (F) (G)
   &amp; no %?properties
   &amp; no %? self==this
   &amp; no %? property methods
@@ -531,7 +573,7 @@ examples, by line of the following code body.
   &amp; no %? fields may be used
 </td></tr>
 <tr><td align="left">Instance field (5)
-  &amp; (H), (I) 
+  &amp; (H), (I)
   &amp; yes %?properties
   &amp; yes %? self==this
   &amp; yes %? property methods
@@ -539,31 +581,31 @@ examples, by line of the following code body.
   &amp; yes %? fields may be used
 </td></tr>
 <tr><td align="left">Constructor arg. type
-  &amp; (J) 
+  &amp; (J)
   &amp; no %?properties
-  &amp; yes %? self==this
+  &amp; no %? self==this
   &amp; no  %? property methods
-  &amp; yes %? this may be used
+  &amp; no %? this may be used
   &amp; no %? fields may be used
 </td></tr>
 <tr><td align="left">Constructor guard
-  &amp; (K) 
+  &amp; (K)
   &amp; no %?properties
-  &amp; yes %? self==this
+  &amp; no %? self==this
   &amp; no %? property methods
   &amp; no %? this may be used
   &amp; no %? fields may be used
 </td></tr>
 <tr><td align="left">Constructor ret. type
-  &amp; (L) 
+  &amp; (L)
   &amp; yes %?properties
   &amp; yes %? self==this
   &amp; yes %? property methods
   &amp; yes %? this may be used
-  &amp; no %? fields may be used
+  &amp; yes %? fields may be used
 </td></tr>
-<tr><td align="left">Constructor segment 1 
-  &amp; (M) 
+<tr><td align="left">Constructor segment 1
+  &amp; (M)
   &amp; no%?properties
   &amp; yes%? self==this
   &amp; no%? property methods
@@ -571,7 +613,7 @@ examples, by line of the following code body.
   &amp; no%? fields may be used
 </td></tr>
 <tr><td align="left">Constructor segment 2
-  &amp; (N) 
+  &amp; (N)
   &amp; no%?properties
   &amp; yes%? self==this
   &amp; no%? property methods
@@ -579,7 +621,7 @@ examples, by line of the following code body.
   &amp; no%? fields may be used
 </td></tr>
 <tr><td align="left">Constructor segment 4
-  &amp; (O) 
+  &amp; (O)
   &amp; yes%?properties
   &amp; yes%? self==this
   &amp; yes%? property methods
@@ -587,7 +629,7 @@ examples, by line of the following code body.
   &amp; yes%? fields may be used
 </td></tr>
 <tr><td align="left">Methods
-  &amp; (P) 
+  &amp; (P)
   &amp; yes %?properties
   &amp; yes %? self==this
   &amp; yes %? property methods
@@ -595,7 +637,7 @@ examples, by line of the following code body.
   &amp; yes %? fields may be used
 </td></tr>
 <tr><td align="left">place
-  &amp; (pos) 
+  &amp; (pos)
   &amp; %?properties
   &amp; %? self==this
   &amp; %? property methods
@@ -629,7 +671,7 @@ Details:
 </ul>
 
 <div class="p"><!----></div>
-The example indices refer to the following code: 
+The example indices refer to the following code:
 <pre>
 class Example (
    prop : Int,
@@ -641,10 +683,10 @@ class Example (
    implements SuperInterface[Int{self != prop}] // (D)
 {
    property def propmeth() = (prop == pror);    // (E)
-   static staticField 
+   static staticField
       : Cell[Int{self != 0}]                    // (F)
       = new Cell[Int{self != 0}](1);            // (G)
-   var instanceField                            
+   var instanceField
       : Int {self != prop}                      // (H)
       = (prop + 1) as Int{self != prop};        // (I)
    def this(
@@ -661,14 +703,15 @@ class Example (
    }
 
 <div class="p"><!----></div>
-   def someMethod() = 
+   def someMethod() =
         prop + staticField + instanceField;     // (P)
 }
 </pre>
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This is abominable behavior for 
-<b>toString</b>, but nonetheless it is allowed.
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This is abominable behavior for
+<b>toString</b>, but it cannot be prevented - save by a scheme such as we
+present in this section.
 <br /><br />
 </html>
