@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.core.utils;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Control;
@@ -20,6 +21,8 @@ public final class KeyboardUtils {
   
   /**
    * Adds a key listener to the control provided to run a given action after 2 seconds of inactivity.
+   * Filters out non-modifying keys like arrow keys and modifiers, to avoid marking the control
+   * dirty when simply navigating/selecting text.
    * 
    * @param control The control for which one wants to attach a key listener for delayed action.
    * @param runnable The runnable that contains the action to execute.
@@ -30,6 +33,8 @@ public final class KeyboardUtils {
   
   /**
    * Adds a key listener to the control provided to run a given action after a given time of inactivity.
+   * Filters out non-modifying keys like arrow keys and modifiers, to avoid marking the control
+   * dirty when simply navigating/selecting text.
    * 
    * @param control The control for which one wants to attach a key listener for delayed action.
    * @param runnable The runnable that contains the action to execute.
@@ -39,16 +44,30 @@ public final class KeyboardUtils {
     control.addKeyListener(new KeyListener() {
       
       public void keyReleased(final KeyEvent event) {
+        if (keyDoesNotModifyText(event)) {
+          return;
+        }
         if ((this.fTimerThread == null) || (! this.fTimerThread.isAlive())) {
           this.fTimerThread = new TimerThread(runnable, time, control);
           this.fTimerThread.start();
         }
       }
-      
+
       public void keyPressed(final KeyEvent event) {
+        if (keyDoesNotModifyText(event)) {
+          return;
+        }
         if ((this.fTimerThread != null) && this.fTimerThread.isAlive()) {
           this.fTimerThread.setShouldBeReseted(true);
         }
+      }
+      
+      private boolean keyDoesNotModifyText(final KeyEvent event) {
+        return event.keyCode == SWT.ARROW_DOWN || event.keyCode == SWT.ARROW_LEFT || event.keyCode == SWT.ARROW_RIGHT || event.keyCode == SWT.ARROW_UP ||
+               event.keyCode == SWT.SHIFT ||
+               event.keyCode == SWT.MOD1 || event.keyCode == SWT.MOD2 || event.keyCode == SWT.MOD3 || event.keyCode == SWT.MOD4 ||
+               // try to detect copy and select-all
+               (event.character == 'a' && event.stateMask == SWT.MOD1) || (event.character == 'c' && event.stateMask == SWT.MOD1);
       }
       
       // --- Fields
