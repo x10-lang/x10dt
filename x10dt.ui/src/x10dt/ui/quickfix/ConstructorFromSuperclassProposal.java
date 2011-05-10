@@ -106,7 +106,7 @@ public class ConstructorFromSuperclassProposal extends CUCorrectionProposal {
 		for(Type formal : ci.formalTypes())
 		{
 			ClassType ct = (ClassType)formal;
-			formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), factory.TypeNodeFromQualifiedName(new Position("", ""), ct.fullName()), factory.Id(null, ct.name())));
+			formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), factory.CanonicalTypeNode(new Position("", ""), ct), factory.Id(null, ct.name())));
 		}
 			
 		// TODO Auto-generated constructor stub

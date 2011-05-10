@@ -8,7 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.editor.quickfix.CUCorrectionProposal;
 import org.eclipse.imp.language.LanguageRegistry;
 import org.eclipse.imp.services.IQuickFixInvocationContext;
@@ -22,6 +24,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
 import polyglot.ast.Block;
+import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
@@ -29,6 +32,7 @@ import polyglot.ast.Node;
 import polyglot.ast.TypeNode;
 import polyglot.types.Flags;
 import polyglot.types.QName;
+import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.util.SimpleCodeWriter;
@@ -71,16 +75,23 @@ public class CreateMethodProposal extends CUCorrectionProposal {
 			MethodDecl methodDecl = (MethodDecl) node;
 			MultiTextEdit edit = new MultiTextEdit();
 			
-			X10NodeFactory_c factory = new X10NodeFactory_c(new ExtensionInfo());
+			ExtensionInfo extInfo= new ExtensionInfo();
+            X10NodeFactory_c factory = new X10NodeFactory_c(extInfo);
 			FlagsNode flags = factory.FlagsNode(null, Flags.PRIVATE);
-			TypeNode returnType = factory.TypeNodeFromQualifiedName(null, QName.make(methodDecl.returnType().nameString()));
+			TypeNode returnType = factory.CanonicalTypeNode(null, methodDecl.returnType().type());
 			
 			List<Formal> formals = new ArrayList<Formal>();
 			Pattern p = Pattern.compile("\\(*\\s*,*\\s*([^\\{]+)\\{self==([^\\}]+)\\}");
 			Matcher m = p.matcher(arguments);
 			while(m.find())
 			{
-				formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), factory.TypeNodeFromQualifiedName(new Position("", ""), QName.make(m.group(1))), factory.Id(null, m.group(2))));
+			    try {
+			        CanonicalTypeNode typeNode= factory.CanonicalTypeNode(new Position("", ""), extInfo.typeSystem().forName(QName.make(m.group(1))));
+
+			        formals.add(factory.Formal(null, factory.FlagsNode(null, Flags.NONE), typeNode, factory.Id(null, m.group(2))));
+			    } catch (SemanticException e) {
+			        throw new CoreException(new Status(IStatus.ERROR, X10DTUIPlugin.PLUGIN_ID, "Error forming signature for new method proposal", e));
+			    }
 			}
 				
 			// TODO Auto-generated method stub
