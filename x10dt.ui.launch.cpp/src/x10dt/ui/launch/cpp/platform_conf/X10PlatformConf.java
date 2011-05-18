@@ -8,6 +8,7 @@
 package x10dt.ui.launch.cpp.platform_conf;
 
 import static x10dt.ui.launch.core.platform_conf.EValidationStatus.UNKNOWN;
+import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -38,6 +40,7 @@ import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CodingUtils;
 import x10dt.ui.launch.core.utils.JREPropertiesUtils;
+import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
@@ -60,7 +63,17 @@ class X10PlatformConf implements IX10PlatformConf {
       if (isNonEmpty(confFile)) {
         load(new BufferedReader(new InputStreamReader(confFile.getContents())));
       } else {
+        // RMF 5/18/11:
+        // The following case can happen during a build that gets triggered by the
+        // resource creations that result when the user clicks "Next" in the
+        // "New X10 Project (C++ back-end)" wizard. Moving to the 2nd page causes
+        // resource creation events for the project + src folders, which trigger
+        // a build. However, the platform conf hasn't been created yet (that only
+        // happens at performFinish()-time when the user clicks "Finish", so we end
+        // up here. If we don't call initializeToDefaultValues(), the platform conf
+        // and subsequent builds are broken, and the user has no way to clean it up.
         this.fId = UUID.randomUUID().toString();
+        this.initializeToDefaultValues(confFile.getProject());
       }
     } catch (CoreException except) {
       CppLaunchCore.log(except.getStatus());
@@ -271,6 +284,32 @@ class X10PlatformConf implements IX10PlatformConf {
   }
   
   // --- Code for descendants
+  
+  public void initializeToDefaultValues(final IProject project) {
+    AbstractCommunicationInterfaceConfiguration ciConf = fCommInterfaceFact.getCurrentCommunicationInterface();
+    if (ciConf == null) {
+      ciConf = fCommInterfaceFact.getOrCreate(SOCKETS_SERVICE_PROVIDER_ID);
+      fCommInterfaceFact.defineCurrentCommInterfaceType(SOCKETS_SERVICE_PROVIDER_ID);
+      ciConf.fServiceTypeId = SOCKETS_SERVICE_PROVIDER_ID;
+      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+      ((AbstractHostsBasedConf) ciConf).fHosts = "localhost"; //$NON-NLS-1$
+    }
+    if (this.fConnectionConf.fIsLocal) {
+      initLocalCppCompilationCommands();
+      initLocalX10DistribLocation();
+    }
+    if (ciConf.fServiceModeId == null) {
+      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
+    }
+    if (this.fName  == null) {
+      String connectionName = this.fConnectionConf.fIsLocal ? LaunchMessages.RMCP_DefaultLocalConnName : 
+                                                              this.fConnectionConf.getConnectionName();
+      if (connectionName.trim().length() == 0) {
+        connectionName = LaunchMessages.RMCP_UnknownTargetName;
+      }
+      this.fName = project.getName();
+    }
+  }
   
   protected final boolean hasData(final String var) {
     return (var != null) && (var.trim().length() > 0);

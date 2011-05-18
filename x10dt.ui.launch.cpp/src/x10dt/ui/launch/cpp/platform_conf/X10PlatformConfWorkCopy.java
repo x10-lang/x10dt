@@ -48,32 +48,6 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     this.fIsDirty = false;
   }
   
-  public void initializeToDefaultValues(final IProject project) {
-    AbstractCommunicationInterfaceConfiguration ciConf = super.fCommInterfaceFact.getCurrentCommunicationInterface();
-    if (ciConf == null) {
-      ciConf = super.fCommInterfaceFact.getOrCreate(SOCKETS_SERVICE_PROVIDER_ID);
-      super.fCommInterfaceFact.defineCurrentCommInterfaceType(SOCKETS_SERVICE_PROVIDER_ID);
-      ciConf.fServiceTypeId = SOCKETS_SERVICE_PROVIDER_ID;
-      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
-      ((AbstractHostsBasedConf) ciConf).fHosts = "localhost"; //$NON-NLS-1$
-    }
-    if (this.fConnectionConf.fIsLocal) {
-      initLocalCppCompilationCommands();
-      initLocalX10DistribLocation();
-    }
-    if (ciConf.fServiceModeId == null) {
-      ciConf.fServiceModeId = PTPConstants.LAUNCH_SERVICE_ID;
-    }
-    if (this.fName  == null) {
-      String connectionName = this.fConnectionConf.fIsLocal ? LaunchMessages.RMCP_DefaultLocalConnName : 
-                                                              this.fConnectionConf.getConnectionName();
-      if (connectionName.trim().length() == 0) {
-        connectionName = LaunchMessages.RMCP_UnknownTargetName;
-      }
-      this.fName = project.getName();
-    }
-  }
-  
   public boolean isDirty() {
     return this.fIsDirty;
   }
