@@ -284,8 +284,14 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   }
   
   public final boolean hasValidCompilationCommands() {
-    return (this.fPlatformConf.getCppCompilationConf().getValidationStatus() == EValidationStatus.VALID) ||
-           (this.fPlatformConf.getCppCompilationConf().getValidationStatus() == EValidationStatus.UNKNOWN);
+    EValidationStatus validationStatus = this.fPlatformConf.getCppCompilationConf().getValidationStatus();
+    return (validationStatus == EValidationStatus.VALID) ||
+           (validationStatus == EValidationStatus.UNKNOWN) ||
+           (validationStatus == null); // RMF 5/18 -- if "unknown" is ok, so should null
+                                       // If we don't allow this, it causes problems during the build
+                                       // that gets triggered when the user hits "Next" in the
+                                       // "New X10 Project (C++ back-end)" wizard, and this basically
+                                       // cripples the platform conf and subsequent builds.
   }
 
   // --- Code for descendants
