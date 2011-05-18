@@ -1199,7 +1199,7 @@ public class X10AutoIndentStrategy extends DefaultIndentLineAutoEditStrategy imp
         	}
 	        if (c.length == 0 && c.text != null && isLineDelimiter(d, c.text)) {
 	            smartIndentAfterNewLine(d, c);
-	        } else if (c.text.length() == 1 && c.text.charAt(0) == '\t' && inLeadingWhitespace(c.offset, d)) {
+	        } else if (c.text.length() == 1 && (c.text.charAt(0) == '\t' && inLeadingWhitespace(c.offset, d) || c.text.charAt(0) != '\t')) {
 	            smartIndentOnKeypress(d, c);
 	        } else {
 	        	if (c.text.length() > 1 && getPreferenceStore().getBoolean(PreferenceConstants.EDITOR_SMART_PASTE)) {
