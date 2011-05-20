@@ -58,7 +58,7 @@ public class X10TestsParamCompilerTests extends CompilerTestsBase {
 		return inputs;
 	}
 
-	@Test(timeout=10000)
+	@Test//(timeout=10000)
 	public void compilerTest() throws Exception {
 		String sourcepath = getRuntimeJar() + File.pathSeparator + LIB_PATH + File.pathSeparator + getCurrentDirsPath(sources);
 		compile(sources, options, new ArrayList<ErrorInfo>(), sourcepath);

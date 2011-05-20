@@ -26,6 +26,18 @@ public class CompilerTests extends CompilerTestsBase {
 	private static String DATA_PATH = "data" + File.separator + "base" + File.separator;
 
 	@Test
+	public void nullDist() throws Exception {
+		String[] sources = {"Hello10.x10"};
+		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
+	
+	@Test
+	public void nullDistStatic() throws Exception {
+		String[] sources = {"Hello10.x10"};
+		compile(sources, STATIC_CALLS, new ArrayList<ErrorInfo>());
+	}
+	
+	@Test
 	public void montePi() throws Exception {
 		String[] sources = {"MontePiCluster.x10"};
 		compile(sources, NOT_STATIC_CALLS, new ArrayList<ErrorInfo>());

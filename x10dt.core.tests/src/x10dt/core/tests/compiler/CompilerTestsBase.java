@@ -55,8 +55,8 @@ import x10.types.X10ClassType;
  */
 public class CompilerTestsBase {
 	
-    protected static String[] STATIC_CALLS = {"-STATIC_CALLS=true", "-CHECK_INVARIANTS"};
-    protected static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false", "-CHECK_INVARIANTS"};
+    protected static String[] STATIC_CALLS = {"-STATIC_CHECKS=true", "-CHECK_INVARIANTS"};
+    protected static String[] NOT_STATIC_CALLS = {"-STATIC_CHECKS=false", "-CHECK_INVARIANTS"};
 
     private static String OUTPUT_DIR = "output";
     
@@ -176,6 +176,8 @@ public class CompilerTestsBase {
                 "-noserial",
                 "-d",
                 OUTPUT_DIR,
+                "-classpath",
+                sourcepath,
                 "-sourcepath",
                 sourcepath,
                 "-commandlineonly",
@@ -192,7 +194,7 @@ public class CompilerTestsBase {
         try {
             opts.parseCommandLine(optsArray, new HashSet<String>());
         } catch (UsageError e) {
-
+        	int i = 0;
         }
     }
 
@@ -223,7 +225,8 @@ public class CompilerTestsBase {
 
     protected static String getRuntimeJar() throws URISyntaxException{
       final URL url = CompilerTestsBase.class.getClassLoader().getResource("x10.jar");
-      return toFile(url).getAbsolutePath();
+      String res = toFile(url).getAbsolutePath();
+      return res;
     }
 
     protected static File toFile(final URL url) throws URISyntaxException {
@@ -267,6 +270,8 @@ public class CompilerTestsBase {
         if (e.getMessage().contains("self_"))
             return true;
         if (e.getMessage().contains("#"))
+        	return true;
+        if (e.getMessage().contains("<anonymous class>"))
         	return true;
         return false;
     }
