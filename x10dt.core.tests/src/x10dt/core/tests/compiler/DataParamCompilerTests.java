@@ -15,7 +15,7 @@ import polyglot.util.ErrorInfo;
 
 /**
  * Extracts all files in data/pppp and compiles them one by one (one compiler instance per file)
- * with STATIC_CALLS turned on and off.
+ * with STATIC_CHECKS turned on and off.
  * @author mvaziri
  *
  */
@@ -45,8 +45,8 @@ public class DataParamCompilerTests extends CompilerTestsBase {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
 		final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 		for (File f: getSources(toFile(dataURL))){
-			inputs.add(new Object[]{new File[]{f}, STATIC_CALLS});
-			inputs.add(new Object[]{new File[]{f}, NOT_STATIC_CALLS});
+			inputs.add(new Object[]{new File[]{f}, STATIC_CHECKS});
+			inputs.add(new Object[]{new File[]{f}, NOT_STATIC_CHECKS});
 				
 		}
 		return inputs;

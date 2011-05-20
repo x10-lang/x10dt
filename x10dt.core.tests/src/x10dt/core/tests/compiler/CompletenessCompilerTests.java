@@ -34,13 +34,6 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 	// This is a selection of files from the pppp project whose compilation does not result in an exception or assertion failure.
 	private static String DATA_PATH = "data" + File.separator + "pppp-completeness";
 	
-	/*
-	 * Options
-	 */
-	
-	private static String[] STATIC_CALLS = {"-STATIC_CALLS=true"};
-	private static String[] NOT_STATIC_CALLS = {"-STATIC_CALLS=false"};
-	
 	
 	public CompletenessCompilerTests(File[] sources, String[] options){
 		super();
@@ -54,8 +47,8 @@ public class CompletenessCompilerTests extends CompilerTestsBase {
 		final URL dataURL = CompletenessCompilerTests.class.getClassLoader().getResource(DATA_PATH);
 		for(FileCollectionIterator f = new FileCollectionIterator(toFile(dataURL)); f.hasNext(); ){
 			File[] fs = f.next();
-			inputs.add(new Object[]{fs, STATIC_CALLS});
-			inputs.add(new Object[]{fs, NOT_STATIC_CALLS});
+			inputs.add(new Object[]{fs, STATIC_CHECKS});
+			inputs.add(new Object[]{fs, NOT_STATIC_CHECKS});
 		}
 		return inputs;
 	}

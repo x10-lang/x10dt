@@ -55,8 +55,8 @@ import x10.types.X10ClassType;
  */
 public class CompilerTestsBase {
 	
-    protected static String[] STATIC_CALLS = {"-STATIC_CHECKS=true", "-CHECK_INVARIANTS"};
-    protected static String[] NOT_STATIC_CALLS = {"-STATIC_CHECKS=false", "-CHECK_INVARIANTS"};
+    protected static String[] STATIC_CHECKS = {"-STATIC_CHECKS=true", "-CHECK_INVARIANTS"};
+    protected static String[] NOT_STATIC_CHECKS = {"-STATIC_CHECKS=false", "-CHECK_INVARIANTS"};
 
     private static String OUTPUT_DIR = "output";
     
@@ -591,7 +591,7 @@ public class CompilerTestsBase {
     private boolean notSevereMode(){
     	String mode = System.getProperty("mode");
     	if (mode == null)
-    		return true;
+    		return false;
     	return !mode.equals(SEVERE_MODE);
     }
 }

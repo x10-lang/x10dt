@@ -59,8 +59,8 @@ public class FuzzParamCompilerTests extends CompilerTestsBase {
 		ArrayList<Object[]> inputs = new ArrayList<Object[]>();
 		final URL fuzzURL = FuzzParamCompilerTests.class.getClassLoader().getResource(FUZZ_PATH);
 		for (File f : getSources(toFile(fuzzURL))) {
-			inputs.add(new Object[] { new File[] { f }, STATIC_CALLS });
-			inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CALLS });
+			inputs.add(new Object[] { new File[] { f }, STATIC_CHECKS });
+			inputs.add(new Object[] { new File[] { f }, NOT_STATIC_CHECKS });
 		}
 		return inputs;
 	}
