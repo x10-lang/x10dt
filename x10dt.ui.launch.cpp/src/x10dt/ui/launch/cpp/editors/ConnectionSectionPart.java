@@ -210,7 +210,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   // --- Private code
   
   private void addListeners(final IManagedForm managedForm, final Button localConnBt, final Button remoteConnBt, 
-                            final Button validateBt, final Text hostText, final Spinner portText, final Text userNameText, 
+                            final Button validateBt, final Text hostText, final Text portText, final Text userNameText, 
                             final Button passwordAuthBt, final Label passwordLabel, final Text passwordText, 
                             final Button privateKeyFileAuthBt, final Text privateKeyText, final Button browseBt, 
                             final Text passphraseText, final Collection<Control> firstGroupControls, 
@@ -332,10 +332,10 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       public void modifyText(final ModifyEvent event) {
         final IConnectionInfo curConnInfo = getCurrentConnectionInfo();
         if (curConnInfo != null) {
-          if (curConnInfo.getPort() != portText.getSelection()) {
+          if (curConnInfo.getPort() != Integer.parseInt(portText.getText())) {
             notifyConnectionUnknownStatus(curConnInfo);
           }
-          curConnInfo.setPort(portText.getSelection());
+          curConnInfo.setPort(Integer.parseInt(portText.getText()));
         }
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());
@@ -597,9 +597,11 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     final Label portLabel = toolkit.createLabel(hostPortCompo, LaunchMessages.RMCP_PortLabel, SWT.WRAP);
     portLabel.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
     this.fSecondGroupControls.add(portLabel);
-    this.fPortText = new Spinner(hostPortCompo, SWT.SINGLE | SWT.BORDER);
-    this.fPortText.setMinimum(0);
-    this.fPortText.setSelection(22);
+    //this.fPortText = new Spinner(hostPortCompo, SWT.SINGLE | SWT.BORDER);
+    this.fPortText = SWTFormUtils.createLabelAndText(groupCompo, portLabel.getText(), toolkit, 
+            this.fSecondGroupControls);
+    //this.fPortText.setMinimum(0);
+    this.fPortText.setText("22");
     this.fPortText.setTextLimit(10);
     this.fPortText.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
     this.fSecondGroupControls.add(this.fPortText);
@@ -988,7 +990,8 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   
   private void fillConnectionControlsInfo(final IConnectionInfo connectionInfo) {
     this.fHostText.setText(connectionInfo.getHostName());
-    this.fPortText.setSelection(connectionInfo.getPort());
+    //this.fPortText.setSelection(connectionInfo.getPort());
+    this.fPortText.setText((new Integer(connectionInfo.getPort())).toString());
     this.fUserNameText.setText(connectionInfo.getUserName());
     this.fPasswordAuthBt.setSelection(connectionInfo.isPasswordBasedAuth());
     this.fPasswordAuthBt.notifyListeners(SWT.Selection, new Event());
@@ -1065,7 +1068,8 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   
   private void resetConnectionControlsInfo() {
     this.fHostText.setText(Constants.EMPTY_STR);
-    this.fPortText.setSelection(22);
+    //this.fPortText.setSelection(22);
+    this.fPortText.setText("22");
     this.fUserNameText.setText(Constants.EMPTY_STR);
     this.fPasswordAuthBt.setSelection(true);
     this.fPrivateKeyFileAuthBt.setSelection(false);
@@ -1289,7 +1293,7 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
   
   private Text fHostText;
   
-  private Spinner fPortText;
+  private Text fPortText;
   
   private Text fUserNameText;
   
