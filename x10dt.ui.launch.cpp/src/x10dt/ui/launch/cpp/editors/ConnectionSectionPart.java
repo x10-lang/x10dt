@@ -594,11 +594,11 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
     this.fHostText = SWTFormUtils.createLabelAndText(hostPortCompo, LaunchMessages.RMCP_HostLabel, toolkit, 
                                                      this.fSecondGroupControls);
     
-    final Label portLabel = toolkit.createLabel(hostPortCompo, LaunchMessages.RMCP_PortLabel, SWT.WRAP);
-    portLabel.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
-    this.fSecondGroupControls.add(portLabel);
+    //final Label portLabel = toolkit.createLabel(hostPortCompo, LaunchMessages.RMCP_PortLabel, SWT.WRAP);
+    //portLabel.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
+    //this.fSecondGroupControls.add(portLabel);
     //this.fPortText = new Spinner(hostPortCompo, SWT.SINGLE | SWT.BORDER);
-    this.fPortText = SWTFormUtils.createLabelAndText(groupCompo, portLabel.getText(), toolkit, 
+    this.fPortText = SWTFormUtils.createLabelAndText(groupCompo, LaunchMessages.RMCP_PortLabel, toolkit, 
             this.fSecondGroupControls);
     //this.fPortText.setMinimum(0);
     this.fPortText.setText("22");
