@@ -217,7 +217,7 @@ most once, and must be given a value before it is used.  Usually this is
 achieved by declaring and initializing the variable in a single statement, 
 such as <b>val x = 3</b>, with syntax 
 () using the <i>VariableDeclarators</i> or <i>
-VariableDeclaratorsWithType</i> alternatives.
+VarDelcsWType</i> alternatives.
 
 <div class="p"><!----></div>
 After these declarations, <b>a</b> and <b>b</b> cannot be assigned to further,
@@ -339,9 +339,12 @@ using the rules for definite assignment (&#167;).
 
 
 X10 permits a <em>destructuring</em> syntax for local variable
-declarations with explicit initializers,  and for formal parameters, of type <b>Point</b>, &#167;. 
-A point is a sequence of zero or more <b>Int</b>-valued coordinates.  
-It is often useful to get at the coordinates directly, in variables. 
+declarations with explicit initializers,  and for formal parameters, of type
+<b>Point</b>, &#167; and <b>Array</b>, &#167;.
+A point is a sequence of zero or more <b>Int</b>-valued coordinates; an array
+is an indexed collection of data. 
+It is often useful to get at the coordinates or elements directly, in
+variables.
 
 <div class="p"><!----></div>
 
@@ -361,11 +364,24 @@ It is often useful to get at the coordinates directly, in variables.
 </em>
 
 <div class="p"><!----></div>
-The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;" declares n
+The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;", 
+where <b>e</b> is a <b>Point</b>,
+declares n
 <b>Int</b> variables, bound to the precisely n components of the <b>Point</b> value of
 <b>e</b>; it is an error if <b>e</b> is not a <b>Point</b> with precisely n components.
 The syntax "val p[a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;"  is similar, but also
-declares the variable <b>p</b> as "Point".  
+declares the variable <b>p</b> to be of type "Point(n)".  
+
+<div class="p"><!----></div>
+The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;", 
+where <b>e</b> is an <b>Array[T]</b> for some type <b>T</b>,
+declares n
+variables of type <b>T</b>, bound to the precisely n components of the <b>Array[T]</b> value of
+<b>e</b>; it is an error if <b>e</b> is not a <b>Array[T]</b> 
+with <b>rank==1</b> and &#223;ize==n". 
+The syntax "val p[a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;"  is similar, but also
+declares the variable <b>p</b> to be of type
+&#196;rray[T]rank==1,size==n".   
 
 <div class="p"><!----></div>
 The following code makes an anonymous point with one coordinate <b>11</b>, and
@@ -377,13 +393,24 @@ val [i] : Point = Point.make(11);
 assert i == 11;
 val p[j,k] = Point.make(22,33);
 assert j == 22 &amp;&amp; k == 33;
-val q[l,m] = [44,55]; // coerces an array to a point.
+val q[l,m] = [44,55] as Point; 
 assert l == 44 &amp;&amp; m == 55;
+//ERROR: val [n] = p;
 </pre>
 
 <div class="p"><!----></div>
+Destructuring is allowed wherever a <b>Point</b> or <b>Array[T]</b> variable is
+declared, <em>e.g.</em>, as the formal parameters of a method.
+
+The methods below take a single argument each: a three-element point for
+<b>example1</b>, a three-element array for <b>example2</b>.  The argument itself
+is bound to <b>x</b> in both cases, and its elements are bound to <b>a</b>,
+<b>b</b>, and <b>c</b>.  
 <pre>
+static def example1(x[a,b,c]:Point){}
+static def example2(x[a,b,c]:Array[String]{rank==1,size==3}){}
 </pre>
+
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc4">
@@ -562,5 +589,5 @@ omitted and inferred from the initializer type (&#167;).
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This code is
 unnecessarily turgid for the sake of the example.  One would generally write
 <b>public def bump() = ++n;</b>.   
-<br /><br />
+<br /><br /><hr />
 </html>

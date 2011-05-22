@@ -224,8 +224,8 @@ The statement in the body of an <b>async</b> is subject to the
 restriction that it must be acceptable as the body of a <b>void</b>
 method for an anonymous inner class declared at that point in the code. For
 example, it may reference <b>val</b> variables in lexically enclosing scopes,
-but 
-not <b>var</b> variables.
+but not <b>var</b> variables.  Similarly, it cannot <b>break</b> or
+<b>continue</b> surrounding loops.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc3">
@@ -378,6 +378,9 @@ for (place in D.places()) async at (place) {
 If the programmer wishes to execute <b>S</b> in parallel at each place,
 <b>S(p)</b> may be replaced by 
 <b>async S(p)</b>.
+
+<div class="p"><!----></div>
+<b>break</b> and <b>continue</b> statements may not be applied to <b>ateach</b>.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc6">
@@ -795,5 +798,9 @@ not others, not even if they are using different <b>AtomicInteger</b>s or even
 statement is the only statement that marks its activity as a root
 activity. Future versions of the language may introduce more such
 statements.
-<br /><br />
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 22 May 2011, 12:43.</small>
 </html>

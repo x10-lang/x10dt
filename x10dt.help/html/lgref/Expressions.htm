@@ -108,7 +108,7 @@ is of type <b>Int{self==1}</b>, and <b>true</b> is of type
 
 
 <div class="p"><!----></div>
-       <em>  
+<em>  
 <table>
 <tr><td align="right">Primary ::= <b>this</b> () </td></tr>
 <tr><td align="right">&#124; ClassName <b>.</b> <b>this</b> </td></tr>
@@ -1429,22 +1429,32 @@ If <b>v as T</b> could either be a cast or an explicit coercion, X10 treats its
 as a cast.  
 
 <div class="p"><!----></div>
-The <b>Thing</b> class provides an explicit conversion to <b>Object</b>.
-However, since <b>Thing</b> is a subclass of <b>Object</b>, 
+The <b>Person</b> class provides an explicit conversion 
+from its subclass <b>Fop</b> to itself. 
+However, since <b>Fop</b> is a subclass of <b>Person</b>, 
 using the <b>as</b> operator invokes the upcast, rather than the explicit
-conversion.  
+conversion.  This is visible in the example because the user-defined operator 
+<b>f as Person</b> returns <b>new Person()</b> (just like the <b>asPerson</b>
+method), while the 
+upcast returns <b>f</b> itself.  
 <pre>
-class Thing {
-  public static operator (x:Thing) as Object = "different";
+class Person {
+  static operator (f:Fop) as Person = new Person();
+  static def asPerson(f:Fop) = new Person();
   public static def example() {
-    val t = new Thing();
-    val o = t as Object;
-    assert o instanceof Thing;
+     val f = new Fop();
+     val cast = f as Person;
+     assert cast == f;
+     val meth = asPerson(f);
+     assert meth != f;
   }
 }
+class Fop extends Person {}
 </pre>
+
+<div class="p"><!----></div>
 The definition of an explicit conversion in this case is of little value,
-since any use of it in the <b>t as Object</b> syntax will invoke the upcast.  
+since any use of it in the <b>f as Person</b> syntax will invoke the upcast.  
 
 
 <div class="p"><!----></div>
@@ -1499,6 +1509,10 @@ However, it is a static error if <b>e</b> cannot possibly be an instance of
 <b>C{c}</b>; the compiler will reject <b>1 instanceof Int{self == 2}</b> because
 <b>1</b> can never satisfy <b>Int{self == 2}</b>. Similarly, <b>1 instanceof
 String</b> is a static error, rather than an expression always returning false. 
+
+<div class="p"><!----></div>
+If <b>x instanceof T</b> returns <b>true</b> for some value <b>x</b> and type
+<b>T</b>, then <b>x as T</b> will evaluate normally.  
 
 <div class="p"><!----></div>
 <b>Limitation: </b>
@@ -1965,7 +1979,7 @@ Similarly, but perhaps less familiarly,
 parentheses can disambiguate other expressions.  In the following code, 
 <b>funny.f</b> is a field-selection expression, and so <b>(funny.f)()</b> means
 &#223;elect the <b>f</b> field from <b>funny</b>, and evaluate it".  However, 
-<b>funny.f()</b> means &#235;valuate the <b>f</b> method on object <b>funny</b>." 
+<b>funny.f()</b> means &#235;valuate the <b>f</b> method on object <b>funny</b>."  
 <pre>
 class Funny {
   def f () = 1;
@@ -1989,5 +2003,5 @@ value</em> is the same as that of <b>i</b>.
 
 <div class="p"><!----></div>
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Code generators often find this trick to be useful.
-<br /><br />
+<br /><br /><hr />
 </html>

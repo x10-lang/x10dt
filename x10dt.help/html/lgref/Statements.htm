@@ -153,12 +153,9 @@ block.
 Variables declared in such statements shadow variables of the same
 name declared elsewhere.
 A local variable of a given name, say <b>x</b>, cannot shadow another local
-variable or parameter named <b>x</b> unless there is an intervening method or
-closure declaration, or unless the inner <b>x</b> is declared inside an
-<b>async</b> or <b>at</b> statement and the outer variable is declared outside
-of that.   Strictly, <b>at</b> introduces a new scope that does not share the
-variables of the external scope, so its variables do not actually shadow those
-outside.  
+variable or parameter named <b>x</b> unless there is an intervening method,
+constructor, initializer, or
+closure declaration.
 
 <div class="p"><!----></div>
 The following code illustrates both legal and illegal uses of shadowing.
@@ -183,12 +180,16 @@ class Shadow{
         // ERROR: val x = "can't shadow local var";
      }
      async {
-        val x = "can shadow through async";
+        // ERROR: val x = "can't shadow through async";
      }        
      val f = () =&#62; { 
        val x = "can shadow through closure";
        x
      };
+     class Local {
+        val f = at(here.next()){ val x = "can here"; x };
+        def this() { val x = "can here, too"; }
+     }
   }
 }
 </pre>
@@ -1027,5 +1028,5 @@ At times it may be considered important not to check <b>assert</b> statements;
 <b>-noassert</b> command line option causes the compiler to ignore all
 <b>assert</b> statements. 
 
-<br /><br />
+<br /><br /><hr />
 </html>

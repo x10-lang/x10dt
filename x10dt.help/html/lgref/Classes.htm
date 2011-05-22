@@ -63,7 +63,7 @@
 
 <div class="p"><!----></div>
  <h1><a name="tth_chAp1">
-Chapter 1 </a><br />Classes</h1>
+Chapter 8 </a><br />Classes</h1>
 <a name="XtenClasses">
 </a>
 <a name="ReferenceClasses">
@@ -71,7 +71,7 @@ Chapter 1 </a><br />Classes</h1>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc1">
-8</a>&nbsp;&nbsp;Principles of X10 Objects</h2><a name="XtenObjects">
+1</a>&nbsp;&nbsp;Principles of X10 Objects</h2><a name="XtenObjects">
 </a>
 
 
@@ -810,6 +810,54 @@ is equivalent to
 <b>w.rail()</b>
 
 <div class="p"><!----></div>
+      <h4><a name="tth_sEc4.5.1">
+4.5.1</a>&nbsp;&nbsp;Limitation of Property Methods</h4>
+
+<div class="p"><!----></div>
+<b>Limitation: </b> 
+Currently, X10 forbids the use of property methods which have all the
+following features: 
+
+<ul>
+<li> they are abstract, and
+<div class="p"><!----></div>
+</li>
+
+<li> they have one or more arguments, and
+<div class="p"><!----></div>
+</li>
+
+<li> they appear as subterms in constraints.
+<div class="p"><!----></div>
+</li>
+</ul>
+Any two of these features may be combined, but the three together may not be. 
+
+<div class="p"><!----></div>
+ The constraint in <b>example1</b> is concrete, not abstract.  The constraint in
+<b>example2</b> is nullary, and has no arguments.  The constraint in
+<b>example3</b> appears at the top level, rather than as a subterm (<em>cf.</em>
+the equality expressions <b>A==B</b> in the other examples).    However,
+<b>example4</b> combines all three features, and is not allowed.
+<pre>
+class Cls {
+  property concrete(a:Int) = 7;
+}
+interface Inf {
+  property nullary(): Int;
+  property topLevel(z:Int):Boolean;
+  property allThree(z:Int):Int;
+}
+class Example{
+  def example1(Cls{self.concrete(3)==7}) = 1;
+  def example2(Inf{self.nullary()==7})   = 2;
+  def example3(Inf{self.topLevel(3)})    = 3;
+  //ERROR: def example4(Inf{self.allThree(3)==7}) = "fails";
+}
+</pre>
+
+
+<div class="p"><!----></div>
      <h3><a name="tth_sEc4.6">
 4.6</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
 <a name="MethodOverload">
@@ -1251,21 +1299,21 @@ of these operators have no special execution behavior.)
 The user-definable operations are (in order of precedence): <br />
 
 <table>
-<tr><td align="left">implicit type coercions</td></tr>
-<tr><td align="left">postfix <b>()</b></td></tr>
+<tr><td align="right">implicit type coercions</td></tr>
+<tr><td align="right">postfix <b>()</b></td></tr>
 <tr><td align="left"><b>as T</b></td></tr>
-<tr><td align="left">these unary operators:  <b>- + ! &#126; </td><td align="left">&#124; &amp; / ^ * %</b></td></tr>
-<tr><td align="left"><b>..</b></td></tr>
-<tr><td align="left"><b>*      /       %      **</b></td></tr>
-<tr><td align="left"><b>+</b> <b>     -</b> </td></tr>
-<tr><td align="left"><b>&lt;&lt;     &#62;&#62;      &#62;&#62;&#62;    -&#62;     &lt;-     &#62;-      -&lt;      !</b></td></tr>
-<tr><td align="left"><b>&#62;      </b> <b>&#62;=     </b> <b>&lt;     </b> <b>&lt;=     </b> 
+<tr><td align="right">these unary operators:  <b>- + ! &#126; </td><td align="left">&#124; &amp; / ^ * %</b></td></tr>
+<tr><td align="right"><b>..</b></td></tr>
+<tr><td align="right"><b>*      /       %      **</b></td></tr>
+<tr><td align="right"><b>+</b> <b>     -</b> </td></tr>
+<tr><td align="right"><b>&lt;&lt;     &#62;&#62;      &#62;&#62;&#62;    -&#62;     &lt;-     &#62;-      -&lt;      !</b></td></tr>
+<tr><td align="right"><b>&#62;      </b> <b>&#62;=     </b> <b>&lt;     </b> <b>&lt;=     </b> 
 <b>&#126;      !&#126;</b></td></tr>
-<tr><td align="left"><b>&amp;</b> </td></tr>
-<tr><td align="left"><b>^</b> </td></tr>
-<tr><td align="left"><b>&#124;</b> </td></tr>
-<tr><td align="left"><b>&amp;&amp;</b> </td></tr>
-<tr><td align="left"><b>&#124;&#124;</b> </td></tr></table>
+<tr><td align="right"><b>&amp;</b> </td></tr>
+<tr><td align="right"><b>^</b> </td></tr>
+<tr><td align="right"><b></td><td align="left">&#124;</b> </td></tr>
+<tr><td align="right"><b>&amp;&amp;</b> </td></tr>
+<tr><td align="right"><b></td><td align="left">&#124;</td><td align="left">&#124;</b> </td></tr></table>
 
 
 <div class="p"><!----></div>
@@ -1432,16 +1480,18 @@ The operator to negate a polynomial is:
 <div class="p"><!----></div>
 Explicit type conversions, <b>e as A</b>, can be defined as operators on
 class <b>A</b>, or on the container type of <b>e</b>.  These must be static
-operators, 
+operators.  
 
 <div class="p"><!----></div>
 To define an operator in <b>class A</b> (or <b>struct A)</b> converting values
-of ttype <b>B</b> into type <b>A</b>, use the syntax: 
+of type <b>B</b> into type <b>A</b>, use the syntax: 
 <pre>
 static operator (x:B) as ? {c} = ... 
 </pre>
 The <b>?</b> indicates the containing type <b>A</b>.  
 The guard clause <b>{c}</b> may be omitted.
+There may be at most one explicit type conversion in class <b>A</b> yielding
+some other type <b>B</b>, though  there may be many yielding type <b>A</b>.
 
 <div class="p"><!----></div>
 <pre>
@@ -1455,25 +1505,7 @@ class Poly {
 }
 </pre>
 
-
-<div class="p"><!----></div>
 The <b>?</b> may be given a bound, such as <b>as ? &lt;: Caster</b>, if desired.
-
-<div class="p"><!----></div>
-Explicit type conversions <em>out</em> of container <b>B</b> to some other
-container <b>A</b> may be defined in <b>B</b>, as well.  The syntax for this
-does not involve <b>?</b>.  
-
-<div class="p"><!----></div>
-<pre>
-class Numbered(n:Int) {
-  public static operator (x:Numbered) as Int = x.n;
-  public static def example(){
-     val n3 = new Numbered(3);
-     assert n3 as Int == 3;
-  }
-}
-</pre>
 
 <div class="p"><!----></div>
 There is little difference between an explicit conversion <b>e as T</b> and a
@@ -1501,8 +1533,8 @@ approximation of <b>e</b> in type <b>T</b>, just as <b>1</b> is a good
 
 <div class="p"><!----></div>
 An implicit type conversion from <b>U</b>  to <b>T</b> may be specified in
-either <b>U</b> or <b>T</b>.  
-The syntax for it, in either case, is: 
+container <b>T</b>.  
+The syntax for it is: 
 <pre>
 static operator (u:U) : T = e;
 </pre>
@@ -1510,6 +1542,14 @@ static operator (u:U) : T = e;
 <div class="p"><!----></div>
 Implicit coercions are used automatically by the compiler on method calls 
 (&#167;) and assignments (&#167;).
+Implicit coercions may be used when a value of type <b>T</b> appears in a
+context expecting a value of type <b>U</b>.  If <b>T &lt;: U</b>, no implicit
+coercion is needed; <em>e.g.</em>, a method <b>m</b> expecting an <b>Int</b> argument may 
+be called as <b>m(3)</b>, with an argument of type <b>Int{self==3}</b>, which is
+a subtype of <b>m</b>'s argument type <b>Int</b>. 
+However, if it is not the case that <b>T &lt;: U</b>, but there is an implicit
+coercion from <b>T</b> to <b>U</b> defined in container <b>U</b>, then this
+implicit coercion will be applied.
 
 <div class="p"><!----></div>
 We can define an implicit coercion from <b>Int</b> to <b>Poly</b>,
@@ -2548,7 +2588,7 @@ class Example (
 
 <div class="p"><!----></div>
    def someMethod() =
-        prop + staticField + instanceField;     // (P)
+        prop + staticField() + instanceField;     // (P)
 }
 </pre>
 
@@ -2646,13 +2686,14 @@ class Res {
      // ERROR: m(new Face());
 
 <div class="p"><!----></div>
+     // The match must be exact.
+     // ERROR: assert m(here) == 3 : "Place";
+
+<div class="p"><!----></div>
      // Boolean could be handled directly, or by 
      // implicit coercion Boolean -&#62; Ace.
      // Direct matches always win.
-     assert m(here) == 3 : "Place";
      assert m(true) == 2 : "Boolean"; 
-
-<div class="p"><!----></div>
   }
 </pre>
 
@@ -2677,11 +2718,15 @@ no unique best match for the invocation <b>m(new Face())</b>.  This invocation
 would be forbidden, and a compile-time error issued.
 
 <div class="p"><!----></div>
-None of the defined methods match <b>Place</b>. However, there is an implicit
-coercion (&#167;<a href="#sect:ImplicitCoercion">7.4</a>) from <b>Place</b> to <b>Ace</b>.  So, 
-the <b>Ace</b> method will be called for <b>m(here)</b> - with the implicit
-coercion applied to <b>here</b> before the method call.
-(<b>Limitation: </b>: this does not currently compile in all cases.)
+The match must be exact.  There is an implicit coercion 
+from <b>Place</b> to <b>Ace</b>, and <b>Ace</b> implements <b>Surface</b>, so the
+code
+<pre>
+val ace : Ace = here;
+assert m(ace) == 3;
+</pre>
+works, by using the <b>Surface</b> form of <b>m</b>.  But doing it in one step
+requires a deeper search than X10 performs<a href="#tthFtNtAAG" name="tthFrefAAG"><sup>6</sup></a>, and is not allowed.
 
 <div class="p"><!----></div>
 For <b>m(true)</b>, both the <b>Boolean</b> and, with the implicit coercion,
@@ -2944,7 +2989,7 @@ resolution, is:
 
 <li> The types "x<sub>1</sub>:T<sub>1</sub>,&#8230;, x<sub>f</sub>:T<sub>f</sub>" of the formal parameters.  If
       there are no formal parameters, f=0. In the case of an instance
-      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAG" name="tthFrefAAG"><sup>6</sup></a>
+      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAH" name="tthFrefAAH"><sup>7</sup></a>
 <div class="p"><!----></div>
 </li>
 
@@ -3151,7 +3196,7 @@ However, this can lead to syntactic ambiguity in the case where the field
 <b>f</b> of object <b>a</b> is a
 function, array, list, or the like, and where <b>a</b> has a method also named
 <b>f</b>.  The term <b>a.f(b)</b> could either mean "call method <b>f</b> of <b>a</b> upon
-<b>b</b>", or apply the function <b>a.f</b> to argument <b>b</b>".  
+<b>b</b>", or &#228;pply the function <b>a.f</b> to argument <b>b</b>".  
 
 <div class="p"><!----></div>
 <pre>
@@ -3348,8 +3393,10 @@ inner class's superclass. If it is necessary to refer to the outer classes's
 superclass, use a qualified name of the form <em>Outer</em><b>.super</b>.
 
 <div class="p"><!----></div>
-The only restriction placed on the members of inner classes is that the static
-fields of an inner class must be compile-time constant expressions. 
+The members of inner classes must be instance members.  They cannot be static
+members.  Classes, interfaces, static methods, static fields, and typedefs are
+not allowed as members of inner classes. 
+The same restriction applies to local classes (&#167;.
 
 <div class="p"><!----></div>
 Consider
@@ -3451,7 +3498,7 @@ instance method is an inner class.
  Local classes are local to the block in which they are defined.
 They have access to almost everything defined at that point in the method; the
 one exception is that they cannot use <b>var</b> variables. Local classes
-cannot be <b>public</b> <b>protected</b>, or <b>private</b>, because they are
+cannot be <b>public</b>, <b>protected</b>, or <b>private</b>, because they are
 only visible from within the block of declaration. They cannot be
 <b>static</b>.
 
@@ -3483,15 +3530,21 @@ of <b>Local</b>.
 
 
 <div class="p"><!----></div>
+The members of inner classes must be instance members.  They cannot be static
+members.  Classes, interfaces, static methods, static fields, and typedefs are
+not allowed as members of local classes. 
+The same restriction applies to inner classes (&#167;<a href="#InnerClasses">11</a>. 
+
+<div class="p"><!----></div>
  <h2><a name="tth_sEc13">
 13</a>&nbsp;&nbsp;Anonymous Classes</h2>
 
 
 
 <div class="p"><!----></div>
-It is possible to define a new class and instantiate it as part of an
+It is possible to define a new local class and instantiate it as part of an
 expression.  The new class can extend an extant class or interface.  Its body
-can include all of the usual members of a class. It can refer to any
+can include all of the usual members of a local class. It can refer to any
 identifiers available at that point in the expression - except for <b>var</b>
 variables.  An anonymous class in a static context is a static inner class.
 
@@ -3632,8 +3685,11 @@ to avoid any possible confusion with the built-in class <b>Point</b>.
 <b>toString</b>, but it cannot be prevented - save by a scheme such as we
 present in this section.
 <div class="p"><!----></div>
-<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>The
+<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>In general this search is
+unbounded, so X10 can't perform it.
+<div class="p"><!----></div>
+<a name="tthFtNtAAH"></a><a href="#tthFrefAAH"><sup>7</sup></a>The
       variable names are relevant because one formal can be mentioned in a
       later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
-<br /><br />
+<br /><br /><hr />
 </html>

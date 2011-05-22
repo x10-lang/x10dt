@@ -353,9 +353,9 @@ class D extends C {
 </pre>
 
 <div class="p"><!----></div>
-<b><b>Limitation: </b></b> Some X10 compilers improperly allow access to <tt>xhax</tt> - as,
+<b><b>Limitation: </b></b> The X10 compiler improperly allows access to <tt>xhax</tt> - as,
 indeed, some Java compilers do, despite Java having the analogous rule.
-However, X10 allows all permitted accesses, so the workaround is trivial.
+The compiler allows you to do everything the spec says and a bit more.
 <div class="p"><!----></div>
 </li>
 
@@ -517,8 +517,12 @@ other names.
 4.3</a>&nbsp;&nbsp;Implicit Imports</h3>
 
 <div class="p"><!----></div>
-The packages <b>x10.lang</b> and <b>x10.array</b> are automatically imported in all files
-without need for further specification.
+The packages <b>x10.lang</b>, <b>x10.array</b> are automatically imported in all
+files without need for further specification.
+Furthermore, the public static members of the class named <b>_</b> in
+<b>x10.lang</b> are imported everywhere as well. This provides a number of
+aliases, such as <b>Console</b> and <b>int</b> for <b>x10.io.Console</b> and
+<b>Int</b>. 
 
 <div class="p"><!----></div>
 
@@ -560,5 +564,5 @@ begin with a lowercase letter.
 Names of <b>static val</b> fields are in all uppercase with words
 separated by <b>_</b>'s.
 
-<br /><br />
+<br /><br /><hr />
 </html>

@@ -187,9 +187,9 @@ and the copying of all data used in the operation, and must be used with care
   
 <table>
 
-<tr><td width="150">AtStatement ::= <b>at</b> PlaceExpSingleList Statement = </td></tr>
-<tr><td width="150">AtExp ::= <b>at</b> PlaceExpSingleList ClosureBody = </td></tr>
-<tr><td width="150"></td></tr></table>
+<tr><td align="right">AtStatement ::= <b>at</b> PlaceExpSingleList Statement </td></tr>
+<tr><td align="right">AtExp ::= <b>at</b> PlaceExpSingleList ClosureBody </td></tr>
+<tr><td align="right"></td></tr></table>
 </em>
 
 <div class="p"><!----></div>
@@ -344,8 +344,10 @@ struct basis as described in the API documentation for
 The default mechanism performs a
 deep copy of the object graph (that is, it copies the object or struct
 and, recursively, the values contained in its fields), but does not
-traverse <b>transient</b> fields. Instead on serialization the default
-value &#167; for the type of the field is used.
+traverse <b>transient</b> fields. <b>transient</b> fields are omitted from the
+serialized data.   On deserialization, <b>transient</b> fields are initialized
+with their default values (&#167;).    The types of
+<b>transient</b> fields must therefore have default values.
 
 <div class="p"><!----></div>
 A struct <b>s</b> of type <b>x10.lang.GlobalRef[T]</b> 
@@ -506,7 +508,7 @@ type has no default value, and copying would in fact set it to zero.
 class Trans {
    val a : Int = 1;
    transient val b : Int = 2;
-   //ERROR transient val c : Int{c != 0} = 3;
+   //ERROR: transient val c : Int{c != 0} = 3;
    def example() {
      assert(a == 1 &amp;&amp; b == 2);
      at(here) {
@@ -617,5 +619,5 @@ specifiers to make explicit just what gets copied can ameliorate this issue.
 <pre>
 </pre>
 
-<br /><br />
+<br /><br /><hr />
 </html>

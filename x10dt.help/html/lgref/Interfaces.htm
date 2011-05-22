@@ -78,16 +78,16 @@ interface Pushable{prio() != 0} {
   struct Pushy{}
   interface Pushing{}
   static type Shove = Int;
-  property text():Int;
+  property text():String;
   property prio():Int;
 }
-class MessageButton(text:String, prio:Int)
+class MessageButton(text:String)
   implements Pushable{self.prio()==Pushable.MAX_PRIO} {
   public def push() { 
     x10.io.Console.OUT.println(text + " pushed");
   }
   public property text() = text;
-  public property prio() = prio;
+  public property prio() = Pushable.MAX_PRIO;
 }
 </pre>
 
@@ -98,6 +98,10 @@ establishes an invariant, that <b>prio() != 0</b>.
 <em>viz</em>&nbsp;one with maximum priority.  It
 defines the <b>push()</b> method given in the interface, as a <b>public</b>
 method-interface methods are implicitly <b>public</b>.
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> X10 may not always detect that type invariants of interfaces are
+satisfied, even when they obviously are.
 
 <div class="p"><!----></div>
 A container-a class or struct-can <em>implement</em> an interface,
@@ -187,24 +191,14 @@ invariants associated with its superinterfaces and the invariant
 defined at the interface. 
 
 <div class="p"><!----></div>
-A class <b>C</b>  implements an interface <b>I</b> if
-
-<ul>
-<li> <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
-      of <b>C</b>,
-<div class="p"><!----></div>
-</li>
-
-<li> <b>C</b>'s property methods include all the property methods  of <b>I</b>,
-<div class="p"><!----></div>
-</li>
-
-<li> Each method <b>m</b> defined by <b>I</b> is also a method of <b>C</b> -
-      with the <em><b>public</b></em> modifier added.   These methods may be
-      <b>abstract</b> if <b>C</b> is <b>abstract</b>.
-<div class="p"><!----></div>
-</li>
-</ul>
+A class <b>C</b>  implements an interface <b>I</b> if <b>I</b>, or a subtype of <b>I</b>, appears in the <b>implements</b> list
+of <b>C</b>.  
+In this case,
+ <b>C</b> implicitly gets all the methods and property methods of <b>I</b>,
+      as <b>abstract</b> <b>public</b> methods.  If <b>C</b> does not declare
+      them explicitly, then they are <b>abstract</b>, and <b>C</b> must be
+      <b>abstract</b> as well.   If <b>C</b> does declare them all, <b>C</b> may
+      be concrete.
 
 <div class="p"><!----></div>
 If <b>C</b> implements <b>I</b>, then the class invariant
@@ -300,12 +294,15 @@ to bind a <b>val</b>, but other uses are nontrivial.
 
 <div class="p"><!----></div>
 <pre>
-class A {
-  static def example(n: Int) {
-    class B {
-      interface I { val V = n*n; }
+class TheOne {
+  static val ONE = 1;
+  interface WelshOrFrench {
+    val UN = 1;
+  }
+  static class Onesome implements WelshOrFrench {
+    static def example() {
+      assert UN == ONE;
     }
-   return B.I.V + 1;
   }
 }
 </pre>
@@ -368,5 +365,5 @@ The members of an interface <b>I</b> are the union of the following sets:
 <div class="p"><!----></div>
 Overriding for instances is defined as for classes, &#167;
 
-<br /><br />
+<br /><br /><hr />
 </html>

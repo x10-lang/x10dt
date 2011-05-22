@@ -96,13 +96,14 @@ class Res {
      // ERROR: m(new Face());
 
 <div class="p"><!----></div>
+     // The match must be exact.
+     // ERROR: assert m(here) == 3 : "Place";
+
+<div class="p"><!----></div>
      // Boolean could be handled directly, or by 
      // implicit coercion Boolean -&#62; Ace.
      // Direct matches always win.
-     assert m(here) == 3 : "Place";
      assert m(true) == 2 : "Boolean"; 
-
-<div class="p"><!----></div>
   }
 </pre>
 
@@ -127,11 +128,15 @@ no unique best match for the invocation <b>m(new Face())</b>.  This invocation
 would be forbidden, and a compile-time error issued.
 
 <div class="p"><!----></div>
-None of the defined methods match <b>Place</b>. However, there is an implicit
-coercion (&#167;) from <b>Place</b> to <b>Ace</b>.  So, 
-the <b>Ace</b> method will be called for <b>m(here)</b> - with the implicit
-coercion applied to <b>here</b> before the method call.
-(<b>Limitation: </b>: this does not currently compile in all cases.)
+The match must be exact.  There is an implicit coercion 
+from <b>Place</b> to <b>Ace</b>, and <b>Ace</b> implements <b>Surface</b>, so the
+code
+<pre>
+val ace : Ace = here;
+assert m(ace) == 3;
+</pre>
+works, by using the <b>Surface</b> form of <b>m</b>.  But doing it in one step
+requires a deeper search than X10 performs<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>, and is not allowed.
 
 <div class="p"><!----></div>
 For <b>m(true)</b>, both the <b>Boolean</b> and, with the implicit coercion,
@@ -394,7 +399,7 @@ resolution, is:
 
 <li> The types "x<sub>1</sub>:T<sub>1</sub>,&#8230;, x<sub>f</sub>:T<sub>f</sub>" of the formal parameters.  If
       there are no formal parameters, f=0. In the case of an instance
-      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+      method, the receiver will be the first formal parameter.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
 <div class="p"><!----></div>
 </li>
 
@@ -601,7 +606,7 @@ However, this can lead to syntactic ambiguity in the case where the field
 <b>f</b> of object <b>a</b> is a
 function, array, list, or the like, and where <b>a</b> has a method also named
 <b>f</b>.  The term <b>a.f(b)</b> could either mean "call method <b>f</b> of <b>a</b> upon
-<b>b</b>", or apply the function <b>a.f</b> to argument <b>b</b>".  
+<b>b</b>", or &#228;pply the function <b>a.f</b> to argument <b>b</b>".  
 
 <div class="p"><!----></div>
 <pre>
@@ -615,5 +620,42 @@ class Ambig {
 }
 </pre>
 
-<br /><br />
+
+<div class="p"><!----></div>
+In the case where a syntactic form &#203;.m(F<sub>1</sub>, &#8230;, F<sub>n</sub>)" could
+be resolved as either a method call, or the application of a field <b>E.m</b>
+to some arguments, it will be treated as a method call.  
+The application of <b>E.m</b> to some arguments can be specified by adding
+parentheses:  "(E.m)(F<sub>1</sub>, &#8230;, F<sub>n</sub>)".
+
+<div class="p"><!----></div>
+<pre>
+class Disambig {
+  public val f : (Int)=&#62;Int =  (x:Int) =&#62; x*x;
+  public def f(y:int) = y+1;
+  public def example() {
+      assert(  this.f(10)  == 11  );
+      assert( (this.f)(10) == 100 );
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Similarly, it is possible to have a method with the same name as a struct, say
+<b>ambig</b>, giving an ambiguity as to whether <b>ambig()</b> is a struct
+constructor invocation or a method invocation.  This ambiguity is resolved by
+treating it as a method invocation.  If the constructor invocation is desired,
+it can be achieved by including the optional <b>new</b>.  That is, 
+<b>new ambig()</b> is struct constructor invocation; <b>ambig()</b> is a 
+method invocation.
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>In general this search is
+unbounded, so X10 can't perform it.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>The
+      variable names are relevant because one formal can be mentioned in a
+      later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
+<br /><br /><hr />
 </html>

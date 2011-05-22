@@ -194,7 +194,6 @@ one-dimensional integer-valued arrays; it is an abbreviation for
 <tr><td align="right">FunctionType ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalList<sup>?</sup>&nbsp;<b>)</b> Guard<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
 <tr><td align="right">ConstrainedType ::= NamedType </td></tr>
 <tr><td align="right">&#124; AnnotatedType </td></tr>
-<tr><td align="right">&#124; <b>(</b> Type <b>)</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -1216,6 +1215,15 @@ This could lead to program failures, as illustrated by the failing assertion.
 
 
 <div class="p"><!----></div>
+      <h4><a name="tth_sEc4.3.1">
+4.3.1</a>&nbsp;&nbsp;Stripped Generic Casts</h4>
+
+<div class="p"><!----></div>
+Since constraints are not preserved at runtime, <b>instanceof</b> and <b>as</b>
+cannot pay attention to them.  In particular, when types are used generically,
+they may not behave as one would expect.
+
+<div class="p"><!----></div>
      <h3><a name="tth_sEc4.4">
 4.4</a>&nbsp;&nbsp;Example of Constraints</h3>
 <a name="ConstraintExamples">
@@ -1957,6 +1965,7 @@ the compiler would reject this program for attempting to override
 <b>Boolean{self==true}</b>.  In this case, supply the type that is actually
 intended for <b>isTriangle</b>: 
 <pre>
+def isTriangle() : Boolean =false;
 </pre>
 
 <div class="p"><!----></div>
@@ -1985,10 +1994,11 @@ A method or closure that has expression-free <b>return</b> statements
 <b>void</b> is not a type; there are no <b>void</b> values, nor can <b>void</b>
 be used as the argument of a generic type. However, <b>void</b> takes the
 syntactic place of a type in a few contexts. A method returning <b>void</b> can be specified by
-<b>def m():void</b>: 
+<b>def m():void</b>, and similarly for a closure: 
 
 <div class="p"><!----></div>
 <pre>
+def m():void {return;}
 val f : () =&#62; void = () =&#62; {return;};
 </pre>
 
@@ -2021,7 +2031,7 @@ explicit type arguments.
 X10 will compute a type from the types of the actual arguments. 
 
 <div class="p"><!----></div>
-(Exception: it is an error if the method call provides no information about
+(As an exception of sorts, it is an error if the method call provides no information about
 a type parameter that must be inferred.  For example, given the method
 definition <b>def m[T](){...}</b>, an invocation <b>m()</b> is considered a
 static error.  The compiler has no idea what <b>T</b> the programmer intends.)
@@ -2058,7 +2068,8 @@ inside of the type of a variable; X10 can extract it.
 The <b>first</b> method below returns the first element of a one-dimensional
 array.  The type parameter <b>T</b> represents the type of the array's
 elements. There is no parameter of type <b>T</b>. There is one of type
-<b>Array[T]{c}</b>; X10 strips off the constraint <b>{c}</b> and the
+<b>Array[T]{c}</b>.  When doing type inference, 
+X10 strips off the constraint <b>{c}</b> and the
 <b>Array[...]</b> type to get at the <b>T</b> inside.
 <pre>
 static def first[T](x:Array[T](1)) = x(0);
@@ -2087,12 +2098,16 @@ def m[X<sub>1</sub>, &#8230;, X<sub>t</sub>](y<sub>1</sub>: S<sub>1</sub>, &#823
 it reasons as follows. 
 
 <div class="p"><!----></div>
-Suppose that "b<sub>i</sub>" has type "T<sub>i</sub>".  Then, X10 is seeking a
-set of type B bindings 
+Let 
 <pre>
-X<sub>j</sub> = U<sub>j</sub>, 
+T<sub>i</sub> {&#126;<span class="roman">be</span> <span class="roman">the</span> <span class="roman">type</span> <span class="roman">of</span> } b<sub>i</sub>
 </pre>
-for 1  &#8804; j  &#8804; t, 
+Then, X10 is seeking a
+set B  of type 
+bindings 
+<pre>
+B = { X<sub>1</sub> = U<sub>1</sub>, ...,  X<sub>t</sub>=U<sub>t</sub> }
+</pre>
 such that 
 "T<sub>i</sub> &lt;: S<sup>*</sup><sub>i</sub>" for 1  &#8804; i  &#8804; n, where "S<sup>*</sup>" is
 <b>S</b> with each type variable "X<sub>j</sub>" replaced by the corresponding
@@ -2106,11 +2121,11 @@ explicitly.)
 <div class="p"><!----></div>
 Let B<sub>0</sub> be the set { T_i  S_i &#124; 1  i  n}.  Let
 B<sub>n+1</sub> be B<sub>n</sub> with one element F <: G or 
-F == G removed, and
-C(F <: G) 
-or C(F == G) (defined below) added.  Repeat this until 
+F = G removed, and
+<i>Strip</i>(F <: G) 
+or <i>Strip</i>(F = G), where     <em>Strip</em> is defined below, added.  Repeat this until 
 B<sub>n</sub> consists entirely of comparisons with type variables (<em>viz</em>, 
-"Y<sub>j</sub> == U", 
+"Y<sub>j</sub> = U", 
 "Y<sub>j</sub> &lt;: U", and
 "Y<sub>j</sub> :&#62; U"), 
 or until some n exceeds a predefined compiler limit. 
@@ -2120,11 +2135,11 @@ The candidate inferred types may be read off of B<sub>n</sub>.  The guessed bind
 for "X<sub>j</sub>" is: 
 
 <ul>
-<li> If there is an equality "X<sub>j</sub>==W" in B<sub>n</sub>, then guess the
+<li> If there is an equality "X<sub>j</sub>=W" in B<sub>n</sub>, then guess the
       binding "X<sub>j</sub>=W".  Note that there may be several such
       equalities with different choices of <b>W</b>; pick any one.  If the
       chosen binding does not equal the others, the candidate binding will be
-      rejected later.
+      rejected later and type inference will fail.
 <div class="p"><!----></div>
 </li>
 
@@ -2148,7 +2163,7 @@ binding &#220;<sub>j</sub>", but the
 bindings do not work - 
 that is, if 
 &#228;.m[U<sub>1</sub>, &#8230;, U<sub>t</sub>](b<sub>1</sub>, &#8230;,b<sub>n</sub>)"
-is not a call of 
+is not a well-typed call of 
 the original method 
 "def m[X<sub>1</sub>, &#8230;, X<sub>t</sub>](y<sub>1</sub>: S<sub>1</sub>, &#8230;, y<sub>n</sub>:S<sub>n</sub>)"
 - then type inference also fails.
@@ -2160,7 +2175,7 @@ the original method
 <div class="p"><!----></div>
 Given a type relation
 r of the form F <: G
-or F == G, we compute the set C(r) of
+or F = G, we compute the set <i>Strip</i>(r) of
 replacement constraints.  There are a number of cases; we present only the
 interesting ones. 
 
@@ -2168,15 +2183,16 @@ interesting ones.
 
 <ul>
 <li> If F has the form "F&#8242;{c}", then  
-"C(r)" is defined to be
- "F&#8242; == G" if r is an equality, or 
+"<i>Strip</i>(r)" is defined to be
+ "F&#8242; = G" if r is an equality, or 
  "F&#8242; &lt;: G" if r is a subtyping.
 That is, we erase type constraints.  
 Validity is not an issue at this point in the algorithm, as 
 we check at the end that the result is valid.
-Note that, if the equation had the form "Z{c} == A", it could be
-solved by either <b>Z==A</b> or by <b>Z = A{c}</b>.  By dropping constraints in this
-rule, we choose the former solution.
+Note that, if the equation had the form "Z{c} = A", it could be
+solved by either <b>Z=A</b> or by <b>Z = A{c}</b>.  By dropping constraints in this
+rule, we choose the former solution, which tends to give more general types in
+results.
 <div class="p"><!----></div>
 </li>
 
@@ -2188,18 +2204,18 @@ rule, we choose the former solution.
 and 
 G
 has the form "K[G<sub>1</sub>, &#8230;, G<sub>k</sub>]", 
-then C(r) has one type relation comparing each parameter of 
+then <i>Strip</i>(r) has one type relation comparing each parameter of 
 F with the corresponding one of G: 
 
 <pre>
-C(r) = { F<sub>1</sub> == G<sub>1</sub> | 1 &le; l &le; k }
+<i>Strip</i>(r) = {F<sub>l</sub> = G<sub>l</sub> &#124; 1&le;l&le;k}
 </pre>
 
 <div class="p"><!----></div>
-For example, the constraint "List[X] == List[Y]" induces the
-constraint <b>X==Y</b>.  
+For example, the constraint "List[X] = List[Y]" induces the
+constraint <b>X=Y</b>.  
 <b>List[X] &lt;: List[Y]</b> also induces the same constraint.  The only way that
-<b>List[X]</b> could be a subtype of <b>List[Y]</b> in X10 is if <b>X==Y</b>.
+<b>List[X]</b> could be a subtype of <b>List[Y]</b> in X10 is if <b>X=Y</b>.
 List of different types are incomparable.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
 <div class="p"><!----></div>
 </li>
@@ -2229,31 +2245,73 @@ class Example {
 </pre>
 The method call for <b>b</b> has explicit type parameters.  
 The call for <b>c</b> infers the parameters.  The computation 
-starts with one equation, saying that the type of the formal parameter of 
-<b>me</b> has to be the same as the type of the actual parameter, <em>viz</em>, the
-type of <b>a</b>:
+starts with one equation, saying that the formal parameter of 
+<b>me</b> has to be able to accept the actual parameter <b>a</b>:
 <pre>
-Cl[Int, X1, X2] == Cl[Int, Boolean, String]
+ Cl[Int, Boolean, String] &lt;: Cl[Int, X1, X2] 
 </pre>
 Note that both terms are <b>Cl</b> of three things. 
 This is broken into three equations: 
 <pre>
-Int == Int
+Int = Int
 </pre>
 which is easy to satisfy,
 <pre>
-X1 == Boolean
+X1 = Boolean
 </pre>
 which suggests a possible value for <b>X1</b>,  and 
 <pre>
-X2 == String
+X2 = String
 </pre>
 which suggests a value for <b>X2</b>.  
 All of these equations are simple enough, so the algorithm terminates. 
 
 <div class="p"><!----></div>
-Then, X10 confirms that the binding <b>X1==Boolean</b>, <b>X2==String</b>
-atually generates a correct call, which it does.  
+Then, X10 confirms that the binding <b>X1=Boolean</b>, <b>X2=String</b>
+actually generates a correct call, which it does.  
+
+
+<div class="p"><!----></div>
+When there is no way to infer types correctly, the type inference algorithm
+will fail.   Consider the program: 
+<pre>
+public class Failsome {
+  static def fail[X](a:Array[X], b:Array[X]):void {}
+  public static def main(argv:Array[String](1)) {
+    val aint  : Array[Int]     = [1,2,3];
+    val abool : Array[Boolean] = [true, false];
+    fail(aint, abool);    // THIS IS WRONG
+  }
+}
+</pre>
+The type inference computation starts, as always, by insisting that the types
+of the formals to <b>fail</b> are capable of accepting the actuals: 
+<pre>
+B<sub>0</sub>=Array{[Int]  &lt; : Array[X], Array[Boolean]  &lt; : Array[X]}
+</pre>
+Arbitrarily picking the first relation to <i>Strip</i> first, we get:
+<pre>
+B<sub>1</sub>={Int = X, Array[Boolean]  &lt; : Array[X]}
+</pre>
+and then 
+<pre>
+B<sub>2</sub>={Int = X, Boolean = X}
+</pre>
+(At this point it is clear to a human that B is inconsistent, but the
+algorithm's check comes a bit later.)
+B<sub>2</sub> consists entirely of comparisons with type variables, so the loop is
+over.  Arbitrarily picking the first equality, it guesses the binding 
+<pre>
+B={X = Int}.
+</pre>
+In the validation step, it checks that 
+<pre>
+fail[Int](aint, abool)
+</pre>
+is a well-typed call to <b>fail</b>.  Of course it is not; <b>abool</b> would
+have to be a value of type <b>Array[Int]</b>, which it is not.  So type
+inference fails at this point.  In this case it is correct: there is no way to
+give a proper type to this program.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>
 
 
 <div class="p"><!----></div>
@@ -2321,7 +2379,7 @@ type error.
 <div class="p"><!----></div>
 
 <ol type="1">
-<li> The library type <b>IndexedMemoryChuck</b> provides a low-level interface
+<li> The library type <b>x10.util.IndexedMemoryChunk</b> provides a low-level interface
       to blocks of memory.  A few methods on that class are not type-safe. See
       the API if you must.
 <div class="p"><!----></div>
@@ -2360,5 +2418,14 @@ which might have the same coordinates.
 <div class="p"><!----></div>
 <a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>The situation would be more
 complex if X10 had covariant and contravariant types.
-<br /><br />
+<div class="p"><!----></div>
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>
+In particular, <b>X=Any</b> doesn't work either.  An <b>Array[Int]</b> is not an
+<b>Array[Any]</b> - and it must not be, for you can put a boolean value into
+an <b>Array[Any]</b>, but you cannot put a boolean value into an
+<b>Array[Int]</b>.  However, if the types of the arguments had simply been 
+<b>X</b> rather than <b>Array[X]</b>, then type inference would correctly infer
+<b>X=Any</b>.
+
+<br /><br /><hr />
 </html>
