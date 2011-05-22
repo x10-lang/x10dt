@@ -25,8 +25,6 @@ Chapter 1 </a><br />Introduction</h1>
 <h3>Background</h3>
 
 <div class="p"><!----></div>
-
-<div class="p"><!----></div>
 The era of the mighty single-processor computer is over. Now, when more
 computing power is needed, one does not buy a faster uniprocessor-one buys
 another processor just like those one already has, or another hundred, or
@@ -68,7 +66,7 @@ space. All data resides at some processor, which is said to have <em>
 affinity</em> to the data.  Each processor may operate directly on the
 data it contains but must use some indirect mechanism to access or
 update data at other processors. Some kind of global <em>barriers</em>
-are used to ensure that processors remain roughly in lock-step.
+are used to ensure that processors remain roughly synchronized.
 
 <div class="p"><!----></div>
 X10 is a modern object-oriented programming language
@@ -122,11 +120,7 @@ system tracks which memory accesses are local. The programmer may
 introduce place casts which verify the access is local at run time.
 Linking with native code is supported.
 
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
-
-<div class="p"><!----></div>
+<br /><br />
 
 </body>
 </html>

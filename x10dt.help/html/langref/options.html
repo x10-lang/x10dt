@@ -46,7 +46,7 @@ is false by default.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc0.4">
-0.4</a>&nbsp;&nbsp;Call Style: <tt>-STATIC_CALLS=boolean, -VERBOSE_CALLS=boolean</tt></h3>
+0.4</a>&nbsp;&nbsp;Call Style: <tt>-STATIC_CHECKS, -VERBOSE_CHECKS</tt></h3>
 
 
 
@@ -61,7 +61,7 @@ def test(x:Int) {
    use(x); // creates a dynamic cast
 }
 </pre>
-compiles with <b>-STATIC_CALLS=false</b>, even though it is possible that 
+compiles with <b>-STATIC_CHECKS</b>, even though it is possible that 
 <b>x!=0</b> when <b>use(x)</b> is called.  In this case, the compiler inserts a
 cast, which has the effect of checking that the call is correct before it
 happens: 
@@ -72,13 +72,13 @@ def test(x:Int) {
 }
 </pre>
 The compiler produces a warning that it inserted some dynamic casts.
-If you then want to see what it did, use <b>-VERBOSE_CALLS</b>.
+If you then want to see what it did, use <b>-VERBOSE_CHECKS</b>.
 
 <div class="p"><!----></div>
-You may also turn on static checking, with the <b>-STATIC_CALLS</b> flag.  With
+You may also turn on static checking, with the <b>-STATIC_CHECKS</b> flag.  With
 static checking, calls that cannot be proved correct statically will be
 marked as errors.  The program without the dynamic cast fails to compile with
-<b>-STATIC_CALLS</b>.  
+<b>-STATIC_CHECKS</b>.   
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc0.5">

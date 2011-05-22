@@ -83,9 +83,9 @@ class like <b>Slider</b> or some struct like <b>PlanePoint</b> which implements
 <b>Classes and Structs&nbsp;&nbsp;</b>
 
 <div class="p"><!----></div>
-There are two kinds of concrete containers: <em>classes</em>
-(&#167;) and <em>structs</em> (&#167;). Concrete
-containers hold data in <em>fields</em>, and give concrete implementations of
+There are two kinds of containers: <em>classes</em>
+(&#167;) and <em>structs</em> (&#167;). Containers hold
+data in <em>fields</em>, and give concrete implementations of 
 methods, as <b>Slider</b> and <b>PlainPoint</b> above.
 
 <div class="p"><!----></div>
@@ -175,6 +175,8 @@ However, an attempt to compute <b>axb1 + bxc</b> or
     val axb2 : Mat(a,b) = makeMat(a,b);
     val bxc  : Mat(b,c) = makeMat(b,c);
     val axc  : Mat(a,c) = (axb1 +axb2) * bxc;
+	//ERROR: val wrong1 = axb1 + bxc;
+	//ERROR: val wrong2 = bxc * axb1;
   }
 
 <div class="p"><!----></div>
