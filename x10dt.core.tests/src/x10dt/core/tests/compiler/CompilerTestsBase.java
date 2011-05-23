@@ -182,6 +182,7 @@ public class CompilerTestsBase {
                 sourcepath,
                 "-commandlineonly",
                 "-c",
+                "-ONLY_TYPE_CHECKING",
                 };
         for (String s : stdOptsArray) {
             optsList.add(s);
