@@ -219,6 +219,8 @@ public class LaunchMessages extends NLS {
 
   public static String CSP_UsePortFwrd;
 
+  public static String CSP_WrongPort;
+  
   public static String DSP_DebuggerFolder;
 
   public static String DSP_DebuggingPort;

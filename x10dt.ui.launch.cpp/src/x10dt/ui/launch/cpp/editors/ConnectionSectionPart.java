@@ -332,10 +332,14 @@ final class ConnectionSectionPart extends AbstractCommonSectionFormPart implemen
       public void modifyText(final ModifyEvent event) {
         final IConnectionInfo curConnInfo = getCurrentConnectionInfo();
         if (curConnInfo != null) {
-          if (curConnInfo.getPort() != Integer.parseInt(portText.getText())) {
-            notifyConnectionUnknownStatus(curConnInfo);
+          try {	
+        	  if (curConnInfo.getPort() != Integer.parseInt(portText.getText())) {
+        		  notifyConnectionUnknownStatus(curConnInfo);
+        	  }
+        	  curConnInfo.setPort(Integer.parseInt(portText.getText()));
+          } catch (NumberFormatException e){
+        	  ConnectionSectionPart.this.fErrorLabel.setText(LaunchMessages.CSP_WrongPort);
           }
-          curConnInfo.setPort(Integer.parseInt(portText.getText()));
         }
         if ((curConnInfo != null) && (ConnectionSectionPart.this.fCurrentConnection == curConnInfo)) {
           setPartCompleteFlag(hasCompleteInfo());

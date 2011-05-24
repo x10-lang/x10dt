@@ -481,7 +481,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	            if (isX10File(file)) {
 	              final File generatedFile = getMainGeneratedFile(AbstractX10Builder.this.fProjectWrapper, file);
 	              boolean unprocessed = ((generatedFile == null) && ! CoreResourceUtils.hasBuildErrorMarkers(file));
-	              if (unprocessed){
+	              if (unprocessed  && ! BuildPathUtils.isExcluded(file.getFullPath(), AbstractX10Builder.this.fProjectWrapper)){
 	            	  if (first) {
 	            		  first = false;
 	            		  CoreResourceUtils.addBuildMarkerTo(getProject(), Messages.AXB_Unprocessed, IMarker.SEVERITY_ERROR, IMarker.PRIORITY_NORMAL);
