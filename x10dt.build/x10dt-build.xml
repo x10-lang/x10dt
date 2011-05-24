@@ -103,7 +103,7 @@
     </delete>
   </target>
 
-  <target name="sign-jars" unless="no.jars.signing">
+<!--  <target name="sign-jars" unless="no.jars.signing">
     <p2.process.artifacts repositoryPath="file:${publish.site.loc}">
       <sign alias="x10dt" keystore="${build.loc}/x10dt.keystore" keypass="x10-lang" 
             storepass="x10 Development Toolkit" />
@@ -138,6 +138,7 @@
     </p2.process.artifacts>
   </target>
 
+-->
   <target name="post-build" unless="skipMirroring">
     <!--    <antcall target="sign-jars" /> -->
     <mkdir dir="${publish.site.loc}/${buildLabel}"/>
