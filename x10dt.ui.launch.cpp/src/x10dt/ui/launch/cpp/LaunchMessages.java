@@ -104,6 +104,8 @@ public class LaunchMessages extends NLS {
   public static String CBEPC_PlatformConfSavingErrMsg;
 
   public static String CBEPC_PlatformConfSavingErrTitle;
+  
+  public static String CISP_Launch;
 
   public static String CISP_AutoDetect;
 

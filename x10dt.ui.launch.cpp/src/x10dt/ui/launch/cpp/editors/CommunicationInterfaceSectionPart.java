@@ -354,7 +354,8 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     final Set<IServiceProviderDescriptor> serviceProviders = new HashSet<IServiceProviderDescriptor>();
 
     for (final IService service : serviceModelManager.getServices()) {
-      if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
+      if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) && service.getName().equals(LaunchMessages.CISP_Launch)) {
+    
         this.fCIModeCombo.add(service.getName());
         this.fCIModeCombo.setData(service.getName(), service.getId());
 
