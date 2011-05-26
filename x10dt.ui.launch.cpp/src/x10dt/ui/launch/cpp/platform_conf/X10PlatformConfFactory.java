@@ -144,6 +144,6 @@ public final class X10PlatformConfFactory {
   
   // --- Fields
   
-  private static final String X10_PLATFORM_CONF_FILE = "/x10_platform.conf"; //$NON-NLS-1$
+  public static final String X10_PLATFORM_CONF_FILE = "x10_platform.conf"; //$NON-NLS-1$
 
 }

@@ -11,10 +11,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -45,6 +48,7 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   }
   
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) {
+	restorePlatformConf(project);  
     final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
     if (! EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI()).fetchInfo().exists()) {
       final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
@@ -81,6 +85,23 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   }
 
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {
+  }
+  
+  /**
+   * If the Java project had a platform conf as a dot file, restore it back.
+   */
+  private void restorePlatformConf(IProject project){
+	  IFile hiddenFile = project.getFile("." + X10PlatformConfFactory.X10_PLATFORM_CONF_FILE);
+	  if (EFS.getLocalFileSystem().getStore(hiddenFile.getLocationURI()).fetchInfo().exists()) {
+		  IFile platformConfFile = ResourcesPlugin.getWorkspace().getRoot().getFile(hiddenFile.getFullPath().removeLastSegments(1).append(new Path(X10PlatformConfFactory.X10_PLATFORM_CONF_FILE)));
+		  IFileStore platformConfStore = EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI());
+			try {
+				EFS.getLocalFileSystem().getStore(hiddenFile.getLocationURI()).move(platformConfStore, EFS.OVERWRITE, new NullProgressMonitor());
+			} catch (CoreException e) {
+				//TODO
+			}
+	  }
+	  
   }
 
 }
