@@ -7,9 +7,11 @@
  *******************************************************************************/
 package x10dt.ui.launch.java.actions;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.ui.IObjectActionDelegate;
 
 import x10dt.ui.launch.core.actions.AbstractConvertX10ProjectAction;
+import x10dt.ui.launch.core.actions.IPlatformConfHider;
 
 /**
  * Action to convert a Java back-end nature to C++ back-end nature.
@@ -24,5 +26,12 @@ public final class ConvertToCppBackEndAction extends AbstractConvertX10ProjectAc
     return "c++"; //$NON-NLS-1$
   }
   
+  protected IPlatformConfHider createPlatformConfHider(final IProject project){
+	  return new IPlatformConfHider(){
+		public void hide() {
+			// --- do nothing.
+		}
+	  };
+  }
 }
 
