@@ -136,7 +136,8 @@ Types are <em>not</em> inferred for methods marked as <b>@Native</b>.
 <div class="p"><!----></div>
 Parameters may be passed to external code.  <b>(#1)</b>  is the first parameter,
 <b>(#2)</b> the second, and so forth.  (<b>(#0)</b> is the name of the enclosing
-class.)  Be aware that this is macro substitution rather than normal parameter
+class, or the <b>this</b> variable.)  Be aware that this is macro substitution
+rather than normal parameter 
 passing; <em>e.g.</em>, if the first actual parameter is <b>i++</b>, and <b>(#1)</b>
 appears twice in the external code, <b>i</b> will be incremented twice.
 For example, a (ridiculous) way to print the sum of two numbers is: 

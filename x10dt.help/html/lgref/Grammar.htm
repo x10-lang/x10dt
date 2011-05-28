@@ -69,15 +69,6 @@ In this grammar, X<sup>?</sup> denotes an optional X element.
 <div class="p"><!----></div>
 <em>  
 <table>
-<tr><td align="right"> AmbiguousName <a name="prod:AmbiguousName">
-</a>  ::= Id  </td></tr>
-<tr><td align="right">    &#124; AmbiguousName <b>.</b> Id </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-<em>  
-<table>
 <tr><td align="right"> AndExp <a name="prod:AndExp">
 </a>  ::= EqualityExp  </td></tr>
 <tr><td align="right">    &#124; AndExp <b>&amp;</b> EqualityExp </td></tr>
@@ -268,7 +259,7 @@ In this grammar, X<sup>?</sup> denotes an optional X element.
 <tr><td align="right">    &#124; <b>/</b> </td></tr>
 <tr><td align="right">    &#124; <b>%</b> </td></tr>
 <tr><td align="right">    &#124; <b>&amp;</b> </td></tr>
-<tr><td align="right">    &#124; <b></td><td align="right">&#124;</b> </td></tr>
+<tr><td align="right">    &#124; <b>&#124;</b> </td></tr>
 <tr><td align="right">    &#124; <b>^</b> </td></tr>
 <tr><td align="right">    &#124; <b>&amp;&amp;</b> </td></tr>
 <tr><td align="right">    &#124; <b>&#124;&#124;</b> </td></tr>
@@ -406,7 +397,7 @@ In this grammar, X<sup>?</sup> denotes an optional X element.
 <tr><td align="right"> ClassInstCreationExp <a name="prod:ClassInstCreationExp">
 </a>  ::= <b>new</b> TypeName TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">    &#124; Primary <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">    &#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">    &#124; ValueOrTypeName <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -672,7 +663,7 @@ In this grammar, X<sup>?</sup> denotes an optional X element.
 <table>
 <tr><td align="right"> ExpName <a name="prod:ExpName">
 </a>  ::= Id  </td></tr>
-<tr><td align="right">    &#124; AmbiguousName <b>.</b> Id </td></tr>
+<tr><td align="right">    &#124; ValueOrTypeName <b>.</b> Id </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -1168,7 +1159,7 @@ In this grammar, X<sup>?</sup> denotes an optional X element.
 <table>
 <tr><td align="right"> MethodName <a name="prod:MethodName">
 </a>  ::= Id  </td></tr>
-<tr><td align="right">    &#124; AmbiguousName <b>.</b> Id </td></tr>
+<tr><td align="right">    &#124; ValueOrTypeName <b>.</b> Id </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -1846,6 +1837,15 @@ In this grammar, X<sup>?</sup> denotes an optional X element.
 <div class="p"><!----></div>
 <em>  
 <table>
+<tr><td align="right"> ValueOrTypeName <a name="prod:ValueOrTypeName">
+</a>  ::= Id  </td></tr>
+<tr><td align="right">    &#124; ValueOrTypeName <b>.</b> Id </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+<em>  
+<table>
 <tr><td align="right"> VarDeclWType <a name="prod:VarDeclWType">
 </a>  ::= Id HasResultType <b>=</b> VariableInitializer  </td></tr>
 <tr><td align="right">    &#124; <b>[</b> IdList <b>]</b> HasResultType <b>=</b> VariableInitializer </td></tr>
@@ -1922,9 +1922,5 @@ In this grammar, X<sup>?</sup> denotes an optional X element.
 <tr><td align="right"></td></tr></table>
 </em>
 
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 29 Apr 2011, 18:45.</small>
+<br /><br /><hr />
 </html>

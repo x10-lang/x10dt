@@ -126,9 +126,10 @@ copied from place to place and may be repeatedly applied.
 
 <div class="p"><!----></div>
 These runtime entities are classified by <em>types</em>. Types are used in
-variable declarations, coercions and  explicit conversions, object creation,
-array creation, static state and method accessors, and
-<b>instanceof</b> and <b>as</b> expressions.
+variable declarations (&#167;), coercions and  explicit
+conversions (&#167;), object creation (&#167;),
+static state and method accessors (&#167;), and
+<b>instanceof</b> and <b>as</b> expressions (&#167;).
 
 <div class="p"><!----></div>
 The basic relationship between values and types is the <em>is an
@@ -1022,48 +1023,77 @@ is allowed as a constraint, but <b>i==0L</b> is an error, and
 
 <a name="SemanticsOfConstraints">
 </a>
-An assignment of values to variables is said to be a <em>solution</em> for a
-constraint <b>c</b> if under this assignment <b>c</b> evaluates to
-<b>true</b>. For instance, the assignment that maps 
-the variables <b>a</b> and <b>b</b> to a value <b>t</b> is a solution for
-the constraint <b>a==b</b>. An assignment that maps <b>a</b> to 
-<b>s</b> and <b>b</b> to a distinct value <b>t</b> is a solution for 
-<b>a != b</b>. 
 
 <div class="p"><!----></div>
-An instance <b>o</b> of <b>C</b> is said to be of type <b>C{c}</b> (or <em>
-belong to</em> <b>C{c}</b>) if the constraint <b>c</b> evaluates to <b>true</b> in
-the current lexical environment augmented with the binding <b>self</b>
-&#8594; <b>o</b>.
 
 <div class="p"><!----></div>
-A constraint <b>c</b> is said to <em>entail</em> a
-constraint <b>d</b> if every solution for <b>c</b> is also a solution
-for <b>d</b>. For instance the constraint
-<b>x==y &amp;&amp; y==z &amp;&amp; z !=a</b> entails <b>x != a</b>.
+The logic of constraints is designed to allow a common and important X10
+idiom: 
+<pre>
+class Thing(p:Int){}
+static def example(){
+   var x : Thing{x.p==3} = null;
+}
+</pre>
+That is, <b>null</b> must be an instance of <b>Thingx.p==3</b>.  
+Of course, it cannot be the case that <b>null.p==3</b> - nor can it equal
+anything else.  When evaluated at runtime, <b>null.p</b> must throw a
+<b>NullPointerException</b> rather than returning any value at all.
 
 <div class="p"><!----></div>
-The constraint solver considers the assignment <b>a</b> to <b>null</b>
-to satisfy any constraint of the form <b>a.f==t</b>. 
-Thus, the declaration 
-<b>var x:Treeself.r==p=null</b> does not
-produce an error, since <b>self==null</b> satisfies the constraint
-<b>self.r==p</b>.  
-(This only applies in constraints, not in expression evaluation.  
-<b>if(a.f==t)...</b> will throw an exception if <b>a==null</b>.)
-If <b>null</b> is not an acceptable value for some class <b>Tree</b>, 
-add <b>self!=null</b> as a constraint: 
-<b>Tree{self!=null}</b> is the class of non-<b>null</b> <b>Tree</b>s.
+So, X10's logic of constraints - <em>unlike</em> the logic of runtime -
+allows "x=null" to satisfy <b>x.p==3</b>.  Building this logic
+requires a few definitions.
 
 <div class="p"><!----></div>
-To ensure that type-checking is decidable, we require that property graphs be
-acyclic.  The property graph, at an instant in an X10 execution, is the graph
-whose nodes are all objects in existence at that instance, with an edge from
+The property graph, at an instant in an X10 execution, is the graph
+whose nodes are all objects in existence at that instance, plus <b>null</b>,
+with an edge from 
 x to y if x is an object with a property whose value is y. 
-The rules for constructors guarantee this.
+The rules for constructors guarantee that property graphs are acyclic, which
+is crucial for decidability.
 
 <div class="p"><!----></div>
-Constraints participate in the subtyping relationship in a natural way:
+As is standard in mathematical logic, we introduce the concept of a
+<em>valuation</em> v, which is a mapping from variable names to their values
+- in our case, nodes of an X10 property graph.  A valuation v can be
+extended to values to all constraint formulas.  The crucial definitions are: 
+<pre>
+v( a.b&#8230;.l.m == n.o&#8230;.y.z) = 
+  a=null &#8744; a.b=null &#8744; &#8230; a.b&#8230;.l=null 
+  &#8744; n=null &#8744; n.o=null &#8744; &#8230; n.o&#8230;.y=null 
+  &#8744; v(a).b&#8230;.l.m = v(n).o&#8230;.y.
+
+<div class="p"><!----></div>
+v( a.b&#8230;.l.m != n.o&#8230;.y.z) = 
+  a=null &#8744; a.b=null &#8744; &#8230; a.b&#8230;.l=null 
+  &#8744; n=null &#8744; n.o=null &#8744; &#8230; n.o&#8230;.y=null 
+  &#8744; v(a).b&#8230;.l.m  &#8800;  v(n).o&#8230;.y.
+</pre>
+For example, "v(a.b==1)" is true if either "v(a)=null"
+or if "v(a)" is a container whose <b>b</b>-field is equal to 1.
+While such a valuation is perfectly well-defined, it has properties that need
+to be understood in light of the fact that <b>==</b> is <em>not</em> mathematical
+equality.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  
+Given any valuation in which "v(a)=null", both 
+"v(a.b==1 &amp;&amp; a.b==2)" 
+and
+"v(a.b==1 &amp;&amp; a.b!=1)" 
+are true.  
+This does not contradict logic and mathematics, and it does not
+assert that in X10 there is a number which is both 1 and 2.
+It simply reflects the fact that, while <b>==</b> is similar to mathematical equality in
+many respects, it is ultimately a different operation, and in constraints it
+is given a <b>null</b>-safe interpretation.
+
+<div class="p"><!----></div>
+From this definition of valuation, we define <em>entailment</em> in the standard
+way.  Given constraints <b>c</b> and <b>d</b>, we define <em><b>c</b> entails
+<b>d</b></em>, sometimes written "c \models d", if for all valuations
+v such that "v(c)" is true, "v(d)" is also true. 
+
+<div class="p"><!----></div>
+Subtyping of constrained types is defined in terms of entailment. 
 "S[S1,&#8230;, Sm]{c}" 
 is a subtype of 
 "T[T1,&#8230;, Tn]{d}" 
@@ -1084,7 +1114,7 @@ For examples of constraints and entailment, see (&#167;)
 
 <div class="p"><!----></div>
 The constraint solver is sound in that if it claims that <b>c</b> entails <b>d</b>
-then in fact it is the case that every value that satisfies <b>c</b>
+then in fact it is the case that every valuation that satisfies <b>c</b>
 satisfies <b>d</b>. 
 
 <div class="p"><!----></div>
@@ -1094,6 +1124,8 @@ in which <b>c</b> entails <b>d</b> but the solver cannot establish it. For
 instance it cannot establish that <b>a != b &amp;&amp; a != c &amp;&amp; b != c</b>
 entails <b>false</b> if <b>a</b>, <b>b</b>, and <b>c</b> are of type
 <b>Boolean</b>.
+Similarly, although <b>a.b==1 &amp;&amp; a.b==2</b> entails <b>a==null</b>, the
+constraint solver does not deduce this fact. 
 
 <div class="p"><!----></div>
 Certain other constraint entailments are prohibitively expensive to calculate.  The issues
@@ -1131,6 +1163,8 @@ type-checking failed.
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.3">
 4.3</a>&nbsp;&nbsp;Limitation: Runtime Constraint Erasure</h3>
+<a name="sect:RuntimeConstraintErasure">
+</a>
 
 
 <div class="p"><!----></div>
@@ -1215,17 +1249,91 @@ This could lead to program failures, as illustrated by the failing assertion.
 
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc4.3.1">
-4.3.1</a>&nbsp;&nbsp;Stripped Generic Casts</h4>
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Stripped Generic Casts</h3>
+<a name="sect:StrippedGenericCasts">
+</a>
 
 <div class="p"><!----></div>
 Since constraints are not preserved at runtime, <b>instanceof</b> and <b>as</b>
-cannot pay attention to them.  In particular, when types are used generically,
-they may not behave as one would expect.
+cannot pay attention to them.  When types are used generically,
+they may not behave as one would expect were one to imagine that their
+constraints were kept.  Specifically, constraints at runtime are, in effect,
+simply replaced by <b>true</b>.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.4">
-4.4</a>&nbsp;&nbsp;Example of Constraints</h3>
+The following code defines generic methods <b>inst</b> and <b>cast</b>, which
+look like generic versions of <b>instanceof</b> and <b>as</b>.  The
+<b>example()</b> code shows that <b>inst</b> and <b>cast</b> behave quite
+differently from <b>instanceof</b> and <b>as</b>, due to the loss of constraint
+information.  
+
+<div class="p"><!----></div>
+The first section of <b>assert</b>s shows the behavior of <b>instanceof</b> and
+<b>at</b>.  We have a value <b>pea</b>, such that <b>pea.p==1</b>.
+It behaves as if its <b>p</b> field were <b>1</b>: it answers <b>true</b> to 
+<b>self.p==1</b>, and <b>false</b> to <b>self.p==2</b>.  This is entirely as
+desired.
+
+<div class="p"><!----></div>
+The following section of <b>assert</b> and <b>val</b> statements does the
+analogous thing, but using the generic methods <b>inst</b> and <b>cast</b>
+rather than the built-in operations <b>instanceof</b> and <b>cast</b>.
+<b>pea</b> answers <b>true</b> to <b>inst</b> checks concerning both
+<b>Peap==1</b> and <b>Peap==2</b>, and can be <b>cast()</b> into both these
+types.  This behavior is not what one would expect from runtime types that
+keep constraint information.  It is, however, precisely what one would expect
+from runtime types that have their constraints replaced by <b>true</b>.  
+
+<div class="p"><!----></div>
+The <b>cast2</b> line shows how to use this fact to violate the constraint
+system at runtime.   This dynamic cast produces an object of type
+<b>Peap==2</b> for which <b>p!=2</b>.  
+
+<div class="p"><!----></div>
+Note that the <b>-VERBOSE</b> compiler flag will produce a warning that 
+<b>cast</b> is unsound.  
+
+<div class="p"><!----></div>
+<pre>
+class Generic {
+  public static def inst[T](x:Any):Boolean = x instanceof T;
+  // With -VERBOSE, the following line gets a warning
+  public static def cast[T](x:Any):T       = x as T;
+}
+class Pea(p:Int) {}
+class Example{
+  static def example() {
+     val pea : Pea = new Pea(1);
+     // These are what you'd expect: 
+     assert (pea instanceof Pea{p==1});
+     assert (pea as Pea{p==1}).p == 1;
+     assert ! (pea instanceof Pea{p==2}); 
+     // 'val x = pea as Pea{p==2};' throws a FailedDynamicCheckException.
+
+<div class="p"><!----></div>
+     // But the genericized versions don't do the same thing:
+     assert Generic.inst[Pea{p==1}](pea);
+     assert Generic.inst[Pea{p==2}](pea);
+     // No exception here!
+     val cast1: Pea{p==1} = Generic.cast[Pea{p==1}](pea);
+     val cast2: Pea{p==2} = Generic.cast[Pea{p==2}](pea);
+     assert cast2.p == 1;
+     assert !(cast2 instanceof Pea{p==2});
+  }
+}
+
+<div class="p"><!----></div>
+</pre>
+
+
+<div class="p"><!----></div>
+While in some cases it would be possible to keep constraints around at runtime
+and operate efficiently on them, in other cases it would not.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.5">
+4.5</a>&nbsp;&nbsp;Example of Constraints</h3>
 <a name="ConstraintExamples">
 </a>
 
@@ -1283,7 +1391,7 @@ Child{ssn == 123456789} &lt;: Person{ssn != 555555555}.
 Constraints can be used to express simple relationships between objects,
 enforcing some class invariants statically.  For example, in geometry, a line
 is determined by two <em>distinct</em> points; a <b>Line</b> struct can specify the
-distinctness in a type constraint:<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
+distinctness in a type constraint:<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
 
 <div class="p"><!----></div>
 <pre>
@@ -1339,6 +1447,8 @@ Default values, or lack of them, is defined thus:
 <ul>
 <li> The fundamental numeric types (<b>Int</b>, <b>UInt</b>,
       <b>Long</b>, <b>ULong</b>, 
+  <b>Short</b>, <b>UShort</b>, <b>Byte</b>,
+   <b>UByte</b>, 
       <b>Float</b>, <b>Double</b>) all have default value 0.
 <div class="p"><!----></div>
 </li>
@@ -1866,7 +1976,7 @@ Certain types are used in fundamental ways by X10.
 
 <div class="p"><!----></div>
 It is quite convenient to have a type which all values are instances of; that
-is, a supertype of all types.<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>  X10's universal supertype is the
+is, a supertype of all types.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>  X10's universal supertype is the
   interface <b>Any</b>. 
 
 <div class="p"><!----></div>
@@ -2100,7 +2210,7 @@ it reasons as follows.
 <div class="p"><!----></div>
 Let 
 <pre>
-T<sub>i</sub> {&#126;<span class="roman">be</span> <span class="roman">the</span> <span class="roman">type</span> <span class="roman">of</span> } b<sub>i</sub>
+T<sub>i</sub> <span class="roman">be</span> <span class="roman">the</span> <span class="roman">type</span> <span class="roman">of</span>  b<sub>i</sub>
 </pre>
 Then, X10 is seeking a
 set B  of type 
@@ -2119,7 +2229,7 @@ occurs in your program, you will have to write down the type arguments
 explicitly.) 
 
 <div class="p"><!----></div>
-Let B<sub>0</sub> be the set { T_i  S_i &#124; 1  i  n}.  Let
+Let B<sub>0</sub> be the set { T<sub>i</sub> <: S<sub>i</sub> &#124; 1 &le; i &le; n}.  Let
 B<sub>n+1</sub> be B<sub>n</sub> with one element F <: G or 
 F = G removed, and
 <i>Strip</i>(F <: G) 
@@ -2211,12 +2321,13 @@ F with the corresponding one of G:
 <i>Strip</i>(r) = {F<sub>l</sub> = G<sub>l</sub> &#124; 1&le;l&le;k}
 </pre>
 
+
 <div class="p"><!----></div>
 For example, the constraint "List[X] = List[Y]" induces the
 constraint <b>X=Y</b>.  
 <b>List[X] &lt;: List[Y]</b> also induces the same constraint.  The only way that
 <b>List[X]</b> could be a subtype of <b>List[Y]</b> in X10 is if <b>X=Y</b>.
-List of different types are incomparable.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>
+List of different types are incomparable.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>
 <div class="p"><!----></div>
 </li>
 
@@ -2311,7 +2422,7 @@ fail[Int](aint, abool)
 is a well-typed call to <b>fail</b>.  Of course it is not; <b>abool</b> would
 have to be a value of type <b>Array[Int]</b>, which it is not.  So type
 inference fails at this point.  In this case it is correct: there is no way to
-give a proper type to this program.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>
+give a proper type to this program.<a href="#tthFtNtAAG" name="tthFrefAAG"><sup>6</sup></a>
 
 
 <div class="p"><!----></div>
@@ -2379,6 +2490,12 @@ type error.
 <div class="p"><!----></div>
 
 <ol type="1">
+<li> As seen in &#167;<a href="#sect:StrippedGenericCasts">4.4</a>, generic types do not have
+      constraint information at runtime.  This allows one to write code which
+      violates constraints at runtime, as seen in the example in that section.
+<div class="p"><!----></div>
+</li>
+
 <li> The library type <b>x10.util.IndexedMemoryChunk</b> provides a low-level interface
       to blocks of memory.  A few methods on that class are not type-safe. See
       the API if you must.
@@ -2404,7 +2521,12 @@ type error.
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Currently inequalities
       of the form <b>e &lt; f</b> are not supported.
 <div class="p"><!----></div>
-<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>We call them
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>No experienced programmer should actually think that
+<b>==</b> is mathematical equality in any case.  It is quite common for two
+objects to appear identical but not be <b>==</b>.  X10's discrepancy between the
+two concepts is orthogonal to the familiar one.
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>We call them
 <b>Position</b> to avoid confusion with the built-in class <b>Point</b>. 
 Also, <b>Position</b> is a struct rather than a class so that the non-equality
 test <b>start != end</b> compares the coordinates.  If <b>Position</b> were a
@@ -2412,14 +2534,14 @@ class, <b>start != end</b> would check for different <b>Position</b> objects,
 which might have the same coordinates.
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>Java, for one, suffers a number of
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>Java, for one, suffers a number of
   inconveniences because some built-in types like <b>int</b> and <b>char</b>
   aren't subtypes of anything else.
 <div class="p"><!----></div>
-<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>The situation would be more
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>The situation would be more
 complex if X10 had covariant and contravariant types.
 <div class="p"><!----></div>
-<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>
+<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>
 In particular, <b>X=Any</b> doesn't work either.  An <b>Array[Int]</b> is not an
 <b>Array[Any]</b> - and it must not be, for you can put a boolean value into
 an <b>Array[Any]</b>, but you cannot put a boolean value into an

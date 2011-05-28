@@ -112,8 +112,7 @@ If you then want to see what it did, use <b>-VERBOSE_CHECKS</b>.
 <div class="p"><!----></div>
 You may also turn on static checking, with the <b>-STATIC_CHECKS</b> flag.  With
 static checking, calls that cannot be proved correct statically will be
-marked as errors.  The program without the dynamic cast fails to compile with
-<b>-STATIC_CHECKS</b>.  
+marked as errors.  
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc0.5">
@@ -131,11 +130,10 @@ This option tells the compiler where to look for X10 source code.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc0.7">
-0.7</a>&nbsp;&nbsp;Class Path: <tt>-classpath <em>path</em></tt></h3>
+0.7</a>&nbsp;&nbsp;(Deprecated) Class Path: <tt>-classpath <em>path</em></tt></h3>
 
 <div class="p"><!----></div>
-This option tells the compiler where to look for compiled code in <tt>class</tt>
-files.
+This option is accepted for backward compatibility, but ignored.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc0.8">
@@ -153,6 +151,13 @@ This option tells which runtime implementation to use.  The choices are
 <b>lapi</b>, <b>pgp</b>, <b>sockets</b>, <b>mpi</b>, and <b>standalone</b>.
 
 <div class="p"><!----></div>
+     <h3><a name="tth_sEc0.10">
+0.10</a>&nbsp;&nbsp;Executable File <tt>-o <em>path</em></tt></h3>
+
+<div class="p"><!----></div>
+This option tells the compiler what path to use for the executable file. 
+
+<div class="p"><!----></div>
  <h2><a name="tth_sEc1">
 1</a>&nbsp;&nbsp;Execution Options: Java</h2>
 
@@ -161,27 +166,33 @@ The Java execution command <b>x10</b> has a number of options as well.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.1">
-1.1</a>&nbsp;&nbsp;<tt>-NUMBER_OF_LOCAL_PLACES=<em>number</em></tt></h3>
+1.1</a>&nbsp;&nbsp;Class Path: <tt>-classpath <em>path</em></tt></h3>
 
 <div class="p"><!----></div>
-This option controls how many <b>Place</b>s the system will run on.  The
-default is four, but you may control it as you wish.
+This option specifies the search path for class files. 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.2">
-1.2</a>&nbsp;&nbsp;Heap Size: <tt>-mx <em>size</em></tt></h3>
+1.2</a>&nbsp;&nbsp;Library Path: <tt>-libpath <em>path</em></tt></h3>
+
+<div class="p"><!----></div>
+This option specifies the search path for native libraries.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Heap Size: <tt>-mx <em>size</em></tt></h3>
 
 <div class="p"><!----></div>
 Sets the maximum size of the heap. 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc1.3">
-1.3</a>&nbsp;&nbsp;Help: <tt>-h</tt></h3>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Help: <tt>-h</tt></h3>
 
 <div class="p"><!----></div>
 Prints a listing of all execution options.
 
 <div class="p"><!----></div>
 
-<br /><br />
+<br /><br /><hr />
 </html>

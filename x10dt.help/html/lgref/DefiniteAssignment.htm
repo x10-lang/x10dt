@@ -155,7 +155,7 @@ def example(flag:Boolean) {
 1</a>&nbsp;&nbsp;Asynchronous Definite Assignment</h2>
 
 <div class="p"><!----></div>
-Local variables (but not fields) allow <em>asynchronous assignment</em>. A local
+Local variables and instance fields allow <em>asynchronous assignment</em>. A local
 variable can be assigned in an <b>async</b> statement, and, when the
 <b>async</b> is <b>finish</b>ed, the variable is definitely assigned.  
 
@@ -379,8 +379,10 @@ incompletely-constructed - object) are the <b>private</b> and
 <div class="p"><!----></div>
 </li>
 
-<li> <b>m</b> cannot initialize <b>val</b> fields of <b>this</b>.  (With one
-      exception; see &#167;.)
+<li> <b>m</b> cannot initialize <b>val</b> fields of <b>this</b>.  (But see
+      &#167;; when one constructor calls another as the
+      first statement of its body, the other constructor can initialize
+      v<b>val</b> fields. This is a constructor call, not a method call.)
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -439,14 +441,16 @@ class C {
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc2.0.7">
-2.0.7</a>&nbsp;&nbsp;<tt>at</tt> and <b>athome</b></h4>
+2.0.7</a>&nbsp;&nbsp;<tt>at</tt> 
+</h4>
 
 <div class="p"><!----></div>
 <pre>
 </pre>
 
 <div class="p"><!----></div>
-<b>at(p)S</b> cannot perform any assignments.
+<b>at(p)S</b> cannot perform any assignments.  <b>this</b> cannot be read or
+written by an <b>at</b>-statement.
 
 <div class="p"><!----></div>
       <h4><a name="tth_sEc2.0.8">
@@ -500,5 +504,9 @@ value may).    They also terminate a line of computation.  For example,
 <div class="p"><!----></div>
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>A more precise
 analysis could discover that <b>x</b> cannot be initialized only once.
-<br /><br />
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 28 May 2011, 12:12.</small>
 </html>

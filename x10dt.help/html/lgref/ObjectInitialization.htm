@@ -160,6 +160,8 @@ possible order of events is the following:
 The <b>at</b> statement (&#167;) introduces the potential for
 escape as well. The following class prints an uninitialized value: 
 <pre>
+// This code violates this chapter's constraints
+// and thus will not compile in X10.
 class Example {
   val a: Int;
   def this() { 
@@ -264,8 +266,8 @@ A method can, however, be safe to call from constructors without being marked
 Implicitly non-escaping methods need to obey the same constraints on
 <b>this</b>, <b>super</b>, and variable usage as <b>@NonEscaping</b> methods. An
 implicitly non-escaping method <em>could</em> be marked as
-<b>@NonEscaping</b> for some list of variables; the compiler, in
-effect, infers the annotation. In addition, implicitly non-escaping methods
+<b>@NonEscaping</b>; the compiler, in
+effect, infers the annotation. In addition, all non-escaping methods
 must be <b>private</b> or <b>final</b> or members of a <b>final</b> class; this
 corresponds to the hereditary nature of <b>@NonEscaping</b> (by forbidding
 inheritance of implicitly non-escaping methods).
@@ -281,14 +283,8 @@ only be used for field access and assignment, and as the receiver of
 non-escaping methods.
 
 <div class="p"><!----></div>
-Finally, if a method <b>m</b> in class <b>C</b> is marked
-<b>@NonEscaping</b>, then every method which overrides <b>m</b> in any
-subclass of <b>C</b> must be annotated with precisely the same annotation,
-<b>@NonEscaping</b>, as well.
-
-<div class="p"><!----></div>
-The following example uses most of the possible variations (leaving out
-<b>final</b> class).  <b>aplomb()</b> explicitly forbids reading any field but
+The following example uses the possible variations.  <b>aplomb()</b> 
+explicitly forbids reading any field but
 <b>a</b>. <b>boric()</b> is called after <b>a</b> and <b>b</b> are set, but
 {c} is not.
 The <b>@NonEscaping</b> annotation on <b>boric()</b> is optional, but the
@@ -297,10 +293,6 @@ compiler will print a warning if it is left out.
 can read anything; its annotation, too, is not required.   <b>SeeAlso</b> is able to override <b>aplomb()</b>, because
 <b>aplomb()</b> is <b>@NonEscaping</b>; it cannot override the final method
 <b>boric()</b> or the private one <b>cajoled()</b>.  
-The method <b>aplomb()</b> can be overridden, but it is crucial that the 
-subclass's version, 
-<b>SeeAlso.aplomb()</b>, be 
-declared <b>@NonEscaping</b>, just like <b>C2.aplomb()</b>.
 <pre>
 import x10.compiler.*;
 
@@ -354,7 +346,8 @@ and one of them implicit.
 </li>
 
 <li> If the class or struct has properties, there must be a single
-      <b>property(...)</b> command in the constructor.  Every execution path
+      <b>property(...)</b> command in the constructor, or a <b>this(...)</b>
+      constructor call.  Every execution path
       through the constructor must go through this <b>property(...)</b> command
       precisely once.   The second segment of the constructor is the code
       following the first segment, up to and including the <b>property()</b>
@@ -397,7 +390,11 @@ class Overdone(y:Int) extends Overlord  {
     val rp1 = r+1;
     property(rp1);                 // (2)
     // field initializations here  // (3)
-    a = r + 2;                     // (4)
+    a = r + 2 + b;                 // (4)
+  }
+  def this() {
+    this(10);                      // (1), (2), (3)
+    val x = a + b;                 // (4)
   }
 }//Overdone
 </pre>
@@ -713,5 +710,9 @@ class Example (
 <a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This is abominable behavior for
 <b>toString</b>, but it cannot be prevented - save by a scheme such as we
 present in this section.
-<br /><br /><hr />
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 28 May 2011, 12:33.</small>
 </html>

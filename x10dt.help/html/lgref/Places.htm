@@ -344,7 +344,7 @@ struct basis as described in the API documentation for
 The default mechanism performs a
 deep copy of the object graph (that is, it copies the object or struct
 and, recursively, the values contained in its fields), but does not
-traverse <b>transient</b> fields. <b>transient</b> fields are omitted from the
+traverse or copy <b>transient</b> fields. <b>transient</b> fields are omitted from the
 serialized data.   On deserialization, <b>transient</b> fields are initialized
 with their default values (&#167;).    The types of
 <b>transient</b> fields must therefore have default values.

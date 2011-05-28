@@ -287,10 +287,13 @@ The initializer of a field in an interface may be any expression.  It is
 evaluated under the same rules as a <b>static</b> field of a class. 
 
 <div class="p"><!----></div>
-In this example, a local class (&#167;) <b>B</b> is defined,
-with an inner interface <b>I</b>.  The field <b>V</b> of <b>I</b> uses a variable
-<b>n</b> which is global to <b>B</b>.   In this case it is a truly baroque way
-to bind a <b>val</b>, but other uses are nontrivial.
+In this example, a class <b>TheOne</b> is defined,
+with an inner interface <b>WelshOrFrench</b>, whose field <b>UN</b> (named in
+either Welsh or French) has value 1.  Note that <b>WelshOrFrench</b> does not
+define any methods, so it can be trivially added to the <b>implements</b>
+clause of any class, as it is for <b>Onesome</b>. 
+This allows the body of <b>Onesome</b> to use <b>UN</b> through an unqualified
+name, as is done in <b>example()</b>.
 
 <div class="p"><!----></div>
 <pre>

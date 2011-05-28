@@ -109,7 +109,7 @@ class Res {
 
 <div class="p"><!----></div>
 In the <b>&#207;nt"</b> line, there is a very close match.  <b>100</b> is an
-<b>Int</b>.  In fact, <b>100</b> is an <b>Intself==100</b>, so even in this
+<b>Int</b>.  In fact, <b>100</b> is an <b>Int{self==100}</b>, so even in this
 case the type of the actual parameter is not <em>precisely</em> equal to the type
 of the method.
 
@@ -149,10 +149,7 @@ The basic concept of method resolution is:
 
 <ol type="1">
 <li> List all the methods that could possibly be used, inferring generic
-      types but not performing implicit coercions.    If the
-      <b>STATIC_CHECKS</b> compiler flag is specified, the constraints must
-      match exactly at this step; if not, they do not, but run-time tests will
-      be generated if necessary.
+      types but not performing implicit coercions.
 <div class="p"><!----></div>
 </li>
 
@@ -181,6 +178,16 @@ The basic concept of method resolution is:
 </li>
 </ol>
 
+<div class="p"><!----></div>
+After method resolution is done, there is a validation phase that checks the
+legality of the call, based on the <b>STATIC_CHECKS</b> compiler flag.  
+With <b>STATIC_CHECKS</b>, the method's constraints must be satisfied; that is,
+they must be entailed (&#167;) by the information in
+force at the point of the call.  With <b>DYNAMIC_CHECKS</b>, if the constraint
+is not entailed at that point, a dynamic check is inserted to make sure that
+it is true at runtime.
+
+<div class="p"><!----></div>
 In the presence of X10's highly-detailed type system, some subtleties arise. 
 One point, at least, is <em>not</em> subtle. The same procedure is used, <em>
 mutatis mutandis</em> for method, constructor, and operator resolution.  
@@ -208,6 +215,30 @@ of the following forms.  There may be any number of arguments.
 <div class="p"><!----></div>
 </li>
 </ul>
+
+<div class="p"><!----></div>
+The meaning of an invocation of the form <b>m(b)</b>, with any number of
+arguments, depends slightly on its context.  Inside of a constraint, it might
+mean <b>self.m(b)</b>.  Outside of a constraint, there is no <b>self</b>
+defined, so it can't mean that.  The first of these that applies will be
+chosen. 
+
+<ol type="1">
+<li> Invoke a method on <b>this</b>, <em>viz</em> <b>this.m(b)</b>.  Inside a
+      constraint, it may also invoke a property method on <b>self</b>, <em>viz</em>.
+      <b>self.m(b)</b>.  It is an error if both <b>this.m(b)</b> and
+      <b>self.m(b)</b> are possible.
+<div class="p"><!----></div>
+</li>
+
+<li> Invoke a function named <b>m</b> in a local or field.
+<div class="p"><!----></div>
+</li>
+
+<li> Construct a structure named <b>m</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
 
 <div class="p"><!----></div>
 Static method invocations, <b>A.m(b)</b>, where <b>A</b> is a container name,
@@ -276,16 +307,23 @@ or
 </li>
 </ul>
 
-If none of those resolve to a method, then either operand may be cast to the
-other. 
-The following alternate calls are attempted: 
+If none of those resolve to a method, then either operand may be implicitly
+coerced to the
+other.  If one of the following two situations obtains, it will be done; if
+both, the expression causes a static error.
 
 <ul>
-<li> "(a as B)&#8727;(b)"
+<li> An implicit coercion from <b>A</b> to <b>B</b>, and 
+      an operator "B &#8727; B" can be used, by 
+      coercing <b>a</b> to be of type <b>B</b>, and then using <b>B</b>'s
+      &#8727;.
 <div class="p"><!----></div>
 </li>
 
-<li> &#228; &#8727; (b as A)"
+<li> An implicit coercion from <b>B</b> to <b>A</b>, and 
+      an operator &#196; &#8727; A" can be used,
+      coercing <b>b</b> to be of type <b>A</b>, and then using <b>A</b>'s
+      &#8727;.
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -326,26 +364,21 @@ come from an indexed assignment definition:
 An implicit coercion, in 
 which a value <b>a:A</b> is used in a context which requires a value of some
 other non-subtype <b>B</b>, 
-can come from one of two places: an implicit coercion operation defined on
-<b>B</b>, or, failing that, one defined on <b>A</b>:
+can only come from implicit coercion operation defined on
+<b>B</b>: 
 
-<ol type="1">
+<ul>
 <li> an implicit coercion in <b>B</b>:
       <b>static operator (a:A):B</b>;
-<div class="p"><!----></div>
-</li>
-
-<li> or, failing that, an implicit coercion in <b>A</b>:
-      <b>static operator this():B</b>.
 
 <div class="p"><!----></div>
 </li>
-</ol>
+</ul>
 
 <div class="p"><!----></div>
 An explicit conversion <b>a as B</b> can come from an explicit conversion
-operator, or an implicit coercion operator.  X10 tries three things, in order,
-only checking 2 if 1 fails, and 3 if 2 fails: 
+operator, or an implicit coercion operator.  X10 tries two things, in order,
+only checking 2 if 1 fails: 
 
 <ol type="1">
 <li> An <b>as</b> operator in <b>B</b>: 
@@ -354,12 +387,9 @@ only checking 2 if 1 fails, and 3 if 2 fails:
 </li>
 
 <li> or, failing that, an implicit coercion in <b>B</b>:
-      <b>static operator (a:A):B</b>;
-<div class="p"><!----></div>
-</li>
+      <b>static operator (a:A):B</b>.
 
-<li> or, failing that, an implicit coercion in <b>A</b>:
-      <b>static operator this():B</b>.
+<div class="p"><!----></div>
 
 <div class="p"><!----></div>
 </li>
@@ -400,11 +430,6 @@ resolution, is:
 <li> The types "x<sub>1</sub>:T<sub>1</sub>,&#8230;, x<sub>f</sub>:T<sub>f</sub>" of the formal parameters.  If
       there are no formal parameters, f=0. In the case of an instance
       method, the receiver will be the first formal parameter.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>
-<div class="p"><!----></div>
-</li>
-
-<li> The constraint <b>c</b> of the method <b>M</b>. If no constraint is specified, <b>c</b> is
-      <b>true</b>.
 <div class="p"><!----></div>
 </li>
 
@@ -462,8 +487,8 @@ The procedure for computing <b>resolve(invo, context)</b> is:
 
 <ol type="1">
 <li> Eliminate from <b>context</b> those methods which are not <em>
-      acceptable</em>; <em>viz</em>, those whose name, type parameters, formal parameters,
-      and constraint do not suitably match <b>invo</b>.  In more detail:
+      acceptable</em>; <em>viz</em>, those whose name, type parameters, and formal parameters
+      do not suitably match <b>invo</b>.  In more detail:
       
 <ul>
 <li> The method name <b>m</b> must simply equal the invocation name "m&#8242;";
@@ -488,11 +513,6 @@ The procedure for computing <b>resolve(invo, context)</b> is:
             &#220; &lt;: T<sub>i</sub>".  .  If coercions are
             used to resolve the method, they will be called on the arguments
             before the method is invoked.
-<div class="p"><!----></div>
-</li>
-
-<li> The formal constraint <b>c</b> must be satisfied in the invoking
-            context.
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -583,7 +603,64 @@ the other, or either to be more specific.  <b>specific</b> is computed as:
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc1.3">
-1.3</a>&nbsp;&nbsp;Other Disambiguations</h3>
+1.3</a>&nbsp;&nbsp;Field Resolution</h3>
+
+<div class="p"><!----></div>
+An identifier <b>p</b> can refer to a number of things.  The rules are somewhat
+different inside and outside of a constraint.
+
+<div class="p"><!----></div>
+Outside of a constraint, the compiler chooses
+the first one from the following list which applies: 
+
+<ol type="1">
+<li> A local variable named <b>p</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A field of <b>this</b>, <em>viz</em> <b>this.p</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A nullary property method, <b>this.p()</b>
+<div class="p"><!----></div>
+</li>
+
+<li> A member type named <b>p</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A package named <b>p</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+Inside of a constraint, the rules are slightly different, because <b>self</b>
+is available, and packages cannot be used per se.
+
+<ol type="1">
+<li> A local variable named <b>p</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A property of <b>this</b> or of <b>self</b>, <em>viz</em> <b>this.p</b> or
+      <b>self.p</b>.  If both are available, report an error.
+<div class="p"><!----></div>
+</li>
+
+<li> A nullary property method, <b>this.p()</b>
+<div class="p"><!----></div>
+</li>
+
+<li> A member type named <b>p</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Other Disambiguations</h3>
 <a name="sect:disambiguations">
 </a>
 
@@ -657,5 +734,9 @@ unbounded, so X10 can't perform it.
 <a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>The
       variable names are relevant because one formal can be mentioned in a
       later type, or even a constraint: <tt>def f(a:Int, b:Point{rank==a})=...</tt>.
-<br /><br /><hr />
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 28 May 2011, 12:36.</small>
 </html>

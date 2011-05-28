@@ -381,20 +381,20 @@ modifies the value associated with <b>p</b> to be {t}, and leaves all other
 values in <b>A</b> unchanged.
 
 <div class="p"><!----></div>
-An <b>Array[T]</b> <b>A</b> has: 
+An <b>Array[T]</b> named <b>a</b> has: 
 
 <ul>
-<li> <b>A.region</b>: the <b>Region</b> upon which <b>A</b> is defined.
+<li> <b>a.region</b>: the <b>Region</b> upon which <b>a</b> is defined.
 <div class="p"><!----></div>
 </li>
 
-<li> <b>A.size</b>: the number of elements in <b>A</b>.
+<li> <b>a.size</b>: the number of elements in <b>a</b>.
 <div class="p"><!----></div>
 </li>
 
-<li> <b>A.rank</b>, the rank of the points usable to subscript <b>A</b>. 
-      <b>A.rank</b> is a cached copy of 
-      <b>A.region.rank</b>.
+<li> <b>a.rank</b>, the rank of the points usable to subscript <b>a</b>. 
+      <b>a.rank</b> is a cached copy of 
+      <b>a.region.rank</b>.
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -413,7 +413,7 @@ For example, an array of a thousand <b>&#246;h!"</b>s can be made by:
 <div class="p"><!----></div>
 To construct and initialize an array, call the two-argument constructor. 
 <b>new Array[T](R, f)</b> constructs an array of elements of type <b>T</b> on
-region <b>R</b>, with <b>A(p)</b> initialized to <b>f(p)</b> for each point
+region <b>R</b>, with <b>a(p)</b> initialized to <b>f(p)</b> for each point
 <b>p</b> in <b>R</b>.  <b>f</b> must be a function taking a point of rank
 <b>R.rank</b> to a value of type <b>T</b>.  
 
@@ -434,12 +434,12 @@ Other constructors are available; see the API documentation and
 
 
 <div class="p"><!----></div>
-The basic operation on <b>Array</b>s is subscripting.  If <b>A:Array[T]</b> and 
-<b>p:Point{rank == A.rank}</b>, then <b>a(p)</b> is the value of type <b>T</b>
-appearing at position <b>p</b> in <b>A</b>.    The syntax is identical to
+The basic operation on <b>Array</b>s is subscripting.  If <b>a:Array[T]</b> and 
+<b>p:Pointrank == a.rank</b>, then <b>a(p)</b> is the value of type <b>T</b>
+appearing at position <b>p</b> in <b>a</b>.    The syntax is identical to
 function application, and, indeed, arrays may be used as functions.
-<b>A(p)</b> may be assigned to, as well, by the usual assignment syntax
-<b>A(p)=t</b>.
+<b>a(p)</b> may be assigned to, as well, by the usual assignment syntax
+<b>a(p)=t</b>.
 (This uses the application and setting syntactic sugar, as given in &#167;.)
 
 <div class="p"><!----></div>
@@ -456,9 +456,9 @@ A4(2,3,4,5) = A4(1,1,1,1)+1;
 Iteration over an <b>Array</b> is defined, and produces the <b>Point</b>s of the
 array's region.  If you want to use the values in the array, you have to
 subscript it.  For example, you could take the logarithm of every element of an
-<b>Array[Int]</b> by: 
+<b>Array[Double]</b> by: 
 <pre>
-for (p in A) A(p) = Math.log(A(p));
+for (p in a) a(p) = Math.log(a(p));
 </pre>
 
 <div class="p"><!----></div>
@@ -678,7 +678,7 @@ array with distribution <b>D</b> and base type <b>T</b>.
 The value of <b>a</b> at a point <b>p</b> in its region of definition is
 obtained by using the indexing operation <b>a(p)</b>. 
 The value of <b>da</b> at <b>p</b> is similarly
-<b>da(p)</b>
+<b>da(p)</b>.
 This operation
 may be used on the left hand side of an assignment operation to update
 the value: 
@@ -868,5 +868,5 @@ minimize the communication between places to implement this operation.
 Other operations on arrays, distributed arrays, and the related classes may be
 found in the <b>x10.array</b> package.
 
-<br /><br />
+<br /><br /><hr />
 </html>

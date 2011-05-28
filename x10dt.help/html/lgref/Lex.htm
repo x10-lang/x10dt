@@ -455,7 +455,7 @@ Grammatical rules look like this: <br />
 <div class="p"><!----></div>
 Terms in <em>italics</em> are called <b>non-terminals</b>.  They 
 represent kinds of phrases; for example, <em>ForStatement</em>
-() describes all <b>for</b> statements.  
+()<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a> describes all <b>for</b> statements.  
 Equation numbers refer to the full X10 grammar, in &#167;.  
 The small example has two non-terminals, <em>Adv</em> and <em>Adj</em>.  
 
@@ -465,29 +465,57 @@ and symbols of the language itself.  In X10, the terminals are the words
 described in this chapter.
 
 <div class="p"><!----></div>
-A single grammatical rule has the form  A ::= X<sub>1</sub> X<sub>2</sub> ... X<sub>n</sub> ,
+A single grammatical rule has the form  A \mathrel::= X<sub>1</sub> X<sub>2</sub> ... X<sub>n</sub> ,
 where the X<sub>i</sub>'s are either terminals or nonterminals.  This indicates that
 the non-terminal A could be an instance of X<sub>1</sub>, followed by an instance of
 X<sub>2</sub>, ..., followed by an instance of X<sub>n</sub>.  Multiple rules for the same
 A are allowed, giving several possible phrasings of A's.  For brevity,
 two rules with the same left-hand side are written with the left-hand side
 appearing once, and the right-hand sides 
-separated by &#124;.  
+separated by 
+&#124;.   
 
 <div class="p"><!----></div>
-In the Adj example, there are two rules for Adv,  and Adv ::= very and Adv ::= Adv Adv.  
-So, an adverb could be <b>very</b>, or (by threeuses of the rule) <b>very very</b>, or, one or more <b>very</b>s.  
+In the <em>Adj</em> example, there are two rules for <i>Adv</i>, 
+Adv \mathrel::= very and
+Adv \mathrel::= Adv&#195;dv.  
+So, an adverb could be <b>very</b>, or (by three
+uses of the rule) <b>very very</b>, or, one or more <b>very</b>s.  
 
 <div class="p"><!----></div>
-The notation A<sup>?</sup> ::= &#124; A <br>
-indicates an optional .  This is an ordinary non-terminal, defined by the rules:  :  | A::=  &#124; A <br>
-The first rule says that A<sup>?</sup> can amount to nothing; the second, that it can amount to an A.  
-This concept shows up so often that it is worth having a separate notation for it.  
-In the Adj example, an adjective phrase may bepreceded by an optional adverb. Thus, it may be <b>happy</b>, or <b>very happy</b>, or <b>very very sad</b>, etc. 
+The notation A<sup>?</sup> indicates an optional A.  This is an ordinary
+non-terminal, defined by the rules:
 
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">A<sup>?</sup>&nbsp;::=  </td></tr>
+<tr><td align="right">&#124; A
+</td></tr></table>
+</em>
+The first rule says that A<sup>?</sup> can amount to nothing; the second, that it can
+amount to an A.  This concept shows up so often that it is worth having a
+separate notation for it.  In the <em>Adj</em> example, an adjective phrase may be
+preceded by an optional adverb. Thus, it may be <b>happy</b>, or 
+<b>very happy</b>, or <b>very very sad</b>, etc. 
+
+<div class="p"><!----></div>
+</li>
 <hr /><h3>Footnotes:</h3>
 
 <div class="p"><!----></div>
-<a name="tthFtNtAAB"></a>Except that      literals like 1       which match both  and  are counted as      integers, not Double; Doubles require a decimal      point, an exponent, or the d marker.      
-<br /><br />
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Except that
+
+
+      literals like <b>1</b> 
+      which match both i and f are counted as
+      integers, not <b>Double</b>; <b>Double</b>s require a decimal
+      point, an exponent, or the <b>d</b> marker.
+      
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>Grammar rules are given in &#167; ,
+and referred to by equation number in that section.
+<br /><br /><hr />
 </html>

@@ -20,11 +20,10 @@
 <li><a href="#tth_sEc2">Boxing of structs</a> <br/>
 <li><a href="#tth_sEc3">Optional Implementation of</a> <br/>
 <li><a href="#tth_sEc4">Primitive Types</a> <br/>
-<li><a href="#tth_sEc5">Generic programming with structs</a> <br/>
-<li><a href="#tth_sEc6">Example structs</a> <br/>
-<li><a href="#tth_sEc7">Nested Structs</a> <br/>
-<li><a href="#tth_sEc8">Default Values</a> <br/>
-<li><a href="#tth_sEc9">Converting Between Classes And Structs</a> <br/>
+<li><a href="#tth_sEc5">Example structs</a> <br/>
+<li><a href="#tth_sEc6">Nested Structs</a> <br/>
+<li><a href="#tth_sEc7">Default Values</a> <br/>
+<li><a href="#tth_sEc8">Converting Between Classes And Structs</a> <br/>
 </ul>
 
 <div class="p"><!----></div>
@@ -214,12 +213,15 @@ The array <b>aa</b> in the following example is an <b>Array[Any]</b>.  It
 initially holds two objects.  Then, its elements are replaced by two structs,
 both of which are auto-boxed.  Note that no fussing is required to put an
 integer into an <b>Array[Any]</b>.  
+However, an array of structs, such as <b>ah</b>, holds <em>unboxed</em> structs
+and does not incur boxing overhead.
 <pre>
 struct Horse(x:Int){
   static def example(){
     val aa : Array[Any](1) = [&#228;n Object" as Any, &#228;nother one"];
     aa(0) = Horse(8);
     aa(1) = 13;
+    val ah : Array[Horse](1) = [Horse(7), Horse(13)];
   }
 }
 </pre>
@@ -298,42 +300,12 @@ non-negative numbers is needed in integer arithmetic. However, X10 does not
 otherwise encourage the use of unsigned arithmetic.
 
 <div class="p"><!----></div>
-  <h2><a name="tth_sEc5">
-5</a>&nbsp;&nbsp;Generic programming with structs</h2>
-
-
-
-<div class="p"><!----></div>
-The programmer must be aware of the different interpretations of
-equality (&#167;) for structs and classes and ensure that the
-code is correctly written for both cases. 
-
-<div class="p"><!----></div>
-Three static methods on <b>x10.lang.System</b> 
-allow you to tell what kind of value <b>x</b> is: object,
-struct, or function.  
-<b>System.isObject(x)</b> returns true if <b>x</b> is a value of <b>Object</b>
-type, including <b>null</b>; <b>System.isStruct(x)</b> returns true if <b>x</b>
-is a <b>struct</b>; <b>System.isFunction(x)</b> returns true if <b>x</b> is a
-closure value.  Precisely one of these three functions returns true for any
-X10 value <b>x</b>.  
-
-<div class="p"><!----></div>
-<pre>
-val x:X = ...;
-if (System.isObject(x)) { // x is a real object
-   val x2 = x as Object; // this cast will always succeed.
-   ...
-} else if (System.isStruct(x)) { // x is a struct
-   ...
-} else {  
-  assert System.isFunction(x);
-}
+ <pre>
 </pre>
 
 <div class="p"><!----></div>
-   <h2><a name="tth_sEc6">
-6</a>&nbsp;&nbsp;Example structs</h2>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Example structs</h2>
 
 <div class="p"><!----></div>
 <b>x10.lang.Complex</b> provides a detailed example of a practical struct,
@@ -373,8 +345,8 @@ class Example {
 </pre>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc7">
-7</a>&nbsp;&nbsp;Nested Structs</h2>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Nested Structs</h2>
 
 
 
@@ -383,10 +355,11 @@ Static nested structs may be defined, essentially as static nested classes
 except for making them structs
 (&#167;).  Inner structs may be defined, essentially as
 inner classes except making them structs (&#167;).
+<b>Limitation: </b> Nested structs must be currently be declared static.
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc8">
-8</a>&nbsp;&nbsp;Default Values</h2>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Default Values</h2>
 
 <div class="p"><!----></div>
 If all fields of a struct have default values, then the struct has a
@@ -419,8 +392,8 @@ class StructDefault {
 </pre>
 
 <div class="p"><!----></div>
- <h2><a name="tth_sEc9">
-9</a>&nbsp;&nbsp;Converting Between Classes And Structs</h2>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Converting Between Classes And Structs</h2>
 
 <div class="p"><!----></div>
 Code written using structs can be modified to use classes, or vice versa.
@@ -461,10 +434,7 @@ struct Struct2Class {
 </li>
 
 <li> Objects and structs have different notions of <b>==</b>.  
-      For objects, <b>==</b> means 
-<div class="p"><!----></div>
-</li>
-same object"; for structs, it means
+      For objects, <b>==</b> means &#223;ame object"; for structs, it means
       &#223;ame contents". Before conversion, both <b>assert</b>s in the
       following program succeed.  After converting and fixing constructors,
       both of them fail.
@@ -476,6 +446,9 @@ val c = Struct2Class(3);
 val d = Struct2Class(3);
 assert c==d;
 </pre>
+<div class="p"><!----></div>
+</li>
+
 <li> Objects can be set to <b>null</b>.  Structs cannot.
 <div class="p"><!----></div>
 </li>
@@ -489,8 +462,10 @@ can call methods on it as for any other.
 <div class="p"><!----></div>
 </li>
 </ol>
-<div class="p"><!----></div>
-</li>
 
-<br /><br />
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 28 May 2011, 10:58.</small>
 </html>

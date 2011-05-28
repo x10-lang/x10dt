@@ -406,7 +406,7 @@ assert result == 1;
 
 <div class="p"><!----></div>
 This code is deterministic: the <b>async</b> will finish before the
-<b>println</b> starts, and it will print <b>result=1</b>.  
+<b>assert</b> starts, and the <b>assert</b>'s test will be true.  
 
 <div class="p"><!----></div>
 However, without the
@@ -440,8 +440,9 @@ protected by <b>atomic</b> or <b>when</b>, then race conditions or deadlocks may
 occur.  
 
 <div class="p"><!----></div>
-In particular, atomic sections are atomic with respect to each other. They may
-not be atomic with respect to non-atomic code.  
+In particular, atomic sections at the same place are atomic with respect to
+each other. They may not be atomic with respect to non-atomic code, or with
+respect to atomic sections at different places.
 
 <div class="p"><!----></div>
 X10 guarantees that atomic sections at the same place are mutually exclusive.

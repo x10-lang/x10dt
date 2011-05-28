@@ -102,6 +102,8 @@ static def search[T](a: Array[T](1), v: T):Int {
 <div class="p"><!----></div>
  <h2><a name="tth_sEc2">
 2</a>&nbsp;&nbsp;Local variable declaration</h2>
+<a name="sect:LocalVarDecl">
+</a>
 
 
 
@@ -387,6 +389,7 @@ statement. A labeled break statement exits the enclosing
 statement with the given label.
 It is illegal to break out of a statement not defined in the current
 method, constructor, initializer, or closure.  
+<b>break</b> is only allowed in sequential code.
 
 <div class="p"><!----></div>
 The following code searches for an element of a two-dimensional
@@ -426,6 +429,7 @@ innermost enclosing loop, and proceeds on to the next.  A labeled
 <b>continue</b> does the same to the enclosing loop with that label.
 It is illegal to continue a loop not defined in the current
 method, constructor, initializer, or closure.
+<b>continue</b> is only allowed in sequential code.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc8">
@@ -905,7 +909,9 @@ throws an exception if not.
 
 <div class="p"><!----></div>
 <pre>
-if (i &lt; 0 &#124;&#124; i &#62;= x.size)
+if (i &lt; 0 </td><td width="150">
+&#124;</td><td width="150">
+&#124; i &#62;= x.size)
     throw new MyIndexOutOfBoundsException();
 </pre>
 
@@ -962,7 +968,8 @@ the statement following the <b>try</b> statement, at the branch target, or at
 the caller as appropriate.
 If the <b>try</b> block completes
 exceptionally, the <b>finally</b> block is evaluated after the
-matching <b>catch</b> block, if any, and then the
+matching <b>catch</b> block, if any, and when and if the <b>finally</b> block
+finishs normally, the
 exception is rethrown.
 
 <div class="p"><!----></div>
@@ -972,18 +979,24 @@ variables of the same name.
 <div class="p"><!----></div>
 The <b>example()</b> method below executes without any assertion errors
 <pre>
-class Exn extends Throwable{}
-class SubExn(n:Int) extends Exn{}
 class Example {
-  static def example() {
-    var correct : Boolean = false;
+  class ThisExn extends Throwable {}
+  class ThatExn extends Throwable {}
+  var didFinally : Boolean = false;
+  def example(b:Boolean) {
     try {
-       throw new SubExn(4);
+       throw b ? new ThatExn() : new ThisExn();
     }
-    catch (e : Exn)          { correct = true; }
-    catch (e : SubExn)       { assert false; }
-    catch (e : Throwable)    { assert false; }
-    assert correct; 
+    catch(ThatExn) {return true;}
+    catch(ThisExn) {return false;}
+    finally {
+       this.didFinally = true;
+    }
+  }
+  static def doExample() {
+    val e = new Example();
+    assert e.example(true);
+    assert e.didFinally == true;
   }
 }
 </pre>

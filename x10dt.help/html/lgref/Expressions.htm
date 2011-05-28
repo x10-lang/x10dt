@@ -38,10 +38,10 @@
 <li><a href="#tth_sEc20">Stable equality</a> <br/>
 <li><a href="#tth_sEc21">Allocation</a> <br/>
 <li><a href="#tth_sEc22">Casts and Conversions</a> <br/>
-<li><a href="#tth_sEc23">instanceof</a> <br/>
-<li><a href="#tth_sEc24">Subtyping expressions</a> <br/>
-<li><a href="#tth_sEc25">Array Constructors</a> <br/>
-<li><a href="#tth_sEc26">Coercions and conversions</a> <br/>
+<li><a href="#tth_sEc23">Coercions and conversions</a> <br/>
+<li><a href="#tth_sEc24">instanceof</a> <br/>
+<li><a href="#tth_sEc25">Subtyping expressions</a> <br/>
+<li><a href="#tth_sEc26">Array Constructors</a> <br/>
 <li><a href="#tth_sEc27">Parenthesized Expressions</a> <br/>
 </ul>
 
@@ -108,9 +108,9 @@ is of type <b>Int{self==1}</b>, and <b>true</b> is of type
 
 
 <div class="p"><!----></div>
-<em>  
+        <em>  
 <table>
-<tr><td align="right">Primary ::= <b>this</b> () </td></tr>
+<tr><td align="right">Primary ::= <b>this</b> </td></tr>
 <tr><td align="right">&#124; ClassName <b>.</b> <b>this</b> </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
@@ -131,10 +131,7 @@ represents an instance of that enclosing class.
 <b>Outer</b> is a class containing <b>Inner</b>.  Each instance of
 <b>Inner</b> has a reference <b>Outer.this</b> to the <b>Outer</b> involved in its
 creation.  <b>Inner</b> has access to the fields of <b>Outer.this</b>.  Note
-that <b>Inner</b>
-
-<div class="p"><!----></div>
-has its own <b>three</b> field, which is different from and not even the same
+that <b>Inner</b> has its own <b>three</b> field, which is different from and not even the same
 type as <b>Outer.this.three</b>. 
 <pre>
 class Outer {
@@ -344,7 +341,7 @@ Function literals are described in &#167;.
 <tr><td align="right">ArgumentList ::= Exp </td></tr>
 <tr><td align="right">&#124; ArgumentList <b>,</b> Exp </td></tr>
 <tr><td align="right">MethodName ::= Id </td></tr>
-<tr><td align="right">&#124; AmbiguousName <b>.</b> Id </td></tr>
+<tr><td align="right">&#124; ValueOrTypeName <b>.</b> Id </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -454,6 +451,13 @@ used to invoke an <b>f</b> method in <b>Sup</b> which has been overridden by one
 appearing in <b>Cl</b>.  
 
 <div class="p"><!----></div>
+Note that there's only one choice for which <b>f</b> is invoked by
+<b>super.f()</b> - <em>viz</em> the lowest one in the class hierarchy above
+<b>Cl</b>.  So, <b>super.f()</b> performs static dispatch, like a static 
+method call. This is generally more efficient than a dynamic dispatch, like an
+instance method call.
+
+<div class="p"><!----></div>
  <h2><a name="tth_sEc7">
 7</a>&nbsp;&nbsp;Assignment</h2><a name="AssignmentStatement">
 </a>
@@ -525,7 +529,7 @@ assignment:
       array assignment, mutatis mutandis, but there is no actual guarantee,
       and the compiler makes no assumptions about how this works for arbitrary <b>a</b>.
       Naturally, it is a static error if no suitable assignment operator
-      for <b>a</b>.
+      for <b>a</b> exists..
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -550,12 +554,15 @@ Subexpressions of <b>a</b> and <b>i</b> are only evaluated once.  However,
 one call to the application operator, and one to the assignment operator.
 If subscripting is implemented strangely for
 the class of <b>a</b>, the behavior is <em>not</em> necessarily updating a single
-storage location. Specifically, <b>A()(I()) += B()</b> is tantamount to: 
+storage location. Specifically, <b>A()(I()) += B()</b> is tantamount to the
+following code, except for the unspecified order of evaluation of the expressions: 
 <pre>
 {
+  // The order of these evaluations is not specified
   val aa = A();  // Evaluate A() once
   val ii = I();  // Evaluate I() once
   val bb = B();  // Evaluate B() once
+  // But they happen before this:
   val tmp = aa(ii) + bb; // read aa(ii)
   aa(ii) = tmp;  // write sum back to aa(ii)
 }
@@ -617,11 +624,14 @@ particular semantics of user-defined operations.
 <div class="p"><!----></div>
      <h3><a name="tth_sEc9.1">
 9.1</a>&nbsp;&nbsp;Conversions and coercions</h3>
+<a name="sect:ConvAndCoerc">
+</a>
 
 <div class="p"><!----></div>
 Specifically, each numeric type can be converted or coerced into each other
 numeric type, perhaps with loss of accuracy.
 
+<div class="p"><!----></div>
 <pre>
 val n : Byte = 123 as Byte; // explicit 
 val f : (Int)=&#62;Boolean = (Int) =&#62; true; 
@@ -737,8 +747,8 @@ The type of the result is <b>String</b>.
 
 <div class="p"><!----></div>
  For example, 
-      <b>&#246;ne " + 2 + here</b> 
-      evaluates to  <b>one 2(Place 0)</b>.  
+      <b>&#246;ne " + 2 + true</b> 
+      evaluates to  <b>one 2true</b>.  
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc15">
@@ -832,21 +842,9 @@ than negative infinity.
 </a>
 
 <div class="p"><!----></div>
-
- 
- 
-  
-  
-  
-  <em>
-  
+        <em>  
 <table>
-
-<tr><td align="right">ConditionalExp ::= ConditionalOrExp </td></tr>
-<tr><td align="right">&#124; ClosureExp </td></tr>
-<tr><td align="right">&#124; AtExp </td></tr>
-<tr><td align="right">&#124; FinishExp </td></tr>
-<tr><td align="right">&#124; ConditionalOrExp <b>?</b> Exp <b>:</b> ConditionalExp </td></tr>
+<tr><td align="right">ConditionalExp ::= ConditionalOrExp <b>?</b> Exp <b>:</b> ConditionalExp  </td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -900,7 +898,7 @@ is quite common when working with possibly-null objects.
 
 
 <div class="p"><!----></div>
-  :  |        <em>  
+        <em>  
 <table>
 <tr><td align="right">EqualityExp    ::= RelationalExp =</td></tr>
 <tr><td align="right">&#124; EqualityExp <b>==</b> RelationalExp</td></tr>
@@ -924,26 +922,6 @@ and <b>b</b> are extremely identical.
 
 <li> If one operand is <b>null</b>, then <b>a==b</b> holds iff the other is
       also <b>null</b>.
-<div class="p"><!----></div>
-</li>
-
-<li> If the operands both have struct type and are not in <b>x10.lang</b>, then they must be structurally equal;
-that is, they must be instances of the same struct
-and all their fields or components must be <b>==</b>.
-<div class="p"><!----></div>
-</li>
-
-<li> The definition of equality for function types is specified in
-      &#167;.
-<div class="p"><!----></div>
-</li>
-
-<li> No implicit coercions are performed by <b>==</b>.
-<div class="p"><!----></div>
-</li>
-
-<li> It is a static error to have an expression <b>a == b</b> if the types of
-      <b>a</b> and <b>b</b> are disjoint.
 <div class="p"><!----></div>
 </li>
 
@@ -972,6 +950,26 @@ and all their fields or components must be <b>==</b>.
 <div class="p"><!----></div>
 </li>
 </ul>
+<div class="p"><!----></div>
+</li>
+
+<li> If the operands both have struct type and are not in <b>x10.lang</b>, then they must be structurally equal;
+that is, they must be instances of the same struct
+and all their fields or components must be <b>==</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> The definition of equality for function types is specified in
+      &#167;.
+<div class="p"><!----></div>
+</li>
+
+<li> No implicit coercions are performed by <b>==</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> It is a static error to have an expression <b>a == b</b> if the types of
+      <b>a</b> and <b>b</b> are disjoint.
 <div class="p"><!----></div>
 </li>
 </ul>
@@ -1066,8 +1064,10 @@ arguments, so <b>100</b> gets coerced to <b>100L</b>.
 20.2</a>&nbsp;&nbsp;Non-Disjointness Requirement</h3>
 
 <div class="p"><!----></div>
-It is a static error to have an expression <b>a==b</b> where <b>a</b> and
-<b>b</b> could not possibly be equal, based on their types.  This is a
+It is, in many cases, a static error to have an expression <b>a==b</b> where <b>a</b> and
+<b>b</b> could not possibly be equal, based on their types.  (In one case it is
+a static error even though they <em>could</em> be equal.)
+This is a
 practical codicil to &#167;<a href="#sect:eqeq-no-coerce">20.1</a>.  Consider the illegal code 
 <pre>
 // NOT ALLOWED
@@ -1120,14 +1120,17 @@ compared for equality.
       always be compared for equality. Given objects of unrelated classes
       <b>a:Person</b> and 
       <b>b:Theory</b>, <b>a==b</b> could be true if <b>a==null</b> and
-      <b>b==null</b>.
+      <b>b==null</b>. Despite this, <b>a==b</b> is a static error, because it is
+      generally a programming mistake.  <b>a as Object == b as Object</b> can
+      be used to express the equality, if it is necessary.
 <div class="p"><!----></div>
 </li>
 
-<li> Constrained object types may or may not be comparable.  For example,  
-      if <b>Person</b> and <b>Theory</b> are both direct subclasses of
-      <b>Object</b>, and <b>a:Person</b> and <b>b:Theory{self!=null}</b>, then
-      <b>a==b</b> is not allowed, since the two could not possibly be equal.
+<li> Constraints are ignored in determining whether an equality is statically
+      allowed.  For example, the following is allowed: 
+<pre>
+def m(a:Int{self==1}, b:Int{self==2}) = (a==b);
+</pre>
 <div class="p"><!----></div>
 </li>
 
@@ -1168,7 +1171,7 @@ compared for equality.
 
 <tr><td align="right">ClassInstCreationExp ::= <b>new</b> TypeName TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right">&#124; Primary <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
-<tr><td align="right">&#124; AmbiguousName <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
+<tr><td align="right">&#124; ValueOrTypeName <b>.</b> <b>new</b> Id TypeArgs<sup>?</sup>&nbsp;<b>(</b> ArgumentList<sup>?</sup>&nbsp;<b>)</b> ClassBody<sup>?</sup>&nbsp;</td></tr>
 <tr><td align="right"></td></tr></table>
 </em>
 
@@ -1279,7 +1282,13 @@ a value of another
 type <b>T2</b>.  The
 value itself does not change, nor is a new value computed.  The only
 run-time computation that happens is to check that <b>v</b> is indeed a value
-of type <b>T2</b> (which, in many cases, is unnecessary), and auto-boxing (&#167;).
+of type <b>T2</b> (which, in many cases, is unnecessary), and auto-boxing
+(&#167;).
+
+<div class="p"><!----></div>
+Casts to generic types can be unsound.   The instantiations of the generic
+types have constraints, but the runtime does not preserve the representation
+of these types.  See &#167; for more details.
 
 <div class="p"><!----></div>
 There are two forms of casts.  <em>Upcasts</em> happen when <b>T1 &lt;: T2</b>, that
@@ -1376,7 +1385,8 @@ type <b>Int{self==2}</b>.
 
 <div class="p"><!----></div>
 If, for some reason, you need to write one of these forbidden casts, cast to
-<b>Any</b> first.  <b>(1 as Any) as Int{self==2}</b> always returns false, but 
+<b>Any</b> first.  <b>(1 as Any) as Int{self==2}</b> always returns false, but
+compiles.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc22.2">
@@ -1400,20 +1410,23 @@ The numeric types in <b>x10.lang</b> have explicit conversions, as described in
 <b>1 as Float</b> and the like.  
 
 <div class="p"><!----></div>
-<b>Knot</b>s have an explicit conversion operator to <b>String</b>, and an
-implicit coercion to <b>Int</b>.  Note that the implicit coercion can be used
-explicitly, with <b>k as Int</b>, as well as implicitly in <b>Math.abs(k)</b>. 
+The following class has an explicit conversion from <b>Int</b> to <b>Knot</b>, and
+an implicit one from <b>String</b> to <b>Knot</b>.  <b>a</b> uses the explicit
+conversion, <b>b</b> uses the implicit coercion, and <b>c</b> uses the implicit
+coercion explicitly. 
 <pre>
-class Knot(s:String) { 
+class Knot(s:String){
+  public def is(t:String):Boolean = s.equals(t);
   // explicit conversion
-  public static operator (x:Knot) as String = x.s + "!";
+  public static operator (n:Int) as Knot = new Knot("knot-" + n);
   // implicit coercion
-  public static operator (x:Knot) : Int = x.s.length();
+  public static operator (s:String):Knot = new Knot(s);
+  // using them
   public static def example() {
-     val k = new Knot("frayed");
-     assert "frayed!".equals(k as String);
-     assert (k as Int) == 6;
-     assert Math.abs(k) == 6; 
+     val a : Knot = 1 as Knot; 
+     val b : Knot = "frayed";
+     val c : Knot = "three" as Knot;
+     assert a.is("knot-1") &amp;&amp; b.is("frayed") &amp;&amp; c.is("three");
   }
 }
 </pre>
@@ -1426,7 +1439,7 @@ class Knot(s:String) {
 
 <div class="p"><!----></div>
 If <b>v as T</b> could either be a cast or an explicit coercion, X10 treats its
-as a cast.  
+as a cast.  With the <b>VERBOSE</b> compiler flag, this is flagged as a warning.
 
 <div class="p"><!----></div>
 The <b>Person</b> class provides an explicit conversion 
@@ -1436,14 +1449,14 @@ using the <b>as</b> operator invokes the upcast, rather than the explicit
 conversion.  This is visible in the example because the user-defined operator 
 <b>f as Person</b> returns <b>new Person()</b> (just like the <b>asPerson</b>
 method), while the 
-upcast returns <b>f</b> itself.  
+upcast returns <b>f</b> itself.   
 <pre>
 class Person {
   static operator (f:Fop) as Person = new Person();
   static def asPerson(f:Fop) = new Person();
   public static def example() {
      val f = new Fop();
-     val cast = f as Person;
+     val cast = f as Person; // WARNING on this line
      assert cast == f;
      val meth = asPerson(f);
      assert meth != f;
@@ -1459,198 +1472,7 @@ since any use of it in the <b>f as Person</b> syntax will invoke the upcast.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc23">
-23</a>&nbsp;&nbsp;<b>instanceof</b></h2>
-<a name="instanceOf">
-</a>
-
-
-
-<div class="p"><!----></div>
-X10 permits types to be used in an in instanceof expression
-to determine whether an object is an instance of the given type:
-
-<div class="p"><!----></div>
-
- 
- 
-  
-  
-  
-  <em>
-  
-<table>
-
-<tr><td align="right">RelationalExp ::= ShiftExp </td></tr>
-<tr><td align="right">&#124; HasZeroConstraint </td></tr>
-<tr><td align="right">&#124; SubtypeConstraint </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&lt;</b> ShiftExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&#62;</b> ShiftExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&lt;=</b> ShiftExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>&#62;=</b> ShiftExp </td></tr>
-<tr><td align="right">&#124; RelationalExp <b>instanceof</b> Type </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-In the above expression, <em>Type</em> is any type. At run time, the
-result of <b>e instanceof T</b>
-is <b>true</b> if the
-value of <b>e</b> is an instance of type <b>T</b>.
-Otherwise the result is <b>false</b>. This determination may involve checking
-that the constraint, if any, associated with the type is true for the given
-expression.
-
-<div class="p"><!----></div>
-For example, <b>3 instanceof Int{self==x}</b> is an overly-complicated way of
-saying <b>3==x</b>.
-
-<div class="p"><!----></div>
-However, it is a static error if <b>e</b> cannot possibly be an instance of
-<b>C{c}</b>; the compiler will reject <b>1 instanceof Int{self == 2}</b> because
-<b>1</b> can never satisfy <b>Int{self == 2}</b>. Similarly, <b>1 instanceof
-String</b> is a static error, rather than an expression always returning false. 
-
-<div class="p"><!----></div>
-If <b>x instanceof T</b> returns <b>true</b> for some value <b>x</b> and type
-<b>T</b>, then <b>x as T</b> will evaluate normally.  
-
-<div class="p"><!----></div>
-<b>Limitation: </b>
-X10 does not currently handle <b>instanceof</b> of generics in the way you
-might expect.  For example, <b>r instanceof Array[Int{self != 0}]</b> does
-not test that every element of <b>r</b> is non-zero; instead, the compiler
-rejects it.
-
-<div class="p"><!----></div>
- <h2><a name="tth_sEc24">
-24</a>&nbsp;&nbsp;Subtyping expressions</h2>
-
-
-
-
-<div class="p"><!----></div>
-
- 
- 
-  
-  
-  
-  <em>
-  
-<table>
-
-<tr><td align="right">SubtypeConstraint ::= Type  <b>&lt;:</b> Type  </td></tr>
-<tr><td align="right">&#124; Type  <b>:&#62;</b> Type  </td></tr>
-<tr><td align="right"></td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-The subtyping expression  evaluates to <b>true</b> if
-"T<sub>1</sub>" is a subtype of "T<sub>2</sub>".
-
-<div class="p"><!----></div>
-The expression  evaluates to <b>true</b> if
-"T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
-
-<div class="p"><!----></div>
-The expression "T<sub>1</sub> == T<sub>2</sub>"
-evaluates to  <b>true</b> if 
-"T<sub>1</sub>" is a subtype of "T<sub>2</sub>" and
-if "T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
-
-<div class="p"><!----></div>
-Subtyping expressions are particularly useful in giving constraints on generic
-types.  <b>x10.util.Ordered[T]</b> is an interface whose values can be compared
-with values of type <b>T</b>. 
-In particular, <b>T &lt;: x10.util.Ordered[T]</b> is
-true if values of type <b>T</b> can be compared to other values of type
-<b>T</b>.  So, if we wish to define a generic class <b>OrderedList[T]</b>, of
-lists whose elements are kept in the right order, we need the elements to be
-ordered.  This is phrased as a constraint on <b>T</b>: 
-<pre>
-class OrderedList[T]{T &lt;: x10.util.Ordered[T]} {
-  // ...
-}
-</pre>
-
-
-<div class="p"><!----></div>
-<pre>
-</pre>
-<pre>
-</pre>
-
-<div class="p"><!----></div>
- <h2><a name="tth_sEc25">
-25</a>&nbsp;&nbsp;Array Constructors</h2>
-<a name="sect:ArrayCtors">
-</a>
-
-
-
-<div class="p"><!----></div>
-  :  |        <em>  
-<table>
-<tr><td align="right">Primary ::= 
-                    <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b> 
-</td></tr></table>
-</em>
-
-<div class="p"><!----></div>
-X10 includes short syntactic forms for constructing one-dimensional arrays.
-Enclose some expressions in brackets to put them in an array: 
-<pre>
-val ints &lt;: Array[Int](1) = [1,3,7,21];
-</pre>
-
-<div class="p"><!----></div>
-The expression "[e<sub>1</sub>, &#8230;, e<sub>n</sub>]" produces an <b>n</b>-element
-<b>Array[T](1)</b>, where <b>T</b> is the computed common supertype (&#167;) of the <b>
-base types</b> of the expressions  &#235;<sub>i</sub>". 
-
-<div class="p"><!----></div>
-The type of
-<b>[0,1,2]</b> is <b>Array[Int](1)</b>.    
-More importantly, the type of 
-<b>[0]</b> is also <b>Array[Int](1)</b>.  It is <em>not</em> 
-<b>Array[Int{self==0}](1)</b>, even though all the elements are all 
-of type <b>Int{self==0}</b>.  This is subtle but important. There are many
-functions that take <b>Array[Int](1)</b>s, such as conversions to <b>Point</b>.
-These functions do <em>not</em> take
-<b>Array[Int{self==0}]</b>'s.
-
-<div class="p"><!----></div>
-(Suppose that the function took <b>a:Array[Int](1)</b> and 
-performed 
-the operation <b>a(i)=100</b>.   This operation is fine for
-an <b>Array[Int](1)</b>, which is all the compiler knows about <b>a</b>.  
-However, it is wrong for an <b>Array[Int{self==0}](1)</b>, because it assigns
-a non-zero value to an element of the array, violating the type constraint
-which says that all the elements are zero.  So, <b>Array[Int{self==0}](1)</b>
-is not and must not be a subtype of <b>Array[Int](1)</b> - the two types are simply unrelated.
-<b>Array[Int](1)</b> is far more useful than 
-<b>Array[Int{self==0}](1)</b>, and so the compiler produces the former.)
-
-
-<div class="p"><!----></div>
-Occasionally one does actually need <b>Array[Int{self==0}](1)</b>, 
-or, say, <b>Array[Eel{self != null}](1)</b>, an array of non-null <b>Eel</b>s.  
-For these cases, cast one or more of the elements of the array to the desired type,
-and the array constructor will do the right thing.  
-<pre>
-val zero &lt;: Array[Int{self == 0}](1) 
-          = [0];
-val non1 &lt;: Array[Int{self != 1}](1) 
-          = [0 as Int{self != 1}];
-val eels &lt;: Array[Eel{self != null}](1) 
-          = [new Eel() as Eel{self != null}, 
-             new Eel(), new Eel()];
-</pre>
-
-
-<div class="p"><!----></div>
- <h2><a name="tth_sEc26">
-26</a>&nbsp;&nbsp;Coercions and conversions</h2>
+23</a>&nbsp;&nbsp;Coercions and conversions</h2>
 <a name="XtenConversions">
 </a>
 <a name="User-definedCoercions">
@@ -1666,8 +1488,8 @@ to is not the same as the type converted from. X10 permits both
 user-defined coercions and conversions (&#167;).
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc26.1">
-26.1</a>&nbsp;&nbsp;Coercions</h3>
+     <h3><a name="tth_sEc23.1">
+23.1</a>&nbsp;&nbsp;Coercions</h3>
 
 <div class="p"><!----></div>
 
@@ -1780,7 +1602,7 @@ satisfied.
 
 
 <div class="p"><!----></div>
-<b><b>Limitation: </b></b> It is currently a static error, rather than a 
+It is a static error, rather than a 
 <b>ClassCastException</b>, when the cast is statically determinable to be
 impossible.
 
@@ -1855,8 +1677,8 @@ approximation is good enough.
 </ul>
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc26.1.1">
-26.1.1</a>&nbsp;&nbsp;User-defined Coercions</h4>
+      <h4><a name="tth_sEc23.1.1">
+23.1.1</a>&nbsp;&nbsp;User-defined Coercions</h4>
 
 
 <div class="p"><!----></div>
@@ -1878,8 +1700,8 @@ class Bee {
 </pre>
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc26.2">
-26.2</a>&nbsp;&nbsp;Conversions</h3>
+     <h3><a name="tth_sEc23.2">
+23.2</a>&nbsp;&nbsp;Conversions</h3>
 
 
 
@@ -1899,7 +1721,7 @@ UByte &lt; UShort &lt; UInt &lt; ULong
 </pre>
 
 <div class="p"><!----></div>
-Furthermore, an unsigned integer type may be implicitly coerced a signed type
+Furthermore, an unsigned integer value may be implicitly coerced to a signed type
 large 
 enough to hold any value of the type: <b>UByte</b> to <b>Short</b>, <b>UShort</b>
 to <b>Int</b>, <b>UInt</b> to <b>Long</b>.  There are no implicit conversions
@@ -1948,7 +1770,7 @@ is more information available.
 The code for <b>x10.lang.Point</b> contains a conversion from 
 one-dimensional <b>Array</b>s of integers to <b>Point</b>s of the same length: 
 <pre>
-  public operator (r: Array[Int](1)): Point(r.length) 
+  public operator (r: Array[Int](1)): Point(r.size) 
          = make(r);
 </pre>
 This conversion is used whenever an array of integers appears in a 
@@ -1960,6 +1782,254 @@ a two-element <b>Array</b> (like <b>[2,4]</b>) is converted to a
 val a = new Array[String]((2..3) * (4..5), "hi!");
 a([2,4]) = "converted!";
 </pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc24">
+24</a>&nbsp;&nbsp;<b>instanceof</b></h2>
+<a name="instanceOf">
+</a>
+
+
+
+<div class="p"><!----></div>
+X10 permits types to be used in an in instanceof expression
+to determine whether an object is an instance of the given type:
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">RelationalExp ::= ShiftExp </td></tr>
+<tr><td align="right">&#124; HasZeroConstraint </td></tr>
+<tr><td align="right">&#124; SubtypeConstraint </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&lt;=</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>&#62;=</b> ShiftExp </td></tr>
+<tr><td align="right">&#124; RelationalExp <b>instanceof</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+In the above expression, <em>Type</em> is any type. At run time, the
+result of <b>e instanceof T</b>
+is <b>true</b> if the
+value of <b>e</b> is an instance of type <b>T</b>.
+Otherwise the result is <b>false</b>. This determination may involve checking
+that the constraint, if any, associated with the type is true for the given
+expression.
+
+<div class="p"><!----></div>
+For example, <b>3 instanceof Int{self==x}</b> is an overly-complicated way of
+saying <b>3==x</b>.
+
+<div class="p"><!----></div>
+However, it is a static error if <b>e</b> cannot possibly be an instance of
+<b>C{c}</b>; the compiler will reject <b>1 instanceof Int{self == 2}</b> because
+<b>1</b> can never satisfy <b>Int{self == 2}</b>. Similarly, <b>1 instanceof
+String</b> is a static error, rather than an expression always returning false. 
+
+<div class="p"><!----></div>
+If <b>x instanceof T</b> returns <b>true</b> for some value <b>x</b> and type
+<b>T</b>, then <b>x as T</b> will evaluate normally.  
+
+<div class="p"><!----></div>
+<b>Limitation: </b>
+X10 does not currently handle <b>instanceof</b> of generics in the way you
+might expect.  For example, <b>r instanceof Array[Int{self != 0}]</b> does
+not test that every element of <b>r</b> is non-zero; instead, the compiler
+gives an unsound cast warning.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc24.1">
+24.1</a>&nbsp;&nbsp;Nulls in Constraints in <tt>as</tt> and <tt>instanceof</tt></h3>
+
+<div class="p"><!----></div>
+Both <b>as</b> and <b>instanceof</b> expressions can throw
+<b>NullPointerException</b>s, if the constraints involve selecting fields
+or properties of variables which are bound to <b>null</b>.  
+
+<div class="p"><!----></div>
+These operations give some guarantees for any type <b>T</b>, constraint
+<b>c</b>, and class 
+<b>SomeObj</b> with an <b>a</b> field:
+
+<ol type="1">
+<li> <b>null instanceof T</b> always returns <b>false</b>.  It never throws an
+      exception.  It 
+      never returns <b>true</b>, not even in cases where <b>null</b> could be
+      assigned to a variable of type <b>T</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>null</b> can be assigned to a variable of type
+      <b>SomeObjself.a==b</b>, or, more broadly, to a variable 
+      of a constrained object type whose constraint does not explicitly
+      exclude <b>null</b>.  This is the case even though <b>null.a==b</b> would
+      throw a <b>NullPointerException</b> rather than evaluate to either
+      <b>true</b> 
+<div class="p"><!----></div>
+</li>
+
+      or <b>false</b>.
+<li> If <b>x instanceof T</b> returns <b>true</b>, then <b>x as T</b> is a cast
+      rather than an explicit conversion, and will succeed and have static
+      type <b>T</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> If the static type of <b>x</b> is <b>T</b>, then <b>x instanceof T</b> and
+      <b>x as T</b> will do one of these: 
+      
+<ul>
+<li> Succeed, with <b>x instanceof T</b> returning <b>true</b>, and 
+            <b>x as T</b> being a cast and returning value of type <b>T</b>; <b>or</b>
+<div class="p"><!----></div>
+</li>
+
+<li> Throw a <b>NullPointerException</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>x==null</b>, then <b>x instanceof T</b> will always return
+            <b>false</b>, and <b>x as T</b> will either return a <b>null</b> of
+            type <b>T</b>, or, if <b>T</b> has a constraint which tries to
+            extract a field of <b>x</b>, will throw a <b>NullPointerException</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>x instanceof SomeObjself.a==b</b> is <b>true</b>, then <b>x.a==b</b>
+      evaluates to <b>true</b> (rather than a null pointer exception).  Indeed, 
+      in general, if <b>x instanceof T{c}</b> succeeds, then <b>cc</b> evaluates
+      to true, where <b>cc</b> is <b>c</b> with suitable occurrences of
+      <b>self</b> replaced by <b>x</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc25">
+25</a>&nbsp;&nbsp;Subtyping expressions</h2>
+
+
+
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">SubtypeConstraint ::= Type  <b>&lt;:</b> Type  </td></tr>
+<tr><td align="right">&#124; Type  <b>:&#62;</b> Type  </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The subtyping expression  evaluates to <b>true</b> if
+"T<sub>1</sub>" is a subtype of "T<sub>2</sub>".
+
+<div class="p"><!----></div>
+The expression  evaluates to <b>true</b> if
+"T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
+
+<div class="p"><!----></div>
+The expression "T<sub>1</sub> == T<sub>2</sub>"
+evaluates to  <b>true</b> if 
+"T<sub>1</sub>" is a subtype of "T<sub>2</sub>" and
+if "T<sub>2</sub>" is a subtype of "T<sub>1</sub>".
+
+<div class="p"><!----></div>
+Subtyping expressions are particularly useful in giving constraints on generic
+types.  <b>x10.util.Ordered[T]</b> is an interface whose values can be compared
+with values of type <b>T</b>. 
+In particular, <b>T &lt;: x10.util.Ordered[T]</b> is
+true if values of type <b>T</b> can be compared to other values of type
+<b>T</b>.  So, if we wish to define a generic class <b>OrderedList[T]</b>, of
+lists whose elements are kept in the right order, we need the elements to be
+ordered.  This is phrased as a constraint on <b>T</b>: 
+<pre>
+class OrderedList[T]{T &lt;: x10.util.Ordered[T]} {
+  // ...
+}
+</pre>
+
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc26">
+26</a>&nbsp;&nbsp;Array Constructors</h2>
+<a name="sect:ArrayCtors">
+</a>
+
+
+
+<div class="p"><!----></div>
+        <em>  
+<table>
+<tr><td align="right">Primary ::= 
+                    <b>[</b> ArgumentList<sup>?</sup>&nbsp;<b>]</b> 
+</td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+X10 includes short syntactic forms for constructing one-dimensional arrays.
+Enclose some expressions in brackets to put them in an array: 
+<pre>
+val ints &lt;: Array[Int](1) = [1,3,7,21];
+</pre>
+
+<div class="p"><!----></div>
+The expression "[e<sub>1</sub>, &#8230;, e<sub>n</sub>]" produces an <b>n</b>-element
+<b>Array[T](1)</b>, where <b>T</b> is the computed common supertype ()
+of the types of of the expressions  &#235;<sub>i</sub>". 
+
+<div class="p"><!----></div>
+The type of
+<b>[0,1,2]</b> is <b>Array[Int](1)</b>.    
+The type of 
+<b>[0]</b> is  <b>Array[Int{self==0}](1)</b>. 
+
+<div class="p"><!----></div>
+To make an <b>Array[Int](1)</b> containing just a <b>0</b>, use
+<b>[0 as Int]</b>.  The <b>as Int</b> masks more detailed type information, such
+as the fact that <b>0</b> is zero.
+
+<div class="p"><!----></div>
+Occasionally one does actually need <b>Array[Int{self==0}](1)</b>, 
+or, say, <b>Array[Eel{self != null}](1)</b>, an array of non-null <b>Eel</b>s.  
+For these cases, cast one or more of the elements of the array to the desired type,
+and the array constructor will do the right thing.  
+<pre>
+val zero &lt;: Array[Int{self == 0}](1) 
+          = [0];
+val non1 &lt;: Array[Int{self != 1}](1) 
+          = [0 as Int{self != 1}];
+val eels &lt;: Array[Eel{self != null}](1) 
+          = [new Eel() as Eel{self != null}, 
+             new Eel(), new Eel()];
+</pre>
+
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc27">

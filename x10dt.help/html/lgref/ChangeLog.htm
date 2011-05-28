@@ -54,11 +54,70 @@
 
 <div class="p"><!----></div>
  <h1><a name="tth_chAp1">
-B </a><br />Change Log</h1>
+B</a><br />Change Log</h1>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc1">
 1</a>&nbsp;&nbsp;Changes from X10 v2.1</h2>
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> Covariance and contravariance are gone.
+<div class="p"><!----></div>
+</li>
+
+<li> Operator definitions are regularized.  A number of new operator symbols
+      are available.
+<div class="p"><!----></div>
+</li>
+
+<li> The operator <b>in</b> is gone.  <b>in</b> is now only a keyword.
+<div class="p"><!----></div>
+</li>
+
+<li> Method functions and operator functions are gone.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>m..n</b> is now a type of struct called <b>IntRange</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>for(i in m..n)</b> now works.  The old forms, <b>for((i) in m..n)</b>
+      and <b>for([i] in m..n)</b>, are no longer needed.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>(e as T)</b> now has type <b>T</b>.  (It used to have an identity
+      constraint conjoined in.)
+<div class="p"><!----></div>
+</li>
+
+<li> <b>var</b>s can no longer be assigned in their place of origin.  Use a
+      <b>GlobalRef[Cell[T]]</b> instead.  We'll have a new idiom for this in 2.3.
+<div class="p"><!----></div>
+</li>
+
+<li> The <b>-STATIC_CALLS</b> command-line flag is now <b>-STATIC_CHECKS</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Any string may be written in backquotes to make an identifier: <tt>
+      `while`</tt>.
+<div class="p"><!----></div>
+</li>
+
+<li> The <b>next</b> and <b>resume</b> keywords are gone; they have been
+      replaced by static methods on <b>Clock</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> The typed array construction syntax <b>new Array[T][t1,t2]</b> is gone.
+      Use <b>[t1 as T, t2]</b> (if just plain <b>[t1,t2]</b> doesn't work).
+<div class="p"><!----></div>
+</li>
+</ol>
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc2">
@@ -245,9 +304,7 @@ finish {
      a = 1; 
      print(&#228;=" + a);
   }
-  async {
-     // WRONG: print(&#228;=" + a);
-  }
+  // WRONG: print(&#228;=" + a);
 }
 print(&#228;=" + a);
 </pre>
@@ -395,6 +452,7 @@ a future version:
 <div class="p"><!----></div>
  <h2><a name="tth_sEc3">
 3</a>&nbsp;&nbsp;Changes from X10 v2.0</h2>
+Some of these changes have been made obsolete in X10 2.2.
 
 <div class="p"><!----></div>
 
@@ -420,7 +478,10 @@ a future version:
 4</a>&nbsp;&nbsp;Changes from X10 v1.7</h2>
 
 <div class="p"><!----></div>
-The language has changed in the following way:
+The language has changed in the following ways.  
+Some of these changes have been made obsolete in X10 2.2.
+
+<div class="p"><!----></div>
 
 <ul>
 <li> <b>Type system changes</b>: There are now three kinds of entities
@@ -496,9 +557,5 @@ The language has changed in the following way:
 </li>
 </ul>
 
-<br /><br /><hr /><small>File translated from
-T<sub><font size="-1">E</font></sub>X
-by <a href="http://hutchinson.belmont.ma.us/tth/">
-T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 29 Apr 2011, 18:38.</small>
+<br /><br /><hr />
 </html>
