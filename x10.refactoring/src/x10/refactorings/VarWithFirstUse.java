@@ -82,6 +82,12 @@ class VarWithFirstUse implements VarKey {
 		}
 	}
 
+        public int hashCode() {
+            if (fVarInstance == null)
+                return fFirstUseExpr.hashCode();
+            return fVarInstance.hashCode();
+        }
+
 	/**
 	 * Creates a useful debugging string for a VarWithFirstUse
 	 * 
