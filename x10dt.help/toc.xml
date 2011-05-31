@@ -41,7 +41,9 @@
 			<topic label="Optimizations" href="html/reference/preferences/compiler/optimizations.html" />  
 		</topic>
 		<topic label="Formatting" href="html/reference/preferences/formatting.html" />  
-		<topic label="Runtime" href="html/reference/preferences/runtime.html" /> 
+<!--
+		<topic label="Runtime" href="html/reference/preferences/runtime.html" />
+-->		 
 	</topic> 
 </topic>
 
