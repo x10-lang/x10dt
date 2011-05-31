@@ -22,11 +22,11 @@ public class NodePathComputer {
 
 		@Override
 		public Node leave(Node old, Node n, NodeVisitor v) {
-			if (n == fTarget)
+			if (old == fTarget)
 				fHitTarget = true;
 			if (fHitTarget)
-				fPath.add(n);
-			return n;
+				fPath.add(old);
+			return old;
 		}
 
 		public Node override(Node n) {
@@ -54,4 +54,30 @@ public class NodePathComputer {
 	public List<Node> getPath() {
 		return fPath;
 	}
+
+    /**
+     * Finds the innermost Node of the given type that encloses the given Node
+     * @param loop
+     * @param path
+     */
+    public <M> M findEnclosingNode(Node node, Class<M> clazz) {
+        int i= fPath.size()-1;
+        for(; i >= 0; i--) {
+            Node pathNode = fPath.get(i);
+            if (pathNode == node) {
+                break;
+            }
+        }
+        for(i--; i >= 0; i--) {
+            Node pathNode = fPath.get(i);
+            if (clazz.isInstance(pathNode)) {
+                return (M) pathNode;
+            }
+        }
+        return null;
+    }
+
+    public Node getParent(Node node) {
+        return findEnclosingNode(node, Node.class);
+    }
 }
