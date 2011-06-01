@@ -578,15 +578,52 @@ There are no other semantic differences between the two forms.
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc4.2">
-4.2</a>&nbsp;&nbsp;Final Methods</h3>
+4.2</a>&nbsp;&nbsp;Method Return Types</h3>
+
+<div class="p"><!----></div>
+A method with an explicit return type returns that type.
+A method without an
+explicit return type is given a return type by type inference.
+A <em>call</em> to a method has type given by substituting information about the
+actual <b>val</b> parameters for the formals.
+
+<div class="p"><!----></div>
+In the example below, <b>met1</b> has an explicit return type <b>Retn==a</b>.
+<b>met2</b> does not, so its return type is computed, also to be
+<b>Retn==a</b>, because that's what the implicitly-defined constructor 
+returns.
+
+<div class="p"><!----></div>
+<b>use3</b> requires that its argument have <b>n==3</b>.  
+<b>example</b> shows that both <b>met1</b> and <b>met2</b> can be used to produce
+such an object.  In both cases, the actual argument <b>3</b> is substituted for
+the formal argument <b>a</b> in the return type expression for the method
+<b>Retn==a</b>, giving the type <b>Retn==3</b> as required by <b>use3</b>.
+
+<div class="p"><!----></div>
+<pre>
+class Ret(n:Int) {
+  static def met1(a:Int) : Ret{n==a} = new Ret(a);
+  static def met2(a:Int)             = new Ret(a);
+  static def use3(Ret{n==3}) {}
+  static def example() {
+     use3(met1(3));
+     use3(met2(3));
+  }  
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Final Methods</h3>
 
 
 An instance method may be given the <b>final</b> qualifier.  <b>final</b>
 methods may not be overridden.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.3">
-4.3</a>&nbsp;&nbsp;Generic Instance Methods</h3>
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Generic Instance Methods</h3>
 
 
 <div class="p"><!----></div>
@@ -604,8 +641,8 @@ methods like <b>example</b>.  It does allow generic instance methods which are
 <b>final</b> or <b>private</b>, and it does allow generic static methods.  
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.4">
-4.4</a>&nbsp;&nbsp;Method Guards</h3>
+     <h3><a name="tth_sEc4.5">
+4.5</a>&nbsp;&nbsp;Method Guards</h3>
 <a name="MethodGuard">
 </a>
 
@@ -713,8 +750,8 @@ Specifically:
 Using a reference to an outer class, <b>Outer.this</b>, in a constraint, is not supported.
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.5">
-4.5</a>&nbsp;&nbsp;Property methods</h3>
+     <h3><a name="tth_sEc4.6">
+4.6</a>&nbsp;&nbsp;Property methods</h3>
 
 
 
@@ -811,8 +848,8 @@ is equivalent to
 <b>w.rail()</b>
 
 <div class="p"><!----></div>
-      <h4><a name="tth_sEc4.5.1">
-4.5.1</a>&nbsp;&nbsp;Limitation of Property Methods</h4>
+      <h4><a name="tth_sEc4.6.1">
+4.6.1</a>&nbsp;&nbsp;Limitation of Property Methods</h4>
 
 <div class="p"><!----></div>
 <b>Limitation: </b> 
@@ -859,8 +896,8 @@ class Example{
 
 
 <div class="p"><!----></div>
-     <h3><a name="tth_sEc4.6">
-4.6</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
+     <h3><a name="tth_sEc4.7">
+4.7</a>&nbsp;&nbsp;Method overloading, overriding, hiding, shadowing and obscuring</h3>
 <a name="MethodOverload">
 </a>
 
@@ -1161,6 +1198,41 @@ constructor, write the target of the application as <b>(this)</b>, <em>e.g.</em>
 <b>(this)(a,b);</b>. 
 
 <div class="p"><!----></div>
+     <h3><a name="tth_sEc5.3">
+5.3</a>&nbsp;&nbsp;Return Type of Constructor</h3>
+
+<div class="p"><!----></div>
+A constructor for class <b>C</b> may have a return type <b>C{c}</b>.  The return
+type specifies a constraint on the kind of object returned.  It cannot change
+its <em>class</em> - a constructor for class <b>C</b> always returns an instance
+of class <b>C</b>.  
+If no explicit return type is specified, the constructor's return type is
+inferred.
+
+<div class="p"><!----></div>
+The constructor <b>(A)</b> below, having no explicit return type, 
+has its return type inferred.  
+<b>n</b> is set by the <b>property</b> statement to <b>1</b>, so the return type
+is inferred as <b>Ret{self.n==1}.</b>
+The constructor <b>(B)</b> has <b>Retn==self.n</b> as an explicit return type.
+The <b>example()</b> code shows both of these in action.
+
+<div class="p"><!----></div>
+<pre>
+class Ret(n:Int) {
+   def this()    { property(1); }     // (A)
+   def this(n:Int) : Ret{n==self.n} { // (B)
+      property(n);
+   }
+   static def typeIs[T](x:T){}
+   static def example() {
+     typeIs[Ret{self.n==1}](new Ret());  // uses (A)
+     typeIs[Ret{self.n==3}](new Ret(3)); // uses (B)
+   }
+}
+</pre>
+
+<div class="p"><!----></div>
  <h2><a name="tth_sEc6">
 6</a>&nbsp;&nbsp;Static initialization</h2>
 <a name="StaticInitialization">
@@ -1412,7 +1484,7 @@ class Poly {
     this.coeff = coeff;}
   public def degree() = coeff.size-1;
   public def  a(i:Int) 
-    = (i&lt;0 </td>&#124;&#124; i&#62;this.degree()) ? 0 : coeff(i);
+    = (i&lt;0 &#124;&#124; i&#62;this.degree()) ? 0 : coeff(i);
   public operator this + (p:Poly) =  new Poly(
      new Array[Int](
         Math.max(this.coeff.size, p.coeff.size),
@@ -2147,7 +2219,7 @@ be accomplished in two ways:
 </li>
 
 <li> Marking the methods called from the constructor by
-      <b>@NonEscaping</b>.
+      <b>@NonEscaping</b> or <b>@NoThisAccess</b>
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -2236,6 +2308,76 @@ final class C2 {
 }
 
 <div class="p"><!----></div>
+</pre>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc8.4.2">
+8.4.2</a>&nbsp;&nbsp;NoThisAccess Methods</h4>
+
+<div class="p"><!----></div>
+A method may be annotated <b>@NoThisAccess</b>.  <b>@NoThisAccess</b> methods
+may be called from constructors, and they may be overridden in subclasses.
+However, they may not refer to <b>this</b> in any way - in particular, they
+cannot refer to fields of <b>this</b>, nor to <b>super</b>.
+
+<div class="p"><!----></div>
+The class <b>IDed</b> has an <b>Float</b>-valued <b>id</b> field.  The method
+<b>count()</b> is used to initialize the <b>id</b>.  For <b>IDed</b> objects,
+the <b>id</b> is the count of <b>IDed</b>s created with the same parity of its
+<b>kind</b>.   Note that <b>count()</b> does not refer to <b>this</b>, though
+it does refer to a <b>static</b> field <b>counts</b>. 
+
+<div class="p"><!----></div>
+The subclass <b>SubIDed</b> has <b>id</b>s that depend on <b>kind%3</b>
+as well as the parity of <b>kind</b>.  It overrides the <b>count()</b>
+method.  The body of <b>count()</b> still cannot refer to <b>this</b>.
+Nor can it refer to <b>super</b> (which is <b>self</b> under another name).
+This precludes the use of a <b>super</b> call.  This is why we have separated
+the body of <b>count</b> out as the static method <b>kind2count</b> - without
+that, we would have had to duplicate its body, as we could not call 
+<b>super.count(kind)</b> in a <b>NoThisAccess</b> method, as is shown by 
+the <b>ERROR</b> line <b>(A)</b>. 
+
+<div class="p"><!----></div>
+Note that <b>NoThisAccess</b> is in <b>x10.compiler</b> and must be imported,
+and that the overriding method <b>SubIDed.count</b> must be declared
+<b>@NoThisAccess</b> as well as the overridden method.
+Line <b>(B)</b> is not allowed because <b>code</b> is a field of <b>this</b>, 
+and field accesses are forbidden.   Line <b>(C)</b> references <b>this</b>
+directly, which, of course, is forbidden by <b>@NoThisAccess</b>.  
+
+<div class="p"><!----></div>
+<pre>
+import x10.compiler.*;
+class UseNoThisAccess {
+  static class IDed {
+    protected static val counts = [0 as Int,0];
+    protected var code : Int;
+    val id: Float;
+    public def this(kind:Int) { 
+      code = kind;
+      this.id = this.count(kind); 
+    }
+    protected static def kind2count(kind:Int) = ++counts(kind % 2);
+    @NoThisAccess def count(kind:Int) : Float = kind2count(kind);
+  }
+  static class SubIDed extends IDed {
+    protected static val subcounts = [0 as Int, 0, 0];
+    public static val all = new x10.util.ArrayList[SubIDed]();
+    public def this(kind:Int) { 
+       super(kind); 
+    }
+    @NoThisAccess
+    def count(kind:Int) : Float {
+       val subcount &lt;: Int = ++subcounts(kind % 3);
+       val supercount &lt;: Float = kind2count(kind);
+       //ERROR: val badSuperCount = super.count(kind); //(A)
+       //ERROR: code = kind;                           //(B)
+       //ERROR: all.add(this);                         //(C)
+       return  supercount + 1.0f / subcount;
+    }
+  }
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -2612,7 +2754,7 @@ class Example (
 
 <div class="p"><!----></div>
    def someMethod() =
-        prop + staticField() + instanceField;     // (P)
+        prop + staticField() + instanceField;   // (P)
 }
 </pre>
 

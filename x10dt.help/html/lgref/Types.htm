@@ -28,7 +28,8 @@
 <li><a href="#tth_sEc10">Fundamental types</a> <br/>
 <li><a href="#tth_sEc11">Type inference</a> <br/>
 <li><a href="#tth_sEc12">Type Dependencies</a> <br/>
-<li><a href="#tth_sEc13">Limitations of Strict Typing</a> <br/>
+<li><a href="#tth_sEc13">Typing of Variables and Expressions</a> <br/>
+<li><a href="#tth_sEc14">Limitations of Strict Typing</a> <br/>
 </ul>
 
 <div class="p"><!----></div>
@@ -2478,7 +2479,123 @@ It is a static error if any entity type E depends on itself.
 
 <div class="p"><!----></div>
  <h2><a name="tth_sEc13">
-13</a>&nbsp;&nbsp;Limitations of Strict Typing</h2>
+13</a>&nbsp;&nbsp;Typing of Variables and Expressions</h2>
+
+<div class="p"><!----></div>
+Variable declarations, field declarations, and some other expressions
+introduce constraints on their types.  These extra constraints represent
+information that is known at the point of declaration.  They are used in
+deductions and type inference later on - as indeed all constraints are, but
+the automatically-added constraints are added because they are particularly
+useful.  
+
+<div class="p"><!----></div>
+Any variable declaration of the form 
+<pre>
+val x : A ...
+</pre>
+results in declaring <b>x</b> to have the type <b>A{self==x}</b>, rather than
+simply <b>A</b>.  (<b>var</b> declarations get no such addition, because
+<b>var</b>s cannot appear in constraints.)
+
+<div class="p"><!----></div>
+A field or property declaration of the form: 
+<pre>
+class A {
+   ... 
+   val f : B ...
+   ...
+}
+</pre>
+results in declaring <b>f</b> to be of type <b>Bself==this.f</b>.
+And, if <b>y</b> has type <b>A{c}</b>, then the type 
+for <b>y.f</b> has a constraint <b>self==y.f</b>, and, additionally, 
+preserves the information from <b>c</b>.  
+
+<div class="p"><!----></div>
+The following code uses a method <b>typeIs[T](x)</b> to confirm, statically,
+that the type of <b>x</b> is <b>T</b> (or a subtype of <b>T</b>).  
+
+<div class="p"><!----></div>
+On line <b>(A)</b> we confirm that the type of <b>x</b> has 
+a <b>self==x</b> constraint.  The error line <b>(!A)</b> confirms
+that a <em>different</em> variable <em>doesn't</em> have the <b>self==x</b>
+constraint. <b>(B)</b> shows the extra information carried by a field's type.
+
+<div class="p"><!----></div>
+<b>(C)</b> shows the extra information carried by a field's type when the
+object's type is constrained. Note that the constraint
+<b>ExtraConstraintself.n==8</b> on the type of <b>y</b> has to be rewritten
+for <b>y.f</b>, since the constraint <b>Longself.n==8</b> is not correct or
+even well-typed. In this case, the <b>ExtraConstraint</b> whose <b>n</b>-field
+is <b>8</b> has the name <b>y</b>, so we can write the desired type with a
+conjunct <b>y.n==8</b>.<a href="#tthFtNtAAH" name="tthFrefAAH"><sup>7</sup></a>
+
+<div class="p"><!----></div>
+Note that we use one of the extra constraints here - this reasoning requires
+the information that the type of <b>y</b> has the constraint <b>self==y</b>, so
+X10 can infer <b>y.n==8</b> from <b>self.n==8</b>. This sort of inference is the
+reason why X10 adds these constraints in the first place: without them, even
+the simplest data flows would be beyond the ability of the type system to detect.
+
+<div class="p"><!----></div>
+<pre>
+class Extra(n:Int) {
+  val f : Long;
+  def this(n:Int, f:Long) { property(n); this.f = f; }
+  static def typeIs[T](val x:T) {}
+  public static def main(argv:Array[String](1)) {
+     val x : Extra = new Extra(1,2L);
+     typeIs[ Extra{self==x} ]   (x);    //(A)
+     val nx: Extra = new Extra(1,2L);
+     // ERROR: typeIs[ Extra{self==x} ]   (nx); //(!A)
+     typeIs[ Long{self == x.f} ]          (x.f);  //(B)
+     val y : Extra{self.n==8} = new Extra(8, 4L);
+     typeIs[ Long{self == y.f, y.n == 8}] (y.f);  //(C)
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+Once in a while, the additional information will interfere with other
+typechecking or type inference.  In this case, use <b>as</b>
+(&#167;) to erase it, using expressions like <b>x as A</b>.
+
+<div class="p"><!----></div>
+The following code creates a one-element array (&#167;)
+containing <b>x</b>.  
+
+<div class="p"><!----></div>
+If  the <b>ERROR</b> line were to be used, 
+X10 would infer that the type of this array were <b>Array[T]</b>,
+where <b>T</b> is the type of <b>x</b> - that is, 
+<b>Array[Extra{self==x}]</b>.  <b>[x]</b> is an array of <b>x</b>'s, not an array
+of <b>Extra</b>s.  Since <b>Array[Extra{self==x}]</b> is not a subtype of 
+<b>Array[Extra]</b>, the array <b>[x]</b> cannot be used in a place where an 
+<b>Array[Extra]</b> is called for.
+
+<div class="p"><!----></div>
+The expression <b>[x as Extra]</b> uses a type cast to erase the
+automatically-added extra information about <b>x</b>.  <b>x as Extra</b> simply
+has type <b>Extra</b>, and thus <b>[x as Extra]</b> is an <b>Array[Extra]</b> as
+desired. 
+
+<div class="p"><!----></div>
+<pre>
+class Extra {
+  static def useArray(Array[Extra]) {} 
+  public static def main(argv:Array[String](1)) {
+     val x : Extra = new Extra();
+     //ERROR: useArray([x]);
+     useArray([x as Extra]);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc14">
+14</a>&nbsp;&nbsp;Limitations of Strict Typing</h2>
 
 <div class="p"><!----></div>
 X10's type checking provides substantial guarantees.  In most cases, a program

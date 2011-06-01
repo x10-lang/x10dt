@@ -236,7 +236,7 @@ be accomplished in two ways:
 </li>
 
 <li> Marking the methods called from the constructor by
-      <b>@NonEscaping</b>.
+      <b>@NonEscaping</b> or <b>@NoThisAccess</b>
 <div class="p"><!----></div>
 </li>
 </ol>
@@ -325,6 +325,76 @@ final class C2 {
 }
 
 <div class="p"><!----></div>
+</pre>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc0.2.2">
+0.2.2</a>&nbsp;&nbsp;NoThisAccess Methods</h4>
+
+<div class="p"><!----></div>
+A method may be annotated <b>@NoThisAccess</b>.  <b>@NoThisAccess</b> methods
+may be called from constructors, and they may be overridden in subclasses.
+However, they may not refer to <b>this</b> in any way - in particular, they
+cannot refer to fields of <b>this</b>, nor to <b>super</b>.
+
+<div class="p"><!----></div>
+The class <b>IDed</b> has an <b>Float</b>-valued <b>id</b> field.  The method
+<b>count()</b> is used to initialize the <b>id</b>.  For <b>IDed</b> objects,
+the <b>id</b> is the count of <b>IDed</b>s created with the same parity of its
+<b>kind</b>.   Note that <b>count()</b> does not refer to <b>this</b>, though
+it does refer to a <b>static</b> field <b>counts</b>. 
+
+<div class="p"><!----></div>
+The subclass <b>SubIDed</b> has <b>id</b>s that depend on <b>kind%3</b>
+as well as the parity of <b>kind</b>.  It overrides the <b>count()</b>
+method.  The body of <b>count()</b> still cannot refer to <b>this</b>.
+Nor can it refer to <b>super</b> (which is <b>self</b> under another name).
+This precludes the use of a <b>super</b> call.  This is why we have separated
+the body of <b>count</b> out as the static method <b>kind2count</b> - without
+that, we would have had to duplicate its body, as we could not call 
+<b>super.count(kind)</b> in a <b>NoThisAccess</b> method, as is shown by 
+the <b>ERROR</b> line <b>(A)</b>. 
+
+<div class="p"><!----></div>
+Note that <b>NoThisAccess</b> is in <b>x10.compiler</b> and must be imported,
+and that the overriding method <b>SubIDed.count</b> must be declared
+<b>@NoThisAccess</b> as well as the overridden method.
+Line <b>(B)</b> is not allowed because <b>code</b> is a field of <b>this</b>, 
+and field accesses are forbidden.   Line <b>(C)</b> references <b>this</b>
+directly, which, of course, is forbidden by <b>@NoThisAccess</b>.  
+
+<div class="p"><!----></div>
+<pre>
+import x10.compiler.*;
+class UseNoThisAccess {
+  static class IDed {
+    protected static val counts = [0 as Int,0];
+    protected var code : Int;
+    val id: Float;
+    public def this(kind:Int) { 
+      code = kind;
+      this.id = this.count(kind); 
+    }
+    protected static def kind2count(kind:Int) = ++counts(kind % 2);
+    @NoThisAccess def count(kind:Int) : Float = kind2count(kind);
+  }
+  static class SubIDed extends IDed {
+    protected static val subcounts = [0 as Int, 0, 0];
+    public static val all = new x10.util.ArrayList[SubIDed]();
+    public def this(kind:Int) { 
+       super(kind); 
+    }
+    @NoThisAccess
+    def count(kind:Int) : Float {
+       val subcount &lt;: Int = ++subcounts(kind % 3);
+       val supercount &lt;: Float = kind2count(kind);
+       //ERROR: val badSuperCount = super.count(kind); //(A)
+       //ERROR: code = kind;                           //(B)
+       //ERROR: all.add(this);                         //(C)
+       return  supercount + 1.0f / subcount;
+    }
+  }
+}
 </pre>
 
 <div class="p"><!----></div>
@@ -701,7 +771,7 @@ class Example (
 
 <div class="p"><!----></div>
    def someMethod() =
-        prop + staticField() + instanceField;     // (P)
+        prop + staticField() + instanceField;   // (P)
 }
 </pre>
 <hr /><h3>Footnotes:</h3>
@@ -714,5 +784,5 @@ present in this section.
 T<sub><font size="-1">E</font></sub>X
 by <a href="http://hutchinson.belmont.ma.us/tth/">
 T<sub><font size="-1">T</font></sub>H</a>,
-version 3.89.<br />On 28 May 2011, 12:33.</small>
+version 3.89.<br />On 31 May 2011, 18:33.</small>
 </html>

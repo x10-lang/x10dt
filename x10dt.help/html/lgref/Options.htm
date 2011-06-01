@@ -17,6 +17,11 @@
 <a href="#tth_chAp1">Options</a> <br/>
 <ul>
 <li><a href="#tth_sEc1">Execution Options: Java</a> <br/>
+<title>Running X10</title>
+<a href="#tth_chAp2">Running X10</a> <br/>
+<ul>
+<li><a href="#tth_sEc1">Managed X10</a> <br/>
+<li><a href="#tth_sEc2">Native X10</a> <br/>
 </ul>
 
 <div class="p"><!----></div>
@@ -193,6 +198,76 @@ Sets the maximum size of the heap.
 Prints a listing of all execution options.
 
 <div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp2">
+D </a><br />Running X10</h1>
+
+<div class="p"><!----></div>
+An X10 application is launched either by a direct invocation of the generated
+executable or using a launcher command. The specification of the number of
+places and the mapping from places to hosts is transport specific and
+discussed in &#167; for Managed X10 (Java back end) and
+&#167; for Native X10 (C++ back end). For distributed runs,
+the x10 distribution (libraries) and the compiled application code (binary or
+bytecode) are expected to be available at the same paths on all the nodes.  
+
+<div class="p"><!----></div>
+Detailed, up-to-date documentation may be found at
+<pre>
+http://xj.watson.ibm.com/twiki/bin/view/Main/LaunchingX10Applications
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Managed X10</h2>
+<a name="sect:RunningManaged">
+</a>
+
+<div class="p"><!----></div>
+Managed X10 applications are launched using the x10 script followed by the qualified name of the main class.
+
+<div class="p"><!----></div>
+<pre>
+x10c HelloWholeWorld.x10
+x10 HelloWholeWorld
+</pre>
+
+<div class="p"><!----></div>
+The main purpose of the x10 script is to set the jvm classpath and the
+<b>java.library.path</b> system property to ensure the x10 libraries are on the
+path.  
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Native X10</h2>
+<a name="sect:RunningNative">
+</a>
+
+<div class="p"><!----></div>
+On most platforms and for most transports, X10 applications can be launched by invoking the generated executable.
+
+<div class="p"><!----></div>
+<pre>
+x10c++ -o HelloWholeWorld HelloWholeWorld.x10
+./HelloWholeWorld
+</pre>
+
+<div class="p"><!----></div>
+On cygwin, X10 applications must be launched using the runx10 script followed by the name of the generated executable.
+
+<div class="p"><!----></div>
+<pre>
+x10c++ -o HelloWholeWorld HelloWholeWorld.x10
+runx10 HelloWholeWorld
+</pre>
+The purpose of the runx10 script is to ensure the x10 libraries are on the path. 
+
+<div class="p"><!----></div>
+Detailed, up-to-date documentation may be found at
+<pre>
+http://xj.watson.ibm.com/twiki/bin/view/Main/X10NativeImplementation
+</pre>
 
 <br /><br /><hr />
 </html>

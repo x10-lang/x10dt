@@ -1057,7 +1057,15 @@ for(var i : Long = 0; i &lt;= 100; i++) {}
 <div class="p"><!----></div>
 </pre>
 The operation <b>&lt;=</b> is a regular operator, and thus uses coercions in its
-arguments, so <b>100</b> gets coerced to <b>100L</b>.  
+arguments, so <b>100</b> gets coerced to <b>100L</b>. 
+
+<div class="p"><!----></div>
+If numbers are cast to <b>Any</b>, they are compared as values of type
+<b>Any</b>, not as numbers.  
+For example, <b>1 as Any == 1ul as Any</b>
+is not a static error (because it is comparing two values of type <b>Any</b>),
+and returns <b>false</b> (because the two <b>Any</b> values refer to different
+values - indeed, to values of different types, <b>Int</b> and <b>ULong</b>). 
 
 <div class="p"><!----></div>
      <h3><a name="tth_sEc20.2">
