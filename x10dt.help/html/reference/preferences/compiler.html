@@ -26,6 +26,13 @@ and on its sub pages:
 		<p>Conservative build</p>
 		</td>
 		<td valign="top">
+		<p>If you notice problems with incremental building (e.g., a file that should have been recompiled after a change is not), 
+then turning on the conservative build option may help. This option forces the builder to recompile every file 
+that does not have generated artifacts on every save, and overcomes some shortcomings of the compiler. 
+This will of course slow down the builder especially on large projects where there are many compilation errors. 
+So alternatively, you may clean the project every now and then and keep the conservative build option off in this case.
+		</p>
+<!--
 		<p>This is a new compiler option "Conservative Build", which is turned
 on by default. When turned on, this option causes each file that has no
 generated code in a project to be re-submitted for compilation on every
@@ -38,6 +45,7 @@ conservative, and thus can cause the builder to be slower.
 To make builds faster, this option may be turned off. In this case, the user may
 occasionally observe stale compilation errors. This of course can be
 easily remedied by doing a clean every now and then.</p>
+-->
 		</td>
 		<td valign="top">
 		<p>Off</p>

@@ -46,7 +46,7 @@ public class NQueensDist {
     }
     def run():Int {
 	   finish start();
-	   val result = results.reduce(Int.+,0);
+	   val result = results.reduce(((x:Int,y:Int) => x+y),0);
 	   return result;
     }
 
@@ -74,7 +74,7 @@ public class NQueensDist {
         }
         def safe(j: int) {
             val n = q.size;
-            for ([k] in 0..(n-1)) {
+            for (k in 0..(n-1)) {
                 if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
                     return false;
             }
@@ -120,7 +120,7 @@ public class NQueensDist {
 		   (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
     }
 
-    static def println(s:String) = Console.OUT.println(s);
+    static def println(s:String) { Console.OUT.println(s); }
 }
 
 
