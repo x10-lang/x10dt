@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.util.Iterator;
 import java.util.List;
 import java.util.jar.JarFile;
 
@@ -29,7 +28,6 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
-import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -47,15 +45,15 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MemberDef;
 import polyglot.types.MethodDef;
 import polyglot.types.Named;
-import polyglot.types.ObjectType;
+import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.util.Position;
 import x10.types.ConstrainedType;
-import x10.types.MethodInstance;
 import x10dt.ui.parser.PolyglotNodeLocator;
 
 /**
@@ -82,48 +80,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
         return doc;
     }
 
-    private Object getTarget(Object target, IParseController parseController, Node root)
-    {
-		if (target instanceof Id) {
-			Id id = (Id) target;
-			PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController
-					.getSourcePositionLocator();
-			Node parent = (Node) locator.getParentNodeOf(id, root);
-			target = parent;
-		}
-
-		// TODO Convert the following to use Defs in lieu of Instances
-		if (target instanceof Field) { // field reference
-			Field field = (Field) target;
-			FieldInstance fi = field.fieldInstance();
-			target = fi;
-		} else if (target instanceof FieldDef) {
-			FieldInstance fi = ((FieldDef) target).asInstance();
-			target = fi;
-		} else if (target instanceof Local) { // local var reference
-			Local local = (Local) target;
-			LocalInstance li = local.localInstance();
-			target = li;
-		} else if (target instanceof LocalDecl) {
-			LocalDecl localDecl = (LocalDecl) target;
-			LocalDef ld = localDecl.localDef();
-			if (ld == null)
-				return null;
-			LocalInstance li = ld.asInstance();
-
-			target = li;
-		} else if (target instanceof LocalDef) { // field reference
-			target = ((LocalDef) target).asInstance();
-		} else if (target instanceof MethodDef) {
-			target = ((MethodDef) target).asInstance();
-		} else if (target instanceof ConstructorDef) {
-			target = ((ConstructorDef) target).asInstance();
-		}
-
-		return target;
-    }
-    
-    
 	/**
 	 * Provides javadoc-like info (if available) and more for a variety of entities
 	 */
@@ -131,158 +87,161 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		try {
 			Node root = (Node) parseController.getCurrentAst();
 			target = getTarget(target, parseController, root);
-			
+
+			// 4 kinds of declared entities: types, members, variables and functions
+			// (functions not yet handled)
 			if (target instanceof FieldDecl) {
-				return getHelpForEntity((FieldDecl)target, parseController, root);
-			} else if (target instanceof FieldInstance) {
-				return getHelpForEntity((FieldInstance)target, parseController, root);
+				return getHelpForFieldDef(((FieldDecl) target).fieldDef());
+			} else if (target instanceof FieldDef) {
+			    return getHelpForFieldDef((FieldDef) target);
+
 			} else if (target instanceof NamedVariable) {
-				return getHelpForEntity((NamedVariable)target, parseController, root);
-			} else if (target instanceof LocalInstance) {
-				return getHelpForEntity((LocalInstance)target, parseController, root);
-			} else if(target instanceof MethodInstance) {
-				return getHelpForEntity((MethodInstance)target, parseController, root);
-			} else if(target instanceof ConstructorInstance) {
-				return getHelpForEntity((ConstructorInstance)target, parseController, root);
-			} else if (target instanceof ClassType) {  
-				return getHelpForEntity((ClassType)target, parseController, root);	
+				return getHelpForEntity((NamedVariable) target, parseController, root);
+			} else if (target instanceof LocalDef) {
+			    return getHelpForEntity(((LocalDef) target).asInstance(), parseController, root);
+
+            } else if (target instanceof MethodDecl) {
+                return getHelpForMethodDef(((MethodDecl) target).methodDef());
+            } else if (target instanceof MethodDef) {
+                return getHelpForMethodDef((MethodDef) target);
+
+            } else if (target instanceof ConstructorDecl) {
+                return getHelpForCtorDef(((ConstructorDecl) target).constructorDef());
+            } else if (target instanceof ConstructorDef) {
+                return getHelpForCtorDef((ConstructorDef) target);
+
+            } else if (target instanceof ClassType) {  
+				return getHelpForEntity((ClassType) target, parseController, root);	
 			} else if (target instanceof ClassDecl) {
-				return getHelpForEntity((ClassDecl)target, parseController, root);
-			} else if (target instanceof MethodDecl) {
-				return getHelpForEntity((MethodDecl)target, parseController, root);
+				return getHelpForEntity((ClassDecl) target, parseController, root);
+
 			} else if (target instanceof TypeNode) {
-				return getHelpForEntity((TypeNode)target, parseController, root);
-			} else if(target instanceof ConstrainedType) {
-				return getHelpForEntity((ConstrainedType)target, parseController, root);
+				return getHelpForEntity((TypeNode) target, parseController, root);
+			} else if (target instanceof ConstrainedType) {
+				return getHelpForEntity((ConstrainedType) target, parseController, root);
 			}
-		} catch (NullPointerException e){
-			//If this exception is thrown, it means that there was a compilation error in the file, silently ignore
+		} catch (NullPointerException e) {
+			// If this exception is thrown, it means that there was a compilation error in the file, silently ignore
 			return "";
 		}
 		return "";
 	}
-	
-	private String getSignature(FieldInstance fi) {
-		ObjectType ownerType = fi.container().toReference();
-		if (ownerType.isClass()) {
-			ClassType ownerClass = (ClassType) ownerType;
-			String ownerName = ownerClass.fullName().toString();
-			String type = fi.type().toString(); // int or pkg.TypeName; want TypeName only
 
-			// RMF 10 Nov 2010 - Disable this for now - unqualify() is horribly broken, since types can also include '.' as part of property refs in constraints
-//			type= unqualify(type);//FIXME must be a better way to get simple type, not fully qualified type
-			
-			String varName= fi.name().toString();
+    private Object getTarget(Object target, IParseController parseController, Node root) {
+        if (target instanceof Id) {
+            Id id = (Id) target;
+            PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
+            Node parent = (Node) locator.getParentNodeOf(id, root);
+            target = parent;
+        }
 
-			return type + " " + ownerName + "." + varName;
-		}
-		return null;
-	}
-	
-	private String getHelpForEntity(FieldDecl target, IParseController parseController, Node root) {
-    	FieldInstance fi = target.fieldDef().asInstance();
-    	String sig = getSignature(fi);
+        if (target instanceof Field) { // field reference
+            Field field = (Field) target;
+            FieldInstance fi = field.fieldInstance();
 
-    	if (sig != null) {
-			return getX10DocFor(sig,target);
-		}
-		return "Field '" + fi.name() + "' of type " + fi.type().toString();
+            target = fi.def();
+        } else if (target instanceof Local) { // local var reference
+            Local local = (Local) target;
+            LocalInstance li = local.localInstance();
+
+            target = li.def();
+        } else if (target instanceof LocalDecl) {
+            LocalDecl localDecl = (LocalDecl) target;
+            LocalDef ld = localDecl.localDef();
+
+            target = ld;
+        }
+
+        return target;
     }
-	
-	private String getHelpForEntity(FieldInstance target, IParseController parseController, Node root) {
-		String sig = getSignature(target);
-		if (sig != null) {
-			return getX10DocFor(sig,target);
-		}
-		return "Field '" + target.name() + "' of type " + target.type().toString();
+
+    private String getHelpForFieldDef(FieldDef fd) {
+        String sig = getSignature(fd);
+
+        if (sig != null) {
+            return getX10DocFor(sig, fd);
+        }
+        return "Field '" + fd.name() + "' of type " + fd.type().toString();
     }
-	
+
+    private String getSignature(FieldDef fd) {
+        ContainerType ownerType = fd.container().get();
+
+        if (ownerType.isClass()) {
+            ClassType ownerClass = (ClassType) ownerType;
+            String ownerName = ownerClass.fullName().toString();
+            String fieldType = fd.type().toString(); // int or pkg.TypeName; want TypeName only
+            String fieldName= fd.name().toString();
+
+            return fieldType + " " + ownerName + "." + fieldName;
+        }
+        return null;
+    }
+
 	private String getHelpForEntity(NamedVariable target, IParseController parseController, Node root) {
-    	NamedVariable var = (NamedVariable) target;
-		Type type = var.type();
-		return "Variable '" + var + "' of type " + type.toString();
+    	Type type = target.type();
+		return "Variable '" + target + "' of type " + type.toString();
     }
 	
-	private String getHelpForEntity(LocalInstance li,
-			IParseController parseController, Node root) {
-
-		String s = li.toString();
-//		int start = s.indexOf("{self.home");
-//
-//		if (start != -1) {
-//			s = s.substring(0, start);
-//		}
+	private String getHelpForEntity(LocalInstance li, IParseController parseController, Node root) {
+	    LocalDef ldef = li.def();
+		String s = ldef.toString();
 
 		return addNameToDoc(s, null);
 	}
-	
-	private String getHelpForEntity(MethodInstance mi,
-			IParseController parseController, Node root) {
-		String sig=getSignature(mi);
-		String doc = getX10DocFor(sig,mi);
-		return doc;
-	}
-	
-	private String getHelpForEntity(ConstructorInstance ci, IParseController parseController, Node root) {
-		String name="(name)";
-		ContainerType rt = ci.container();
-
-		if (rt instanceof Named) {
-			Named named = (Named) rt;
-
-			name=named.fullName().toString();
-		}
-		String args= formatArgs(ci.formalTypes());
-		String sig= name+args;
-		String doc= getX10DocFor(sig, ci);
-		return doc;
-	}
 
 	private String getHelpForEntity(ClassType ct, IParseController parseController, Node root) {
-		String qualifiedName = ct.fullName().toString();
+	    ClassDef cdef = ct.def();
+		String qualifiedName = cdef.fullName().toString();
 		qualifiedName = stripArraySuffixes(qualifiedName);			
-		return getJavaOrX10DocFor(qualifiedName, ct, parseController);//BRT
+		return getX10DocFor(qualifiedName, cdef);
 	}
-	
-	private String getHelpForEntity(ClassDecl cd, IParseController parseController, Node root) {
-		ClassDef cdef= cd.classDef();
+
+	private String getHelpForEntity(ClassDecl cdecl, IParseController parseController, Node root) {
+		ClassDef cdef= cdecl.classDef();
 		if (cdef == null)
 		    return null;
 		String fullName = cdef.fullName().toString();
-		String doc = getX10DocFor(fullName,cd);
+		String doc = getX10DocFor(fullName, cdef);
 		return doc;
 	}
-	
-	private String getHelpForEntity(MethodDecl md, IParseController parseController, Node root) {
-		MethodDef mdef= md.methodDef();
-		if (mdef == null)
-		    return null;
-		MethodInstance mi= mdef.asInstance();
-		String name="";
-			 
-		ContainerType rt = mi.container();
-		if(rt instanceof ClassType) {
-			ClassType ct = (ClassType) rt;
-			name= ct.fullName().toString();// includes package info
-		}
-		name = getSignature(mi,md);	
-		String doc = getX10DocFor(name, md);
+
+    private String getHelpForMethodDef(MethodDef mdef) {
+        if (mdef == null)
+            return null;
+        String sig = getSignature(mdef);	
+		String doc = getX10DocFor(sig, mdef);
 		return doc;
     }
-	
-	private String getHelpForEntity(TypeNode tn,
-			IParseController parseController, Node root) {
+
+    private String getSignature(MethodDef mdef) {
+        String containerName = containerName(mdef);
+
+        return getSignature(mdef, qualify(containerName, mdef.name().toString()), mdef.returnType().get());
+    }
+
+    private String getHelpForCtorDef(ConstructorDef cdef) {
+        if (cdef == null)
+            return null;
+        String sig = getSignature(cdef); 
+        String doc = getX10DocFor(sig, cdef);
+        return doc;
+    }
+
+    private String getSignature(ConstructorDef cdef) {
+        return getSignature(cdef, qualify(containerName(cdef), "this"), null);
+    }
+
+	private String getHelpForEntity(TypeNode tn, IParseController parseController, Node root) {
 		PolyglotNodeLocator locator = (PolyglotNodeLocator) parseController.getSourcePositionLocator();
 		Node parent = (Node) locator.getParentNodeOf(tn, root);
 
 		if (parent instanceof ConstructorDecl) {
 			ConstructorDecl cd = (ConstructorDecl) parent;
-			//String id = cd.id().toString();//shortname
-			//String name = typeNode.name();//shortname
 			String fullName = tn.toString();// FIXME better way of getting fully qualified name??
 			
 			// get Constructor args, if any
-			String sig= fullName + formatArgs(cd.formals()); 
+			String sig= fullName + formatArgs(cd.constructorDef().formalNames()); 
 			ConstructorInstance ci= cd.constructorDef().asInstance();
 
 			return getX10DocFor(sig, ci);
@@ -295,60 +254,28 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			    return null;
 			String qualifiedName = tn.qualifierRef().get().toString();
 			qualifiedName = stripArraySuffixes(qualifiedName);
-			return getJavaOrX10DocFor(qualifiedName, type, parseController); 
+			return getX10DocFor(qualifiedName, type); 
 		}
 	}
 
 	private String getHelpForEntity(ConstrainedType target, IParseController parseController, Node root) {
-		return addNameToDoc(target.toString(), null);
+	    String doc = getX10DocFor(target);
+		return addNameToDoc(target.toString(), doc);
 	}
 
-	
-
-	
-    
-    
-    
-    
-    
-    
-	
-
-	
-
-	/**
-	 * return a simple type name, not a fully qualified type
-	 * e.g. "my.pkg.Foo"  returns "Foo"
-	 * <p>Surely i have missed something to have to implement this
-	 * @param type
-	 * @return
-	 */
-	private String unqualify(String type) {
-		if(!type.contains(".")) {
-			return type;
-		}
-		int pos=type.lastIndexOf('.');
-		String result = type.substring(pos+1);
-		return result;
+	private String qualify(String container, String member) {
+	    return (container != null && container.length() > 0) ? container + "." + member : member;
 	}
 
-	/**
-	 * unused?
-	 * @param md
-	 * @return
-	 */
-	private String getSignature(MethodDecl md) {
-		MethodInstance mi=md.methodDef().asInstance();
-		String sig = getSignature(mi,md);
+	private String containerName(MemberDef mdef) {
+	    String result= "(unspecified)";
+        ContainerType type = mdef.container().get();
 
-		return sig;
-	}
-
-
-	private String getSignature(MethodInstance mi) {
-		String sig = getSignature(mi,null);
-
-		return sig;
+        if (type instanceof Named) {
+            Named ct = (Named) type;
+            result = ct.fullName().toString();
+        }
+        return result;
 	}
 
 	/**
@@ -357,50 +284,13 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * @param md the method decl - can be null, but if available, can get better info
 	 * @return
 	 */
-	private String getSignature(MethodInstance mi, MethodDecl md) {	
-		ContainerType type1 = mi.container();
-
-		// We assume this is an ObjectType since we are dealing with Methods
-		assert(type1 instanceof ObjectType);
-		ObjectType type = (ObjectType) type1;
-
-		String containerName="(unspecified)";
-		if(type instanceof Named) {
-			Named ct = (Named) type;
-			containerName =ct.fullName().toString();
-		}
-
-		// find return value type
-		Type rType = mi.returnType();
-		// do we always add a dot? what if containerName is empty? default
-		// package? Should *always* have at least a container/class name.
-		// Methinks.
-		String sig=rType+" "+containerName+"."+mi.name();
-		
-		// get the args. use MethodDecl if we have it (more complete info)
-		List argList= null;
-		if(md==null) {
-			argList= mi.formalTypes();
-		}else {
-			argList= md.formals(); // this includes arg names, mi.formalTypes() does not
-		}
+	private String getSignature(ProcedureDef pdef, String name, Type retType) {
+		String sig= (retType != null) ? retType + " " + name : name;
+		List<LocalDef> argList= pdef.formalNames();
 		String argString= formatArgs(argList);
+
 		sig = sig + argString;
 		return sig;
-	}
-
-	/**
-	 * For a fully qualified name, return either the javadoc or x10Doc for
-	 * the entity, if available.
-	 * 
-	 * @param qualifiedName
-	 * @param type the ClassType of the entity
-	 * @param parseController
-	 * @return the appropriate comment for the entity, or the empty string if none is found
-	 */
-	private String getJavaOrX10DocFor(String qualifiedName, Type type,
-			IParseController parseController) {
-		return type.isClass() ? getX10DocFor(qualifiedName, (ClassType) type) : "";
 	}
 
 	/**
@@ -408,76 +298,35 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * <p>Does not return signature(qualifiedName) info if the javadoc is empty.
 	 * <p>That is, if the javadoc is empty, don't return anything
 	 */
+	// Maybe rename this getDocFor(...)
 	private String getX10DocFor(String qualifiedName, TypeObject decl) {
 		String doc = getX10DocFor(decl);
-		if (doc != null) doc = addNameToDoc(qualifiedName, doc);
-		// if we return Null, HoverHelper will display something unless it's the decl. Uncomment this if you don't want it to.
-		//  that is, if you're hovering right over the declaration for the thing, you probably don't need a hover with only type info.
-		//if(doc==null) doc="";
-		return doc;
+		if (doc != null) return addNameToDoc(qualifiedName, doc);
+		else return qualifiedName;
 	}
 
-	private String getX10DocFor(TypeObject decl) {
-		if (decl == null) return "";
-		String doc = getNewRawX10DocFor(decl.position());
-		return doc;
-	}
+	private String getX10DocFor(TypeObject obj) {
+		if (obj == null) return "";
 
-	/**
-	 * Get the javadoc-like comment string for an X10 entity represented by a Node
-	 * (Note that this includes ClassDecl, formerly handled separately)
-	 */
-	private String getX10DocFor(Node node) {
-		Position pos = node.position();
-		if (node instanceof FieldDecl) {
-			pos = ((FieldDecl) node).flags().position();
+		Position pos= obj.position();
+		boolean skipBackwardOverQualifiers = false;
+
+		if (hasQualifiers(obj)) {
+		    skipBackwardOverQualifiers = true;
 		}
-
-		String doc = getNewRawX10DocFor(pos);
+        String doc = getNewRawX10DocFor(pos, skipBackwardOverQualifiers);
 		return doc;
 	}
 
-	private String getX10DocFor(String name, Node node) {
-		String doc = getX10DocFor(node);
-		doc = addNameToDoc(name, doc);
-		return doc;
-	}
+    private boolean hasQualifiers(TypeObject obj) {
+        return (obj instanceof FieldDef || obj instanceof LocalDef || obj instanceof MethodDef);
+    }
 
-	/**
-	 * Get the javadoc-like comment string for an X10 entity that occurs at a certain position.
-	 * Does not add name, this is *just* the javadoc comments, without the stars or comment chars
-	 * <p>
-	 * Unused? replaced by getNewRawX10DocFor    BRT 8/20/08 unused?
-	 */
-	private String getRawX10DocFor(Position pos) {
-		String path = pos.file();
-		try {
-			Reader reader = new FileReader(new File(path));
-			String fileSrc = readReader(reader);
-			int idx = pos.offset();
-
-			idx = skipBackwardWhite(fileSrc, idx);
-			if (lookingPastEndOf(fileSrc, idx, "*/")) {
-				String doc = collectBackwardTo(fileSrc, idx, "/**");
-				doc = getCommentText(doc);// strip stars, etc
-				if (traceOn)
-					System.out.println("X10DocProvider.getX10DocFor: "
-							+ doc);
-				// somebody takes out \n later if they are added here:   ???
-				//doc = "\n"+doc+"\n"; // be like javadoc and surround with blank lines 
-				final String P="<p>";
-				doc=P+doc+P;
-				return doc;
-			}
-		} catch (IOException e) {
-		}
-		return null;
-	}
-	/**
+    /**
 	 * Get the actual text within the x10doc(javadoc) text. Substitutes HTML for tags, etc
-	 * 
+     * @param skipBackwardOverQualifiers 
 	 */
-	private String getNewRawX10DocFor(Position pos) {
+	private String getNewRawX10DocFor(Position pos, boolean skipBackwardOverQualifiers) {
 		if (pos.isCompilerGenerated()) {
 			return "";
 		}
@@ -489,6 +338,7 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			String fileSrc = readReader(reader);
 			int idx = pos.offset();
 
+			if (skipBackwardOverQualifiers) idx = skipBackwardOverQualifiers(fileSrc, idx);
 			idx = skipBackwardWhite(fileSrc, idx);
 			if (lookingPastEndOf(fileSrc, idx, "*/")) {
 				String doc = collectBackwardTo(fileSrc, idx, "/**");
@@ -506,7 +356,22 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return null;
 	}
 	
-	private Reader getReader(String path) {
+	private int skipBackwardOverQualifiers(String fileSrc, int idx) {
+        // cheap hack - skip over a contiguous set of identifiers (which happen to be qualifiers)
+	    do {
+	        do {
+	            idx--;
+	        } while (idx > 0 && Character.isWhitespace(fileSrc.charAt(idx)));
+	        if (idx <= 0 || !Character.isJavaIdentifierPart(fileSrc.charAt(idx))) {
+	            return idx+1;
+	        }
+	        while (idx > 0 && Character.isJavaIdentifierPart(fileSrc.charAt(idx))) {
+	            idx--;
+	        }
+	    } while (true);
+    }
+
+    private Reader getReader(String path) {
 		Reader reader = null;
 		try {
 			if (path.contains(".jar")) {
@@ -540,10 +405,10 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * @return
 	 */
 	private String addNameToDoc(String name, String doc) {
-		if(doc == null) {
+		if (doc == null) {
 			doc = "";
 		}
-		doc=BOLD+name+UNBOLD+PARA+doc+PARA;
+		doc = BOLD+name+UNBOLD + PARA+doc+PARA;
 		return doc;
 	}
 
@@ -578,8 +443,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 */
 	private String getCommentText(String text, boolean stripLeadingTrailingParts) {
 		StringBuilder result = new StringBuilder();
-		String showResult = "|";
-		boolean inBlockInfo=false; // true once we are into parsing the @block tags
 
 		// If it starts with the 3 chars /** and ends with the two chars */,
 		// then start by ditching these
@@ -610,7 +473,6 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 			// we start next line
 			fWasNewLine = ch == '\n' || ch == '\r';
 			result.append(ch);
-			showResult = "|" + result.toString() + "|";
 		}
 		String resStr = result.toString();
 
@@ -751,23 +613,16 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		String result="";
 		int begin=idx;
 		int len=str.length();
-		char tmp='!';
 		try {
-
-		String temp = str.substring(idx,idx+10);
-		tmp=str.charAt(idx);
-		// skip leading whitespace
-		while(idx<len && Character.isWhitespace(str.charAt(idx))) {
-			tmp=str.charAt(idx);
-			idx++;
-		}	
-		while(idx<len && !Character.isWhitespace(str.charAt(idx))) {
-			tmp=str.charAt(idx);
-			idx++;
-		}
-		 result= str.substring(begin,idx);
-		}
-		catch(Exception ex) {
+		    // skip leading whitespace
+		    while(idx<len && Character.isWhitespace(str.charAt(idx))) {
+		        idx++;
+		    }
+		    while(idx<len && !Character.isWhitespace(str.charAt(idx))) {
+		        idx++;
+		    }
+		    result= str.substring(begin,idx);
+		} catch(Exception ex) {
 			System.out.println(ex.getMessage());
 		}
 		return result;
@@ -781,13 +636,11 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		return qualifiedName;
 	}
 
-	private String[] convertParamTypes(ProcedureInstance pi) {
+	private String[] convertParamTypes(ProcedureInstance<?> pi) {
 		String[] paramTypes = new String[pi.formalTypes().size()];
 
 		int i = 0;
-		for (Iterator iterator = pi.formalTypes().iterator(); iterator
-				.hasNext();) {
-			Type formalType = (Type) iterator.next();
+		for (Type formalType: pi.formalTypes()) {
 			String typeName = formalType.toString();
 			String typeSig = (typeName.indexOf('.') > 0) ? "L"
 					+ formalType.toString() + ";" : typeName;
@@ -825,36 +678,21 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 	 * @param args
 	 * @return the formatted string list of args
 	 */
-	@SuppressWarnings("unchecked")
-	private String formatArgs(List a) {
-		StringBuilder result=new StringBuilder();
+	private String formatArgs(List<LocalDef> args) {
+		StringBuilder result = new StringBuilder();
 		
 		result.append("(");
-		for (Iterator iterator = a.iterator(); iterator.hasNext();) {
-			Object obj = iterator.next();
-			if (obj instanceof Formal) {
-				Formal f = (Formal) obj;
-				//String name = f.name();
-				//String type = f.type().name();
-				//String typeAndName=type+" "+name;
-				// Just use toString(), it's already being done for us
-				String typeAndName = f.toString();
-				typeAndName=removeJavaLang(typeAndName);
-				result.append(typeAndName);
-				result.append(", ");
-			}
-			else {
-				String simpleName=removeJavaLang(obj.toString());			
-				result.append(simpleName+", "); // placeholder for the unexpected, probably type only instead of type+name
-			}
+		int idx = 0;
+		for (LocalDef argDef: args) {
+		    String typeAndName = argDef.type() + " " + argDef.name();
+		    typeAndName = removeJavaLang(typeAndName);
+            if (idx++ > 0) {
+                result.append(", ");
+            }
+		    result.append(typeAndName);
 		}
-		String res=result.toString();
-		// remove trailing comma (if any args were there at all) and add a closing paren
-		if(res.endsWith(", ")) {
-			res=res.substring(0,res.length()-2);
-		}
-		res=res+")";
-		return res;
+		result.append(")");
+		return result.toString();
 		
 	}
 
@@ -872,5 +710,4 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		}
 		return result;
 	}
-
 }
