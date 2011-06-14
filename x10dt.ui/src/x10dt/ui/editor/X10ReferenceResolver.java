@@ -29,6 +29,7 @@ import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.ProcedureDecl;
 import polyglot.ast.TypeNode;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
@@ -79,27 +80,7 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
               //return node;
           }
         }
-        	
-        
-//        if (node instanceof TypeNode) {
-//            Object grandparent = findParent((Node)node, parseController);
-//            if (grandparent instanceof ConstructorDecl) { //MV
-//                node=grandparent;
-//            }
-//            
-//            else if (grandparent instanceof ClassDecl)
-//            {
-//	            if(((TypeNode)node).type().toString().equals("x10.lang.Object"))
-//	            {
-//	            	node=grandparent;
-//	            }
-//	            
-//	            else
-//	            {
-//	            	
-//	            }
-//            }
-//        }
+
         if (node instanceof TypeNode) {
             TypeNode typeNode= (TypeNode) node;
             PolyglotNodeLocator locator= (PolyglotNodeLocator) parseController.getSourcePositionLocator();
@@ -131,6 +112,9 @@ public class X10ReferenceResolver implements IReferenceResolver, ILanguageServic
         } else if (node instanceof Formal) {
 			Formal formal = (Formal) node;
 			return formal.localDef();
+        } else if (node instanceof ProcedureDecl) {
+            ProcedureDecl procedureDecl= (ProcedureDecl) node;
+//            return procedureDecl.procedureInstance();
         }
         return null;
     }
