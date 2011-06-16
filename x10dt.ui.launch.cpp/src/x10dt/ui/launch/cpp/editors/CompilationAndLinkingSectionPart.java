@@ -346,7 +346,7 @@ final class CompilationAndLinkingSectionPart extends AbstractCommonSectionFormPa
     final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), 
                                                                         cppCompConf.getTargetOS() ==  ETargetOS.WINDOWS, 
                                                                         connConf.getConnectionName());
-    if (targetOpHelper != null) {
+    if (targetOpHelper != null && osCombo.getSelectionIndex() != -1) {
       final String osName = osCombo.getItem(osCombo.getSelectionIndex());
       final ETargetOS targetOs = (ETargetOS) osCombo.getData(osName);
       final String archName = archCombo.getItem(archCombo.getSelectionIndex());
