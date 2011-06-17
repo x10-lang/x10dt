@@ -10,6 +10,7 @@ package x10dt.ui.launch.cpp.editors;
 import static x10dt.ui.launch.core.utils.PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.MPICH2_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.OPEN_MPI_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
@@ -170,6 +171,8 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart
       } else if (PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(serviceTypeId) ||
                  LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
         transportName = ETransport.LAPI.name().toLowerCase();
+      } else if (PAMI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+        transportName = ETransport.PAMI.name().toLowerCase();
       } else {
         transportName = null;
       }

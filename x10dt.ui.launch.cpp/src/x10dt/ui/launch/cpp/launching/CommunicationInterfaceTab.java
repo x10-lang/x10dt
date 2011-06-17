@@ -231,7 +231,8 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
           selected = false;
         } else {
           final ICommunicationInterfaceConf commIntfConf = this.fX10PlatformConf.getCommunicationInterfaceConf();
-          if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(commIntfConf.getServiceTypeId())) {
+          if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(commIntfConf.getServiceTypeId()) ||
+              PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(commIntfConf.getServiceTypeId())) {
             btEnabled = true;
             selected = configuration.getAttribute(ATTR_USE_PLATFORM_CONF_DATA, true);
           } else {

@@ -63,6 +63,7 @@ final class CommInterfaceFactory {
   
   void applyChanges(final CommInterfaceFactory source) {
     this.fCommInterfaceConfs.clear();
+    this.fType = source.fType; // RMF 6/16/2011 why wasn't this being done before???
     for (final Map.Entry<String, AbstractCommunicationInterfaceConfiguration> entry : source.fCommInterfaceConfs.entrySet()) {
       this.fCommInterfaceConfs.put(entry.getKey(), entry.getValue().copy());
     }

@@ -51,18 +51,16 @@ import x10dt.ui.launch.cpp.platform_conf.IHostsBasedConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import x10dt.ui.launch.rms.core.Messages;
 
-
-
-final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  implements ICITypeConfigurationPart {
+class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  implements ICITypeConfigurationPart {
 
   // --- Interface methods implementation
   
-  public final void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
+  public void connectionChanged(final boolean isLocal, final String remoteConnectionName, 
                                       final EValidationStatus validationStatus) {
     // Nothing to do.
   }
 
-  public final void create(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent, 
+  public void create(final IManagedForm managedForm, final FormToolkit toolkit, final Composite parent, 
                            final AbstractCommonSectionFormPart formPart) {
     final Composite composite = toolkit.createComposite(parent);
     composite.setFont(parent.getFont());
@@ -158,7 +156,7 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
     return PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
   }
 
-  public final boolean hasCompleteInfo() {
+  public boolean hasCompleteInfo() {
     if (this.fHostFileBt.getSelection()) {
       return this.fHostFileText.getText().length() > 0;
     } else {
@@ -371,10 +369,15 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
     });
   }
   
-  private void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf,
+  protected void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf,
                                   final Button addButton, final Button removeButton) {
-    this.fNumPlacesSpinner.setSelection(socketsConf.getNumberOfPlaces());
     final boolean shouldUseHostFile = socketsConf.shouldUseHostFile();
+    doInitializeControls(formPart, socketsConf, shouldUseHostFile, addButton, removeButton);
+  }
+
+  protected void doInitializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf, final boolean shouldUseHostFile,
+      final Button addButton, final Button removeButton) {
+    this.fNumPlacesSpinner.setSelection(socketsConf.getNumberOfPlaces());
     if (shouldUseHostFile) {
       this.fHostFileText.setText(socketsConf.getHostFile());
       
@@ -397,7 +400,7 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
   
   // --- Private classes
   
-  private static final class HostsControlChecker extends AbstractFormControlChecker implements IFormControlChecker {
+  protected static class HostsControlChecker extends AbstractFormControlChecker implements IFormControlChecker {
 
     HostsControlChecker(final IFormPage formPage, final Control control, final List<String> hosts) {
       super(formPage, control);
@@ -428,18 +431,18 @@ final class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPar
   
   // --- Fields
   
-  private Spinner fNumPlacesSpinner;
+  protected Spinner fNumPlacesSpinner;
   
-  private Button fHostFileBt;
+  protected Button fHostFileBt;
   
-  private Text fHostFileText;
+  protected Text fHostFileText;
   
-  private Button fHostFileBrowseBt;
+  protected Button fHostFileBrowseBt;
   
-  private Button fHostListBt;
+  protected Button fHostListBt;
   
-  private TableViewer fHostListViewer;
+  protected TableViewer fHostListViewer;
   
-  private List<String> fHosts = new ArrayList<String>();
+  protected List<String> fHosts = new ArrayList<String>();
 
 }

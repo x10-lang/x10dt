@@ -8,6 +8,7 @@
 package x10dt.ui.launch.cpp.platform_conf;
 
 import static x10dt.ui.launch.core.platform_conf.EValidationStatus.UNKNOWN;
+import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 
 import java.io.BufferedReader;
@@ -73,6 +74,8 @@ class X10PlatformConf implements IX10PlatformConf {
         // up here. If we don't call initializeToDefaultValues(), the platform conf
         // and subsequent builds are broken, and the user has no way to clean it up.
         this.fId = UUID.randomUUID().toString();
+        this.fName = confFile.getProject().getName();
+        fCommInterfaceFact.defineCurrentCommInterfaceType(STANDALONE_SERVICE_PROVIDER_ID);
         this.initializeToDefaultValues(confFile.getProject());
       }
     } catch (CoreException except) {
@@ -277,7 +280,7 @@ class X10PlatformConf implements IX10PlatformConf {
   public final String toString() {
     final StringBuilder sb = new StringBuilder();
     sb.append("Id: ").append(this.fId).append("\nName: ").append(this.fName) //$NON-NLS-1$ //$NON-NLS-2$
-      .append("\nDescription: ").append(this.fDescription) //$NON-NLS-1$
+      .append("\nDescription: ").append(this.fDescription != null ? this.fDescription : "<empty>") //$NON-NLS-1$
       .append('\n').append(this.fConnectionConf).append('\n').append(this.fCommInterfaceFact)
       .append('\n').append(this.fCppCompilationConf);
     return sb.toString();

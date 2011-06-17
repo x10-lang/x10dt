@@ -39,7 +39,8 @@ public final class LaunchConfServicesFactory {
       basedLaunchConfServices = new OpenMPILaunchConfSyncServices();
     } else if (PTPConstants.MPICH2_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       basedLaunchConfServices =  new MPICH2LaunchConfSyncServices();
-    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId) ||
+               PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       basedLaunchConfServices = new SocketsLaunchConfSyncServices();
     } else {
       basedLaunchConfServices = null;

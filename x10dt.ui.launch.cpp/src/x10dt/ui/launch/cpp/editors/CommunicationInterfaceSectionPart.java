@@ -387,8 +387,10 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       return new ParallelEnvironmentTypeConfigPart((IPEResourceManagerConfiguration) serviceProvider);
     } else if (LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new LoadLevelerTypeConfigPart((IIBMLLResourceManagerConfiguration) serviceProvider);
-    } else if (SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId) || PAMI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+    } else if (SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new HostFileAndListTypeConfigPart();
+    } else if (PAMI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+      return new PAMITypeConfigPart();
     } else if (STANDALONE_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new StandaloneTypeConfigPart();
     }
@@ -411,7 +413,8 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(providerDescriptor);
       if (serviceProvider instanceof IRemoteResourceManagerConfiguration) {
         final String rmId = ((IRemoteResourceManagerConfiguration) serviceProvider).getResourceManagerId();
-        if (SOCKETS_SERVICE_PROVIDER_ID.equals(rmId) || STANDALONE_SERVICE_PROVIDER_ID.equals(rmId) || 
+        if (SOCKETS_SERVICE_PROVIDER_ID.equals(rmId) || STANDALONE_SERVICE_PROVIDER_ID.equals(rmId) ||
+            PAMI_SERVICE_PROVIDER_ID.equals(rmId) ||
             (! isLocal && (MPICH2_SERVICE_PROVIDER_ID.equals(rmId) || OPEN_MPI_SERVICE_PROVIDER_ID.equals(rmId)))) {
           // We skip intentionally LoadLeveler and ParallelEnvironment for now.
           final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);

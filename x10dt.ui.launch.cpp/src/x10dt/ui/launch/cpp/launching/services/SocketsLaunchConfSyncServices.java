@@ -24,6 +24,12 @@ import x10dt.ui.launch.cpp.platform_conf.IHostsBasedConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 
+/**
+ * Implementation of IPlatformConfLaunchConfSyncServices that handles both the sockets
+ * and PAMI transports (both of whose identifying properties are the # of places and the
+ * hostfile/hostlist).
+ * @author egeay
+ */
 final class SocketsLaunchConfSyncServices implements IPlatformConfLaunchConfSyncServices {
   
   // --- Interface methods implementation

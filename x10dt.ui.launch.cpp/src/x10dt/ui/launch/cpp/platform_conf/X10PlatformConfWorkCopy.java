@@ -7,11 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
-import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
-
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 
@@ -21,7 +18,6 @@ import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
-import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.EOpenMPIVersion;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
@@ -432,17 +428,19 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   public void setHostFile(final String hostFile) {
-    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
+//    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+//    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+//    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getCurrentCommunicationInterface();
     conf.fHostFile = hostFile;
     updateDirtyFlag();
   }
   
   public void setHostList(final List<String> hostList) {
-    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
+//    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+//    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+//    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getCurrentCommunicationInterface();
     final StringBuilder sb = new StringBuilder();
     for (final String host : hostList) {
       if (sb.length() > 0) {
@@ -455,9 +453,10 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
   }
   
   public void setShouldUseHostFile(final boolean shouldUseHostFile) {
-    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
-    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
-    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
+//    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+//    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
+//    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getOrCreate(ciType);
+    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getCurrentCommunicationInterface();
     conf.fShouldUseHostFile = shouldUseHostFile;
     updateDirtyFlag();
   }
