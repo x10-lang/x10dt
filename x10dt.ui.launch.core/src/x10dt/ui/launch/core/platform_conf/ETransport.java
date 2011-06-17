@@ -32,6 +32,10 @@ public enum ETransport {
   /**
    * LAPI transport
    */
-  LAPI;
+  LAPI,
 
+  /**
+   * PAMI transport
+   */
+  PAMI;
 }

@@ -54,11 +54,11 @@ final class PAMIX10RuntimeSystem extends AbstractX10RuntimeSystem implements IX1
     
     protected void completeEnvironmentVariables(final Map<String, String> envMap) {
       final Integer procs = getAttrManager().getAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition()).getValue();
-      envMap.put("X10_NPLACES", String.valueOf(procs)); //$NON-NLS-1$
+      envMap.put("MP_PROCS", String.valueOf(procs)); //$NON-NLS-1$
       final boolean useHostFile = getAttrManager().getAttribute(LaunchAttributes.getUseHostFileAttr()).getValue();
       if (useHostFile) {
         final String hostFile = getAttrManager().getAttribute(LaunchAttributes.getHostFileAttr()).getValue();
-        envMap.put("X10_HOSTFILE", hostFile); //$NON-NLS-1$
+        envMap.put("MP_HOSTFILE", hostFile); //$NON-NLS-1$
       } else {
         final List<String> hostList = getAttrManager().getAttribute(LaunchAttributes.getHostListAttr()).getValue();
         final StringBuilder sb = new StringBuilder();
@@ -71,7 +71,9 @@ final class PAMIX10RuntimeSystem extends AbstractX10RuntimeSystem implements IX1
           }
           sb.append(hostName);
         }
-        envMap.put("X10_HOSTLIST", sb.toString()); //$NON-NLS-1$
+        // RMF 6/16/2011 - Not sure that a host-list is actually supported by PAMI.
+        // Should force the use of a hostfile for now in the launch/platform configs
+        envMap.put("MP_HOSTLIST", sb.toString()); //$NON-NLS-1$
       }
     }
 
