@@ -48,7 +48,13 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
   
   public void connectionChanged(final boolean isLocal, final String remoteConnectionName,
                                 final EValidationStatus validationStatus, final boolean shouldDeriveInfo) {
-    this.fBrowseBt.setEnabled(isLocal || validationStatus == EValidationStatus.VALID);    
+    boolean enable= shouldEnableDebuggerFolderWidgets(isLocal, validationStatus);
+    this.fBrowseBt.setEnabled(enable);
+    this.fDebuggerFolderText.setEnabled(enable);
+  }
+
+  private boolean shouldEnableDebuggerFolderWidgets(final boolean isLocal, final EValidationStatus validationStatus) {
+    return isLocal || validationStatus == EValidationStatus.VALID;
   }
   
   // --- IFormPart's interface methods implementation
@@ -63,6 +69,9 @@ final class DebuggingSectionPart extends AbstractCommonSectionFormPart implement
     final IDebuggingInfoConf debuggingInfoConf = getPlatformConf().getDebuggingInfoConf();
     this.fDebuggerFolderText.setText(debuggingInfoConf.getDebuggerFolder());
     this.fPortSpinner.setSelection(debuggingInfoConf.getPort());
+    boolean enable = shouldEnableDebuggerFolderWidgets(getPlatformConf().getConnectionConf().isLocal(), EValidationStatus.VALID);
+    this.fBrowseBt.setEnabled(enable);
+    this.fDebuggerFolderText.setEnabled(enable);
     
     handleFolderAndChildValidation(this.fDebuggerFolderText, GDIA_FILE, LaunchMessages.DSP_DebuggerFolder, 
                                    LaunchMessages.DSP_GDIAFileMsg, false /* isEmptyPathAnError */);
