@@ -26,6 +26,7 @@ import org.eclipse.osgi.util.NLS;
 
 import polyglot.visit.NodeVisitor;
 import x10dt.core.utils.IFilter;
+import x10dt.core.utils.URIUtils;
 import x10dt.search.core.Messages;
 import x10dt.search.core.facts.FactWriterFactory;
 
@@ -56,7 +57,7 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
     
     final IFactKey key = new FactKey(getType(), factContext);
     if (factBase.getAllKeys().contains(key)) {
-      final URI resourceURI = resource.getLocationURI();
+      final URI resourceURI = URIUtils.getExpectedURI(resource.getLocationURI());
       final IFilter<ITuple> tupleFilter;
       if (resource.getType() == IResource.FILE) {
         tupleFilter = new FileTupleFilter(resourceURI);

@@ -23,6 +23,8 @@ public class Messages extends NLS {
   public static String XCCI_NoX10JARFound;
   public static String XCCI_WrongClassPathContainer;
   public static String XCP_RebuildProjectJobName;
+  public static String UUUnknownAuthority;
+  public static String UUException;
 
   // --- Private code
   

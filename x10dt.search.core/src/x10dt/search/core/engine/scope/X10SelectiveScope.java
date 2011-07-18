@@ -21,6 +21,7 @@ import org.eclipse.osgi.util.NLS;
 
 import x10dt.core.utils.CountableIterableFactory;
 import x10dt.core.utils.ICountableIterable;
+import x10dt.core.utils.URIUtils;
 import x10dt.search.core.Messages;
 import x10dt.search.core.SearchCoreActivator;
 
@@ -35,7 +36,7 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
 
   public boolean contains(final String resourceURI) {
     for (final IResource resource : this.fResources) {
-      if (resourceURI.startsWith(resource.getLocationURI().toString())) {
+      if (resourceURI.startsWith(URIUtils.getExpectedURI(resource.getLocationURI()).toString())) {
         return true;
       }
     }
