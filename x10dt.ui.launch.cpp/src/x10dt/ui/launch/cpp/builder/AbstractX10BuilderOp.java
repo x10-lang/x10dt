@@ -40,6 +40,7 @@ import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
 import x10dt.core.utils.ICountableIterable;
+import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
@@ -269,7 +270,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
       workspaceDirStore.mkdir(EFS.NONE, null);
     }
     for (final IFile file : files) {
-      final IFileStore fileStore = EFS.getLocalFileSystem().getStore(file.getLocationURI());
+      final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(file.getLocationURI()));
       final IFileStore destFile = workspaceDirStore.getChild(fileStore.getName());
       fileStore.copy(destFile, EFS.OVERWRITE, null);
       final String fileName = fileStore.getName();

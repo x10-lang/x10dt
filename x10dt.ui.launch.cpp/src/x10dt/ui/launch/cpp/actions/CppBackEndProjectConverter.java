@@ -26,6 +26,7 @@ import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.window.IShellProvider;
 
 import x10dt.core.X10DTCorePlugin;
+import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
 import x10dt.ui.launch.core.dialogs.DialogsFactory;
 import x10dt.ui.launch.cpp.CppLaunchCore;
@@ -50,7 +51,7 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) {
 	restorePlatformConf(project);  
     final IFile platformConfFile = X10PlatformConfFactory.getFile(project);
-    if (! EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI()).fetchInfo().exists()) {
+    if (! EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(platformConfFile.getLocationURI())).fetchInfo().exists()) {
       final IX10PlatformConf platformConf = X10PlatformConfFactory.loadOrCreate(platformConfFile);
       final IX10PlatformConfWorkCopy platformConfWorkCopy = platformConf.createWorkingCopy();
       platformConfWorkCopy.initializeToDefaultValues(project);
@@ -92,11 +93,11 @@ public final class CppBackEndProjectConverter implements IBackEndX10ProjectConve
    */
   private void restorePlatformConf(IProject project){
 	  IFile hiddenFile = project.getFile("." + X10PlatformConfFactory.X10_PLATFORM_CONF_FILE);
-	  if (EFS.getLocalFileSystem().getStore(hiddenFile.getLocationURI()).fetchInfo().exists()) {
+	  if (EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(hiddenFile.getLocationURI())).fetchInfo().exists()) {
 		  IFile platformConfFile = ResourcesPlugin.getWorkspace().getRoot().getFile(hiddenFile.getFullPath().removeLastSegments(1).append(new Path(X10PlatformConfFactory.X10_PLATFORM_CONF_FILE)));
-		  IFileStore platformConfStore = EFS.getLocalFileSystem().getStore(platformConfFile.getLocationURI());
+		  IFileStore platformConfStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(platformConfFile.getLocationURI()));
 			try {
-				EFS.getLocalFileSystem().getStore(hiddenFile.getLocationURI()).move(platformConfStore, EFS.OVERWRITE, new NullProgressMonitor());
+				EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(hiddenFile.getLocationURI())).move(platformConfStore, EFS.OVERWRITE, new NullProgressMonitor());
 			} catch (CoreException e) {
 				//TODO
 			}
