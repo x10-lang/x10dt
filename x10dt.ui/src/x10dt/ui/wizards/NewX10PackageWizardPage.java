@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 
 import x10dt.core.X10DTCorePlugin;
+import x10dt.core.utils.URIUtils;
 
 public class NewX10PackageWizardPage extends NewContainerWizardPage {
 
@@ -239,7 +240,7 @@ public class NewX10PackageWizardPage extends NewContainerWizardPage {
         }
         // 11/14/2007 RMF disabled to avoid dependency on EFS for now
         else {
-          URI location= pack.getResource().getLocationURI();
+          URI location= URIUtils.getExpectedURI(pack.getResource().getLocationURI());
           if (location != null) {
             IFileStore store= EFS.getStore(location);
             if (store.fetchInfo().exists()) {

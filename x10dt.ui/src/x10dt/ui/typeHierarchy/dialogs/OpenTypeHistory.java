@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.w3c.dom.Element;
 
+import x10dt.core.utils.URIUtils;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.typeHierarchy.CorextMessages;
@@ -322,7 +323,7 @@ public class OpenTypeHistory extends History {
 			ITypeInfo typeInfo= match.getType();
 			IResource resource= SearchUtils.getResource(typeInfo);
 			if (resource != null) {
-				URI location= resource.getLocationURI();
+				URI location= URIUtils.getExpectedURI(resource.getLocationURI());
 				if (location != null) {
 					IFileInfo info= EFS.getStore(location).fetchInfo();
 					if (info.exists()) {

@@ -65,6 +65,7 @@ import x10dt.core.utils.AlwaysTrueFilter;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.CountableIterableFactory;
 import x10dt.core.utils.IFilter;
+import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
@@ -318,7 +319,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         final IPath projectRelativeFilePath = new Path(sb.toString());
         final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
         final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
-        final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(generatedFilePath).getLocationURI());
+        final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(root.getFile(generatedFilePath).getLocationURI()));
         if (fileStore.fetchInfo().exists()) {
           return fileStore.toLocalFile(EFS.NONE, null);
         }
@@ -749,7 +750,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 				hasNoSourceTypeEntries = false;
 				final IPath path = entries[i].getPath();
 				if (path.segmentCount() > 1) {
-          final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(path).getLocationURI());
+          final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(root.getFile(path).getLocationURI()));
           if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
             CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NonExistentSRCFolder, path.lastSegment()),
                                                IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
