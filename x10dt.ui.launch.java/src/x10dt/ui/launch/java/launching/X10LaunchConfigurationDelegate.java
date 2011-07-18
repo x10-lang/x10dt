@@ -53,6 +53,7 @@ import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.utils.core.ArgumentParser;
 
+import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.LaunchUtils;
@@ -280,7 +281,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
     if (resource == null) {
       throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.XLCD_ResourceNotFound, path)));
     }
-    final IFileStore fileStore = EFS.getLocalFileSystem().getStore(resource.getLocationURI());
+    final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(resource.getLocationURI()));
     if (fileStore.fetchInfo().exists()) {
       return fileStore.toLocalFile(EFS.NONE, new NullProgressMonitor());
     } else {
