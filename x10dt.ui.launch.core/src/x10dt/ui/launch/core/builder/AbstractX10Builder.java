@@ -51,6 +51,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import org.eclipse.core.runtime.OperationCanceledException;
 
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
@@ -138,6 +139,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     ps.println("Build initiated: type = " + BUILD_TYPE_NAME.get(kind) + "; delta = " + (delta != null ? delta.toString() : "<none>"));
   }
+  
 
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
@@ -180,6 +182,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         UIUtils.showProblemsView();
         return null;
       }
+      
+      checkForCancelation(subMonitor);
+      
       final Set<IProject> dependentProjects = cleanFiles(kind, subMonitor.newChild(10), sourcesToCompile, deletedSources,
                                                          nativeFiles, x10BuilderOp);
       if (dependentProjects == null) {
@@ -189,6 +194,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       final String localOutputDir = ProjectUtils.getProjectOutputDirPath(getProject());
       x10BuilderOp.copyToOutputDir(nativeFiles, subMonitor.newChild(5));
 
+      checkForCancelation(subMonitor);
+      
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
       
       
@@ -196,11 +203,21 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
-      LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
-      CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.XEQ_InternalCompilerErrorMsg, getProject().getName()),
+      if (!(except instanceof OperationCanceledException)) {
+        LaunchCore.log(IStatus.ERROR, Messages.AXB_BuildException, except);
+        CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.XEQ_InternalCompilerErrorMsg, getProject().getName()),
               IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
+      
+      } else { // --- cancelation
+        super.forgetLastBuiltState();
+        throw new OperationCanceledException();
+      }
     } finally {
       info();	
+      if (monitor.isCanceled()){
+        super.forgetLastBuiltState();
+        throw new OperationCanceledException();
+      }
       monitor.done();
     }
     return new IProject[0];
@@ -241,6 +258,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         }
 
       };
+      
+      checkForCancelation(subMonitor);
       
       workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
       
@@ -524,11 +543,14 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
     };
 
+    checkForCancelation(subMonitor);
+    
     workspace.run(runnable, rule, IWorkspace.AVOID_UPDATE, subMonitor);
   }
   
   private void compileGeneratedFiles(final IX10BuilderFileOp builderOp, final Map<String, Collection<String>> generatedFiles,
                                      final Collection<IFile> sourcesToCompile, final SubMonitor monitor) throws CoreException {
+    checkForCancelation(monitor);
     if (! generatedFiles.isEmpty()) {
       monitor.beginTask(null, 80);
       final Map<IPath, Collection<File>> sourcesToPostCompile = new HashMap<IPath, Collection<File>>();
@@ -543,10 +565,19 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     	  }
     	  
       }
+      checkForCancelation(monitor);
       builderOp.transfer(sourcesToPostCompile, monitor.newChild(10));
+      checkForCancelation(monitor);
       builderOp.compile(monitor.newChild(70));
     } 
+    checkForCancelation(monitor);
     builderOp.archive(monitor);
+  }
+  
+  private void checkForCancelation(IProgressMonitor monitor){
+    if (monitor.isCanceled()) {
+      throw new OperationCanceledException();
+    }
   }
   
   private void addGeneratedFile(final Map<IPath, Collection<File>> map, final IPath pkgPath, final Collection<File> files) {
@@ -661,7 +692,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                                                                   new RuntimeFilter());
     final List<File> sourcePath = CollectionUtils.transform(srcPaths, new IPathToFileFunc());
 
-    final ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,
+    ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,
                                                       false /* withMainMethod */, monitor);
 
     echoCommandLineToConsole(sourcesToCompile, extInfo);
@@ -673,6 +704,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       for (final IFile f : sourcesToCompile) {
         files.add(f.getLocation().toOSString());
       }
+     
+      checkForCancelation(monitor);
       compiler.compileFiles(files);
       // compiler.compile(toSources(sourcesToCompile)); // --- This way of calling the compiler causes a bad behavior
       // (duplicate class error),
@@ -688,7 +721,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       sourcesToCompile.clear(); // To prevent post-compilation step.
       return Collections.emptyMap();
     } finally {
-      analyze(extInfo.scheduler().commandLineJobs());	
+      if (!monitor.isCanceled())
+        analyze(extInfo.scheduler().commandLineJobs());	
       Globals.initialize(null);
     }
   }
@@ -908,6 +942,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   // --- Fields
 
+  
+	
   private PolyglotDependencyInfo fDependencyInfo;
 
   protected IJavaProject fProjectWrapper;
