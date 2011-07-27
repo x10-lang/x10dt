@@ -1,34 +1,26 @@
 package x10dt.ui.launch.java.builder;
 
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
-import org.eclipse.ui.console.MessageConsole;
-import org.eclipse.ui.console.MessageConsoleStream;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 
-
-import polyglot.frontend.Compiler;
+import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
-import polyglot.main.Options;
-import polyglot.util.ErrorQueue;
-import polyglot.util.InternalCompilerError;
-import polyglot.visit.PostCompiled;
-import x10dt.ui.launch.core.utils.UIUtils;
 import x10dt.ui.parser.CheckPackageDeclVisitor;
 
 public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
     private final X10JavaBuilder fBuilder;
+    private final IProgressMonitor fMonitor;
    
-    public JavaBuilderExtensionInfo(X10JavaBuilder builder) {
-        this.fBuilder= builder;
+    public JavaBuilderExtensionInfo(final IProgressMonitor monitor, X10JavaBuilder builder) {
+        this.fMonitor = monitor;
+    	this.fBuilder= builder;
     }
     
 
@@ -54,6 +46,14 @@ public class JavaBuilderExtensionInfo extends x10c.ExtensionInfo {
             
             protected Goal PackageDeclGoal(Job job, IProject project){
             	return new ForgivingVisitorGoal("PackageDeclarationCheck", job, new CheckPackageDeclVisitor(job, project)).intern(this);
+            }
+            
+            @Override
+            protected boolean runPass(Goal goal) throws CyclicDependencyException {
+              if (fMonitor.isCanceled()) {
+                this.cancel();
+              }
+              return super.runPass(goal);
             }
            
         };

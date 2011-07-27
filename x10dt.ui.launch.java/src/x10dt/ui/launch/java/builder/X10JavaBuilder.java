@@ -21,7 +21,7 @@ public class X10JavaBuilder extends AbstractX10Builder {
 	public ExtensionInfo createExtensionInfo(String classPath,
 			List<File> sourcePath, String localOutputDir,
 			boolean withMainMethod, IProgressMonitor monitor) {
-		final ExtensionInfo extInfo = new JavaBuilderExtensionInfo(this);
+		final ExtensionInfo extInfo = new JavaBuilderExtensionInfo(monitor, this);
 	    buildOptions(classPath, sourcePath, localOutputDir, extInfo.getOptions(), withMainMethod);
 	    fOptions = extInfo.getOptions();
 	    fOptions.post_compiler = null;
