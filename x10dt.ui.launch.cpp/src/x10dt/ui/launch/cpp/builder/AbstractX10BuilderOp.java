@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
@@ -128,7 +129,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
           mcStream.println(line);
         }
         
-      });
+      }, monitor);
     
       if (returnCode != 0) {
         CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.CPPB_LibCreationError, archiveCmd), 
@@ -196,6 +197,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
 
       for (final Map.Entry<String, String> entry : this.fCppFiles.entrySet()) {
+        if (monitor.isCanceled()) {
+          throw new OperationCanceledException();
+        }
         final String file = entry.getValue();
         final String extension = file.substring(file.lastIndexOf('.'));
         final String objectFile = this.fTargetOpHelper.getTargetSystemPath(entry.getValue().replace(extension, O_EXT));
@@ -233,8 +237,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
           
           int fCounter;
           
-        });
+        }, monitor);
 
+        
         monitor.worked(1);
         
         if (returnCode != 0) {

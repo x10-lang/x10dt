@@ -316,7 +316,7 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
           errMsgBuilder.append(line).append('\n');
         }
         
-      });
+      }, new NullProgressMonitor());
       
       monitor.worked(1);
       return (exitValue == 0) ? null : new Pair<String, String>(getCommandAsString(command), errMsgBuilder.toString());

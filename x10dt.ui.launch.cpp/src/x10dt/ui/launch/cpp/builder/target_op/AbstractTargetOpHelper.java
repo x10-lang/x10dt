@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
@@ -41,7 +42,7 @@ abstract class AbstractTargetOpHelper implements ITargetOpHelper {
   }
   
   public final int run(final List<String> command, final String directory, final Map<String, String> envVariables,
-                       final IProcessOuputListener outputListener) throws IOException, InterruptedException {
+                       final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException {
     IRemoteProcessBuilder processBuilder = this.fRemoteServices.getProcessBuilder(this.fRemoteConnection, command);
     if (directory != null) {
       processBuilder = processBuilder.directory(getStore(directory));
@@ -49,22 +50,22 @@ abstract class AbstractTargetOpHelper implements ITargetOpHelper {
     if (envVariables != null) {
       processBuilder.environment().putAll(envVariables);
     }
-    return PTPUtils.run(processBuilder.start(), outputListener);
+    return PTPUtils.run(processBuilder.start(), outputListener, monitor);
   }
   
   public final int run(final List<String> command, final String directory,
-                       final IProcessOuputListener outputListener) throws IOException, InterruptedException {
-    return run(command, directory, null, outputListener);
+                       final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException {
+    return run(command, directory, null, outputListener, monitor);
   }
   
   public final int run(final List<String> command, final Map<String, String> envVariables,
-                       final IProcessOuputListener outputListener) throws IOException, InterruptedException {
-    return run(command, null, envVariables, outputListener);
+                       final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException {
+    return run(command, null, envVariables, outputListener, monitor);
   }
   
   public final int run(final List<String> command,
-                       final IProcessOuputListener outputListener) throws IOException, InterruptedException {
-    return run(command, null, null, outputListener);
+                       final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException {
+    return run(command, null, null, outputListener, monitor);
   }
 
   public final String toPath(final URI uri) {
@@ -78,5 +79,6 @@ abstract class AbstractTargetOpHelper implements ITargetOpHelper {
   private final IRemoteConnection fRemoteConnection;
   
   private final IRemoteFileManager fFileManager;
-
+  
+  
 }

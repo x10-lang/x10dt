@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Control;
@@ -54,7 +55,7 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
         addMessages(LaunchMessages.CCVC_CompilerNotSupportedWarning, IMessageProvider.WARNING);
       } else {
         try {
-          this.fTargetOpHelper.run(Arrays.asList(text, listener.getOption()), listener);
+          this.fTargetOpHelper.run(Arrays.asList(text, listener.getOption()), listener, new NullProgressMonitor());
           return listener.validateVersion();
         } catch (Exception except) {
           addMessages(NLS.bind(LaunchMessages.CCVC_VersionCheckingCmdError, except.getMessage()), IMessageProvider.ERROR);

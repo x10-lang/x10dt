@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.osgi.util.NLS;
 
 import polyglot.frontend.Compiler;
+import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -114,6 +115,14 @@ final class CppBuilderExtensionInfo extends ExtensionInfo {
       } finally {
         CppBuilderExtensionInfo.this.fMonitor.done();
       }
+    }
+
+    @Override
+    protected boolean runPass(Goal goal) throws CyclicDependencyException {
+      if (fMonitor.isCanceled()) {
+        this.cancel();
+      }
+      return super.runPass(goal);
     }
 
   }

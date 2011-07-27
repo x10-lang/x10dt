@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.utils.Pair;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
@@ -40,7 +41,7 @@ public final class PlatformConfUtils {
   public static Pair<EArchitecture, EBitsArchitecture> detectArchitecture(final ITargetOpHelper targetOpHelper) {
     final LastLineOutputListener processorListener = new LastLineOutputListener();
     try {
-      targetOpHelper.run(Arrays.asList(UNAME, UNAME_P_OPT), processorListener);
+      targetOpHelper.run(Arrays.asList(UNAME, UNAME_P_OPT), processorListener, new NullProgressMonitor());
     } catch (Exception except) {
       // Do nothing.
     }
@@ -50,7 +51,7 @@ public final class PlatformConfUtils {
       // We fail to get an output with "uname -p". Last option is to try with "uname -m".
       final LastLineOutputListener machineListener = new LastLineOutputListener();
       try {
-        targetOpHelper.run(Arrays.asList(UNAME, UNAME_M_OPT), machineListener);
+        targetOpHelper.run(Arrays.asList(UNAME, UNAME_M_OPT), machineListener, new NullProgressMonitor());
         
         output = machineListener.getOutput();
       } catch (Exception except) {
@@ -80,7 +81,7 @@ public final class PlatformConfUtils {
   public static ETargetOS detectOS(final ITargetOpHelper targetOpHelper) {
     final OSDetectionListener osDetectionListener = new OSDetectionListener();
     try {
-      targetOpHelper.run(Arrays.asList(UNAME, UNAME_S_OPT), osDetectionListener);
+      targetOpHelper.run(Arrays.asList(UNAME, UNAME_S_OPT), osDetectionListener, new NullProgressMonitor());
       return osDetectionListener.getDetectedOS();
     } catch (Exception except) {
       return null;

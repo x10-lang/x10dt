@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
@@ -107,7 +108,7 @@ public final class PTPUtils {
    * thread while it is waiting, then the wait is ended and an {@link InterruptedException} is thrown.
    * @return The exit value for the process. 
    */
-  public static int run(final IRemoteProcess process, final IProcessOuputListener listener) throws InterruptedException {
+  public static int run(final IRemoteProcess process, final IProcessOuputListener listener, final IProgressMonitor monitor) throws InterruptedException {
     final BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
     final Thread outThread = new Thread(new Runnable() {
       
@@ -140,14 +141,40 @@ public final class PTPUtils {
       
     });
     
+    final Thread killThread = new Thread(new Runnable() {
+      
+      public void run() {
+        while(true) {
+          if (monitor.isCanceled() || process.isCompleted()){
+            break;
+          } else {
+            try {
+              synchronized(this){
+                wait(100);
+              }
+            } catch (InterruptedException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+          }
+        }
+        
+        //if (! process.isCompleted())
+          process.destroy();
+      }
+      
+    });
+
     try {
       outThread.start();
       errThread.start();
+      killThread.start();
     
       process.waitFor();
     
       outThread.join();
       errThread.join();
+      killThread.join();
     
       return process.exitValue();
     } finally {

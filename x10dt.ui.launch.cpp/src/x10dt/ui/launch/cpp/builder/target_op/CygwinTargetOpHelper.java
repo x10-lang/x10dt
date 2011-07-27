@@ -10,6 +10,8 @@ package x10dt.ui.launch.cpp.builder.target_op;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 
@@ -47,7 +49,7 @@ final class CygwinTargetOpHelper extends AbstractTargetOpHelper implements ITarg
             output.append(line);
           }
         
-        });
+        }, new NullProgressMonitor());
       
         if ((returnCode == 0) && (output.length() > 0)) {
           return output.toString();

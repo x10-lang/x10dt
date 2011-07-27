@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 
@@ -64,7 +65,7 @@ public interface ITargetOpHelper {
    * thread while it is waiting, then the wait is ended and an {@link InterruptedException} is thrown.
    */
   public int run(final List<String> command, final String directory, final Map<String, String> envVariables,
-                 final IProcessOuputListener outputListener) throws IOException, InterruptedException;
+                 final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException;
   
   /**
    * Runs a given command in a new process on the target machine with the help of the directory provided.
@@ -82,7 +83,7 @@ public interface ITargetOpHelper {
    * thread while it is waiting, then the wait is ended and an {@link InterruptedException} is thrown.
    */
   public int run(final List<String> command, final String directory,
-                 final IProcessOuputListener outputListener) throws IOException, InterruptedException;
+                 final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException;
   
   /**
    * Runs a given command in a new process on the target machine with the help of the environment variables provided.
@@ -100,7 +101,7 @@ public interface ITargetOpHelper {
    * thread while it is waiting, then the wait is ended and an {@link InterruptedException} is thrown.
    */
   public int run(final List<String> command, final Map<String, String> envVariables,
-                 final IProcessOuputListener outputListener) throws IOException, InterruptedException;
+                 final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException;
   
   /**
    * Runs a given command in a new process on the target machine.
@@ -117,7 +118,7 @@ public interface ITargetOpHelper {
    * thread while it is waiting, then the wait is ended and an {@link InterruptedException} is thrown.
    */
   public int run(final List<String> command, 
-                 final IProcessOuputListener outputListener) throws IOException, InterruptedException;
+                 final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException;
   
   /**
    * Converts a URI into a path consistent with the target system.

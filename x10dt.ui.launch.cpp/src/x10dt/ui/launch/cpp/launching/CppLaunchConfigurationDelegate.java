@@ -224,7 +224,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
 
         int fCounter;
 
-      });
+      }, monitor);
 
       if (returnCode != 0) {
         mcStream.println();
