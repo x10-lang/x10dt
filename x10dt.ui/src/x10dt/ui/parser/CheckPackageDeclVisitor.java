@@ -121,7 +121,9 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
     		return;
         if (!fSeenPkg) { // No package decl -> implicitly in the default package
             Source src= fJob.source();
-            checkPackage("", determineActualPackage(src), new Position(src.path(), src.path(), 1, 1)); // --- WARNING: passing the path here for file !!!!!
+            String actualPkg = determineActualPackage(src);
+            if (actualPkg != null)
+            	checkPackage("", determineActualPackage(src), new Position(src.path(), src.path(), 1, 1)); // --- WARNING: passing the path here for file !!!!!
         }
     }
     
