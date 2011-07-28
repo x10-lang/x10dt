@@ -31,8 +31,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.imp.builder.ProjectNatureBase;
@@ -97,6 +99,24 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
 
     super.performFinish(monitor);
 
+    // -- create src-java and bin-java
+    String srcJava = "src-java";
+    String binJava = "bin-java";
+    IFolder srcFolder = project.getFolder(srcJava);
+    IFolder binFolder = project.getFolder(binJava);
+    srcFolder.create(IResource.FORCE, true, monitor);
+    binFolder.create(IResource.FORCE, true,  monitor);
+    
+    // -- add src-java to classpath
+    IClasspathEntry javasrc = JavaCore.newSourceEntry(project.getFolder(srcJava).getFullPath(), new IPath[0], project.getFolder(binJava).getFullPath());
+    IJavaProject javaProject = JavaCore.create(project);
+    IClasspathEntry[] entries = javaProject.getRawClasspath();
+    IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 1];
+    System.arraycopy(entries, 0, newEntries, 0, entries.length);
+    newEntries[newEntries.length - 1] = javasrc;
+    javaProject.setRawClasspath(newEntries, new NullProgressMonitor());
+   
+    
     // generate sample "Hello World" X10 application
     if (firstPage.isGenHello()) {
       ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
