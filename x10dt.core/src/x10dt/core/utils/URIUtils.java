@@ -32,6 +32,9 @@ public class URIUtils {
 		} catch (URISyntaxException e){
 			X10DTCorePlugin.getInstance().logException(Messages.UUException, e);
 			return null;
+		} catch (NullPointerException e){
+			System.err.println("*********URI = " + uri);
+			return null;
 		}
 		
 	}
