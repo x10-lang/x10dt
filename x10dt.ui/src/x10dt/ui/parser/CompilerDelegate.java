@@ -383,6 +383,8 @@ public class CompilerDelegate {
                     buff.append(File.pathSeparatorChar);
                 buff.append(getRuntimePath());
             }
+            buff.append(File.pathSeparatorChar);
+            buff.append(fX10Project.getProject().getLocation().append("bin-java").toOSString());
         } catch (JavaModelException e) {
             X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
         }
