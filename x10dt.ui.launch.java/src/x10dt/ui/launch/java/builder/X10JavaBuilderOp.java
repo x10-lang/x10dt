@@ -65,8 +65,11 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
     	      }
     	      // We need to take care of possible anonymous classes now.
     	      final String typeName = gen.getName().substring(0, gen.getName().length() - 5);
-    	      for (final File f : gen.getParentFile().listFiles(new AnonymousClassFilter(typeName))) {
-    	        f.delete();
+    	      File[] filess = gen.getParentFile().listFiles(new AnonymousClassFilter(typeName));
+    	      if (filess != null){
+    	    	  for (int i = 0; i < filess.length; i++) {
+    	    		  filess[i].delete();
+    	    	  }
     	      }
     	  }
       }
