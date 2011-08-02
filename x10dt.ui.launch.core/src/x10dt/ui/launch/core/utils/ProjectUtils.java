@@ -42,6 +42,25 @@ import x10dt.ui.launch.core.Messages;
 public final class ProjectUtils {
   
   /**
+   * Returns the set of projects on this project's classpath.
+   */
+  public static Collection<IProject> getDependentProjects(IJavaProject project) throws JavaModelException {
+    Collection<IProject> result = new ArrayList<IProject>();
+    final IWorkspaceRoot root = project.getResource().getWorkspace().getRoot();
+    for (final IClasspathEntry cpEntry : project.getResolvedClasspath(true)) {
+      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+        final IResource resource = root.findMember(cpEntry.getPath());
+        if (resource == null) {
+          LaunchCore.log(IStatus.WARNING, NLS.bind(Messages.JPU_ResourceErrorMsg, cpEntry.getPath()));
+        } else {
+          result.add((IProject) resource);
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
    * Returns a filtered set of class path entries for a given Java project.
    * 
    * @param <T> The type of the class path entries once transformed via the functor provided.
@@ -115,11 +134,7 @@ public final class ProjectUtils {
       case IClasspathEntry.CPE_LIBRARY:
     	IPath path = cpEntry.getPath();
         if (libFilter.accepts(path)) {
-        	IPath projectPath = (new Path(project.getName())).makeAbsolute();
-        	if (projectPath.isPrefixOf(path)){
-        		path = project.getLocation().removeLastSegments(1).append(path);
-        	}
-          container.add(functor.apply(path));
+          container.add(functor.apply(makeAbsolute(path, project)));
         }
         break;
       
@@ -146,6 +161,14 @@ public final class ProjectUtils {
     } else {
       return root.getLocation().append(path);
     }
+  }
+  
+  private static IPath makeAbsolute(IPath path, IProject project){
+    IPath projectPath = (new Path(project.getName())).makeAbsolute();
+    if (projectPath.isPrefixOf(path)){
+        path = project.getLocation().removeLastSegments(1).append(path);
+    }
+    return path;
   }
   
 }

@@ -201,6 +201,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       
 
       this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
+      dependentProjects.addAll(ProjectUtils.getDependentProjects(fProjectWrapper));
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
     } catch (Exception except) {
       if (!(except instanceof OperationCanceledException)) {
@@ -398,12 +399,17 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     try {
       monitor.beginTask(Messages.CPPB_CollectingSourcesTaskName, 1);
 
-      final IProject project = javaProject.getProject();
+     
 
       final Set<Object> fullBuildSet  = new HashSet<Object>();
-      final IResourceDelta resourceDelta = getDelta(project);
-      if (resourceDelta != null) {
-        resourceDelta.accept(new IResourceDeltaVisitor() {
+      Collection<IProject>projects = new ArrayList<IProject>();
+      projects.add(javaProject.getProject());
+      projects.addAll(ProjectUtils.getDependentProjects(javaProject));
+      
+      for (IProject project: projects) {
+        final IResourceDelta resourceDelta = getDelta(project);
+          if (resourceDelta != null) {
+              resourceDelta.accept(new IResourceDeltaVisitor() {
 
           public boolean visit(final IResourceDelta delta) throws CoreException {
             if (delta.getResource().getType() == IResource.FOLDER) {
@@ -430,7 +436,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
             return true;
           }
 
-        });
+           });
+          }
       }
       final boolean buildAll = !fullBuildSet.isEmpty() || fullBuild; 
       final IPreferencesService prefService = X10DTCorePlugin.getInstance().getPreferencesService();
@@ -449,9 +456,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
               if (buildAll || (conservativeBuild && unprocessed)) {
                 sourcesToCompile.add(file);
 
-                if (!resource.getProject().equals(project)) {
+                /*if (!resource.getProject().equals(javaProject.getProject())) {
                   dependentProjects.add(resource.getProject());
-                }
+                }*/
               }
             } else if (nativeFilesFilter.accepts(file)) {
               nativeFiles.add(file);
