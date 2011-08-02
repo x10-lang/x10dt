@@ -678,7 +678,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
                                            final IProgressMonitor monitor) throws CoreException {
 	checkSrcFolders();  
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
-                                                              new AlwaysTrueFilter<IPath>());
+                                                              new AlwaysTrueFilter<IPath>(), this.fProjectWrapper.getProject());
     final StringBuilder cpBuilder = new StringBuilder();
     int i = -1;
     for (final String cpEntry : cps) {
@@ -689,7 +689,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
 
     final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
-                                                                  new RuntimeFilter());
+                                                                  new RuntimeFilter(), this.fProjectWrapper.getProject());
     final List<File> sourcePath = CollectionUtils.transform(srcPaths, new IPathToFileFunc());
 
     ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,

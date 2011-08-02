@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -54,11 +55,11 @@ public final class ProjectUtils {
    * list. More precisely, CPE_VARIABLE and CPE_CONTAINER should not be encountered.
    */
   public static <T> Set<T> getFilteredCpEntries(final IJavaProject jProject, final IFunctor<IPath, T> cpEntryFunctor,
-                                                final IFilter<IPath> libFilter) throws JavaModelException {
+                                                final IFilter<IPath> libFilter, IProject project) throws JavaModelException {
     final Set<T> container = new HashSet<T>();
     final IWorkspaceRoot root = jProject.getResource().getWorkspace().getRoot();
     for (final IClasspathEntry cpEntry : jProject.getResolvedClasspath(true)) {
-      collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor);
+      collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor, project);
     }
     return container;
   }
@@ -104,15 +105,21 @@ public final class ProjectUtils {
   
   private static <T> void collectCpEntries(final Set<T> container, final IClasspathEntry cpEntry, final IWorkspaceRoot root, 
                                            final IFilter<IPath> libFilter, 
-                                           final IFunctor<IPath, T> functor) throws JavaModelException {
+                                           final IFunctor<IPath, T> functor,
+                                           final IProject project) throws JavaModelException {
     switch (cpEntry.getEntryKind()) {
       case IClasspathEntry.CPE_SOURCE:
         container.add(functor.apply(getAbsolutePath(root, cpEntry.getPath())));
         break;
         
       case IClasspathEntry.CPE_LIBRARY:
-        if (libFilter.accepts(cpEntry.getPath())) {
-          container.add(functor.apply(cpEntry.getPath()));
+    	IPath path = cpEntry.getPath();
+        if (libFilter.accepts(path)) {
+        	IPath projectPath = (new Path(project.getName())).makeAbsolute();
+        	if (projectPath.isPrefixOf(path)){
+        		path = project.getLocation().removeLastSegments(1).append(path);
+        	}
+          container.add(functor.apply(path));
         }
         break;
       
@@ -123,7 +130,7 @@ public final class ProjectUtils {
         } else {
           final IJavaProject refProject = JavaCore.create((IProject) resource);
           for (final IClasspathEntry newCPEntry : refProject.getResolvedClasspath(true)) {
-            collectCpEntries(container, newCPEntry, root, libFilter, functor);
+            collectCpEntries(container, newCPEntry, root, libFilter, functor, project);
           }
         }
         break;

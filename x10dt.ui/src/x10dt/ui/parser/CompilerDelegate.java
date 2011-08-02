@@ -366,8 +366,11 @@ public class CompilerDelegate {
 
             for(int i= 0; i < classPath.length; i++) {
                 IClasspathEntry entry= classPath[i];
-                final String entryPath= entry.getPath().toOSString();
-
+                String entryPath= entry.getPath().toOSString();
+                String projectPath = (new Path(fX10Project.getProject().getName())).makeAbsolute().toOSString();
+            	if (entryPath.startsWith(projectPath)){
+            		entryPath = fX10Project.getProject().getLocation().removeLastSegments(1).append(entryPath).toOSString();
+            	}
                 if (i > 0)
                     buff.append(File.pathSeparatorChar);
                 buff.append(entryPath);
