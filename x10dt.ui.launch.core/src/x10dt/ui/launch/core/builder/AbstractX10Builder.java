@@ -680,12 +680,26 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  }
 	  return result;
   }
+
+  private void removeSrcJava(Collection<String> cps){
+    String srcjava = null;
+    for(String entry: cps){
+      if (entry.endsWith("src-java")){
+        srcjava = entry;
+        break;
+      }
+    }
+    if (srcjava != null){
+      cps.remove(srcjava);
+    }
+  }
   
   private Map<String, Collection<String>> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                            final IProgressMonitor monitor) throws CoreException {
 	checkSrcFolders();  
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
-                                                              new AlwaysTrueFilter<IPath>(), this.fProjectWrapper.getProject());
+                                                              new AlwaysTrueFilter<IPath>());
+    removeSrcJava(cps);
     final StringBuilder cpBuilder = new StringBuilder();
     int i = -1;
     for (final String cpEntry : cps) {
@@ -696,7 +710,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
 
     final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
-                                                                  new RuntimeFilter(), this.fProjectWrapper.getProject());
+                                                                  new RuntimeFilter());
+    
     final List<File> sourcePath = CollectionUtils.transform(srcPaths, new IPathToFileFunc());
 
     ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,

@@ -74,11 +74,11 @@ public final class ProjectUtils {
    * list. More precisely, CPE_VARIABLE and CPE_CONTAINER should not be encountered.
    */
   public static <T> Set<T> getFilteredCpEntries(final IJavaProject jProject, final IFunctor<IPath, T> cpEntryFunctor,
-                                                final IFilter<IPath> libFilter, IProject project) throws JavaModelException {
+                                                final IFilter<IPath> libFilter) throws JavaModelException {
     final Set<T> container = new HashSet<T>();
     final IWorkspaceRoot root = jProject.getResource().getWorkspace().getRoot();
     for (final IClasspathEntry cpEntry : jProject.getResolvedClasspath(true)) {
-      collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor, project);
+      collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor, jProject.getProject());
     }
     return container;
   }

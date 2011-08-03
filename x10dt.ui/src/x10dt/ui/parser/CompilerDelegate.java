@@ -373,7 +373,9 @@ public class CompilerDelegate {
             	}
                 if (i > 0)
                     buff.append(File.pathSeparatorChar);
-                buff.append(entryPath);
+                if (!entryPath.endsWith("src-java")){
+                	buff.append(entryPath);
+                }
 
                 if (entryPath.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
                     hasRuntime= true;
