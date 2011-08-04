@@ -423,12 +423,16 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
               if (isClassPathFile(file)){
             	  fullBuildSet.add(new Object()); // --- If the classpath has been changed, then we need to do a full build.
               }
-              if (isX10File(file)) {
+              if (isX10File(file) || isClassFile(file)) {
                 if (delta.getKind() == IResourceDelta.REMOVED) {
-                  deletedSources.add(file);
+                  if (!isClassFile(file) && file.getProject().equals(fProjectWrapper.getProject())){
+                    deletedSources.add(file);
+                  }
                   sourcesToCompile.addAll(getChangeDependents(file));
                 } else if (delta.getKind() == IResourceDelta.ADDED || delta.getKind() == IResourceDelta.CHANGED) {
-                  sourcesToCompile.add(file);
+                  if (!isClassFile(file) && file.getProject().equals(fProjectWrapper.getProject())){
+                    sourcesToCompile.add(file);
+                  }
                   sourcesToCompile.addAll(getChangeDependents(file));
                 } 
               }
@@ -880,6 +884,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   private boolean isX10File(final IFile file) {
     return Constants.X10_EXT.equals('.' + file.getFileExtension());
+  }
+  
+  private boolean isClassFile(final IFile file) {
+    return file.getFileExtension().equals("class");
   }
   
   private boolean isClassPathFile(final IFile file) {

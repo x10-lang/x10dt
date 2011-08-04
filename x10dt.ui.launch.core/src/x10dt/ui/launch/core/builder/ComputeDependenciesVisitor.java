@@ -84,7 +84,7 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
         if (type.isClass()) {
             ClassType classType= (ClassType) Types.baseType(type);
             
-            if (!isBinary(classType) && !fFromType.typeEquals(classType,this.context)) { 
+            if (/*!isBinary(classType) &&*/ !fFromType.typeEquals(classType,this.context)) { 
                 fDependencyInfo.addDependency(fFromType, type);
             }
         }
