@@ -306,7 +306,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     }
   }
   
-  protected IJavaProject getJavaProject(){
+  public IJavaProject getJavaProject(){
 	  return fProjectWrapper;
   }
 
@@ -649,7 +649,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 			  if (!dep.exists()) { // --- Some dependencies are to folders
 				  continue;
 			  }
-			  File f = getMainGeneratedFile(fProjectWrapper, dep);
+			  IJavaProject project = JavaCore.create(dep.getProject());
+			  File f = getMainGeneratedFile(project, dep);
 			  if (f == null){
 				  addToBlockingPostCompilation(BuildPathUtils.getBareName(path, fProjectWrapper), srcPath);
 				  return false;
