@@ -44,10 +44,11 @@ public class Messages extends NLS {
   public static String CPPB_CompilErrorMsg;
   public static String CPPB_ConsoleName;
   public static String CPPB_IOErrorDuringCompilation;
-	public static String CPPB_NoPTPConnectionForName;
+  public static String CPPB_NoPTPConnectionForName;
   public static String CPPB_NoValidConnectionError;
   public static String CPPB_OutputStreamReadingError;
   public static String CPPB_RemoteCompilTaskName;
+  public static String CPPB_LocalCompilTaskName;
   public static String CPPB_TargetOpError;
   public static String CPPB_TransferError;
   public static String CPPB_TransferTaskName;

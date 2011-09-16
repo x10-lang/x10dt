@@ -189,8 +189,11 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   public final boolean compile(final IProgressMonitor monitor) throws CoreException {
     monitor.beginTask(null, this.fCppFiles.size());
-    monitor.subTask(Messages.CPPB_RemoteCompilTaskName);
-        
+    if (fPlatformConf.getConnectionConf().isLocal()){
+      monitor.subTask(Messages.CPPB_LocalCompilTaskName);
+    } else {
+      monitor.subTask(Messages.CPPB_RemoteCompilTaskName);
+    }   
     boolean succeeded = true;
     try {
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();

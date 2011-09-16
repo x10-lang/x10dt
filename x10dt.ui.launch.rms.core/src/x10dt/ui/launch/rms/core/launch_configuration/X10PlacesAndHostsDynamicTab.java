@@ -401,9 +401,12 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
 
   public RMLaunchValidation performApply(final ILaunchConfigurationWorkingCopy configuration, 
                                          final IResourceManager resourceManager, final IPQueue queue) {
-    configuration.setAttribute(ATTR_USE_HOSTFILE, this.fHostFileBt.getSelection());
-    configuration.setAttribute(ATTR_NUM_PLACES, this.fNumPlacesSpinner.getSelection());
-    configuration.setAttribute(ATTR_HOSTFILE, this.fHostFileText.getText().trim());
+	if (this.fHostFileBt != null)  
+		configuration.setAttribute(ATTR_USE_HOSTFILE, this.fHostFileBt.getSelection());
+    if (this.fNumPlacesSpinner != null)
+    	configuration.setAttribute(ATTR_NUM_PLACES, this.fNumPlacesSpinner.getSelection());
+    if (this.fHostFileText != null)
+    	configuration.setAttribute(ATTR_HOSTFILE, this.fHostFileText.getText().trim());
     configuration.setAttribute(ATTR_HOSTLIST, (this.fHosts.isEmpty()) ? null : this.fHosts);
     return new RMLaunchValidation(true, null);
   }
