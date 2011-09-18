@@ -93,7 +93,7 @@ public final class ProjectUtils {
   public static String getProjectOutputDirPath(final IProject project) throws CoreException {
     final IJavaProject javaProject = JavaCore.create(project);
     final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-    final URI outputFolderURI = URIUtils.getExpectedURI(root.getFolder(javaProject.getOutputLocation()).getLocationURI());
+    final URI outputFolderURI = /*URIUtils.getExpectedURI(*/root.getFolder(javaProject.getOutputLocation()).getLocationURI();
     return EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor()).getAbsolutePath();
   }
   

@@ -240,7 +240,7 @@ public class NewX10PackageWizardPage extends NewContainerWizardPage {
         }
         // 11/14/2007 RMF disabled to avoid dependency on EFS for now
         else {
-          URI location= URIUtils.getExpectedURI(pack.getResource().getLocationURI());
+          URI location= /*URIUtils.getExpectedURI(*/pack.getResource().getLocationURI()/*)*/;
           if (location != null) {
             IFileStore store= EFS.getStore(location);
             if (store.fetchInfo().exists()) {

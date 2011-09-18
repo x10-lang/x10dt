@@ -281,7 +281,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
     if (resource == null) {
       throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, NLS.bind(Messages.XLCD_ResourceNotFound, path)));
     }
-    final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(resource.getLocationURI()));
+    final IFileStore fileStore = EFS.getLocalFileSystem().getStore(/*URIUtils.getExpectedURI(*/resource.getLocationURI());
     if (fileStore.fetchInfo().exists()) {
       return fileStore.toLocalFile(EFS.NONE, new NullProgressMonitor());
     } else {

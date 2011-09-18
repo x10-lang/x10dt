@@ -54,9 +54,9 @@ public final class ConvertToJavaBackEndAction extends AbstractConvertX10ProjectA
 			
 			// --- Rename the platformConf file to start with "."
 			IFile hiddenFile = ResourcesPlugin.getWorkspace().getRoot().getFile(platformConfFile.getFullPath().removeLastSegments(1).append(new Path("." + platformConfFile.getName())));
-			IFileStore hiddenStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(hiddenFile.getLocationURI()));
+			IFileStore hiddenStore = EFS.getLocalFileSystem().getStore(/*URIUtils.getExpectedURI(*/hiddenFile.getLocationURI());
 			try {
-				EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(URIUtils.getExpectedURI(platformConfFile.getLocationURI()))).move(hiddenStore, EFS.OVERWRITE, new NullProgressMonitor());
+				EFS.getLocalFileSystem().getStore(/*URIUtils.getExpectedURI(*/platformConfFile.getLocationURI()).move(hiddenStore, EFS.OVERWRITE, new NullProgressMonitor());
 			} catch (CoreException e) {
 				//TODO
 			}

@@ -278,7 +278,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
       workspaceDirStore.mkdir(EFS.NONE, null);
     }
     for (final IFile file : files) {
-      final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(file.getLocationURI()));
+      final IFileStore fileStore = EFS.getLocalFileSystem().getStore(/*URIUtils.getExpectedURI(*/file.getLocationURI());
       final IFileStore destFile = workspaceDirStore.getChild(fileStore.getName());
       fileStore.copy(destFile, EFS.OVERWRITE, null);
       final String fileName = fileStore.getName();
