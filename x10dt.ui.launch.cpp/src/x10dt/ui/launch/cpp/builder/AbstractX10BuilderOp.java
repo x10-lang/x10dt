@@ -28,6 +28,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -44,6 +45,7 @@ import x10dt.core.utils.ICountableIterable;
 import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
+import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
@@ -211,6 +213,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         command.add(this.fTargetOpHelper.getTargetSystemPath(this.fPlatformConf.getCppCompilationConf().getCompiler()));
         command.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getCompilingOpts()));
         command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
+        for (final IPath projectDep: AbstractX10Builder.getProjectDependencies(fJavaProject)){
+          command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(projectDep.toOSString()));
+        }
         for (final String headerLoc : this.fPlatformConf.getCppCompilationConf().getX10HeadersLocations(this.fIsLocal)) {
           command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(headerLoc));
         }
@@ -353,6 +358,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     final int index = filePath.lastIndexOf(File.separatorChar);
     return filePath.substring(index + 1);
   }
+  
   
   // --- Fields
   

@@ -25,6 +25,7 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 import x10dt.core.utils.ICountableIterable;
 import x10dt.ui.launch.core.Constants;
+import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.UIUtils;
@@ -89,19 +90,8 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 		commandline.add("-nowarn");
 		commandline.add("-classpath");
 		String classpath = fBuilder.getOptions().constructPostCompilerClasspath();
-		for (final IClasspathEntry cpEntry : fBuilder.getJavaProject().getRawClasspath()) {
-			 if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
-				 final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
-				 IJavaProject javaProject = JavaCore.create(wsRoot.getProject(cpEntry.getPath().toOSString()));
-				 classpath += ":" + wsRoot.getLocation().append(javaProject.getOutputLocation()).toOSString();
-				 for (final IClasspathEntry pEntry: javaProject.getRawClasspath()){
-					 if (pEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
-						 if (pEntry.getOutputLocation() != null){
-							 classpath += ":" + wsRoot.getLocation().append(pEntry.getOutputLocation()).toOSString();
-						 }
-					 }
-				 }
-			 }
+		for (IPath entry: AbstractX10Builder.getProjectDependencies(fBuilder.getJavaProject())){
+			classpath += ":" + entry.toOSString();
 		}
 		commandline.add(classpath);
 		for (String file: fJavaFiles) {

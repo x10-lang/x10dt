@@ -970,6 +970,37 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 		}
 		return result;
 	}
+	
+	
+	public static Collection<IPath> getProjectDependencies(IJavaProject project) throws JavaModelException {
+      Collection<IPath> ret = new ArrayList<IPath>();
+      for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
+        if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
+            final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+            IJavaProject javaProject = JavaCore.create(wsRoot.getProject(cpEntry.getPath().toOSString()));
+            ret.add(wsRoot.getLocation().append(javaProject.getOutputLocation()));
+            for (final IClasspathEntry pEntry: javaProject.getRawClasspath()){
+                if (pEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE){
+                    if (pEntry.getOutputLocation() != null){
+                        ret.add(wsRoot.getLocation().append(pEntry.getOutputLocation()));
+                    }
+                }
+            }
+        }
+      }
+      return ret;
+	}
+	
+	public static Collection<String> getProjectDependenciesNames(IJavaProject project) throws JavaModelException {
+      Collection<String> ret = new ArrayList<String>();
+      for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
+        if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
+            final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+            ret.add(wsRoot.getProject(cpEntry.getPath().toOSString()).getName());
+        }
+      }
+      return ret;
+    }
 
   // --- Fields
 

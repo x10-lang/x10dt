@@ -38,6 +38,8 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.preferences.PreferencesService;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.PTPCorePlugin;
@@ -69,6 +71,7 @@ import x10dt.core.utils.X10DTCoreConstants;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
+import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
@@ -102,18 +105,18 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       monitor.beginTask(null, 10);
       monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
 
-      final IProject project = verifyProject(configuration);
+      this.fProject = verifyProject(configuration);
 
       // The following check shouldn't be necessary, since this ILaunchConfigurationDelegate implementation
       // isn't used for debug-mode launches. I.e., we should never get here in that case.
       if (ILaunchManager.DEBUG_MODE.equals(mode) && 
-          !new PreferencesService(project).getBooleanPreference(X10Constants.P_DEBUG)) {
+          !new PreferencesService(fProject).getBooleanPreference(X10Constants.P_DEBUG)) {
           ErrorDialog.openError(null, x10dt.ui.Messages.AXLS_NoDebugInfoErrorTitle, LaunchMessages.CLCD_AppBuiltWithoutDebug,
                                 new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Constants.EMPTY_STR));
           return;
       }
-      if (!monitor.isCanceled() && shouldProcessToLinkStep(project) &&
-          createExecutable(configuration, project, new SubProgressMonitor(monitor, 5)) == 0) {
+      if (!monitor.isCanceled() && shouldProcessToLinkStep(fProject) &&
+          createExecutable(configuration, fProject, new SubProgressMonitor(monitor, 5)) == 0) {
         // Then, performs the launch.
         if (!monitor.isCanceled()) {
           monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
@@ -186,6 +189,11 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       command.add(linker);
       command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingOpts()));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
+      IJavaProject javaProject = JavaCore.create(fProject);
+      Collection<IPath> projectDeps = AbstractX10Builder.getProjectDependencies(javaProject);
+      for (final IPath projectDep: projectDeps){
+        command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(projectDep.toOSString()));
+      }
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(mainCppFileIncludePath));
       for (final String headerLoc : cppCompConf.getX10HeadersLocations(connConf.isLocal())) {
         command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(headerLoc));
@@ -194,10 +202,16 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       command.add("-o"); //$NON-NLS-1$
       command.add(this.fTargetOpHelper.getTargetSystemPath(this.fExecPath));
       command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
+      for (final IPath projectDep: projectDeps){
+        command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(projectDep.toOSString()));
+      }
       for (final String libLoc : cppCompConf.getX10LibsLocations(connConf.isLocal())) {
         command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(libLoc));
       }
       command.add("-l" + project.getName()); //$NON-NLS-1$
+      for (final String projectDep: AbstractX10Builder.getProjectDependenciesNames(javaProject)){
+        command.add("-l" + projectDep);
+      }
       final List<String> linkingLibs = X10BuilderUtils.getAllTokens(cppCompConf.getLinkingLibs());
       command.addAll(linkingLibs);
 
@@ -545,6 +559,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
   private IResourceManagerControl fResourceManager;
 
   private String fWorkspaceDir;
+  
+  private IProject fProject;
 
   private static final String MAIN_FILE_NAME = "/xxx_main_xxx.cc"; //$NON-NLS-1$
 
