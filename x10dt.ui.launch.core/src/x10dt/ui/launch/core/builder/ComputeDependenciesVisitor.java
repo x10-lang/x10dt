@@ -68,6 +68,7 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
     private Type fFromType;
     private SourceFile fFromFile;
     private final PolyglotDependencyInfo fDependencyInfo;
+    private final ArrayList<Type> fInitialTypes = new ArrayList<Type>();
 
     public ComputeDependenciesVisitor(IJavaProject project, Job job, TypeSystem ts, PolyglotDependencyInfo di) {
     	super(job, ts, ts.extensionInfo().nodeFactory());
@@ -84,8 +85,12 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
         if (type.isClass()) {
             ClassType classType= (ClassType) Types.baseType(type);
             
-            if (/*!isBinary(classType) &&*/ !fFromType.typeEquals(classType,this.context)) { 
-                fDependencyInfo.addDependency(fFromType, type);
+            if (fFromType == null) { //--- encountered a type before fFromType was set
+              fInitialTypes.add(type);
+            } else {
+              if (/*!isBinary(classType) &&*/ !fFromType.typeEquals(classType,this.context)) { 
+                  fDependencyInfo.addDependency(fFromType, type);
+              }
             }
         }
     }
@@ -219,6 +224,12 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
 				if (classDef != null) {
 					fFromType = classDef.asType(); // PORT1.7
 												// classDecl.type()->classDecl.classDef().asType()
+					if (!fInitialTypes.isEmpty()){
+					  for (Type type: fInitialTypes){
+					    recordTypeDependency(type);
+					  }
+					  fInitialTypes.clear();
+					}
 					List<Type> supers = new ArrayList<Type>();
 					superTypes(classDef.asType(), supers);
 					for (Type supert : supers) {
