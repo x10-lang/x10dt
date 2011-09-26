@@ -888,7 +888,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   }
   
   private boolean isClassFile(final IFile file) {
-    return file.getFileExtension().equals("class");
+    if (file.getFileExtension() != null){
+      return file.getFileExtension().equals("class");
+    }
+    return false;
   }
   
   private boolean isClassPathFile(final IFile file) {
@@ -974,6 +977,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	
 	public static Collection<IPath> getProjectDependencies(IJavaProject project) throws JavaModelException {
       Collection<IPath> ret = new ArrayList<IPath>();
+      if (project == null) return ret;
       for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
         if (cpEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
             final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
