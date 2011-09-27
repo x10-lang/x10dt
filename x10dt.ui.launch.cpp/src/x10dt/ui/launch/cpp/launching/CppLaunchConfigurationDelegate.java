@@ -189,6 +189,9 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       command.add(linker);
       command.addAll(X10BuilderUtils.getAllTokens(cppCompConf.getLinkingOpts()));
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
+      if (fProject == null){
+        this.fProject = verifyProject(configuration);
+      }
       IJavaProject javaProject = JavaCore.create(fProject);
       Collection<IPath> projectDeps = AbstractX10Builder.getProjectDependencies(javaProject);
       for (final IPath projectDep: projectDeps){
