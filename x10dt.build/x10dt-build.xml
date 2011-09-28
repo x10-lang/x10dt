@@ -140,24 +140,6 @@
 
   <target name="post-build" unless="skipMirroring">
     <!--    <antcall target="sign-jars" /> -->
-    <!-- HERE -->
-    <!-- Publish the resulting update site on orquesta -->
-    <p2.publish.featuresAndBundles
-        repository="file:/${publish.site.loc}"
-        publishArtifacts="true"
-        compress="true"
-        source="${x10dtBuildDirectory}/buildRepo"/>
-    <java jar="${toString:launcher.path.ref}" fork="true" failonerror="true">
-      <arg value="-application" />
-      <arg value="org.eclipse.equinox.p2.publisher.CategoryPublisher" />
-      <arg value="-metadataRepository" />
-      <arg value="file:${publish.site.loc}" />
-      <arg value="-categoryDefinition" />
-      <arg value="file:${build.loc}/x10dt-category.xml" />
-      <arg value="-categoryQualifier" />
-      <arg value="-compress" />
-    </java>
-    <!-- HERE -->
     <mkdir dir="${publish.site.loc}/${buildLabel}"/>
     <zip destfile="${publish.site.loc}/${buildLabel}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
          basedir="${publish.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
