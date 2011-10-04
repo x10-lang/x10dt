@@ -57,7 +57,7 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
     
     final IFactKey key = new FactKey(getType(), factContext);
     if (factBase.getAllKeys().contains(key)) {
-      final URI resourceURI = /*URIUtils.getExpectedURI(*/resource.getLocationURI()/*)*/;
+      final URI resourceURI = URIUtils.getExpectedURI(resource.getLocationURI());
       final IFilter<ITuple> tupleFilter;
       if (resource.getType() == IResource.FILE) {
         tupleFilter = new FileTupleFilter(resourceURI);

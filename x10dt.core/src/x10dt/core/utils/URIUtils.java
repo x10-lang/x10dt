@@ -16,7 +16,7 @@ public class URIUtils {
 	 * @param uri
 	 * @return
 	 */
-	/* public static URI getExpectedURI(URI uri){
+	public static URI getExpectedURI(URI uri){
 		try {
 			if (uri.getAuthority() == null) {
 				return uri;
@@ -37,5 +37,5 @@ public class URIUtils {
 			return null;
 		}
 		
-	}*/
+	}
 }

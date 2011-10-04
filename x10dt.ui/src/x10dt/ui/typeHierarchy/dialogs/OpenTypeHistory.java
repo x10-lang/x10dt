@@ -323,7 +323,7 @@ public class OpenTypeHistory extends History {
 			ITypeInfo typeInfo= match.getType();
 			IResource resource= SearchUtils.getResource(typeInfo);
 			if (resource != null) {
-				URI location= /*URIUtils.getExpectedURI(*/resource.getLocationURI()/*)*/;
+				URI location= URIUtils.getExpectedURI(resource.getLocationURI());
 				if (location != null) {
 					IFileInfo info= EFS.getStore(location).fetchInfo();
 					if (info.exists()) {
