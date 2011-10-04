@@ -100,7 +100,7 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     super.performFinish(monitor);
 
     // -- create src-java and bin-java
-    /*String srcJava = "src-java";
+    String srcJava = "src-java";
     String binJava = "bin-java";
     IFolder srcFolder = project.getFolder(srcJava);
     IFolder binFolder = project.getFolder(binJava);
@@ -115,7 +115,7 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     System.arraycopy(entries, 0, newEntries, 0, entries.length);
     newEntries[newEntries.length - 1] = javasrc;
     javaProject.setRawClasspath(newEntries, new NullProgressMonitor());
-    */
+    
     
     // generate sample "Hello World" X10 application
     if (firstPage.isGenHello()) {

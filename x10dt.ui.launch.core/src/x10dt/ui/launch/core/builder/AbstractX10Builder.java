@@ -704,7 +704,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	checkSrcFolders();  
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
                                                               new AlwaysTrueFilter<IPath>());
-    //removeSrcJava(cps);
+    removeSrcJava(cps);
     final StringBuilder cpBuilder = new StringBuilder();
     int i = -1;
     for (final String cpEntry : cps) {
