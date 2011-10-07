@@ -1,6 +1,7 @@
 package x10dt.ui.parser;
 
 import java.io.File;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -16,9 +17,11 @@ import polyglot.ast.PackageNode;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.SemanticException;
+import polyglot.util.CodedErrorInfo;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.errors.Errors;
+import x10.util.CollectionFactory;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.Messages;
 
@@ -50,7 +53,12 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
 
     private void checkPackage(String declaredPkg, String actualPkg, Position pos) {
         if (!actualPkg.equals(declaredPkg)) {
-        	Errors.issue(fJob, new SemanticException(Messages.CPD_PackageDeclError, pos));
+        	SemanticException ex = new SemanticException(Messages.CPD_PackageDeclError, pos);
+        	Map<String, Object> map = CollectionFactory.newHashMap();
+            map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_WRONG_PACKAGE);
+            map.put("ACTUAL_PACKAGE", actualPkg);
+            ex.setAttributes(map);
+        	Errors.issue(fJob, ex);
         }
     }
 
