@@ -28,6 +28,7 @@ import polyglot.ast.ClassDecl;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Field;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
@@ -52,7 +53,13 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.ProcedureInstance;
 import polyglot.types.Type;
 import polyglot.types.TypeObject;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.Position;
+import x10.ast.AtExpr;
+import x10.ast.AtStmt;
+import x10.ast.Closure;
+import x10.ast.DepParameterExpr;
 import x10.types.ConstrainedType;
 import x10dt.ui.parser.PolyglotNodeLocator;
 
@@ -114,7 +121,12 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 				return getHelpForEntity((ClassType) target, parseController, root);	
 			} else if (target instanceof ClassDecl) {
 				return getHelpForEntity((ClassDecl) target, parseController, root);
-
+			
+			} else if (target instanceof AtStmt) {
+				return getHelpForEntity((AtStmt) target, parseController, root);
+			} else if (target instanceof Closure) {
+				return getHelpForEntity((Closure) target, parseController, root);
+			
 			} else if (target instanceof TypeNode) {
 				return getHelpForEntity((TypeNode) target, parseController, root);
 			} else if (target instanceof ConstrainedType) {
@@ -230,6 +242,37 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 
     private String getSignature(ConstructorDef cdef) {
         return getSignature(cdef, qualify(containerName(cdef), "this"), null);
+    }
+
+    private String getHelpForEntity(AtStmt atStmt, IParseController parseController, Node root) {
+		
+    	String fullName = "at (" + atStmt.place().toString() + ") captures ";
+    	List<VarInstance<? extends VarDef>> env = atStmt.atDef().capturedEnvironment();
+    	String captures = formatEnvList(env);
+
+    	return getX10DocFor(fullName + captures, atStmt.atDef().asInstance());
+
+    }
+
+    private String getHelpForEntity(Closure c, IParseController parseController, Node root) {
+		if (c instanceof AtExpr) {
+			AtExpr ae = (AtExpr) c;
+			String fullName = "at[" + ae.returnType().toString() + "] (" + ae.place().toString() + ") captures ";
+			String captures = formatEnvList(ae.closureDef().capturedEnvironment());
+			
+			return getX10DocFor(fullName + captures, c.closureDef().asInstance());
+		} else {
+			// String fullName = getClosure
+			String formals = formatFormalArgs(c.formals());
+			DepParameterExpr guard_ = c.guard();
+			String guard = guard_ == null ? "" : "{ " + guard_.toString() + " }";
+			String ret = c.returnType().toString();
+			String fullName = formals + guard + " => " + ret + " captures ";
+			String captures = formatEnvList(c.closureDef().capturedEnvironment());
+			
+			return getX10DocFor(fullName + captures, c.closureDef().asInstance());
+
+		}
     }
 
 	private String getHelpForEntity(TypeNode tn, IParseController parseController, Node root) {
@@ -692,6 +735,60 @@ public class X10DocProvider implements IDocumentationProvider, ILanguageService 
 		    result.append(typeAndName);
 		}
 		result.append(")");
+		return result.toString();
+		
+	}
+	
+	/**
+	 * Given a list of string args, format them with commas between
+	 * e.g. "int a, int b, String c"  etc.
+	 * @param args
+	 * @return the formatted string list of args
+	 */
+	private String formatFormalArgs(List<Formal> args) {
+		StringBuilder result = new StringBuilder();
+		
+		result.append("(");
+		int idx = 0;
+		for (Formal arg: args) {
+			LocalDef argDef = arg.localDef();
+		    String typeAndName = argDef.type() + " " + argDef.name();
+		    typeAndName = removeJavaLang(typeAndName);
+            if (idx++ > 0) {
+                result.append(", ");
+            }
+		    result.append(typeAndName);
+		}
+		result.append(")");
+		return result.toString();
+		
+	}
+	
+	/**
+	 * Given a list of environment variables, format them with commas between them.
+	 * If they are constant, also prints out their constant value
+	 * e.g. "{a : int, b : int, c : String = 3}"  etc.
+	 * @param env
+	 * @return the formatted string list of variables
+	 */
+	private String formatEnvList(List<VarInstance<? extends VarDef>> env) {
+		StringBuilder result = new StringBuilder();
+		
+		result.append("{");
+		int idx = 0;
+		for (VarInstance<? extends VarDef> envInst: env) {
+            if (idx++ > 0) {
+                result.append(", ");
+            }
+            result.append(envInst.name());
+            result.append(" : ");
+            result.append(removeJavaLang(envInst.type().toString()));
+            if(envInst.isConstant()) {
+            	result.append(" = ");
+            	result.append(envInst.constantValue().toString());
+            }
+		}
+		result.append("}");
 		return result.toString();
 		
 	}
