@@ -54,12 +54,42 @@ public class RenamePackageProposal extends CUCorrectionProposal {
 	String packageName;
 
 	
-	public RenamePackageProposal(IQuickFixInvocationContext context, String packageName) {
-		super("Change package declaration to " + (packageName.equals("") ? "use default package" : ("'" + packageName + "'")), context.getModel(), 8, null);
+	
+	public static String getDescription(String curPackageName, String newPackageName) {
+		if(curPackageName.equals(newPackageName)) {
+			System.err.println("Strangness when trying to propose changing package declaration from '" + curPackageName + "' to '" + newPackageName + "'");
+			return "Change the package declaration to itself :-).  If this comes up, it represents" +
+					"a (minor) bug";
+		}
+		if(newPackageName.equals("")) {
+			return "Remove package declaration"; 
+		} else if (curPackageName.equals("")) {
+			return "Add package declaration '" + newPackageName + "'";
+		} else {
+			return "Change package declaration from '" + curPackageName + "' to '" + newPackageName + "'";
+		}
+	}
+	
+	private static String getPackageName(IQuickFixInvocationContext context2) {
+		ICompilationUnit comp = context2.getModel(); 
+		Object root = comp.getAST(new NullMessageHandler(),
+				new NullProgressMonitor());
+		if(! (root instanceof SourceFile_c)) {
+			return "";
+		}
+		SourceFile_c source = (SourceFile_c)root;
+		PackageNode sourcePackage = source.package_();
+		return sourcePackage == null ? "" : sourcePackage.toString();
+	}
+	
+	public RenamePackageProposal(IQuickFixInvocationContext context, String newPackageName) {
+		super(getDescription(getPackageName(context), newPackageName), context.getModel(), 8, null);
 		this.context = context;
 		setImage(JavaPluginImages.get(JavaPluginImages.IMG_CORRECTION_MOVE));
-		this.packageName = packageName;
+		this.packageName = newPackageName;
 	}
+
+	
 
 	@Override
 	protected void addEdits(IDocument document, TextEdit editRoot)

@@ -72,6 +72,8 @@ public class AddImportProposal extends CUCorrectionProposal {
 		Set<String> packageNames = new HashSet<String>();
 		// We already "found" the default and the current packages
 		packageNames.add("");
+		packageNames.add("default");
+		packageNames.add("x10.lang");
 		packageNames.add(sourcePackageName);
 		
 		// proposals.add(new AddImportProposal(context, typeName, "java.lang"));
@@ -84,20 +86,22 @@ public class AddImportProposal extends CUCorrectionProposal {
 			SubProgressMonitor searchMonitor = new SubProgressMonitor(monitor, 1);
 			ITypeInfo[] types = X10SearchEngine.getAllMatchingTypeInfo(SearchScopeFactory.createWorkspaceScope(X10SearchScope.ALL), SearchUtils.getTypeRegex(typeName), false, searchMonitor);
 			for(ITypeInfo typeInfo : types) {
-				String packageName = SearchUtils.getPackageName(typeInfo);
+				ITypeInfo type = typeInfo;
+				ITypeInfo parentType = typeInfo;
+				while(parentType != null) {
+					type = parentType;
+					parentType = SearchUtils.getOuterTypeInfo(type);
+					if(parentType == type) {
+						break;
+					}
+				}
+				String packageName = SearchUtils.getPackageName(type);
 				// don't suggest imports from the default package or the current package, or an already added package
 				if (! packageNames.contains(packageName)) {
-					ITypeInfo type = typeInfo;
-					ITypeInfo parentType = typeInfo;
-					while(parentType != null) {
-						type = parentType;
-						parentType = SearchUtils.getOuterTypeInfo(type);
-						if(parentType == type) {
-							break;
-						}
-					}
+					String fullName = typeInfo.getName();				
+					String elemName = fullName.substring(packageName.length()+1); 
 					packageNames.add(packageName);
-					proposals.add(new AddImportProposal(true, context, SearchUtils.getElementName(type), packageName));
+					proposals.add(new AddImportProposal(true, context, elemName, packageName, 8));
 				}
 			}
 
@@ -110,8 +114,6 @@ public class AddImportProposal extends CUCorrectionProposal {
 					new SearchEngine().searchAllTypeNames(null, 0, typeName.toCharArray(), SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE, IJavaSearchConstants.TYPE, searchScope, requestor, IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH, searchMonitor);
 					for (TypeNameMatch curr : typeInfos) {
 						String packageName = curr.getPackageName();
-						// don't suggest imports from the default package or the current package
-						if (! packageNames.contains(packageName)) {
 							IType type = curr.getType();
 							IType parentType = type;
 							while(parentType != null) {
@@ -119,9 +121,13 @@ public class AddImportProposal extends CUCorrectionProposal {
 								parentType = type.getDeclaringType();
 
 							}
-							packageNames.add(packageName);
-							proposals.add(new AddImportProposal(false, context, type.getElementName(), packageName));
-						}
+							// don't suggest imports from the default package or the current package
+							if (! packageNames.contains(packageName)) {
+								String fullName = curr.getFullyQualifiedName();
+								String elemName = fullName.substring(packageName.length()+1); 
+								packageNames.add(packageName);
+								proposals.add(new AddImportProposal(false, context, elemName, packageName, 8));
+							}
 					}
 				}
 			} catch (CoreException e) {
@@ -131,8 +137,8 @@ public class AddImportProposal extends CUCorrectionProposal {
 	}
 		
 	public AddImportProposal(boolean isX10, IQuickFixInvocationContext context,
-			String typeName, String packageName) {
-		super("Import '" + typeName + "' (" + packageName + ")" + (isX10 ? "" : " [java]"), context.getModel(), 8, null);
+			String typeName, String packageName, int priority) {
+		super("Import '" + typeName + "' (" + packageName + ")" + (isX10 ? "" : " [java]"), context.getModel(), priority, null);
 		this.context = context;
 		setImage(JavaPluginImages.get(JavaPluginImages.IMG_OBJS_IMPDECL));
 		// setImage(PluginImages.get(PluginImages.IMG_CORRECTION_ADD));
