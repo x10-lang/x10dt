@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
@@ -51,7 +52,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
-import org.eclipse.core.runtime.OperationCanceledException;
 
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Globals;
@@ -62,7 +62,6 @@ import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
-import x10dt.core.utils.AlwaysTrueFilter;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.CountableIterableFactory;
 import x10dt.core.utils.IFilter;
@@ -71,9 +70,7 @@ import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import x10dt.ui.launch.core.utils.CollectionUtils;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
-import x10dt.ui.launch.core.utils.IdentityFunctor;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.core.utils.UIUtils;
 import x10dt.ui.launch.core.utils.X10BuilderUtils;
@@ -686,40 +683,17 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  return result;
   }
 
-  private void removeSrcJava(Collection<String> cps){
-    String srcjava = null;
-    for(String entry: cps){
-      if (entry.endsWith("src-java")){
-        srcjava = entry;
-        break;
-      }
-    }
-    if (srcjava != null){
-      cps.remove(srcjava);
-    }
-  }
+  protected abstract String getSrcClassPath(List<File> sourcePath) throws CoreException;
   
   private Map<String, Collection<String>> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                            final IProgressMonitor monitor) throws CoreException {
 	checkSrcFolders();  
-    final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
-                                                              new AlwaysTrueFilter<IPath>());
-    removeSrcJava(cps);
-    final StringBuilder cpBuilder = new StringBuilder();
-    int i = -1;
-    for (final String cpEntry : cps) {
-      if (++i > 0) {
-        cpBuilder.append(File.pathSeparatorChar);
-      }
-      cpBuilder.append(cpEntry);
-    }
-
-    final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
-                                                                  new RuntimeFilter());
+	
+	List<File> sourcePath = new ArrayList<File>();
+	String classPath = getSrcClassPath(sourcePath);
     
-    final List<File> sourcePath = CollectionUtils.transform(srcPaths, new IPathToFileFunc());
 
-    ExtensionInfo extInfo = createExtensionInfo(cpBuilder.toString(), sourcePath, localOutputDir,
+    ExtensionInfo extInfo = createExtensionInfo(classPath, sourcePath, localOutputDir,
                                                       false /* withMainMethod */, monitor);
 
     echoCommandLineToConsole(sourcesToCompile, extInfo);
