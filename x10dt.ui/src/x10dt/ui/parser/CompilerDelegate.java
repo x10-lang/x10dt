@@ -364,6 +364,8 @@ public class CompilerDelegate {
         try {
             IClasspathEntry[] classPath= (fX10Project != null) ? fX10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
 
+            buff.append(fX10Project.getProject().getLocation().append("bin-java").toOSString());
+           
             for(int i= 0; i < classPath.length; i++) {
                 IClasspathEntry entry= classPath[i];
                 String entryPath= entry.getPath().toOSString();
@@ -371,8 +373,8 @@ public class CompilerDelegate {
             	if (entryPath.startsWith(projectPath)){
             		entryPath = fX10Project.getProject().getLocation().removeLastSegments(1).append(entryPath).toOSString();
             	}
-                if (i > 0)
-                    buff.append(File.pathSeparatorChar);
+               
+            	buff.append(File.pathSeparatorChar);
                 if (!entryPath.endsWith("src-java")){
                 	buff.append(entryPath);
                 }
@@ -388,8 +390,7 @@ public class CompilerDelegate {
                     buff.append(File.pathSeparatorChar);
                 buff.append(getRuntimePath());
             }
-            buff.append(File.pathSeparatorChar);
-            buff.append(fX10Project.getProject().getLocation().append("bin-java").toOSString());
+            
         } catch (JavaModelException e) {
             X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
         }
