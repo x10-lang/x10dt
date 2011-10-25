@@ -104,8 +104,9 @@ public class QuickFixAssistant extends DefaultQuickFixAssistant {
 			break;
 		case CodedErrorInfo.ERROR_CODE_WRONG_PACKAGE:
 			String correctPackage = problem.getAttribute("ACTUAL_PACKAGE", "/");
+			String declaredPackage = problem.getAttribute("DECLARED_PACKAGE", "/");
 			if(correctPackage != null && ! correctPackage.equals("/")) {
-				proposals.add(new RenamePackageProposal(context, correctPackage));
+				proposals.add(new RenamePackageProposal(context, declaredPackage, correctPackage));
 			}
 		default:
 		}

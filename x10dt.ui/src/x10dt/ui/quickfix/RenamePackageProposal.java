@@ -70,27 +70,13 @@ public class RenamePackageProposal extends CUCorrectionProposal {
 		}
 	}
 	
-	private static String getPackageName(IQuickFixInvocationContext context2) {
-		ICompilationUnit comp = context2.getModel(); 
-		Object root = comp.getAST(new NullMessageHandler(),
-				new NullProgressMonitor());
-		if(! (root instanceof SourceFile_c)) {
-			return "";
-		}
-		SourceFile_c source = (SourceFile_c)root;
-		PackageNode sourcePackage = source.package_();
-		return sourcePackage == null ? "" : sourcePackage.toString();
-	}
-	
-	public RenamePackageProposal(IQuickFixInvocationContext context, String newPackageName) {
-		super(getDescription(getPackageName(context), newPackageName), context.getModel(), 8, null);
+	public RenamePackageProposal(IQuickFixInvocationContext context, String curPackageName, String newPackageName) {
+		super(getDescription(curPackageName, newPackageName), context.getModel(), 8, null);
 		this.context = context;
 		setImage(JavaPluginImages.get(JavaPluginImages.IMG_CORRECTION_MOVE));
 		this.packageName = newPackageName;
 	}
-
 	
-
 	@Override
 	protected void addEdits(IDocument document, TextEdit editRoot)
 			throws CoreException {

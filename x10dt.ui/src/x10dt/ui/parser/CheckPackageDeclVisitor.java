@@ -56,6 +56,7 @@ public class CheckPackageDeclVisitor extends NodeVisitor {
         	SemanticException ex = new SemanticException(Messages.CPD_PackageDeclError, pos);
         	Map<String, Object> map = CollectionFactory.newHashMap();
             map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_WRONG_PACKAGE);
+            map.put("DECLARED_PACKAGE", declaredPkg);
             map.put("ACTUAL_PACKAGE", actualPkg);
             ex.setAttributes(map);
         	Errors.issue(fJob, ex);
