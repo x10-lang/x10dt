@@ -16,6 +16,7 @@ import org.eclipse.text.edits.TextEdit;
 
 import polyglot.ast.ClassDecl;
 import polyglot.ast.FlagsNode;
+import polyglot.ast.Id;
 import polyglot.ast.Node;
 import x10dt.ui.parser.PolyglotNodeLocator;
 
@@ -42,6 +43,9 @@ public class MakeAbstractProposal extends CUCorrectionProposal {
 		coveringNode = (Node) pnl.findNode(root, context.getOffset());
 
 		int offset = 0;
+		
+		
+		
 		if (coveringNode instanceof ClassDecl) {
 			MultiTextEdit edit = new MultiTextEdit();
 			ClassDecl classDecl = (ClassDecl) coveringNode;
@@ -56,6 +60,16 @@ public class MakeAbstractProposal extends CUCorrectionProposal {
 			offset = coveringNode.position().endOffset() + 1;
 
 			edit.addChild(new InsertEdit(offset, " abstract"));
+			editRoot.addChild(edit);
+		}
+		
+		else if (coveringNode instanceof Id){
+			MultiTextEdit edit = new MultiTextEdit();
+			ClassDecl classDecl = (ClassDecl) pnl.findParentNode(root, context
+					.getOffset());
+			offset = classDecl.position().offset();
+
+			edit.addChild(new InsertEdit(offset, "abstract "));
 			editRoot.addChild(edit);
 		}
 		

@@ -26,6 +26,7 @@ import polyglot.ast.Block;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.FlagsNode;
 import polyglot.ast.Formal;
+import polyglot.ast.Id;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.Stmt;
@@ -86,6 +87,11 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 		}
 
 		else if (coveringNode instanceof FlagsNode) {
+			classDecl = (ClassDecl) pnl.findParentNode(root, context
+					.getOffset());
+		}
+		
+		else if (coveringNode instanceof Id) {
 			classDecl = (ClassDecl) pnl.findParentNode(root, context
 					.getOffset());
 		}
