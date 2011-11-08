@@ -45,7 +45,7 @@ public class X10ProjectNature extends ProjectNatureBase {
         return X10DTCorePlugin.getInstance();
     }
     
-  @Override
+ /* @Override
     public void configure() throws CoreException {
       super.configure();
       final IProject project = getProject();
@@ -72,5 +72,5 @@ public class X10ProjectNature extends ProjectNatureBase {
       }
       return false;
     }
-
+*/
 }
