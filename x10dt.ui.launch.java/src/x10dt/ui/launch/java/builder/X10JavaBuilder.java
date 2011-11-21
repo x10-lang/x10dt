@@ -36,7 +36,7 @@ public class X10JavaBuilder extends AbstractX10Builder {
 			boolean withMainMethod, IProgressMonitor monitor) {
 		final ExtensionInfo extInfo = new JavaBuilderExtensionInfo(monitor, this);
 		IPath binJava = fProjectWrapper.getProject().getLocation().append("bin-java");
-		classPath = binJava.toOSString() + ":" + classPath;
+		classPath = binJava.toOSString() + File.pathSeparatorChar + classPath;
 		sourcePath.add(0, binJava.toFile());
 		
 	    buildOptions(classPath, sourcePath, localOutputDir, extInfo.getOptions(), withMainMethod);
