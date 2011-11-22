@@ -36,7 +36,7 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
 
   public boolean contains(final String resourceURI) {
     for (final IResource resource : this.fResources) {
-      if (resourceURI.startsWith(URIUtils.getExpectedURI(resource.getLocationURI()).toString())) {
+      if (resourceURI.startsWith(resource.getLocation().toOSString())) {
         return true;
       }
     }

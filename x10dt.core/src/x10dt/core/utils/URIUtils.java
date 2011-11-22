@@ -23,7 +23,11 @@ public class URIUtils {
 			}
 			
 			if (uri.getAuthority().equals("jazz")) {
-				return new URI(uri.getQuery());
+				if (uri.getQuery() != null) {
+					return new URI(uri.getQuery());
+				} else {
+					return uri;
+				}
 				
 			} else { // --- Non-null authority that is not jazz
 				X10DTCorePlugin.getInstance().logException(NLS.bind(Messages.UUUnknownAuthority, uri.getAuthority()), null);
@@ -31,10 +35,10 @@ public class URIUtils {
 			}
 		} catch (URISyntaxException e){
 			X10DTCorePlugin.getInstance().logException(Messages.UUException, e);
-			return null;
+			return uri;
 		} catch (NullPointerException e){
-			System.err.println("*********URI = " + uri);
-			return null;
+			X10DTCorePlugin.getInstance().logException(NLS.bind(Messages.UUException, uri.toString()), e);
+			return uri;
 		}
 		
 	}
