@@ -33,15 +33,15 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   }
   
   // --- Interface methods implementation
-
+  
   public boolean contains(final String resourceURI) {
-    for (final IResource resource : this.fResources) {
-      if (resourceURI.startsWith(resource.getLocation().toOSString())) {
-        return true;
-      }
-    }
-    return false;
-  }
+	    for (final IResource resource : this.fResources) {
+	      if (resourceURI.startsWith(URIUtils.getExpectedURI(resource.getLocationURI()).toString())) {
+	        return true;
+	      }
+	    }
+	    return false;
+	  }
 
   public ICountableIterable<IFactContext> createSearchContexts() {
     final Collection<IFactContext> searchContexts = new ArrayList<IFactContext>();

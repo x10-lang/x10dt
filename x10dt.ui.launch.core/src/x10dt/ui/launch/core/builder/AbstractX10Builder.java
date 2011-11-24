@@ -661,7 +661,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   private void addToBlockingPostCompilation(String name, String path){
 	  Collection<String> blocked = fBlockingPostCompilation.get(name);
 	  if (blocked == null){
-		  blocked = new ArrayList<String>();
+		  blocked = new HashSet<String>();
 		  fBlockingPostCompilation.put(name, blocked);
 	  }
 	  blocked.add(path);

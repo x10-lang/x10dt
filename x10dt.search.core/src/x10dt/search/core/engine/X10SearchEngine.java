@@ -723,7 +723,7 @@ public final class X10SearchEngine {
         final String name = ((IString) tuple.get(0)).getValue();
         final ISourceLocation sourceLoc = (ISourceLocation) tuple.get(1);
         if (filter.accepts(name) && 
-            ((scopeIndex == X10SearchScope.RUNTIME >> 1) || searchScope.contains(sourceLoc.getURI().getPath()))) {
+            ((scopeIndex == X10SearchScope.RUNTIME >> 1) || searchScope.contains(sourceLoc.getURI().toString()))) {
           final ITypeInfo typeInfo = findTypeInfo(allTypes, scopeIndex, tuple, monitor);
           if (typeInfo != null) {
             typeInfos.add(typeInfo);

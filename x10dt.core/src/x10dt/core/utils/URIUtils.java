@@ -18,6 +18,8 @@ public class URIUtils {
 	 */
 	public static URI getExpectedURI(URI uri){
 		try {
+			if (uri == null)
+				return null;
 			if (uri.getAuthority() == null) {
 				return uri;
 			}
