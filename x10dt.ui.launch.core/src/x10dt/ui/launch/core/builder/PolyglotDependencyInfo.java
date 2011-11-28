@@ -64,6 +64,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	Collection<String> result = new ArrayList<String>();
     	name = name.replace('.', File.separatorChar);
     	result.add(name + Constants.X10_EXT);
+    	result.add(name + Constants.CLASS_EXT);
     	if (!name.contains(File.separator)){
     		return result;
     	}
@@ -71,6 +72,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	while(i != -1){
     		name = name.substring(0, i);
     		result.add(name + Constants.X10_EXT);
+    		result.add(name + Constants.CLASS_EXT);
     		i = name.lastIndexOf(File.separatorChar);
     	}
  
@@ -86,7 +88,15 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     		Collection<String> names = getPossibleFileNames(name);
     		for (String n: names){
     			String middle = !pac.equals("") ? pac + File.separator : "";
-    			result.add(path + File.separator + middle + n);
+    			if (path.endsWith("src-java")) {
+    			  if (n.endsWith(Constants.CLASS_EXT)){
+    			    result.add(path.replace("src-java", "bin-java") + File.separator + middle + n);
+    			  }
+    			} else {
+    			  if (!n.endsWith(Constants.CLASS_EXT)){
+    			    result.add(path + File.separator + middle + n);
+    			  }
+    			}
     		}
     	}
     	
@@ -96,7 +106,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     		if (path.endsWith(name)) {
     			return new ArrayList<String>(); // --- return empty set. Already have the needed dependence.
     		}
-    		if (!path.endsWith(Constants.X10_EXT)){
+    		if (!path.endsWith(Constants.X10_EXT) && !path.endsWith(Constants.CLASS_EXT)){
     			result.add(path + File.separator + name);
     		}
     	}
