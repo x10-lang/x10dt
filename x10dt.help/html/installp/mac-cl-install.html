@@ -6,7 +6,7 @@ In order to run X10 on OS X Leopard, you need to satisfy the following pre-requi
 <h2>Prereqs</h2>
 <ul>
 	<li>gcc/g++ 4.2.x or higher (for the X10 C++ backend)</li>
-	<li>java 1.5.0_x or higher (for the X10 Java backend)</li>
+	<li>java 1.6.0_x or higher (for the X10 Java backend)</li>
 </ul>
 Fortunately, Mac OS X Leopard provides most of these as part of its environment. Although
 you may have to download the development environment called Xcode to get the compiler tools.
@@ -96,7 +96,7 @@ change the links under Developer directory where Xcode was installed to be
 consistent.
 <p>
 Also, Xcode 3.1.3 on Leopard points gcc and g++ by default at the 4.0 compiler 
-(Xcode includes both 4.0 and 4.2), so you’ll have to change the links:
+(Xcode includes both 4.0 and 4.2), so you'll have to change the links:
 
 <pre>
   % su -
@@ -110,8 +110,8 @@ Also, Xcode 3.1.3 on Leopard points gcc and g++ by default at the 4.0 compiler
   $
 </pre>
 <p>
-There’s an identical set of links in /Developer/usr/bin that you should probably 
-also change (for safety and consistency’s sake).
+There's an identical set of links in /Developer/usr/bin that you should probably 
+also change (for safety and consistency's sake).
 
 <p>
 You will need to do this in order to build the x10 distribution which
@@ -134,9 +134,9 @@ $ whereis java
 
 <pre>
 $ java -version
-java version "1.5.0_20"
-Java(TM) 2 Runtime Environment, Standard Edition (build 1.5.0_20-b02-315)
-Java HotSpot(TM) Client VM (build 1.5.0_20-141, mixed mode, sharing)
+java version "1.6.0_20"
+Java(TM) SE Runtime Environment (build 1.6.0_20-b02-279-9M3165)
+Java HotSpot(TM) 64-Bit Server VM (build 16.3-b01-279, mixed mode)
 </pre>
 
 If you go to the /usr/bin directory, you can see that the java command
@@ -159,26 +159,22 @@ If you are up to date with patches, you will also find java 1.6 here.
 If you want to switch to java 1.6, you can change the links to "Current" and
 "CurrentJDK" in the JavaVM.framworks versions directory.
 
-<h4>Running x10 programs using <tt>Sockets</tt> backend</h4>
+<h4>Running x10 programs using <tt>Sockets</tt> transport</h4>
 <p>
-The sockets transport replaces <tt>pgas_sockets</tt> (which is closed-source, and requires some setup), and is currently the default backend if you don't compile with the "-x10rt" flag. You set an run configuration variable <tt>Number of places</tt> to specify the number of places. If this is not set, it defaults to 1 place on the local machine, and prints a warning. 
+The sockets transport is the default transport if you don't compile with the <tt>"-x10rt"</tt> flag.  Running with sockets is easy - you simply execute the binary that was produced when you compiled your program.  This will run your program in a single place on your local machine.  To use more places, you set an environment variable <tt>X10_NPLACES</tt> to specify the number of places.
 There are two ways to specify the machines to run on: 
 <ul>
-<li>Set the run configuration variable <tt>host file</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. 
-<li>Set the run configuration variable <tt>list of hosts</tt>, to a list of hostnames, one per line without spaces. This run configuration variable is checked only if <tt>host file</tt> was not set. 
+<li>Set the environment variable <tt>X10_HOSTFILE</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. 
+<li>Set the environment variable <tt>X10_HOSTLIST</tt>, to a list of hostnames, one per line without spaces. This run configuration variable is checked only if <tt>X10_HOSTFILE</tt> was not set. 
 </ul>
-Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>Number of places to 4</tt> and <tt>list of hosts to host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost, and prints a warning. You can set <tt>list of hosts to localhost</tt> to get the same effect without warning. 
+Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>X10_NPLACES</tt> to 4 and <tt>X10_HOSTLIST</tt>to <tt>host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost.
 If you're running on more than one machine, you should have public/private key ssh authentication set up, so you can ssh from one machine to another without getting a password prompt. You should also have your executable and hostfile available in the same location on every machine listed in the hostfile. You compile your program, and with ssh in place, and the run configuration variables set, you run your executable. You don't have to launch from one of the machines in the hostfile, but you do need to have the ssh authentication set up between the machine you launch from and the first machine in the list. 
 <p>
-Please note that currently, the Sockets backend will not work in an environment with mixed POWER and x86 hardware, due to different endianness. 
 
-<h4>Running with <tt>Standalone</tt> backend</h4>
+<h4>Running with <tt>Standalone</tt> transport</h4>
 <p>
-Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one run configuration variable "Number of places", which should be set to the number of places. If not set, it defaults to 1 and prints a warning. The standalone has transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, just compile, set the run configuration variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
+Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one run configuration variable <tt>X10_NPLACES</tt>, which should be set to the number of places. If not set, it defaults to 1. The standalone transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, just compile, set the run configuration variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
 
-<p>
-It helps a lot to have passwordless ssh working between the machine
-where the manager process is running and the compute nodes.
 
 <h2>Comments</h2>
 Comments and suggestions are welcome. 
