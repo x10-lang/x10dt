@@ -47,9 +47,9 @@
   </target>
 
   <target name="reportBuildActivity" if="requestUUID">
-    <startBuildActivity repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
+    <!-- <startBuildActivity repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
                         activityIdProperty="${activityId}" label="${action.message}" buildResultUUID="${buildResultUUID}" 
-                        autoComplete="true" />
+                        autoComplete="true" /> -->
   </target>
 
   <target name="publishLink" if="requestUUID">
