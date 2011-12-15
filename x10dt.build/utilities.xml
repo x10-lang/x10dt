@@ -42,8 +42,8 @@
 
     <taskdef name="completeBuildActivity" classname="com.ibm.team.build.ant.task.CompleteBuildActivityTask" classpathref="build.toolkit.classpath" />
 
-    <property name="userId" value="x10dt-builder" />
-    <property name="passwordFile" value="${build.toolkit.location}/../buildengine/eclipse/pass.txt" />
+    <property name="userId" value="x10build" />
+    <property name="passwordFile" value="${build.toolkit.location}/../buildengine/eclipse/x10build_pass.txt" />
   </target>
 
   <target name="reportBuildActivity" if="requestUUID">
