@@ -53,8 +53,8 @@
   </target>
 
   <target name="publishLink" if="requestUUID">
-    <linkPublisher repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
-                   buildResultUUID="${buildResultUUID}" url="${link.url}" label="${link.label}" />
+    <!--<linkPublisher repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
+                   buildResultUUID="${buildResultUUID}" url="${link.url}" label="${link.label}" /> -->
   </target>
 
   <target name="publishJUnitResults" if="requestUUID">
