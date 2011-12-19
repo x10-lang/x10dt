@@ -10,7 +10,7 @@
   </taskdef>
 
   <target name="jazz-setup" if="requestUUID">
-    <property name="build.toolkit.location" value="/home/x10dt/IBM/TeamConcertBuild/buildsystem/buildtoolkit" />
+    <property name="build.toolkit.location" value="/home/x10dt/BuildToolkit_3011/jazz/buildsystem/buildtoolkit" />
     <path id="build.toolkit.classpath">
       <fileset dir="${build.toolkit.location}" includes="*.jar" />
     </path>
@@ -42,19 +42,19 @@
 
     <taskdef name="completeBuildActivity" classname="com.ibm.team.build.ant.task.CompleteBuildActivityTask" classpathref="build.toolkit.classpath" />
 
-    <property name="userId" value="x10build" />
+    <property name="userId" value="x10build@us.ibm.com" />
     <property name="passwordFile" value="${build.toolkit.location}/../buildengine/eclipse/x10build_pass.txt" />
   </target>
 
   <target name="reportBuildActivity" if="requestUUID">
-    <!-- <startBuildActivity repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
+    <startBuildActivity repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
                         activityIdProperty="${activityId}" label="${action.message}" buildResultUUID="${buildResultUUID}" 
-                        autoComplete="true" /> -->
+                        autoComplete="true" />
   </target>
 
   <target name="publishLink" if="requestUUID">
-    <!--<linkPublisher repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
-                   buildResultUUID="${buildResultUUID}" url="${link.url}" label="${link.label}" /> -->
+    <linkPublisher repositoryAddress="${repositoryAddress}" userId="${userId}" passwordFile="${passwordFile}" 
+                   buildResultUUID="${buildResultUUID}" url="${link.url}" label="${link.label}" />
   </target>
 
   <target name="publishJUnitResults" if="requestUUID">
