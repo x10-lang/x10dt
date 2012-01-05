@@ -1,0 +1,512 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Definite Assignment</title>
+<a href="#tth_chAp1">Definite Assignment</a> <br/>
+<ul>
+<li><a href="#tth_sEc1">Asynchronous Definite Assignment</a> <br/>
+<li><a href="#tth_sEc2">Characteristics of Definite Assignment</a> <br/>
+</ul>
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 19 </a><br />Definite Assignment</h1>
+<a name="sect:DefiniteAssignment">
+</a>
+
+
+
+
+
+<div class="p"><!----></div>
+X10 requires, reasonably enough, that every variable be set before it is read.
+Sometimes this is easy, as when a variable is declared and assigned together: 
+<pre>
+  var x : Int = 0;
+  assert x == 0;
+</pre>
+However, it is convenient to allow programs to make decisions before
+initializing variables.
+<pre>
+def example(a:Int, b:Int) {
+  val max:Int;
+  //ERROR: assert max==max; // can't read 'max'
+  if (a &#62; b) max = a;
+  else max = b;
+  assert max &#62;= a &amp;&amp; max &#62;= b;
+}
+</pre>
+This is particularly useful for <b>val</b> variables.  <b>var</b>s could be
+initialized to a default value and then reassigned with the right value.
+<b>val</b>s must be initialized once and cannot be changed, so they must be
+initialized with the correct value. 
+
+<div class="p"><!----></div>
+However, one must be careful - and the X10 compiler enforces this care.
+Without the <b>else</b> clause, the preceding code might not give <b>max</b> a
+value by the <b>assert</b>.  
+
+<div class="p"><!----></div>
+This leads to the concept of <em>definite assignment</em> [].
+A variable is definitely assigned at a point in code if, no matter how that
+point in code is reached, the variable has been assigned to.  In X10,
+variables must be definitely assigned before they can be read.
+
+<div class="p"><!----></div>
+As X10 requires that <b>val</b> variables <em>not</em> be initialized
+twice,  we need the dual concept as well.  A variable is <em>definitely
+unassigned</em> at a point in code if it cannot have been assigned there.  For
+example, immediately after <b>val x:Int</b>, <b>x</b> is definitely unassigned. 
+
+<div class="p"><!----></div>
+Finally, we need the concept of <em>singly</em> and <em>multiply assigned</em>.
+A variable is singly assigned in a block if it is assigned precisely
+once; it is multiply assigned if it could possibly be assigned more than once.  
+<b>var</b>s can  multiply assigned as desired. <b>val</b>s must be singly
+assigned.  For example, the code <b>x = 1; x = 2;</b> is perfectly fine if
+<b>x</b> is a <b>var</b>, but incorrect (even in a constructor) if <b>x</b> is a
+<b>val</b>.  
+
+<div class="p"><!----></div>
+At some points in code, a variable might be neither definitely assigned nor
+definitely unassigned.    Such states are not always useful.  
+<pre>
+def example(flag : Boolean) {
+  var x : Int;
+  if (flag) x = 1;
+  // x is neither def. assigned nor unassigned.
+  x = 2; 
+  // x is def. assigned.
+</pre>
+This shows that we cannot simply define "definitely unassigned" as "not
+definitely assigned".   If <b>x</b> had been a <b>val</b> rather than a
+<b>var</b>, the previous example would not be allowed.    
+
+<div class="p"><!----></div>
+Unfortunately, a completely accurate definition of "definitely assigned"
+or "definitely unassigned" is undecidable - impossible for the compiler to
+determine.  So, X10 takes a <em>conservative approximation</em> of these
+concepts.  If X10's definition says that <b>x</b> is definitely assigned (or
+definitely unassigned), then it will be assigned (or not assigned) in every
+execution of the program.  
+
+<div class="p"><!----></div>
+However, there are programs which X10's algorithm says are incorrect, but
+which actually would behave properly if they were executed.   In the following
+example, <b>flag</b> is either <b>true</b> or <b>false</b>, and in either case
+<b>x</b> will be initialized.  However, X10's analysis does not understand this
+- thought it <em>would</em> understand if the example were coded with an
+<b>if-else</b> rather than a pair of <b>if</b>s.  So, after the two <b>if</b>
+statements, <b>x</b> is not definitely assigned, and thus the <b>assert</b>
+statement, which reads it, is forbidden.  
+<pre>
+def example(flag:Boolean) {
+  var x : Int;
+  if (flag) x = 1;
+  if (!flag) x = 2;
+  // ERROR: assert x &lt; 3;
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Asynchronous Definite Assignment</h2>
+
+<div class="p"><!----></div>
+Local variables and instance fields allow <em>asynchronous assignment</em>. A local
+variable can be assigned in an <b>async</b> statement, and, when the
+<b>async</b> is <b>finish</b>ed, the variable is definitely assigned.  
+
+<div class="p"><!----></div>
+<pre>
+val a : Int;
+finish {
+  async {
+    a = 1;
+  } 
+  // a is not definitely assigned here
+}
+// a is definitely assigned after 'finish'
+assert a==1; 
+</pre>
+
+
+<div class="p"><!----></div>
+This concept supports a core X10 programming idiom.  A <b>val</b> variable may
+be initialized asynchronously, thereby providing a means for returning a value
+from an <b>async</b> to be used after the enclosing <b>finish</b>.  
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Characteristics of Definite Assignment</h2>
+
+<div class="p"><!----></div>
+The properties "definitely assigned", "singly assigned", and
+"definitely unassigned" are computed by a conservative approximation of
+X10's evaluation rules.
+
+<div class="p"><!----></div>
+The precise details are up to the implementation. 
+Many basic cases must be handled accurately; <em>e.g.</em>, <b>x=1;</b> definitely and
+singly assigns <b>x</b>.  
+
+<div class="p"><!----></div>
+However, in more complicated cases, a conforming X10 may mark as invalid 
+some code which, when executed, would actually be correct.  
+For example, the following
+program fragment will always result in <b>x</b> being definitely and singly
+assigned:  
+<pre>
+val x : Int;
+var b : Boolean = mysterious();
+if (b) {
+   x = cryptic();
+}
+if (!b) { 
+   x = unknown();
+}
+</pre>
+However, most conservative approximations of program execution won't mark
+<b>x</b> as properly initialized, though it is.   For <b>x</b> to be properly
+initialized, precisely one of the 
+two assignments to <b>x</b> must be executed. If <b>b</b> were true initially,
+it would still be true after the call to <b>cryptic()</b> - since methods
+cannot modify their caller's local variables - and so the first but not the
+second assignment would happen. If <b>b</b> were false initially, it would
+still be false when <b>!b</b> is tested, and so the second but not the first
+assignment would happen.  Either way, <b>x</b> is definitely and singly assigned.
+
+<div class="p"><!----></div>
+However, for a slightly different program, this analysis would be wrong. <em>E.g.</em>,
+if  <b>b</b> were a field of <b>this</b> rather than a local variable,
+<b>cryptic()</b> could change <b>b</b>; if <b>b</b> were true initially, both
+assignments might happen, which is incorrect for a <b>val</b>.  
+
+<div class="p"><!----></div>
+This sort of reasoning is beyond  most conservative approximation algorithms.
+(Indeed, many do not bother checking that <b>!b</b> late in the program is the
+opposite of <b>b</b> earlier.)
+Algorithms that pay attention to such details and subtleties tend to be
+fairly expensive, which would lead to very slow compilation for X10 - for the
+sake of obscure cases.
+
+<div class="p"><!----></div>
+X10's analysis provides at least the following guarantees. We describe them in
+terms of a statement <b>S</b> performing some collection of possible numbers of
+assignments to variables - on a scale of "0", "1", and "many". For
+example, <b>if (b) x=1; else x=1;x=2;y=2;</b> might assign to <b>x</b> one or
+many times, and might assign to <b>y</b> zero or one time. Hence, after it,
+<b>x</b> is definitely assigned and may be multiply assigned, and <b>y</b> is
+neither definitely assigned nor definitely unassigned.  
+
+<div class="p"><!----></div>
+These descriptions are combined in natural ways.  For example, if <b>R</b> says
+that <b>x</b> will be assigned 0 or 1 times, and <b>S</b> says it will be
+assigned precisely once, then <b>R;S</b> will assign it one or many times.  If
+only one or <b>R</b> or <b>S</b> will occur, as from <b>if (b) R; else S;</b>, 
+then <b>x</b> may be assigned 0 or 1 times. 
+
+<div class="p"><!----></div>
+This information is sufficient for the tests X10 makes.  If <b>x</b> can is
+assigned one or many times in <b>S</b>, it is definitely assigned.  It is an
+error if 
+<b>x</b> is ever read at a point where it have been assigned zero times.  It is
+an error if a <b>val</b> may be assigned many times.
+
+<div class="p"><!----></div>
+We do not guarantee that any particular X10 compiler uses this algorithm;
+indeed, as of the time of writing, the X10 compiler uses a somewhat more
+precise one.  However, any conformant X10 compiler must provide results which
+are at least as accurate as this analysis.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.1">
+2.0.1</a>&nbsp;&nbsp;Assignment: <tt>x = e</tt></h4>   
+
+<div class="p"><!----></div>
+<b>x = e</b> assigns to <b>x</b>, in addition to whatever assignments
+<b>e</b> makes.   For example, if <b>this.setX(y)</b> sets a field <b>x</b> to
+<b>y</b> and returns <b>y</b>, then <b>x = this.setX(y)</b> definitely and
+multiply assigns <b>x</b>.  
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.2">
+2.0.2</a>&nbsp;&nbsp;<tt>async</tt> and <tt>finish</tt></h4>
+
+<div class="p"><!----></div>
+By itself, <b>async S</b> provides few guarantees.  After <b>asyncx=1;</b>
+finishes, we know that there is a separate activity which will, when the
+scheduler lets it, set <b>x</b> to <b>1</b>.  We do not know that anything has
+happened yet.
+
+<div class="p"><!----></div>
+However, if there is a <b>finish</b> around the <b>async</b>, the situation is
+clearer.  After <b>finish async x=1; </b>, <b>x</b> has definitely been
+assigned.  
+
+<div class="p"><!----></div>
+In general, if an <b>async S</b> appears in the body of a <b>finish</b> in a way
+that guarantees that it will be executed, then, after the <b>finish</b>, the
+assignments made by <b>S</b> will have occurred.  For example, if <b>S</b>
+definitely assigns to <b>x</b>, and the body of the <b>finish</b> guarantees
+that <b>async S</b> will be executed, then <b>finish...async S...</b>
+definitely assigns <b>x</b>.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.3">
+2.0.3</a>&nbsp;&nbsp;<tt>if</tt> and <tt>switch</tt></h4>
+
+<div class="p"><!----></div>
+When <b>if(E) S else T</b> finishes, it will have performed the assignments of
+<b>E</b>, together with those of either <b>S</b> or <b>T</b> but not both.  For
+example, <b>if (b) x=1; else x=2;</b> definitely assigns <b>x</b>,
+but <b>if (b) x=1;</b> does not.
+
+<div class="p"><!----></div>
+<tt>switch</tt> is more complex, but follows the same principles as <b>if</b>.
+For example, <b>switch(E)case 1: A; break; case 2: B; default: C;</b>  
+performs the assignments of <b>E</b>, and those of precisely one of <b>A</b>, or
+<b>B;C</b>, or <b>C</b>.  Note that case <b>2</b> falls through to the default
+case, so it performs the same assignments as <b>B;C</b>.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.4">
+2.0.4</a>&nbsp;&nbsp;Sequencing</h4>
+
+<div class="p"><!----></div>
+When <b>R;S</b> finishes, it will have performed the assignments of <b>R</b> and
+those of <b>S</b>.  For example, <b>x=1;y=2;</b> definitely assigns <b>x</b> and
+<b>y</b>, and <b>x=1;x=2;</b> multiply assigns <b>x</b>. 
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.5">
+2.0.5</a>&nbsp;&nbsp;Loops</h4>
+
+<div class="p"><!----></div>
+<b>while(E)S</b> performs the assignments of <b>E</b> one or more times, and
+those of <b>S</b> zero or more times.  For example, if <b>while(b())x=1;</b>
+might assign to <b>x</b> zero, one, or many times.  
+<b>do S while(E)</b> performs the assignments of <b>E</b> one or more times, and
+those of <b>S</b> one or more times. 
+
+<div class="p"><!----></div>
+<b>for(A;B;C)D</b> performs the assignments of <b>A</b> once, those of <b>B</b>
+one or more times, and those of <b>C</b> and <b>D</b> one or more times.
+<b>for(x in E)S</b> performs the assignments of <b>E</b> once and those of
+<b>S</b> zero or more times.  
+
+<div class="p"><!----></div>
+Loops are of very little value for providing definite assignments, since X10
+does not in general know how many times they will be executed. 
+
+<div class="p"><!----></div>
+<b>continue</b> and <b>break</b> inside of a loop are hard to describe in simple
+terms.  They may be conservatively assumed to cause the loop give no
+information about the variables assigned inside of it.
+For example, the analysis may conservatively conclude that 
+<b>do x = 1; if (true) break;  while(true)</b> may 
+assign to <b>x</b> zero, one, or many times, overlooking the more precise fact
+that it is assigned once.  
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.6">
+2.0.6</a>&nbsp;&nbsp;Method Calls</h4>
+
+<div class="p"><!----></div>
+A method call <b>E.m(A,B)</b> performs the assignments of <b>E</b>, <b>A</b>, and
+<b>B</b> once each, and also those of <b>m</b>.  This implies that X10 must be
+aware of the possible assignments performed by each method.
+
+<div class="p"><!----></div>
+If X10 has complete information about <b>m</b> (as when <b>m</b> is a
+<b>private</b> or <b>final</b> method), this is straightforward.  When such
+information is fundamentally impossible to acquire, as when <b>m</b> is a
+non-final method invocation, X10 has no choice but to assume that <b>m</b>
+might do anything that a method can do.    (For this reason, the only methods
+that can be called from within a constructor on a raw -
+incompletely-constructed - object) are the <b>private</b> and
+<b>final</b> ones.)  
+
+<ul>
+<li> <b>m</b> cannot assign to local fields of the caller; methods have no
+      such power.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>m</b> can assign to <b>var</b> fields of <b>this</b> freely.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>m</b> cannot initialize <b>val</b> fields of <b>this</b>.  (But see
+      &#167;; when one constructor calls another as the
+      first statement of its body, the other constructor can initialize
+      v<b>val</b> fields. This is a constructor call, not a method call.)
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Recall that every container must be fully initialized upon exit
+from its constructor.  
+X10 places certain restrictions on which methods can be called from a
+constructor; see &#167;.  One of these restrictions is that
+methods called before object initialization is complete must be <b>final</b> or
+<b>private</b> - and hence, available for static analysis.  So, when checking
+field initialization, X10 will ensure: 
+
+<ol type="1">
+<li> Each <b>val</b> field is initialized before it is read.   
+      A method that does not read a <b>val</b> field <b>f</b> <em>may</em> be
+      called before <b>f</b> is initialized; a method that reads <b>f</b> must
+      not be called until <b>f</b> is initialized.        
+      For example, 
+      a constructor may have the form:
+<pre>
+class C {
+  val f : Int;
+  val g : String;
+  def this() {
+     f = fless();
+     g = useF();
+  }
+  private def fless() = "f not used here".length();
+  private def useF() = "f=" + this.f;
+}
+</pre>
+<div class="p"><!----></div>
+</li>
+
+<li> <b>var</b> fields require a deeper analysis.  Consider a <b>var</b>
+      field <b>var x:T</b>  without initializer.  If <b>T</b> has a default
+      value, <b>x</b> may be read inside of a constructor before it is
+      otherwise written, and it will 
+      have its default value.   
+
+<div class="p"><!----></div>
+      If <b>T</b> has no default value, an analysis
+      like that used for <b>val</b>s must be performed to determine that
+      <b>x</b> is initialized before it is used.  The situation is 
+      more complex than for <b>val</b>s, however, because a method can assign to
+      <b>x</b> as well read from it.  The X10 compiler computes a conservative
+      approximation of which methods
+      read and write which <b>var</b> fields. (Doing this carefully 
+      requires finding a solution of a set of equations over sets of
+      variables, with each callable method having equations describing what it
+      reads and writes.)
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.7">
+2.0.7</a>&nbsp;&nbsp;<tt>at</tt> 
+</h4>
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+
+<div class="p"><!----></div>
+<b>at(p)S</b> cannot perform any assignments.  <b>this</b> cannot be read or
+written by an <b>at</b>-statement.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.8">
+2.0.8</a>&nbsp;&nbsp;<tt>atomic</tt></h4>
+
+<div class="p"><!----></div>
+<b>atomic S</b> performs the assignments of <b>S</b>, 
+and <b>when(E)S</b> performs those of <b>E</b> and <b>S</b>.  
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.9">
+2.0.9</a>&nbsp;&nbsp;<tt>try</tt></h4>
+
+<div class="p"><!----></div>
+<b>try S catch(x:T1) E1 ... catch(x:Tn) En  finally F</b> 
+performs some or all of the assignments of <b>S</b>, plus all the assignments
+of zero or one of the <b>E</b>'s, plus those of <b>F</b>.  
+For example,
+<pre>
+try {
+  x = boomy();
+  x = 0;
+}
+catch(e:Boom) { y = 1; }
+finally { z = 1; }
+</pre>
+ 
+assigns <b>x</b> zero, one, or many times<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>, 
+assigns <b>y</b> zero or one time, and assigns <b>z</b> exactly once.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.10">
+2.0.10</a>&nbsp;&nbsp;Expression Statements</h4>
+
+<div class="p"><!----></div>
+Expression statements <b>E;</b>, and other statements that execute an
+expression and do something innocuous with it (local variable declaration and
+<b>assert</b>) have the same effects as <b>E</b>. 
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc2.0.11">
+2.0.11</a>&nbsp;&nbsp;<tt>return</tt>, <tt>throw</tt></h4>
+
+<div class="p"><!----></div>
+Statements that do not finish normally, such as <b>return</b> and <b>throw</b>,
+don't initialize anything (though the computation of the return or thrown
+value may).    They also terminate a line of computation.  For example, 
+<b>if(b) x=1; return;  x=2;</b> definitely and singly assigns <b>x</b>.  
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>A more precise
+analysis could discover that <b>x</b> cannot be initialized only once.
+<br /><br /><hr /><small>File translated from
+T<sub><font size="-1">E</font></sub>X
+by <a href="http://hutchinson.belmont.ma.us/tth/">
+T<sub><font size="-1">T</font></sub>H</a>,
+version 3.89.<br />On 28 May 2011, 12:12.</small>
+</html>

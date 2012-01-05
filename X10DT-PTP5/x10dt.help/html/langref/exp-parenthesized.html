@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Parenthesized Expressions</title>
+</head>
+
+<body>
+ <h2><a name="tth_sEc28">
+28</a>&nbsp;&nbsp;Parenthesized expressions</h2>
+
+<div class="p"><!----></div>
+If <b>E</b> is any expression, <b>(E)</b> is an expression which, when
+evaluated, produces the same result as <b>E</b>.   
+
+<div class="p"><!----></div>
+The main use of parentheses is to write complex expressions for which the 
+standard precedence order of operations is not appropriate: <b>1+2*3</b> is 7,
+but <b>(1+2)*3</b> is 9.  
+
+<div class="p"><!----></div>
+Similarly, but perhaps less familiarly, 
+parentheses can disambiguate other expressions.  In the following code, 
+<b>funny.f</b> is a field-selection expression, and so <b>(funny.f)()</b> means
+&#223;elect the <b>f</b> field from <b>funny</b>, and evaluate it".  However, 
+<b>funny.f()</b> means &#235;valuate the <b>f</b> method on object <b>funny</b>."  
+<pre>
+class Funny {
+  def f () = 1;
+  val f = () =&#62; 2;
+  static def example() {
+    val funny = new Funny();
+    assert funny.f() == 1;
+    assert (funny.f)() == 2;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Note that this does <em>
+not</em> mean that <b>E</b> and <b>(E)</b> are identical in all respects; for
+example, if <b>i</b> is an <b>Int</b> variable, <b>i++</b> increments <b>i</b>,
+but <b>(i)++</b> is not allowed.    <b>++</b> is an assignment; it operates on
+variables, not merely values, and <b>(i)</b> is simply an expression whose <em>
+value</em> is the same as that of <b>i</b>. 
+
+</body>
+</html>
