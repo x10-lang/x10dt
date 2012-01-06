@@ -19,14 +19,14 @@ import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
  * 
  * @author egeay
  */
-public final class TargetConfig implements ITargetConfig {
+public final class TargetConfigOld implements ITargetConfig {
 
   /**
    * Creates the current target configuration instance from the attributes transmitted.
    * 
    * @param attrs The attributes to use.
    */
-  public TargetConfig(final ControlAttributes attrs) {
+  public TargetConfigOld(final ControlAttributes attrs) {
     this.fAttrs = attrs;
   }
   
@@ -108,4 +108,15 @@ public final class TargetConfig implements ITargetConfig {
   // --- Fields
 
   private final ControlAttributes fAttrs;
+
+public ControlAttributes getAttributes() {
+	return this.fAttrs;
+}
+
+public void setAttribute(String key, String value) {
+	this.fAttrs.setAttribute(key, value);
+	
+}
+
+
 }

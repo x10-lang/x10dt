@@ -5,17 +5,13 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui.launch.cpp.rms.provider;
+package x10dt.ui.launch.java.launching.rms;
 
-import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerServiceProvider;
+import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
-import org.eclipse.ptp.services.core.IServiceProviderWorkingCopy;
 
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.cpp.rms.Messages;
+import x10dt.ui.launch.java.Messages;
 import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
 
 /**
@@ -23,44 +19,48 @@ import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
  * 
  * @author egeay
  */
-public final class SocketsServiceProvider extends AbstractRemoteResourceManagerServiceProvider 
-                                          implements IServiceProvider, IX10RMConfiguration {
+public final class MultiVMResourceManagerConfiguration extends AbstractRemoteResourceManagerConfiguration 
+                                          implements /*IServiceProvider,*/ IX10RMConfiguration {
  
+  public MultiVMResourceManagerConfiguration(){
+	  super(null,null);
+  }
   /**
    * Creates the service provider with a default description.
    */
-  public SocketsServiceProvider() {
-    setDescription(Messages.SSS_SocketsRMDescr);
+  public MultiVMResourceManagerConfiguration(String namespace, IServiceProvider provider) {
+	  super(namespace, provider);
+    setDescription(Messages.MVMSP_SPDescription);
   }
 
   // --- Abstract methods definition
   
   public void setDefaultNameAndDesc() {
     final StringBuilder sb = new StringBuilder();
-    sb.append(Messages.SSS_Sockets);
+    sb.append(Messages.MVMSP_SPName);
     final String connection = getConnectionName();
     if (connection != null && ! Constants.EMPTY_STR.equals(connection)) {
       sb.append('@').append(connection);
     }
     setName(sb.toString());
-    setDescription(Messages.SSS_SocketsRMDescr);
+    setDescription(Messages.MVMSP_SPDescription);
   }
-
+/*
   public IResourceManagerControl createResourceManager() {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
-    return new SocketsResourceManager(String.valueOf(universe.getNextResourceManagerId()), universe, this);
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+    return new MultiVMResourceManager(String.valueOf(universe.getNextResourceManagerId()), universe, this);
   }
   
   // --- Overridden methods
   
   public IServiceProviderWorkingCopy copy() {
-    return new SocketsServiceProvider(this);
+    return new MultiVMServiceProvider(this);
   }
   
   // --- Private code
   
-  private SocketsServiceProvider(final IServiceProvider provider) {
+  private MultiVMServiceProvider(final IServiceProvider provider) {
     super(provider);
   }
-
+*/
 }

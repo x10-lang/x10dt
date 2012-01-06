@@ -17,26 +17,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.ArrayAttribute;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.attributes.EnumeratedAttribute;
+import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.attributes.IntegerAttribute;
 import org.eclipse.ptp.core.attributes.StringAttribute;
-import org.eclipse.ptp.core.elementcontrols.IPJobControl;
 import org.eclipse.ptp.core.elements.IPJob;
+import org.eclipse.ptp.core.elements.IPResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.core.elements.attributes.ProcessAttributes;
 import org.eclipse.ptp.remote.core.IRemoteProcess;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
+import org.eclipse.ptp.rm.core.MPIJobAttributes;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystem;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystemJob;
 import org.eclipse.ptp.rm.core.utils.DebugUtil;
 import org.eclipse.ptp.utils.core.ArgumentParser;
-
+import org.eclipse.ptp.core.elements.IPResourceManager;
 import x10dt.ui.launch.rms.core.Messages;
 import x10dt.ui.launch.rms.core.RMSCoreActivator;
 
@@ -46,35 +50,35 @@ import x10dt.ui.launch.rms.core.RMSCoreActivator;
  * 
  * @author egeay
  */
-public abstract class AbstractX10RuntimeSystemJob extends Job {
+public abstract class AbstractX10RuntimeSystemJob extends AbstractToolRuntimeSystemJob {
   
-  protected AbstractX10RuntimeSystemJob(final String jobId, final String queueId, final String name, 
-                                        final IX10RuntimeSystem runtimeSystem, final AttributeManager attrManager) {
-    super(name);
-    this.fRuntimeSystem = runtimeSystem;
-    this.fJobId = jobId;
-    this.fQueueId = queueId;
-    this.fAttrManager = attrManager;
+  protected AbstractX10RuntimeSystemJob(final String jobId, /*final String queueId,*/ final String name, 
+                                        final AbstractToolRuntimeSystem runtimeSystem, final AttributeManager attrManager) {
+    super(jobId, name, runtimeSystem, attrManager);
+//    this.fRuntimeSystem = runtimeSystem;
+//    this.fJobId = jobId;
+//    this.fQueueId = queueId;
+//    this.fAttrManager = attrManager;
   }
   
   // --- Abstract methods definition
   
   protected abstract void completeEnvironmentVariables(final Map<String, String> envMap);
 
-  // --- Abstract methods implementation
+  // --- Abstract methods implementation?/
   
-  protected final IStatus run(final IProgressMonitor monitor) {
+  protected final IStatus run(final IProgressMonitor monitor)  {
     changeJobState(JobAttributes.State.STARTING);
     
     if (DebugUtil.RTS_JOB_TRACING_MORE) {
       System.out.println("Launch attributes:"); //$NON-NLS-1$
-      String array[] = this.fAttrManager.toStringArray();
+      String array[] = getAttrMgr().toStringArray();
       for (int i = 0; i < array.length; i++) {
         System.out.println(array[i]);
       }
     }
     
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "About to run RTS job #{0}.", this.fJobId); //$NON-NLS-1$
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "About to run RTS job #{0}.", getJobID()); //$NON-NLS-1$
     final Map<String, String> environment = getEnvironmentVariables();
     final String directory = getWorkingDirectory();
     final List<String> command = getLaunchCommand();
@@ -89,7 +93,7 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
       System.out.println(NLS.bind("Command: {0}", argumentParser.getCommandLine(false))); //$NON-NLS-1$
     }
 
-    final IRemoteProcessBuilder processBuilder = this.fRuntimeSystem.createProcessBuilder(command, directory);
+    final IRemoteProcessBuilder processBuilder = getRtSystem().createProcessBuilder(command, directory);
     processBuilder.environment().putAll(environment);
 
     if (monitor.isCanceled()) {
@@ -98,14 +102,14 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
     }
 
     try {
-      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: running command ''{1}''", this.fJobId, command); //$NON-NLS-1$
+      DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: running command ''{1}''", getJobID(), command); //$NON-NLS-1$
       this.fJobProcess = processBuilder.start();
     } catch (IOException except) {
       changeJobState(JobAttributes.State.COMPLETED, EX10JobStatus.ERROR);
       return new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, Messages.AXRSJ_ProcessStartError, except);
     }
 
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: handle start", this.fJobId); //$NON-NLS-1$
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: handle start", getJobID()); //$NON-NLS-1$
     doExecutionStarted(monitor);
 
     if (monitor.isCanceled()) {
@@ -115,7 +119,7 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
 
     changeJobState(JobAttributes.State.RUNNING);
 
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: wait to finish", this.fJobId); //$NON-NLS-1$
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: wait to finish", getJobID()); //$NON-NLS-1$
     doWaitExecution();
     
     terminateProcesses();
@@ -137,34 +141,34 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
   
   // --- Overridden methods
 
-  protected final void canceling() {
-    terminate();
-  }
+//  protected final void canceling() {
+//    terminate();
+//  }
   
   // --- Code for implementers
   
-  protected final AttributeManager getAttrManager() {
-    return this.fAttrManager;
-  }
-  
+//  protected final AttributeManager getAttrManager() {
+//    return this.fAttrManager;
+//  }
+//  
   protected List<String> getLaunchCommand() {
     final List<String> command = new ArrayList<String>();
-    final StringAttribute execName = this.fAttrManager.getAttribute(JobAttributes.getExecutableNameAttributeDefinition());
-    final StringAttribute execPath = this.fAttrManager.getAttribute(JobAttributes.getExecutablePathAttributeDefinition());
+    final StringAttribute execName = getAttrMgr().getAttribute(JobAttributes.getExecutableNameAttributeDefinition());
+    final StringAttribute execPath = getAttrMgr().getAttribute(JobAttributes.getExecutablePathAttributeDefinition());
     command.add(new Path(execPath.getValue()).append(execName.getValue()).toString());
-    command.addAll(this.fAttrManager.getAttribute(JobAttributes.getProgramArgumentsAttributeDefinition()).getValue());
+    command.addAll(getAttrMgr().getAttribute(JobAttributes.getProgramArgumentsAttributeDefinition()).getValue());
     return command;
   }
   
-  protected final IX10RMConfiguration getRMConfiguration() {
-    return this.fRuntimeSystem.getRMConfiguration();
-  }
-  
+//  protected final IX10RMConfiguration getRMConfiguration() {
+//    return this.fRuntimeSystem.getRMConfiguration();
+//  }
+//  
   protected void processStandardOutput(final BufferedReader outReader, final IPJob ipJob) throws IOException {
     String line;
     while ((line = outReader.readLine()) != null) {
       final StringAttribute attr = ProcessAttributes.getStdoutAttributeDefinition().create(line + '\n');
-      final IPJobControl ipJobControl = (IPJobControl) ipJob;
+      final IPJob ipJobControl = (IPJob) ipJob;
       final BitSet procZero = new BitSet();
       procZero.set(0);
       ipJobControl.addProcessAttributes(procZero, new AttributeManager(attr));
@@ -175,44 +179,44 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
     String line;
     while ((line = errReader.readLine()) != null) {
       final StringAttribute attr = ProcessAttributes.getStderrAttributeDefinition().create(line + '\n');
-      final IPJobControl ipJobControl = (IPJobControl) ipJob;
+      final IPJob ipJobControl = (IPJob) ipJob;
       final BitSet procZero = new BitSet();
       procZero.set(0);
       ipJobControl.addProcessAttributes(procZero, new AttributeManager(attr));
     }
   }
-  
-  // --- Private code
-  
-  private void changeJobState(final JobAttributes.State newState) {
-    final EnumeratedAttribute<JobAttributes.State> state = JobAttributes.getStateAttributeDefinition().create(newState);
-    final AttributeManager attrManager = new AttributeManager();
-    attrManager.addAttribute(state);
-    this.fRuntimeSystem.changeJobAttributes(this.fJobId, attrManager);
-  }
-  
-  private void changeJobState(final JobAttributes.State newState, final EX10JobStatus status) {
+//  
+//  // --- Private code
+//  
+//  public void changeJobState(final JobAttributes.State newState) {
+//    final EnumeratedAttribute<JobAttributes.State> state = JobAttributes.getStateAttributeDefinition().create(newState);
+//    final AttributeManager attrManager = new AttributeManager();
+//    attrManager.addAttribute(state);
+//    getRtSystem().changeJobAttributes(getJobID(), attrManager);
+//  }
+//  
+  public void changeJobState(final JobAttributes.State newState, final EX10JobStatus status) {
     final EnumeratedAttribute<JobAttributes.State> state = JobAttributes.getStateAttributeDefinition().create(newState);
     final StringAttribute strStatus = JobAttributes.getStatusAttributeDefinition().create(status.name());
     final AttributeManager attrManager = new AttributeManager();
     attrManager.addAttribute(state);
     attrManager.addAttribute(strStatus);
-    this.fRuntimeSystem.changeJobAttributes(this.fJobId, attrManager);
+    getRtSystem().changeJob(getJobID(), attrManager);
   }
-  
-  private void changeJobStatusMessage(final String newMessage) {
-    final StringAttribute message = JobAttributes.getStatusMessageAttributeDefinition().create(newMessage);
-    final AttributeManager attrManager = new AttributeManager();
-    attrManager.addAttribute(message);
-    this.fRuntimeSystem.changeJobAttributes(this.fJobId, attrManager);
-  }
-  
-  private void doExecutionStarted(final IProgressMonitor monitor) {
+//  
+//  private void changeJobStatusMessage(final String newMessage) {
+//    final StringAttribute message = JobAttributes.getStatusMessageAttributeDefinition().create(newMessage);
+//    final AttributeManager attrManager = new AttributeManager();
+//    attrManager.addAttribute(message);
+//    this.fRuntimeSystem.changeJobAttributes(this.fJobId, attrManager);
+//  }
+//  
+  public void doExecutionStarted(final IProgressMonitor monitor) {
     if (! monitor.isCanceled()) {
       initializeProcesses();
 
-      final IPJob ipJob = this.fRuntimeSystem.getPJob(this.fQueueId, this.fJobId);
-
+      final IPJob ipJob = ((IPResourceManager)getRtSystem().getResourceManager().getAdapter(IPResourceManager.class)).getJobById(getJobID());
+    		 
       final BufferedReader outReader = new BufferedReader(new InputStreamReader(this.fJobProcess.getInputStream()));
       this.fStdOutThread = new Thread(new Runnable() {
 
@@ -245,34 +249,34 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
   }
   
   private void doWaitExecution() {
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting for process to finish completely", this.fJobId); //$NON-NLS-1$
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting for process to finish completely", getJobID()); //$NON-NLS-1$
     try {
       this.fJobProcess.waitFor();
     } catch (InterruptedException except) {
       // Simply ignore
     }
     
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stderr thread to finish", this.fJobId); //$NON-NLS-1$
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stderr thread to finish", getJobID()); //$NON-NLS-1$
     try {
       this.fStdErrThread.join();
     } catch (InterruptedException except) {
       // Simply ignore
     }
 
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stdout thread to finish", this.fJobId); //$NON-NLS-1$
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stdout thread to finish", getJobID()); //$NON-NLS-1$
     try {
       this.fStdOutThread.join();
     } catch (InterruptedException except) {
       // Simply ignore
     }
 
-    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: completely finished", this.fJobId); //$NON-NLS-1$
+    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: completely finished", getJobID()); //$NON-NLS-1$
   }
   
   private Map<String, String> getEnvironmentVariables() {
     final Map<String, String> environmentMap = new HashMap<String, String>();
     
-    final ArrayAttribute<String> attr = this.fAttrManager.getAttribute(JobAttributes.getEnvironmentAttributeDefinition());
+    final ArrayAttribute<String> attr = getAttrMgr().getAttribute(JobAttributes.getEnvironmentAttributeDefinition());
     if (attr != null) {
       for (final String entry : attr.getValue()) {
         final int i = entry.indexOf('=');
@@ -284,45 +288,162 @@ public abstract class AbstractX10RuntimeSystemJob extends Job {
   }
   
   private String getWorkingDirectory() {
-    return this.fAttrManager.getAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition()).getValue();
+    return this.getAttrMgr().getAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition()).getValue();
   }
   
   private void initializeProcesses() {
-    final IPJob ipJob = this.fRuntimeSystem.getPJob(this.fQueueId, this.fJobId);
+	IPResourceManager rm = (IPResourceManager) getRtSystem().getResourceManager().getAdapter(IPResourceManager.class);
+	final IPJob ipJob = rm.getJobById(getJobID());
+    //final IPJob ipJob = getRtSystem().getPJob(this.fQueueId, getJobID());
     final IntegerAttribute numProcsAttr = ipJob.getAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition());
-    this.fRuntimeSystem.createProcesses(this.fJobId, numProcsAttr.getValue().intValue());
+    getRtSystem().createProcesses(getJobID(), numProcsAttr.getValue().intValue());
 
     final AttributeManager attrMrg = new AttributeManager();
     attrMrg.addAttribute(ProcessAttributes.getStateAttributeDefinition().create(ProcessAttributes.State.RUNNING));
-    this.fRuntimeSystem.changeProcesses(ipJob.getID(), ipJob.getProcessJobRanks(), attrMrg);
+    getRtSystem().changeProcesses(ipJob.getID(), ipJob.getProcessJobRanks(), attrMrg);
   }
+//  
+//  private void terminate() {
+//    synchronized (this) {
+//      if (this.fJobProcess != null) {
+//        this.fJobProcess.destroy();
+//        this.fJobProcess = null;
+//      }
+//    }
+//  }
+//  
+//  private void terminateProcesses() {
+//    final IPJob ipJob = this.fRuntimeSystem.getPJob(this.fQueueId, this.fJobId);
+//    final AttributeManager attrMrg = new AttributeManager();
+//    attrMrg.addAttribute(ProcessAttributes.getStateAttributeDefinition().create(ProcessAttributes.State.COMPLETED));
+//    this.fRuntimeSystem.changeProcesses(ipJob.getID(), ipJob.getProcessJobRanks(), attrMrg);
+//  }
+//  
   
-  private void terminate() {
-    synchronized (this) {
-      if (this.fJobProcess != null) {
-        this.fJobProcess.destroy();
-        this.fJobProcess = null;
-      }
-    }
-  }
+	@Override
+	protected void doBeforeExecution(IProgressMonitor monitor,
+			IRemoteProcessBuilder builder) throws CoreException {
+		// nothing
+		
+	}
+
+	@Override
+	protected void doExecutionCleanUp(IProgressMonitor monitor) {
+		if (getProcess() != null) {
+			getProcess().destroy();
+		}
+		terminateProcesses();
+		
+	}
+
+	private void terminateProcesses() {
+		final AbstractX10RuntimeSystem rtSystem = (AbstractX10RuntimeSystem) getRtSystem();
+		IPResourceManager rm = (IPResourceManager) rtSystem.getResourceManager().getAdapter(IPResourceManager.class);
+		final IPJob ipJob = rm.getJobById(getJobID());
+
+		/*
+		 * Mark all running and starting processes as finished.
+		 */
+		AttributeManager attrMrg = new AttributeManager();
+		attrMrg.addAttribute(ProcessAttributes.getStateAttributeDefinition().create(ProcessAttributes.State.COMPLETED));
+		rtSystem.changeProcesses(ipJob.getID(), ipJob.getProcessJobRanks(), attrMrg);
+	}
+	
+	@Override
+	protected void doExecutionFinished(IProgressMonitor monitor)
+			throws CoreException {
+		terminateProcesses();
+		if (getProcess().exitValue() != 0) {
+			if (!terminateJobFlag) {
+//				changeJobStatusMessage(NLS.bind(Messages.MPICH2RuntimeSystemJob_Exception_ExecutionFailedWithExitValue,
+//						new Integer(getProcess().exitValue())));
+				changeJobStatus(MPIJobAttributes.Status.ERROR);
+			}
+
+			DebugUtil
+					.trace(DebugUtil.RTS_JOB_TRACING,
+							"RTS job #{0}: ignoring exit value {1} because job was forced to terminate by user", getJobID(), new Integer(getProcess().exitValue())); //$NON-NLS-1$
+		}
+		
+	}
+
+
+
+	@Override
+	protected void doPrepareExecution(IProgressMonitor monitor)
+			throws CoreException {
+		// Nothing
+		
+	}
+
+	@Override
+	protected IAttribute<?, ?, ?>[] doRetrieveToolBaseSubstitutionAttributes()
+			throws CoreException {
+		
+		return null;
+	}
+
+	@Override
+	protected IAttribute<?, ?, ?>[] doRetrieveToolCommandSubstitutionAttributes(
+			AttributeManager baseSubstitutionAttributeManager,
+			String directory, Map<String, String> environment) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected HashMap<String, String> doRetrieveToolEnvironment()
+			throws CoreException {
+		
+		return null;
+	}
+
+	@Override
+	protected void doTerminateJob() {
+		
+		
+	}
+
+	@Override
+	protected void doWaitExecution(IProgressMonitor monitor)
+			throws CoreException {
+	    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting for process to finish completely", getJobID()); //$NON-NLS-1$
+	    try {
+	      getProcess().waitFor();
+	    } catch (InterruptedException except) {
+	      // Simply ignore
+	    }
+	    
+	    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stderr thread to finish", getJobID()); //$NON-NLS-1$
+	    try {
+	      this.fStdErrThread.join();
+	    } catch (InterruptedException except) {
+	      // Simply ignore
+	    }
+	
+	    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: waiting stdout thread to finish", getJobID()); //$NON-NLS-1$
+	    try {
+	      this.fStdOutThread.join();
+	    } catch (InterruptedException except) {
+	      // Simply ignore
+	    }
+	
+	    DebugUtil.trace(DebugUtil.RTS_JOB_TRACING_MORE, "RTS job #{0}: completely finished", getJobID()); //$NON-NLS-1$
+		
+	}
   
-  private void terminateProcesses() {
-    final IPJob ipJob = this.fRuntimeSystem.getPJob(this.fQueueId, this.fJobId);
-    final AttributeManager attrMrg = new AttributeManager();
-    attrMrg.addAttribute(ProcessAttributes.getStateAttributeDefinition().create(ProcessAttributes.State.COMPLETED));
-    this.fRuntimeSystem.changeProcesses(ipJob.getID(), ipJob.getProcessJobRanks(), attrMrg);
-  }
+
   
   // --- Fields
   
-  private final IX10RuntimeSystem fRuntimeSystem;
-  
-  private final String fJobId;
-  
-  private final String fQueueId;
-  
-  private final AttributeManager fAttrManager;
-  
+//  private final IX10RuntimeSystem fRuntimeSystem;
+//  
+//  private final String fJobId;
+//  
+//  private final String fQueueId;
+//  
+//  private final AttributeManager fAttrManager;
+//  
   private IRemoteProcess fJobProcess;
   
   private Thread fStdOutThread;

@@ -21,6 +21,7 @@ import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteProcess;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystem;
 import org.eclipse.ptp.rm.mpi.mpich2.core.MPICH2NodeAttributes;
 import org.eclipse.ptp.rm.mpi.mpich2.core.rtsystem.MPICH2HostMap;
 import org.eclipse.ptp.rm.mpi.mpich2.core.rtsystem.MPICH2TraceParser;
@@ -32,7 +33,7 @@ final class MPICH2HostMapReader implements IHostMapReader {
 
   // --- Interface methods implementation
   
-  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
+  public HostMap loadMap(final AbstractToolRuntimeSystem runtimeSystem, final IRemoteConnection connection, 
                          final IRemoteServices remoteServices, final String machineId, 
                          final IProgressMonitor monitor) {
     final List<String> command = Arrays.asList("mpdtrace", "-l"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -42,8 +43,9 @@ final class MPICH2HostMapReader implements IHostMapReader {
       final BufferedReader stdout = new BufferedReader(new InputStreamReader(process.getInputStream()));
       
       final MPICH2TraceParser parser = new MPICH2TraceParser();
-      try {
-        final MPICH2HostMap hostMap = parser.parse(stdout);
+        if (parser.parse(stdout)) {
+        	final MPICH2HostMap hostMap = parser.getHostMap();
+        
         if (hostMap == null) {
           return new HostMap();
         } else {
@@ -51,7 +53,8 @@ final class MPICH2HostMapReader implements IHostMapReader {
           processHostMap(hostMap, runtimeSystem, machineId, hostNames);
           return new HostMap(hostNames);
         }
-      } finally {
+        
+      } else {
         process.waitFor();
       }
     } catch (Exception except) {
@@ -62,7 +65,7 @@ final class MPICH2HostMapReader implements IHostMapReader {
   
   // --- Private code
   
-  private void processHostMap(final MPICH2HostMap hostMap, final IX10RuntimeSystem runtimeSystem,
+  private void processHostMap(final MPICH2HostMap hostMap, final AbstractToolRuntimeSystem runtimeSystem,
                               final String machineId, final Collection<String> hostNames) {
     int nodeCounter = 0;
     for (final MPICH2HostMap.Host host : hostMap.getHosts()) {

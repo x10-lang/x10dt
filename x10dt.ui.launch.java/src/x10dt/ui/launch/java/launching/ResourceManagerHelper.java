@@ -26,13 +26,17 @@ import java.util.HashMap;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.ptp.core.IServiceConstants;
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.core.elements.IResourceManager;
-import org.eclipse.ptp.core.events.IChangedResourceManagerEvent;
-import org.eclipse.ptp.core.events.INewResourceManagerEvent;
-import org.eclipse.ptp.core.events.IRemoveResourceManagerEvent;
-import org.eclipse.ptp.core.listeners.IModelManagerChildListener;
+import org.eclipse.ptp.rm.core.rmsystem.IRemoteResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManagerControl;
+import org.eclipse.ptp.rmsystem.IResourceManager;
+import org.eclipse.ptp.core.events.IResourceManagerChangedEvent;
+import org.eclipse.ptp.core.events.IResourceManagerAddedEvent;
+import org.eclipse.ptp.core.events.IResourceManagerErrorEvent;
+import org.eclipse.ptp.core.events.IResourceManagerRemovedEvent;
+import org.eclipse.ptp.core.listeners.IResourceManagerListener;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
@@ -53,7 +57,7 @@ import org.eclipse.ptp.services.core.ServiceModelManager;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
-import x10dt.ui.launch.java.launching.rms.MultiVMServiceProvider;
+import x10dt.ui.launch.java.launching.rms.MultiVMResourceManagerConfiguration;
 import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
 
 
@@ -110,30 +114,49 @@ final class ResourceManagerHelper {
   // --- Services
   
   public IResourceManager createResourceManager() throws CoreException {
-    final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
-    final IService service = serviceModelManager.getService(PTPConstants.LAUNCH_SERVICE_ID);
-    for (final IServiceConfiguration serviceConfiguration : serviceModelManager.getConfigurations()) {
-      if (this.fName.equals(serviceConfiguration.getName())) {
-        final IServiceProvider serviceProvider = serviceConfiguration.getServiceProvider(service);
-        if (serviceProvider instanceof MultiVMServiceProvider) {
-          return ((IX10RMConfiguration) serviceProvider).createResourceManager();
-        }
-      }
-    }
-    final IServiceProviderDescriptor descriptor = service.getProviderDescriptor(SERVICE_DESCRIPTOR_ID);
-    final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(descriptor);
-    serviceProvider.setDescriptor(descriptor);
-    final IX10RMConfiguration rmConf = (IX10RMConfiguration) serviceProvider;
+    //final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
+    //final IService service = serviceModelManager.getService(PTPConstants.LAUNCH_SERVICE_ID);
+       
+//    for (final IServiceConfiguration serviceConfiguration : serviceModelManager.getConfigurations()) {
+//      if (this.fName.equals(serviceConfiguration.getName())) {
+//        final IServiceProvider serviceProvider = serviceConfiguration.getServiceProvider(service);
+//        if (serviceProvider instanceof MultiVMResourceManagerConfiguration) {
+//          return ((IX10RMConfiguration) serviceProvider).createResourceManager();
+//        }
+//      }
+//    }
+	  
+	IService launchService = ServiceModelManager.getInstance().getService(IServiceConstants.LAUNCH_SERVICE);  
+    IServiceProviderDescriptor descriptor = launchService.getProviderDescriptor(SERVICE_DESCRIPTOR_ID);
+    IServiceProvider provider = ServiceModelManager.getInstance().getServiceProvider(descriptor);
     
-    rmConf.setName(this.fName);
+    IResourceManagerConfiguration baseConfiguration = ModelManager.getInstance().createBaseConfiguration(provider); 
+    String uniqueID = baseConfiguration.getUniqueName();
+    
+    final IServiceConfiguration config = ServiceModelManager.getInstance().newServiceConfiguration(this.fName);
+    config.setServiceProvider(launchService, provider);
+    ServiceModelManager.getInstance().addConfiguration(config);
+    
+    IResourceManager manager = ModelManager.getInstance().getResourceManagerFromUniqueName(uniqueID);
+    manager.getConfiguration().setName(this.fName);
+    IRemoteResourceManagerConfiguration rmConf = (IRemoteResourceManagerConfiguration) manager.getControlConfiguration();
+    if (this.fIsLocal){
+    	rmConf.setConnectionName(IRemoteConnectionManager.DEFAULT_CONNECTION_NAME);
+    } else {
+    	rmConf.setConnectionName(this.fName);
+    }
+    //provider.setDescriptor(descriptor);
+    //final IX10RMConfiguration rmConf = (IX10RMConfiguration) provider;
+    
+    //rmConf.setName(this.fName); //MV  - check this
     final String remoteServicesId = this.fIsLocal ? PTPConstants.LOCAL_CONN_SERVICE_ID : PTPConstants.REMOTE_CONN_SERVICE_ID;
 
-    rmConf.setConnectionName(this.fName);
+    
     if (this.fIsLocal) {
       final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
       final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(LOCAL_CONN_SERVICE_ID).getConnectionManager();
       try {
-        rmConnManager.newConnection(this.fName, null /* attributes */);
+        rmConnManager.newConnection(this.fName);
       } catch (RemoteConnectionException except) {
         // Can't occur with local connection.
       }
@@ -147,18 +170,18 @@ final class ResourceManagerHelper {
     }
     rmConf.setRemoteServicesId(remoteServicesId);
     
-    final ResourceManagerListener listener = new ResourceManagerListener();
-    PTPCorePlugin.getDefault().getModelManager().addListener(listener);
+    return manager;
     
-    final IServiceConfiguration serviceConf = serviceModelManager.newServiceConfiguration(this.fName);
-    serviceConf.setServiceProvider(service, serviceProvider);
-    serviceModelManager.addConfiguration(serviceConf);
-    
-    while (! listener.hasResourceManager()) ;
-    
-    PTPCorePlugin.getDefault().getModelManager().removeListener(listener);
-    
-    return listener.getResourceManager();
+//    final ResourceManagerListener listener = new ResourceManagerListener();
+//    PTPCorePlugin.getDefault().getModelManager().addListener(listener);
+//    
+//    
+//    
+//    while (! listener.hasResourceManager()) ;
+//    
+//    PTPCorePlugin.getDefault().getModelManager().removeListener(listener);
+//    
+//    return listener.getResourceManager();
   }
   
   public void createOrUpdateRemoteConnection() throws CoreException {
@@ -173,7 +196,7 @@ final class ResourceManagerHelper {
       targetTypeElement.addElement((TargetElement) targetElement);
     } else {
       if (targetElement.getControl().query() != ITargetStatus.STOPPED) {
-        targetElement.getControl().kill(new NullProgressMonitor());     
+        targetElement.getControl().kill();     
       }
     }
     
@@ -183,8 +206,8 @@ final class ResourceManagerHelper {
   }
   
   public void deleteResourceManager(final IResourceManager resourceManager) throws CoreException {
-    resourceManager.shutdown();
-    final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) resourceManager).getConfiguration();
+    resourceManager.stop();
+    final IResourceManagerConfiguration rmConf =  resourceManager.getConfiguration();
     final ServiceModelManager modelManager = ServiceModelManager.getInstance();
     loop:
     for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
@@ -225,18 +248,21 @@ final class ResourceManagerHelper {
   
   // --- Private classes
   
-  private static final class ResourceManagerListener implements IModelManagerChildListener {
+  private static final class ResourceManagerListener implements IResourceManagerListener {
     
     // --- Interface methods implementation
 
-    public void handleEvent(final IChangedResourceManagerEvent event) {
+    public void handleEvent(final IResourceManagerChangedEvent event) {
     }
 
-    public void handleEvent(final INewResourceManagerEvent event) {
+    public void handleEvent(final IResourceManagerAddedEvent event) {
       this.fResourceManager = event.getResourceManager();
     }
 
-    public void handleEvent(final IRemoveResourceManagerEvent event) {
+    public void handleEvent(final IResourceManagerRemovedEvent event) {
+    }
+    
+    public void handleEvent(final IResourceManagerErrorEvent event) {
     }
     
     // --- Internal services
