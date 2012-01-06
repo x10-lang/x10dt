@@ -24,16 +24,11 @@ import static x10dt.ui.launch.java.launching.MultiVMAttrConstants.ATTR_USE_PORT_
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.ptp.core.IServiceConstants;
 import org.eclipse.ptp.core.ModelManager;
-import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.rm.core.rmsystem.IRemoteResourceManagerConfiguration;
-import org.eclipse.ptp.rmsystem.IResourceManagerControl;
-import org.eclipse.ptp.rmsystem.IResourceManager;
-import org.eclipse.ptp.core.events.IResourceManagerChangedEvent;
 import org.eclipse.ptp.core.events.IResourceManagerAddedEvent;
+import org.eclipse.ptp.core.events.IResourceManagerChangedEvent;
 import org.eclipse.ptp.core.events.IResourceManagerErrorEvent;
 import org.eclipse.ptp.core.events.IResourceManagerRemovedEvent;
 import org.eclipse.ptp.core.listeners.IResourceManagerListener;
@@ -48,7 +43,10 @@ import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
+import org.eclipse.ptp.rm.core.rmsystem.IRemoteResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.ResourceManagerServiceProvider;
 import org.eclipse.ptp.services.core.IService;
 import org.eclipse.ptp.services.core.IServiceConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
@@ -57,8 +55,6 @@ import org.eclipse.ptp.services.core.ServiceModelManager;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
-import x10dt.ui.launch.java.launching.rms.MultiVMResourceManagerConfiguration;
-import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
 
 
 final class ResourceManagerHelper {
@@ -117,18 +113,25 @@ final class ResourceManagerHelper {
     //final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
     //final IService service = serviceModelManager.getService(PTPConstants.LAUNCH_SERVICE_ID);
        
-//    for (final IServiceConfiguration serviceConfiguration : serviceModelManager.getConfigurations()) {
-//      if (this.fName.equals(serviceConfiguration.getName())) {
-//        final IServiceProvider serviceProvider = serviceConfiguration.getServiceProvider(service);
+	IService launchService = ServiceModelManager.getInstance().getService(IServiceConstants.LAUNCH_SERVICE);  
+	IServiceProviderDescriptor descriptor = launchService.getProviderDescriptor(SERVICE_DESCRIPTOR_ID);
+	IServiceProvider provider = ServiceModelManager.getInstance().getServiceProvider(descriptor);
+	    
+    for (final IServiceConfiguration serviceConfiguration : ServiceModelManager.getInstance().getConfigurations()) {
+      if (this.fName.equals(serviceConfiguration.getName())) {
+        final IServiceProvider serviceProvider = serviceConfiguration.getServiceProvider(launchService);
+        String uniqueName = ((ResourceManagerServiceProvider) serviceProvider).getUniqueName();
+        IResourceManager manager = ModelManager.getInstance().getResourceManagerFromUniqueName(uniqueName);
+        return manager;
+//        serviceProvider.
 //        if (serviceProvider instanceof MultiVMResourceManagerConfiguration) {
 //          return ((IX10RMConfiguration) serviceProvider).createResourceManager();
 //        }
-//      }
-//    }
+     
+      }
+    }
 	  
-	IService launchService = ServiceModelManager.getInstance().getService(IServiceConstants.LAUNCH_SERVICE);  
-    IServiceProviderDescriptor descriptor = launchService.getProviderDescriptor(SERVICE_DESCRIPTOR_ID);
-    IServiceProvider provider = ServiceModelManager.getInstance().getServiceProvider(descriptor);
+	
     
     IResourceManagerConfiguration baseConfiguration = ModelManager.getInstance().createBaseConfiguration(provider); 
     String uniqueID = baseConfiguration.getUniqueName();
