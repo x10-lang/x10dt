@@ -29,8 +29,9 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.PTPCorePlugin;
+import org.eclipse.ptp.core.elements.IPResourceManager;
 import org.eclipse.ptp.core.elements.IPUniverse;
-import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.launch.PTPLaunchPlugin;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
@@ -154,7 +155,12 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     final IPUniverse universe = modelManager.getUniverse();
     IResourceManager resourceManager = null;
     if (universe != null) {
-      final IResourceManager[] rms = universe.getResourceManagers();
+      IPResourceManager[] prms = universe.getResourceManagers();
+      final IResourceManager[] rms = new IResourceManager[prms.length];
+      for(int i = 0; i < prms.length; i++){
+        rms[i] = (IResourceManager) prms[i].getAdapter(IResourceManager.class);
+      }
+     
       if (rms.length == 1) {
         resourceManager = rms[0];
       }
@@ -190,18 +196,18 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     	setErrorMessage(LaunchMessages.CIT_CouldNotFindResManager);
     	return;
     }
-    if (this.fResourceManager.getState() == State.ERROR) {
+    if (this.fResourceManager.getState() == IResourceManager.ERROR_STATE) {
     	try {
-				this.fResourceManager.shutdown();
+				this.fResourceManager.stop();
 			} catch (CoreException except) {
 				setErrorMessage(LaunchMessages.CIT_CouldNotStopResMgr);
 				this.fResourceManager = null;
 				return;
 			}
-    }
-    if (this.fResourceManager.getState() != State.STARTED) { 
+    } 
+    if (this.fResourceManager.getState() != IResourceManager.STARTED_STATE) { 
       try {
-        this.fResourceManager.startUp(new NullProgressMonitor());
+        this.fResourceManager.start(new NullProgressMonitor());
       } catch (CoreException except) {
         setErrorMessage(LaunchMessages.CIT_CouldNotStartResManager);
         this.fResourceManager = null;

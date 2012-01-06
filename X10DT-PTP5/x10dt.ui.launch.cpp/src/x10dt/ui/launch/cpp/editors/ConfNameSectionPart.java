@@ -10,10 +10,11 @@ package x10dt.ui.launch.cpp.editors;
 import java.util.Collection;
 
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.events.IChangedResourceManagerEvent;
-import org.eclipse.ptp.core.events.INewResourceManagerEvent;
-import org.eclipse.ptp.core.events.IRemoveResourceManagerEvent;
-import org.eclipse.ptp.core.listeners.IModelManagerChildListener;
+import org.eclipse.ptp.core.events.IResourceManagerChangedEvent;
+import org.eclipse.ptp.core.events.IResourceManagerAddedEvent;
+import org.eclipse.ptp.core.events.IResourceManagerErrorEvent;
+import org.eclipse.ptp.core.events.IResourceManagerRemovedEvent;
+import org.eclipse.ptp.core.listeners.IResourceManagerListener;
 import org.eclipse.ptp.services.core.IService;
 import org.eclipse.ptp.services.core.IServiceConfiguration;
 import org.eclipse.ptp.services.core.IServiceModelEvent;
@@ -42,7 +43,7 @@ import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 
 final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements IFormPart, IServiceModelEventListener,
-                                                                                 IModelManagerChildListener {
+                                                                                 IResourceManagerListener {
 
   ConfNameSectionPart(final Composite parent, final ConnectionAndCommunicationConfPage formPage,
                       final Collection<IServiceConfigurationListener> rmConfPageListeners) {
@@ -70,15 +71,18 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
   
   // --- IModelManagerChildListener's interface methods implementation
   
-  public void handleEvent(final IChangedResourceManagerEvent e) {
+  public void handleEvent(final IResourceManagerChangedEvent e) {
     
   }
 
-  public void handleEvent(final INewResourceManagerEvent event) {
+  public void handleEvent(final IResourceManagerAddedEvent event) {
     
   }
 
-  public void handleEvent(final IRemoveResourceManagerEvent event) {
+  public void handleEvent(final IResourceManagerRemovedEvent event) {
+  }
+  
+  public void handleEvent(final IResourceManagerErrorEvent event) {
   }
   
   // --- Abstract methods implementation

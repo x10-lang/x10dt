@@ -21,12 +21,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jface.dialogs.IMessageProvider;
+import org.eclipse.ptp.core.ModelManager;
+import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.rm.core.rmsystem.IRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
-import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.PEResourceManagerConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.rmsystem.ResourceManagerServiceProvider;
 import org.eclipse.ptp.services.core.IService;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ptp.services.core.IServiceProviderDescriptor;
@@ -123,7 +127,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
 
     final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
     for (final IService service : serviceModelManager.getServices()) {
-      if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
+      if (service.getCategory() != null && PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId())) {
         serviceProviders.addAll(service.getProviders());
       }
     }
@@ -354,6 +358,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
     final Set<IServiceProviderDescriptor> serviceProviders = new HashSet<IServiceProviderDescriptor>();
 
     for (final IService service : serviceModelManager.getServices()) {
+      if (service.getCategory() == null) continue;
       if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) && service.getName().equals(LaunchMessages.CISP_Launch)) {
     
         this.fCIModeCombo.add(service.getName());
@@ -378,15 +383,16 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
   }
 
   private ICITypeConfigurationPart createCITypeConfigurationPart(final IServiceProvider serviceProvider) {
-    final String remoteServiceId = ((IResourceManagerConfiguration) serviceProvider).getResourceManagerId();
+    final String remoteServiceId = serviceProvider.getId();
+    IResourceManager rm = ModelManager.getInstance().getResourceManagerFromUniqueName(((ResourceManagerServiceProvider)serviceProvider).getUniqueName());
     if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new OpenMPITypeConfigPart((IOpenMPIResourceManagerConfiguration) serviceProvider);
+      return new OpenMPITypeConfigPart((IOpenMPIResourceManagerConfiguration) rm.getControlConfiguration());
     } else if (MPICH2_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new MPICH2TypeConfigPart((IToolRMConfiguration) serviceProvider);
+      return new MPICH2TypeConfigPart((IToolRMConfiguration) rm.getControlConfiguration());
     } else if (PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new ParallelEnvironmentTypeConfigPart((IPEResourceManagerConfiguration) serviceProvider);
+      return new ParallelEnvironmentTypeConfigPart((PEResourceManagerConfiguration) rm.getControlConfiguration());
     } else if (LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new LoadLevelerTypeConfigPart((IIBMLLResourceManagerConfiguration) serviceProvider);
+      return new LoadLevelerTypeConfigPart((IIBMLLResourceManagerConfiguration) rm.getControlConfiguration());
     } else if (SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new HostFileAndListTypeConfigPart();
     } else if (PAMI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
@@ -411,11 +417,11 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
                              final ServiceModelManager serviceModelManager, final boolean isLocal) {
     for (final IServiceProviderDescriptor providerDescriptor : serviceProviders) {
       final IServiceProvider serviceProvider = serviceModelManager.getServiceProvider(providerDescriptor);
-      if (serviceProvider instanceof IRemoteResourceManagerConfiguration) {
-        final String rmId = ((IRemoteResourceManagerConfiguration) serviceProvider).getResourceManagerId();
-        if (SOCKETS_SERVICE_PROVIDER_ID.equals(rmId) || STANDALONE_SERVICE_PROVIDER_ID.equals(rmId) ||
-            PAMI_SERVICE_PROVIDER_ID.equals(rmId) ||
-            (! isLocal && (MPICH2_SERVICE_PROVIDER_ID.equals(rmId) || OPEN_MPI_SERVICE_PROVIDER_ID.equals(rmId)))) {
+      if (serviceProvider == null) continue;
+      String rmId = serviceProvider.getId();
+      if (SOCKETS_SERVICE_PROVIDER_ID.equals(rmId) || STANDALONE_SERVICE_PROVIDER_ID.equals(rmId) ||
+            PAMI_SERVICE_PROVIDER_ID.equals(rmId) /*||
+            (! isLocal && (MPICH2_SERVICE_PROVIDER_ID.equals(rmId) || OPEN_MPI_SERVICE_PROVIDER_ID.equals(rmId)))*/) { // --- MV - check if we still want to support these
           // We skip intentionally LoadLeveler and ParallelEnvironment for now.
           final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);
           if (typeConfPart != null) {
@@ -423,7 +429,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
             this.fCITypeCombo.setData(providerDescriptor.getName(), typeConfPart);
           }
         }
-      }
+      
     }
   }
 

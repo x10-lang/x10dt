@@ -9,7 +9,7 @@ package x10dt.ui.launch.cpp.platform_conf;
 
 import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
 import org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants;
-import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.PEResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
 
@@ -21,10 +21,10 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
   // --- ICommunicationInterfaceConf's interface methods implementation
   
   public boolean hasSameCommunicationInterfaceInfo(final IResourceManagerConfiguration rmConfiguration) {
-    if (! (rmConfiguration instanceof IPEResourceManagerConfiguration)) {
+    if (! (rmConfiguration instanceof PEResourceManagerConfiguration)) {
       return false;
     }
-    final IPEResourceManagerConfiguration peRMConf = (IPEResourceManagerConfiguration) rmConfiguration;
+    final PEResourceManagerConfiguration peRMConf = (PEResourceManagerConfiguration) rmConfiguration;
     
     if (! peRMConf.getProxyServerPath().equals(getProxyServerPath())) {
       return false;
@@ -165,7 +165,7 @@ final class ParallelEnvironmentConf extends IBMCommunicationInterfaceConf implem
   
   ParallelEnvironmentConf() {}
   
-  ParallelEnvironmentConf(final IPEResourceManagerConfiguration rmConf) {
+  ParallelEnvironmentConf(final PEResourceManagerConfiguration rmConf) {
     super.fServiceModeId = ((IServiceProvider) rmConf).getServiceId();
     super.fServiceTypeId = ((IServiceProvider) rmConf).getId();
     
