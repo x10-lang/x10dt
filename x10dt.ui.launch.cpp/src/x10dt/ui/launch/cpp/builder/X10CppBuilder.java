@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -45,7 +46,14 @@ public final class X10CppBuilder extends AbstractX10Builder {
   
   public ExtensionInfo createExtensionInfo(final String classPath, final List<File> sourcePath, final String localOutputDir,
                                            final boolean withMainMethod, final IProgressMonitor monitor) {
-    final ExtensionInfo extInfo = new CppBuilderExtensionInfo(monitor, getProject());
+    
+    IProject project = null;
+    try {
+      project = getProject(); // --- Hack - in Indigo, getProject() throws an NPE when project is null, instead of just returning null (which it used to do).
+    } catch (NullPointerException e){
+      //Nothing
+    }
+    final ExtensionInfo extInfo = new CppBuilderExtensionInfo(monitor, project);
     buildOptions(classPath, sourcePath, localOutputDir, (X10CPPCompilerOptions) extInfo.getOptions(), withMainMethod);
     return extInfo;
   }

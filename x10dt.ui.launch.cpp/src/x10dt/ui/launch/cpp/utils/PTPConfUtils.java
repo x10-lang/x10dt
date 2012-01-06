@@ -30,14 +30,20 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.ptp.core.IServiceConstants;
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.core.elements.IResourceManager;
-import org.eclipse.ptp.core.events.IChangedResourceManagerEvent;
-import org.eclipse.ptp.core.events.INewResourceManagerEvent;
-import org.eclipse.ptp.core.events.IRemoveResourceManagerEvent;
-import org.eclipse.ptp.core.listeners.IModelManagerChildListener;
+import org.eclipse.ptp.core.elements.IPResourceManager;
+import org.eclipse.ptp.core.elements.IPUniverse;
+//import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
+import org.eclipse.ptp.rmsystem.IResourceManager;
+import org.eclipse.ptp.rmsystem.IResourceManagerComponentConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManagerControl;
+import org.eclipse.ptp.core.events.IResourceManagerChangedEvent;
+import org.eclipse.ptp.core.events.IResourceManagerAddedEvent;
+import org.eclipse.ptp.core.events.IResourceManagerErrorEvent;
+import org.eclipse.ptp.core.events.IResourceManagerRemovedEvent;
+import org.eclipse.ptp.core.listeners.IResourceManagerListener;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
@@ -54,7 +60,7 @@ import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 import org.eclipse.ptp.rm.core.rmsystem.IRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
-import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.PEResourceManagerConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IService;
@@ -106,6 +112,7 @@ public final class PTPConfUtils {
     ITargetElement finalTargetElement = null;
     for (final ITargetElement targetElement : targetTypeElement.getElements()) {
       if (targetElement.getName().equals(connectionName)) {
+        //targetTypeElement.removeElement(targetElement);
         targetElement.setAttributes(attributes);
         targetElement.getControl().updateConfiguration();
         finalTargetElement = targetElement;
@@ -129,43 +136,40 @@ public final class PTPConfUtils {
    * @throws CoreException Occurs if we could not create the service provider from the plugin extension mechanism, or
    * if the update of a PTP target element failed.
    */
-  public static IResourceManager createResourceManager(final IX10PlatformConf platformConf) throws RemoteConnectionException,
-  																																																 CoreException {
+  public static IResourceManager createResourceManager(final IX10PlatformConf platformConf) throws RemoteConnectionException, CoreException {
     final ICommunicationInterfaceConf commConf = platformConf.getCommunicationInterfaceConf();
-    final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
-    final Pair<IService, IServiceProvider> pair = createProvider(serviceModelManager, commConf);
-    if ((pair == null) || (pair.second == null)) {
-      return null;
-    }
-    final IRemoteResourceManagerConfiguration rmConf = (IRemoteResourceManagerConfiguration) pair.second;
+   
     
-    commConf.visitInterfaceOptions(new CommunicationInterfaceInitializer(rmConf));
+    IService launchService = ServiceModelManager.getInstance().getService(IServiceConstants.LAUNCH_SERVICE);
+    IServiceProviderDescriptor descriptor = launchService.getProviderDescriptor(commConf.getServiceTypeId());
+    IServiceProvider provider = ServiceModelManager.getInstance().getServiceProvider(descriptor);
+    
+    IResourceManagerConfiguration baseConfiguration = ModelManager.getInstance().createBaseConfiguration(provider); 
+    String uniqueID = baseConfiguration.getUniqueName();
+    
+    IServiceConfiguration config = ServiceModelManager.getInstance().newServiceConfiguration(platformConf.getName()); 
+    config.setServiceProvider(launchService, provider);
+    ServiceModelManager.getInstance().addConfiguration(config);
+    
+    IResourceManager manager = ModelManager.getInstance().getResourceManagerFromUniqueName(uniqueID);
     
     final IConnectionConf connConf = platformConf.getConnectionConf();
     if (! connConf.isLocal() && findTargetElement(connConf.getConnectionName()) == null) {
       createRemoteConnection(connConf.getConnectionName(), connConf.getAttributes());
     }
+    
+    IRemoteResourceManagerConfiguration rmConf = (IRemoteResourceManagerConfiguration) manager.getControlConfiguration();
+    commConf.visitInterfaceOptions(new CommunicationInterfaceInitializer(rmConf));
+    
     rmConf.setConnectionName(connConf.getConnectionName());
     rmConf.setLocalAddress(connConf.getLocalAddress());
     if (connConf.shouldUsePortForwarding()) {
       rmConf.setOptions((rmConf.getOptions() & ~IRemoteProxyOptions.STDIO) | IRemoteProxyOptions.PORT_FORWARDING);
     }
-    rmConf.setName(platformConf.getName());
+    manager.getConfiguration().setName(platformConf.getName());
     rmConf.setRemoteServicesId(connConf.isLocal() ? PTPConstants.LOCAL_CONN_SERVICE_ID : PTPConstants.REMOTE_CONN_SERVICE_ID);
-    pair.second.putString(PLATFORM_CONF_ID, platformConf.getId());
-    
-    final ResourceManagerListener listener = new ResourceManagerListener();
-    PTPCorePlugin.getDefault().getModelManager().addListener(listener);
-    
-    final IServiceConfiguration serviceConf = serviceModelManager.newServiceConfiguration(platformConf.getName());
-    serviceConf.setServiceProvider(pair.first, pair.second);
-    serviceModelManager.addConfiguration(serviceConf);
-    
-    while (! listener.hasResourceManager()) ;
-  
-    PTPCorePlugin.getDefault().getModelManager().removeListener(listener);
-    
-    return listener.getResourceManager();
+    provider.putString(PLATFORM_CONF_ID, platformConf.getId());
+    return manager;
   }
   
   /**
@@ -177,8 +181,8 @@ public final class PTPConfUtils {
   public static void deleteResourceManager(final IX10PlatformConf platformConf) throws CoreException {
     final IResourceManager sameRMName = findResourceManagerByName(platformConf.getName());
     if (sameRMName != null) {
-      sameRMName.shutdown();
-      final IResourceManagerConfiguration rmConf = ((IResourceManagerControl) sameRMName).getConfiguration();
+      sameRMName.stop(); //shutdown();
+      final IResourceManagerConfiguration rmConf = sameRMName.getConfiguration();
       final ServiceModelManager modelManager = ServiceModelManager.getInstance();
       loop:
       for (final IServiceConfiguration serviceConf : modelManager.getConfigurations()) {
@@ -224,9 +228,10 @@ public final class PTPConfUtils {
    * @return A non-null resource manager if we found a match, <b>null</b> otherwise.
    */
   public static IResourceManager findResourceManagerByName(final String platformConfName) {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
     
-    for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
+    for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
+      final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
       final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
       
       if (rmConf.getName().equals(platformConfName)) {
@@ -244,9 +249,10 @@ public final class PTPConfUtils {
    * @return A non-null resource manager if we found a match, <b>null</b> otherwise.
    */
   public static IResourceManager findResourceManagerById(final IX10PlatformConf platformConf) {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
 
-    for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
+    for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
+      final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
       final IServiceProvider serviceProvider = (IServiceProvider) resourceManager.getConfiguration();
       if (platformConf.getId().equals(serviceProvider.getString(PLATFORM_CONF_ID, Constants.EMPTY_STR))) {
         return resourceManager;
@@ -270,26 +276,28 @@ public final class PTPConfUtils {
    */
   public static IResourceManager getResourceManager(final IX10PlatformConf platformConf) throws RemoteConnectionException,  
                                                                                                 CoreException {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
 
-    for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
-      final IServiceProvider serviceProvider = (IServiceProvider) resourceManager.getConfiguration();
+    for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
+      final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
+      final IServiceProvider serviceProvider = (IServiceProvider) resourceManager.getConfiguration().getAdapter(IServiceProvider.class);
       if (platformConf.getId().equals(serviceProvider.getString(PLATFORM_CONF_ID, Constants.EMPTY_STR))) {
         final ICommunicationInterfaceConf communicationInterfaceConf = platformConf.getCommunicationInterfaceConf();
-        final IResourceManagerConfiguration rmConf = (IResourceManagerConfiguration) serviceProvider;
+        
+        final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
         
         if (rmConf.getResourceManagerId().equals(communicationInterfaceConf.getServiceTypeId()) &&
-            ((IServiceProvider) rmConf).getServiceId().equals(communicationInterfaceConf.getServiceModeId())) {
+            serviceProvider.getServiceId().equals(communicationInterfaceConf.getServiceModeId())) {
           if (communicationInterfaceConf.hasSameCommunicationInterfaceInfo(rmConf)) {
             if (platformConf.getConnectionConf().isLocal()) {
-              if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
+              if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(resourceManager.getControlConfiguration().getRemoteServicesId())) { 
                 return resourceManager;
               }
-            } else if (PTPConstants.REMOTE_CONN_SERVICE_ID.equals(rmConf.getRemoteServicesId())) {
+            } else if (PTPConstants.REMOTE_CONN_SERVICE_ID.equals(resourceManager.getControlConfiguration().getRemoteServicesId())) { 
               final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
               final IRemoteServices remoteServices = plugin.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
 
-              final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(rmConf.getConnectionName());
+              final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(resourceManager.getControlConfiguration().getConnectionName()); 
               if ((rmConn != null) && platformConf.getConnectionConf().hasSameConnectionInfo(rmConn)) {
                 return resourceManager;
               }
@@ -312,7 +320,7 @@ public final class PTPConfUtils {
    * @return A non-null remote connection instance if one has been found, <b>null</b> otherwise.
    */
   public static IRemoteConnection findRemoteConnection(final IConnectionConf connectionConf) {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
     final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
     
     final String rmServicesId = connectionConf.isLocal() ? LOCAL_CONN_SERVICE_ID : REMOTE_CONN_SERVICE_ID;
@@ -325,10 +333,11 @@ public final class PTPConfUtils {
       }
     }
       
-    for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
+    for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
+      final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
       final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
       
-      final IRemoteConnection rmConn = rmConnManager.getConnection(rmConf.getConnectionName());
+      final IRemoteConnection rmConn = rmConnManager.getConnection(resourceManager.getControlConfiguration().getConnectionName()); 
       if ((rmConn != null) && connectionConf.hasSameConnectionInfo(rmConn)) {
         return rmConn;
       }
@@ -410,18 +419,21 @@ public final class PTPConfUtils {
   
   // --- Private classes
   
-  private static final class ResourceManagerListener implements IModelManagerChildListener {
+  private static final class ResourceManagerListener implements IResourceManagerListener {
     
     // --- Interface methods implementation
 
-    public void handleEvent(final IChangedResourceManagerEvent event) {
+    public void handleEvent(final IResourceManagerChangedEvent event) {
     }
 
-    public void handleEvent(final INewResourceManagerEvent event) {
+    public void handleEvent(final IResourceManagerAddedEvent event) {
       this.fResourceManager = event.getResourceManager();
     }
 
-    public void handleEvent(final IRemoveResourceManagerEvent event) {
+    public void handleEvent(final IResourceManagerRemovedEvent event) {
+    }
+    
+    public void handleEvent(final IResourceManagerErrorEvent event) {
     }
     
     // --- Internal services
@@ -442,7 +454,7 @@ public final class PTPConfUtils {
   
   private static final class CommunicationInterfaceInitializer implements ICIConfOptionsVisitor {
     
-    CommunicationInterfaceInitializer(final IResourceManagerConfiguration rmConf) {
+    CommunicationInterfaceInitializer(final IResourceManagerComponentConfiguration rmConf) {
       this.fRMConf = rmConf;
     }
     
@@ -473,7 +485,7 @@ public final class PTPConfUtils {
     }
     
     public void visit(final IParallelEnvironmentConf configuration) {
-      final IPEResourceManagerConfiguration peConf = (IPEResourceManagerConfiguration) this.fRMConf;
+      final PEResourceManagerConfiguration peConf = (PEResourceManagerConfiguration) this.fRMConf;
       peConf.setLibraryOverride(configuration.getAlternateLibraryPath());
       peConf.setJobPollInterval(String.valueOf(configuration.getJobPolling()));
       switch (configuration.getClusterMode()) {
@@ -569,7 +581,7 @@ public final class PTPConfUtils {
     
     // --- Fields
     
-    private final IResourceManagerConfiguration fRMConf;
+    private final IResourceManagerComponentConfiguration fRMConf;
     
   }
   

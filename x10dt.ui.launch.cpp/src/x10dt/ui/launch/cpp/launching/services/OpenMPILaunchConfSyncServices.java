@@ -7,25 +7,25 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching.services;
 
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_ARGUMENTS;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_BYNODE;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_BYSLOT;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_HOSTFILE;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_HOSTLIST;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_NOLOCAL;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_NOOVERSUBSCRIBE;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_NUMPROCS;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_PREFIX;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_USEDEFAULTARGUMENTS;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_USEDEFAULTPARAMETERS;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_USEHOSTFILE;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_USEHOSTLIST;
-import static org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration.ATTR_USEPREFIX;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_ARGUMENTS;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_BYNODE;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_BYSLOT;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_HOSTFILE;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_HOSTLIST;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_NOLOCAL;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_NOOVERSUBSCRIBE;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_NUMPROCS;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_PREFIX;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_USEDEFAULTARGUMENTS;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_USEDEFAULTPARAMETERS;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_USEHOSTFILE;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_USEHOSTLIST;
+import static org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration.ATTR_USEPREFIX;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfigurationDefaults;
+import org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfigurationDefaults;
 
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 

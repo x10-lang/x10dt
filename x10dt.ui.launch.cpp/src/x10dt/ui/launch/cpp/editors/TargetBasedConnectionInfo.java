@@ -15,7 +15,7 @@ import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 import x10dt.ui.launch.core.platform_conf.EValidationStatus;
-import x10dt.ui.launch.rms.core.environment.TargetConfig;
+import org.eclipse.ptp.remotetools.environment.generichost.core.TargetConfig;
 
 
 final class TargetBasedConnectionInfo implements IConnectionInfo {
@@ -31,7 +31,7 @@ final class TargetBasedConnectionInfo implements IConnectionInfo {
   public void applyChangesToTargetElement() throws CoreException {
     if (this.fIsDirty) {
       if (this.fTargetElement.getControl().query() != ITargetStatus.STOPPED) {
-        this.fTargetElement.getControl().kill(new NullProgressMonitor());
+        this.fTargetElement.getControl().kill();
       }
       this.fTargetElement.setAttributes(this.fAttributes);
       this.fTargetElement.getControl().updateConfiguration();

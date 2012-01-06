@@ -10,7 +10,7 @@ package x10dt.ui.launch.cpp.launching;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORK_DIRECTORY;
+import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_WORKING_DIR;
 import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_X10_MAIN_CLASS;
 import static x10dt.ui.utils.LaunchUtils.findMainType;
 
@@ -116,7 +116,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       if (project.exists()) {
         if (this.fX10PlatformConf != null) {
           try {
-            configuration.setAttribute(ATTR_WORK_DIRECTORY, PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project));
+            configuration.setAttribute(ATTR_WORKING_DIR, PlatformConfUtils.getWorkspaceDir(this.fX10PlatformConf, project));
           } catch (CoreException except) {
             // Let's forget it will be handled by the validation step.
           }
@@ -162,7 +162,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         CppLaunchCore.log(except.getStatus());
       }
     }
-    configuration.setAttribute(ATTR_WORK_DIRECTORY, (String) null);
+    configuration.setAttribute(ATTR_WORKING_DIR, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
     configuration.setAttribute(ATTR_CONSOLE, true);
   }

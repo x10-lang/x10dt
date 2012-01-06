@@ -40,7 +40,8 @@ Require-Bundle: org.eclipse.core.filesystem,
  x10dt.search.core,
  x10dt.ui,
  x10dt.ui.launch.core,
- x10dt.ui.launch.rms.core
+ x10dt.ui.launch.rms.core,
+ org.eclipse.ptp.remotetools.environment.generichost
 Bundle-Activator: x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: x10-users@lists.sourceforge.net

@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.imp.utils.Pair;
-import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.PEResourceManagerConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -49,7 +49,7 @@ import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 
 final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfigurationPart implements ICITypeConfigurationPart {
   
-  ParallelEnvironmentTypeConfigPart(final IPEResourceManagerConfiguration rmConf) {
+  ParallelEnvironmentTypeConfigPart(final PEResourceManagerConfiguration rmConf) {
     this.fRMConf = rmConf;
   }
              
@@ -392,7 +392,7 @@ final class ParallelEnvironmentTypeConfigPart extends AbstractCITypeConfiguratio
   
   // --- Fields
   
-  private final IPEResourceManagerConfiguration fRMConf;
+  private final PEResourceManagerConfiguration fRMConf;
   
   private final Collection<Button> fBrowseBts = new ArrayList<Button>(2);
   

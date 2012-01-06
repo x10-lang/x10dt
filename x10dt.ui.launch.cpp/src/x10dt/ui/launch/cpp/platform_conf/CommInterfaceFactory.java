@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
-import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.IPEResourceManagerConfiguration;
+import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.PEResourceManagerConfiguration;
 import org.eclipse.ptp.rm.mpi.mpich2.core.rmsystem.IMPICH2ResourceManagerConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.core.rmsystem.IOpenMPIResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
@@ -37,7 +37,7 @@ final class CommInterfaceFactory {
     } else if (PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(ciType)) {
       configuration = new LoadLevelerConf((IIBMLLResourceManagerConfiguration) rmConf);
     } else if (PTPConstants.PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(ciType)) {
-      configuration = new ParallelEnvironmentConf((IPEResourceManagerConfiguration) rmConf);
+      configuration = new ParallelEnvironmentConf((PEResourceManagerConfiguration) rmConf);
     } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(ciType)) {
       configuration = new SocketsConf(rmConf);
     } else if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(ciType)) {
