@@ -64,14 +64,14 @@ public final class ConfigFactory {
 
   // --- Public services
 
-  public TargetConfig createTargetConfig() throws CoreException {
+  public TargetConfigOld createTargetConfig() throws CoreException {
     try {
       this.fAttr.verifyInt(AttributeNames.CONNECTION_PORT, ATTR_CONNECTION_PORT);
       this.fAttr.verifyInt(AttributeNames.CONNECTION_TIMEOUT, ATTR_CONNECTION_TIMEOUT);
       if (this.fAttr.getBoolean(ATTR_LOCALHOST_SELECTION)) {
         this.fAttr.setString(ATTR_CONNECTION_ADDRESS, "localhost"); //$NON-NLS-1$
       }
-      return new TargetConfig(this.fAttr);
+      return new TargetConfigOld(this.fAttr);
     } catch (IllegalAttributeException except) {
       throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, except.getMessage(), except));
     }

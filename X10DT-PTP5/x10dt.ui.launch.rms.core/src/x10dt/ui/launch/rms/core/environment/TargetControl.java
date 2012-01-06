@@ -46,7 +46,7 @@ final class TargetControl extends SSHTargetControl implements ITargetControl {
 
   public void destroy() throws CoreException {
     try {
-      terminateJobs(null);
+      kill();//terminateJobs(null);
     } finally {
       disconnect();
     }
@@ -140,7 +140,7 @@ final class TargetControl extends SSHTargetControl implements ITargetControl {
   public boolean kill(final IProgressMonitor monitor) throws CoreException {
     try {
       setState(DISCONNECTING);
-      super.kill(monitor);
+      super.kill();
     } finally {
       setState(NOT_OPERATIONAL);
     }

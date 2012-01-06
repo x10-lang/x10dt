@@ -12,13 +12,16 @@ import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
+import org.eclipse.ptp.core.elements.IPResourceManager;
+import org.eclipse.ptp.core.elements.IPUniverse;
+import org.eclipse.ptp.rmsystem.IResourceManager;
+import org.eclipse.ptp.rmsystem.IResourceManagerControl;
 import org.eclipse.ptp.launch.PTPLaunchPlugin;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ptp.remote.remotetools.core.RemoteToolsServices;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
@@ -32,7 +35,7 @@ import org.osgi.framework.BundleContext;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.utils.PTPConstants;
-import x10dt.ui.launch.java.launching.rms.MultiVMServiceProvider;
+import x10dt.ui.launch.java.launching.rms.MultiVMResourceManagerConfiguration;
 
 /**
  * The activator class controls the plug-in life cycle
@@ -80,21 +83,21 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
       for (final IServiceConfiguration serviceConfiguration : serviceModelManager.getConfigurations()) {
         if (configuration.getName().equals(serviceConfiguration.getName())) {
           final IServiceProvider serviceProvider = serviceConfiguration.getServiceProvider(service);
-          if (serviceProvider instanceof MultiVMServiceProvider) {
-            final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
-            for (final IResourceManagerControl resourceManager : universe.getResourceManagerControls()) {
+          //if (serviceProvider instanceof MultiVMResourceManagerConfiguration) {  //MV - Check this
+            final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+            for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
+              final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);	
               final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
               if (rmConf.getUniqueName().equals(serviceProvider.getProperties().get("uniqName"))) { //$NON-NLS-1$
-                resourceManager.shutdown();
-              
+                resourceManager.stop();
                 final PTPRemoteCorePlugin rmPlugin = PTPRemoteCorePlugin.getDefault();
-                final IRemoteServices rmServices = rmPlugin.getRemoteServices(rmConf.getRemoteServicesId());
+                final IRemoteServices rmServices = rmPlugin.getRemoteServices(resourceManager.getControlConfiguration().getRemoteServicesId()); 
                 final IRemoteConnectionManager rmConnManager = rmServices.getConnectionManager();
-                final IRemoteConnection rmConnection = rmConnManager.getConnection(rmConf.getConnectionName());
+                final IRemoteConnection rmConnection = rmConnManager.getConnection(resourceManager.getControlConfiguration().getConnectionName()); 
                 rmConnManager.removeConnection(rmConnection);
                 final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
                 for (final ITargetElement targetElement : targetTypeElement.getElements()) {
-                  if (targetElement.getName().equals(rmConf.getConnectionName())) {
+                  if (targetElement.getName().equals(resourceManager.getControlConfiguration().getConnectionName())) { 
                     targetTypeElement.removeElement(targetElement);
                     break;
                   }
@@ -104,12 +107,15 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
                 return;
               }
             }
-          }
+          //}
         }
       }
     } catch (CoreException except) {
       getLog().log(except.getStatus());
-    }
+    } catch (RemoteConnectionException except) {
+        //TODO
+    	System.err.println(except);
+      }
   }
 	
   /**

@@ -13,13 +13,14 @@ import org.eclipse.ptp.remotetools.environment.control.ITargetControl;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.remotetools.environment.extension.ITargetTypeExtension;
 import org.eclipse.ptp.remotetools.environment.wizard.AbstractEnvironmentDialogPage;
+import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
 
 /**
  * 
  * @author egeay
  */
 public final class RemoteHostEnvironment implements ITargetTypeExtension {
-  
+	
   // --- Interface methods implementation
 
   public ITargetControl controlFactory(final ITargetElement element) throws CoreException {
@@ -42,6 +43,15 @@ public final class RemoteHostEnvironment implements ITargetTypeExtension {
 
   public String[] getControlAttributeNamesForCipheredKeys() {
     return ConfigFactory.KEY_CIPHERED_ARRAY;
+  }
+
+  public ITargetConfig createConfig(ControlAttributes attrs) throws CoreException {
+	final ConfigFactory factory = new ConfigFactory(attrs);
+    return factory.createTargetConfig();
+  }
+
+  public ITargetControl createControl(ITargetConfig targetConfig) throws CoreException {
+	  return new TargetControl(targetConfig, new AuthInfo(targetConfig));
   }
 
 }

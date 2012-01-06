@@ -30,6 +30,7 @@ import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteProcess;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
 import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystem;
 import org.eclipse.ptp.rm.mpi.openmpi.core.OpenMPINodeAttributes;
 import org.eclipse.ptp.rm.mpi.openmpi.core.parameters.OmpiInfo;
 import org.eclipse.ptp.rm.mpi.openmpi.core.parameters.Parameters;
@@ -43,7 +44,7 @@ final class OpenMPIHostMapReader implements IHostMapReader {
 
   // --- Interface methods implementation
   
-  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
+  public HostMap loadMap(final AbstractToolRuntimeSystem runtimeSystem, final IRemoteConnection connection, 
                          final IRemoteServices remoteServices, final String machineId, 
                          final IProgressMonitor monitor) {
     final OmpiInfo ompiInfo = new OmpiInfo();
@@ -112,7 +113,7 @@ final class OpenMPIHostMapReader implements IHostMapReader {
     }
   }
   
-  private void processHostMap(final OpenMPIHostMap hostMap, final IX10RuntimeSystem runtimeSystem,
+  private void processHostMap(final OpenMPIHostMap hostMap, final AbstractToolRuntimeSystem runtimeSystem,
                               final String machineId, final Collection<String> hostNames) {
     int nodeCounter = 0;
     if (! hostMap.hasParseErrors()) {

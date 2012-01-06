@@ -7,12 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.rms.provider;
 
-import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerServiceProvider;
+import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
-import org.eclipse.ptp.services.core.IServiceProviderWorkingCopy;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.cpp.rms.Messages;
@@ -23,13 +19,14 @@ import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
  * 
  * @author egeay
  */
-public final class StandaloneServiceProvider extends AbstractRemoteResourceManagerServiceProvider 
-                                             implements IServiceProvider, IX10RMConfiguration {
+public final class StandaloneResourceManagerConfiguration extends AbstractRemoteResourceManagerConfiguration 
+                                             implements /*IServiceProvider, */IX10RMConfiguration {
  
   /**
    * Creates the service provider with a default description.
    */
-  public StandaloneServiceProvider() {
+  public StandaloneResourceManagerConfiguration(String namespace, IServiceProvider provider) {
+	  super(namespace, provider);  
     setDescription(Messages.SSS_StandaloneRMDescr);
   }
 
@@ -46,8 +43,9 @@ public final class StandaloneServiceProvider extends AbstractRemoteResourceManag
     setDescription(Messages.SSS_StandaloneRMDescr);
   }
 
+  /*
   public IResourceManagerControl createResourceManager() {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
     return new StandaloneResourceManager(String.valueOf(universe.getNextResourceManagerId()), universe, this);
   }
   
@@ -63,4 +61,5 @@ public final class StandaloneServiceProvider extends AbstractRemoteResourceManag
     super(provider);
   }
 
+*/
 }

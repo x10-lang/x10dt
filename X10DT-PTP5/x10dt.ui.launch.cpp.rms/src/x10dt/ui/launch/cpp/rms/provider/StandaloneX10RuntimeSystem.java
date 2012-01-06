@@ -14,6 +14,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystem;
 
 import x10dt.ui.launch.rms.core.provider.AbstractX10RuntimeSystem;
 import x10dt.ui.launch.rms.core.provider.AbstractX10RuntimeSystemJob;
@@ -21,11 +22,15 @@ import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
 import x10dt.ui.launch.rms.core.provider.IX10RuntimeSystem;
 
 
-final class StandaloneX10RuntimeSystem extends AbstractX10RuntimeSystem implements IX10RuntimeSystem {
+final class StandaloneX10RuntimeSystem extends AbstractX10RuntimeSystem /*implements IX10RuntimeSystem*/ {
 
-  StandaloneX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
-    super(id, rmConfig);
-  }
+	public StandaloneX10RuntimeSystem(StandaloneResourceManager rm) {
+		super(rm);
+	}
+	
+//  StandaloneX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
+//    super(id, rmConfig);
+//  }
 
   // --- Abstract methods implementation
   
@@ -34,24 +39,24 @@ final class StandaloneX10RuntimeSystem extends AbstractX10RuntimeSystem implemen
     return null;
   }
   
-  protected Job createRuntimeSystemJob(final String jobID, final String queueID, 
+  protected Job createRuntimeSystemJob(final String jobID, /*final String queueID,*/ 
                                        final AttributeManager attrMgr) throws CoreException {
-    return new StandaloneX10RuntimeSystemJob(jobID, queueID, "Standalone Run Job", this, attrMgr); //$NON-NLS-1$
+    return new StandaloneX10RuntimeSystemJob(jobID, /*queueID,*/ "Standalone Run Job", this, attrMgr); //$NON-NLS-1$
   }
   
   // --- Private classes
   
   private static final class StandaloneX10RuntimeSystemJob extends AbstractX10RuntimeSystemJob {
 
-    protected StandaloneX10RuntimeSystemJob(final String jobId, final String queueId, final String name, 
-                                            final IX10RuntimeSystem runtimeSystem, final AttributeManager attrManager) {
-      super(jobId, queueId, name, runtimeSystem, attrManager);
+    protected StandaloneX10RuntimeSystemJob(final String jobId, /*final String queueId,*/ final String name, 
+                                            final AbstractToolRuntimeSystem runtimeSystem, final AttributeManager attrManager) {
+      super(jobId, /*queueId,*/ name, runtimeSystem, attrManager);
     }
     
     // --- Abstract methods implementation 
     
     protected void completeEnvironmentVariables(final Map<String, String> envMap) {
-      final Integer procs = getAttrManager().getAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition()).getValue();
+      final Integer procs = getAttrMgr().getAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition()).getValue();
       envMap.put("X10_NPLACES", String.valueOf(procs)); //$NON-NLS-1$
     }
 

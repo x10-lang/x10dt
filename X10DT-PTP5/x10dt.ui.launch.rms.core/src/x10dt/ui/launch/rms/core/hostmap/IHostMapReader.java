@@ -10,8 +10,7 @@ package x10dt.ui.launch.rms.core.hostmap;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
-
-import x10dt.ui.launch.rms.core.provider.IX10RuntimeSystem;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystem;
 
 /**
  * Responsible for loading a host map and creating the relevant node(s) to a given machine.
@@ -34,7 +33,7 @@ public interface IHostMapReader {
    * @param monitor The monitor to use in order to report progress or cancel the operation.
    * @return The object instance wrapping the host names.
    */
-  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection,
+  public HostMap loadMap(final AbstractToolRuntimeSystem runtimeSystem, final IRemoteConnection connection,
                          final IRemoteServices remoteServices, final String machineId, 
                          final IProgressMonitor monitor);
 

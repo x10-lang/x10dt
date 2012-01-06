@@ -35,11 +35,11 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.attributes.ArrayAttribute;
 import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.attributes.IllegalValueException;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
+import org.eclipse.ptp.rmsystem.IResourceManagerControl;
 import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
 import org.eclipse.ptp.core.elements.IPQueue;
-import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationContentsChangedListener;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
@@ -52,6 +52,7 @@ import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
+import org.eclipse.ptp.core.elements.IPResourceManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -166,16 +167,16 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     this.fHostFileBrowseBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        final IResourceManagerConfiguration conf = ((IResourceManagerControl) resourceManager).getConfiguration();
+        //final IResourceManagerConfiguration conf = ((IResourceManagerControl) resourceManager).getConfiguration();
         final String path;
-        final String servicesId = conf.getRemoteServicesId();
+        final String servicesId = resourceManager.getControlConfiguration().getRemoteServicesId(); 
         if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(servicesId)) {
           final FileDialog dialog = new FileDialog(parent.getShell());
           dialog.setText(Messages.SRMLCDT_SelectHostFileDialogTitle);
           path = dialog.open();
         } else {
           final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(servicesId);
-          final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(conf.getConnectionName());
+          final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(resourceManager.getControlConfiguration().getConnectionName());
           path = remoteBrowse(parent.getShell(), connection, Messages.SRMLCDT_SelectHostFileDialogTitle, Constants.EMPTY_STR);
         }
         if (path != null) {
@@ -331,7 +332,7 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
       final List<String> defaultHostList = new ArrayList<String>();
       if (defaultHostList.isEmpty()) {
         // In case of launching via shortcut.
-        for (final IPMachine machine : resourceManager.getMachines()) {
+        for (final IPMachine machine : ((IPResourceManager) resourceManager.getAdapter(IPResourceManager.class)).getMachines()) {
           for (final IPNode node : machine.getNodes()) {
             defaultHostList.add(node.getName());
           }
@@ -355,7 +356,7 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
                                            final ILaunchConfiguration configuration) {
     final List<String> hosts = new ArrayList<String>();
     if (resourceManager != null) {
-      for (final IPMachine machine : resourceManager.getMachines()) {
+      for (final IPMachine machine : ((IPResourceManager) resourceManager.getAdapter(IPResourceManager.class)).getMachines()) {
         for (final IPNode node : machine.getNodes()) {
           hosts.add(node.getName());
         }
