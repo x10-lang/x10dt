@@ -41,5 +41,9 @@ final class SocketsConf extends AbstractHostsBasedConf implements ISocketsConf {
   SocketsConf(final IResourceManagerConfiguration rmConf) {
     super(rmConf);
   }
+  
+  public boolean shouldUseHostSection() {
+    return true;
+  }
 
 }

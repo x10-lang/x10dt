@@ -44,4 +44,11 @@ public interface IHostsBasedConf extends ICommunicationInterfaceConf {
    */
   public boolean shouldUseHostFile();
   
+  /**
+   * Returns if we should use the host section
+   * 
+   * @return True if we should use the host section, false otherwise.
+   */
+  public boolean shouldUseHostSection();
+  
 }

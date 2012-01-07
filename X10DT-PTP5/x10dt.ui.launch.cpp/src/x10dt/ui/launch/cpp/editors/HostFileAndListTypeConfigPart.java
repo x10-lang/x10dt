@@ -372,30 +372,44 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
   protected void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf,
                                   final Button addButton, final Button removeButton) {
     final boolean shouldUseHostFile = socketsConf.shouldUseHostFile();
-    doInitializeControls(formPart, socketsConf, shouldUseHostFile, addButton, removeButton);
+    final boolean shouldUseHostSection = socketsConf.shouldUseHostSection();
+    doInitializeControls(formPart, socketsConf, shouldUseHostSection, shouldUseHostFile, addButton, removeButton);
   }
 
-  protected void doInitializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf, final boolean shouldUseHostFile,
-      final Button addButton, final Button removeButton) {
+  protected void doInitializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf, final boolean shouldUseHostSection,
+      final boolean shouldUseHostFile, final Button addButton, final Button removeButton) {
     this.fNumPlacesSpinner.setSelection(socketsConf.getNumberOfPlaces());
-    if (shouldUseHostFile) {
-      this.fHostFileText.setText(socketsConf.getHostFile());
-      
-      formPart.handleEmptyTextValidation(this.fHostFileText, LaunchMessages.STCP_HostFileText);
-    } else {
-      this.fHosts.addAll(socketsConf.getHostsAsList());
-      this.fHostListViewer.setInput(this.fHosts);
-      
-      new HostsControlChecker(formPart.getFormPage(), this.fHostListViewer.getTable(), this.fHosts).validate(null);
-    }
-    this.fHostFileBt.setSelection(shouldUseHostFile);
-    this.fHostListBt.setSelection(! shouldUseHostFile);
     
-    this.fHostFileText.setEnabled(shouldUseHostFile);
-    this.fHostFileBrowseBt.setEnabled(shouldUseHostFile);
-    this.fHostListViewer.getTable().setEnabled(! shouldUseHostFile);
-    addButton.setEnabled(! shouldUseHostFile);
-    removeButton.setEnabled(! shouldUseHostFile);
+    if (shouldUseHostSection){
+      if (shouldUseHostFile) {
+        this.fHostFileText.setText(socketsConf.getHostFile());
+
+        formPart.handleEmptyTextValidation(this.fHostFileText, LaunchMessages.STCP_HostFileText);
+      } else {
+        this.fHosts.addAll(socketsConf.getHostsAsList());
+        this.fHostListViewer.setInput(this.fHosts);
+
+        new HostsControlChecker(formPart.getFormPage(), this.fHostListViewer.getTable(), this.fHosts).validate(null);
+      }
+      this.fHostFileBt.setSelection(shouldUseHostFile);
+      this.fHostListBt.setSelection(! shouldUseHostFile);
+
+      this.fHostFileText.setEnabled(shouldUseHostFile);
+      this.fHostFileBrowseBt.setEnabled(shouldUseHostFile);
+      this.fHostListViewer.getTable().setEnabled(! shouldUseHostFile);
+      addButton.setEnabled(! shouldUseHostFile);
+      removeButton.setEnabled(! shouldUseHostFile);
+    
+    } else {
+      this.fHostFileBt.setEnabled(false);
+      this.fHostListBt.setEnabled(false);
+
+      this.fHostFileText.setEnabled(false);
+      this.fHostFileBrowseBt.setEnabled(false);
+      this.fHostListViewer.getTable().setEnabled(false);
+      addButton.setEnabled(false);
+      removeButton.setEnabled(false);
+    }
   }
   
   // --- Private classes
