@@ -12,7 +12,7 @@ import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import x10dt.ui.launch.core.utils.PTPConstants;
 
 
-final class StandaloneConf extends AbstractCommunicationInterfaceConfiguration implements ICommunicationInterfaceConf {
+final class StandaloneConf extends AbstractHostsBasedConf implements ICommunicationInterfaceConf {
 
   // --- Interface methods implementation
   
@@ -45,12 +45,16 @@ final class StandaloneConf extends AbstractCommunicationInterfaceConfiguration i
   
   StandaloneConf() {}
   
-  StandaloneConf(final AbstractCommunicationInterfaceConfiguration original) {
+  StandaloneConf(final AbstractHostsBasedConf original) {
     super(original);
   }
   
   StandaloneConf(final IResourceManagerConfiguration rmConf) {
     super(rmConf);
+  }
+  
+  public boolean shouldUseHostSection() {
+    return false;
   }
 
 }
