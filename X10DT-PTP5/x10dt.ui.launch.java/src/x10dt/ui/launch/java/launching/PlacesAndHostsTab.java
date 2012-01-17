@@ -113,6 +113,12 @@ final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements 
   void setResourceManager(final IResourceManager resourceManager) {
     this.fResourceManager = resourceManager;
   }
+  
+  
+  X10PlacesAndHostsDynamicTab getX10PlacesAndHostsDynamicTab(){
+	  return fX10EnvVarsConfTab;
+  }
+  
     
   // --- Fields
     

@@ -692,6 +692,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
             });
 
             VMsLocationTab.this.fPlacesAndHostsTab.setResourceManager(VMsLocationTab.this.fResourceManager);
+            VMsLocationTab.this.fPlacesAndHostsTab.getX10PlacesAndHostsDynamicTab().setResourceManager(VMsLocationTab.this.fResourceManager);
           } catch (final CoreException except) {
             if (!VMsLocationTab.this.fStatusLabel.isDisposed()) {
               display.syncExec(new Runnable() {

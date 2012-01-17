@@ -169,14 +169,14 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
       public void widgetSelected(final SelectionEvent event) {
         //final IResourceManagerConfiguration conf = ((IResourceManagerControl) resourceManager).getConfiguration();
         final String path;
-        final String servicesId = resourceManager.getControlConfiguration().getRemoteServicesId(); 
+        final String servicesId = fResourceManager.getControlConfiguration().getRemoteServicesId(); 
         if (PTPConstants.LOCAL_CONN_SERVICE_ID.equals(servicesId)) {
           final FileDialog dialog = new FileDialog(parent.getShell());
           dialog.setText(Messages.SRMLCDT_SelectHostFileDialogTitle);
           path = dialog.open();
         } else {
           final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(servicesId);
-          final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(resourceManager.getControlConfiguration().getConnectionName());
+          final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(fResourceManager.getControlConfiguration().getConnectionName());
           path = remoteBrowse(parent.getShell(), connection, Messages.SRMLCDT_SelectHostFileDialogTitle, Constants.EMPTY_STR);
         }
         if (path != null) {
@@ -438,7 +438,7 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     if (fileManager != null) {
       fileManager.setConnection(rmConnection);
       fileManager.showConnections(false);
-      final String path = fileManager.browseDirectory(shell, dialogTitle, initialPath, IRemoteUIConstants.NONE); 
+      final String path = fileManager.browseFile(shell, dialogTitle, initialPath, IRemoteUIConstants.NONE); 
       if (path != null) {
         return path.replace('\\', '/');
       }
@@ -451,6 +451,11 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     this.fHostFileBrowseBt.setEnabled(enabled);
     this.fHostListBt.setSelection(! enabled);
     this.fHostListViewer.getTable().setEnabled(! enabled);
+  }
+  
+
+  public void setResourceManager(final IResourceManager resourceManager) {
+    this.fResourceManager = resourceManager;
   }
   
   // --- Fields
@@ -470,6 +475,8 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
   private TableViewer fHostListViewer;
   
   private List<String> fHosts;
+  
+  private IResourceManager fResourceManager;
   
   private final List<IRMLaunchConfigurationContentsChangedListener> fListeners;
 
