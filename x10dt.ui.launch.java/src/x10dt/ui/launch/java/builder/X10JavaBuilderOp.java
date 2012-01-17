@@ -9,7 +9,6 @@ import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -18,7 +17,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
@@ -79,6 +78,36 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
     	  }
       }
     }
+    
+    // --- Clear any x10 files that the JDT builder might have copied here.
+    removeX10FilesFromOutputFolders();
+    
+  }
+  
+  private void removeX10FilesFromOutputFolders() throws JavaModelException {
+	  IPath workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+	  File mainOutputFolder = new File(workspacePath.append(fJavaProject.getOutputLocation()).toOSString());
+	  removeX10Files(mainOutputFolder);
+	  for(final IClasspathEntry cpEntry : fJavaProject.getRawClasspath()) {
+          if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+        	  if (cpEntry.getOutputLocation() == null)
+        		  continue;
+              File binFolder = new File(workspacePath.append(cpEntry.getOutputLocation()).toOSString());
+              removeX10Files(binFolder);
+          }
+      }
+  }
+  
+  private void removeX10Files(File file){
+	  if (file.isDirectory()){
+		  File[] fs = file.listFiles();
+		  for(int i = 0; i < fs.length; i++){
+			  removeX10Files(fs[i]);
+		  }
+	  }
+	  if (file.getName().endsWith(Constants.X10_EXT)){
+		  file.delete();
+	  }
   }
 
   public boolean compile(final IProgressMonitor monitor) throws CoreException {
