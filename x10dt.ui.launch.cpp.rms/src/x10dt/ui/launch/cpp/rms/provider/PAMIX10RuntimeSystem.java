@@ -60,10 +60,10 @@ final class PAMIX10RuntimeSystem extends AbstractX10RuntimeSystem /*implements I
       final Integer procs = getAttrMgr().getAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition()).getValue();
       envMap.put("MP_PROCS", String.valueOf(procs)); //$NON-NLS-1$
       final boolean useHostFile = getAttrMgr().getAttribute(LaunchAttributes.getUseHostFileAttr()).getValue();
-      if (useHostFile) {
+      //if (useHostFile) {
         final String hostFile = getAttrMgr().getAttribute(LaunchAttributes.getHostFileAttr()).getValue();
         envMap.put("MP_HOSTFILE", hostFile); //$NON-NLS-1$
-      } else {
+      /*} else {
         final List<String> hostList = getAttrMgr().getAttribute(LaunchAttributes.getHostListAttr()).getValue();
         final StringBuilder sb = new StringBuilder();
         int i = 0;
@@ -78,7 +78,7 @@ final class PAMIX10RuntimeSystem extends AbstractX10RuntimeSystem /*implements I
         // RMF 6/16/2011 - Not sure that a host-list is actually supported by PAMI.
         // Should force the use of a hostfile for now in the launch/platform configs
         envMap.put("MP_HOSTLIST", sb.toString()); //$NON-NLS-1$
-      }
+      }*/
     }
 
   }

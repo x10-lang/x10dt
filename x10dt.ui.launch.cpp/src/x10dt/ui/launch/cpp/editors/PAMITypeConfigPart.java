@@ -23,7 +23,7 @@ final class PAMITypeConfigPart extends HostFileAndListTypeConfigPart  implements
                            final AbstractCommonSectionFormPart formPart) {
     super.create(managedForm, toolkit, parent, formPart);
     // RMF Force to use a hostfile for now (not sure host-lists are supported)
-//    this.fHostFileBt.setSelection(true);
+    this.fHostFileBt.setSelection(true);
 //    this.fHostListBt.setSelection(false);
     this.fHostListBt.setEnabled(false);
     this.fHostFileText.setEnabled(true);
