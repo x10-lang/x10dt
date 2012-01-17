@@ -254,13 +254,21 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
     return false;
   }
   
-  private void createJarFile(final File folder, final JarOutputStream outStream, final byte[] buffer) throws IOException {
+  private void createJarFile(int pathStartIndex, final File folder, final JarOutputStream outStream, final byte[] buffer) throws IOException {
     for (final File file : folder.listFiles()) {
       if (file.isDirectory()) {
-        createJarFile(file, outStream, buffer);
+    	String name = file.getPath().substring(pathStartIndex).replace("\\", "/");
+    	if (!name.endsWith("/")) {
+    		name = name + "/";
+    	}
+    	final JarEntry jarEntry = new JarEntry(name);
+    	jarEntry.setTime(file.lastModified());
+        outStream.putNextEntry(jarEntry);
+        outStream.closeEntry();
+        createJarFile(pathStartIndex,file, outStream, buffer);
       } else {
         if (file.getName().endsWith(Constants.CLASS_EXT)) {
-          final JarEntry jarEntry = new JarEntry(file.getName());
+          final JarEntry jarEntry = new JarEntry(file.getPath().substring(pathStartIndex).replace("\\", "/"));
           jarEntry.setTime(file.lastModified());
           outStream.putNextEntry(jarEntry);
         
@@ -274,6 +282,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
             }
           }
           inputStream.close();
+          outStream.closeEntry();
         }
       }
     }
@@ -289,7 +298,9 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
       manifest.getMainAttributes().putValue("Main-Class", mainTypeName); //$NON-NLS-1$
       final JarOutputStream outStream = new JarOutputStream(stream, manifest);
 
-      createJarFile(folder, outStream, new byte[1024]);
+      String path = folder.getPath().replace("\\", "/");
+      int pathStartIndex = path.endsWith("/") ? path.length()  : path.length() +1 ;
+      createJarFile(pathStartIndex, folder, outStream, new byte[1024]);
 
       outStream.close();
       stream.close();
