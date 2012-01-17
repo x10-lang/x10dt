@@ -99,6 +99,7 @@ import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IDebuggingInfoConf;
+import x10dt.ui.launch.cpp.platform_conf.IHostsBasedConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
@@ -290,11 +291,17 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
                                                  final IProgressMonitor monitor) throws CoreException {
     try {
       final AttributeManager attrMgr = new AttributeManager();
-
       final int numPlaces = this.fX10PlatformConf.getCommunicationInterfaceConf().getNumberOfPlaces();
       attrMgr.addAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
-      attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
-      attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(configuration.getAttribute(ATTR_USE_HOSTFILE, false)));
+      
+      if (this.fX10PlatformConf.getCommunicationInterfaceConf() instanceof IHostsBasedConf){
+    	  IHostsBasedConf conf = (IHostsBasedConf) this.fX10PlatformConf.getCommunicationInterfaceConf();
+    	  attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(conf.getHostFile()));
+          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(conf.shouldUseHostFile()));
+      } else {
+          attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
+          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(configuration.getAttribute(ATTR_USE_HOSTFILE, false)));
+      }
       final ArrayAttribute<String> attribute = LaunchAttributes.getHostListAttr().create();
       final List<String> defaultHostList = new ArrayList<String>();
       if (defaultHostList.isEmpty()) {
