@@ -14,19 +14,22 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
 import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
 import org.eclipse.ptp.remotetools.utils.verification.ControlAttributes;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.CodingUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.utils.PTPConfUtils;
-import x10dt.ui.launch.rms.core.environment.ConfigFactory;
+import org.eclipse.ptp.remotetools.environment.generichost.core.ConfigFactory;
 
 
 final class ConnectionConfiguration implements IConnectionConf {
@@ -162,13 +165,16 @@ final class ConnectionConfiguration implements IConnectionConf {
   
   // --- Private code
   
-  ConnectionConfiguration() {}
+  ConnectionConfiguration() {
+    this.fConnectionName = IRemoteConnectionManager.DEFAULT_CONNECTION_NAME;
+  }
   
   ConnectionConfiguration(final IResourceManagerConfiguration rmConf) {
-    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmConf.getRemoteServicesId());
-    final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(rmConf.getConnectionName());
+    IResourceManager rm = PTPCorePlugin.getDefault().getModelManager().getResourceManagerFromUniqueName(rmConf.getUniqueName());
+    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rm.getControlConfiguration().getRemoteServicesId()); 
+    final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(rm.getControlConfiguration().getConnectionName()); 
     this.fIsLocal = PTPConstants.LOCAL_CONN_SERVICE_ID.equals(remoteServices.getId());
-    this.fConnectionName = rmConf.getConnectionName();
+    this.fConnectionName = rm.getControlConfiguration().getConnectionName(); 
     final Map<String, String> attributes = rmConn.getAttributes();
     this.fHostName = attributes.get(ConfigFactory.ATTR_CONNECTION_ADDRESS);
     this.fPort = Integer.parseInt(attributes.get(ConfigFactory.ATTR_CONNECTION_PORT));

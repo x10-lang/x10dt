@@ -28,11 +28,12 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
+import org.eclipse.ptp.core.elements.IPResourceManager;
 import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
-import org.eclipse.ptp.core.elements.IResourceManager;
-import org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration;
-import org.eclipse.ptp.rm.mpi.openmpi.ui.launch.OpenMPILaunchConfiguration;
+import org.eclipse.ptp.rmsystem.IResourceManager;
+import org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration;
+import org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration;
 import org.eclipse.ui.dialogs.AbstractElementListSelectionDialog;
 
 import x10dt.core.X10DTCorePlugin;
@@ -103,7 +104,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
       if (resourceManager != null) {
         final StringBuilder hostListBuilder = new StringBuilder();
         int i = 0;
-        for (final IPMachine machine : resourceManager.getMachines()) {
+        for (final IPMachine machine : ((IPResourceManager)resourceManager.getAdapter(IPResourceManager.class)).getMachines()) {
           for (final IPNode node : machine.getNodes()) {
             if (i == 0) {
               i = 1;
@@ -126,7 +127,9 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     final ICommunicationInterfaceConf commIntfConf = platformConf.getCommunicationInterfaceConf();
     
     final IPlatformConfLaunchConfSyncServices launchConfServices = LaunchConfServicesFactory.create(commIntfConf);
-    launchConfServices.initOrUpdate(config, platformConf, false);
+    if (launchConfServices != null){
+      launchConfServices.initOrUpdate(config, platformConf, false);
+    }
   }
   
   // --- Overridden methods

@@ -7,22 +7,22 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching.services;
 
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_ARGUMENTS;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_HOSTFILE;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_HOSTLIST;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_NOLOCAL;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_NUMPROCS;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_PREFIX;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_USEDEFAULTARGUMENTS;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_USEDEFAULTPARAMETERS;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_USEHOSTFILE;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_USEHOSTLIST;
-import static org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfiguration.ATTR_USEPREFIX;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_ARGUMENTS;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_HOSTFILE;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_HOSTLIST;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_NOLOCAL;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_NUMPROCS;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_PREFIX;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_USEDEFAULTARGUMENTS;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_USEDEFAULTPARAMETERS;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_USEHOSTFILE;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_USEHOSTLIST;
+import static org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration.ATTR_USEPREFIX;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.ptp.rm.mpi.mpich2.ui.launch.MPICH2LaunchConfigurationDefaults;
+import org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfigurationDefaults;
 
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 

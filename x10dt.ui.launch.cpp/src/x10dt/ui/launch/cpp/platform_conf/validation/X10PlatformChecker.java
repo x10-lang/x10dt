@@ -20,10 +20,11 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.rmsystem.IResourceManagerControl;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
@@ -80,9 +81,13 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   	if (monitor.isCanceled()) {
   		return;
   	}
-  	final String rmServicesId = ((IResourceManagerControl) resourceManager).getConfiguration().getRemoteServicesId();
+  	final String rmServicesId = platformConf.getConnectionConf().isLocal() ? LOCAL_CONN_SERVICE_ID : REMOTE_CONN_SERVICE_ID;
+  	//final String rmServicesId = resourceManager.getResourceManagerId();
   	final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmServicesId);
-  	final String connectionName = platformConf.getConnectionConf().getConnectionName();
+  	String connectionName = platformConf.getConnectionConf().getConnectionName();
+  	if (platformConf.getConnectionConf().isLocal() /*&& (connectionName == null || connectionName.equals(""))*/){
+  	  connectionName = IRemoteConnectionManager.DEFAULT_CONNECTION_NAME;
+  	}
   	final IRemoteConnection rmConnection = rmServices.getConnectionManager().getConnection(connectionName);
   	try {
 			rmConnection.open(monitor);
@@ -97,7 +102,7 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   		return;
   	}
   	try {
-  	  resourceManager.shutdown();
+  	  resourceManager.stop();
   	} catch (CoreException except) {
   	  for (final IX10PlatformValidationListener listener : this.fListeners) {
   	    listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
@@ -107,8 +112,9 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   	if (monitor.isCanceled()) {
   		return;
   	}
+  	resourceManager.getControlConfiguration().setConnectionName(connectionName);
   	try {
-  	  resourceManager.startUp(monitor);
+  	  resourceManager.start(monitor);
   	} catch (CoreException except) {
   	  for (final IX10PlatformValidationListener listener : this.fListeners) {
   	    listener.platformCommunicationInterfaceValidationFailure(except.getMessage());
@@ -118,12 +124,12 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   	
   	// The following code is hack to handle the fact that PE resource manager does not follow the same contract that
   	// OpenMPI for startup. To fix!
-  	if (resourceManager.getState() == State.STARTING) {
+  	if (resourceManager.getState() == IResourceManager.STARTING_STATE) {
   	  final IResourceManager curRM = resourceManager;
   	  final TimerThread timerThread = new TimerThread(new Runnable() {
         
         public void run() {
-          if (curRM.getState() == State.STARTING) {
+          if (curRM.getState() == IResourceManager.STARTING_STATE) {
             for (final IX10PlatformValidationListener listener : X10PlatformChecker.this.fListeners) {
               listener.platformCommunicationInterfaceValidationFailure(Constants.EMPTY_STR);
             }
@@ -240,7 +246,7 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   public void validateRemoteConnectionConf(final ITargetElement targetElement, final IProgressMonitor monitor) {
     try {
       if (targetElement.getControl().query() != ITargetStatus.STOPPED) {
-        targetElement.getControl().kill(new NullProgressMonitor());
+        targetElement.getControl().kill();
       }
       targetElement.getControl().create(monitor);
       for (final IX10PlatformValidationListener listener : this.fListeners) {
@@ -266,7 +272,7 @@ final class X10PlatformChecker implements IX10PlatformChecker {
   private IRemoteConnection getRemoteConnection(final IConnectionConf connectionConf) {
     if (connectionConf.isLocal()) {
       final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(LOCAL_CONN_SERVICE_ID);
-      return remoteServices.getConnectionManager().getConnection((String) null);
+      return remoteServices.getConnectionManager().getConnection(IRemoteConnectionManager.DEFAULT_CONNECTION_NAME);
     } else {
       final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(REMOTE_CONN_SERVICE_ID);
       for (final IRemoteConnection rmConnection : remoteServices.getConnectionManager().getConnections()) {

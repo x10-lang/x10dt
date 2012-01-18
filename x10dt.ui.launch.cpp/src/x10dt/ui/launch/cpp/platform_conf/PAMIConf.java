@@ -42,4 +42,8 @@ final class PAMIConf extends AbstractHostsBasedConf implements IPAMIConf {
     super(rmConf);
   }
 
+  public boolean shouldUseHostSection() {
+    return true;
+  }
+
 }

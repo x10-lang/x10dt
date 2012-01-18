@@ -33,13 +33,13 @@ public class X10CppToggleBreakpointsHandler implements IToggleBreakpointsHandler
   public void setLineBreakpoint(final IFile file, final int lineNumber) throws CoreException {
     IPJob job = null;
     try {
-      job = PTPDebugUIPlugin.getUIDebugManager().getCurrentSession().getJob();
+      job = PTPDebugUIPlugin.getUIDebugManager().getJob();
     } catch (Exception except) {
       // Simply ignores.
     }
     PDebugModel.createLineBreakpoint(file.getProjectRelativePath().toOSString(), file, lineNumber, true /* enabled */, 
                                      0 /* ignoreCount */, "" /* condition */, true /* register */, //$NON-NLS-1$ 
-                                     PreferenceConstants.SET_ROOT_ID, job);
+                                     PreferenceConstants.SET_ROOT_ID, job.getID(), job.getName());
   }
 
   public void disableLineBreakpoint(final IFile file, final int lineNumber) throws CoreException {
