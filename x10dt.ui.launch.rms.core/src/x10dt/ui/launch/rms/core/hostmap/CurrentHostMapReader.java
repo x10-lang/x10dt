@@ -10,15 +10,14 @@ package x10dt.ui.launch.rms.core.hostmap;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
-
-import x10dt.ui.launch.rms.core.provider.IX10RuntimeSystem;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystem;
 
 
 final class CurrentHostMapReader implements IHostMapReader {
 
   // --- Interface methods implementation
   
-  public HostMap loadMap(final IX10RuntimeSystem runtimeSystem, final IRemoteConnection connection, 
+  public HostMap loadMap(final AbstractToolRuntimeSystem runtimeSystem, final IRemoteConnection connection, 
                          final IRemoteServices remoteServices, final String machineId, 
                          final IProgressMonitor monitor) {
     return new HostMap("localhost"); //$NON-NLS-1$

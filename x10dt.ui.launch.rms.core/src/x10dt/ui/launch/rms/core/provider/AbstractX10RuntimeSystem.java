@@ -7,7 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.rms.core.provider;
 
-import java.util.BitSet;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,20 +22,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.attributes.BooleanAttribute;
 import org.eclipse.ptp.core.attributes.IAttribute;
 import org.eclipse.ptp.core.attributes.IllegalValueException;
 import org.eclipse.ptp.core.elements.IPElement;
-import org.eclipse.ptp.core.elements.IPJob;
 import org.eclipse.ptp.core.elements.attributes.ElementAttributeManager;
 import org.eclipse.ptp.core.elements.attributes.ElementAttributes;
 import org.eclipse.ptp.core.elements.attributes.JobAttributes;
-import org.eclipse.ptp.core.elements.attributes.MachineAttributes;
-import org.eclipse.ptp.core.elements.attributes.NodeAttributes;
-import org.eclipse.ptp.core.elements.attributes.ProcessAttributes;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
@@ -42,10 +39,12 @@ import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ptp.rm.core.MPIJobAttributes;
+import org.eclipse.ptp.rm.core.rmsystem.AbstractEffectiveToolRMConfiguration;
+import org.eclipse.ptp.rm.core.rmsystem.AbstractToolResourceManager;
+import org.eclipse.ptp.rm.core.rtsystem.AbstractToolRuntimeSystem;
 import org.eclipse.ptp.rm.core.utils.DebugUtil;
-import org.eclipse.ptp.rtsystem.AbstractRuntimeSystem;
+import org.eclipse.ptp.rmsystem.IResourceManagerComponentConfiguration;
 import org.eclipse.ptp.rtsystem.events.IRuntimeEventFactory;
-import org.eclipse.ptp.rtsystem.events.IRuntimeNodeChangeEvent;
 import org.eclipse.ptp.rtsystem.events.RuntimeEventFactory;
 import org.eclipse.ptp.utils.core.RangeSet;
 
@@ -60,16 +59,138 @@ import x10dt.ui.launch.rms.core.hostmap.IHostMapReader;
  * 
  * @author egeay
  */
-public abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem implements IX10RuntimeSystem {
+public abstract class AbstractX10RuntimeSystem extends AbstractToolRuntimeSystem /*implements IX10RuntimeSystem */{
   
-  protected AbstractX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
-    this.fRMId = String.valueOf(id);
-    this.fNextId = id;
-    this.fRMConfig = rmConfig;
-  }
+	public AbstractX10RuntimeSystem(AbstractToolResourceManager rm) {
+		super(rm);
+		this.fRMConfig = rm.getControlConfiguration();
+	}
+	
+//  protected AbstractX10RuntimeSystem(final int id, final IX10RMConfiguration rmConfig) {
+//    this.fRMId = String.valueOf(id);
+//    this.fNextId = id;
+//    this.fRMConfig = rmConfig;
+//  }
   
   // --- Abstract methods definition
   
+	@Override
+	protected Job createContinuousMonitorJob() throws CoreException {
+		return null;
+	}
+
+	@Override
+	protected Job createDiscoverJob() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected Job createPeriodicMonitorJob() throws CoreException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void doFilterEvents(IPElement element, boolean filterChildren,
+			AttributeManager filterAttributes) throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void doShutdown() throws CoreException {
+	    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: shutdown", this.fRMConfig.getName()); //$NON-NLS-1$
+		
+		    for (final Job job : this.fJobs.values()) {
+		      job.cancel();
+		    }
+		    this.fJobs.clear();
+		
+		    if (this.fConnection != null) {
+		      this.fConnection.close();
+		    }
+		
+		    fireRuntimeShutdownStateEvent(this.fEventFactory.newRuntimeShutdownStateEvent());
+		
+	}
+
+	@Override
+	protected void doStartEvents() throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void doStartup(IProgressMonitor monitor) throws CoreException {
+	    final SubMonitor subMon = SubMonitor.convert(monitor, 100);
+		
+		    subMon.subTask(Messages.AXRS_InitRMTaskName);
+		
+		    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: startup", this.fRMConfig.getName()); //$NON-NLS-1$
+		
+		    try {
+		      final PTPRemoteCorePlugin rmCorePlugin = PTPRemoteCorePlugin.getDefault();
+		      this.fRemoteServices = rmCorePlugin.getRemoteServices(this.fRMConfig.getRemoteServicesId());
+		      if (this.fRemoteServices == null) {
+		        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID,
+		                                           NLS.bind(Messages.AXRS_RemoteServNotFound, this.fRMConfig.getName())));
+		      }
+		      if (! this.fRemoteServices.isInitialized() && ! initializeRemoteServices(this.fRemoteServices, subMon.newChild(1))) {
+		        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, 
+		                                           NLS.bind(Messages.AXRS_RemoteServInitError, this.fRemoteServices.getName())));
+		      }
+		
+		      final IRemoteConnectionManager connectionManager = this.fRemoteServices.getConnectionManager();
+		      Assert.isNotNull(connectionManager);
+		
+		      subMon.worked(9);
+		      subMon.subTask(Messages.AXRS_OpeningConnTaskName);
+		
+		      this.fConnection = connectionManager.getConnection(this.fRMConfig.getConnectionName());
+		      if (this.fConnection == null) {
+		        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID,
+		                                           NLS.bind(Messages.AXRS_ConnNotFound, 
+		                                           this.fRMConfig.getConnectionName(), this.fRMConfig.getName())));
+		      }
+		
+		      if (! this.fConnection.isOpen()) {
+		        try {
+		          this.fConnection.open(subMon.newChild(40));
+		        } catch (RemoteConnectionException except) {
+		          throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, except.getMessage()));
+		        }
+		      }
+		
+		      if (subMon.isCanceled()) {
+		        this.fConnection.close();
+		        return;
+		      }
+		      
+		      postValidation(subMon.newChild(50));
+		      
+		      fireRuntimeRunningStateEvent(this.fEventFactory.newRuntimeRunningStateEvent());
+		    } finally {
+		      if (monitor != null) {
+		        monitor.done();
+		      }
+		    }
+		
+	}
+
+	@Override
+	protected void doStopEvents() throws CoreException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected AbstractEffectiveToolRMConfiguration retrieveEffectiveToolRmConfiguration() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
   /**
    * Creates a job responsible for checking if the host name is accessible. Can return <b>null</b> if one implementer
    * does not need such job.
@@ -77,8 +198,19 @@ public abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem imp
    * @param hostName The host name to check.
    * @param monitor The monitor to report progress or cancel the operation.
    */
-  protected abstract Job createCheckRequirementsJob(final String hostName, final IProgressMonitor monitor);
+	protected abstract Job createCheckRequirementsJob(final String hostName, final IProgressMonitor monitor);
   
+	public void setAttributes(IAttribute<?, ?, ?>[] attributes){
+		fAttributes = new ArrayList<IAttribute<?, ?, ?>>(Arrays.asList(attributes));
+	}
+	
+	@Override
+	public List<IAttribute<?, ?, ?>> getAttributes(ILaunchConfiguration configuration, String mode) throws CoreException {
+		return fAttributes;
+	}
+
+	
+	
   /**
    * Creates the job that will execute the running or debugging command.
    * 
@@ -88,178 +220,182 @@ public abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem imp
    * @return A non-null job.
    * @throws CoreException Can occur for various reasons during the process execution.
    */
-  protected abstract Job createRuntimeSystemJob(final String jobID, final String queueID, 
-                                                final AttributeManager attrMgr) throws CoreException;
+//  protected abstract Job createRuntimeSystemJob(final String jobID, final String queueID, 
+//                                                final AttributeManager attrMgr) throws CoreException;
 
   // --- IControlSystem's interface methods implementation
   
-  public final void submitJob(final String subId, final AttributeManager attrMgr) throws CoreException {
-    attrMgr.addAttribute(JobAttributes.getSubIdAttributeDefinition().create(subId));
-    
-    // Create the job
-    final String queueID = attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()).getValue();
-    final String jobID = createJob(queueID, attrMgr);
-    attrMgr.addAttribute(JobAttributes.getJobIdAttributeDefinition().create(jobID));
+//  public final void submitJob(final String subId, ILaunchConfiguration configuration, String mode) throws CoreException {
+//    attrMgr.addAttribute(JobAttributes.getSubIdAttributeDefinition().create(subId));
+//    
+//    // Create the job
+//    final String queueID = attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()).getValue();
+//    final String jobID = createJob(queueID, attrMgr);
+//    attrMgr.addAttribute(JobAttributes.getJobIdAttributeDefinition().create(jobID));
+//
+//    DebugUtil.trace(DebugUtil.JOB_TRACING, "RTS {0}: job submission #{0}, job id #{1}, queue id @{2}", //$NON-NLS-1$ 
+//                    this.fRMConfig.getName(), subId, jobID, queueID);
+//    
+//    final Job job = createRuntimeSystemJob(jobID, queueID, attrMgr);
+//    this.fJobs.put(jobID, job);
+//    
+//    job.schedule();
+//  }
 
-    DebugUtil.trace(DebugUtil.JOB_TRACING, "RTS {0}: job submission #{0}, job id #{1}, queue id @{2}", //$NON-NLS-1$ 
-                    this.fRMConfig.getName(), subId, jobID, queueID);
-    
-    final Job job = createRuntimeSystemJob(jobID, queueID, attrMgr);
-    this.fJobs.put(jobID, job);
-    
-    job.schedule();
-  }
-
-  public final void terminateJob(final IPJob ipJob) throws CoreException {
-    DebugUtil.trace(DebugUtil.JOB_TRACING, "RTS {0}: terminate job #{1}", this.fRMConfig.getName(), ipJob.getID()); //$NON-NLS-1$
-    final Job job = this.fJobs.get(ipJob.getID());
-    job.cancel();
-  }
+//  public final void terminateJob(String jobId) throws CoreException {
+//    DebugUtil.trace(DebugUtil.JOB_TRACING, "RTS {0}: terminate job #{1}", this.fRMConfig.getName(), jobId); //$NON-NLS-1$
+//    final Job job = this.fJobs.get(jobId);
+//    job.cancel();
+//  }
+//  
+//  public AttributeDefinitionManager getAttributeDefinitionManager() {
+//		return attrDefManager;
+//	}
 
   // --- IMonitoringSystem's interface methods implementation
   
-  public final void filterEvents(final IPElement element, final boolean filterChildren, 
-                                 final AttributeManager filterAttributes) throws CoreException {
-  }
-
-  public final void startEvents() throws CoreException {
-  }
-
-  public final void stopEvents() throws CoreException {
-  }
+//  public final void filterEvents(final IPElement element, final boolean filterChildren, 
+//                                 final AttributeManager filterAttributes) throws CoreException {
+//  }
+//
+//  public final void startEvents() throws CoreException {
+//  }
+//
+//  public final void stopEvents() throws CoreException {
+//  }
 
   // --- IRuntimeSystem's interface methods implementation
   
-  public final void shutdown() throws CoreException {
-    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: shutdown", this.fRMConfig.getName()); //$NON-NLS-1$
-
-    for (final Job job : this.fJobs.values()) {
-      job.cancel();
-    }
-    this.fJobs.clear();
-
-    if (this.fConnection != null) {
-      this.fConnection.close();
-    }
-
-    fireRuntimeShutdownStateEvent(this.fEventFactory.newRuntimeShutdownStateEvent());
-  }
-
-  public final void startup(final IProgressMonitor monitor) throws CoreException {
-    final SubMonitor subMon = SubMonitor.convert(monitor, 100);
-
-    subMon.subTask(Messages.AXRS_InitRMTaskName);
-
-    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: startup", this.fRMConfig.getName()); //$NON-NLS-1$
-
-    try {
-      final PTPRemoteCorePlugin rmCorePlugin = PTPRemoteCorePlugin.getDefault();
-      this.fRemoteServices = rmCorePlugin.getRemoteServices(this.fRMConfig.getRemoteServicesId());
-      if (this.fRemoteServices == null) {
-        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID,
-                                           NLS.bind(Messages.AXRS_RemoteServNotFound, this.fRMConfig.getName())));
-      }
-      if (! this.fRemoteServices.isInitialized() && ! initializeRemoteServices(this.fRemoteServices, subMon.newChild(1))) {
-        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, 
-                                           NLS.bind(Messages.AXRS_RemoteServInitError, this.fRemoteServices.getName())));
-      }
-
-      final IRemoteConnectionManager connectionManager = this.fRemoteServices.getConnectionManager();
-      Assert.isNotNull(connectionManager);
-
-      subMon.worked(9);
-      subMon.subTask(Messages.AXRS_OpeningConnTaskName);
-
-      this.fConnection = connectionManager.getConnection(this.fRMConfig.getConnectionName());
-      if (this.fConnection == null) {
-        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID,
-                                           NLS.bind(Messages.AXRS_ConnNotFound, 
-                                           this.fRMConfig.getConnectionName(), this.fRMConfig.getName())));
-      }
-
-      if (! this.fConnection.isOpen()) {
-        try {
-          this.fConnection.open(subMon.newChild(40));
-        } catch (RemoteConnectionException except) {
-          throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, except.getMessage()));
-        }
-      }
-
-      if (subMon.isCanceled()) {
-        this.fConnection.close();
-        return;
-      }
-      
-      postValidation(subMon.newChild(50));
-      
-      fireRuntimeRunningStateEvent(this.fEventFactory.newRuntimeRunningStateEvent());
-    } finally {
-      if (monitor != null) {
-        monitor.done();
-      }
-    }
-  }
+//  public final void shutdown() throws CoreException {
+//    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: shutdown", this.fRMConfig.getName()); //$NON-NLS-1$
+//
+//    for (final Job job : this.fJobs.values()) {
+//      job.cancel();
+//    }
+//    this.fJobs.clear();
+//
+//    if (this.fConnection != null) {
+//      this.fConnection.close();
+//    }
+//
+//    fireRuntimeShutdownStateEvent(this.fEventFactory.newRuntimeShutdownStateEvent());
+//  }
+//
+//  public final void startup(final IProgressMonitor monitor) throws CoreException {
+//    final SubMonitor subMon = SubMonitor.convert(monitor, 100);
+//
+//    subMon.subTask(Messages.AXRS_InitRMTaskName);
+//
+//    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: startup", this.fRMConfig.getName()); //$NON-NLS-1$
+//
+//    try {
+//      final PTPRemoteCorePlugin rmCorePlugin = PTPRemoteCorePlugin.getDefault();
+//      this.fRemoteServices = rmCorePlugin.getRemoteServices(this.fRMConfig.getRemoteServicesId());
+//      if (this.fRemoteServices == null) {
+//        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID,
+//                                           NLS.bind(Messages.AXRS_RemoteServNotFound, this.fRMConfig.getName())));
+//      }
+//      if (! this.fRemoteServices.isInitialized() && ! initializeRemoteServices(this.fRemoteServices, subMon.newChild(1))) {
+//        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, 
+//                                           NLS.bind(Messages.AXRS_RemoteServInitError, this.fRemoteServices.getName())));
+//      }
+//
+//      final IRemoteConnectionManager connectionManager = this.fRemoteServices.getConnectionManager();
+//      Assert.isNotNull(connectionManager);
+//
+//      subMon.worked(9);
+//      subMon.subTask(Messages.AXRS_OpeningConnTaskName);
+//
+//      this.fConnection = connectionManager.getConnection(this.fRMConfig.getConnectionName());
+//      if (this.fConnection == null) {
+//        throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID,
+//                                           NLS.bind(Messages.AXRS_ConnNotFound, 
+//                                           this.fRMConfig.getConnectionName(), this.fRMConfig.getName())));
+//      }
+//
+//      if (! this.fConnection.isOpen()) {
+//        try {
+//          this.fConnection.open(subMon.newChild(40));
+//        } catch (RemoteConnectionException except) {
+//          throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, except.getMessage()));
+//        }
+//      }
+//
+//      if (subMon.isCanceled()) {
+//        this.fConnection.close();
+//        return;
+//      }
+//      
+//      postValidation(subMon.newChild(50));
+//      
+//      fireRuntimeRunningStateEvent(this.fEventFactory.newRuntimeRunningStateEvent());
+//    } finally {
+//      if (monitor != null) {
+//        monitor.done();
+//      }
+//    }
+//  }
   
   // --- IX10RuntimeSystem's interface methods implementation
   
-  public final void changeJobAttributes(final String jobID, final AttributeManager changedAttrMgr) {
-    final AttributeManager attrMgr = new AttributeManager();
-    attrMgr.addAttributes(changedAttrMgr.getAttributes());
-    final ElementAttributeManager elementAttrs = new ElementAttributeManager();
-    elementAttrs.setAttributeManager(new RangeSet(jobID), attrMgr);
-    fireRuntimeJobChangeEvent(this.fEventFactory.newRuntimeJobChangeEvent(elementAttrs));
-
-    for (final IAttribute<?, ?, ?> attr : changedAttrMgr.getAttributes()) {
-      DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}, job #{1}: {2}={3}", this.fRMConfig.getName(), jobID, //$NON-NLS-1$ 
-                      attr.getDefinition().getId(), attr.getValueAsString());
-    }
-  }
+//  public final void changeJobAttributes(final String jobID, final AttributeManager changedAttrMgr) {
+//    final AttributeManager attrMgr = new AttributeManager();
+//    attrMgr.addAttributes(changedAttrMgr.getAttributes());
+//    final ElementAttributeManager elementAttrs = new ElementAttributeManager();
+//    elementAttrs.setAttributeManager(new RangeSet(jobID), attrMgr);
+//    fireRuntimeJobChangeEvent(this.fEventFactory.newRuntimeJobChangeEvent(elementAttrs));
+//
+//    for (final IAttribute<?, ?, ?> attr : changedAttrMgr.getAttributes()) {
+//      DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}, job #{1}: {2}={3}", this.fRMConfig.getName(), jobID, //$NON-NLS-1$ 
+//                      attr.getDefinition().getId(), attr.getValueAsString());
+//    }
+//  }
   
-  public final void changeNode(final String nodeID, final AttributeManager changedAttrMgr) {
-    final AttributeManager attrMgr = new AttributeManager();
-    attrMgr.addAttributes(changedAttrMgr.getAttributes());
-    final ElementAttributeManager elementAttrs = new ElementAttributeManager();
-    elementAttrs.setAttributeManager(new RangeSet(nodeID), attrMgr);
-    final IRuntimeNodeChangeEvent event = this.fEventFactory.newRuntimeNodeChangeEvent(elementAttrs);
-    fireRuntimeNodeChangeEvent(event);
-
-    for (IAttribute<?, ?, ?> attr : changedAttrMgr.getAttributes()) {
-      DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}, node #{1}: {2}={3}", this.fRMConfig.getName(), nodeID, //$NON-NLS-1$ 
-                      attr.getDefinition().getId(), attr.getValueAsString());
-    }
-  }
+//  public final void changeNode(final String nodeID, final AttributeManager changedAttrMgr) {
+//    final AttributeManager attrMgr = new AttributeManager();
+//    attrMgr.addAttributes(changedAttrMgr.getAttributes());
+//    final ElementAttributeManager elementAttrs = new ElementAttributeManager();
+//    elementAttrs.setAttributeManager(new RangeSet(nodeID), attrMgr);
+//    final IRuntimeNodeChangeEvent event = this.fEventFactory.newRuntimeNodeChangeEvent(elementAttrs);
+//    fireRuntimeNodeChangeEvent(event);
+//
+//    for (IAttribute<?, ?, ?> attr : changedAttrMgr.getAttributes()) {
+//      DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}, node #{1}: {2}={3}", this.fRMConfig.getName(), nodeID, //$NON-NLS-1$ 
+//                      attr.getDefinition().getId(), attr.getValueAsString());
+//    }
+//  }
   
-  public final void changeProcesses(final String jobId, final BitSet processJobRanks, final AttributeManager changedAttrMgr) {
-    final AttributeManager attrMgr = new AttributeManager();
-    attrMgr.addAttributes(changedAttrMgr.getAttributes());
-    final ElementAttributeManager elementAttrs = new ElementAttributeManager();
-    elementAttrs.setAttributeManager(new RangeSet(processJobRanks), attrMgr);
-    fireRuntimeProcessChangeEvent(this.fEventFactory.newRuntimeProcessChangeEvent(jobId, elementAttrs));
-
-    for (final IAttribute<?, ?, ?> attr : changedAttrMgr.getAttributes()) {
-      DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}, processes #{1}: {2}={3}", this.fRMConfig.getName(), processJobRanks, //$NON-NLS-1$ 
-                      attr.getDefinition().getId(), attr.getValueAsString());
-    }
-  }
-  
-  public final String createNode(final String parentID, final String name, final int number) {
-    ++this.fNextId;
-    final ElementAttributeManager mgr = new ElementAttributeManager();
-    final AttributeManager attrMgr = new AttributeManager();
-    attrMgr.addAttribute(NodeAttributes.getStateAttributeDefinition().create(NodeAttributes.State.UP));
-    try {
-      attrMgr.addAttribute(NodeAttributes.getNumberAttributeDefinition().create(new Integer(number)));
-    } catch (IllegalValueException except) {
-      assert false;
-    }
-    attrMgr.addAttribute(ElementAttributes.getNameAttributeDefinition().create(name));
-    mgr.setAttributeManager(new RangeSet(this.fNextId), attrMgr);
-    fireRuntimeNewNodeEvent(this.fEventFactory.newRuntimeNewNodeEvent(parentID, mgr));
-
-    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: new node #{1}", this.fRMConfig.getName(), this.fNextId); //$NON-NLS-1$
-
-    return String.valueOf(this.fNextId);
-  }
+//  public final void changeProcesses(final String jobId, final BitSet processJobRanks, final AttributeManager changedAttrMgr) {
+//    final AttributeManager attrMgr = new AttributeManager();
+//    attrMgr.addAttributes(changedAttrMgr.getAttributes());
+//    final ElementAttributeManager elementAttrs = new ElementAttributeManager();
+//    elementAttrs.setAttributeManager(new RangeSet(processJobRanks), attrMgr);
+//    fireRuntimeProcessChangeEvent(this.fEventFactory.newRuntimeProcessChangeEvent(jobId, elementAttrs));
+//
+//    for (final IAttribute<?, ?, ?> attr : changedAttrMgr.getAttributes()) {
+//      DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}, processes #{1}: {2}={3}", this.fRMConfig.getName(), processJobRanks, //$NON-NLS-1$ 
+//                      attr.getDefinition().getId(), attr.getValueAsString());
+//    }
+//  }
+//  
+//  public final String createNode(final String parentID, final String name, final int number) {
+//    ++this.fNextId;
+//    final ElementAttributeManager mgr = new ElementAttributeManager();
+//    final AttributeManager attrMgr = new AttributeManager();
+//    attrMgr.addAttribute(NodeAttributes.getStateAttributeDefinition().create(NodeAttributes.State.UP));
+//    try {
+//      attrMgr.addAttribute(NodeAttributes.getNumberAttributeDefinition().create(new Integer(number)));
+//    } catch (IllegalValueException except) {
+//      assert false;
+//    }
+//    attrMgr.addAttribute(ElementAttributes.getNameAttributeDefinition().create(name));
+//    mgr.setAttributeManager(new RangeSet(this.fNextId), attrMgr);
+//    fireRuntimeNewNodeEvent(this.fEventFactory.newRuntimeNewNodeEvent(parentID, mgr));
+//
+//    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: new node #{1}", this.fRMConfig.getName(), this.fNextId); //$NON-NLS-1$
+//
+//    return String.valueOf(this.fNextId);
+//  }
   
   public final IRemoteProcessBuilder createProcessBuilder(final List<String> command, final String workingDirectory) {
     final IRemoteProcessBuilder processBuilder = this.fRemoteServices.getProcessBuilder(this.fConnection, command);
@@ -270,41 +406,44 @@ public abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem imp
       return processBuilder.directory(directory);
     }
   }
+//  
+//  public final void createProcesses(final String jobId, final int numberOfProcesses) {
+//    for (int i = 0; i < numberOfProcesses; ++i) {
+//      final ElementAttributeManager mgr = new ElementAttributeManager();
+//      final AttributeManager attrMgr = new AttributeManager();
+//      attrMgr.addAttribute(ProcessAttributes.getStateAttributeDefinition().create(ProcessAttributes.State.STARTING));
+//      mgr.setAttributeManager(new RangeSet(i), attrMgr);
+//      fireRuntimeNewProcessEvent(this.fEventFactory.newRuntimeNewProcessEvent(jobId, mgr));
+//    }
+//    DebugUtil.trace(DebugUtil.RTS_TRACING,"RTS {0}: created {1} new processes", this.fRMConfig.getName(), //$NON-NLS-1$ 
+//                    Integer.valueOf(numberOfProcesses));
+//  }
   
-  public final void createProcesses(final String jobId, final int numberOfProcesses) {
-    for (int i = 0; i < numberOfProcesses; ++i) {
-      final ElementAttributeManager mgr = new ElementAttributeManager();
-      final AttributeManager attrMgr = new AttributeManager();
-      attrMgr.addAttribute(ProcessAttributes.getStateAttributeDefinition().create(ProcessAttributes.State.STARTING));
-      mgr.setAttributeManager(new RangeSet(i), attrMgr);
-      fireRuntimeNewProcessEvent(this.fEventFactory.newRuntimeNewProcessEvent(jobId, mgr));
-    }
-    DebugUtil.trace(DebugUtil.RTS_TRACING,"RTS {0}: created {1} new processes", this.fRMConfig.getName(), //$NON-NLS-1$ 
-                    Integer.valueOf(numberOfProcesses));
-  }
-  
-  public final IPJob getPJob(final String queueId, final String jobId) {
-    return PTPCorePlugin.getDefault().getUniverse().getResourceManager(this.fRMId).getQueueById(queueId).getJobById(jobId);
-  }
-  
-  public final IX10RMConfiguration getRMConfiguration() {
-    return this.fRMConfig;
-  }
-  
+//  public final IPJob getPJob(final String queueId, final String jobId) {
+//	  //MV - make sure fRMId is the unique id.
+//    return PTPCorePlugin.getDefault().getModelManager().getResourceManagerFromUniqueName(this.fRMId).getQueueById(queueId).getJobById(jobId);
+//  }
+//  
+//  public final IX10RMConfiguration getRMConfiguration() {
+//    return this.fRMConfig;
+//  }
+//  
   // --- Private code
   
-  private String createJob(final String queueID, final AttributeManager attrMgr) {
+  public String createJob(final String queueID, final AttributeManager attrMgr) {
     final ElementAttributeManager mgr = new ElementAttributeManager();
     final AttributeManager jobAttrMgr = new AttributeManager();
 
     // Add generated attributes.
-    ++this.fNextId;
-    final String jobID = String.valueOf(this.fNextId);
+//    ++this.fNextId;
+//    final String jobID = String.valueOf(this.fNextId);
+    
+    String jobID = generateID().toString();
     jobAttrMgr.addAttribute(JobAttributes.getJobIdAttributeDefinition().create(jobID));
     jobAttrMgr.addAttribute(JobAttributes.getQueueIdAttributeDefinition().create(queueID));
     jobAttrMgr.addAttribute(JobAttributes.getStatusAttributeDefinition().create(MPIJobAttributes.Status.NORMAL.toString()));
     jobAttrMgr.addAttribute(JobAttributes.getUserIdAttributeDefinition().create(System.getenv("USER"))); //$NON-NLS-1$
-    ++this.fJobNumber;
+    //++this.fJobNumber;
     jobAttrMgr.addAttribute(ElementAttributes.getNameAttributeDefinition().create(String.format("job%d", this.fJobNumber))); //$NON-NLS-1$
 
     // Get relevant attributes from launch attributes.
@@ -339,34 +478,34 @@ public abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem imp
 
     return jobID;
   }
-  
-  private String createMachine(final String name) {
-    ++this.fNextId;
-    ElementAttributeManager mgr = new ElementAttributeManager();
-    AttributeManager attrMgr = new AttributeManager();
-    attrMgr.addAttribute(MachineAttributes.getStateAttributeDefinition().create(MachineAttributes.State.UP));
-    attrMgr.addAttribute(ElementAttributes.getNameAttributeDefinition().create(name));
-    mgr.setAttributeManager(new RangeSet(this.fNextId), attrMgr);
-    fireRuntimeNewMachineEvent(this.fEventFactory.newRuntimeNewMachineEvent(this.fRMId, mgr));
-
-    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: new machine #{1}", this.fRMConfig.getName(), this.fNextId); //$NON-NLS-1$
-
-    return String.valueOf(this.fNextId);
-  }
-  
-  private String createQueue(final String name) {
-    ++this.fNextId;
-    final ElementAttributeManager mgr = new ElementAttributeManager();
-    final AttributeManager attrMgr = new AttributeManager();
-    attrMgr.addAttribute(ElementAttributes.getNameAttributeDefinition().create(name));
-    mgr.setAttributeManager(new RangeSet(this.fNextId), attrMgr);
-    fireRuntimeNewQueueEvent(this.fEventFactory.newRuntimeNewQueueEvent(this.fRMId, mgr));
-
-    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: new queue #{1}", this.fRMConfig.getName(), this.fNextId); //$NON-NLS-1$
-
-    return String.valueOf(this.fNextId);
-  }
-  
+//  
+//  private String createMachine(final String name) {
+//    ++this.fNextId;
+//    ElementAttributeManager mgr = new ElementAttributeManager();
+//    AttributeManager attrMgr = new AttributeManager();
+//    attrMgr.addAttribute(MachineAttributes.getStateAttributeDefinition().create(MachineAttributes.State.UP));
+//    attrMgr.addAttribute(ElementAttributes.getNameAttributeDefinition().create(name));
+//    mgr.setAttributeManager(new RangeSet(this.fNextId), attrMgr);
+//    fireRuntimeNewMachineEvent(this.fEventFactory.newRuntimeNewMachineEvent(this.fRMId, mgr));
+//
+//    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: new machine #{1}", this.fRMConfig.getName(), this.fNextId); //$NON-NLS-1$
+//
+//    return String.valueOf(this.fNextId);
+//  }
+//  
+//  private String createQueue(final String name) {
+//    ++this.fNextId;
+//    final ElementAttributeManager mgr = new ElementAttributeManager();
+//    final AttributeManager attrMgr = new AttributeManager();
+//    attrMgr.addAttribute(ElementAttributes.getNameAttributeDefinition().create(name));
+//    mgr.setAttributeManager(new RangeSet(this.fNextId), attrMgr);
+//    fireRuntimeNewQueueEvent(this.fEventFactory.newRuntimeNewQueueEvent(this.fRMId, mgr));
+//
+//    DebugUtil.trace(DebugUtil.RTS_TRACING, "RTS {0}: new queue #{1}", this.fRMConfig.getName(), this.fNextId); //$NON-NLS-1$
+//
+//    return String.valueOf(this.fNextId);
+//  }
+//  
   private synchronized boolean initializeRemoteServices(final IRemoteServices services, final IProgressMonitor monitor) {
     SubMonitor progress = SubMonitor.convert(monitor, NLS.bind(Messages.AXRS_InitRemoteServTaskName, services.getName()), 10);
     try {
@@ -434,9 +573,9 @@ public abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem imp
   
   // --- Fields
   
-  private final String fRMId;
+  //private final String fRMId;
   
-  private final IX10RMConfiguration fRMConfig;
+  private final IResourceManagerComponentConfiguration fRMConfig;
   
   private final IRuntimeEventFactory fEventFactory = new RuntimeEventFactory();
   
@@ -449,5 +588,7 @@ public abstract class AbstractX10RuntimeSystem extends AbstractRuntimeSystem imp
   private int fNextId;
   
   private int fJobNumber;
+  
+  private List<IAttribute<?, ?, ?>> fAttributes;
 
 }

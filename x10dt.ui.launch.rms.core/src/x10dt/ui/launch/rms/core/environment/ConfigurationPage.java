@@ -31,6 +31,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.ptp.remotetools.environment.generichost.core.ConfigFactory;
 
 import x10dt.ui.launch.rms.core.Messages;
 
