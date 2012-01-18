@@ -7,60 +7,59 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.rms.provider;
 
-import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerServiceProvider;
+import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
-import org.eclipse.ptp.services.core.IServiceProviderWorkingCopy;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.cpp.rms.Messages;
 import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
 
 /**
- * Service provider implements for the PAMI resource manager control.
+ * Service provider implements for the X10 Standalone resource manager control.
  * 
  * @author egeay
  */
-public final class PAMIServiceProvider extends AbstractRemoteResourceManagerServiceProvider 
-                                          implements IServiceProvider, IX10RMConfiguration {
+public final class StandaloneResourceManagerConfiguration extends AbstractRemoteResourceManagerConfiguration 
+                                             implements /*IServiceProvider, */IX10RMConfiguration {
  
   /**
    * Creates the service provider with a default description.
    */
-  public PAMIServiceProvider() {
-    setDescription(Messages.PSP_ProviderDescr);
+  public StandaloneResourceManagerConfiguration(String namespace, IServiceProvider provider) {
+	  super(namespace, provider);  
+    setDescription(Messages.SSS_StandaloneRMDescr);
   }
 
   // --- Abstract methods definition
   
   public void setDefaultNameAndDesc() {
     final StringBuilder sb = new StringBuilder();
-    sb.append(Messages.PSP_ProviderName);
+    sb.append(Messages.SSS_Standalone);
     final String connection = getConnectionName();
     if (connection != null && ! Constants.EMPTY_STR.equals(connection)) {
       sb.append('@').append(connection);
     }
     setName(sb.toString());
-    setDescription(Messages.PSP_ProviderDescr);
+    setDescription(Messages.SSS_StandaloneRMDescr);
   }
 
+  /*
   public IResourceManagerControl createResourceManager() {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
-    return new PAMIResourceManager(String.valueOf(universe.getNextResourceManagerId()), universe, this);
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+    return new StandaloneResourceManager(String.valueOf(universe.getNextResourceManagerId()), universe, this);
   }
   
   // --- Overridden methods
   
   public IServiceProviderWorkingCopy copy() {
-    return new PAMIServiceProvider(this);
+    return new StandaloneServiceProvider(this);
   }
   
   // --- Private code
   
-  private PAMIServiceProvider(final IServiceProvider provider) {
+  private StandaloneServiceProvider(final IServiceProvider provider) {
     super(provider);
   }
 
+*/
 }
