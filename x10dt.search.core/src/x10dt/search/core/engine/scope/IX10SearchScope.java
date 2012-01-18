@@ -7,6 +7,8 @@
  *******************************************************************************/
 package x10dt.search.core.engine.scope;
 
+import java.net.URI;
+
 import org.eclipse.imp.pdb.facts.db.IFactContext;
 
 import x10dt.core.utils.ICountableIterable;
@@ -27,7 +29,7 @@ public interface IX10SearchScope {
    * @param resourceURI The resource URI to consider.
    * @return True if the search scope contains such resource, false otherwise.
    */
-  public boolean contains(final String resourceURI);
+  public boolean contains(final URI resourceURI);
   
   /**
    * Creates the list of fact contexts to use for the search according to the scope defined.

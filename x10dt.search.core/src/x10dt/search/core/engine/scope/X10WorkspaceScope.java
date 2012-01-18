@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.search.core.engine.scope;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -35,7 +36,7 @@ final class X10WorkspaceScope extends AbstractX10SearchScope implements IX10Sear
 
   // --- Interface methods implementation
   
-  public boolean contains(final String resourceURI) {
+  public boolean contains(final URI resourceURI) {
     return true;
   }
   
