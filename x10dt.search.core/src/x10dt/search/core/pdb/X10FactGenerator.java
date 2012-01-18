@@ -97,23 +97,41 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
         typeManager.clearWriter();
       }
     } else {
-      final Map<IResource, IndexedDocumentDescriptor> map;
-      if (workingCopies.isEmpty()) {
-        map = new HashMap<IResource, IndexedDocumentDescriptor>(1);
-        map.put(resource, null);
-      } else {
-        map = workingCopies;
-      }
-      for (final Map.Entry<IResource, IndexedDocumentDescriptor> entry : map.entrySet()) {
-        if (entry.getValue() == null) {
-          final CompilerOptionsBuilder cmpOptBuilder = processResource(entry.getKey());
-          if (cmpOptBuilder != null) {
-            update(factBase, type, context, entry.getKey(), cmpOptBuilder, cmpOptBuilder.getSourceEntrySet());
-          }
+    	IndexedDocumentDescriptor value = null;
+        for (final Map.Entry<IResource, IndexedDocumentDescriptor> e : workingCopies.entrySet()) {
+        	if (e.getKey().equals(resource)){
+        		value = e.getValue();
+        	}
+        }	
+        if (value == null) {
+            final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
+            if (cmpOptBuilder != null) {
+              update(factBase, type, context, resource, cmpOptBuilder, cmpOptBuilder.getSourceEntrySet());
+            }
         } else {
-          update(factBase, type, context, entry.getKey(), entry.getValue());
+            update(factBase, type, context, resource, value);
         }
-      }
+ 
+        
+        
+//        
+//      final Map<IResource, IndexedDocumentDescriptor> map;
+//      if (workingCopies.isEmpty()) { //MV
+//        map = new HashMap<IResource, IndexedDocumentDescriptor>(1);
+//        map.put(resource, null);
+//      } else {
+//        map = workingCopies;
+//      }
+//      for (final Map.Entry<IResource, IndexedDocumentDescriptor> entry : map.entrySet()) {
+//        if (entry.getValue() == null) {
+//          final CompilerOptionsBuilder cmpOptBuilder = processResource(entry.getKey());
+//          if (cmpOptBuilder != null) {
+//            update(factBase, type, context, entry.getKey(), cmpOptBuilder, cmpOptBuilder.getSourceEntrySet());
+//          }
+//        } else {
+//          update(factBase, type, context, entry.getKey(), entry.getValue());
+//        }
+//      }
     }
   }
   
@@ -122,34 +140,64 @@ final class X10FactGenerator implements IFactGenerator, IFactUpdater {
     if ((resource.getType() == IResource.FILE) && ! X10_EXT.equals(((IFile) resource).getFileExtension())) {
       return;
     }
-    final Map<IResource, IndexedDocumentDescriptor> map;
-    if (workingCopies.isEmpty()) {
-      map = new HashMap<IResource, IndexedDocumentDescriptor>(1);
-      map.put(resource, null);
-    } else {
-      map = workingCopies;
+    
+    IndexedDocumentDescriptor value = null;
+    
+    for (final Map.Entry<IResource, IndexedDocumentDescriptor> e : workingCopies.entrySet()) {
+    	if (e.getKey().equals(resource)){
+    		value = e.getValue();
+    	}
     }
-    for (final Map.Entry<IResource, IndexedDocumentDescriptor> entry : map.entrySet()) {
-      if (entry.getValue() == null) {
-        final CompilerOptionsBuilder cmpOptBuilder = processResource(entry.getKey());
+    
+    if (value == null) {
+        final CompilerOptionsBuilder cmpOptBuilder = processResource(resource);
         if (cmpOptBuilder != null) {
           final Set<Map.Entry<String, Collection<Source>>> entries = cmpOptBuilder.getSourceEntrySet();
           if (entries.isEmpty()) {
             final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
             try {
-              typeManager.initWriter(factBase, context, entry.getKey());
+              typeManager.initWriter(factBase, context, resource);
               typeManager.writeDataInFactBase(factBase, context);
             } finally {
               typeManager.clearWriter();
             }
           } else {
-            update(factBase, type, context, entry.getKey(), cmpOptBuilder, entries);
+            update(factBase, type, context, resource, cmpOptBuilder, entries);
           }
         }
       } else {
-        update(factBase, type, context, entry.getKey(), entry.getValue());
+        update(factBase, type, context, resource, value);
       }
-    }
+    
+    //final Map<IResource, IndexedDocumentDescriptor> map;
+    //if (workingCopies.isEmpty()) { // MV
+    //  map = new HashMap<IResource, IndexedDocumentDescriptor>(1);
+    //  map.put(resource, null);
+    //} else {
+    //  map = workingCopies;
+    //}
+    
+//    for (final Map.Entry<IResource, IndexedDocumentDescriptor> entry : map.entrySet()) {
+//      if (entry.getValue() == null) {
+//        final CompilerOptionsBuilder cmpOptBuilder = processResource(entry.getKey());
+//        if (cmpOptBuilder != null) {
+//          final Set<Map.Entry<String, Collection<Source>>> entries = cmpOptBuilder.getSourceEntrySet();
+//          if (entries.isEmpty()) {
+//            final ITypeManager typeManager = this.fSearchDBTypes.getTypeManager(type.getName(), APPLICATION);
+//            try {
+//              typeManager.initWriter(factBase, context, entry.getKey());
+//              typeManager.writeDataInFactBase(factBase, context);
+//            } finally {
+//              typeManager.clearWriter();
+//            }
+//          } else {
+//            update(factBase, type, context, entry.getKey(), cmpOptBuilder, entries);
+//          }
+//        }
+//      } else {
+//        update(factBase, type, context, entry.getKey(), entry.getValue());
+//      }
+//    }
   }
   
   // --- Private code
