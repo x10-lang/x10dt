@@ -12,7 +12,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
-import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationContentsChangedListener;
 import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
 import org.eclipse.ptp.launch.ui.extensions.RMLaunchValidation;
@@ -113,6 +113,12 @@ final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements 
   void setResourceManager(final IResourceManager resourceManager) {
     this.fResourceManager = resourceManager;
   }
+  
+  
+  X10PlacesAndHostsDynamicTab getX10PlacesAndHostsDynamicTab(){
+	  return fX10EnvVarsConfTab;
+  }
+  
     
   // --- Fields
     

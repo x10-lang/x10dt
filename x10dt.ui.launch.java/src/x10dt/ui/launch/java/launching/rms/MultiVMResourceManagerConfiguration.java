@@ -7,12 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.java.launching.rms;
 
-import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elementcontrols.IPUniverseControl;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerServiceProvider;
+import org.eclipse.ptp.rm.core.rmsystem.AbstractRemoteResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;
-import org.eclipse.ptp.services.core.IServiceProviderWorkingCopy;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.java.Messages;
@@ -23,13 +19,17 @@ import x10dt.ui.launch.rms.core.provider.IX10RMConfiguration;
  * 
  * @author egeay
  */
-public final class MultiVMServiceProvider extends AbstractRemoteResourceManagerServiceProvider 
-                                          implements IServiceProvider, IX10RMConfiguration {
+public final class MultiVMResourceManagerConfiguration extends AbstractRemoteResourceManagerConfiguration 
+                                          implements /*IServiceProvider,*/ IX10RMConfiguration {
  
+  public MultiVMResourceManagerConfiguration(){
+	  super(null,null);
+  }
   /**
    * Creates the service provider with a default description.
    */
-  public MultiVMServiceProvider() {
+  public MultiVMResourceManagerConfiguration(String namespace, IServiceProvider provider) {
+	  super(namespace, provider);
     setDescription(Messages.MVMSP_SPDescription);
   }
 
@@ -45,9 +45,9 @@ public final class MultiVMServiceProvider extends AbstractRemoteResourceManagerS
     setName(sb.toString());
     setDescription(Messages.MVMSP_SPDescription);
   }
-
+/*
   public IResourceManagerControl createResourceManager() {
-    final IPUniverseControl universe = (IPUniverseControl) PTPCorePlugin.getDefault().getUniverse();
+    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
     return new MultiVMResourceManager(String.valueOf(universe.getNextResourceManagerId()), universe, this);
   }
   
@@ -62,5 +62,5 @@ public final class MultiVMServiceProvider extends AbstractRemoteResourceManagerS
   private MultiVMServiceProvider(final IServiceProvider provider) {
     super(provider);
   }
-
+*/
 }

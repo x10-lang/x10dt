@@ -40,8 +40,8 @@ import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
-import org.eclipse.ptp.core.elementcontrols.IResourceManagerControl;
-import org.eclipse.ptp.core.elements.IResourceManager;
+import org.eclipse.ptp.rmsystem.IResourceManagerControl;
+import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
@@ -671,7 +671,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
               throw exception[0];
             }
 
-            VMsLocationTab.this.fResourceManager.startUp(new NullProgressMonitor());
+            VMsLocationTab.this.fResourceManager.start(new NullProgressMonitor());
 
             if (VMsLocationTab.this.fLocalConnBt.isDisposed() || VMsLocationTab.this.fStatusLabel.isDisposed()) {
               return;
@@ -692,6 +692,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
             });
 
             VMsLocationTab.this.fPlacesAndHostsTab.setResourceManager(VMsLocationTab.this.fResourceManager);
+            VMsLocationTab.this.fPlacesAndHostsTab.getX10PlacesAndHostsDynamicTab().setResourceManager(VMsLocationTab.this.fResourceManager);
           } catch (final CoreException except) {
             if (!VMsLocationTab.this.fStatusLabel.isDisposed()) {
               display.syncExec(new Runnable() {
@@ -715,16 +716,16 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
   }
   
   private void updateResourceManagerContents(final ResourceManagerHelper rmHelper) throws CoreException {
-    this.fResourceManager.shutdown();
+    this.fResourceManager.stop();
     
     if (this.fRemoteConnBt.isDisposed() || this.fLocalAddressText.isDisposed() || this.fUsePortForwardingBt.isDisposed()) {
       return;
     }
     
     final IResourceManagerControl rmControl = (IResourceManagerControl) this.fResourceManager;
-    final IX10RMConfiguration rmConf = (IX10RMConfiguration) rmControl.getConfiguration();
+    final IX10RMConfiguration rmConf = (IX10RMConfiguration) this.fResourceManager.getConfiguration();
     
-    rmConf.setConnectionName(this.fLaunchConfigName);
+    
     if (this.fRemoteConnBt.getSelection()) {
       rmHelper.createOrUpdateRemoteConnection();
 
@@ -733,15 +734,17 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
         rmConf.setOptions((rmConf.getOptions() & ~IRemoteProxyOptions.STDIO) | IRemoteProxyOptions.PORT_FORWARDING);
       }
       rmConf.setRemoteServicesId(REMOTE_CONN_SERVICE_ID);
+      rmConf.setConnectionName(this.fLaunchConfigName);
     } else {
       final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
       final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(LOCAL_CONN_SERVICE_ID).getConnectionManager();
       try {
-        rmConnManager.newConnection(this.fLaunchConfigName, null /* attributes */);
+        rmConnManager.newConnection(this.fLaunchConfigName);
       } catch (RemoteConnectionException except) {
         // Can't occur with local connection.
       }
       rmConf.setRemoteServicesId(LOCAL_CONN_SERVICE_ID);
+      rmConf.setConnectionName(IRemoteConnectionManager.DEFAULT_CONNECTION_NAME);
     }
   }
   
@@ -753,13 +756,13 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
     
     public void modifyText(final ModifyEvent event) {
       if ((VMsLocationTab.this.fResourceManager != null) &&
-          (VMsLocationTab.this.fResourceManager.getState() == State.STARTING)) {
+          (VMsLocationTab.this.fResourceManager.getState() == IResourceManager.STARTING_STATE)) {
         final Display display = getShell().getDisplay();
         new Thread(new Runnable() {
           
           public void run() {
             try {
-              VMsLocationTab.this.fResourceManager.shutdown();
+              VMsLocationTab.this.fResourceManager.stop();
               display.syncExec(new Runnable() {
 
                 public void run() {
