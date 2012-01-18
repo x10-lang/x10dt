@@ -7,11 +7,13 @@
  *******************************************************************************/
 package x10dt.search.core.pdb;
 
-import java.net.URI;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.pdb.analysis.AnalysisException;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -26,7 +28,6 @@ import org.eclipse.osgi.util.NLS;
 
 import polyglot.visit.NodeVisitor;
 import x10dt.core.utils.IFilter;
-import x10dt.core.utils.URIUtils;
 import x10dt.search.core.Messages;
 import x10dt.search.core.facts.FactWriterFactory;
 
@@ -53,16 +54,18 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
   
   void initWriter(final FactBase factBase, final IFactContext factContext, final IResource resource, 
                   final Set<ITuple> typesToRemove) throws AnalysisException {
-    initWriter();
+    
+	  clearWriter();
+	  initWriter();
     
     final IFactKey key = new FactKey(getType(), factContext);
     if (factBase.getAllKeys().contains(key)) {
-      final URI resourceURI = URIUtils.getExpectedURI(resource.getLocationURI());
+      //final URI resourceURI = URIUtils.getExpectedURI(resource.getLocationURI());
       final IFilter<ITuple> tupleFilter;
       if (resource.getType() == IResource.FILE) {
-        tupleFilter = new FileTupleFilter(resourceURI);
+        tupleFilter = new FileTupleFilter(resource.getFullPath());
       } else {
-        tupleFilter = new ContainerTupleFilter(resourceURI.toString());
+        tupleFilter = new ContainerTupleFilter(resource.getFullPath());
       }
       
       final ISet currentSet = (ISet) factBase.queryFact(key);
@@ -88,39 +91,41 @@ final class AllTypesManager extends AbstractTypeManager implements ITypeManager 
   
   private static final class ContainerTupleFilter implements IFilter<ITuple> {
     
-    ContainerTupleFilter(final String locationURI) {
-      this.fLocationURI = locationURI;
+    ContainerTupleFilter(final IPath path) {
+    	IPath root = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+        this.fPath = root.append(path);
     }
 
     // --- Interface methods implementation
     
     public boolean accepts(final ITuple tuple) {
       final ISourceLocation sourceLoc = (ISourceLocation) tuple.get(1);
-      return sourceLoc.getURI().toString().startsWith(this.fLocationURI);
+      return sourceLoc.getURI().getPath().startsWith(this.fPath.toOSString() + Path.SEPARATOR);
     }
     
     // --- Fields
     
-    private final String fLocationURI;
+    private final IPath fPath;
     
   }
   
   private static final class FileTupleFilter implements IFilter<ITuple> {
     
-    FileTupleFilter(final URI locationURI) {
-      this.fLocationURI = locationURI;
+    FileTupleFilter(final IPath path) {
+      IPath root = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+      this.fPath = root.append(path);
     }
 
     // --- Interface methods implementation
     
     public boolean accepts(final ITuple tuple) {
       final ISourceLocation sourceLoc = (ISourceLocation) tuple.get(1);
-      return sourceLoc.getURI().equals(this.fLocationURI);
+      return sourceLoc.getURI().getPath().equals(this.fPath.toOSString());
     }
     
     // --- Fields
     
-    private final URI fLocationURI;
+    private final IPath fPath;
     
   }
     

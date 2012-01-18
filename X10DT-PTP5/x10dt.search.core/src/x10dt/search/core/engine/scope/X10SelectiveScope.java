@@ -7,12 +7,15 @@
  *******************************************************************************/
 package x10dt.search.core.engine.scope;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
 import org.eclipse.imp.pdb.facts.db.IFactContext;
@@ -34,9 +37,17 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   
   // --- Interface methods implementation
   
-  public boolean contains(final String resourceURI) {
+  private String normalize(String path){
+	  if (!path.endsWith(Path.SEPARATOR + "")){
+		  path += Path.SEPARATOR;
+	  }
+	  return path;
+  }
+  
+  public boolean contains(final URI resourceURI) {
 	    for (final IResource resource : this.fResources) {
-	      if (resourceURI.startsWith(URIUtils.getExpectedURI(resource.getLocationURI()).toString())) {
+	    	String path = normalize(resourceURI.getPath());
+	      if (path.startsWith(normalize(URIUtils.getExpectedURI(resource.getLocationURI()).getPath()))) {
 	        return true;
 	      }
 	    }
