@@ -14,6 +14,8 @@ import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.model.ModelFactory;
@@ -38,6 +40,14 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   // --- Interface methods implementation
   
   private String normalize(String path){
+	  IPath root = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+	  String rootString = root.toOSString();
+	  if (!rootString.endsWith(Path.SEPARATOR + "")){
+		  rootString += Path.SEPARATOR;
+	  }
+	  if (!path.startsWith(rootString)){
+		  path = rootString + path;
+	  }
 	  if (!path.endsWith(Path.SEPARATOR + "")){
 		  path += Path.SEPARATOR;
 	  }
@@ -47,7 +57,7 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   public boolean contains(final URI resourceURI) {
 	    for (final IResource resource : this.fResources) {
 	    	String path = normalize(resourceURI.getPath());
-	      if (path.startsWith(normalize(URIUtils.getExpectedURI(resource.getLocationURI()).getPath()))) {
+	      if (path.startsWith(normalize(resource.getLocation().toOSString()))) {
 	        return true;
 	      }
 	    }
