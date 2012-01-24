@@ -40,8 +40,11 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   // --- Interface methods implementation
   
   private String normalize(String path){
+	  if (path.startsWith("/C:/")) { // --- HACK
+		  path  = path.substring(1);
+	  }
 	  IPath root = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-	  String rootString = root.toOSString();
+	  String rootString = root.toString();
 	  if (!rootString.endsWith(Path.SEPARATOR + "")){
 		  rootString += Path.SEPARATOR;
 	  }
@@ -57,7 +60,7 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   public boolean contains(final URI resourceURI) {
 	    for (final IResource resource : this.fResources) {
 	    	String path = normalize(resourceURI.getPath());
-	      if (path.startsWith(normalize(resource.getLocation().toOSString()))) {
+	      if (path.startsWith(normalize(resource.getLocation().toString()))) {
 	        return true;
 	      }
 	    }
