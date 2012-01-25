@@ -41,7 +41,9 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   // --- Interface methods implementation
   
   private String normalize(String path){
-	 
+	  if (!path.startsWith(Path.SEPARATOR + "")){
+		  path  = Path.SEPARATOR + path;
+	  }
 	  if (!path.endsWith(Path.SEPARATOR + "")){
 		  path += Path.SEPARATOR;
 	  }
