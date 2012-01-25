@@ -9,6 +9,7 @@ package x10dt.search.core.engine.scope;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -40,17 +41,7 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   // --- Interface methods implementation
   
   private String normalize(String path){
-	  if (path.startsWith("/C:/")) { // --- HACK
-		  path  = path.substring(1);
-	  }
-	  IPath root = ResourcesPlugin.getWorkspace().getRoot().getLocation();
-	  String rootString = root.toString();
-	  if (!rootString.endsWith(Path.SEPARATOR + "")){
-		  rootString += Path.SEPARATOR;
-	  }
-	  if (!path.startsWith(rootString)){
-		  path = rootString + path;
-	  }
+	 
 	  if (!path.endsWith(Path.SEPARATOR + "")){
 		  path += Path.SEPARATOR;
 	  }
@@ -59,8 +50,10 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   
   public boolean contains(final URI resourceURI) {
 	    for (final IResource resource : this.fResources) {
-	    	String path = normalize(resourceURI.getPath());
-	      if (path.startsWith(normalize(resource.getLocation().toString()))) {
+	    	String path = normalize(URIUtils.getExpectedURI(resourceURI).toString());
+	    	String resourcePath = normalize(URIUtils.getExpectedURI(resource.getLocationURI()).toString());
+	    	
+	      if (path.startsWith(resourcePath)){
 	        return true;
 	      }
 	    }
