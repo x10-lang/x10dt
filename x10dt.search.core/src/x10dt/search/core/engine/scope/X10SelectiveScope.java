@@ -50,8 +50,8 @@ final class X10SelectiveScope extends AbstractX10SearchScope implements IX10Sear
   
   public boolean contains(final URI resourceURI) {
 	    for (final IResource resource : this.fResources) {
-	    	String path = normalize(URIUtils.getExpectedURI(resourceURI).toString());
-	    	String resourcePath = normalize(URIUtils.getExpectedURI(resource.getLocationURI()).toString());
+	    	String path = normalize(URIUtils.getExpectedURI(resourceURI).getPath());
+	    	String resourcePath = normalize(resource.getLocation().toString());
 	    	
 	      if (path.startsWith(resourcePath)){
 	        return true;
