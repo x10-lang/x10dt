@@ -219,18 +219,12 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
         command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(projectDep.toOSString()));
       }
       command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(mainCppFileIncludePath));
-      for (final String headerLoc : cppCompConf.getX10HeadersLocations(connConf.isLocal())) {
-        command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(headerLoc));
-      }
       command.add(this.fTargetOpHelper.getTargetSystemPath(mainX10FilePath));
       command.add("-o"); //$NON-NLS-1$
       command.add(this.fTargetOpHelper.getTargetSystemPath(this.fExecPath));
       command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
       for (final IPath projectDep: projectDeps){
         command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(projectDep.toOSString()));
-      }
-      for (final String libLoc : cppCompConf.getX10LibsLocations(connConf.isLocal())) {
-        command.add(LIB_OPT + this.fTargetOpHelper.getTargetSystemPath(libLoc));
       }
       command.add("-l" + project.getName()); //$NON-NLS-1$
       for (final String projectDep: AbstractX10Builder.getProjectDependenciesNames(javaProject)){

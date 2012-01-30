@@ -216,9 +216,6 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         for (final IPath projectDep: AbstractX10Builder.getProjectDependencies(fJavaProject)){
           command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(projectDep.toOSString()));
         }
-        for (final String headerLoc : this.fPlatformConf.getCppCompilationConf().getX10HeadersLocations(this.fIsLocal)) {
-          command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(headerLoc));
-        }
         command.add("-c"); //$NON-NLS-1$
         command.add(this.fTargetOpHelper.getTargetSystemPath(entry.getValue()));
         command.add("-o"); //$NON-NLS-1$
