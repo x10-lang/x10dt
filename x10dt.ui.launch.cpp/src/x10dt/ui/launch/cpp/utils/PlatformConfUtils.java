@@ -100,7 +100,8 @@ public final class PlatformConfUtils {
       return ETransport.STANDALONE;
     } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       return ETransport.SOCKETS;
-    } else if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+    } else if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(serviceTypeId) ||
+               PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
       return ETransport.PAMI;
     } else {
       return (targetOS == ETargetOS.AIX) ? ETransport.LAPI : ETransport.MPI;
