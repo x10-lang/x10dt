@@ -48,9 +48,11 @@ import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 
 final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart implements ICITypeConfigurationPart {
   
-  LoadLevelerTypeConfigPart(final IIBMLLResourceManagerConfiguration rmConf) {
-    this.fRMConf = rmConf;
-  }
+//  LoadLevelerTypeConfigPart(final IIBMLLResourceManagerConfiguration rmConf) {
+//    this.fRMConf = rmConf;
+//  }
+  
+  LoadLevelerTypeConfigPart() {}
              
   // --- Interface methods implementation
   
@@ -169,7 +171,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     ec.setClient(ecCompo);
     
     final IX10PlatformConfWorkCopy x10PlatformConf = formPart.getPlatformConf();
-    initConfiguration(x10PlatformConf, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf());
+    //initConfiguration(x10PlatformConf, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf());
     initializeControls(formPart, (ILoadLevelerConf) x10PlatformConf.getCommunicationInterfaceConf(), proxyExecPathText, 
                        launchServerManuallyBt, multiClusterCombo, nodePollingMinSp, nodePollingMaxSp, 
                        jobPollingSp, alternateLibPathText, pair.second, traceBt, infoBt, warningBt, errorBt, fatalBt, argsBt,
@@ -389,7 +391,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     });
   }
   
-  private void initConfiguration(final IX10PlatformConfWorkCopy platformConf, final ILoadLevelerConf ciConf) {
+  /*private void initConfiguration(final IX10PlatformConfWorkCopy platformConf, final ILoadLevelerConf ciConf) {
     if (ciConf.getProxyServerPath().length() == 0) {
       platformConf.setProxyServerPath(LOAD_LEVELER_SERVICE_PROVIDER_ID, this.fRMConf.getProxyServerPath());
     }
@@ -402,7 +404,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
     if (ciConf.getJobPolling() == 0) {
       platformConf.setJobPolling(LOAD_LEVELER_SERVICE_PROVIDER_ID, this.fRMConf.getJobPolling());
     }
-  }
+  }*/
   
   private void initializeControls(final AbstractCommonSectionFormPart formPart, final ILoadLevelerConf ciConf, 
                                   final Text proxyExecPathText, final Button launchServerManuallyBt, 
@@ -499,7 +501,7 @@ final class LoadLevelerTypeConfigPart extends AbstractCITypeConfigurationPart im
   
   // --- Fields
   
-  private final IIBMLLResourceManagerConfiguration fRMConf;
+ // private final IIBMLLResourceManagerConfiguration fRMConf;
   
   private final Collection<Button> fBrowseBts = new ArrayList<Button>(2);
 

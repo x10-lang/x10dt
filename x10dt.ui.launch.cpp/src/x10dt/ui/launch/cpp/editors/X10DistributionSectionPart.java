@@ -170,7 +170,7 @@ final class X10DistributionSectionPart extends AbstractCommonSectionFormPart
         transportName = ETransport.MPI.name().toLowerCase();
       } else if (PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(serviceTypeId) ||
                  LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
-        transportName = ETransport.LAPI.name().toLowerCase();
+        transportName = ETransport.PAMI.name().toLowerCase();
       } else if (PAMI_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
         transportName = ETransport.PAMI.name().toLowerCase();
       } else {
