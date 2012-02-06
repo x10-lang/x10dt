@@ -116,7 +116,7 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
 
     public void read(final String line) {
       if (line.startsWith(XLC_VERSION_LINE_START)) {
-        this.fVersionLine = line.substring(XLC_VERSION_LINE_START.length() + 1);
+        this.fVersionLine = line.substring(XLC_VERSION_LINE_START.length());
       }
     }
     
@@ -139,7 +139,7 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
           final int build = Integer.parseInt(matcher.group(4));
           if ((major >= 10) && (minor >= 1) && (maintenance >= 0)) {
             if (CppCompilerVersionCheker.this.fTargetOS == ETargetOS.AIX) {
-              if (build < 4) {
+              if (major == 10 && build< 4) {
                 addMessages(LaunchMessages.CCVC_WrongAIXVersionRequirement, IMessageProvider.ERROR);
                 return false;
               } else {
@@ -147,7 +147,7 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
               }
             } else if ((CppCompilerVersionCheker.this.fTargetOS == ETargetOS.LINUX) &&
                        (CppCompilerVersionCheker.this.fArchitecture != EArchitecture.x86)) {
-              if (build < 2) {
+              if (major == 10 && build < 2) {
                 addMessages(LaunchMessages.CCVC_WrongLinuxPPCVersionRequirement, IMessageProvider.ERROR);
                 return false;
               } else {
