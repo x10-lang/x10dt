@@ -7,6 +7,7 @@
  *****************************************************************************/
 package x10dt.ui.launch.core.utils;
 
+import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -27,6 +30,11 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.builder.ClasspathJar;
+import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.osgi.util.NLS;
 
 import x10dt.core.utils.IFilter;
@@ -122,19 +130,21 @@ public final class ProjectUtils {
   
   private ProjectUtils() {}
   
+
   private static <T> void collectCpEntries(final Set<T> container, final IClasspathEntry cpEntry, final IWorkspaceRoot root, 
                                            final IFilter<IPath> libFilter, 
                                            final IFunctor<IPath, T> functor,
                                            final IProject project) throws JavaModelException {
     switch (cpEntry.getEntryKind()) {
       case IClasspathEntry.CPE_SOURCE:
-        container.add(functor.apply(getAbsolutePath(root, cpEntry.getPath())));
+        container.add(functor.apply(makeAbsolutePath(root, cpEntry.getPath())));
         break;
         
       case IClasspathEntry.CPE_LIBRARY:
     	IPath path = cpEntry.getPath();
         if (libFilter.accepts(path)) {
-          container.add(functor.apply(makeAbsolute(path, project)));
+          IPath absolutePath = makeAbsolutePath(root, path);
+          container.add(functor.apply(absolutePath));
         }
         break;
       
@@ -154,21 +164,17 @@ public final class ProjectUtils {
         throw new IllegalArgumentException(NLS.bind(Messages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryKind()));
     }
   }
-  
-  private static IPath getAbsolutePath(final IWorkspaceRoot root, final IPath path) {
-    if (path.isRoot()) {
+
+  private static IPath makeAbsolutePath(final IWorkspaceRoot root, IPath path) {
+    Object target = JavaModel.getTarget(path, true);
+
+    if (target instanceof IResource) {
+      return ((IResource) target).getLocation();
+    } else if(path.isAbsolute()) {
       return path;
     } else {
       return root.getLocation().append(path);
     }
-  }
-  
-  private static IPath makeAbsolute(IPath path, IProject project){
-    IPath projectPath = (new Path(project.getName())).makeAbsolute();
-    if (projectPath.isPrefixOf(path)){
-        path = project.getLocation().removeLastSegments(1).append(path);
-    }
-    return path;
   }
   
 }

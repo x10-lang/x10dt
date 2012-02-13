@@ -23,16 +23,19 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import lpg.runtime.Monitor;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.quickfix.IAnnotation;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
@@ -43,6 +46,8 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.osgi.util.NLS;
 
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
@@ -131,9 +136,13 @@ public class CompilerDelegate {
     }
     
 	private boolean isX10Project() {
+		return isX10Project(fX10Project);
+	}
+	
+	private static boolean isX10Project(IJavaProject project) {
 		try {
-			return fX10Project.getProject().hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID) ||
-			       fX10Project.getProject().hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
+			return project.getProject().hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID) ||
+			       project.getProject().hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
 		} catch (CoreException e) {
 			X10DTUIPlugin.log(e);
 			return false;
@@ -348,55 +357,111 @@ public class CompilerDelegate {
         // System.out.println("Source path = " + opts.source_path);
         // System.out.println("Class path = " + opts.classpath);
     }
-
-    private String buildClassPathSpec() {
-        StringBuffer buff= new StringBuffer();
-        boolean hasRuntime= false;
-        boolean runtimeValid= false;
-
-        if (fX10Project == null) {
-            return getRuntimePath();
+    
+    private static IPath makeAbsolutePath(final IWorkspaceRoot root, IPath path) {
+        Object target = JavaModel.getTarget(path, true);
+        
+        if (target instanceof IResource) {
+            return ((IResource) target).getLocation();
+        } else if(path.isAbsolute()) {
+        	return path;
+        } else {
+        	return root.getLocation().append(path);
         }
-        if (!isX10Project()) {
-        	return ".";
-        }
-
-        try {
-            IClasspathEntry[] classPath= (fX10Project != null) ? fX10Project.getResolvedClasspath(true) : new IClasspathEntry[0];
-
-            buff.append(fX10Project.getProject().getLocation().append("bin-java").toOSString());
-           
-            for(int i= 0; i < classPath.length; i++) {
-                IClasspathEntry entry= classPath[i];
-                String entryPath= entry.getPath().toOSString();
-                String projectPath = (new Path(fX10Project.getProject().getName())).makeAbsolute().toOSString();
-            	if (entryPath.startsWith(projectPath)){
-            		entryPath = fX10Project.getProject().getLocation().removeLastSegments(1).append(entryPath).toOSString();
-            	}
-               
-            	buff.append(File.pathSeparatorChar);
-                if (!entryPath.endsWith("src-java")){
-                	buff.append(entryPath);
-                }
-
-                if (entryPath.contains(X10BundleUtils.X10_RUNTIME_BUNDLE_ID)) {//PORT1.7 use constant
-                    hasRuntime= true;
-                    if (new File(entryPath).exists())
-                        runtimeValid= true;
-                }
-            }
-            if (!hasRuntime || !runtimeValid) {
-                if (buff.length() > 0)
-                    buff.append(File.pathSeparatorChar);
-                buff.append(getRuntimePath());
-            }
-            
-        } catch (JavaModelException e) {
-            X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
-        }
-        return buff.toString();
+      }
+    
+    private static IPath getOutputLocation(IClasspathEntry cpEntry, IJavaProject project) throws JavaModelException {
+    	IPath specificPath = cpEntry.getOutputLocation();
+    	if(specificPath != null) {
+    		return specificPath;
+    	} else {
+    		return project.getOutputLocation();
+    	}
     }
 
+    /**
+     * Build a class path string for a project
+     * @param project The root project to start with
+     * @param buff Accumulates the classpath into this buffer
+     * @throws JavaModelException
+     */
+    private static void buildClassPathSpec(final IWorkspaceRoot root, IJavaProject rootProject, IJavaProject project, Set<IPath> container) throws JavaModelException {
+    	if(project == null) {
+    		return;
+    	}
+
+    	IClasspathEntry[] classPath = project.getResolvedClasspath(true);
+    	for(IClasspathEntry cpEntry : classPath) {
+    		switch (cpEntry.getEntryKind()) {
+    	      case IClasspathEntry.CPE_SOURCE:
+    	    	  if(isX10Project(project)) {
+    	    		  IPath outputPath = getOutputLocation(cpEntry, project);
+    	    		  if(outputPath.lastSegment().equals("bin-java")) {
+    	    			  container.add(makeAbsolutePath(root, outputPath));
+    	    		  } else {
+    	    			  container.add(makeAbsolutePath(root, cpEntry.getPath()));
+    	    		  }
+    	    	  } else {
+    	    		  container.add(makeAbsolutePath(root, getOutputLocation(cpEntry, project)));
+    	    	  }
+    	      break;
+    	        
+    	      case IClasspathEntry.CPE_LIBRARY:
+    	    	IPath path = makeAbsolutePath(root, cpEntry.getPath());
+    	    	container.add(path);
+    	        break;
+    	      
+    	      case IClasspathEntry.CPE_PROJECT:
+    	        final IResource resource = root.findMember(cpEntry.getPath());
+    	        if (resource == null) {
+    	        	X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + cpEntry.getPath());
+    	        } else {
+    	          final IJavaProject refProject = JavaCore.create((IProject) resource);
+    	          for (final IClasspathEntry newCPEntry : refProject.getResolvedClasspath(true)) {
+    	            buildClassPathSpec(root, rootProject, refProject, container);
+    	          }
+    	        }
+    	        break;
+    	        
+    	      default:
+  	        	X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path kind: " + cpEntry.getEntryKind());
+    	    }
+    	}	
+    }
+    
+    private String buildClassPathSpec() {
+    	final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+    	Set<IPath> container = new HashSet<IPath>();
+
+    	try {
+    		buildClassPathSpec(root, fX10Project, fX10Project, container);
+    		URL x10RuntimeURL = null;
+    		try {
+    			x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
+    		} catch (CoreException e) {
+    		}
+
+    		if(x10RuntimeURL != null) {
+    			container.add(new Path(x10RuntimeURL.getPath()));
+    		}
+    	} catch (JavaModelException e) {
+    		X10DTCorePlugin.getInstance().writeErrorMsg("Error resolving class path: " + e.getMessage());
+    	}
+
+    	StringBuffer buff= new StringBuffer();
+    	boolean needsDelimiter = false;
+    	for(IPath path : container) {
+    		if(needsDelimiter) {
+    			buff.append(File.pathSeparatorChar);
+    		} else {
+    			needsDelimiter = true;
+    		}
+    		buff.append(path.toOSString());
+    	}
+    	return buff.toString(); 
+    }
+
+    
     /**
      * Find and return the location of the X10 runtime, to be used as part of the
      * compiler's search path when editing files (like the XRX sources themselves)
