@@ -76,8 +76,9 @@ public final class X10CppBuilder extends AbstractX10Builder {
   }
   
   protected String getSrcClassPath(List<File> sourcePath) throws CoreException {
+    StringBuffer pathBuffer = new StringBuffer();
     final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
-        new AlwaysTrueFilter<IPath>());
+        new AlwaysTrueFilter<IPath>(), pathBuffer);
 
     final StringBuilder cpBuilder = new StringBuilder();
     int i = -1;
@@ -89,10 +90,10 @@ public final class X10CppBuilder extends AbstractX10Builder {
     }
 
     final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
-            new RuntimeFilter());
+            new RuntimeFilter(), new StringBuffer());
 
     sourcePath.addAll(CollectionUtils.transform(srcPaths, new IPathToFileFunc()));
-    return cpBuilder.toString();
+    return pathBuffer.toString();
 
   }
   

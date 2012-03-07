@@ -37,8 +37,10 @@ import org.eclipse.jdt.internal.core.builder.ClasspathJar;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.osgi.util.NLS;
 
+import x10dt.core.X10DTCorePlugin;
 import x10dt.core.utils.IFilter;
 import x10dt.core.utils.URIUtils;
+import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 
@@ -82,11 +84,11 @@ public final class ProjectUtils {
    * list. More precisely, CPE_VARIABLE and CPE_CONTAINER should not be encountered.
    */
   public static <T> Set<T> getFilteredCpEntries(final IJavaProject jProject, final IFunctor<IPath, T> cpEntryFunctor,
-                                                final IFilter<IPath> libFilter) throws JavaModelException {
+                                                final IFilter<IPath> libFilter, StringBuffer pathBuffer) throws JavaModelException {
     final Set<T> container = new HashSet<T>();
     final IWorkspaceRoot root = jProject.getResource().getWorkspace().getRoot();
     for (final IClasspathEntry cpEntry : jProject.getResolvedClasspath(true)) {
-      collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor, jProject.getProject());
+      collectCpEntries(container, cpEntry, root, libFilter, cpEntryFunctor, jProject.getProject(), pathBuffer);
     }
     return container;
   }
@@ -134,20 +136,32 @@ public final class ProjectUtils {
   private static <T> void collectCpEntries(final Set<T> container, final IClasspathEntry cpEntry, final IWorkspaceRoot root, 
                                            final IFilter<IPath> libFilter, 
                                            final IFunctor<IPath, T> functor,
-                                           final IProject project) throws JavaModelException {
+                                           final IProject project,
+                                           StringBuffer pathBuffer) throws JavaModelException {
+    final IJavaProject javaProject = JavaCore.create(project);
     switch (cpEntry.getEntryKind()) {
       case IClasspathEntry.CPE_SOURCE:
-        container.add(functor.apply(makeAbsolutePath(root, cpEntry.getPath())));
-        break;
-        
-      case IClasspathEntry.CPE_LIBRARY:
-    	IPath path = cpEntry.getPath();
-        if (libFilter.accepts(path)) {
-          IPath absolutePath = makeAbsolutePath(root, path);
-          container.add(functor.apply(absolutePath));
+        if(isX10Project(javaProject)) {
+          IPath outputPath = getOutputLocation(cpEntry, javaProject);
+          if(outputPath.lastSegment().equals("bin-java")) {
+            appendNew(functor, container, pathBuffer, makeAbsolutePath(root, outputPath));
+
+          } else {
+            appendNew(functor, container, pathBuffer, makeAbsolutePath(root, cpEntry.getPath()));
+          }
+        } else {
+          appendNew(functor, container, pathBuffer, makeAbsolutePath(root, getOutputLocation(cpEntry, javaProject)));
         }
         break;
-      
+
+      case IClasspathEntry.CPE_LIBRARY:
+        IPath path = cpEntry.getPath();
+        if (libFilter.accepts(path)) {
+          IPath absolutePath = makeAbsolutePath(root, path);
+          appendNew(functor, container, pathBuffer, absolutePath);
+        }
+        break;
+
       case IClasspathEntry.CPE_PROJECT:
         final IResource resource = root.findMember(cpEntry.getPath());
         if (resource == null) {
@@ -155,7 +169,7 @@ public final class ProjectUtils {
         } else {
           final IJavaProject refProject = JavaCore.create((IProject) resource);
           for (final IClasspathEntry newCPEntry : refProject.getResolvedClasspath(true)) {
-            collectCpEntries(container, newCPEntry, root, libFilter, functor, project);
+            collectCpEntries(container, newCPEntry, root, libFilter, functor, (IProject) resource, pathBuffer);
           }
         }
         break;
@@ -164,7 +178,36 @@ public final class ProjectUtils {
         throw new IllegalArgumentException(NLS.bind(Messages.JPU_UnexpectedEntryKindMsg, cpEntry.getEntryKind()));
     }
   }
-
+  
+  private static boolean isX10Project(IJavaProject project) {
+    try {
+        return project.getProject().hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID) ||
+               project.getProject().hasNature(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
+    } catch (CoreException e) {
+        X10DTUIPlugin.log(e);
+        return false;
+    }
+}
+  
+  private static IPath getOutputLocation(IClasspathEntry cpEntry, IJavaProject project) throws JavaModelException {
+    IPath specificPath = cpEntry.getOutputLocation();
+    if(specificPath != null) {
+        return specificPath;
+    } else {
+        return project.getOutputLocation();
+    }
+}
+  
+  private static <T> void appendNew(final IFunctor<IPath, T> functor, Set<T> container, StringBuffer pathBuffer, IPath path) {
+    final T pathT = functor.apply(path);
+    if(! container.contains(pathT)) {
+      container.add(pathT);
+      if(pathBuffer.length() > 0) {
+        pathBuffer.append(File.pathSeparatorChar);
+      }
+      pathBuffer.append(path.toOSString());
+    }
+  }
   private static IPath makeAbsolutePath(final IWorkspaceRoot root, IPath path) {
     Object target = JavaModel.getTarget(path, true);
 

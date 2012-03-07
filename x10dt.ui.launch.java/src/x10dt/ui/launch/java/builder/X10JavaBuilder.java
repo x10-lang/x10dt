@@ -83,25 +83,17 @@ public class X10JavaBuilder extends AbstractX10Builder {
 	  }
 	  
 	protected String getSrcClassPath(List<File> sourcePath) throws CoreException{
+		StringBuffer bufferPath = new StringBuffer();
 		final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
-		        new AlwaysTrueFilter<IPath>());
+		        new AlwaysTrueFilter<IPath>(), bufferPath);
 		    
-		removeSrcJava(srcPaths);
-			
+		// removeSrcJava(srcPaths);
+		// TODO: I should have threaded a list around	
 		sourcePath.addAll(CollectionUtils.transform(srcPaths, new IPathToFileFunc()));
 		    
 		final List<String> cps = CollectionUtils.transform(srcPaths, new CpEntryAsStringFunc());
 		    
-		final StringBuilder cpBuilder = new StringBuilder();
-		int i = -1;
-		for (final String cpEntry : cps) {
-			if (++i > 0) {
-		        cpBuilder.append(File.pathSeparatorChar);
-		    }
-		    cpBuilder.append(cpEntry);
-		}
-		    
-		return cpBuilder.toString();
+		return bufferPath.toString();
 
 	}
 }
