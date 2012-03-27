@@ -22,7 +22,10 @@ import polyglot.ast.Block;
 import polyglot.ast.Formal;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
 import polyglot.ast.Stmt;
+import polyglot.frontend.Job;
+import polyglot.types.TypeSystem;
 import x10.ast.Async;
 import x10.ast.Finish;
 import x10.ast.ForLoop;
@@ -114,14 +117,15 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
     @Override
     public RefactoringStatus checkFinalConditions(IProgressMonitor pm) throws CoreException, OperationCanceledException {
         try {
-            IParseController pc= ((IASTFindReplaceTarget) fEditor).getParseController();
-            CompilerDelegate cd= ((ParseController) pc).getCompiler();
-            ExtensionInfo extInfo = cd.getExtInfo();
             Stmt loopBody = fLoop.body();
             X10Formal loopVar = (X10Formal) fLoop.formal();
             List<Formal> explodedVars= loopVar.vars();
-
-            ReachingDefsVisitor rdVisitor = new ReachingDefsVisitor(fContainingMethod, null, extInfo.typeSystem(), extInfo.nodeFactory());
+            
+            TypeSystem ts = loopVar.type().type().typeSystem();
+            polyglot.frontend.ExtensionInfo ext = ts.extensionInfo();
+            NodeFactory nf= ext.nodeFactory();
+            Job job = new Job(ext, null, fSourceAST.source(), fSourceAST);
+            ReachingDefsVisitor rdVisitor = new ReachingDefsVisitor(fContainingMethod, job, ts, nf);
             fContainingMethod.visit(rdVisitor);
 
             EffectsVisitor effVisitor= new EffectsVisitor(rdVisitor.getReachingDefs(), fContainingMethod);
