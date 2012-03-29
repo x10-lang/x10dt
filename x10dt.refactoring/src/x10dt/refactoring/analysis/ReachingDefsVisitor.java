@@ -166,6 +166,7 @@ public class ReachingDefsVisitor extends DataFlow {
         } else if (t instanceof LocalDecl) {
             LocalDecl localDecl = (LocalDecl) t;
             if (localDecl.init() != null) {
+                result.kill(localDecl.varDef());
                 result.defineValue(localDecl.varDef(), localDecl.init());
             }
         } else if (t instanceof ForLoop) {
