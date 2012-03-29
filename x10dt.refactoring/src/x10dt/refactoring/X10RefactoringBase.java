@@ -24,6 +24,9 @@ import polyglot.ast.Block;
 import polyglot.ast.Node;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Stmt;
+import polyglot.ast.TypeNode;
+import polyglot.types.TypeSystem;
+import polyglot.visit.NodeVisitor;
 import x10.ast.X10MethodDecl;
 import x10dt.refactoring.utils.NodePathComputer;
 
@@ -127,6 +130,33 @@ public abstract class X10RefactoringBase extends Refactoring {
             result.add(containingNode);
         }
         return result;
+    }
+    
+    protected TypeSystem getTypeSystem() {
+        if (fContainingMethod != null) {
+            return fContainingMethod.returnType().type().typeSystem();
+        }
+        final TypeSystem[] result = new TypeSystem[1];
+        final NodeVisitor searcher = new NodeVisitor() {
+            public NodeVisitor enter(Node n) {
+                if (n instanceof TypeNode) {
+                    result[0] = ((TypeNode) n).type().typeSystem();
+                }
+                return this;
+            }
+        };
+        if (fSelNodes != null) {
+            for (Node n : fSelNodes) {
+                n.visit(searcher);
+                if (result[0] != null) return result[0];
+            }
+        }
+        if (fSourceAST != null) {
+            fSourceAST.visit(searcher);
+            if (result[0] != null) return result[0];            
+        }
+        
+        throw new UnsupportedOperationException("getTypeSystem: Can't find a typesystem!");
     }
 
     // ===========================

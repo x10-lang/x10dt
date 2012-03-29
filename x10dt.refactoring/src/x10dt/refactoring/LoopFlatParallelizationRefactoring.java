@@ -121,7 +121,7 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
             X10Formal loopVar = (X10Formal) fLoop.formal();
             List<Formal> explodedVars= loopVar.vars();
             
-            TypeSystem ts = loopVar.type().type().typeSystem();
+            TypeSystem ts = getTypeSystem();
             polyglot.frontend.ExtensionInfo ext = ts.extensionInfo();
             NodeFactory nf= ext.nodeFactory();
             Job job = new Job(ext, null, fSourceAST.source(), fSourceAST);
