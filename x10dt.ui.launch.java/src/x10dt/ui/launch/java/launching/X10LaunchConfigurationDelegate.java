@@ -246,7 +246,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
           return true;
         }
       } else {
-        if (file.getAbsolutePath().endsWith(mainTypeFileName)) {
+        if (file.getPath().endsWith(mainTypeFileName)) {
           return true;
         }
       }
@@ -446,7 +446,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
   private File getWorkingDir(final ILaunchConfiguration configuration,
                              final IJavaProject javaProject, final String mainTypeName) throws CoreException {
     final IPath workDirPath = this.fLocalConfDelegate.getWorkingDirectoryPath(configuration);
-    final String mainTypeFileName = mainTypeName.replace('.', '/').concat(Constants.CLASS_EXT);
+    final String mainTypeFileName = mainTypeName.replace('.', File.separatorChar).concat(Constants.CLASS_EXT);
     if (workDirPath == null) {
       for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
         if ((cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) && (cpEntry.getOutputLocation() != null)) {
