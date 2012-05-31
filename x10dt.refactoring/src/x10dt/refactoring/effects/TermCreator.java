@@ -26,6 +26,7 @@ import polyglot.ast.Special;
 import polyglot.ast.StringLit;
 import polyglot.ast.Unary;
 import polyglot.types.FieldInstance;
+import polyglot.types.LocalDef;
 import polyglot.types.Qualifier;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -127,7 +128,7 @@ public class TermCreator {
                         fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(local)));
                     }
                     */
-                    fTermMap.put(old, new XLocal(local));
+                    fTermMap.put(old, new XLocal(local.localInstance().def()));
                     
                 } else if (old instanceof Binary) {
                     Binary binary = (Binary) old;
@@ -168,9 +169,9 @@ public class TermCreator {
                     fTermMap.put(old, XTerms.makeFakeField((XVar) fTermMap.get(target), fi.def()));
                 } else if (old instanceof LocalAssign) {
                     LocalAssign la= (LocalAssign) old;
-                    Local l= la.local();
+                    LocalDef ld= la.local().localInstance().def();
 
-                    fTermMap.put(old, new XLocal(l));
+                    fTermMap.put(old, new XLocal(ld));
                 } else if (old instanceof Special) {
                     Special special = (Special) old;
                     if (special.kind() == Special.SUPER) {

@@ -153,8 +153,8 @@ public class EffectsVisitor extends NodeVisitor {
 
     private Locs computeLocFor(Expr expr) {
         if (expr instanceof Local) {
-            Local local= (Local) expr;
-            LocalLocs ll= Effects.makeLocalLocs(new XLocal(local));
+            LocalDef ld= ((Local) expr).localInstance().def();
+            LocalLocs ll= Effects.makeLocalLocs(new XLocal(ld));
             return ll;
         } else if (expr instanceof Field) {
             Field field= (Field) expr;
@@ -246,13 +246,12 @@ public class EffectsVisitor extends NodeVisitor {
     // ============
     private Effect computeEffect(LocalAssign la) throws XFailure {
         Effect result= null;
-        Local l= la.local();
-        X10LocalInstance li= (X10LocalInstance) l.localInstance();
+        LocalDef ld= la.local().localInstance().def();
         Expr rhs= la.right();
 
         Effect rhsEff= fEffects.get(rhs);
         Effect writeEff= Effects.makeEffect(Effects.FUN);
-        writeEff.addWrite(Effects.makeLocalLocs(new XLocal(l)));
+        writeEff.addWrite(Effects.makeLocalLocs(new XLocal(ld)));
         result= followedBy(rhsEff, writeEff);
         return result;
     }
@@ -314,7 +313,7 @@ public class EffectsVisitor extends NodeVisitor {
     // ============
     private Effect computeEffect(Local local) {
         Effect result= Effects.makeEffect(Effects.FUN);
-        result.addRead(Effects.makeLocalLocs(new XLocal(local)));
+        result.addRead(Effects.makeLocalLocs(new XLocal(local.localInstance().def())));
         return result;
     }
 
