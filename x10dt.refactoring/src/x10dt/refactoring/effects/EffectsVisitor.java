@@ -110,7 +110,7 @@ public class EffectsVisitor extends NodeVisitor {
         for(Node node: nodes) {
             result= followedBy(result, fEffects.get(node));
         }
-        return result;
+        return result == null ? Effects.makeEffect(Effects.FUN) : result;
     }
 
     // ====================================================
