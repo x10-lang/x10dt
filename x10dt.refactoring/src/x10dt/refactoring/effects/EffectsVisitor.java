@@ -58,6 +58,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
+import x10.types.constraints.ConstraintManager;
 import x10dt.refactoring.X10DTRefactoringPlugin;
 import x10dt.refactoring.analysis.ReachingDefsVisitor.ValueMap;
 
@@ -154,7 +155,7 @@ public class EffectsVisitor extends NodeVisitor {
     private Locs computeLocFor(Expr expr) {
         if (expr instanceof Local) {
             LocalDef ld= ((Local) expr).localInstance().def();
-            LocalLocs ll= Effects.makeLocalLocs(new XLocal(ld));
+            LocalLocs ll= Effects.makeLocalLocs(ConstraintManager.getConstraintSystem().makeLocal(ld));
             return ll;
         } else if (expr instanceof Field) {
             Field field= (Field) expr;
@@ -251,7 +252,7 @@ public class EffectsVisitor extends NodeVisitor {
 
         Effect rhsEff= fEffects.get(rhs);
         Effect writeEff= Effects.makeEffect(Effects.FUN);
-        writeEff.addWrite(Effects.makeLocalLocs(new XLocal(ld)));
+        writeEff.addWrite(Effects.makeLocalLocs(ConstraintManager.getConstraintSystem().makeLocal(ld)));
         result= followedBy(rhsEff, writeEff);
         return result;
     }
@@ -303,7 +304,7 @@ public class EffectsVisitor extends NodeVisitor {
     private Locs computeLocFor(VarDecl vd) {
         if (vd instanceof LocalDecl) {
             LocalDecl localDecl = (LocalDecl) vd;
-            return Effects.makeLocalLocs(new XLocal(localDecl.varDef()));
+            return Effects.makeLocalLocs(ConstraintManager.getConstraintSystem().makeLocal(localDecl.varDef()));
         }
         throw new UnsupportedOperationException("Don't know how to make a Locs for " + vd);
     }
@@ -313,7 +314,7 @@ public class EffectsVisitor extends NodeVisitor {
     // ============
     private Effect computeEffect(Local local) {
         Effect result= Effects.makeEffect(Effects.FUN);
-        result.addRead(Effects.makeLocalLocs(new XLocal(local.localInstance().def())));
+        result.addRead(Effects.makeLocalLocs(ConstraintManager.getConstraintSystem().makeLocal(local.localInstance().def())));
         return result;
     }
 
@@ -447,7 +448,7 @@ public class EffectsVisitor extends NodeVisitor {
         // It isn't quite correct to use universal quantification for that...
         Formal loopVar= forLoop.formal();
 
-        return bodyEff.forall(new XLocal(loopVar.localDef()));
+        return bodyEff.forall(ConstraintManager.getConstraintSystem().makeLocal(loopVar.localDef()));
     }
 
     private Effect computeEffect(Block b) throws XFailure {
@@ -474,9 +475,9 @@ public class EffectsVisitor extends NodeVisitor {
 //            if (((Flags) ld.flags().flags()).isValue()) {
 //                Expr init= ld.init();
 //                XTerm initTerm= createTermForExpr(init);
-//                result= result.exists(new XLocal(localDef), initTerm);
+//                result= result.exists(ConstraintManager.getConstraintSystem().mkLocal(localDef), initTerm);
 //            } else {
-                result= result.exists(Effects.makeLocalLocs(new XLocal(localDef)));
+                result= result.exists(Effects.makeLocalLocs(ConstraintManager.getConstraintSystem().makeLocal(localDef)));
 //            }
         }
         return result;

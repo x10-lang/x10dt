@@ -32,8 +32,8 @@ import x10.ast.ForLoop;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.constraint.XLocal;
-import x10.constraint.XTerms;
 import x10.effects.constraints.Effect;
+import x10.types.constraints.ConstraintManager;
 import x10dt.refactoring.analysis.ReachingDefsVisitor;
 import x10dt.refactoring.effects.EffectsVisitor;
 import x10dt.refactoring.utils.NodePathComputer;
@@ -150,13 +150,13 @@ public class LoopFlatParallelizationRefactoring extends X10RefactoringBase {
 
             if (explodedVars.size() > 0) {
                 List<XLocal> loopLocals= new ArrayList<XLocal>(explodedVars.size() + 1);
-                loopLocals.add(new XLocal(loopVar.localDef()));
+                loopLocals.add(ConstraintManager.getConstraintSystem().makeLocal(loopVar.localDef()));
                 for(Formal explodedVar: explodedVars) {
-                    loopLocals.add(new XLocal(explodedVar.localDef()));
+                    loopLocals.add(ConstraintManager.getConstraintSystem().makeLocal(explodedVar.localDef()));
                 }
                 commutes= bodyEff.commutesWithForall(loopLocals);
             } else {
-                XLocal loopLocal= new XLocal(loopVar.localDef());
+                XLocal loopLocal= ConstraintManager.getConstraintSystem().makeLocal(loopVar.localDef());
 
                 commutes= bodyEff.commutesWithForall(loopLocal);
             }

@@ -33,10 +33,9 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.SettableAssign;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.constraints.ConstraintManager;
 
 public class TermCreator {
         private static Map<Unary.Operator,String> sUnaryOpMap= new HashMap<Unary.Operator,String>();
@@ -85,23 +84,23 @@ public class TermCreator {
                 if (old instanceof BooleanLit) {
                     BooleanLit booleanLit = (BooleanLit) old;
 
-                    fTermMap.put(old, XTerms.makeLit(booleanLit.value()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(booleanLit.value()));
                 } else if (old instanceof FloatLit) {
                     FloatLit floatLit = (FloatLit) old;
 
-                    fTermMap.put(old, XTerms.makeLit(floatLit.value()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(floatLit.value()));
                 } else if (old instanceof CharLit) {
                     CharLit charLit = (CharLit) old;
 
-                    fTermMap.put(old, XTerms.makeLit(charLit.value()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(charLit.value()));
                 } else if (old instanceof IntLit) {
                     IntLit intLit = (IntLit) old;
 
-                    fTermMap.put(old, XTerms.makeLit(intLit.value()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(intLit.value()));
                 } else if (old instanceof StringLit) {
                     StringLit stringLit = (StringLit) old;
 
-                    fTermMap.put(old, XTerms.makeLit(stringLit.value()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(stringLit.value()));
                 } else if (old instanceof ClassLit) {
                     throw new UnsupportedOperationException("Can't handle class literals.");
                 } else if (old instanceof CanonicalTypeNode) {
@@ -109,13 +108,13 @@ public class TermCreator {
                     Qualifier qualifier= canonicalTypeNode.qualifierRef().get();
                     String shortName= canonicalTypeNode.nameString();
 
-                    fTermMap.put(old, XTerms.makeLit(qualifier.toString() + "." + shortName));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(qualifier.toString() + "." + shortName));
                 } else if (old instanceof Field) {
                     Field field = (Field) old;
                     Receiver target= field.target();
                     Id name= field.name();
 
-                    fTermMap.put(old, XTerms.makeFakeField((XVar) fTermMap.get(target), field));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeFakeField((XVar) fTermMap.get(target), field));
                 } else if (old instanceof Local) {
                     Local local = (Local) old;
                     Type localType= local.type();
@@ -123,12 +122,12 @@ public class TermCreator {
                     Type t = Types.baseType(local.type());
                     /* XArray no longer exists
                     if (t.isArray() || t.isClass() && ts.descendsFrom(t.toClass().def(), ts.Array().toClass().def())) {
-                        fTermMap.put(old, XTerms.makeArray(new XVarDefWrapper(local)));
+                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeArray(new XVarDefWrapper(local)));
                     } else {
-                        fTermMap.put(old, XTerms.makeLocal(new XVarDefWrapper(local)));
+                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLocal(new XVarDefWrapper(local)));
                     }
                     */
-                    fTermMap.put(old, new XLocal(local.localInstance().def()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLocal(local.localInstance().def()));
                     
                 } else if (old instanceof Binary) {
                     Binary binary = (Binary) old;
@@ -138,14 +137,14 @@ public class TermCreator {
                     XTerm lhsTerm= fTermMap.get(lhs);
                     XTerm rhsTerm= fTermMap.get(rhs);
 
-                    fTermMap.put(old, XTerms.makeAtom(getNameFor(op), lhsTerm, rhsTerm));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeAtom(getNameFor(op), lhsTerm, rhsTerm));
                 } else if (old instanceof Unary) {
                     Unary unary = (Unary) old;
                     Unary.Operator op= unary.operator();
                     Expr opnd= unary.expr();
                     XTerm opndTerm= fTermMap.get(opnd);
 
-                    fTermMap.put(old, XTerms.makeAtom(getNameFor(op), opndTerm));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeAtom(getNameFor(op), opndTerm));
                 } else if (old instanceof Call) {
                     Call call = (Call) old;
                     
@@ -158,7 +157,7 @@ public class TermCreator {
                     XTerm arrayTerm= fTermMap.get(array);
                     XTerm indexTerm= fTermMap.get(indices.get(0));
                     
-                    fTermMap.put(old, XTerms.makeArrayElement((XArray) arrayTerm, indexTerm));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeArrayElement((XArray) arrayTerm, indexTerm));
                     */
                     throw new UnsupportedOperationException("Don't know how to create an XTerm for a settable assign.");
                 } else if (old instanceof FieldAssign) {
@@ -166,18 +165,18 @@ public class TermCreator {
                     FieldInstance fi= fa.fieldInstance();
                     Receiver target= fa.target();
 
-                    fTermMap.put(old, XTerms.makeFakeField((XVar) fTermMap.get(target), fi.def()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeFakeField((XVar) fTermMap.get(target), fi.def()));
                 } else if (old instanceof LocalAssign) {
                     LocalAssign la= (LocalAssign) old;
                     LocalDef ld= la.local().localInstance().def();
 
-                    fTermMap.put(old, new XLocal(ld));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLocal(ld));
                 } else if (old instanceof Special) {
                     Special special = (Special) old;
                     if (special.kind() == Special.SUPER) {
-                        fTermMap.put(old, new XLocal("super"));
+                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLocal("super"));
                     } else {
-                        fTermMap.put(old, new XLocal("this"));
+                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLocal("this"));
                     }
                 } else if (old instanceof Id) {
                     // do nothing

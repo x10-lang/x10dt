@@ -9,12 +9,13 @@ import java.util.List;
 import java.util.Set;
 
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraintManager;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
+
 
 /**
  * (Skeleton as of now)
@@ -66,7 +67,7 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#commutesWith(x10.effects.constraints.Effect)
 	 */
 	public boolean commutesWith(Effect e) {
-		return commutesWith(e, XTerms.makeTrueConstraint());
+		return commutesWith(e, XConstraintManager.getConstraintSystem().makeTrueConstraint());
 	}
 
 	private boolean disjoint(Set<Locs> a, Set<Locs> b, XConstraint c) {
@@ -146,7 +147,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	 * @see x10.effects.constraints.Effect#commutesWithForall(x10.constraint.XVar)
 	 */
 	public boolean commutesWithForall(XLocal x) {
-		return commutesWithForall(x, XTerms.makeTrueConstraint());
+		return commutesWithForall(x, XConstraintManager.getConstraintSystem().makeTrueConstraint());
 	}
 
 	/* (non-Javadoc)
@@ -157,8 +158,8 @@ public boolean commutesWith(Effect e, XConstraint c) {
 			return false;
 //		XLocal x1 = XTerms.makeLocal(XTerms.makeFreshName());
 //		XLocal x2 = XTerms.makeLocal(XTerms.makeFreshName());
-        XEQV x1 = XTerms.makeEQV();
-        XEQV x2 = XTerms.makeEQV();
+        XEQV x1 = XConstraintManager.getConstraintSystem().makeEQV();
+        XEQV x2 = XConstraintManager.getConstraintSystem().makeEQV();
 	
 		Effect e1 = substitute( x1, x), e2 = substitute(x2, x);
 		XConstraint c2 = c.copy();
@@ -179,7 +180,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	public boolean commutesWithForall(List<XLocal> xs) {
-        return commutesWithForall(xs, XTerms.makeTrueConstraint());
+        return commutesWithForall(xs, XConstraintManager.getConstraintSystem().makeTrueConstraint());
 	}
 
 	public boolean commutesWithForall(List<XLocal> xs, XConstraint c) {
@@ -192,8 +193,8 @@ public boolean commutesWith(Effect e, XConstraint c) {
         for(XLocal x: xs) {
 //          XLocal x1= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
 //          XLocal x2= XTerms.makeLocal(XTerms.makeFreshName(x.toString()));
-            XEQV x1 = XTerms.makeEQV();
-            XEQV x2 = XTerms.makeEQV();
+            XEQV x1 = XConstraintManager.getConstraintSystem().makeEQV();
+            XEQV x2 = XConstraintManager.getConstraintSystem().makeEQV();
 
             freshVars.add(new Pair<XEQV, XEQV>(x1, x2));
             e1 = e1.substitute(x1, x);
