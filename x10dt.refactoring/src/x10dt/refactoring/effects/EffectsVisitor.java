@@ -33,6 +33,7 @@ import polyglot.types.ContainerType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.ProcedureInstance;
+import polyglot.types.Qualifier;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
@@ -147,9 +148,15 @@ public class EffectsVisitor extends NodeVisitor {
         if (r instanceof Expr) {
             return createTermForExpr((Expr) r);
         }
-        // must be a CanonicalTypeNode
-        CanonicalTypeNode typeNode= (CanonicalTypeNode) r;
-        throw new UnsupportedOperationException("Can't produce an XTerm for type references.");
+       
+        if (r instanceof CanonicalTypeNode) {
+            CanonicalTypeNode canonicalTypeNode = (CanonicalTypeNode) r;
+            Qualifier qualifier= canonicalTypeNode.qualifierRef().get();
+            String shortName= canonicalTypeNode.nameString();
+            return ConstraintManager.getConstraintSystem().makeLit(qualifier.toString() + "." + shortName);
+        }
+
+        throw new UnsupportedOperationException("Can't produce an XTerm for "+r+" ("+r.getClass()+")");
     }
 
     private Locs computeLocFor(Expr expr) {
