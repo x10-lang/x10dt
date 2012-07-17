@@ -67,7 +67,7 @@ public class Effect_c implements Effect {
 	 * @see x10.effects.constraints.Effect#commutesWith(x10.effects.constraints.Effect)
 	 */
 	public boolean commutesWith(Effect e) {
-		return commutesWith(e, XConstraintManager.getConstraintSystem().makeTrueConstraint());
+		return commutesWith(e, XConstraintManager.getConstraintSystem().makeConstraint());
 	}
 
 	private boolean disjoint(Set<Locs> a, Set<Locs> b, XConstraint c) {
@@ -147,7 +147,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	 * @see x10.effects.constraints.Effect#commutesWithForall(x10.constraint.XVar)
 	 */
 	public boolean commutesWithForall(XLocal x) {
-		return commutesWithForall(x, XConstraintManager.getConstraintSystem().makeTrueConstraint());
+		return commutesWithForall(x, XConstraintManager.getConstraintSystem().makeConstraint());
 	}
 
 	/* (non-Javadoc)
@@ -180,7 +180,7 @@ public boolean commutesWith(Effect e, XConstraint c) {
 	}
 
 	public boolean commutesWithForall(List<XLocal> xs) {
-        return commutesWithForall(xs, XConstraintManager.getConstraintSystem().makeTrueConstraint());
+        return commutesWithForall(xs, XConstraintManager.getConstraintSystem().makeConstraint());
 	}
 
 	public boolean commutesWithForall(List<XLocal> xs, XConstraint c) {
