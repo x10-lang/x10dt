@@ -10,6 +10,7 @@ package x10dt.ui.launch.cpp.wizards;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.ui.wizards.NewJavaProjectWizardPageOne;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -64,9 +65,10 @@ final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
   
   public IClasspathEntry[] getDefaultClasspathEntries() {
     final IClasspathEntry[] entries = new IClasspathEntry[0];
-    final IClasspathEntry[] all = new IClasspathEntry[entries.length + 1];
+    final IClasspathEntry[] all = new IClasspathEntry[entries.length + 2];
     System.arraycopy(entries, 0, all, 0, entries.length);
     all[entries.length] = JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID));
+    all[entries.length + 1] = JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER));
     return all;
   }
 
