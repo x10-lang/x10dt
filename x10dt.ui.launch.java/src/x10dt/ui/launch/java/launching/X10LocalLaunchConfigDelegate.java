@@ -61,7 +61,7 @@ final class X10LocalLaunchConfigDelegate extends AbstractJavaLaunchConfiguration
     final File libDir = getX10DistHostLibDir();
     File commonMathFile = null;
     for (final File file : libDir.listFiles()) {
-      if (file.getName().startsWith("commons-math-") && file.getName().endsWith(Constants.JAR_EXT)) { //$NON-NLS-1$
+      if (file.getName().startsWith("commons-math") && file.getName().endsWith(Constants.JAR_EXT)) { //$NON-NLS-1$
         commonMathFile = file;
         break;
       }
