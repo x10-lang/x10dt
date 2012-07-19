@@ -436,6 +436,12 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
+  public void setLoadLevelerScript(final String file) {
+  final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getCurrentCommunicationInterface();
+  conf.fLoadLevelerScript = file;
+  updateDirtyFlag();
+}
+  
   public void setHostList(final List<String> hostList) {
 //    final String ciType = PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
 //    super.fCommInterfaceFact.defineCurrentCommInterfaceType(ciType);
@@ -460,6 +466,12 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     conf.fShouldUseHostFile = shouldUseHostFile;
     updateDirtyFlag();
   }
+  
+  public void setShouldUseLL(final boolean shouldUseLL) {
+  final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getCurrentCommunicationInterface();
+  conf.fShouldUseLL = shouldUseLL;
+  updateDirtyFlag();
+}
   
   // --- IDebuggingInfoConf's setter methods
   

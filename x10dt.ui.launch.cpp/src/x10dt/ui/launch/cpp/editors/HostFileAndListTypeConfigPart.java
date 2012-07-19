@@ -48,6 +48,7 @@ import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.editors.form_validation.AbstractFormControlChecker;
 import x10dt.ui.launch.cpp.editors.form_validation.IFormControlChecker;
 import x10dt.ui.launch.cpp.platform_conf.IHostsBasedConf;
+import x10dt.ui.launch.cpp.platform_conf.IPAMIConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
 import x10dt.ui.launch.rms.core.Messages;
 
@@ -75,6 +76,8 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
     placesCompo.setLayout(placesLayout);
     placesCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
     
+    
+    
     final Label placesLabel = toolkit.createLabel(placesCompo, Messages.SRMLCDT_PlacesNumber);
     placesLabel.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
     this.fNumPlacesSpinner = new Spinner(placesCompo, SWT.BORDER);
@@ -86,6 +89,26 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
     hostsGroup.setLayout(new TableWrapLayout());
     hostsGroup.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.FILL_GRAB));
     hostsGroup.setText(Messages.SRMLCDT_HostsGroupName);
+    
+    this.fLoadLevelerBt = toolkit.createButton(hostsGroup, Messages.SRMLCDT_LLBt, SWT.RADIO);
+    this.fLoadLevelerBt.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
+    
+    final Composite loadLevelerCompo = toolkit.createComposite(hostsGroup);
+    loadLevelerCompo.setFont(hostsGroup.getFont());
+    final TableWrapLayout loadLevelerLayout = new TableWrapLayout();
+    loadLevelerLayout.numColumns = 2;
+    loadLevelerLayout.leftMargin = 30;
+    loadLevelerCompo.setLayout(loadLevelerLayout);
+    loadLevelerCompo.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    
+    this.fLoadLevelerText = toolkit.createText(loadLevelerCompo, Constants.EMPTY_STR, SWT.BORDER);
+    this.fLoadLevelerText.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.MIDDLE));
+    addControl(this.fLoadLevelerText);
+    
+    this.fLoadLevelerBrowseBt = toolkit.createButton(loadLevelerCompo, Messages.SRMLCDT_BrowseBt, SWT.PUSH);
+    this.fLoadLevelerBrowseBt.setLayoutData(new TableWrapData(TableWrapData.RIGHT, TableWrapData.MIDDLE));
+    //---
+
     
     this.fHostFileBt = toolkit.createButton(hostsGroup, Messages.SRMLCDT_HostFileBt, SWT.RADIO);
     this.fHostFileBt.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
@@ -104,7 +127,7 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
     
     this.fHostFileBrowseBt = toolkit.createButton(hostFileCompo, Messages.SRMLCDT_BrowseBt, SWT.PUSH);
     this.fHostFileBrowseBt.setLayoutData(new TableWrapData(TableWrapData.RIGHT, TableWrapData.MIDDLE));
-
+ 
     this.fHostListBt = toolkit.createButton(hostsGroup, Messages.SRMLCDT_HostListBt, SWT.RADIO);
     this.fHostListBt.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
     
@@ -146,7 +169,7 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
                        removeButton);
     
     addListeners(formPart, managedForm, formPart.getPlatformConf(), this.fNumPlacesSpinner, this.fHostFileBt, 
-                 this.fHostFileText, this.fHostFileBrowseBt, this.fHostListBt, this.fHostListViewer, this.fHosts, addButton, 
+                 this.fHostFileText, this.fHostFileBrowseBt, this.fLoadLevelerBt, this.fLoadLevelerText, this.fLoadLevelerBrowseBt, this.fHostListBt, this.fHostListViewer, this.fHosts, addButton, 
                  removeButton);
     
     this.fHostListViewer.setInput(this.fHosts);
@@ -181,6 +204,7 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
   private void addListeners(final AbstractCommonSectionFormPart formPart, final IManagedForm managedForm,
                             final IX10PlatformConfWorkCopy x10PlatformConf, final Spinner numPlacesSpinner, 
                             final Button hostFileBt, final Text hostFileText, final Button hostFileBrowseBt,
+                            final Button loadLevelerBt, final Text loadLevelerText, final Button loadLevelerBrowseBt,
                             final Button hostListBt, final TableViewer hostListViewer, final List<String> hosts, 
                             final Button addButton, final Button removeButton) {
     numPlacesSpinner.addSelectionListener(new SelectionListener() {
@@ -260,6 +284,61 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
       
       public void widgetDefaultSelected(final SelectionEvent event) {
         widgetSelected(event);
+      }
+      
+    });
+    
+    loadLevelerText.addModifyListener(new ModifyListener() {
+      
+      public void modifyText(final ModifyEvent event) {
+        x10PlatformConf.setLoadLevelerScript(hostFileText.getText().trim());
+        formPart.handleEmptyTextValidation(loadLevelerText, LaunchMessages.STCP_HostFileText);
+        
+        formPart.updateDirtyState(managedForm);
+        formPart.setPartCompleteFlag(hasCompleteInfo());
+      }
+      
+    });
+    
+    loadLevelerBrowseBt.addSelectionListener(formPart.new FileDialogSelectionListener(loadLevelerText));
+    
+    loadLevelerBt.addSelectionListener(new SelectionListener(){
+
+      public void widgetSelected(SelectionEvent e) {
+       if (loadLevelerBt.getSelection()){
+         x10PlatformConf.setShouldUseLL(true);
+         hostFileText.setEnabled(false);
+         hostFileBrowseBt.setEnabled(false);
+         hostListViewer.getTable().setEnabled(false);
+         addButton.setEnabled(false);
+         removeButton.setEnabled(false);
+         new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
+             HostFileAndListTypeConfigPart.this.fHosts).validate(null);
+         new HostsControlChecker(formPart.getFormPage(), hostFileText, 
+             HostFileAndListTypeConfigPart.this.fHosts).validate(null);
+         formPart.updateDirtyState(managedForm);
+         formPart.setPartCompleteFlag(hasCompleteInfo());
+       } /*else {
+         x10PlatformConf.setShouldUseLL(false);
+         hostFileBt.setEnabled(true);
+         hostFileBt.setSelection(true);
+         hostFileText.setEnabled(true);
+         hostFileBrowseBt.setEnabled(true);
+         hostListViewer.getTable().setEnabled(false);
+         addButton.setEnabled(false);
+         removeButton.setEnabled(false);
+         new HostsControlChecker(formPart.getFormPage(), hostListViewer.getTable(), 
+             HostFileAndListTypeConfigPart.this.fHosts).validate(null);
+         new HostsControlChecker(formPart.getFormPage(), hostFileText, 
+             HostFileAndListTypeConfigPart.this.fHosts).validate(null);
+         formPart.updateDirtyState(managedForm);
+         formPart.setPartCompleteFlag(hasCompleteInfo());
+       }*/
+        
+      }
+
+      public void widgetDefaultSelected(SelectionEvent e) {
+        widgetSelected(e);
       }
       
     });
@@ -369,16 +448,22 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
     });
   }
   
-  protected void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf,
+  protected void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf conf,
                                   final Button addButton, final Button removeButton) {
-    final boolean shouldUseHostFile = socketsConf.shouldUseHostFile();
-    final boolean shouldUseHostSection = socketsConf.shouldUseHostSection();
-    doInitializeControls(formPart, socketsConf, shouldUseHostSection, shouldUseHostFile, addButton, removeButton);
+    final boolean shouldUseHostFile = conf.shouldUseHostFile();
+    final boolean shouldUseHostSection = conf.shouldUseHostSection();
+    doInitializeControls(formPart, conf, shouldUseHostSection, shouldUseHostFile, false, addButton, removeButton);
   }
 
   protected void doInitializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf, final boolean shouldUseHostSection,
-      final boolean shouldUseHostFile, final Button addButton, final Button removeButton) {
+      final boolean shouldUseHostFile, final boolean shouldUseLL, final Button addButton, final Button removeButton) {
     this.fNumPlacesSpinner.setSelection(socketsConf.getNumberOfPlaces());
+    
+    if (shouldUseLL){
+      this.fLoadLevelerBt.setEnabled(true);
+    } else {
+      this.fLoadLevelerBt.setEnabled(false);
+    }
     
     if (shouldUseHostSection){
       if (shouldUseHostFile) {
@@ -452,6 +537,12 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
   protected Text fHostFileText;
   
   protected Button fHostFileBrowseBt;
+  
+protected Button fLoadLevelerBt;
+  
+  protected Text fLoadLevelerText;
+  
+  protected Button fLoadLevelerBrowseBt;
   
   protected Button fHostListBt;
   

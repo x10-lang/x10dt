@@ -200,9 +200,13 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setHostFile(final String hostFile);
   
+  public void setLoadLevelerScript(final String file);
+  
   public void setHostList(final List<String> hostList);
   
   public void setShouldUseHostFile(final boolean shouldUseHostFile);
+  
+  public void setShouldUseLL(final boolean shouldUseLL);
   
   // --- IDebuggingInfoConf's setter methods
   

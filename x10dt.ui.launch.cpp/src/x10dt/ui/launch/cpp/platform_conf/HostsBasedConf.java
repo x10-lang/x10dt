@@ -89,8 +89,12 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
   
   String fHostFile;
   
+  String fLoadLevelerScript;
+  
   String fHosts;
   
   boolean fShouldUseHostFile;
+
+  public boolean fShouldUseLL;
 
 }

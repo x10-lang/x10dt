@@ -62,6 +62,7 @@ import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
+import x10dt.core.utils.AlwaysTrueFilter;
 import x10dt.core.utils.CompilerOptionsFactory;
 import x10dt.core.utils.CountableIterableFactory;
 import x10dt.core.utils.IFilter;
@@ -70,7 +71,9 @@ import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
+import x10dt.ui.launch.core.utils.CollectionUtils;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
+import x10dt.ui.launch.core.utils.IdentityFunctor;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.core.utils.UIUtils;
 import x10dt.ui.launch.core.utils.X10BuilderUtils;
@@ -683,7 +686,20 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  return result;
   }
 
-  protected abstract String getSrcClassPath(List<File> sourcePath) throws CoreException;
+  //protected abstract String getSrcClassPath(List<File> sourcePath) throws CoreException;
+  
+  protected String getSrcClassPath(List<File> sourcePath) throws CoreException{
+    StringBuffer bufferPath = new StringBuffer();
+    final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
+            new AlwaysTrueFilter<IPath>(), bufferPath);
+        
+    // removeSrcJava(srcPaths);
+    // TODO: I should have threaded a list around   
+    sourcePath.addAll(CollectionUtils.transform(srcPaths, new IPathToFileFunc()));
+        
+    return bufferPath.toString();
+
+}
   
   private Map<String, Collection<String>> compileX10Files(final String localOutputDir, final Collection<IFile> sourcesToCompile,
                                            final IProgressMonitor monitor) throws CoreException {

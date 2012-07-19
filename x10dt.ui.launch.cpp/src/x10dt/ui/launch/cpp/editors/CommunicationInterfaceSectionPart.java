@@ -421,7 +421,7 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
       if (serviceProvider == null) continue;
       String rmId = serviceProvider.getId();
       if (SOCKETS_SERVICE_PROVIDER_ID.equals(rmId) || STANDALONE_SERVICE_PROVIDER_ID.equals(rmId) ||
-            PAMI_SERVICE_PROVIDER_ID.equals(rmId) || LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(rmId) /*||
+            PAMI_SERVICE_PROVIDER_ID.equals(rmId) /*|| LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(rmId) ||
             (! isLocal && (MPICH2_SERVICE_PROVIDER_ID.equals(rmId) || OPEN_MPI_SERVICE_PROVIDER_ID.equals(rmId)))*/) { // --- MV - check if we still want to support these
           // We skip intentionally LoadLeveler and ParallelEnvironment for now.
           final ICITypeConfigurationPart typeConfPart = createCITypeConfigurationPart(serviceProvider);

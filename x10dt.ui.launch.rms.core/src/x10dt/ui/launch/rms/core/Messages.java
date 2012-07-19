@@ -125,6 +125,8 @@ public class Messages extends NLS {
 
   public static String SRMLCDT_HostListBt;
 
+  public static String SRMLCDT_LLBt;
+  
   public static String SRMLCDT_HostsGroupName;
 
   public static String SRMLCDT_InvalidPlacesNb;

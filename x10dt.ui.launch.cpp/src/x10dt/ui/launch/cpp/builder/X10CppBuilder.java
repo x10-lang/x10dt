@@ -75,27 +75,27 @@ public final class X10CppBuilder extends AbstractX10Builder {
 	  return CC_EXT;
   }
   
-  protected String getSrcClassPath(List<File> sourcePath) throws CoreException {
-    StringBuffer pathBuffer = new StringBuffer();
-    final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
-        new AlwaysTrueFilter<IPath>(), pathBuffer);
-
-    final StringBuilder cpBuilder = new StringBuilder();
-    int i = -1;
-    for (final String cpEntry : cps) {
-      if (++i > 0) {
-        cpBuilder.append(File.pathSeparatorChar);
-      }
-      cpBuilder.append(cpEntry);
-    }
-
-    final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
-            new RuntimeFilter(), new StringBuffer());
-
-    sourcePath.addAll(CollectionUtils.transform(srcPaths, new IPathToFileFunc()));
-    return pathBuffer.toString();
-
-  }
+//  protected String getSrcClassPath(List<File> sourcePath) throws CoreException {
+//    StringBuffer pathBuffer = new StringBuffer();
+//    final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),
+//        new AlwaysTrueFilter<IPath>(), pathBuffer);
+//
+//    final StringBuilder cpBuilder = new StringBuilder();
+//    int i = -1;
+//    for (final String cpEntry : cps) {
+//      if (++i > 0) {
+//        cpBuilder.append(File.pathSeparatorChar);
+//      }
+//      cpBuilder.append(cpEntry);
+//    }
+//
+//    final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
+//            new RuntimeFilter(), new StringBuffer());
+//
+//    sourcePath.addAll(CollectionUtils.transform(srcPaths, new IPathToFileFunc()));
+//    return pathBuffer.toString();
+//
+//  }
   
   // --- Private code
   
