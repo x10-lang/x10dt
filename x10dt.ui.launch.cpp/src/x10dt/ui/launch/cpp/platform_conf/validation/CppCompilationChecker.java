@@ -35,6 +35,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.utils.Pair;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
@@ -204,8 +207,15 @@ CppCompilationChecker(final String rmServicesId, final IRemoteConnection rmConne
         classPathBuider.append(File.pathSeparatorChar).append(libFile.getAbsolutePath());
       }
     }
-    classPathBuider.append(File.pathSeparatorChar).append(x10RuntimeDir.getAbsolutePath());
+   
+    IJavaProject project = JavaCore.create(fProject);
+    for (IClasspathEntry cpEntry: project.getResolvedClasspath(false)){
+      classPathBuider.append(File.pathSeparatorChar).append(cpEntry.getPath().toOSString());
+    }
     
+    
+    classPathBuider.append(File.pathSeparatorChar).append(x10RuntimeDir.getAbsolutePath());
+   
     final List<File> srcPath = new ArrayList<File>();
     srcPath.add(localTestDir);
     srcPath.add(x10RuntimeDir);
