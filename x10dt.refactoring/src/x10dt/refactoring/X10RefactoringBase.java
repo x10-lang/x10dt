@@ -256,10 +256,10 @@ public abstract class X10RefactoringBase extends Refactoring {
             tfc.addEdit(new InsertEdit(asyncOffset, op + " "));
         } else {
             int asyncOffset= nodesToWrap.get(0).position().offset();
-            int blockClose= nodesToWrap.get(nodesToWrap.size()-1).position().endOffset();
+            int blockClose= nodesToWrap.get(nodesToWrap.size()-1).position().endOffset()+1;
 
-            tfc.addEdit(new InsertEdit(asyncOffset, op + " {" + fLineTerminator));
-            tfc.addEdit(new InsertEdit(blockClose, "}" + fLineTerminator));
+            tfc.addEdit(new InsertEdit(asyncOffset, op + " {" + getLineTerminator()));
+            tfc.addEdit(new InsertEdit(blockClose, getLineTerminator()+ "}"));
         }
     }
 
