@@ -70,22 +70,14 @@ color: SlateGray;
     <td colspan="2" class="section"><a name="Development-Toolkit">X10 Development Toolkit</a></td>
   </tr>
      
-<!--
   <tr> 
-    <td class="section_item">Multi-JVM support</td> 
+    <td class="section_item">Eclipse 3.7.2</td> 
     <td class="section_content">
     <p>
-	For the C++ backend, there should be no changes (any changes are unintended bugs...)
-	</p>
-	<p>
-	For the Java backend, we are now compiling/running code so that each place is run in a separate JVM process.  
-	The main difference is that execution will 	default to a single place.  You use the run configuration variables (Number of places, host list, host file) 
-	to control multi-place launches as you do with the C++ backend and the sockets (default) runtime.
+    X10DT is now based on Eclipse 3.7.2 (the latest Indigo service refresh); however Eclipse 3.7.1 is also still supported.
     </p>
-    <p><img src="images/runConfigPlacesHosts.png"/></p>
     </td>
   </tr>
--->
   
   <!-- ******************** Java back-end ********************** -->
   
@@ -117,7 +109,10 @@ color: SlateGray;
   <tr> 
     <td class="section_item">LoadLeveler</td> 
     <td class="section_content"> 
-     Increased support for LoadLeveler and the PAMI backend
+     <p>Increased support for LoadLeveler with the PAMI backend. When PAMI is selected as the Communication Interface, optional support 
+     for LoadLeveler is enabled allowing the user to identify a LoadLeveler script that should be copied from the local project to the 
+     remote machine (for use with standard LoadLeveler command line job submission tools). Currently interactive launching of X10 programs 
+     from X10DT using LoadLeveler is not supported.</p>
     </td> 
   </tr>
  
@@ -142,6 +137,15 @@ color: SlateGray;
     <td colspan="2" class="section"><a name="Additional-Notes">Additional Notes</a></td>
   </tr>
   
+  
+    <tr> 
+    <td class="section_item">Eclipse 4.2 not supported</td> 
+    <td class="section_content">
+    <p>
+    X10DT does not currently support integration with Eclipse 4.2. 
+    </p>
+    </td>
+  </tr>
 <!--
   <tr> 
     <td class="section_item">An Introduction to Programming With X10</td> 
