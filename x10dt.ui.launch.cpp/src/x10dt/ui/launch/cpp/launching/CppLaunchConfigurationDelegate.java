@@ -90,6 +90,7 @@ import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.LaunchUtils;
+import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.UIUtils;
 import x10dt.ui.launch.core.utils.X10BuilderUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
@@ -137,9 +138,16 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
           createExecutable(configuration, fProject, new SubProgressMonitor(monitor, 5)) == 0) {
         // Then, performs the launch.
         if (!monitor.isCanceled()) {
-          monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-          updateAttributes(configuration, mode, monitor);
-          super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+          // Hijack launch if it's PAMI with LoadLeveler
+          if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(this.fX10PlatformConf.getCommunicationInterfaceConf().getServiceTypeId()) &&
+              ((IHostsBasedConf)this.fX10PlatformConf.getCommunicationInterfaceConf()).shouldUseLL()){
+            launchPAMIwLL(configuration, fProject, new SubProgressMonitor(monitor, 5));
+            
+          } else {
+            monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
+            updateAttributes(configuration, mode, monitor);
+            super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+          }
         }
       }
     } finally {
@@ -148,6 +156,55 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
   }
   
  
+  private void launchPAMIwLL(final ILaunchConfiguration configuration, final IProject project,
+      final IProgressMonitor monitor) throws CoreException{
+    final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
+    try {
+      this.fX10PlatformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
+      
+      final ICppCompilationConf cppCompConf = this.fX10PlatformConf.getCppCompilationConf();
+      final IConnectionConf connConf = this.fX10PlatformConf.getConnectionConf();
+      this.fIsCygwin = cppCompConf.getTargetOS() == ETargetOS.WINDOWS;
+      this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), this.fIsCygwin, connConf.getConnectionName());
+      if (this.fTargetOpHelper == null) {
+        throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoPTPConnectionForName));
+      }
+      
+      final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
+      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      
+      final List<String> command = new ArrayList<String>();
+      command.add("llsubmit");
+      command.add(((IHostsBasedConf)this.fX10PlatformConf.getCommunicationInterfaceConf()).getLoadLevelerScript());
+      
+      this.fTargetOpHelper.run(command, this.fWorkspaceDir, new IProcessOuputListener() {
+
+        public void read(final String line) {
+        }
+
+        public void readError(final String line) {
+          if (this.fCounter == 0) {
+            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, command.toString()));
+            this.fCounter = 1;
+          }
+          mcStream.println(line);
+        }
+
+        // --- Fields
+
+        int fCounter;
+
+      }, monitor);
+      
+    } catch (IOException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LoadLevelerIOError, except));
+    } catch (InterruptedException except) {
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_LoadLevelerInterrupted,
+                                         except));
+    } finally {
+      subMonitor.done();
+    }
+  }
   
   protected final int createExecutable(final ILaunchConfiguration configuration, final IProject project,
                                        final IProgressMonitor monitor) throws CoreException {

@@ -23,11 +23,14 @@ final class PAMITypeConfigPart extends HostFileAndListTypeConfigPart  implements
                            final AbstractCommonSectionFormPart formPart) {
     super.create(managedForm, toolkit, parent, formPart);
     // RMF Force to use a hostfile for now (not sure host-lists are supported)
-    this.fHostFileBt.setSelection(true);
+    //this.fHostFileBt.setSelection(true);
+    //this.fLoadLevelerBt.setSelection(false);
 //    this.fHostListBt.setSelection(false);
-    this.fHostListBt.setEnabled(false);
-    this.fHostFileText.setEnabled(true);
-    this.fHostFileBrowseBt.setEnabled(true);
+   // this.fHostListBt.setEnabled(false);
+   // this.fHostFileText.setEnabled(true);
+   // this.fHostFileBrowseBt.setEnabled(true);
+   // this.fLoadLevelerText.setEnabled(true);
+   // this.fLoadLevelerBrowseBt.setEnabled(true);
 //    this.fHostListBt.notify();
   }
 
@@ -38,6 +41,18 @@ final class PAMITypeConfigPart extends HostFileAndListTypeConfigPart  implements
 
   public String getServiceProviderId() {
     return PTPConstants.PAMI_SERVICE_PROVIDER_ID;
+  }
+  
+  public boolean hasCompleteInfo() {
+   if (this.fLoadLevelerBt.getSelection()){
+     return this.fLoadLevelerText.getText().length() > 0;
+   } else {
+    if (this.fHostFileBt.getSelection()) {
+      return this.fHostFileText.getText().length() > 0;
+    } else {
+      return this.fHosts.size() > 0;
+    }
+   }
   }
   
   // --- Fields

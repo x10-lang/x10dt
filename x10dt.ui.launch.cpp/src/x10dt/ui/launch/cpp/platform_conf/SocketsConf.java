@@ -45,5 +45,9 @@ final class SocketsConf extends AbstractHostsBasedConf implements ISocketsConf {
   public boolean shouldUseHostSection() {
     return true;
   }
+  
+  public boolean shouldUseLL() {
+    return false;
+  }
 
 }

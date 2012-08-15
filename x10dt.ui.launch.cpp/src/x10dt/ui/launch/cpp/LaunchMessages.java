@@ -588,6 +588,12 @@ public class LaunchMessages extends NLS {
   public static String XPCPP_NoResManagerStartedError;
 
   public static String XPCP_DebuggerFolderNotFound;
+  
+  public static String CLCD_LoadLevelerIOError;
+  
+  public static String CLCD_LoadLevelerInterrupted;
+  
+  public static String STCP_LoadLevelerText;
 
   // --- Private code
 

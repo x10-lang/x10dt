@@ -28,7 +28,7 @@ public abstract class AbstractFormControlChecker {
     Display.getDefault().asyncExec(new Runnable() {
       public void run() {
         AbstractFormControlChecker.this.fHeaderMMgr.addMessage(control, messageText, null /* data */, type);
-        AbstractFormControlChecker.this.fPageMMgr.setDecorationPosition(SWT.CENTER);
+       // AbstractFormControlChecker.this.fPageMMgr.setDecorationPosition(SWT.CENTER);
         AbstractFormControlChecker.this.fPageMMgr.addMessage(control, messageText, null /* data */, type, control);
       }
     });

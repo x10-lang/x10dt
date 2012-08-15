@@ -56,5 +56,4 @@ final class StandaloneConf extends AbstractHostsBasedConf implements ICommunicat
   public boolean shouldUseHostSection() {
     return false;
   }
-
 }

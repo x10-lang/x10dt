@@ -576,12 +576,18 @@ class X10PlatformConf implements IX10PlatformConf {
   
   private void load(final IMemento ciMemento, final AbstractHostsBasedConf ciConf) {
     final String hostFile = getTextDataValue(ciMemento, SOCKETS_HOST_FILE);
-    if (hostFile != null) {
-      ciConf.fHostFile = hostFile;
-      ciConf.fShouldUseHostFile = true;
+    final String loadLevelerScript = getTextDataValue(ciMemento, LOAD_LEVELER_SCRIPT);
+    if (loadLevelerScript != null){
+      ciConf.fShouldUseLL = true;
+      ciConf.fLoadLevelerScript = loadLevelerScript;
     } else {
-      ciConf.fHosts = getTextDataValue(ciMemento, SOCKETS_HOST_LIST);
-      ciConf.fShouldUseHostFile = false;
+      if (hostFile != null) {
+        ciConf.fHostFile = hostFile;
+        ciConf.fShouldUseHostFile = true;
+      }else {
+        ciConf.fHosts = getTextDataValue(ciMemento, SOCKETS_HOST_LIST);
+        ciConf.fShouldUseHostFile = false;
+      }
     }
   }
   
@@ -663,6 +669,9 @@ class X10PlatformConf implements IX10PlatformConf {
   }
   
   private void save(final IMemento ciMemento, final AbstractHostsBasedConf conf) {
+    if (conf.shouldUseLL()){
+      ciMemento.createChild(LOAD_LEVELER_SCRIPT).putTextData(conf.getLoadLevelerScript());
+    } else 
     if (conf.shouldUseHostFile()) {
       ciMemento.createChild(SOCKETS_HOST_FILE).putTextData(conf.getHostFile());
     } else {
@@ -768,6 +777,8 @@ class X10PlatformConf implements IX10PlatformConf {
   private static final String LL_TEMPLATE_OPT = "ll-template-opt"; //$NON-NLS-1$
   
   private static final String SOCKETS_HOST_FILE = "sockets-host-file"; //$NON-NLS-1$
+  
+  private static final String LOAD_LEVELER_SCRIPT = "load-leveler-script"; //$NON-NLS-1$
   
   private static final String SOCKETS_HOST_LIST = "sockets-host-list"; //$NON-NLS-1$
 

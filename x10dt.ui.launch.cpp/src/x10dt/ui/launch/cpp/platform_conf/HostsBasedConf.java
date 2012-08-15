@@ -29,6 +29,14 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
     return (this.fHosts == null) ? Constants.EMPTY_STR : this.fHosts;
   }
   
+  public boolean shouldUseLL() {
+    return this.fShouldUseLL;
+  }
+  
+  public String getLoadLevelerScript(){
+    return (this.fLoadLevelerScript == null) ? Constants.EMPTY_STR : this.fLoadLevelerScript;
+  }
+  
   public final List<String> getHostsAsList() {
     if (this.fHosts == null) {
       return Collections.<String>emptyList();
@@ -48,6 +56,8 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
       return false;
     }
     final AbstractHostsBasedConf rhsObj = (AbstractHostsBasedConf) rhs;
+    if (this.fShouldUseLL != rhsObj.fShouldUseLL) return false;
+    if (!CodingUtils.equals(this.fLoadLevelerScript, rhsObj.fLoadLevelerScript)) return false;
     if (this.fShouldUseHostFile == rhsObj.fShouldUseHostFile) {
       if (this.fShouldUseHostFile) {
         return CodingUtils.equals(this.fHostFile, rhsObj.fHostFile);
@@ -60,7 +70,7 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
   }
   
   public int hashCode() {
-    return 65747 + CodingUtils.generateHashCode(3454665, this.fHostFile, this.fHosts);
+    return 65747 + CodingUtils.generateHashCode(3454665, this.fHostFile, this.fHosts, this.fLoadLevelerScript);
   }
   
   public String toString() {
@@ -77,6 +87,8 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
   AbstractHostsBasedConf(final AbstractHostsBasedConf original) {
     super(original);
     this.fHostFile = original.fHostFile;
+    this.fLoadLevelerScript = original.fLoadLevelerScript;
+    this.fShouldUseLL = original.fShouldUseLL;
     this.fHosts = original.fHosts;
     this.fShouldUseHostFile = original.fShouldUseHostFile;
   }

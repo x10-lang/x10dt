@@ -31,6 +31,13 @@ public interface IHostsBasedConf extends ICommunicationInterfaceConf {
   public String getHosts();
   
   /**
+   * Returns the load leveler script to use for running.
+   * 
+   * @return A non-null, but possibly empty, string.
+   */
+  public String getLoadLevelerScript();
+  
+  /**
    * Returns the list of hosts to use for running. Same content as {@link #getHosts()}.
    * 
    * @return A non-null, but possibly empty, list.
@@ -51,4 +58,5 @@ public interface IHostsBasedConf extends ICommunicationInterfaceConf {
    */
   public boolean shouldUseHostSection();
   
+  public boolean shouldUseLL();
 }
