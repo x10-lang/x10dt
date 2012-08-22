@@ -9,7 +9,6 @@
 <body>
 <h1>KMeansDist</h1>
 <pre>
-
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -24,6 +23,12 @@
 import x10.io.Console;
 import x10.util.Random;
 
+/**
+ * A formulation of KMeans using DistArray.
+ *
+ * For a scalable, high-performance version of this benchmark see
+ * KMeans.x10 in the X10 Benchmarks (separate download from x10-lang.org)
+ */
 public class KMeansDist {
 
     static val DIM=2;
@@ -34,12 +39,12 @@ public class KMeansDist {
     static val points_region = 0..(POINTS-1)*0..(DIM-1);
 
     public static def main (Array[String]) {
-        val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));
-        val local_curr_clusters = PlaceLocalHandle.make[Array[Float](1)](Dist.makeUnique(), 
+        val rnd = PlaceLocalHandle.make[Random](PlaceGroup.WORLD, () => new Random(0));
+        val local_curr_clusters = PlaceLocalHandle.make[Array[Float](1)](PlaceGroup.WORLD, 
                                                                             () => new Array[Float](CLUSTERS*DIM));
-        val local_new_clusters = PlaceLocalHandle.make[Array[Float](1)](Dist.makeUnique(),
+        val local_new_clusters = PlaceLocalHandle.make[Array[Float](1)](PlaceGroup.WORLD,
 							                   () =>  new Array[Float](CLUSTERS*DIM));
-        val local_cluster_counts = PlaceLocalHandle.make[Array[Int](1)](Dist.makeUnique(), 
+        val local_cluster_counts = PlaceLocalHandle.make[Array[Int](1)](PlaceGroup.WORLD, 
                                                                            ()=> new Array[Int](CLUSTERS));
 
         val points_dist = Dist.makeBlock(points_region, 0);
@@ -158,9 +163,6 @@ public class KMeansDist {
         }
     }
 }
-
-// vim: shiftwidth=4:tabstop=4:expandtab
-
 
 </pre>
 </body>

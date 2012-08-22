@@ -9,7 +9,6 @@
 <body>
 <h1>FRASimpleDist</h1>
 <pre>
-
 /*
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -25,7 +24,10 @@ import x10.io.Console;
 import x10.util.Timer;
 
 /**
- * Converted to 2.1.
+ * Simple version of the RA benchmark from the HPC Challenge benchmarks.
+ * 
+ * For a scalable, high-performance version of this benchmark see
+ * RandomAccess.x10 in the X10 Benchmarks (separate download from x10-lang.org)
  */
 class LocalTable {
 
@@ -112,7 +114,7 @@ class FRASimpleDist {
         val num_updates = 4*tableSize;
 
         // create local tables
-        val tables = PlaceLocalHandle.make[LocalTable](Dist.makeUnique(), () => new LocalTable(localTableSize));
+        val tables = PlaceLocalHandle.make[LocalTable](PlaceGroup.WORLD, () => new LocalTable(localTableSize));
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + Place.MAX_PLACES+" = " + tableSize+ " words");
@@ -146,8 +148,6 @@ class FRASimpleDist {
 
     static def println(s:String) { Console.OUT.println(s); }
 }
-
-
 </pre>
 </body>
 </html>
