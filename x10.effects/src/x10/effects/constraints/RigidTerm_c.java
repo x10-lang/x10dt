@@ -2,6 +2,7 @@ package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 
 /**
  * The base class for rigid terms. A rigid term designates an
@@ -10,22 +11,22 @@ import x10.constraint.XTerm;
  * @author vj
  *
  */
-public class RigidTerm_c implements RigidTerm {
+public class RigidTerm_c<T extends XType> implements RigidTerm<T> {
 
-	XTerm designator;
+	XTerm<T> designator;
 	
-	public RigidTerm_c(XTerm d) {
+	public RigidTerm_c(XTerm<T> d) {
 		this.designator = d;
 	}
-
-	public XTerm designator() {
+	
+	public XTerm<T> designator() {
 		return designator;
 	}
-	
-	public boolean equals(RigidTerm other, XConstraint c) {
+
+	public boolean equals(RigidTerm<T> other, XConstraint<T> c) {
 		if (! (other instanceof RigidTerm_c)) return false;
-		RigidTerm_c o = (RigidTerm_c) other;
-		return c.entails(designator(), o.designator());
+		RigidTerm_c<T> o = (RigidTerm_c<T>) other;
+		return c.entailsEquality(designator(), o.designator());
 	}
 
 }

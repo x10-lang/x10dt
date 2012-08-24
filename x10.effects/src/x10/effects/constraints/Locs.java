@@ -2,6 +2,7 @@ package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XVar;
 /**
  * Locs represents a set of mutable locations in the source code corresponding
@@ -19,7 +20,7 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public interface Locs {
+public interface Locs<T extends XType> {
 	
 	/**
 	 * A constraint may specify equality relations on XTerms used to 
@@ -33,7 +34,7 @@ public interface Locs {
 	 * @param constraint
 	 * @return
 	 */
-	boolean disjointFrom(Locs other, XConstraint c);
+	boolean disjointFrom(Locs<T> other, XConstraint<T> c);
 	
 	/**
 	 * Return the term underlying this Locs.
@@ -54,6 +55,6 @@ public interface Locs {
 	 * @param t
 	 * @return
 	 */
-	Locs substitute(XTerm t, XVar s);
+	Locs<T> substitute(XTerm<T> t, XVar<T> s);
 
 }

@@ -2,6 +2,7 @@ package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 
 /**
  * A rigid term is an expression that references only final variables.
@@ -10,13 +11,13 @@ import x10.constraint.XTerm;
  * @author vj
  *
  */
-public interface RigidTerm {
+public interface RigidTerm<T extends XType> {
 	
 	/**
 	 * The underlying designtor (term).
 	 * @return
 	 */
-	XTerm designator();
+	XTerm<T> designator();
 	
 	/**
 	 * Returns true iff o is another RigidTerm and c entails
@@ -29,6 +30,6 @@ public interface RigidTerm {
 	 * @param c
 	 * @return
 	 */
-	boolean equals(RigidTerm o, XConstraint c);
+	boolean equals(RigidTerm<T> o, XConstraint<T> c);
 
 }

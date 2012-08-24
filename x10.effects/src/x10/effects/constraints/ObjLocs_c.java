@@ -2,6 +2,7 @@ package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XVar;
 
 /**
@@ -10,21 +11,21 @@ import x10.constraint.XVar;
  *
  */
 
-public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
+public class ObjLocs_c<T extends XType> extends RigidTerm_c<T> implements ObjLocs<T> {
 
-	public ObjLocs_c(XTerm d) {
+	public ObjLocs_c(XTerm<T> d) {
 		super(d);
 	}
 
-	public Locs substitute(XTerm t, XVar s) {
-		XTerm old = designator();
-		XTerm result = old.subst(t, s);
+	public Locs<T> substitute(XTerm<T> t, XVar<T> s) {
+		XTerm<T> old = designator();
+		XTerm<T> result = old.subst(t, s);
 		return (result.equals(old)) ? this : Effects.makeObjLocs(result);
 	}
 	
-	public boolean disjointFrom(Locs other, XConstraint c) {
+	public boolean disjointFrom(Locs<T> other, XConstraint<T> c) {
 		if (other instanceof ObjLocs) {
-        	return c.disEntails(designator(), ((ObjLocs) other).designator());
+        	return c.entailsDisEquality(designator(), ((ObjLocs<T>) other).designator());
         }
 		return true;
 	}
@@ -41,7 +42,8 @@ public class ObjLocs_c extends RigidTerm_c implements ObjLocs {
 	public boolean equals(Object other) {
 		if (this == other) return true;
 		if (! (other instanceof ObjLocs_c)) return false;
-		ObjLocs_c o = (ObjLocs_c) other;
+		@SuppressWarnings("unchecked")
+		ObjLocs_c<T> o = (ObjLocs_c<T>) other;
 		return designator().equals(o.designator());
 	}
 }

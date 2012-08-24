@@ -1,7 +1,9 @@
 package x10.effects.constraints;
 
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
+import x10.constraint.XVar;
+import x10.types.constraints.XLocal;
 
 /**
  * A Factory class for creating effects.
@@ -22,8 +24,8 @@ public class Effects {
 	 * @param isFun
 	 * @return
 	 */
-	public static Effect makeEffect(boolean isFun) {
-		return new Effect_c(isFun);
+	public static <T extends XType> Effect<T> makeEffect(boolean isFun) {
+		return new Effect_c<T>(isFun);
 	}
 	
 	/**
@@ -33,8 +35,8 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static ObjLocs makeObj(XTerm x) {
-		return new ObjLocs_c(x);
+	public static <T extends XType> ObjLocs<T> makeObj(XTerm<T> x) {
+		return new ObjLocs_c<T>(x);
 	}
 	/**
 	 * Return a Locs corresponding to the object designated by
@@ -46,8 +48,8 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static ObjLocs makeObjLocs(XTerm x) {
-		return new ObjLocs_c(x);
+	public static <T extends XType> ObjLocs<T> makeObjLocs(XTerm<T> x) {
+		return new ObjLocs_c<T>(x);
 	}
 	
 	/**
@@ -60,8 +62,8 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static ArrayLocs makeArrayLocs(XTerm x) {
-		return new ArrayLocs_c(x);
+	public static <T extends XType> ArrayLocs<T> makeArrayLocs(XTerm<T> x) {
+		return new ArrayLocs_c<T>(x);
 	}
 	/**
 	 * Returns a Locs corresponding to the local variable
@@ -71,8 +73,8 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static LocalLocs makeLocalLocs(XLocal x) {
-		return new LocalLocs_c(x);
+	public static <T extends XType> LocalLocs<T> makeLocalLocs(XVar<T> x) {
+		return new LocalLocs_c<T>(x);
 	}
 	
 
@@ -85,15 +87,15 @@ public class Effects {
 	 * @param x
 	 * @return
 	 */
-	public static FieldLocs makeFieldLocs(XTerm o, String field) {
-		return new FieldLocs_c(o, field);
+	public static <T extends XType> FieldLocs<T> makeFieldLocs(XTerm<T> o, String field) {
+		return new FieldLocs_c<T>(o, field);
 	}
 	
-	public static ArrayElementLocs makeArrayElementLocs(XTerm a, XTerm t) {
-		return new ArrayElementLocs_c(a, t);
+	public static <T extends XType> ArrayElementLocs<T> makeArrayElementLocs(XTerm<T> a, XTerm<T> t) {
+		return new ArrayElementLocs_c<T>(a, t);
 	}
 
-	public static Effect makeBottomEffect() {
+	public static <T extends XType> Effect<T> makeBottomEffect() {
 		return BOTTOM_EFFECT;
 	}
 }

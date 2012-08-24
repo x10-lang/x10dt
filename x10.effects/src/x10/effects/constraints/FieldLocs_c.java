@@ -2,36 +2,37 @@ package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XVar;
 
 
-public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
+public class FieldLocs_c<T extends XType> extends RigidTerm_c<T> implements FieldLocs<T> {
 
 	String fieldName;
-	public FieldLocs_c(XTerm o, String f) {
+	public FieldLocs_c(XTerm<T> o, String f) {
 		super(o);
 		this.fieldName=f;
 	}
 	
 	public String field() { return fieldName;}
 	
-	public Locs substitute(XTerm t, XVar s) {
-		XTerm old = designator();
-		XTerm result = old.clone().subst(t, s);
+	public Locs<T> substitute(XTerm<T> t, XVar<T> s) {
+		XTerm<T> old = designator();
+		XTerm<T> result = old.copy().subst(t, s);
 		return (result.equals(old)) ? this
 				: Effects.makeFieldLocs(result, fieldName);
 	}
 	
-	public XTerm obj() { return designator();}
+	public XTerm<T> obj() { return designator();}
 	
-	public boolean disjointFrom(Locs other, XConstraint c){
+	public boolean disjointFrom(Locs<T> other, XConstraint<T> c){
 		if (other instanceof ObjLocs) {
-        	ObjLocs o = (ObjLocs) other;
-        	return (c.disEntails(obj(), o.designator()));
+        	ObjLocs<T> o = (ObjLocs<T>) other;
+        	return (c.entailsDisEquality(obj(), o.designator()));
         }
         if  (other instanceof FieldLocs) {
-        	FieldLocs o = (FieldLocs) other;
-        	if (c.disEntails(obj(), o.obj()))
+        	FieldLocs<T> o = (FieldLocs<T>) other;
+        	if (c.entailsDisEquality(obj(), o.obj()))
         		return true;
         	return ! fieldName.equals(o.field());
         }
@@ -50,7 +51,8 @@ public class FieldLocs_c extends RigidTerm_c implements FieldLocs {
 	public boolean equals(Object other) {
 		if (this == other) return true;
 		if (! (other instanceof FieldLocs_c)) return false;
-		FieldLocs_c o = (FieldLocs_c) other;
+		@SuppressWarnings("unchecked")
+		FieldLocs_c<T> o = (FieldLocs_c<T>) other;
 		return designator().equals(o.designator())
 		&& field().equals(o.field());
 	}

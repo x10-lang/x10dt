@@ -1,6 +1,7 @@
 package x10.effects.constraints;
 
-import x10.constraint.XLocal;
+import x10.constraint.XType;
+import x10.constraint.XVar;
 
 /**
  * Represents a local variable.
@@ -8,7 +9,7 @@ import x10.constraint.XLocal;
  * @author vj
  *
  */
-public interface LocalLocs  extends Locs {
-	XLocal local();
+public interface LocalLocs<T extends XType>  extends Locs<T> {
+	XVar<T> local();
 
 }
