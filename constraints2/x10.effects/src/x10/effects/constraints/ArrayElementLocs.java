@@ -1,12 +1,13 @@
 package x10.effects.constraints;
 
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XVar;
 
-public interface ArrayElementLocs extends Locs {
+public interface ArrayElementLocs<T extends XType> extends Locs<T> {
 	
-	XTerm array();
-	XTerm index();
-	ArrayLocs generalize(XVar x);
+	XTerm<T> array();
+	XTerm<T> index();
+	ArrayLocs<T> generalize(XVar<T> x);
 
 }

@@ -1,9 +1,10 @@
 package x10.effects.constraints;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XVar;
+import x10.types.constraints.XLocal;
 
 /**
  * Represents a mutable local variable.
@@ -11,31 +12,31 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public class LocalLocs_c extends Locs_c implements LocalLocs {
+public class LocalLocs_c<T extends XType> extends Locs_c<T> implements LocalLocs<T> {
 
-	final XLocal local;
-	LocalLocs_c(XLocal x) {
+	final XVar<T> local;
+	LocalLocs_c(XVar<T> x) {
 		assert x != null : "Cannot construct LocalLocs_c from null";
 		this.local = x;
 	}
-	public XLocal local() { return local;}
+	public XVar<T> local() { return local;}
 	
-	public boolean disjointFrom(Locs other, XConstraint c) {
+	public boolean disjointFrom(Locs<T> other, XConstraint<T> c) {
 		return ! equals(other);
 	}
 
-	public XTerm term() {
+	public XTerm<T> term() {
 		return local;
 	}
 	
-	public boolean hasSubterm(XTerm t) {
+	public boolean hasSubterm(XTerm<T> t) {
 		return local.equals(t);
 	}
 	
 	/**
 	 * It should never be the case that 
 	 */
-	public Locs substitute(XTerm t, XVar s) {
+	public Locs<T> substitute(XTerm<T> t, XVar<T> s) {
 		assert false : "Should never have to replace " + s + " by " + t + " in " + this;
 		return this;
 	}
@@ -44,7 +45,8 @@ public class LocalLocs_c extends Locs_c implements LocalLocs {
 		if (other == this) return true;
 		if (! (other instanceof LocalLocs_c)) 
 			return false;
-		LocalLocs_c o = (LocalLocs_c) other;
+		@SuppressWarnings("unchecked")
+		LocalLocs_c<T> o = (LocalLocs_c<T>) other;
 		return local.equals(o.local());
 	}
 
@@ -54,7 +56,7 @@ public class LocalLocs_c extends Locs_c implements LocalLocs {
 	}
 	@Override
 	public String toString() {
-	    return local.name().toString();
+	    return local.toString();
 	}
 	
 	

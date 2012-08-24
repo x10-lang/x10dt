@@ -28,7 +28,7 @@ import java.util.*;
 
 import x10.constraint.*;
 
-public interface Effect extends Cloneable {
+public interface Effect<T extends XType> extends Cloneable {
 	/**
 	 * An effect set is associated with either an @fun annotation or an @parfun annotation. 
 	 * 
@@ -37,16 +37,16 @@ public interface Effect extends Cloneable {
 	boolean isFun();
 	
 	
-	Set<Locs> readSet();
-	Set<Locs> writeSet();
-	Set<Locs> atomicIncSet();
+	Set<Locs<T>> readSet();
+	Set<Locs<T>> writeSet();
+	Set<Locs<T>> atomicIncSet();
 	
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint())
 	 * @param e
 	 * @return
 	 */
-	boolean commutesWith(Effect e);
+	boolean commutesWith(Effect<T> e);
 	
 	/**
 	 * Does this commute with e, given constraints c? c may provide information useful to establish
@@ -57,14 +57,14 @@ public interface Effect extends Cloneable {
 	 * @param c
 	 * @return
 	 */
-	boolean commutesWith(Effect e, XConstraint c);
+	boolean commutesWith(Effect<T> e, XConstraint<T> c);
 	
 	/**
 	 * Same as commutesWith(e, XTerms.makeTrueConstraint()).
 	 * @param x
 	 * @return
 	 */
-	boolean commutesWithForall(XLocal x);
+	boolean commutesWithForall(XVar<T> x);
 	
 	/**
 	 * Given constraint c, does this commute with a copy of itself under the assumption that x varies? This is
@@ -74,19 +74,19 @@ public interface Effect extends Cloneable {
 	 * @param e
 	 * @return
 	 */
-	boolean commutesWithForall(XLocal x, XConstraint c);
+	boolean commutesWithForall(XVar<T> x, XConstraint<T> c);
 	
     /**
      * Like commutesWith(XLocal), but quantifies over a set of variables.
      * @return
      */
-    public boolean commutesWithForall(List<XLocal> xs);
+    public boolean commutesWithForall(List<XVar<T>> xs);
 
     /**
      * Like commutesWith(XLocal, XConstraint), but quantifies over a set of variables.
      * @return
      */
-    public boolean commutesWithForall(List<XLocal> xs, XConstraint c);
+    public boolean commutesWithForall(List<XVar<T>> xs, XConstraint<T> c);
 
 	/**
 	 * Return the Effect obtained by quantifying the current effect for all values of x. Essentially, 
@@ -95,7 +95,7 @@ public interface Effect extends Cloneable {
 	 * @param x
 	 * @return
 	 */
-	Effect forall(XLocal x);
+	Effect<T> forall(XVar<T> x);
 	
 	/**
 	 * 
@@ -110,7 +110,7 @@ public interface Effect extends Cloneable {
 	 * @param x
 	 * @return
 	 */
-	Effect exists(XLocal x, XTerm t);
+	Effect<T> exists(XVar<T> x, XTerm<T> t);
 	
 	/**
 	 * Here is how this method should be used. If m is the effect for statement S (and the 
@@ -125,7 +125,7 @@ public interface Effect extends Cloneable {
 	 * @param x
 	 * @return
 	 */
-	Effect exists(LocalLocs x);
+	Effect<T> exists(LocalLocs<T> x);
 	
 	/**
 	 * Given constraint c, return the effect this; e, using the rules for sequential composition of effect annotations.
@@ -138,37 +138,37 @@ public interface Effect extends Cloneable {
 	 * @return this; e
 	 * @throws NoSuchEffect -- when this; e is not defined.
 	 */
-	Effect followedBy(Effect e, XConstraint c) throws XFailure;
+	Effect<T> followedBy(Effect<T> e, XConstraint<T> c) throws XFailure;
 	
 	/**
 	 * If this is @parfun(r,w,a) or @fun(r,w,a), return @parfun(r,w,a)
 	 * @return
 	 */
-	Effect makeParFun();
+	Effect<T> makeParFun();
 	
 	/**
 	 * If this is @parfun(r,w,a) or @fun(r,w,a), return @fun(r,w,a)
 	 * @return
 	 */
-	Effect makeFun();
+	Effect<T> makeFun();
 	
 	/**
 	 * Add t to the read set for this. Modified in place.
 	 * @param t
 	 */
-	void addRead(Locs t);
+	void addRead(Locs<T> t);
 	/**
 	 * Add t to the read set for this. Modified in place.
 	 * @param t
 	 */
-	void addWrite(Locs t);
+	void addWrite(Locs<T> t);
 	/**
 	 * Add t to the read set for this. Modified in place.
 	 * @param t
 	 */
-	void addAtomicInc(Locs t);
+	void addAtomicInc(Locs<T> t);
 	
-	Effect substitute(XTerm t, XVar r);
+	Effect<T> substitute(XTerm<T> t, XVar<T> r);
 	
 
 }

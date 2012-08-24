@@ -1,5 +1,7 @@
 package x10.effects.constraints;
 
+import x10.constraint.XType;
+
 /**
  * Interface representing an object with mutable fields.
  * Represents an object -- and hence the set of locations specified 
@@ -10,6 +12,6 @@ package x10.effects.constraints;
  * @author vj
  *
  */
-public interface ObjLocs extends RigidTerm, Locs {
+public interface ObjLocs<T extends XType> extends RigidTerm<T>, Locs<T> {
 
 }
