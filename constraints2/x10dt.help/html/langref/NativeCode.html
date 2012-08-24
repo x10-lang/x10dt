@@ -1,0 +1,288 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>Native Code Integration</title>
+</head>
+
+<body>
+ <h1><a name="tth_chAp1">
+Chapter 1 </a><br />Native Code Integration</h1>
+<a name="NativeCode">
+</a>
+
+
+<div class="p"><!----></div>
+At times it becomes necessary to call non-X10 code from X10, perhaps to make
+use of specialized libraries in other languages or to write more precisely
+controlled code than X10 generally makes available. 
+
+<div class="p"><!----></div>
+The
+<b>@Native(lang,code) Phrase</b> annotation from <b>x10.compiler.Native</b> in
+X10 can be used to tell the X10 compiler to generate <b>code</b> for certain
+kinds of <b>Phrase</b>, instead of what it would normally compile to, when
+compiling to the <b>lang</b> back end.
+
+<div class="p"><!----></div>
+The compiler cannot analyze native code the same way it analyzes X10 code.  In
+particular, <b>@Native</b> fields and methods must be explicitly typed; the
+compiler will not infer types.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Native <tt>static</tt> Methods</h2>
+
+<div class="p"><!----></div>
+<b>static</b> methods can be given native implementations.  Note that these
+implementations are syntactically <em>expressions</em>, not statements, in C++ or
+Java.   Also, it is possible (and common) to provide native implementations
+into both Java and C++ for the same method.
+<pre>
+import x10.compiler.Native;
+class Son {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static def printNatively():void = {};
+}
+</pre>
+
+<div class="p"><!----></div>
+If only some back-end languages are given, the X10 code will be used for the
+remaining back ends: 
+<pre>
+import x10.compiler.Native;
+class Land {
+  @Native("c++", "printf(\"Hi from C++!\")")
+  static def example():void = {
+    x10.io.Console.OUT.println("Hi from X10!");
+  };
+}
+</pre>
+
+<div class="p"><!----></div>
+The <b>native</b> modifier on methods indicates that the method must not have
+an X10 code body, and <b>@Native</b> implementations must be given for all back
+ends:
+<pre>
+import x10.compiler.Native;
+class Plants {
+  @Native("c++", "printf(\"Hi!\")")
+  @Native("java", "System.out.println(\"Hi!\")")
+  static native def printNatively():void;
+}
+</pre>
+
+<div class="p"><!----></div>
+Values may be returned from external code to X10.  Scalar types in Java and
+C++ correspond directly to the analogous types in X10.  
+<pre>
+import x10.compiler.Native;
+class Return {
+  @Native("c++", "1")
+  @Native("java", "1")
+  static native def one():Int;
+}
+</pre>
+Types are <em>not</em> inferred for methods marked as <b>@Native</b>.
+
+<div class="p"><!----></div>
+Parameters may be passed to external code.  <b>(#1)</b>  is the first parameter,
+<b>(#2)</b> the second, and so forth.  (<b>(#0)</b> is the name of the enclosing
+class.)  Be aware that this is macro substitution rather than normal parameter
+passing; <em>e.g.</em>, if the first actual parameter is <b>i++</b>, and <b>(#1)</b>
+appears twice in the external code, <b>i</b> will be incremented twice.
+For example, a (ridiculous) way to print the sum of two numbers is: 
+<pre>
+import x10.compiler.Native;
+class Species {
+  @Native("c++", "printf(\"Sum=%d\", ((#1)+(#2)) )")
+  @Native("java", "System.out.println(\"\" + ((#1)+(#2)))")
+  static native def printNatively(x:Int, y:Int):void;
+}
+</pre>
+
+<div class="p"><!----></div>
+Static variables in the class are available in the external code.  For Java,
+the static variables are used with their X10 names.  For C++, the names
+must be mangled, by use of the <b>FMGL</b> macro.  
+
+<div class="p"><!----></div>
+<pre>
+import x10.compiler.Native;
+class Ability {
+  static val A : Int = 1;
+  @Native("java", &#196;+2")
+  @Native("c++", &#196;bility::FMGL(A)+2")
+  static native def fromStatic():Int;
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Native Blocks</h2>
+
+<div class="p"><!----></div>
+Any block may be annotated with <b>@Native(lang,stmt)</b>, indicating that, in
+the given back end, it should be implemented as <b>stmt</b>. All 
+variables  from the surrounding context are available inside <b>stmt</b>. For
+example, the method call <b>born.example(10)</b>, if compiled to Java, changes
+the field <b>y</b> of a <b>Born</b> object to 10. If compiled to C++ (for which
+there is no <b>@Native</b>), it sets it to 3. 
+<pre>
+import x10.compiler.Native;
+class Born {
+  var y : Int = 1; 
+  public def example(x:Int):Int{
+    @Native("java", &#255;=x;") 
+    {y = 3;}
+    return y;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Note that the code being replaced is a statement - the block <b>y = 3;</b>
+in this case - so the replacement should also be a statement. 
+
+<div class="p"><!----></div>
+Other X10 constructs may or may not be available in Java and/or C++ code.  For
+example, type variables do not correspond exactly to type variables in either
+language, and may not be available there.  The exact compilation scheme is
+<em>not</em> fully specified.  You may inspect the generated Java or C++ code and
+see how to do specific things, but there is no guarantee that fancy extern
+coding will continue to work in later versions of X10.
+
+<div class="p"><!----></div>
+The full facilities of C++ or Java are available in native code blocks.
+However, there is no guarantee that advanced features behave sensibly. You
+must follow the exact conventions that the code generator does, or you will
+get unpredictable results.  Furthermore, the code generator's conventions may
+change without notice or documentation from version to version.  In most cases
+the  code should either be a very simple expression, or a method
+or function call to external code.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;External Java Code</h2>
+
+<div class="p"><!----></div>
+When X10 is compiled to Java, mentioning a Java class name in native code will
+cause the Java compiler to find it in the sourcepath or classpath, in the
+usual way.  This requires no particular extra work from the programmer.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;External C++ Code</h2>
+
+<div class="p"><!----></div>
+C++ code can be linked to X10 code, either by writing auxiliary C++ files and
+adding them with suitable annotations, or by linking libraries.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Auxiliary C++ Files</h3>
+
+<div class="p"><!----></div>
+Auxiliary C++ code can be written in <b>.h</b> and <b>.cc</b> files, which
+should be put in the same directory as the the X10 file using them.
+Connecting with the library uses the <b>@NativeCPPInclude(dot_h_file_name)</b>
+annotation to include the header file, and the 
+<b>@NativeCPPCompilationUnit(dot_cc_file_name)</b> annotation to include the
+C++ code proper.  For example: 
+
+<div class="p"><!----></div>
+<b>MyCppCode.h</b>: 
+<pre>
+void foo();
+</pre>
+
+<div class="p"><!----></div>
+<b>MyCppCode.cc</b>:
+<pre>
+#include &lt;cstdlib&#62;
+#include &lt;cstdio&#62;
+void foo() {
+    printf("Hello World!");
+}
+</pre>
+
+<div class="p"><!----></div>
+<b>Test.x10</b>:
+<pre>
+import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
+import x10.compiler.NativeCPPCompilationUnit;
+
+<div class="p"><!----></div>
+@NativeCPPInclude("MyCPPCode.h")
+@NativeCPPCompilationUnit("MyCPPCode.cc")
+public class Test {
+    public static def main (args:Array[String](1)) {
+        { @Native("c++","foo();") {} }
+    }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;C++ System Libraries</h3>
+
+<div class="p"><!----></div>
+If we want to additionally link to more libraries in <b>/usr/lib</b> for
+example, it is necessary to adjust the post-compilation directly.  The
+post-compilation is the compilation of the C++ which the X10-to-C++ compiler
+<b>x10c++</b> produces.  
+
+<div class="p"><!----></div>
+The mechanism used for this is the <b>-post</b> command line parameter to
+<b>x10c++</b>. The following example shows how to compile <b>blas</b> into the
+executable via post compiler parameters. The command must be issued on one line.
+
+<div class="p"><!----></div>
+<pre>
+x10c++ Test.x10 -post '# # -I /usr/local/blas # 
+  -L /usr/local/blas -lblas'
+</pre>
+
+<div class="p"><!----></div>
+
+<ul>
+<li> The first <b>#</b> means to use the default compiler for the architecture (from
+      x10rt properties file).
+<div class="p"><!----></div>
+</li>
+
+<li> The second <b>#</b> is substituted for the .cc files and CXXFLAGS that would
+      ordinarily be used.
+<div class="p"><!----></div>
+</li>
+
+<li> The third <b>#</b> is substituted for the libraries and LDFLAGS that would
+      ordinarily used.
+<div class="p"><!----></div>
+</li>
+
+<li> For the second and third, if a <b>%</b> is used instead of a <b>#</b> then the
+      the substitution does not occur in that position.  The <b>%</b> is
+      erased.  The desired parameter value should appear after the <b>%</b> on
+      the line. This allows a complete override of the postcompiler behaviour.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<br /><br /><hr />
+
+</body>
+</html>

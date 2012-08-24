@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+  <!DOCTYPE platformConfigs [ 
+    <!ATTLIST config 
+        id ID #IMPLIED 
+    > 
+  ]>
+
+<smokeTest>   
+    <smokeTestSetup> <!-- configuration information for  the smoke test                -->
+                     <!--   includes                                                   -->
+                     <!--       name of project to create                              -->
+                     <!--       file name of archive to import                         -->
+                     <!--       expected type declarations for verifying the indexer   -->
+                     <!--       expected output for verification                       -->
+           
+    
+        <projectName> ArchiveTest_CPPBack </projectName>    <!-- name of project to create                 -->
+        <archiveName> ArchiveTestFile.zip </archiveName>    <!-- archive file must be on test's build path -->
+        <className> QSort </className>                      <!-- name of test class being imported         -->
+    
+        <expectedOutput>
+                <!-- console output to expect when project is executed                                                -->
+                <!--     output lines are expected to be contiguous and appear in this order                          -->
+                <!--     note:   these lines may be embedded in a larger output stream. The test will search for the  -->
+                <!--             first matching line and proceed from there                                           -->
+                <!-- Sample                                                                                           -->
+                <!--        <line>  "Your ad here!" </line>                                                           -->
+                <!--        <line>  "Call Today!"   </line>                                                           -->
+                 
+            <line>  "size of array: 50000"                  </line> 
+            <line>  "array is now sorted"                   </line>
+            <line>  "++++++ Test succeeded spectacularly!"  </line>
+        </expectedOutput>
+          
+        <typeDeclarationList>
+                <!-- the smoke test uses this information to check the type indexing system.                                -->
+                <!-- it will perform a complete check for every instance of <typeSearchInfo>.                               -->
+                <!-- the test uses:                                                                                         -->
+                <!--     - searchString:     may contain wildcards and is used to find a list of matching type declarations -->
+                <!--     - typeName:         the type name expected to be found                                             -->
+                <!--     - typeDeclaration:  the type declaration expected to be found                                      -->
+                <!--     - fileName:         the source file name where the type declaration is expected to be found        -->
+                <!--     - expectToFind:      the minimum number of matching types the search is expected to find           -->
+                <!-- Sample                                                                                                 -->
+                <!--        <typeSearchInfo>                                                                                -->
+                <!--            <searchString>   "Foo*"                          </searchString>                            -->
+                <!--            <typeName>       "Foobar"                        </typeName>                                -->
+                <!--            <typeDeclaration>"public class Foobar(foo: Int)" </typeDeclaration>                         -->
+                <!--            <fileName>       "FooProject.x10"                </fileName>                                -->
+                <!--            <expectToFind>   2                               </expectToFind>                            -->
+                <!--        </typeSearchInfo>                                                                               -->
+                
+ <!--           <typeSearchInfo>
+                <searchString>   "QS*"                                             </searchString>    
+                <typeName>       "QSortable"                                       </typeName>        
+                <typeDeclaration>"public class QSortable(theArray: SortableArray)" </typeDeclaration> 
+                <fileName>       "QSort.x10"                                       </fileName>        
+                <expectToFind>   2                                                 </expectToFind>    
+            </typeSearchInfo>
+-->
+        </typeDeclarationList>                                                                                              
+
+    </smokeTestSetup>
+    
+    <platformConfigs> 
+    
+        <!-- sockets runtime -->
+        
+        <config id="condorSocketsConfig"> 
+            <configName> condor MacOS 64-bit x86 Sockets runtime </configName> 
+            <description> condor MacOS Sockets runtime </description> 
+            
+            <useLocalConnection> no </useLocalConnection> 
+            
+            <target> 
+               <osType> Mac </osType>                       <!-- one of 'WINDOWS', 'LINUX', 'AIX', 'UNIX', 'MAC' (case insensitive) -->
+               <architectureType> x86 </architectureType>   <!-- 'x86' or 'Power'. 'i386' is also valid -->
+               <set64BitSpace> no </set64BitSpace> 
+           </target> 
+              
+            <x10> 
+                <numPlaces> 2 </numPlaces> 
+                <programArg> 50000 </programArg>
+            </x10> 
+         
+            <commInterface> 
+                <interfaceType> Sockets </interfaceType> 
+                <interfaceMode> Launch </interfaceMode> 
+            </commInterface> 
+           
+            <remoteConnection> 
+                <connectionName> condor </connectionName> 
+                <remoteHostName> condor.watson.ibm.com </remoteHostName> 
+                <remoteHostPort> 22 </remoteHostPort> 
+                <remoteHostUser> lesniakr </remoteHostUser> 
+                 <usePassword> no </usePassword> 
+                <remoteHostPassword>  </remoteHostPassword> 
+                <remoteKeyFile> .ssh/id_rsa </remoteKeyFile> 
+                
+                <portForwarding> 
+                    <usePortForwarding> no </usePortForwarding> 
+                    <portForwardingTimeout> </portForwardingTimeout> 
+                    <portForwardingLocalAddress> </portForwardingLocalAddress> 
+                </portForwarding> 
+        
+                <remotePlatform> 
+                    <outputFolder> /Users/lesniakr/x10dt/sandbox </outputFolder> 
+                    <useSelectedPGAS> no </useSelectedPGAS> 
+                    <remoteDistribution> /Users/lesniakr/x10dt/x10-x10dt/x10.dist </remoteDistribution> 
+                    <remotePGASDist> </remotePGASDist> 
+                    <debuggerFolder> /Users/lesniakr/x10dt/sandbox/debug </debuggerFolder> 
+                    <debuggingPort> 8888 </debuggingPort> 
+               </remotePlatform> 
+        
+           </remoteConnection> 
+        </config>
+        
+        <!-- OpenMPI runtime -->
+        
+        <config id="condorOpenMPIConfig"> 
+            <configName> condor MacOS 64-bit x86 Open MPI runtime </configName> 
+            <description> condor MacOS Open MPI runtime </description> 
+            
+            <useLocalConnection> no </useLocalConnection> 
+            
+            <target> 
+                <osType> Mac </osType>                       <!-- one of 'WINDOWS', 'LINUX', 'AIX', 'UNIX', 'MAC' (case insensitive) -->
+                <architectureType> x86 </architectureType>   <!-- 'x86' or 'Power'. 'i386' is also valid -->
+                <set64BitSpace> no </set64BitSpace> 
+            </target> 
+              
+            <x10> 
+                <numPlaces> 2 </numPlaces> 
+                <programArg> 50000 </programArg>
+            </x10> 
+            
+            <commInterface> 
+                <interfaceType> Open MPI </interfaceType> <!-- one of 'Sockets', 'IBM LoadLeveler', 'Standalone', 'IBM Parallel Environment', 'Open MPI', 'MPICH2' -->
+                <interfaceMode> Launch </interfaceMode>   <!-- one of 'Profile', 'Debug', 'Launch' -->
+            </commInterface> 
+            
+            <remoteConnection> 
+                <connectionName> condor </connectionName> 
+                <remoteHostName> condor.watson.ibm.com </remoteHostName> 
+                <remoteHostPort> 22 </remoteHostPort> 
+                <remoteHostUser> lesniakr </remoteHostUser> 
+                <usePassword> no </usePassword> 
+                <remoteHostPassword>  </remoteHostPassword> 
+                <remoteKeyFile> .ssh/id_rsa </remoteKeyFile> 
+                
+                <portForwarding> 
+                    <usePortForwarding> no </usePortForwarding> 
+                    <portForwardingTimeout> </portForwardingTimeout> 
+                    <portForwardingLocalAddress> </portForwardingLocalAddress> 
+                </portForwarding> 
+            
+                <remotePlatform> 
+                    <outputFolder> /Users/lesniakr/x10dt/sandbox </outputFolder> 
+                    <useSelectedPGAS> no </useSelectedPGAS> 
+                    <remoteDistribution> /Users/lesniakr/x10dt/x10-x10dt/x10.dist </remoteDistribution> 
+                    <remotePGASDist> </remotePGASDist> 
+                    <debuggerFolder> /Users/lesniakr/x10dt/sandbox/debug </debuggerFolder> 
+                    <debuggingPort> 8888 </debuggingPort> 
+                </remotePlatform> 
+            </remoteConnection> 
+        </config>
+    
+    </platformConfigs> 
+</smokeTest>   

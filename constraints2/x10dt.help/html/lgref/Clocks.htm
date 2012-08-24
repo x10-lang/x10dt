@@ -1,0 +1,486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Clocks</title>
+<a href="#tth_chAp1">Clocks</a> <br/>
+<ul>
+<li><a href="#tth_sEc1">Clock operations</a> <br/>
+<li><a href="#tth_sEc2">Deadlock Freedom</a> <br/>
+<li><a href="#tth_sEc3">Program equivalences</a> <br/>
+<li><a href="#tth_sEc4">Clocked Finish</a> <br/>
+</ul>
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 15 </a><br />Clocks</h1><a name="XtenClocks">
+</a>
+
+<div class="p"><!----></div>
+Many concurrent algorithms proceed in phases: in phase k, several
+activities work independently, but synchronize together before proceeding on
+to phase k+1. X10 supports this communication structure (and many
+variations on it) with a generalization of barriers 
+called <em>clocks</em>. Clocks are designed so that programs which follow a
+simple syntactic discipline will not have either deadlocks or race conditions.
+
+<div class="p"><!----></div>
+The following minimalist example of clocked code has two worker activities A
+and B, and three phases. In the first phase, each worker activity says its
+name followed by 1; in the second phase, by a 2, and in the third, by a 3.  
+So, if <b>say</b> prints its argument, 
+<b>A-1 B-1 A-2 B-2 B-3 A-3</b>
+would be a legitimate run of the program, but
+<b>A-1 A-2 B-1 B-2 A-3 B-3</b>
+(with <b>A-2</b> before <b>B-1</b>) would not.
+
+<div class="p"><!----></div>
+The program creates a clock <b>cl</b> to manage the phases.  Each participating
+activity does
+the work of its first phase, and then executes <b>Clock.advanceAll();</b> to
+signal that it 
+is finished with that work. <b>Clock.advanceAll();</b> is blocking, and causes the participant to
+wait until all participant have finished with the phase - as measured by the
+clock <b>cl</b> to which they are both registered.  
+Then they do the second phase, and another <b>Clock.advanceAll();</b> to make sure that
+neither proceeds to the third phase until both are ready.  This example uses
+<b>finish</b> to wait for both particiants to finish.  
+
+<div class="p"><!----></div>
+<pre>
+class ClockEx {
+  static def say(s:String) = 
+     { atomic{x10.io.Console.OUT.println(s);} }
+  public static def main(argv:Rail[String]) {
+    finish async{
+      val cl = Clock.make();
+      async clocked(cl) {// Activity A
+        say(&#196;-1");
+        Clock.advanceAll();
+        say(&#196;-2");
+        Clock.advanceAll();
+        say(&#196;-3"); 
+      }// Activity A
+
+<div class="p"><!----></div>
+      async clocked(cl) {// Activity B
+        say("B-1");
+        Clock.advanceAll();
+        say("B-2");
+        Clock.advanceAll();
+        say("B-3"); 
+      }// Activity B
+    }
+  }
+ }
+</pre>
+
+<div class="p"><!----></div>
+This chapter describes the syntax and semantics of clocks and
+statements in the language that have parameters of type <b>Clock</b>. 
+
+<div class="p"><!----></div>
+The key invariants associated with clocks are as follows.  At any
+stage of the computation, a clock has zero or more <em>registered</em>
+activities. An activity may perform operations only on those clocks it
+is registered with (these clocks constitute its <em>clock set</em>). 
+An attempt by an activity to operate on a clock it is not registered with
+will cause a 
+<b>ClockUseException</b>
+to be thrown.  
+An activity is registered with zero or more clocks when it is created.
+During its lifetime the only additional clocks it can possibly be registered with
+are exactly those that it creates. In particular it is not possible
+for an activity to register itself with a clock it discovers by
+reading a data structure.
+
+<div class="p"><!----></div>
+The primary operations that an activity <b>a</b> may perform on a clock <b>c</b>
+that it is registered upon are: 
+
+<ul>
+<li> It may spawn and simultaneously  <em>register</em> a new activity on
+      <b>c</b>, with the statement       <b>async clocked(c)S</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> It may <em>unregister</em> itself from <b>c</b>, with <b>c.drop()</b>.  After
+      doing so, it can no longer use most primary operations on <b>c</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> It may <em>resume</em> the clock, with <b>c.resume()</b>, indicating that it
+      has finished with the current phase associated with <b>c</b> and is ready
+      to move on to the next one.
+<div class="p"><!----></div>
+</li>
+
+<li> It may <em>wait</em> on the clock, with <b>c.advance()</b>.  This first does
+      <b>c.resume()</b>, and then blocks the current activity until the start
+      of the next phase, <em>viz</em>, until all other activities registered on that
+      clock have called <b>c.resume()</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> It may <em>block</em> on all the clocks it is registered with
+      simultaneously, by the command <b>Clock.advanceAll();</b>.  This, in effect, calls
+      <b>c.advance()</b> simultaneously 
+      on all clocks <b>c</b> that the current activity is registered with.
+<div class="p"><!----></div>
+</li>
+
+<li> Other miscellaneous operations are available as well; see the
+      <b>Clock</b> API.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Clock operations</h2><a name="sec:clock">
+</a>
+
+There are two language constructs for working with clocks. 
+<b>async clocked(cl) S</b> starts a new activity registered on one or more
+clocks.  <b>Clock.advanceAll();</b> blocks the current activity until all the activities
+sharing clocks with it are ready to proceed to the next clock phase. 
+Clocks are objects, and have a number of useful methods on them as well.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Creating new clocks</h3><a name="sec:clock:create">
+</a>
+
+<div class="p"><!----></div>
+Clocks are created using a factory method on <b>x10.lang.Clock</b>:
+
+<div class="p"><!----></div>
+<pre>
+val c: Clock = Clock.make();
+</pre>
+
+<div class="p"><!----></div>
+The current activity is automatically registered with the newly
+created clock.  It may deregister using the <b>drop</b> method on
+clocks (see the documentation of <b>x10.lang.Clock</b>). All activities
+are automatically deregistered from all clocks they are registered
+with on termination (normal or abrupt).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Registering new activities on clocks</h3>
+<a name="sec:clock:register">
+</a>
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">AsyncStatement ::= <b>async</b> ClockedClause<sup>?</sup>&nbsp;Statement </td></tr>
+<tr><td align="right">&#124; <b>clocked</b> <b>async</b> Statement </td></tr>
+<tr><td align="right">ClockedClause ::= <b>clocked</b> <b>(</b> ClockList <b>)</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The <b>async</b> statement with a <b>clocked</b> clause of either form, say 
+<pre>
+  async clocked (c1, c2, c3) S
+</pre>
+starts a new activity, initially registered with
+clocks <b>c1</b>, <b>c2</b>, and <b>c3</b>, and  running <b>S</b>. The activity running this code must
+be registered on those clocks. 
+Violations of these conditions are punished by the throwing of a
+<b>ClockUseException</b>. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+If an activity a that has executed <b>c.resume()</b> then starts a
+new activity b also registered on <b>c</b> (<em>e.g.</em>, via <b>async
+clocked(c) S</b>), the new activity b starts out having also resumed
+<b>c</b>, as if it too had executed <b>c.resume()</b>. That is, a and b
+are in the same phase of the clock. 
+<pre>
+// ACTIVITY a
+val c = Clock.make();
+c.resume();
+async clocked(c) {
+  // ACTIVITY b
+  c.advance();
+  b_phase_two();
+  // END OF ACTIVITY b
+}
+c.advance();
+a_phase_two();
+// END OF ACTIVITY a
+</pre>
+In the proper execution, a and b both perform
+<b>c.advance()</b> and then their phase-2 actions.  
+However, if b were not
+initially in the resume state for <b>c</b>, there would be a race condition;
+b could perform <b>c.advance()</b> and proceed to <b>b_phase_two</b>
+before a performed <b>c.advance()</b>.
+
+<div class="p"><!----></div>
+An activity may check whether or not it is registered on a clock <b>c</b> by
+the method call <b>c.registered()</b>
+
+<div class="p"><!----></div>
+ Note:
+X10 does not contain a "register" operation that would allow an activity
+to discover a clock in a datastructure and register itself (or another
+process) on it. Therefore,
+while a clock <b>c</b> may be stored in a data structure by one activity
+<b>a</b> and read from it by another activity <b>b</b>, <b>b</b> cannot do much
+with <b>c</b> unless it is already registered with it.  In particular, it
+cannot register itself on <b>c</b>, and, lacking that registration, cannot
+register a sub-activity on it with <b>async clocked(c) S</b>.
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Resuming clocks</h3><a name="resume">
+</a><a name="sec:clock:resume">
+</a>
+X10 permits <em>split phase</em> clocks. An activity may wish
+to indicate that it has completed whatever work it wishes to perform
+in the current phase of a  clock <b>c</b> it is registered with, without
+suspending itself altogether. It may do so  by executing 
+<b>c.resume();</b>.
+
+<div class="p"><!----></div>
+An activity may invoke <b>resume()</b> only on a clock it is registered with,
+and has not yet dropped (&#167;). A
+<b>ClockUseException</b> is thrown if this
+condition is violated. Nothing happens if the activity has already invoked a
+<b>resume</b> on this clock in the current phase.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Advancing clocks</h3><a name="sec:clock:next">
+</a>
+An activity may execute the following method call to signal that it is done
+with the current phase.
+<pre>
+Clock.advanceAll();
+</pre>
+
+<div class="p"><!----></div>
+ Execution of this call blocks until all the clocks that the
+activity is registered with (if any) have advanced. (The activity
+implicitly issues a <b>resume</b> on all clocks it is registered
+with before suspending.)
+
+<div class="p"><!----></div>
+<b>Clock.advanceAll();</b> may be thought of as calling <b>c.advance()</b> in parallel for all
+clocks that the current activity is registered with.  (The parallelism is
+conceptually important: if activities a and b are both
+registered on clocks <b>c</b> and <b>d</b>, and a executes
+<b>c.advance(); d.advance()</b> while b executes <b>d.advance(); c.advance()</b>,
+then the two will deadlock.  However, if the two clocks are waited on in
+parallel, as <b>Clock.advanceAll();</b> does, a and b will not deadlock.)
+
+<div class="p"><!----></div>
+Equivalently, <b>Clock.advanceAll();</b> sequentially calls <b>c.resume()</b> for each
+registered clock <b>c</b>, in arbitrary order, and then <b>c.wait()</b> for each
+clock, again in arbitrary order.  
+
+<div class="p"><!----></div>
+An activity blocked on <b>advance()</b> resumes execution once
+it is marked for progress by all the clocks it is registered with.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.5">
+1.5</a>&nbsp;&nbsp;Dropping clocks</h3><a name="sec:clock:drop">
+</a>
+An activity may drop a clock by executing <b>c.drop();</b>.
+
+<div class="p"><!----></div>
+ The activity is no longer considered registered with this
+clock.  A <b>ClockUseException</b> is thrown if the activity has
+already dropped <b>c</b>.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Deadlock Freedom</h2>
+
+<div class="p"><!----></div>
+In general, programs using clocks can deadlock, just as programs using loops
+can fail to terminate.  However, programs written with a particular syntactic
+discipline <em>are</em> guaranteed to be deadlock-free, just as programs which
+use only bounded loops are guaranteed to terminate.  The syntactic discipline
+is: 
+
+<ul>
+<li> The <b>advance()</b> instance method shall not be called on any clock.
+      (The 
+      <b>Clock.advanceAll();</b> method is allowed for this discipline.)
+<div class="p"><!----></div>
+</li>
+
+<li> Inside of <b>finish{S}</b>, all clocked <b>async</b>s shall be in the scope
+      an unclocked <b>async</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+X10 does not enforce this discipline.  Doing so would exclude useful programs,
+many of which are deadlock-free for reasons more subtle than the
+straightforward syntactic discipline.  Still, this discipline is useful for
+simple cases. 
+
+<div class="p"><!----></div>
+The first clause of the discipline prevents a deadlock in which an activity
+is registered on two clocks, advances one of them, and ignores the other. 
+The second clause prevents the following deadlock.  
+<pre>
+val c:Clock = Clock.make();
+async clocked(c) {                // (A) 
+      finish async clocked(c) {   // (B) Violates clause 2
+            Clock.advanceAll();   // (Bnext)
+      }
+      Clock.advanceAll();         // (Anext)
+}
+</pre>
+<b>(A)</b>, first of all, waits for the <b>finish</b> containing <b>(B)</b> to
+finish.  
+<b>(B)</b> will execute its <b>advance</b> at <b>(Bnext)</b>, and then wait for all
+other activities registered on <b>c</b> to execute their <b>advance()</b>s.
+However, <b>(A)</b> is registered on <b>c</b>.  So, <b>(B)</b> cannot finish
+until <b>(A)</b> has proceeded to <b>(Anext)</b>, and <b>(A)</b> cannot proceed
+until <b>(B)</b> finishes. Thus, this causes deadlock.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Program equivalences</h2>
+From the discussion above it should be clear that the following
+equivalences hold:
+
+<div class="p"><!----></div>
+<font size="-1">
+<br clear="all" /><table border="0" width="100%"><tr><td>
+<table border="0" cellspacing="0" cellpadding="0">
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
+ <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>Clock</b><b>.</b><b>advanceAll</b><b>(</b><b>)</b><b>;</b></b> = <b><b>Clock</b><b>.</b><b>advanceAll</b><b>(</b><b>)</b><b>;</b></b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(1)</td></tr>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table border="0" cellspacing="0" cellpadding="2"><tr><td nowrap="nowrap" align="left">
+ <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>d</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b> = <b><b>d</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(2)</td></tr>
+ <tr><td width="50%"></td><td nowrap="nowrap" align="right" colspan="1"><table><tr><td nowrap="nowrap" align="right" colspan="1"> <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b> <b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b> = <b><b>c</b><b>.</b><b>resume</b><b>(</b><b>)</b><b>;</b></b></td></tr></table></td><td width="50%"></td><td width="1" align="right">(3)</td></tr></table>
+</td></tr></table>
+
+
+</font>
+
+<div class="p"><!----></div>
+Note that <b>Clock.advanceAll(); Clock.advanceAll();</b> is not the same as <b>Clock.advanceAll();</b>. The
+first will wait for clocks to advance twice, and the second
+once.  
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Clocked Finish</h2>
+
+
+
+
+<a name="ClockedFinish">
+</a>
+
+<div class="p"><!----></div>
+In the most common case of a single clock coordinating a few behaviors, X10
+allows coding with an implicit clock.  <b>finish</b> and <b>async</b> statements
+may be qualified with <b>clocked</b>.  
+
+<div class="p"><!----></div>
+A <b>clocked finish</b> introduces a new clock.  It executes its body in the
+usual way that a <b>finish</b> does- except that, when its body completes,
+the activity executing the <b>clocked finish</b> drops the clock, while it
+waits for asynchronous spawned <b>async</b>s to terminate.  
+
+<div class="p"><!----></div>
+A <b>clocked async</b> registers its async with the implicit clock of
+the surrounding <b>clocked finish</b>.   
+
+<div class="p"><!----></div>
+The bodies of the <b>clocked finish</b> and <b>clocked async</b>
+statements  may use the
+<b>Clock.advanceAll()</b> 
+method call to advance the implicit clock.  Since the implicit clock is not
+available in a variable, it cannot be manipulated directly. (If you want to
+manipulate the clock directly, use an explicit clock, not a <b>clocked finish</b>.)
+
+<div class="p"><!----></div>
+The following code starts two activities, each of which perform their first
+phase, wait for the other to finish phase 1, and then perform their second
+phase.  
+<pre>
+clocked finish {
+  clocked async {
+     phase(&#196;", 1);
+     Clock.advanceAll();
+     phase(&#196;", 2);
+  }
+  clocked async {
+     phase("B", 1);
+     Clock.advanceAll();
+     phase("B", 2);
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+Clocked finishes may be nested.  The inner <b>clocked finish</b> operates in a
+single phase of the outer one.  
+
+<br /><br />
+</html>
