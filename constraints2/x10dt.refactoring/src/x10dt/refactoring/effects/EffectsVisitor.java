@@ -46,7 +46,6 @@ import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.effects.constraints.ArrayElementLocs;
 import x10.effects.constraints.Effect;
@@ -60,13 +59,14 @@ import x10.types.X10LocalInstance;
 import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.constraints.ConstraintManager;
+import x10.types.constraints.CLocal;
 import x10dt.refactoring.X10DTRefactoringPlugin;
 import x10dt.refactoring.analysis.ReachingDefsVisitor.ValueMap;
 
 public class EffectsVisitor extends NodeVisitor {
     private final Map<Node,Effect> fEffects= new HashMap<Node, Effect>();
 
-    private final XConstraint fMethodContext;
+    private final XConstraint<Type> fMethodContext;
 
     private final ValueMap fValueMap;
 
@@ -84,8 +84,8 @@ public class EffectsVisitor extends NodeVisitor {
         fDiagStream= diagStream;
     }
 
-    private final XConstraint computeMethodContextConstraint(X10MethodDecl method) throws XFailure {
-        XConstraint result= null;
+    private final XConstraint<Type> computeMethodContextConstraint(X10MethodDecl method) throws XFailure {
+        XConstraint<Type> result= null;
         DepParameterExpr methodGuard= method.guard();
         if (methodGuard != null) {
             result= conjunction(result, methodGuard.valueConstraint().get());
@@ -124,7 +124,7 @@ public class EffectsVisitor extends NodeVisitor {
         return e1.followedBy(e2, fMethodContext);
     }
 
-    private XConstraint conjunction(XConstraint c1, XConstraint c2) throws XFailure {
+    private XConstraint<Type> conjunction(XConstraint<Type> c1, XConstraint<Type> c2) throws XFailure {
         if (c1 == null)
             return c2.copy();
         return c1.leastUpperBound(c2);
@@ -134,17 +134,17 @@ public class EffectsVisitor extends NodeVisitor {
     // Locations/Terms
     // ================
     private Locs createArrayLoc(Expr array, Expr index) {
-        XTerm arrayTerm = createTermForExpr(array);
-        XTerm indexTerm = createTermForExpr(index);
+        XTerm<Type> arrayTerm = createTermForExpr(array);
+        XTerm<Type> indexTerm = createTermForExpr(index);
         return Effects.makeArrayElementLocs(arrayTerm, indexTerm);
     }
 
-    private static XTerm createTermForExpr(Expr e) {
+    private static XTerm<Type> createTermForExpr(Expr e) {
         TermCreator tc= new TermCreator(e);
         return tc.getTerm();
     }
 
-    private XTerm createTermForReceiver(Receiver r) {
+    private XTerm<Type> createTermForReceiver(Receiver r) {
         if (r instanceof Expr) {
             return createTermForExpr((Expr) r);
         }
@@ -153,7 +153,8 @@ public class EffectsVisitor extends NodeVisitor {
             CanonicalTypeNode canonicalTypeNode = (CanonicalTypeNode) r;
             Qualifier qualifier= canonicalTypeNode.qualifierRef().get();
             String shortName= canonicalTypeNode.nameString();
-            return ConstraintManager.getConstraintSystem().makeLit(qualifier.toString() + "." + shortName);
+            return ConstraintManager.getConstraintSystem().makeLit(qualifier.toString() + "." + shortName, 
+            													   Types.baseType(canonicalTypeNode.type()));
         }
 
         throw new UnsupportedOperationException("Can't produce an XTerm for "+r+" ("+r.getClass()+")");
@@ -178,8 +179,8 @@ public class EffectsVisitor extends NodeVisitor {
         return null;
     }
 
-    private Effect getMethodEffects(ProcedureInstance procInstance) {
-        X10ProcedureInstance xpi= (X10ProcedureInstance) procInstance;
+    private Effect getMethodEffects(ProcedureInstance<?> procInstance) {
+        X10ProcedureInstance<?> xpi= (X10ProcedureInstance<?>) procInstance;
         X10ProcedureDef xpd= (X10ProcedureDef) xpi.def();
         List<Type> annotations= xpd.annotations();
         Effect e= Effects.makeEffect(false);
