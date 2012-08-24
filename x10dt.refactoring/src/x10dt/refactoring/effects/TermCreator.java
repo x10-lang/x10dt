@@ -3,7 +3,9 @@
  */
 package x10dt.refactoring.effects;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import polyglot.ast.Binary;
@@ -33,6 +35,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.SettableAssign;
+import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.ConstraintManager;
@@ -70,37 +73,48 @@ public class TermCreator {
             sBinaryOpMap.put(Binary.USHR, Binary.USHR.toString());
         }
 
-        private String getNameFor(Binary.Operator op) {
-            return sBinaryOpMap.get(op);
+        private XOp<Type> getXOp(Binary.Operator op) {
+        	if (op == Binary.COND_AND)
+        		return XOp.AND();
+        	if (op == Binary.COND_OR)
+        		return XOp.OR(); 
+        	if (op == Binary.EQ)
+        		return XOp.EQ();
+        	
+            throw new IllegalArgumentException("Unsupported operator " + op);
         }
 
-        private String getNameFor(Unary.Operator op) {
-            return sUnaryOpMap.get(op);
+        private XOp<Type> getXOp(Unary.Operator op) {
+            if (op == Unary.NOT)
+            	return XOp.NOT();
+            throw new IllegalArgumentException("Unsupported operator " + op);
+            
         }
 
         private class TermVisitor extends NodeVisitor {
             @Override
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
+            	
                 if (old instanceof BooleanLit) {
-                    BooleanLit booleanLit = (BooleanLit) old;
-
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(booleanLit.value()));
+                	BooleanLit booleanLit = (BooleanLit) old;
+                	Type type = booleanLit.type().typeSystem().Boolean();
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(booleanLit.value(), type));
                 } else if (old instanceof FloatLit) {
                     FloatLit floatLit = (FloatLit) old;
-
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(floatLit.value()));
+                    Type type = floatLit.type().typeSystem().Boolean();
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(floatLit.value(), type));
                 } else if (old instanceof CharLit) {
                     CharLit charLit = (CharLit) old;
-
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(charLit.value()));
+                    Type type = charLit.type().typeSystem().Boolean();
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(charLit.value(), type));
                 } else if (old instanceof IntLit) {
                     IntLit intLit = (IntLit) old;
-
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(intLit.value()));
+                    Type type = intLit.type().typeSystem().Boolean();
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(intLit.value(), type));
                 } else if (old instanceof StringLit) {
                     StringLit stringLit = (StringLit) old;
-
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(stringLit.value()));
+                    Type type = stringLit.type().typeSystem().Boolean();
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(stringLit.value(), type));
                 } else if (old instanceof ClassLit) {
                     throw new UnsupportedOperationException("Can't handle class literals.");
                 } else if (old instanceof CanonicalTypeNode) {
@@ -108,13 +122,13 @@ public class TermCreator {
                     Qualifier qualifier= canonicalTypeNode.qualifierRef().get();
                     String shortName= canonicalTypeNode.nameString();
 
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(qualifier.toString() + "." + shortName));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLit(qualifier.toString() + "." + shortName, Types.baseType(canonicalTypeNode.type())));
                 } else if (old instanceof Field) {
                     Field field = (Field) old;
                     Receiver target= field.target();
                     Id name= field.name();
-
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeFakeField((XVar) fTermMap.get(target), field));
+                    FieldInstance newfield = (FieldInstance)field.fieldInstance().copy(); 
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeFakeField(fTermMap.get(target), newfield.def()));
                 } else if (old instanceof Local) {
                     Local local = (Local) old;
                     Type localType= local.type();
@@ -134,17 +148,22 @@ public class TermCreator {
                     Binary.Operator op= binary.operator();
                     Expr lhs= binary.left();
                     Expr rhs= binary.right();
-                    XTerm lhsTerm= fTermMap.get(lhs);
-                    XTerm rhsTerm= fTermMap.get(rhs);
-
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeAtom(getNameFor(op), lhsTerm, rhsTerm));
+                    XTerm<Type> lhsTerm= fTermMap.get(lhs);
+                    XTerm<Type> rhsTerm= fTermMap.get(rhs);
+                    if (op == Binary.NE){
+                    	// NE is encoded as NOT EQ
+                    	XTerm<Type> eq = ConstraintManager.getConstraintSystem().makeEquals(lhsTerm, rhsTerm);
+                    	fTermMap.put(old, ConstraintManager.getConstraintSystem().makeNot(eq));
+                    } else {
+                    	fTermMap.put(old, ConstraintManager.getConstraintSystem().makeExpr(getXOp(op), lhsTerm, rhsTerm));
+                    }
                 } else if (old instanceof Unary) {
                     Unary unary = (Unary) old;
                     Unary.Operator op= unary.operator();
                     Expr opnd= unary.expr();
-                    XTerm opndTerm= fTermMap.get(opnd);
+                    XTerm<Type> opndTerm= fTermMap.get(opnd);
 
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeAtom(getNameFor(op), opndTerm));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeExpr(getXOp(op), opndTerm));
                 } else if (old instanceof Call) {
                     Call call = (Call) old;
                     
@@ -165,7 +184,7 @@ public class TermCreator {
                     FieldInstance fi= fa.fieldInstance();
                     Receiver target= fa.target();
 
-                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeFakeField((XVar) fTermMap.get(target), fi.def()));
+                    fTermMap.put(old, ConstraintManager.getConstraintSystem().makeFakeField(fTermMap.get(target), fi.def()));
                 } else if (old instanceof LocalAssign) {
                     LocalAssign la= (LocalAssign) old;
                     LocalDef ld= la.local().localInstance().def();
@@ -174,9 +193,9 @@ public class TermCreator {
                 } else if (old instanceof Special) {
                     Special special = (Special) old;
                     if (special.kind() == Special.SUPER) {
-                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLocal("super"));
+                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeVar(Types.baseType(special.type()), "super"));
                     } else {
-                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeLocal("this"));
+                        fTermMap.put(old, ConstraintManager.getConstraintSystem().makeVar(Types.baseType(special.type()), "this"));
                     }
                 } else if (old instanceof Id) {
                     // do nothing
@@ -189,7 +208,7 @@ public class TermCreator {
         }
 
         private final Expr fExpr;
-        private final Map<Node,XTerm> fTermMap= new HashMap<Node,XTerm>();
+        private final Map<Node,XTerm<Type>> fTermMap= new HashMap<Node,XTerm<Type>>();
         private final TermVisitor fVisitor= new TermVisitor();
 
         public TermCreator(Expr e) {
@@ -197,7 +216,7 @@ public class TermCreator {
             fExpr.visit(fVisitor);
         }
 
-        public XTerm getTerm() {
+        public XTerm<Type> getTerm() {
             return fTermMap.get(fExpr);
         }
     }
