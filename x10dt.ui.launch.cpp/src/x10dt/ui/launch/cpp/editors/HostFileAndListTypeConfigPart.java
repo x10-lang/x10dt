@@ -238,6 +238,7 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
       public void widgetSelected(final SelectionEvent event) {
         if (hostFileBt.getSelection()) {
           x10PlatformConf.setShouldUseHostFile(true);
+          x10PlatformConf.setLoadLevelerSelected(false);
           
           loadLevelerBt.setSelection(false);
           loadLevelerText.setEnabled(false);
