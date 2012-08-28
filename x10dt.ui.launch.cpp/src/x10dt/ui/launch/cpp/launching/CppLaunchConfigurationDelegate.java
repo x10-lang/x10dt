@@ -140,7 +140,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
         if (!monitor.isCanceled()) {
           // Hijack launch if it's PAMI with LoadLeveler
           if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(this.fX10PlatformConf.getCommunicationInterfaceConf().getServiceTypeId()) &&
-              ((IHostsBasedConf)this.fX10PlatformConf.getCommunicationInterfaceConf()).shouldUseLL()){
+              ((IHostsBasedConf)this.fX10PlatformConf.getCommunicationInterfaceConf()).loadLevelerSelected()){
             launchPAMIwLL(configuration, fProject, new SubProgressMonitor(monitor, 5));
             
           } else {

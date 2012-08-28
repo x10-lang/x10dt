@@ -42,12 +42,12 @@ final class SocketsConf extends AbstractHostsBasedConf implements ISocketsConf {
     super(rmConf);
   }
   
-  public boolean shouldUseHostSection() {
+  public boolean hostSectionEnabled() {
     return true;
   }
   
-  public boolean shouldUseLL() {
+  public boolean loadLevelerEnabled() {
     return false;
   }
-
+  
 }

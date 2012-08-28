@@ -578,7 +578,7 @@ class X10PlatformConf implements IX10PlatformConf {
     final String hostFile = getTextDataValue(ciMemento, SOCKETS_HOST_FILE);
     final String loadLevelerScript = getTextDataValue(ciMemento, LOAD_LEVELER_SCRIPT);
     if (loadLevelerScript != null){
-      ciConf.fShouldUseLL = true;
+      ciConf.fLoadLevelerSelected = true;
       ciConf.fLoadLevelerScript = loadLevelerScript;
     } else {
       if (hostFile != null) {
@@ -669,7 +669,7 @@ class X10PlatformConf implements IX10PlatformConf {
   }
   
   private void save(final IMemento ciMemento, final AbstractHostsBasedConf conf) {
-    if (conf.shouldUseLL()){
+    if (conf.loadLevelerSelected()){
       ciMemento.createChild(LOAD_LEVELER_SCRIPT).putTextData(conf.getLoadLevelerScript());
     } else 
     if (conf.shouldUseHostFile()) {

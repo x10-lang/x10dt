@@ -36,7 +36,7 @@ final class PAMITypeConfigPart extends HostFileAndListTypeConfigPart  implements
 
   @Override
   protected void initializeControls(AbstractCommonSectionFormPart formPart, IHostsBasedConf socketsConf, Button addButton, Button removeButton) {
-    doInitializeControls(formPart, socketsConf, true, true, true, addButton, removeButton);
+    doInitializeControls(formPart, socketsConf, true, true, true, false, addButton, removeButton);
   }
 
   public String getServiceProviderId() {

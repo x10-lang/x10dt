@@ -29,8 +29,8 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
     return (this.fHosts == null) ? Constants.EMPTY_STR : this.fHosts;
   }
   
-  public boolean shouldUseLL() {
-    return this.fShouldUseLL;
+  public boolean loadLevelerSelected() {
+    return this.fLoadLevelerSelected;
   }
   
   public String getLoadLevelerScript(){
@@ -56,7 +56,7 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
       return false;
     }
     final AbstractHostsBasedConf rhsObj = (AbstractHostsBasedConf) rhs;
-    if (this.fShouldUseLL != rhsObj.fShouldUseLL) return false;
+    if (this.fLoadLevelerSelected != rhsObj.fLoadLevelerSelected) return false;
     if (!CodingUtils.equals(this.fLoadLevelerScript, rhsObj.fLoadLevelerScript)) return false;
     if (this.fShouldUseHostFile == rhsObj.fShouldUseHostFile) {
       if (this.fShouldUseHostFile) {
@@ -88,7 +88,7 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
     super(original);
     this.fHostFile = original.fHostFile;
     this.fLoadLevelerScript = original.fLoadLevelerScript;
-    this.fShouldUseLL = original.fShouldUseLL;
+    this.fLoadLevelerSelected = original.fLoadLevelerSelected;
     this.fHosts = original.fHosts;
     this.fShouldUseHostFile = original.fShouldUseHostFile;
   }
@@ -107,6 +107,6 @@ abstract class AbstractHostsBasedConf extends AbstractCommunicationInterfaceConf
   
   boolean fShouldUseHostFile;
 
-  public boolean fShouldUseLL;
+  public boolean fLoadLevelerSelected;
 
 }

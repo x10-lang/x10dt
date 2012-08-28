@@ -320,7 +320,7 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
 
       public void widgetSelected(SelectionEvent e) {
        if (loadLevelerBt.getSelection()){
-         x10PlatformConf.setShouldUseLL(true);
+         x10PlatformConf.setLoadLevelerSelected(true);
          loadLevelerText.setEnabled(true);
          loadLevelerBrowseBt.setEnabled(true);
          hostFileBt.setSelection(false);
@@ -454,70 +454,79 @@ class HostFileAndListTypeConfigPart extends AbstractCITypeConfigurationPart  imp
   
   protected void initializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf conf,
                                   final Button addButton, final Button removeButton) {
+    final boolean hostSectionEnabled = conf.hostSectionEnabled();
+    final boolean loadLevelerEnabled = conf.loadLevelerEnabled();
+    final boolean loadLevelerSelected = conf.loadLevelerSelected();
     final boolean shouldUseHostFile = conf.shouldUseHostFile();
-    final boolean shouldUseHostSection = conf.shouldUseHostSection();
-    final boolean shouldUseLL = false;
-    doInitializeControls(formPart, conf, shouldUseHostSection, shouldUseHostFile, shouldUseLL, addButton, removeButton);
+    
+    doInitializeControls(formPart, conf, hostSectionEnabled, shouldUseHostFile, loadLevelerEnabled, loadLevelerSelected, addButton, removeButton);
   }
 
-  protected void doInitializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf, final boolean shouldUseHostSection,
-      final boolean shouldUseHostFile, final boolean shouldUseLL, final Button addButton, final Button removeButton) {
+  protected void doInitializeControls(final AbstractCommonSectionFormPart formPart, final IHostsBasedConf socketsConf, final boolean hostSectionEnabled,
+      final boolean shouldUseHostFile, final boolean loadLevelerEnabled, final boolean loadLevelerSelected, final Button addButton, final Button removeButton) {
     this.fNumPlacesSpinner.setSelection(socketsConf.getNumberOfPlaces());
     
     
     
-    if (shouldUseHostSection){
-      if (shouldUseLL){
+    if (hostSectionEnabled){
+      this.fHostFileBt.setEnabled(true);
+      if (loadLevelerEnabled){
         this.fLoadLevelerBt.setEnabled(true);
         this.fLoadLevelerBrowseBt.setEnabled(true);
         this.fLoadLevelerText.setEnabled(true);
-        this.fLoadLevelerBt.setSelection(true);
-        this.fLoadLevelerText.setText(socketsConf.getLoadLevelerScript());
-        formPart.handleEmptyTextValidation(this.fLoadLevelerText, LaunchMessages.STCP_LoadLevelerText);
         
-        this.fHostFileBt.setSelection(false);
         this.fHostListBt.setEnabled(false);
-
-        this.fHostFileText.setEnabled(false);
-        this.fHostFileBrowseBt.setEnabled(false);
         this.fHostListViewer.getTable().setEnabled(false);
         addButton.setEnabled(false);
         removeButton.setEnabled(false);
+        
+        if (loadLevelerSelected) {
+          this.fLoadLevelerBt.setSelection(true);
+          this.fLoadLevelerText.setText(socketsConf.getLoadLevelerScript());
+          formPart.handleEmptyTextValidation(this.fLoadLevelerText, LaunchMessages.STCP_LoadLevelerText);
+          this.fHostFileBt.setSelection(false);
+          this.fHostFileText.setEnabled(false);
+          this.fHostFileBrowseBt.setEnabled(false);
+        
+        } else if (shouldUseHostFile){
+          this.fHostFileText.setText(socketsConf.getHostFile());
+          formPart.handleEmptyTextValidation(this.fHostFileText, LaunchMessages.STCP_HostFileText);
+          this.fHostFileBt.setSelection(true);
+          this.fHostFileText.setEnabled(true);
+          this.fHostFileBrowseBt.setEnabled(true);
+         
+        } else {
+          assert false;
+        }
       } else {
+        this.fLoadLevelerBt.setEnabled(false);
+        this.fLoadLevelerBrowseBt.setEnabled(false);
+        this.fLoadLevelerText.setEnabled(false);
         if (shouldUseHostFile) {
           this.fHostFileText.setText(socketsConf.getHostFile());
-
-          
           formPart.handleEmptyTextValidation(this.fHostFileText, LaunchMessages.STCP_HostFileText);
-          
-          this.fHostFileBt.setSelection(shouldUseHostFile);
-          this.fHostListBt.setSelection(! shouldUseHostFile);
-
-          this.fHostFileText.setEnabled(shouldUseHostFile);
-          this.fHostFileBrowseBt.setEnabled(shouldUseHostFile);
-          this.fHostListViewer.getTable().setEnabled(! shouldUseHostFile);
-          addButton.setEnabled(! shouldUseHostFile);
-          removeButton.setEnabled(! shouldUseHostFile);
-          
+          this.fHostFileBt.setSelection(true);
+          this.fHostFileText.setEnabled(true);
+          this.fHostFileBrowseBt.setEnabled(true);
+          this.fHostListBt.setSelection(false);
+          this.fHostListViewer.getTable().setEnabled(false);
+          addButton.setEnabled(false);
+          removeButton.setEnabled(false);
         } else {
           this.fHosts.addAll(socketsConf.getHostsAsList());
           this.fHostListViewer.setInput(this.fHosts);
 
           new HostsControlChecker(formPart.getFormPage(), this.fHostListViewer.getTable(), this.fHosts).validate(null);
           
-          this.fHostFileBt.setSelection(shouldUseHostFile);
-          this.fHostListBt.setSelection(! shouldUseHostFile);
+          this.fHostFileBt.setSelection(false);
+          this.fHostListBt.setSelection(true);
 
-          this.fHostFileText.setEnabled(shouldUseHostFile);
-          this.fHostFileBrowseBt.setEnabled(shouldUseHostFile);
-          this.fHostListViewer.getTable().setEnabled(! shouldUseHostFile);
-          addButton.setEnabled(! shouldUseHostFile);
-          removeButton.setEnabled(! shouldUseHostFile);
+          this.fHostFileText.setEnabled(false);
+          this.fHostFileBrowseBt.setEnabled(false);
+          this.fHostListViewer.getTable().setEnabled(true);
+          addButton.setEnabled(true);
+          removeButton.setEnabled(true);
         }
-      
-        this.fLoadLevelerBt.setEnabled(shouldUseLL);
-        this.fLoadLevelerBrowseBt.setEnabled(shouldUseLL);
-        this.fLoadLevelerText.setEnabled(shouldUseLL);
       }
     
     } else {

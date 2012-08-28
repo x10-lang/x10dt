@@ -467,11 +467,11 @@ final class X10PlatformConfWorkCopy extends X10PlatformConf implements IX10Platf
     updateDirtyFlag();
   }
   
-  public void setShouldUseLL(final boolean shouldUseLL) {
-  final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getCurrentCommunicationInterface();
-  conf.fShouldUseLL = shouldUseLL;
-  updateDirtyFlag();
-}
+  public void setLoadLevelerSelected(final boolean shouldUseLL) {
+    final AbstractHostsBasedConf conf = (AbstractHostsBasedConf) super.fCommInterfaceFact.getCurrentCommunicationInterface();
+    conf.fLoadLevelerSelected = shouldUseLL;
+    updateDirtyFlag();
+  }
   
   // --- IDebuggingInfoConf's setter methods
   

@@ -53,7 +53,11 @@ final class StandaloneConf extends AbstractHostsBasedConf implements ICommunicat
     super(rmConf);
   }
   
-  public boolean shouldUseHostSection() {
+  public boolean hostSectionEnabled() {
+    return false;
+  }
+  
+  public boolean loadLevelerEnabled() {
     return false;
   }
 }

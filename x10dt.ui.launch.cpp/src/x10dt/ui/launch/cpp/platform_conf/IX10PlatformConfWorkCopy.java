@@ -206,7 +206,7 @@ public interface IX10PlatformConfWorkCopy extends IX10PlatformConf {
   
   public void setShouldUseHostFile(final boolean shouldUseHostFile);
   
-  public void setShouldUseLL(final boolean shouldUseLL);
+  public void setLoadLevelerSelected(final boolean shouldUseLL);
   
   // --- IDebuggingInfoConf's setter methods
   

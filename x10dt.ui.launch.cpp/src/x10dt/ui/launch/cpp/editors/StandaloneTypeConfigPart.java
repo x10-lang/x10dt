@@ -27,7 +27,7 @@ final class StandaloneTypeConfigPart extends HostFileAndListTypeConfigPart imple
 
   @Override
   protected void initializeControls(AbstractCommonSectionFormPart formPart, IHostsBasedConf socketsConf, Button addButton, Button removeButton) {
-    doInitializeControls(formPart, socketsConf, false, false, false, addButton, removeButton);
+    doInitializeControls(formPart, socketsConf, false, false, false, false, addButton, removeButton);
   }
   public String getServiceProviderId() {
     return PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
