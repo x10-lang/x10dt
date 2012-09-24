@@ -1,0 +1,593 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Variables</title>
+<a href="#tth_chAp1">Variables</a> <br/>
+<ul>
+<li><a href="#tth_sEc1">Immutable variables</a> <br/>
+<li><a href="#tth_sEc2">Initial values of variables</a> <br/>
+<li><a href="#tth_sEc3">Destructuring syntax</a> <br/>
+<li><a href="#tth_sEc4">Formal parameters</a> <br/>
+<li><a href="#tth_sEc5">Local variables and Type Inference</a> <br/>
+<li><a href="#tth_sEc6">Fields</a> <br/>
+</ul>
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 5 </a><br />Variables</h1><a name="XtenVariables">
+</a>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+A <em>variable</em> is an X10 identifier associated with a value within some
+context. Variable bindings have these essential properties:
+
+<ul>
+<li> <b>Type:</b> What sorts of values can be bound to the identifier;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Scope:</b> The region of code in which the identifier is associated
+      with the entity;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Lifetime:</b> The interval of time in which the identifier is
+      associated with the entity.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Visibility:</b> Which parts of the program can read or manipulate the
+      value through the variable.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+X10 has many varieties of variables, used for a number of purposes. 
+
+<ul>
+<li> Class variables, also known as the static fields of a class, which hold
+      their values for the lifetime of the class.
+<div class="p"><!----></div>
+</li>
+
+<li> Instance variables, which hold their values for the lifetime of an
+      object;
+<div class="p"><!----></div>
+</li>
+
+<li> Array elements, which are not individually named and hold their values
+      for the lifetime of an array;
+<div class="p"><!----></div>
+</li>
+
+<li> Formal parameters to methods, functions, and constructors, which hold
+      their values for the duration of method (etc.) invocation;
+<div class="p"><!----></div>
+</li>
+
+<li> Local variables, which hold their values for the duration of execution
+      of a block.
+<div class="p"><!----></div>
+</li>
+
+<li> Exception-handler parameters, which hold their values for the execution
+      of the exception being handled.
+<div class="p"><!----></div>
+</li>
+</ul>
+A few other kinds of things are called variables for historical reasons; <em>e.g.</em>,
+type parameters are often called type variables, despite not being variables
+in this sense because they do not refer to X10 values.  Other named entities,
+such as classes and methods, are not called variables.  However, all
+name-to-whatever bindings enjoy similar concepts of scope and visibility.  
+
+<div class="p"><!----></div>
+In the following example, 
+<b>n</b> is an instance variable, and <b>nxt</b> is a
+local variable defined within the method <b>bump</b>.<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+<pre>
+class Counter {
+  private var n : Int = 0;
+  public def bump() : Int {
+    val nxt = n+1;
+    n = nxt;
+    return nxt;
+    }
+}
+</pre>
+Both variables have type <b>Int</b> (or
+perhaps something more specific).    The scope of <b>n</b> is the body of
+<b>Counter</b>; the scope of <b>nxt</b> is the body of <b>bump</b>.  The
+lifetime of <b>n</b> is the lifetime of the <b>Counter</b> object holding it;
+the lifetime of <b>nxt</b> is the duration of the call to <b>bump</b>. Neither
+variable can be seen from outside of its scope.
+
+<a name="exploded-syntax">
+</a>
+<a name="VariableDeclarations">
+</a>
+
+
+<div class="p"><!----></div>
+Variables whose value may not be changed after initialization are said to be
+<em>immutable</em>, or <em>constants</em> (&#167;), or simply
+<b>val</b> variables. Variables whose value may change are <em>mutable</em> or
+simply <b>var</b> variables. <b>var</b> variables are declared by the <b>var</b>
+keyword. <b>val</b> variables may be declared by the <b>val</b> keyword; when a
+variable declaration does not include either <b>var</b> or <b>val</b>, it is
+considered <b>val</b>. 
+
+<div class="p"><!----></div>
+A variable-even a <b>val</b> - can be declared in one statement, and then
+initialized later on.  It must be initialized before it can be used
+(&#167;).  
+
+<div class="p"><!----></div>
+The following example illustrates many of the variations on variable
+declaration: 
+<pre>
+val a : Int = 0;               // Full 'val' syntax
+b : Int = 0;                   // 'val' implied
+val c = 0;                     // Type inferred
+var d : Int = 0;               // Full 'var' syntax
+var e : Int;                   // Not initialized
+var f : Int{self != 100} = 0;  // Constrained type
+val g : Int;                   // Init. deferred
+if (a &#62; b) g = 1; else g = 2;  // Init. done here.
+</pre>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Immutable variables</h2>
+<a name="FinalVariables">
+</a>
+
+
+
+
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">LocVarDeclStmt ::= LocVarDecl <b>;</b> </td></tr>
+<tr><td align="right">LocVarDecl ::= Mods<sup>?</sup>&nbsp;VarKeyword VariableDeclarators </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarDeclsWType </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;VarKeyword FormalDeclarators </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+An immutable (<b>val</b>) variable can be given a value (by initialization or
+assignment) at 
+most once, and must be given a value before it is used.  Usually this is
+achieved by declaring and initializing the variable in a single statement, 
+such as <b>val x = 3</b>, with syntax 
+() using the <i>VariableDeclarators</i> or <i>
+VarDelcsWType</i> alternatives.
+
+<div class="p"><!----></div>
+After these declarations, <b>a</b> and <b>b</b> cannot be assigned to further,
+or even redeclared:  
+<pre>
+val a : Int = 10;
+val b = (a+1)*(a-1);
+// ERROR: a = 11;  // vals cannot be assigned to.
+// ERROR: val a = 11; // no redeclaration.
+</pre>
+
+<div class="p"><!----></div>
+In two special cases, the declaration and assignment are separate.  One 
+case is how constructors give values to <b>val</b> fields of objects.  In this
+case, production () is taken, with the <i>
+FormalDeclarators</i> option, such as  <b>var n:Int;</b>.  
+
+<div class="p"><!----></div>
+ The
+<b>Example</b> class has an immutable field <b>n</b>, which is given different
+values depending on which constructor was called. <b>n</b> can't be given its
+value by initialization when it is declared, since it is not knowable which
+constructor is called at that point.  
+<pre>
+class Example {
+  val n : Int; // not initialized here
+  def this() { n = 1; }
+  def this(dummy:Boolean) { n = 2;}
+}
+</pre>
+
+
+<div class="p"><!----></div>
+The other case of separating declaration and assignment is in function
+and method call, described in &#167;.  The formal
+parameters are bound to the corresponding actual 
+parameters, but the binding does not happen until the function is called.  
+
+<div class="p"><!----></div>
+In
+the code below, <b>x</b> is initialized to <b>3</b> in the first call and
+<b>4</b> in the second.
+<pre>
+val sq = (x:Int) =&#62; x*x;
+x10.io.Console.OUT.println("3 squared = " + sq(3));
+x10.io.Console.OUT.println("4 squared = " + sq(4));
+</pre>
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Initial values of variables</h2>
+<a name="NullaryConstructor">
+</a>
+
+
+
+<div class="p"><!----></div>
+Every assignment, binding, or initialization to a variable of type <b>T{c}</b>
+must be an instance of type <b>T</b> satisfying the constraint <b>{c}</b>.
+Variables must be given a value before they are used. This may be done by
+initialization - giving a variable a value as part
+of its declaration. 
+
+<div class="p"><!----></div>
+These variables are all initialized: 
+<pre>
+  val immut : Int = 3;
+  var mutab : Int = immut;
+  val use = immut + mutab;
+</pre>
+
+
+<div class="p"><!----></div>
+Or, a variable may be given a value by an assignment.  <b>var</b> variables may
+be assigned to repeatedly.  <b>val</b> variables may only be assigned once; the
+compiler will ensure that they are assigned before they are used.
+
+<div class="p"><!----></div>
+The variables in the following example are given their initial values by
+assignment.  Note that they could not be used before those assignments,
+nor could <b>immu</b> be assigned repeatedly.
+<pre>
+  var muta : Int;
+  // ERROR:  println(muta);
+  muta = 4;
+  val use2A = muta * 10;
+  val immu : Int;
+  // ERROR: println(immu);
+  if (cointoss())   {immu = 1;}
+  else              {immu = use2A;}
+  val use2B = immu * 10;
+  // ERROR: immu = 5;
+</pre>
+
+
+<div class="p"><!----></div>
+Every class variable must be initialized before it is read, through
+the execution of an explicit initializer. Every
+instance variable must be initialized before it is read, through the
+execution of an explicit or implicit initializer or a constructor.
+Implicit initializers initialize <b>var</b>s to the default values of their
+types (&#167;). Variables of types which do not have default
+values are not implicitly initialized.
+
+<div class="p"><!----></div>
+Each method and constructor parameter is initialized to the
+corresponding argument value provided by the invoker of the method. An
+exception-handling parameter is initialized to the object thrown by
+the exception. A local variable must be explicitly given a value by
+initialization or assignment, in a way that the compiler can verify
+using the rules for definite assignment (&#167;).
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Destructuring syntax</h2>
+
+
+X10 permits a <em>destructuring</em> syntax for local variable
+declarations with explicit initializers,  and for formal parameters, of type
+<b>Point</b>, &#167; and <b>Array</b>, &#167;.
+A point is a sequence of zero or more <b>Int</b>-valued coordinates; an array
+is an indexed collection of data. 
+It is often useful to get at the coordinates or elements directly, in
+variables.
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">VariableDeclarator ::= Id HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">&#124; <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">&#124; Id <b>[</b> IdList <b>]</b> HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;", 
+where <b>e</b> is a <b>Point</b>,
+declares n
+<b>Int</b> variables, bound to the precisely n components of the <b>Point</b> value of
+<b>e</b>; it is an error if <b>e</b> is not a <b>Point</b> with precisely n components.
+The syntax "val p[a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;"  is similar, but also
+declares the variable <b>p</b> to be of type "Point(n)".  
+
+<div class="p"><!----></div>
+The syntax "val [a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;", 
+where <b>e</b> is an <b>Array[T]</b> for some type <b>T</b>,
+declares n
+variables of type <b>T</b>, bound to the precisely n components of the <b>Array[T]</b> value of
+<b>e</b>; it is an error if <b>e</b> is not a <b>Array[T]</b> 
+with <b>rank==1</b> and &#223;ize==n". 
+The syntax "val p[a<sub>1</sub>, &#8230;, a<sub>n</sub>] = e;"  is similar, but also
+declares the variable <b>p</b> to be of type
+&#196;rray[T]rank==1,size==n".   
+
+<div class="p"><!----></div>
+The following code makes an anonymous point with one coordinate <b>11</b>, and
+binds <b>i</b> to <b>11</b>.  Then it makes a point with coordinates <b>22</b>
+and <b>33</b>, binds <b>p</b> to that point, and <b>j</b> and <b>k</b> to <b>22</b>
+and <b>33</b> respectively.
+<pre>
+val [i] : Point = Point.make(11);
+assert i == 11;
+val p[j,k] = Point.make(22,33);
+assert j == 22 &amp;&amp; k == 33;
+val q[l,m] = [44,55] as Point; 
+assert l == 44 &amp;&amp; m == 55;
+//ERROR: val [n] = p;
+</pre>
+
+<div class="p"><!----></div>
+Destructuring is allowed wherever a <b>Point</b> or <b>Array[T]</b> variable is
+declared, <em>e.g.</em>, as the formal parameters of a method.
+
+The methods below take a single argument each: a three-element point for
+<b>example1</b>, a three-element array for <b>example2</b>.  The argument itself
+is bound to <b>x</b> in both cases, and its elements are bound to <b>a</b>,
+<b>b</b>, and <b>c</b>.  
+<pre>
+static def example1(x[a,b,c]:Point){}
+static def example2(x[a,b,c]:Array[String]{rank==1,size==3}){}
+</pre>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Formal parameters</h2>
+<a name="sect:formal-parameters">
+</a>
+
+
+
+<div class="p"><!----></div>
+Formal parameters are the variables which hold values transmitted into a
+method or function.  
+They are always declared with a type.  (Type inference is not
+available, because there is no single expression to deduce a type from.)
+The variable name can be omitted if it is not to be used in the
+scope of the declaration, as in the type of the method 
+<b>static def main(Array[String]):void</b> executed at the start of a program that
+does not use its command-line arguments.
+
+<div class="p"><!----></div>
+<b>var</b> and <b>val</b> behave just as they do for local
+variables, &#167;.  In particular, the following <b>inc</b>
+method is allowed, but, unlike some languages, does <em>not</em> increment its
+actual parameter.  <b>inc(j)</b> creates a new local 
+variable <b>i</b> for the method call, initializes <b>i</b> with the value of
+<b>j</b>, increments <b>i</b>, and then returns.  <b>j</b> is never changed.
+<pre>
+static def inc(var i:Int) { i += 1; }
+static def example() {
+   var j : Int = 0;
+   assert j == 0;
+   inc(j);
+   assert j == 0;
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Local variables and Type Inference</h2>
+<a name="local-variables">
+</a>
+
+
+Local variables are declared in a limited scope, and, dynamically, keep their
+values only for so long as the scope is being executed.  They may be <b>var</b>
+or <b>val</b>.  
+They may have 
+initializer expressions: <b>var i:Int = 1;</b> introduces 
+a variable <b>i</b> and initializes it to 1.
+If the variable is immutable
+(<b>val</b>)
+the type may be omitted and
+inferred from the initializer type (&#167;).
+
+<div class="p"><!----></div>
+The variable declaration <b>val x:T=e;</b> confirms that <b>e</b>'s value is of
+type <b>T</b>, and then introduces the variable <b>x</b> with type <b>T</b>.  For
+example, consider a class <b>Tub</b> with a property <b>p</b>.
+<pre>
+class Tub(p:Int){
+  def this(pp:Int):Tub{self.p==pp} {property(pp);}
+  def example() {
+    val t : Tub = new Tub(3);
+  }
+}
+</pre>
+
+produces a variable <b>t</b> of type <b>Tub</b>, even though the expression
+<b>new Tub(3)</b> produces a value of type <b>Tub{self.p==3}</b> - that is, a
+<b>Tub</b>  whose <b>p</b> field is 3.  This can be inconvenient when the
+constraint information is required.
+
+<div class="p"><!----></div>
+Including type information in variable declarations is generally good
+programming practice: it explains to both the compiler and human readers
+something of the intent of the variable.  However, including types in 
+<b>val t:T=e</b> can obliterate helpful information.  So, X10 allows a <em>
+documentation type declaration</em>, written 
+<pre>
+val t &lt;: T = e
+</pre>
+This 
+has the same effect as <b>val t = e</b>, giving <b>t</b> the full type inferred
+from <b>e</b>; but it also confirms statically that that type is at least
+<b>T</b>.  
+
+<div class="p"><!----></div>
+The following gives <b>t</b> the type <b>Tub{self.p==3}</b> as
+desired.  However, a similar declaration with an inappropriate type will fail
+to compile.
+<pre>
+   val t &lt;: Tub = new Tub(3);
+   // ERROR: val u &lt;: Int = new Tub(3);
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Fields</h2>
+
+
+
+
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">FieldDeclarators ::= FieldDeclarator </td></tr>
+<tr><td align="right">&#124; FieldDeclarators <b>,</b> FieldDeclarator </td></tr>
+<tr><td align="right">FieldDecl ::= Mods<sup>?</sup>&nbsp;FieldKeyword FieldDeclarators <b>;</b> </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;FieldDeclarators <b>;</b> </td></tr>
+<tr><td align="right">FieldDeclarator ::= Id HasResultType </td></tr>
+<tr><td align="right">&#124; Id HasResultType<sup>?</sup>&nbsp;<b>=</b> VariableInitializer </td></tr>
+<tr><td align="right">HasResultType ::= <b>:</b> Type </td></tr>
+<tr><td align="right">&#124; <b>&lt;:</b> Type </td></tr>
+<tr><td align="right">FieldKeyword ::= <b>val</b> </td></tr>
+<tr><td align="right">&#124; <b>var</b> </td></tr>
+<tr><td align="right">Mod ::= <b>abstract</b> </td></tr>
+<tr><td align="right">&#124; Annotation </td></tr>
+<tr><td align="right">&#124; <b>atomic</b> </td></tr>
+<tr><td align="right">&#124; <b>final</b> </td></tr>
+<tr><td align="right">&#124; <b>native</b> </td></tr>
+<tr><td align="right">&#124; <b>private</b> </td></tr>
+<tr><td align="right">&#124; <b>protected</b> </td></tr>
+<tr><td align="right">&#124; <b>public</b> </td></tr>
+<tr><td align="right">&#124; <b>static</b> </td></tr>
+<tr><td align="right">&#124; <b>transient</b> </td></tr>
+<tr><td align="right">&#124; <b>clocked</b> </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+Like most other kinds of variables in X10, 
+the fields of an object can be either <b>val</b> or <b>var</b>. 
+<b>val</b> fields can be <b>static</b> (&#167;).
+Field declarations may have optional
+initializer expressions, as for local variables, &#167;<a href="#local-variables">5</a>.
+<b>var</b> fields without an initializer are initialized with the default value
+of their type. <b>val</b> fields without an initializer must be initialized by
+each constructor.
+
+<div class="p"><!----></div>
+For <b>val</b> fields, as for <b>val</b> local variables, the type may be
+omitted and inferred from the initializer type (&#167;).
+<b>var</b> fields, like <b>var</b> local variables, must be declared with a type.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<pre>
+</pre>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>This code is
+unnecessarily turgid for the sake of the example.  One would generally write
+<b>public def bump() = ++n;</b>.   
+<br /><br /><hr />
+</html>

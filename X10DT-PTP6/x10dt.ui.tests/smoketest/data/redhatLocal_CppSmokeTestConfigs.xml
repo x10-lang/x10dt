@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+  <!DOCTYPE platformConfigs [ 
+    <!ATTLIST config 
+        id ID #IMPLIED 
+    > 
+  ]>
+
+<smokeTest>   
+    <smokeTestSetup> <!-- configuration information for  the smoke test                -->
+                     <!--   includes                                                   -->
+                     <!--       name of project to create                              -->
+                     <!--       file name of archive to import                         -->
+                     <!--       expected type declarations for verifying the indexer   -->
+                     <!--       expected output for verification                       -->
+           
+        
+        <projectName> ArchiveTest_CPPBack </projectName>    <!-- name of project to create                 -->
+        <archiveName> ArchiveTestFile.zip </archiveName>    <!-- archive file must be on test's build path -->
+        <className> QSort </className>                      <!-- name of test class being imported         -->
+        
+            
+        <expectedOutput>
+                <!-- console output to expect when project is executed                                                -->
+                <!--     output lines are expected to be contiguous and appear in this order                          -->
+                <!--     note:   these lines may be embedded in a larger output stream. The test will search for the  -->
+                <!--             first matching line and proceed from there                                           -->
+            <line>  "size of array: 100000"                 </line>
+            <line>  "array is now sorted"                   </line>
+            <line>  "++++++ Test succeeded spectacularly!"  </line>
+        </expectedOutput>
+        
+        <typeDeclarationList>
+                <!-- the smoke test uses this information to check the type indexing system.                                -->
+                <!-- it will perform a complete check for every instance of <typeSearchInfo>.                               -->
+                <!-- the test uses:                                                                                         -->
+                <!--     - searchString:     may contain wildcards and is used to find a list of matching type declarations -->
+                <!--     - typeName:         the type name expected to be found                                             -->
+                <!--     - typeDeclaration:  the type declaration expected to be found                                      -->
+                <!--     - fileName:         the source file name where the type declaration is expected to be found        -->
+                <!--     - expectToFind:      the minimum number of matching types the search is expected to find           -->
+        
+            <typeSearchInfo>
+                <searchString>   "QS*"                                             </searchString>      <!-- The search string                                      -->
+                <typeName>       "QSortable"                                       </typeName>          <!-- The type we're looking for                             -->
+                <typeDeclaration>"public class QSortable(theArray: SortableArray)" </typeDeclaration>   <!-- The expected type declaration text in the source file  -->
+                <fileName>       "QSort.x10"                                       </fileName>          <!-- The source file where we're expecting to find the type -->
+                <expectToFind>   2                                                 </expectToFind>      <!-- The minimum number of search results we're looking for -->
+            </typeSearchInfo>
+        
+            <typeSearchInfo>
+                <searchString>    "Pos*"                           </searchString>      <!-- The search string                                      -->
+                <typeName>        "Position"                       </typeName>          <!-- The type we're looking for                             -->
+                <typeDeclaration> "class Position(x: Int, y: Int)" </typeDeclaration>   <!-- The expected type declaration text in the source file  -->
+                <fileName>        "TriangleTest.x10"               </fileName>          <!-- The source file where we're expecting to find the type -->
+                <expectToFind>    1                                </expectToFind>      <!-- The minimum number of search results we're looking for -->
+            </typeSearchInfo>
+         
+            <typeSearchInfo>
+                <searchString>    "Ar*"                            </searchString>      <!-- The search string                                      -->
+                <typeName>        "Array"                          </typeName>          <!-- The type we're looking for                             -->
+                <typeDeclaration> "public final class Array[T] ("  </typeDeclaration>   <!-- The expected type declaration text in the source file  -->
+                <fileName>        "Array.x10"                      </fileName>          <!-- The source file where we're expecting to find the type -->
+                <expectToFind>    5                                </expectToFind>      <!-- The minimum number of search results we're looking for -->
+            </typeSearchInfo>
+        
+            <typeSearchInfo>
+                <searchString>    "Ar*"                                                                          </searchString>      <!-- The search string                                      -->
+                <typeName>        "ArrayList"                                                                    </typeName>          <!-- The type we're looking for                             -->
+                <typeDeclaration> "public class ArrayList[T] extends AbstractCollection[T] implements List[T] {" </typeDeclaration>   <!-- The expected type declaration text in the source file  -->
+                <fileName>        "ArrayList.x10"                                                                </fileName>          <!-- The source file where we're expecting to find the type -->
+                <expectToFind>    5                                                                              </expectToFind>      <!-- The minimum number of search results we're looking for -->
+            </typeSearchInfo>
+           
+            <typeSearchInfo>
+                <searchString>    "QSort*"                        </searchString>      <!-- The search string                                      -->
+                <typeName>        "QSort"                         </typeName>          <!-- The type we're looking for                             -->
+                <typeDeclaration> "public class QSort"            </typeDeclaration>   <!-- The expected type declaration text in the source file  -->
+                <fileName>        "QSort.x10"                     </fileName>          <!-- The source file where we're expecting to find the type -->
+                <expectToFind>    2                               </expectToFind>      <!-- The minimum number of search results we're looking for -->
+            </typeSearchInfo>
+        </typeDeclarationList>
+       
+    </smokeTestSetup>
+    
+    <platformConfigs> 
+        <config id="redhatVMSocketsConfig"> 
+            <configName> redhat Linux VM 32-bit x86 </configName> 
+            <description> redhat Linux VM </description> 
+            
+            <useLocalConnection> yes </useLocalConnection> 
+            
+            <target> 
+                <osType> Linux </osType>      
+                <architectureType> x86 </architectureType> 
+                <set64BitSpace> no </set64BitSpace> 
+            </target> 
+              
+            <x10> 
+                <numPlaces> 8 </numPlaces> 
+                <programArg> 100000 </programArg>
+            </x10> 
+            
+            <commInterface> 
+                <interfaceType> Sockets </interfaceType> 
+                <interfaceMode> Launch </interfaceMode> 
+            </commInterface> 
+        </config>
+    </platformConfigs> 
+</smokeTest>   
