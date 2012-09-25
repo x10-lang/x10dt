@@ -38,6 +38,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
 import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.swt.SWT;
@@ -78,6 +79,7 @@ import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
 import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
+import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import x10dt.ui.utils.LaunchUtils;
 
@@ -126,7 +128,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
       configuration.setAttribute(org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME, 
                                  this.fMainTypeText.getText().trim());
       configuration.setAttribute(ATTR_X10_MAIN_CLASS, this.fMainTypeText.getText().trim());
-
+      configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, PTPConfUtils.findResourceManagerByName(fX10PlatformConf.getName()).getUniqueName());
+      
       final String content = this.fPgrmArgsText.getText().trim();
       configuration.setAttribute(ATTR_ARGUMENTS, (content.length() > 0) ? content : null);
 
@@ -135,6 +138,8 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   }
 
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
+    configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, PTPConfUtils.findResourceManagerByName(fX10PlatformConf.getName()).getUniqueName());
+    
     final IResource context = getCurrentSelectionContext();
     if (context == null) {
       configuration.setAttribute(ATTR_PROJECT_NAME, (String) null);
@@ -162,9 +167,11 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         CppLaunchCore.log(except.getStatus());
       }
     }
+    
     configuration.setAttribute(ATTR_WORKING_DIR, (String) null);
     configuration.setAttribute(ATTR_ARGUMENTS, (String) null);
     configuration.setAttribute(ATTR_CONSOLE, true);
+    
   }
 
   // --- Overridden methods

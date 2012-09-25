@@ -12,7 +12,7 @@ import static org.eclipse.ptp.rm.ibm.ll.core.IBMLLPreferenceConstants.LL_NO;
 
 import java.util.Arrays;
 
-import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
+import org.eclipse.ptp.rm.core.proxy.IRemoteProxyOptions;
 import org.eclipse.ptp.rm.ibm.ll.core.rmsystem.IIBMLLResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.services.core.IServiceProvider;

@@ -7,7 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.platform_conf;
 
-import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
+import org.eclipse.ptp.rm.core.proxy.IRemoteProxyOptions;
 import org.eclipse.ptp.rm.ibm.pe.core.PEPreferenceConstants;
 import org.eclipse.ptp.rm.ibm.pe.core.rmsystem.PEResourceManagerConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;

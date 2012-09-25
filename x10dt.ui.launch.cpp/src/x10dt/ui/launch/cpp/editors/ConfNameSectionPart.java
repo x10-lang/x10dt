@@ -9,6 +9,7 @@ package x10dt.ui.launch.cpp.editors;
 
 import java.util.Collection;
 
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.events.IResourceManagerChangedEvent;
 import org.eclipse.ptp.core.events.IResourceManagerAddedEvent;
@@ -53,14 +54,14 @@ final class ConfNameSectionPart extends AbstractCommonSectionFormPart implements
     addCompletePartListener(formPage);
     ServiceModelManager.getInstance().addEventListener(this, IServiceModelEvent.SERVICE_CONFIGURATION_ADDED |
                                                        IServiceModelEvent.SERVICE_CONFIGURATION_REMOVED);
-    PTPCorePlugin.getDefault().getModelManager().addListener(this);
+    ModelManager.getInstance().addListener(this);
   }
   
   // --- IFormPart's interface methods implementation
   
   public void dispose() {
     ServiceModelManager.getInstance().removeEventListener(this);
-    PTPCorePlugin.getDefault().getModelManager().removeListener(this);
+    ModelManager.getInstance().removeListener(this);
     removeCompletePartListener(getFormPage());
   }
   
