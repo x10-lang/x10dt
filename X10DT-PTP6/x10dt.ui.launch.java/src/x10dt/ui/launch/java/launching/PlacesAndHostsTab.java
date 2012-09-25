@@ -57,11 +57,11 @@ final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements 
   }
 
   public void initializeFrom(final ILaunchConfiguration configuration) {
-    this.fX10EnvVarsConfTab.initializeFrom(null /* control */, this.fResourceManager, null /* queue */, configuration);
+    this.fX10EnvVarsConfTab.initializeFrom(configuration);
   }
 
   public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
-    this.fX10EnvVarsConfTab.performApply(configuration, this.fResourceManager, null /* queue */);
+    this.fX10EnvVarsConfTab.performApply(configuration);
   }
 
   public String getName() {
@@ -80,7 +80,7 @@ final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements 
   }
   
   public boolean isValid(final ILaunchConfiguration configuration) {
-    final RMLaunchValidation validation = this.fX10EnvVarsConfTab.isValid(configuration, this.fResourceManager, null);
+    final RMLaunchValidation validation = this.fX10EnvVarsConfTab.isValid(configuration);
     setErrorMessage(null);
     if (validation.isSuccess()) {
       return true;
@@ -95,7 +95,7 @@ final class PlacesAndHostsTab extends AbstractLaunchConfigurationTab implements 
   private void createX10EnvVarsInfo(final Composite parent) {
     this.fX10EnvVarsConfTab = new X10PlacesAndHostsDynamicTab();
     try {
-      this.fX10EnvVarsConfTab.createControl(parent, null /* resourceManager */, null /* queue */);
+      this.fX10EnvVarsConfTab.createControl(parent, null /* control id */); //MV -- REVISE HERE
       this.fX10EnvVarsConfTab.addContentsChangedListener(new IRMLaunchConfigurationContentsChangedListener() {
 
         public void handleContentsChanged(final IRMLaunchConfigurationDynamicTab factory) {

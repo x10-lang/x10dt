@@ -11,6 +11,7 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.preferences.IPreferencesService;
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elements.IPResourceManager;
 import org.eclipse.ptp.core.elements.IPUniverse;
@@ -84,7 +85,7 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
         if (configuration.getName().equals(serviceConfiguration.getName())) {
           final IServiceProvider serviceProvider = serviceConfiguration.getServiceProvider(service);
           //if (serviceProvider instanceof MultiVMResourceManagerConfiguration) {  //MV - Check this
-            final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+            final IPUniverse universe = (IPUniverse) ModelManager.getInstance().getUniverse();
             for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
               final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);	
               final IResourceManagerConfiguration rmConf = resourceManager.getConfiguration();
