@@ -53,12 +53,11 @@ final class StandaloneRMLaunchConfigurationDynamicTab implements IRMLaunchConfig
     this.fListeners.add(listener);
   }
 
-  public RMLaunchValidation canSave(final Control control, final IResourceManager resourceManager, final IPQueue queue) {
+  public RMLaunchValidation canSave(final Control control) {
     return new RMLaunchValidation(true, null);
   }
 
-  public void createControl(final Composite parent, final IResourceManager resourceManager, 
-                            final IPQueue queue) throws CoreException {
+  public void createControl(final Composite parent, String id) throws CoreException {
     this.fControl = new Composite(parent, SWT.NONE);
     this.fControl.setFont(parent.getFont());
     this.fControl.setLayout(new GridLayout(1, false));
@@ -103,8 +102,7 @@ final class StandaloneRMLaunchConfigurationDynamicTab implements IRMLaunchConfig
     return this.fControl;
   }
 
-  public RMLaunchValidation initializeFrom(final Control control, final IResourceManager resourceManager, final IPQueue queue,
-                                           final ILaunchConfiguration configuration) {
+  public RMLaunchValidation initializeFrom(final ILaunchConfiguration configuration) {
     try {
       this.fNumPlacesSpinner.setSelection(configuration.getAttribute(ATTR_NUM_PLACES, DEFAULT_NUM_PLACES));
     } catch (CoreException except) {
@@ -113,16 +111,14 @@ final class StandaloneRMLaunchConfigurationDynamicTab implements IRMLaunchConfig
     return new RMLaunchValidation(true, null);
   }
 
-  public RMLaunchValidation isValid(final ILaunchConfiguration launchConfig, final IResourceManager resourceManager, 
-                                    final IPQueue queue) {
+  public RMLaunchValidation isValid(final ILaunchConfiguration launchConfig) {
     if (this.fNumPlacesSpinner.getSelection() < 1) {
       return new RMLaunchValidation(false, Messages.SRMLCDT_AtLeastOnePlaceMsg);
     }
     return new RMLaunchValidation(true, null);
   }
 
-  public RMLaunchValidation performApply(final ILaunchConfigurationWorkingCopy configuration, 
-                                         final IResourceManager resourceManager, final IPQueue queue) {
+  public RMLaunchValidation performApply(final ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(ATTR_NUM_PLACES, this.fNumPlacesSpinner.getSelection());
     return new RMLaunchValidation(true, null);
   }
@@ -131,8 +127,7 @@ final class StandaloneRMLaunchConfigurationDynamicTab implements IRMLaunchConfig
     this.fListeners.remove(listener);
   }
 
-  public RMLaunchValidation setDefaults(final ILaunchConfigurationWorkingCopy configuration, 
-                                        final IResourceManager resourceManager, final IPQueue queue) {
+  public RMLaunchValidation setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
     return new RMLaunchValidation(true, null);
   }
   
