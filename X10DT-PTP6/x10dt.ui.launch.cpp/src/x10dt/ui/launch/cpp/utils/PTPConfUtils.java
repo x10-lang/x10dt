@@ -46,7 +46,7 @@ import org.eclipse.ptp.core.events.IResourceManagerRemovedEvent;
 import org.eclipse.ptp.core.listeners.IResourceManagerListener;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
-import org.eclipse.ptp.remote.core.IRemoteProxyOptions;
+import org.eclipse.ptp.rm.core.proxy.IRemoteProxyOptions;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
@@ -228,7 +228,7 @@ public final class PTPConfUtils {
    * @return A non-null resource manager if we found a match, <b>null</b> otherwise.
    */
   public static IResourceManager findResourceManagerByName(final String platformConfName) {
-    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+    final IPUniverse universe = (IPUniverse) ModelManager.getInstance().getUniverse();
     
     for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
       final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
@@ -248,8 +248,8 @@ public final class PTPConfUtils {
    * @param platformConf The platform configuration to consider.
    * @return A non-null resource manager if we found a match, <b>null</b> otherwise.
    */
-  public static IResourceManager findResourceManagerById(final IX10PlatformConf platformConf) {
-    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+  /*public static IResourceManager findResourceManagerById(final IX10PlatformConf platformConf) {
+    final IPUniverse universe = (IPUniverse) ModelManager.getInstance().getUniverse();
 
     for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
       final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
@@ -260,7 +260,7 @@ public final class PTPConfUtils {
     }
     
     return null;
-  }
+  }*/
   
   /**
    * Returns an existing resource manager that is equivalent to information encapsulated in the platform configuration or
@@ -276,7 +276,7 @@ public final class PTPConfUtils {
    */
   public static IResourceManager getResourceManager(final IX10PlatformConf platformConf) throws RemoteConnectionException,  
                                                                                                 CoreException {
-    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+    final IPUniverse universe = (IPUniverse) ModelManager.getInstance().getUniverse();
 
     for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
       final IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
@@ -320,7 +320,7 @@ public final class PTPConfUtils {
    * @return A non-null remote connection instance if one has been found, <b>null</b> otherwise.
    */
   public static IRemoteConnection findRemoteConnection(final IConnectionConf connectionConf) {
-    final IPUniverse universe = (IPUniverse) PTPCorePlugin.getDefault().getModelManager().getUniverse();
+    final IPUniverse universe = (IPUniverse) ModelManager.getInstance().getUniverse();
     final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
     
     final String rmServicesId = connectionConf.isLocal() ? LOCAL_CONN_SERVICE_ID : REMOTE_CONN_SERVICE_ID;

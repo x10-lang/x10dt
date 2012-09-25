@@ -9,6 +9,7 @@ package x10dt.ui.launch.cpp.platform_conf;
 
 import java.util.Arrays;
 
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.rm.core.rmsystem.IToolRMConfiguration;
 import org.eclipse.ptp.rmsystem.IResourceManager;
@@ -160,7 +161,7 @@ abstract class MessagePassingInterfaceConf extends AbstractCommunicationInterfac
   }
   
   MessagePassingInterfaceConf(final IToolRMConfiguration rmConf) {
-    super(PTPCorePlugin.getDefault().getModelManager().getResourceManagerFromUniqueName(rmConf.getName()).getConfiguration()); //MV - check that rmConf.getName() is a unique name for the resource manager
+    super(ModelManager.getInstance().getResourceManagerFromUniqueName(rmConf.getName()).getConfiguration()); //MV - check that rmConf.getName() is a unique name for the resource manager
     //super(rmConf);
     this.fDefaultToolCmds = rmConf.getUseToolDefaults();
     this.fLaunchCmd = rmConf.getLaunchCmd();

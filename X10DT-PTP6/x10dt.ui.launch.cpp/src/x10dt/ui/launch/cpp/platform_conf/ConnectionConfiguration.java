@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
@@ -170,7 +171,7 @@ final class ConnectionConfiguration implements IConnectionConf {
   }
   
   ConnectionConfiguration(final IResourceManagerConfiguration rmConf) {
-    IResourceManager rm = PTPCorePlugin.getDefault().getModelManager().getResourceManagerFromUniqueName(rmConf.getUniqueName());
+    IResourceManager rm = ModelManager.getInstance().getResourceManagerFromUniqueName(rmConf.getUniqueName());
     final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rm.getControlConfiguration().getRemoteServicesId()); 
     final IRemoteConnection rmConn = remoteServices.getConnectionManager().getConnection(rm.getControlConfiguration().getConnectionName()); 
     this.fIsLocal = PTPConstants.LOCAL_CONN_SERVICE_ID.equals(remoteServices.getId());
