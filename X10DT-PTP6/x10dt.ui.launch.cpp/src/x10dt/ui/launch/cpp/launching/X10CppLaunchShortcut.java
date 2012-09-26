@@ -76,8 +76,6 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, typeInfo.getName());
     workingCopy.setAttribute(ATTR_CONSOLE, true);
     workingCopy.setAttribute(ATTR_X10_MAIN_CLASS, typeInfo.getName());
-    //MV: Making the assumption that the platform conf name is the same as the project name.
-    workingCopy.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, PTPConfUtils.findResourceManagerByName(typeInfo.getCompilationUnit().getProject().getName()).getUniqueName() );
     final IProject project = typeInfo.getCompilationUnit().getProject().getRawProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
     
