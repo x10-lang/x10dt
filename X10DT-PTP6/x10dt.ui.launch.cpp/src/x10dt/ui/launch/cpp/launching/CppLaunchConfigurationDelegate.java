@@ -42,12 +42,14 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.ArrayAttribute;
@@ -125,6 +127,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       monitor.beginTask(null, 10);
       monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
 
+      
       this.fProject = verifyProject(configuration);
 
       // The following check shouldn't be necessary, since this ILaunchConfigurationDelegate implementation
@@ -139,6 +142,11 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
      
       if (!monitor.isCanceled() && shouldProcessToLinkStep(fProject) &&
           createExecutable(configuration, fProject, new SubProgressMonitor(monitor, 5)) == 0) {
+        
+        ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
+        workingCopy.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, fResourceManager.getUniqueName());
+        workingCopy.doSave();
+        
         // Then, performs the launch.
         if (!monitor.isCanceled()) {
           // Hijack launch if it's PAMI with LoadLeveler
