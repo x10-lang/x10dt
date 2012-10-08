@@ -206,7 +206,7 @@ public class UnimplementedMethodProposal extends CUCorrectionProposal {
 						{
 							name = "operator this";
 						}
-						MethodDecl newMethodDecl = factory.X10MethodDecl(null, flags, returnType, factory.Id(null, name), typeParams, formals, null, offerType, body);
+						MethodDecl newMethodDecl = factory.X10MethodDecl(null, flags, returnType, factory.Id(null, name), typeParams, formals, null, offerType, null, body);
 						
 						StringWriter sw = new StringWriter();
 						CodeWriter cw = new SimpleCodeWriter(sw, 100) {
