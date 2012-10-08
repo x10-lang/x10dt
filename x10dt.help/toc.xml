@@ -107,7 +107,8 @@
 
 <topic label="X10DT FAQs"  href="html/x10dtfaqs.html"/>
 
-<topic label="What's new" href="html/whatsNew/whatsnew-2.2.3.html">
+<topic label="What's new" href="html/whatsNew/whatsnew-2.3.0.html">
+    <topic label="What's new 2.3.0" href="html/whatsNew/whatsnew-2.3.0.html" />
 	<topic label="What's new 2.2.3" href="html/whatsNew/whatsnew-2.2.3.html" />
 	<topic label="What's new 2.2.2" href="html/whatsNew/whatsnew-2.2.2.html" />
 	<topic label="What's new 2.2.1" href="html/whatsNew/whatsnew-2.2.1.html" />
