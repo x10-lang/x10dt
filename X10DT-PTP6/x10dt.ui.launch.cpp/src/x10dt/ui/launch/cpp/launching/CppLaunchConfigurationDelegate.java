@@ -157,7 +157,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
           } else {
             monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
             updateAttributes(configuration, mode, monitor);
-            super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+            //super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+            runMyCommand(monitor);
           }
         }
       }
@@ -166,6 +167,40 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     }
   }
   
+  private void runMyCommand(final IProgressMonitor monitor)  {
+    try {
+      final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
+      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      messageConsole.clearConsole();
+      final String cmd = this.fExecPath;
+      final List<String> command = new ArrayList<String>();
+      command.add(cmd);
+      final int returnCode = this.fTargetOpHelper.run(command, this.fWorkspaceDir, new IProcessOuputListener() {
+
+        public void read(final String line) {
+          mcStream.println(line);
+        }
+
+        public void readError(final String line) {
+          if (this.fCounter == 0) {
+            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmd));
+            this.fCounter = 1;
+          }
+          mcStream.println(line);
+        }
+
+        // --- Fields
+
+        int fCounter;
+
+      }, monitor);
+      mcStream.flush();
+    } catch (InterruptedException e){
+      //TODO
+    } catch (IOException e){
+      //TODO
+    }
+  }
  
   private void launchPAMIwLL(final ILaunchConfiguration configuration, final IProject project,
       final IProgressMonitor monitor) throws CoreException{
