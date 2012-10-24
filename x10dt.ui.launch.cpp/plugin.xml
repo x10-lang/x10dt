@@ -99,9 +99,9 @@
             id="x10dt.ui.cpp.launch.X10LaunchConfigurationTabGroup"
             type="x10dt.ui.cpp.launch.X10LaunchConfigurationType">
          <launchMode
-               description="%parallelLaunch.run"
+               description="%run.launch.mode.descr"
                mode="run"
-               perspective="org.eclipse.ptp.ui.PTPRunPerspective">
+               perspective="x10dt.ui.perspective">
          </launchMode>
       </launchConfigurationTabGroup>
    </extension>
@@ -109,7 +109,7 @@
          point="org.eclipse.debug.ui.launchConfigurationTypeImages">
       <launchConfigurationTypeImage
             configTypeID="x10dt.ui.cpp.launch.X10LaunchConfigurationType"
-            icon="icons/obj/parallel_run.gif"
+            icon="icons/obj/x10_application.gif"
             id="x10dt.ui.cpp.launch.X10LaunchConfigurationTypeImage">
       </launchConfigurationTypeImage>
    </extension>
@@ -163,7 +163,7 @@
          point="org.eclipse.debug.ui.launchShortcuts">
       <shortcut
             class="x10dt.ui.launch.cpp.launching.X10CppLaunchShortcut"
-            icon="icons/obj/parallel_run.gif"
+            icon="icons/obj/x10_application.gif"
             id="x10dt.ui.launch.cpp.x10.app"
             label="%run.as.x10app"
             modes="run">

@@ -28,6 +28,7 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IModelManager;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.elements.IPResourceManager;
 import org.eclipse.ptp.core.elements.IPUniverse;
@@ -95,8 +96,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
           final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(resourceManager);
           if (rmDynamicTab != null) {
             updateConfiguration(configuration, rmDynamicTab);
-            rmDynamicTab.initializeFrom(CommunicationInterfaceTab.this.fComposite, resourceManager, null /* queue */, 
-                                        getLaunchConfiguration());
+            rmDynamicTab.initializeFrom(getLaunchConfiguration());
           }
         }
         
@@ -142,7 +142,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       configuration.setAttribute(ATTR_USE_PLATFORM_CONF_DATA, this.fSynchronizationBt.getSelection());
       final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
       if (rmDynamicTab != null) {
-        final RMLaunchValidation validation = rmDynamicTab.performApply(configuration, this.fResourceManager, null);
+        final RMLaunchValidation validation = rmDynamicTab.performApply(configuration); 
         if (! validation.isSuccess()) {
           setErrorMessage(validation.getMessage());
         }
@@ -151,7 +151,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   }
   
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-    final IModelManager modelManager = PTPCorePlugin.getDefault().getModelManager();
+    final IModelManager modelManager = ModelManager.getInstance();
     final IPUniverse universe = modelManager.getUniverse();
     IResourceManager resourceManager = null;
     if (universe != null) {
@@ -177,7 +177,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       setErrorMessage(NLS.bind(LaunchMessages.CIT_NoLaunchConfigForRM, 
                                new Object[] { resourceManager.getName() }));
     } else {
-      rmDynamicTab.setDefaults(configuration, resourceManager, null);
+      rmDynamicTab.setDefaults(configuration);
     }
   }
   
@@ -279,7 +279,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       if (rmDynamicTab.getControl() == null) {
         initializeDynamicTab(configuration, rmDynamicTab);
       }
-      final RMLaunchValidation validation = rmDynamicTab.isValid(configuration, this.fResourceManager, null);
+      final RMLaunchValidation validation = rmDynamicTab.isValid(configuration);
       if (! validation.isSuccess()) {
         setErrorMessage(validation.getMessage());
         return false;
@@ -355,14 +355,13 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     }
     
     this.fComposite.setLayout(new GridLayout(1, false));
-    rmDynamicTab.createControl(this.fComposite, this.fResourceManager, null /* queue */);
+    rmDynamicTab.createControl(this.fComposite, this.fResourceManager.getUniqueName());
     rmDynamicTab.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
     if (configuration instanceof ILaunchConfigurationWorkingCopy) {
       updateConfiguration((ILaunchConfigurationWorkingCopy) configuration, rmDynamicTab);
     }
-    rmDynamicTab.initializeFrom(this.fComposite, this.fResourceManager, null /* queue */, 
-                                getLaunchConfiguration());
+    rmDynamicTab.initializeFrom(getLaunchConfiguration());
     
     this.fParent.setMinSize(this.fComposite.computeSize(this.fSynchronizationBt.getBounds().width, SWT.DEFAULT));
   }

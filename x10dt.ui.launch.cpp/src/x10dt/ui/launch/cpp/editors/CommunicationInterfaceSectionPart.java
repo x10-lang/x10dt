@@ -384,17 +384,19 @@ final class CommunicationInterfaceSectionPart extends AbstractCommonSectionFormP
 
   private ICITypeConfigurationPart createCITypeConfigurationPart(final IServiceProvider serviceProvider) {
     final String remoteServiceId = serviceProvider.getId();
-    IResourceManager rm = ModelManager.getInstance().getResourceManagerFromUniqueName(((ResourceManagerServiceProvider)serviceProvider).getUniqueName());
-    if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new OpenMPITypeConfigPart((IOpenMPIResourceManagerConfiguration) rm.getControlConfiguration());
-    } else if (MPICH2_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new MPICH2TypeConfigPart((IToolRMConfiguration) rm.getControlConfiguration());
-    } else if (PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      return new ParallelEnvironmentTypeConfigPart((PEResourceManagerConfiguration) rm.getControlConfiguration());
-    } else if (LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
-      //return new LoadLevelerTypeConfigPart((IIBMLLResourceManagerConfiguration) rm.getControlConfiguration());
-      return new LoadLevelerTypeConfigPart();
-    } else if (SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+//    IResourceManager rm = ModelManager.getInstance().getResourceManagerFromUniqueName(((ResourceManagerServiceProvider)serviceProvider).getUniqueName());
+//    if (OPEN_MPI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+//      return new OpenMPITypeConfigPart((IOpenMPIResourceManagerConfiguration) rm.getControlConfiguration());
+//    } else if (MPICH2_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+//      return new MPICH2TypeConfigPart((IToolRMConfiguration) rm.getControlConfiguration());
+//    } else if (PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+//      return new ParallelEnvironmentTypeConfigPart((PEResourceManagerConfiguration) rm.getControlConfiguration());
+//    } else if (LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
+//      //return new LoadLevelerTypeConfigPart((IIBMLLResourceManagerConfiguration) rm.getControlConfiguration());
+//      return new LoadLevelerTypeConfigPart();
+//    } else 
+      
+    if (SOCKETS_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new HostFileAndListTypeConfigPart();
     } else if (PAMI_SERVICE_PROVIDER_ID.equals(remoteServiceId)) {
       return new PAMITypeConfigPart();

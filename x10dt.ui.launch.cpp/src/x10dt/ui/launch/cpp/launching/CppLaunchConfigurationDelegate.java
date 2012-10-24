@@ -42,12 +42,15 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.ArrayAttribute;
 import org.eclipse.ptp.core.attributes.AttributeManager;
@@ -124,6 +127,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       monitor.beginTask(null, 10);
       monitor.subTask(LaunchMessages.CLCD_ExecCreationTaskName);
 
+      
       this.fProject = verifyProject(configuration);
 
       // The following check shouldn't be necessary, since this ILaunchConfigurationDelegate implementation
@@ -134,8 +138,15 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
                                 new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Constants.EMPTY_STR));
           return;
       }
+
+     
       if (!monitor.isCanceled() && shouldProcessToLinkStep(fProject) &&
           createExecutable(configuration, fProject, new SubProgressMonitor(monitor, 5)) == 0) {
+        
+        ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
+        workingCopy.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, fResourceManager.getUniqueName());
+        workingCopy.doSave();
+        
         // Then, performs the launch.
         if (!monitor.isCanceled()) {
           // Hijack launch if it's PAMI with LoadLeveler
@@ -146,7 +157,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
           } else {
             monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
             updateAttributes(configuration, mode, monitor);
-            super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+            //super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
+            runMyCommand(monitor);
           }
         }
       }
@@ -155,6 +167,40 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
     }
   }
   
+  private void runMyCommand(final IProgressMonitor monitor)  {
+    try {
+      final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
+      final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      messageConsole.clearConsole();
+      final String cmd = this.fExecPath;
+      final List<String> command = new ArrayList<String>();
+      command.add(cmd);
+      final int returnCode = this.fTargetOpHelper.run(command, this.fWorkspaceDir, new IProcessOuputListener() {
+
+        public void read(final String line) {
+          mcStream.println(line);
+        }
+
+        public void readError(final String line) {
+          if (this.fCounter == 0) {
+            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmd));
+            this.fCounter = 1;
+          }
+          mcStream.println(line);
+        }
+
+        // --- Fields
+
+        int fCounter;
+
+      }, monitor);
+      mcStream.flush();
+    } catch (InterruptedException e){
+      //TODO
+    } catch (IOException e){
+      //TODO
+    }
+  }
  
   private void launchPAMIwLL(final ILaunchConfiguration configuration, final IProject project,
       final IProgressMonitor monitor) throws CoreException{
@@ -372,7 +418,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       //attrMgr.addAttributes(getResourceAttributes(configuration, mode));
 
       // Collects attributes from Environment tab
-      String[] envArr = getEnvironmentToAppend(configuration);
+      String[] envArr = null; //org.eclipse.ptp.core.util.LaunchUtils.getEnvironmentToAppend(configuration);
+      
       if (this.fIsCygwin) {
         final StringBuilder sb = new StringBuilder();
         sb.append(PATH_ENV).append('=');
@@ -420,7 +467,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
 
       // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
       if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
-        final IPQueue queue = getQueueDefault((IPResourceManager) this.fResourceManager.getAdapter(IPResourceManager.class));
+        final IPQueue queue = org.eclipse.ptp.core.util.LaunchUtils.getQueueDefault((IPResourceManager) this.fResourceManager.getAdapter(IPResourceManager.class));
         if (queue == null) {
           throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRMQueueError));
         }
@@ -439,7 +486,7 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
       // Collects attributes from Arguments tab
       attrMgr.addAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition().create(this.fWorkspaceDir));
 
-      final String[] argArr = getProgramArguments(configuration);
+      final String[] argArr = org.eclipse.ptp.core.util.LaunchUtils.getProgramArguments(configuration);
       if (argArr != null) {
         attrMgr.addAttribute(JobAttributes.getProgramArgumentsAttributeDefinition().create(argArr));
       }
@@ -596,8 +643,8 @@ public class CppLaunchConfigurationDelegate extends ParallelLaunchConfigurationD
   }
 
   private IResourceManager getResourceManagerControl(final ILaunchConfiguration configuration) throws CoreException {
-    final IPUniverse universe = PTPCorePlugin.getDefault().getModelManager().getUniverse();
-    final String rmUniqueName = getResourceManagerUniqueName(configuration);
+   final IPUniverse universe = ModelManager.getInstance().getUniverse();
+    final String rmUniqueName = org.eclipse.ptp.core.util.LaunchUtils.getResourceManagerUniqueName(configuration);
     for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
       IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
       if (resourceManager.getUniqueName().equals(rmUniqueName)) {

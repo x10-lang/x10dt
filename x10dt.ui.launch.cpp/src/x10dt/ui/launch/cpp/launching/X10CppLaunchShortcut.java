@@ -28,9 +28,11 @@ import org.eclipse.imp.preferences.IPreferencesService;
 import org.eclipse.imp.preferences.PreferencesService;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
+import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.core.elements.IPResourceManager;
 import org.eclipse.ptp.core.elements.IPMachine;
 import org.eclipse.ptp.core.elements.IPNode;
+import org.eclipse.ptp.core.util.LaunchUtils;
 import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.rm.mpi.mpich2.core.launch.MPICH2LaunchConfiguration;
 import org.eclipse.ptp.rm.mpi.openmpi.core.launch.OpenMPILaunchConfiguration;
@@ -74,7 +76,6 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     workingCopy.setAttribute(ATTR_MAIN_TYPE_NAME, typeInfo.getName());
     workingCopy.setAttribute(ATTR_CONSOLE, true);
     workingCopy.setAttribute(ATTR_X10_MAIN_CLASS, typeInfo.getName());
-    
     final IProject project = typeInfo.getCompilationUnit().getProject().getRawProject();
     final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(project);
     
@@ -100,7 +101,7 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     }
     
     if ((useHostListAttrKey != null) && (hostListAttrKey != null)) {
-      final IResourceManager resourceManager = PTPConfUtils.findResourceManagerById(platformConf);
+      final IResourceManager resourceManager = PTPConfUtils.findResourceManagerByName(platformConf.getName());
       if (resourceManager != null) {
         final StringBuilder hostListBuilder = new StringBuilder();
         int i = 0;
