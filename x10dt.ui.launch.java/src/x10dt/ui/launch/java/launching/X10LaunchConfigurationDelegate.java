@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
+import org.eclipse.ptp.core.ModelManager;
 import org.eclipse.ptp.core.PTPCorePlugin;
 import org.eclipse.ptp.core.attributes.AttributeManager;
 import org.eclipse.ptp.core.attributes.StringAttribute;
@@ -102,9 +103,9 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
                                                  final IProgressMonitor monitor) throws CoreException {
     final SubMonitor progress = SubMonitor.convert(monitor, 30);
     try {
-      final String rmUniqueName = getResourceManagerUniqueName(configuration);
+      final String rmUniqueName = org.eclipse.ptp.core.util.LaunchUtils.getResourceManagerUniqueName(configuration);
       IResourceManager resourceManager = null;
-      for (final IPResourceManager prm : PTPCorePlugin.getDefault().getModelManager().getUniverse().getResourceManagers()) {
+      for (final IPResourceManager prm : ModelManager.getInstance().getUniverse().getResourceManagers()) {
         IResourceManager rm= (IResourceManager) prm.getAdapter(IResourceManager.class);
     	if (rm.getUniqueName().equals(rmUniqueName)) {
           resourceManager = rm;
@@ -125,7 +126,7 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
 
       // Make sure there is a queue
       if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
-        IPQueue queue = getQueueDefault((IPResourceManager)resourceManager.getAdapter(IPResourceManager.class));
+        IPQueue queue = org.eclipse.ptp.core.util.LaunchUtils.getQueueDefault((IPResourceManager)resourceManager.getAdapter(IPResourceManager.class));
         if (queue == null) {
           throw new CoreException(new Status(IStatus.ERROR, PTPLaunchPlugin.getUniqueIdentifier(), 
                                              Messages.XLCD_NoDefaultQueue));
@@ -194,31 +195,31 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
 	  }
   }
 
-  protected IPath verifyResource(final String path, final ILaunchConfiguration configuration, 
-		  final IProgressMonitor monitor) throws CoreException {
-	  final IResourceManagerConfiguration conf = this.fResourceManager.getConfiguration();
-	  final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(this.fResourceManager.getControlConfiguration().getRemoteServicesId()); 
-	  if (remoteServices == null) {
-		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRemoteServices));
-	  }
-	  final IRemoteConnectionManager connMgr = remoteServices.getConnectionManager();
-	  if (connMgr == null) {
-		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnectionMgr));
-	  }
-	  final IRemoteConnection conn = connMgr.getConnection(this.fResourceManager.getControlConfiguration().getConnectionName()); 
-	  if (conn == null) {
-		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnection));
-	  }
-	  final IRemoteFileManager fileManager = remoteServices.getFileManager(conn);
-	  if (fileManager == null) {
-		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoFileManager));
-	  }
-	  if (!fileManager.getResource(path).fetchInfo().exists()) {
-		  throw new CoreException(new Status(IStatus.INFO, CppLaunchCore.PLUGIN_ID, NLS.bind(LaunchMessages.CLCD_PathNotFound,
-				  path)));
-	  }
-	  return new Path(path);
-  }
+//  protected IPath verifyResource(final String path, final ILaunchConfiguration configuration, 
+//		  final IProgressMonitor monitor) throws CoreException {
+//	  final IResourceManagerConfiguration conf = this.fResourceManager.getConfiguration();
+//	  final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(this.fResourceManager.getControlConfiguration().getRemoteServicesId()); 
+//	  if (remoteServices == null) {
+//		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRemoteServices));
+//	  }
+//	  final IRemoteConnectionManager connMgr = remoteServices.getConnectionManager();
+//	  if (connMgr == null) {
+//		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnectionMgr));
+//	  }
+//	  final IRemoteConnection conn = connMgr.getConnection(this.fResourceManager.getControlConfiguration().getConnectionName()); 
+//	  if (conn == null) {
+//		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnection));
+//	  }
+//	  final IRemoteFileManager fileManager = remoteServices.getFileManager(conn);
+//	  if (fileManager == null) {
+//		  throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoFileManager));
+//	  }
+//	  if (!fileManager.getResource(path).fetchInfo().exists()) {
+//		  throw new CoreException(new Status(IStatus.INFO, CppLaunchCore.PLUGIN_ID, NLS.bind(LaunchMessages.CLCD_PathNotFound,
+//				  path)));
+//	  }
+//	  return new Path(path);
+//  }
     
   // --- Private code
   
