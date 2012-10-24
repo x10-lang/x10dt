@@ -96,12 +96,11 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     this.fListeners.add(listener);
   }
 
-  public RMLaunchValidation canSave(final Control control, final IResourceManager resourceManager, final IPQueue queue) {
+  public RMLaunchValidation canSave(final Control control) {
     return new RMLaunchValidation(true, null);
   }
 
-  public void createControl(final Composite parent, final IResourceManager resourceManager, 
-                            final IPQueue queue) throws CoreException {
+  public void createControl(final Composite parent, String id) throws CoreException {
     this.fControl = new Composite(parent, SWT.NONE);
     this.fControl.setFont(parent.getFont());
     this.fControl.setLayout(new GridLayout(1, false));
@@ -352,11 +351,10 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
   }
 
   @SuppressWarnings("unchecked")
-  public RMLaunchValidation initializeFrom(final Control control, final IResourceManager resourceManager, final IPQueue queue,
-                                           final ILaunchConfiguration configuration) {
+  public RMLaunchValidation initializeFrom(final ILaunchConfiguration configuration) {
     final List<String> hosts = new ArrayList<String>();
-    if (resourceManager != null) {
-      for (final IPMachine machine : ((IPResourceManager) resourceManager.getAdapter(IPResourceManager.class)).getMachines()) {
+    if (fResourceManager != null) {
+      for (final IPMachine machine : ((IPResourceManager) fResourceManager.getAdapter(IPResourceManager.class)).getMachines()) {
         for (final IPNode node : machine.getNodes()) {
           hosts.add(node.getName());
         }
@@ -378,8 +376,7 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     return new RMLaunchValidation(true, null);
   }
 
-  public RMLaunchValidation isValid(final ILaunchConfiguration launchConfig, final IResourceManager resourceManager, 
-                                    final IPQueue queue) {
+  public RMLaunchValidation isValid(final ILaunchConfiguration launchConfig){
     if (this.fNumPlacesSpinner.getSelection() < 1) {
       return new RMLaunchValidation(false, Messages.SRMLCDT_AtLeastOnePlaceMsg);
     }
@@ -400,8 +397,7 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     return new RMLaunchValidation(true, null);
   }
 
-  public RMLaunchValidation performApply(final ILaunchConfigurationWorkingCopy configuration, 
-                                         final IResourceManager resourceManager, final IPQueue queue) {
+  public RMLaunchValidation performApply(final ILaunchConfigurationWorkingCopy configuration) {
 	if (this.fHostFileBt != null)  
 		configuration.setAttribute(ATTR_USE_HOSTFILE, this.fHostFileBt.getSelection());
     if (this.fNumPlacesSpinner != null)
@@ -409,6 +405,7 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     if (this.fHostFileText != null)
     	configuration.setAttribute(ATTR_HOSTFILE, this.fHostFileText.getText().trim());
     configuration.setAttribute(ATTR_HOSTLIST, (this.fHosts.isEmpty()) ? null : this.fHosts);
+    
     return new RMLaunchValidation(true, null);
   }
 
@@ -416,8 +413,7 @@ public final class X10PlacesAndHostsDynamicTab implements IRMLaunchConfiguration
     this.fListeners.remove(listener);
   }
 
-  public RMLaunchValidation setDefaults(final ILaunchConfigurationWorkingCopy configuration, 
-                                        final IResourceManager resourceManager, final IPQueue queue) {
+  public RMLaunchValidation setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
     return new RMLaunchValidation(true, null);
   }
   
