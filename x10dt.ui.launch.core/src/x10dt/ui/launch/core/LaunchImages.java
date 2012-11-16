@@ -47,6 +47,9 @@ public class LaunchImages {
   
   public static final String TERMINATE = "terminate.gif";
   
+  public static final String VMS_LOCATION = "vms_location.gif";
+  
+  
   // --- Public services
   
   /**

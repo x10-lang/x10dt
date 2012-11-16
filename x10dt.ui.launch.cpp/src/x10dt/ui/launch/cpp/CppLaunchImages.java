@@ -47,6 +47,7 @@ public class CppLaunchImages {
   
   public static final String FILE = "obj/x10-platform-conf.png"; //$NON-NLS-1$
   
+  public static final String PLACES_HOSTS = "obj/places_hosts.gif";
   
   // --- Wizards images
   

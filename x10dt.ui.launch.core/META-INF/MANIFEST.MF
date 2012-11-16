@@ -37,3 +37,4 @@ Export-Package: x10dt.ui.launch.core,
  x10dt.ui.launch.core.platform_conf,
  x10dt.ui.launch.core.utils
 Bundle-Vendor: x10-users@lists.sourceforge.net
+Import-Package: org.eclipse.debug.internal.ui

@@ -99,7 +99,11 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_SearchButton;
 
+  public static String CAT_MultipleCompilationConfs;
+  
   public static String CAT_TabName;
+  
+  public static String CAT_ProjectName;
 
   public static String CBEPC_PlatformConfSavingErrMsg;
 
@@ -594,7 +598,79 @@ public class LaunchMessages extends NLS {
   public static String CLCD_LoadLevelerInterrupted;
   
   public static String STCP_LoadLevelerText;
+  
+  public static String VMLT_BrowseBt;
+  
+  public static String VMLT_CheckConnBt;
 
+  public static String VMLT_Checking;
+
+  public static String VMLT_ConnStatus;
+
+  public static String VMLT_HostLabel;
+
+  public static String VMLT_HostNameNotDefined;
+
+  public static String VMLT_LocalAddressLabel;
+
+  public static String VMLT_LocalConnBt;
+
+  public static String VMLT_OutputFolderNotDefined;
+
+  public static String VMLT_PassphraseLabel;
+
+  public static String VMLT_PasswordAuthBt;
+
+  public static String VMLT_PasswordCheckCanceled;
+
+  public static String VMLT_PasswordCheckFailed;
+
+  public static String VMLT_PasswordLabel;
+
+  public static String VMLT_PortFrwdLabel;
+
+  public static String VMLT_PortLabel;
+
+  public static String VMLT_PrivateKeyFileDialogMsg;
+
+  public static String VMLT_PrivateKeyFileLabel;
+
+  public static String VMLT_PrivateKeyFileNotDefined;
+
+  public static String VMLT_PublicKeyAutBt;
+
+  public static String VMLT_RemoteConnBt;
+
+  public static String VMLT_RemoteOutputFolder;
+
+  public static String VMLT_SelectRemoteOutputFolder;
+
+  public static String VMLT_SelectX10Dist;
+
+  public static String VMLT_ShutdownError;
+
+  public static String VMLT_TabName;
+
+  public static String VMLT_TimeoutLabel;
+
+  public static String VMLT_UserLabel;
+
+  public static String VMLT_UserNameNotDefined;
+
+  public static String VMLT_X10Dist;
+
+  public static String VMLT_X10DistNotDefined;
+  
+  public static String VMLT_UnknownHost;
+  
+  public static String VMLT_IncorrectConnection;
+  
+  public static String VMLT_Interrupted;
+
+  public static String VMLT_CompilationTabName;
+  
+  public static String PCU_GetConf;
+  
   // --- Private code
 
   private static final String BUNDLE_NAME = "x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$

@@ -99,7 +99,7 @@
             id="x10dt.ui.cpp.launch.X10LaunchConfigurationTabGroup"
             type="x10dt.ui.cpp.launch.X10LaunchConfigurationType">
          <launchMode
-               description="%run.launch.mode.descr"
+               description="%launch.config.cpp.name"
                mode="run"
                perspective="x10dt.ui.perspective">
          </launchMode>
@@ -113,6 +113,52 @@
             id="x10dt.ui.cpp.launch.X10LaunchConfigurationTypeImage">
       </launchConfigurationTypeImage>
    </extension>
+   
+   <!-- Remote compilation configuration -->
+   
+   <extension
+		 point="org.eclipse.debug.core.launchConfigurationTypes">
+	  <launchConfigurationType
+			id="x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationType"
+			modes="run,debug"
+			name="%remote.compilation.cpp.name">
+	  </launchConfigurationType>
+   </extension>
+   <extension
+	     point="org.eclipse.debug.core.launchDelegates">
+	  <launchDelegate
+			id="x10dt.ui.cpp.laun.X10RemoteCompilationConfigurationDelegate"
+			delegate="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
+			type="x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationType"
+			modes="run"
+			sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">
+	  </launchDelegate>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTabGroups">
+      <launchConfigurationTabGroup
+            class="x10dt.ui.launch.cpp.launching.X10RemoteCompilationConfigurationTabGroup"
+            id="x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationTabGroup"
+            type="x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationType">
+         <launchMode
+               description="%remote.compilation.cpp.name"
+               mode="run"
+               perspective="x10dt.ui.perspective">
+         </launchMode>
+      </launchConfigurationTabGroup>
+   </extension>
+   <extension
+         point="org.eclipse.debug.ui.launchConfigurationTypeImages">
+      <launchConfigurationTypeImage
+            configTypeID="x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationType"
+            icon="icons/obj/x10_application.gif"
+            id="x10dt.ui.cpp.remote.compilation.X10LaunchConfigurationTypeImage">
+      </launchConfigurationTypeImage>
+   </extension>
+   
+   <!-- End  Remote compilation configuration -->
+   
+   
    <extension
          point="org.eclipse.ui.editors">
       <editor

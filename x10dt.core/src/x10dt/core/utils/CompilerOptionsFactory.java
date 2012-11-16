@@ -15,6 +15,14 @@ import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
 
 public class CompilerOptionsFactory {
+	
+	public static X10CompilerOptions createOptionsForEmptyProject() {
+        ExtensionInfo extInfo = null; 
+        X10CompilerOptions options;
+        options = new X10CPPCompilerOptions(extInfo);
+        return options;
+    }
+	
     public static X10CompilerOptions createOptions(IProject project) {
         ExtensionInfo extInfo = null; // BUG Need a non-null extInfo if one wants to parse a "-version" arg... but this should probably be changed in the Options API
         X10CompilerOptions options;

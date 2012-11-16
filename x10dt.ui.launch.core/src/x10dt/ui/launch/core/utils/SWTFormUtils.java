@@ -9,6 +9,7 @@ package x10dt.ui.launch.core.utils;
 
 import java.util.Collection;
 
+import org.eclipse.debug.internal.ui.SWTFactory;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -270,6 +271,50 @@ public class SWTFormUtils {
     return text;
   }
   
+  public static Text createLabelAndText(final Composite parent, final String labelText,
+      final int textHeightFactor, final int textStyle) {
+    final Composite composite= new Composite(parent, SWT.NONE);
+    final boolean isTableWrapLayout= parent.getLayout() instanceof TableWrapLayout;
+    composite.setFont(parent.getFont());
+    if (isTableWrapLayout) {
+      final TableWrapLayout tableWrapLayout= new TableWrapLayout();
+      tableWrapLayout.numColumns= 2;
+      composite.setLayout(tableWrapLayout);
+      composite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    } else {
+      composite.setLayout(new GridLayout(2, false));
+      composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    }
+   
+
+    final Label label= new Label(composite, SWT.NONE);
+    label.setText(labelText);
+    if (isTableWrapLayout) {
+      label.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+    } else {
+      label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+    }
+   
+    final int style= (textHeightFactor == 1) ? SWT.NONE : SWT.WRAP;
+    final Text text= new Text(composite, style | textStyle);
+    if (isTableWrapLayout) {
+      final TableWrapData gd= new TableWrapData(TableWrapData.FILL_GRAB);
+      if (textHeightFactor > 1) {
+        gd.heightHint= text.getLineHeight() * textHeightFactor;
+      }
+      gd.indent= 5;
+      text.setLayoutData(gd);
+    } else {
+      final GridData gd= new GridData(SWT.FILL, SWT.NONE, true, false);
+      if (textHeightFactor > 1) {
+        gd.heightHint= text.getLineHeight() * textHeightFactor;
+      }
+      gd.horizontalIndent= 5;
+      text.setLayoutData(gd);
+    }
+    return text;
+  }
+  
   /**
    * Creates a label, text (with the default text widget height) and button widgets on the same row in a SWT form.
    * 
@@ -365,6 +410,134 @@ public class SWTFormUtils {
       controlContainer.add(button);
     }
     return new Pair<Text,Button>(text, button);
+  }
+  
+  
+  public static Pair<Text, Button> createLabelTextButton(final Composite parent, final String labelText, final String buttonText,
+      final Collection<Control> controlContainer, final int textHeightFactor) {
+    final Composite composite= new Composite(parent, SWT.NONE);
+    composite.setFont(parent.getFont());
+    final boolean isTableWrapLayout= parent.getLayout() instanceof TableWrapLayout;
+    if (isTableWrapLayout) {
+      final TableWrapLayout tableWrapLayout= new TableWrapLayout();
+      tableWrapLayout.numColumns= 3;
+      composite.setLayout(tableWrapLayout);
+      composite.setLayoutData(new TableWrapData(TableWrapData.FILL_GRAB));
+    } else {
+      composite.setLayout(new GridLayout(3, false));
+      composite.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(composite);
+    }
+
+    final Label label= new Label(composite, SWT.NONE);
+    label.setText(labelText);
+    if (isTableWrapLayout) {
+      label.setLayoutData(new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE));
+    } else {
+      label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+    }
+    if (controlContainer != null) {
+      controlContainer.add(label);
+    }
+    final int style= (textHeightFactor == 1) ? SWT.NONE : SWT.WRAP;
+    final Text text= new Text(composite, style);
+    if (isTableWrapLayout) {
+      final TableWrapData twData= new TableWrapData(TableWrapData.FILL_GRAB, TableWrapData.MIDDLE);
+      if (textHeightFactor > 1) {
+        twData.heightHint= text.getLineHeight() * textHeightFactor;
+      }
+      twData.indent= 5;
+      text.setLayoutData(twData);
+    } else {
+      final GridData gd= new GridData(SWT.FILL, SWT.CENTER, true, false);
+      if (textHeightFactor > 1) {
+        gd.heightHint= text.getLineHeight() * textHeightFactor;
+      }
+      gd.horizontalIndent= 5;
+      text.setLayoutData(gd);
+    }
+    if (controlContainer != null) {
+      controlContainer.add(text);
+    }
+    final Button button= new Button(composite,  SWT.PUSH);
+    button.setText(buttonText);
+    if (isTableWrapLayout) {
+      final TableWrapData twData= new TableWrapData(TableWrapData.FILL, TableWrapData.MIDDLE);
+      twData.heightHint= text.getLineHeight() + 4;
+      button.setLayoutData(twData);
+    } else {
+      GridData gd= new GridData(SWT.FILL, SWT.CENTER, false, false);
+      gd.heightHint= text.getLineHeight() + 4;
+      button.setLayoutData(gd);
+    }
+    button.setEnabled(false);
+    if (controlContainer != null) {
+      controlContainer.add(button);
+    }
+    return new Pair<Text, Button>(text, button);
+  }
+  
+  public static Text createLabelAndText(final Composite parent, final String labelText, final Collection<Control> controlContainer) {
+    return createLabelAndText(parent, labelText, new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1), SWT.BORDER,
+                              controlContainer);
+  }
+  
+  public static Text createLabelAndText(final Composite parent, final String labelText, final GridData gridData,
+                                  final int style, final Collection<Control> controlContainer) {
+    final Composite composite = new Composite(parent, SWT.NONE);
+    composite.setFont(parent.getFont());
+    composite.setLayout(new GridLayout(2, false));
+    composite.setLayoutData(gridData);
+    if (controlContainer != null) {
+      controlContainer.add(composite);
+    }
+    final Label label = new Label(composite, SWT.NONE);
+    label.setText(labelText);
+    label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+    if (controlContainer != null) {
+      controlContainer.add(label);
+    }
+    final Text text = new Text(composite, style);
+    text.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+    if (controlContainer != null) {
+      controlContainer.add(text);
+    }
+    return text;
+  }
+  
+  public static Pair<Text, Button> createLabelTextAndPushButton(final Composite parent, final String labelText, final String btText,
+      final Collection<Control> controlContainer) {
+    return createLabelTextAndPushButton(parent, labelText, btText, new GridData(SWT.FILL, SWT.NONE, true, false), controlContainer);
+  }
+
+  public static Pair<Text, Button> createLabelTextAndPushButton(final Composite parent, final String labelText, final String btText, final GridData gridData,
+      final Collection<Control> controlContainer) {
+    final Composite composite= new Composite(parent, SWT.NONE);
+    composite.setFont(parent.getFont());
+    composite.setLayout(new GridLayout(3, false));
+    composite.setLayoutData(gridData);
+    if (controlContainer != null) {
+      controlContainer.add(composite);
+    }
+    final Label label= new Label(composite, SWT.NONE);
+    label.setText(labelText);
+    label.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+    if (controlContainer != null) {
+      controlContainer.add(label);
+    }
+    final Text text= new Text(composite, SWT.BORDER);
+    text.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+    if (controlContainer != null) {
+      controlContainer.add(text);
+    }
+    final Button button= SWTFactory.createPushButton(composite, btText, null /* image */);
+    button.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+    if (controlContainer != null) {
+      controlContainer.add(button);
+    }
+    return new Pair<Text, Button>(text, button);
   }
   
   // --- Private code

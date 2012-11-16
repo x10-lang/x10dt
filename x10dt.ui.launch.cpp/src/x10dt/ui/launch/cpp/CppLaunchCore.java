@@ -81,6 +81,11 @@ public class CppLaunchCore extends AbstractUIPlugin implements IResourceChangeLi
    */
   public static final String LAUNCH_CONF_TYPE = "x10dt.ui.cpp.launch.X10LaunchConfigurationType"; //$NON-NLS-1$
 
+  /**
+   * Launch configuration for X10 Remote Compilation
+   */
+  public static final String REMOTE_COMPILATION_LAUNCH_CONF_TYPE = "x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationType"; //$NON-NLS-1$
+
   // --- IResourceChangeListener's interface methods implementation
 
   public void resourceChanged(final IResourceChangeEvent event) {
