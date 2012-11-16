@@ -31,6 +31,7 @@ import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.KeyboardUtils;
 import x10dt.ui.launch.core.utils.SWTFormUtils;
+import x10dt.ui.launch.cpp.CppLaunchImages;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
@@ -42,6 +43,7 @@ import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 public class CompilationTab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   public CompilationTab(X10RemoteCompilationApplicationTab tab){
+    CppLaunchImages.findOrCreateManaged(CppLaunchImages.PLACES_HOSTS);
     this.fApplicationTab = tab;
   }
   
@@ -57,6 +59,7 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     // Nothing to do
   }
 
+ 
   public void createControl(Composite parent) {
     final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
     
@@ -68,6 +71,9 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     composite.setLayoutData(new TableWrapData(TableWrapData.LEFT));
     
     createCompilationGroup(composite);
+    scrolledComposite.setContent(composite);
+    scrolledComposite.setExpandVertical(true);
+    scrolledComposite.setExpandHorizontal(true);
   }
   
   private void createCompilationGroup(Composite parent){    
@@ -322,7 +328,7 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
   }
   
   public Image getImage() {
-    return org.eclipse.ptp.launch.ui.LaunchImages.getImage(org.eclipse.ptp.launch.ui.LaunchImages.IMG_PARALLEL_TAB);
+    return CppLaunchImages.getImage(CppLaunchImages.PLACES_HOSTS);
   }
 
   // private code
