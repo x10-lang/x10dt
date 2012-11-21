@@ -1,6 +1,7 @@
 package x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_LOCAL;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_X10_DISTRIBUTION;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_REMOTE_OUTPUT_FOLDER;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_CITYPE;
 import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 
@@ -35,7 +37,7 @@ public class ConfUtils {
       }
       try {
         for(ILaunchConfiguration conf: DebugPlugin.getDefault().getLaunchManager().getLaunchConfigurations()){
-          if (CppLaunchCore.REMOTE_COMPILATION_LAUNCH_CONF_TYPE.equals(conf.getType()) &&
+          if (CppLaunchCore.REMOTE_COMPILATION_LAUNCH_CONF_TYPE.equals(conf.getType().getIdentifier()) &&
               project.equals(conf.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR))){
             return conf;
           }
@@ -84,6 +86,16 @@ public class ConfUtils {
       }
     }
     
+    public static String getRemoteOutputFolder(ILaunchConfiguration conf){
+      if (conf == null) return null; // Should not happen
+      try {
+        return conf.getAttribute(ATTR_REMOTE_OUTPUT_FOLDER, Constants.EMPTY_STR);
+      } catch(CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return null;
+    }
+    
     public static String getX10DistribLocation(ILaunchConfiguration conf) {
         if (isLocalConnection(conf)) {
           try {
@@ -99,6 +111,16 @@ public class ConfUtils {
             return Constants.EMPTY_STR;
           }
         }
+    }
+    
+    public static boolean isValid(ILaunchConfiguration conf){
+      if (conf == null) return true;
+      try {
+        return conf.getAttribute(IS_VALID, true);
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return true;
     }
     
     private static ETargetOS getLocalOS() {

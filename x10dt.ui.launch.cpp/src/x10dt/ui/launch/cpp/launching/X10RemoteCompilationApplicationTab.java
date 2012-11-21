@@ -9,7 +9,7 @@ package x10dt.ui.launch.cpp.launching;
 
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -97,10 +97,11 @@ final class X10RemoteCompilationApplicationTab extends LaunchConfigurationTab im
 
     setControl(composite);
   }
-
+  
   public String getName() {
     return LaunchMessages.CAT_ProjectName;
   }
+  
 
   public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
     final String projectName = this.fProjectText.getText().trim();
@@ -138,6 +139,13 @@ final class X10RemoteCompilationApplicationTab extends LaunchConfigurationTab im
   public boolean isValid(final ILaunchConfiguration configuration) {
     setErrorMessage(null);
     setMessage(null);
+    try {
+      ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+      wc.setAttribute(ConnectionTab.IS_VALID, false);
+      wc.doSave();
+    } catch (CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
 
     final String projectName = this.fProjectText.getText().trim();
     if (projectName.length() == 0) {
@@ -177,6 +185,14 @@ final class X10RemoteCompilationApplicationTab extends LaunchConfigurationTab im
         setErrorMessage(NLS.bind(LaunchMessages.CAT_IllegalPrjName, projectName));
         return false;
       }
+    }
+    
+    try {
+      ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+      wc.setAttribute(IS_VALID, true);
+      wc.doSave();
+    } catch (CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
     return true;
   }
@@ -339,7 +355,7 @@ final class X10RemoteCompilationApplicationTab extends LaunchConfigurationTab im
 
 
   public String getProjectName(){
-    return this.fProjectText.getText();
+    return (this.fProjectText != null) ? this.fProjectText.getText() : Constants.EMPTY_STR;
   }
 
 

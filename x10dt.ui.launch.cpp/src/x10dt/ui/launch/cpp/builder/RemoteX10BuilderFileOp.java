@@ -34,20 +34,21 @@ import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
+import x10dt.ui.launch.cpp.launching.ConfUtils;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 
 final class RemoteX10BuilderFileOp extends AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  RemoteX10BuilderFileOp(final IJavaProject javaProject, final IX10PlatformConf platformConf, 
+  RemoteX10BuilderFileOp(final IJavaProject javaProject, 
                          final Map<String, Collection<String>> generatedFiles) throws CoreException {
-    super(platformConf, javaProject, platformConf.getCppCompilationConf().getRemoteOutputFolder(), generatedFiles);
-    this.fTargetOS = platformConf.getCppCompilationConf().getTargetOS();
+    super(javaProject, ConfUtils.getRemoteOutputFolder(ConfUtils.getConfiguration(javaProject.getProject().getName())), generatedFiles);
+    this.fTargetOS = ConfUtils.getTargetOS(ConfUtils.getConfiguration(javaProject.getProject().getName()));
     
     final ITargetOpHelper localTargetOpHelper = TargetOpHelperFactory.create(true, false, null);
     this.fLocalX10BuilderOp = new LocalX10BuilderFileOp(javaProject, 
                                                         ProjectUtils.getProjectOutputDirPath(javaProject.getProject()), 
-                                                        platformConf, localTargetOpHelper, generatedFiles);
+                                                        localTargetOpHelper, generatedFiles);
   }
 
   // --- Interface methods implementation

@@ -9,7 +9,7 @@ package x10dt.ui.launch.cpp.editors;
 
 
 
-interface IX10DistribChangeListener {
+public interface IX10DistribChangeListener {
   
   void x10DistributionChange(final boolean isValid, final boolean shouldDeriveInfo);
 

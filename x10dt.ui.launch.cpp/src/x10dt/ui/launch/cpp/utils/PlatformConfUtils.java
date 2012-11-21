@@ -12,6 +12,7 @@ import java.util.Arrays;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.utils.Pair;
 
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
@@ -22,6 +23,7 @@ import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import x10dt.ui.launch.cpp.launching.ConfUtils;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
@@ -117,11 +119,12 @@ public final class PlatformConfUtils {
    * @return A non-null non-empty string identifying a directory.
    * @throws CoreException Occurs if the project output folder does not exist or we can't obtain its path appropriately.
    */
-  public static String getWorkspaceDir(final IX10PlatformConf platformConf, final IProject project) throws CoreException {
-    if (platformConf.getConnectionConf().isLocal()) {
+  public static String getWorkspaceDir(final IProject project) throws CoreException {
+    ILaunchConfiguration conf = ConfUtils.getConfiguration(project.getName());
+    if (ConfUtils.isLocalConnection(conf)) {
       return ProjectUtils.getProjectOutputDirPath(project);
     } else {
-      return platformConf.getCppCompilationConf().getRemoteOutputFolder();
+      return ConfUtils.getRemoteOutputFolder(conf);
     }
   }
   

@@ -19,19 +19,18 @@ import org.eclipse.jdt.core.IJavaProject;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 
 final class LocalX10BuilderFileOp extends AbstractX10BuilderOp implements IX10BuilderFileOp {
 
   LocalX10BuilderFileOp(final IJavaProject javaProject, final String workspaceDir, 
-                        final IX10PlatformConf platformConf, Map<String, Collection<String>> generatedFiles) throws CoreException {
-    super(platformConf, javaProject, workspaceDir, generatedFiles);
+                        Map<String, Collection<String>> generatedFiles) throws CoreException {
+    super(javaProject, workspaceDir, generatedFiles);
   }
   
-  LocalX10BuilderFileOp(final IJavaProject javaProject, final String workspaceDir, final IX10PlatformConf platformConf,
-                        final ITargetOpHelper targetOpHelper, Map<String, Collection<String>> generatedFiles) {
-    super(javaProject, workspaceDir, platformConf, targetOpHelper, generatedFiles);
+  LocalX10BuilderFileOp(final IJavaProject javaProject, final String workspaceDir,
+                        final ITargetOpHelper targetOpHelper, Map<String, Collection<String>> generatedFiles) throws CoreException {
+    super(javaProject, workspaceDir, targetOpHelper, generatedFiles);
   }
   
   // --- Interface methods implementation

@@ -13,6 +13,7 @@ import static x10dt.ui.launch.core.Constants.CPP_EXT;
 import static x10dt.ui.launch.core.Constants.CXX_EXT;
 import static x10dt.ui.launch.core.Constants.EXEC_PATH;
 import static x10dt.ui.launch.core.Constants.O_EXT;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,6 +36,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.osgi.util.NLS;
@@ -48,7 +50,6 @@ import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
-import x10dt.ui.launch.core.platform_conf.EValidationStatus;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.UIUtils;
@@ -57,42 +58,46 @@ import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
+import x10dt.ui.launch.cpp.launching.ConfUtils;
+import x10dt.ui.launch.cpp.launching.DefaultCPPCommandsFactory;
+import x10dt.ui.launch.cpp.launching.IDefaultCPPCommands;
 
 
 abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
-  protected AbstractX10BuilderOp(final IX10PlatformConf platformConf, final IJavaProject javaProject, 
+  protected AbstractX10BuilderOp(final IJavaProject javaProject, 
                                  final String workspaceDir, 
                                  final Map<String, Collection<String>> generatedFiles) throws CoreException {
     if (workspaceDir == null) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.AXBO_NoRemoteOutputFolder));
     }
 
-    this.fConfName = platformConf.getName();
+   
     this.fJavaProject = javaProject;
+    String project = javaProject.getProject().getName();
+    this.fCompilationConf = ConfUtils.getConfiguration(project);
+    this.fConfName = this.fCompilationConf.getName();
     this.fWorkspaceDir = workspaceDir;
-    this.fPlatformConf = platformConf;
-    final IConnectionConf connConf = platformConf.getConnectionConf();
-    this.fIsLocal = connConf.isLocal();
-    final boolean isCygwin = this.fPlatformConf.getCppCompilationConf().getTargetOS() == ETargetOS.WINDOWS;
-    this.fTargetOpHelper = TargetOpHelperFactory.create(connConf.isLocal(), isCygwin, connConf.getConnectionName());
+    this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
+    final boolean isCygwin = ConfUtils.getTargetOS(this.fCompilationConf) == ETargetOS.WINDOWS;
+    this.fCppCommands = DefaultCPPCommandsFactory.create(project);
+    this.fTargetOpHelper = TargetOpHelperFactory.create(this.fIsLocal, isCygwin, ConfUtils.getConnectionName(this.fCompilationConf));
     if (this.fTargetOpHelper == null) {
-      String msg= NLS.bind(Messages.CPPB_NoValidConnectionError, 
-                           new Object[] { connConf.getHostName(), this.fJavaProject.getProject().getName() } );
-      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, msg));
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoValidConnectionError));
     }
     this.fGeneratedFiles = generatedFiles;
   }
   
-  protected AbstractX10BuilderOp(final IJavaProject javaProject, final String workspaceDir, final IX10PlatformConf platformConf,
-                                 final ITargetOpHelper targetOpHelper, final Map<String, Collection<String>> generatedFiles) {
-    this.fConfName = platformConf.getName();
+  protected AbstractX10BuilderOp(final IJavaProject javaProject, final String workspaceDir,
+                                 final ITargetOpHelper targetOpHelper, final Map<String, Collection<String>> generatedFiles) throws CoreException {
+   
     this.fJavaProject = javaProject;
     this.fWorkspaceDir = workspaceDir;
-    this.fIsLocal = platformConf.getConnectionConf().isLocal();
-    this.fPlatformConf = platformConf;
+    String project = javaProject.getProject().getName();
+    this.fCompilationConf = ConfUtils.getConfiguration(project);
+    this.fConfName = this.fCompilationConf.getName();
+    this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
+    this.fCppCommands = DefaultCPPCommandsFactory.create(project);
     this.fTargetOpHelper = targetOpHelper;
     this.fGeneratedFiles = generatedFiles;
   }
@@ -108,8 +113,8 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
 
     monitor.subTask(Messages.CPPB_ArchivingTaskName);
     final List<String> archiveCmd = new ArrayList<String>();
-    archiveCmd.add(this.fPlatformConf.getCppCompilationConf().getArchiver());
-    archiveCmd.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getArchivingOpts()));
+    archiveCmd.add(this.fCppCommands.getArchiver());
+    archiveCmd.addAll(X10BuilderUtils.getAllTokens(this.fCppCommands.getArchivingOpts()));
     final StringBuilder libName = new StringBuilder();
     libName.append("lib").append(this.fJavaProject.getProject().getName()).append(A_EXT); //$NON-NLS-1$
     archiveCmd.add(libName.toString());
@@ -191,7 +196,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   public final boolean compile(final IProgressMonitor monitor) throws CoreException {
     monitor.beginTask(null, this.fCppFiles.size());
-    if (fPlatformConf.getConnectionConf().isLocal()){
+    if (this.fIsLocal){
       monitor.subTask(Messages.CPPB_LocalCompilTaskName);
     } else {
       monitor.subTask(Messages.CPPB_RemoteCompilTaskName);
@@ -210,8 +215,8 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
         final String objectFile = this.fTargetOpHelper.getTargetSystemPath(entry.getValue().replace(extension, O_EXT));
 
         final List<String> command = new ArrayList<String>();
-        command.add(this.fTargetOpHelper.getTargetSystemPath(this.fPlatformConf.getCppCompilationConf().getCompiler()));
-        command.addAll(X10BuilderUtils.getAllTokens(this.fPlatformConf.getCppCompilationConf().getCompilingOpts()));
+        command.add(this.fTargetOpHelper.getTargetSystemPath(this.fCppCommands.getCompiler()));
+        command.addAll(X10BuilderUtils.getAllTokens(this.fCppCommands.getCompilerOptions()));
         command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(this.fWorkspaceDir));
         for (final IPath projectDep: AbstractX10Builder.getProjectDependencies(fJavaProject)){
           command.add(INCLUDE_OPT + this.fTargetOpHelper.getTargetSystemPath(projectDep.toOSString()));
@@ -291,18 +296,16 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   }
   
   public final boolean hasAllPrerequisites() {
-    return (this.fTargetOpHelper != null) && this.fPlatformConf.isComplete(true);
+    return (this.fTargetOpHelper != null);
   }
   
   public final boolean hasValidCompilationCommands() {
-    EValidationStatus validationStatus = this.fPlatformConf.getCppCompilationConf().getValidationStatus();
-    return (validationStatus == EValidationStatus.VALID) ||
-           (validationStatus == EValidationStatus.UNKNOWN) ||
-           (validationStatus == null); // RMF 5/18 -- if "unknown" is ok, so should null
-                                       // If we don't allow this, it causes problems during the build
-                                       // that gets triggered when the user hits "Next" in the
-                                       // "New X10 Project (C++ back-end)" wizard, and this basically
-                                       // cripples the platform conf and subsequent builds.
+    try {
+      return this.fCompilationConf.getAttribute(IS_VALID, true);
+    } catch(CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+    return true;
   }
 
   // --- Code for descendants
@@ -367,7 +370,9 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   private final boolean fIsLocal;
   
-  private final IX10PlatformConf fPlatformConf;
+  private final IDefaultCPPCommands fCppCommands;
+  
+  private final ILaunchConfiguration fCompilationConf;
   
   private final ITargetOpHelper fTargetOpHelper;
   

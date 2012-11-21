@@ -1,5 +1,8 @@
 package x10dt.ui.launch.cpp.launching;
 
+import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -12,6 +15,10 @@ import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.imp.utils.Pair;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -22,29 +29,44 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.forms.widgets.FormToolkit;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
-import x10dt.ui.launch.core.utils.KeyboardUtils;
-import x10dt.ui.launch.core.utils.SWTFormUtils;
+import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.CppLaunchImages;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
-import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
-public class CompilationTab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab, ILaunchConfigurationListener {
+public class CompilationTab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab, ILaunchConfigurationListener,
+                                                    IConnectionTypeListener {
   
-  public CompilationTab(X10RemoteCompilationApplicationTab tab){
+  
+  public static final String ATTR_ARCHITECTURE= CppLaunchCore.PLUGIN_ID + ".comp.architecture"; //$NON-NLS-1$
+  
+  public static final String ATTR_ARCHIVER = CppLaunchCore.PLUGIN_ID + ".comp.archiver"; //$NON-NLS-1$
+  
+  public static final String ATTR_ARCHIVER_OPTS = CppLaunchCore.PLUGIN_ID + ".comp.archiver.opts"; //$NON-NLS-1$
+  
+  public static final String ATTR_BITS_ARCH = CppLaunchCore.PLUGIN_ID + ".comp.bits.arch"; //$NON-NLS-1$
+  
+  public static final String ATTR_COMPILER = CppLaunchCore.PLUGIN_ID + ".comp.compiler"; //$NON-NLS-1$
+  
+  public static final String ATTR_COMPILER_OPTS = CppLaunchCore.PLUGIN_ID + ".comp.compiler.opts"; //$NON-NLS-1$
+  
+  public static final String ATTR_LINKER = CppLaunchCore.PLUGIN_ID + ".comp.linker"; //$NON-NLS-1$
+  
+  public static final String ATTR_OS = CppLaunchCore.PLUGIN_ID + ".comp.os"; //$NON-NLS-1$
+  
+  
+  public CompilationTab(String projectName){
     CppLaunchImages.findOrCreateManaged(CppLaunchImages.PLACES_HOSTS);
-    this.fApplicationTab = tab;
+    this.fProjectName = projectName;
   }
   
   public void launchConfigurationAdded(ILaunchConfiguration configuration) {
@@ -59,6 +81,24 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     // Nothing to do
   }
 
+  // --- IConnectionTypeListener's interface methods implementation
+  
+  public void connectionChanged() {
+   
+    if (this.fOSCombo == null)
+      return;
+    if (!this.fOSCombo.isEnabled()) {
+      for (final Control control : this.fControlsAffectedByCIType) {
+        control.setEnabled(true);
+      }
+    }
+    try {
+      selectOsAndArchitecture();
+    } catch (CoreException e) {
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+  }
+  
  
   public void createControl(Composite parent) {
     final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
@@ -91,9 +131,11 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     
     this.fOSCombo = createLabelAndCombo(osComposite, LaunchMessages.XPCP_OSLabel);
     this.fOSCombo.setLayoutData(new TableWrapData(TableWrapData.LEFT));
+    int osIndex = 0;
     for (final ETargetOS targetOs : ETargetOS.values()) {
       this.fOSCombo.add(targetOs.name());
       this.fOSCombo.setData(targetOs.name(), targetOs);
+      this.fOSIndexMap[osIndex++] = targetOs.name();
     }
     this.fControlsAffectedByCIType.add(this.fOSCombo);
     
@@ -104,11 +146,13 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     archComposite.setLayout(archLayout);
     archComposite.setLayoutData(new TableWrapData(TableWrapData.LEFT));
     
+    int archIndex = 0;
     this.fArchCombo = createLabelAndCombo(archComposite, LaunchMessages.XPCP_Architecture);
     this.fArchCombo.setLayoutData(new TableWrapData(TableWrapData.LEFT));
     for (final EArchitecture arch : EArchitecture.values()) {
       this.fArchCombo.add(arch.name());
       this.fArchCombo.setData(arch.name(), arch);
+      this.fArchIndexMap[archIndex++] = arch.name();
     }
     this.fControlsAffectedByCIType.add(this.fArchCombo);
     
@@ -170,32 +214,278 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     this.fLinkingLibsText = createLabelAndText(linkingGroup, LaunchMessages.XPCP_LinkingLibsLabel, 3, SWT.NONE);
     this.fControlsAffectedByCIType.add(this.fLinkingLibsText);
     try {
-    selectOsAndArchitecture();
+      selectOsAndArchitecture();
     } catch (CoreException e){
-      //TODO
-     
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
     
-    KeyboardUtils.addDelayedActionOnControl(this.fCompilerText, new Runnable() {
-      
-      public void run() {
-        getShell().getDisplay().asyncExec(new Runnable() {
-          
-          public void run() {
-            /*checkCompilerVersion(CompilationTab.this.fCompilerText, 
-                                 CompilationTab.this.fOSCombo,
-                                  CompilationTab.this.fArchCombo);*/
-          }
-          
-        });
-      }
-      
-    });
-    
-    /*addListeners(managedForm, this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
+    addListeners(this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
                  this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, this.fOSCombo,
                  this.fArchCombo);
-*/
+
+  }
+  
+
+  public boolean isValid(ILaunchConfiguration conf){
+    if (getErrorMessage() == null || getErrorMessage().equals(Constants.EMPTY_STR)) {
+      try {
+        ILaunchConfigurationWorkingCopy wc = conf.getWorkingCopy();
+        wc.setAttribute(IS_VALID, true);
+        wc.doSave();
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return true;
+    }
+    try {
+      ILaunchConfigurationWorkingCopy wc = conf.getWorkingCopy();
+      wc.setAttribute(IS_VALID, false);
+      wc.doSave();
+    } catch (CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+    return false;
+  }
+  
+  public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
+    //nothing to do
+    
+  }
+
+  public void initializeFrom(ILaunchConfiguration configuration) {
+    CppLaunchImages.findOrCreateManaged(CppLaunchImages.PLACES_HOSTS);
+    try {
+      this.fProjectName = configuration.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR);
+      selectOsAndArchitecture();
+    } catch (CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+  }
+
+  public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+    configuration.setAttribute(ATTR_ARCHITECTURE, this.fArchIndexMap[this.fArchCombo.getSelectionIndex()]);
+    configuration.setAttribute(ATTR_ARCHIVER, this.fArchiverText.getText());
+    configuration.setAttribute(ATTR_ARCHIVER_OPTS, this.fArchivingOptsText.getText());
+    configuration.setAttribute(ATTR_BITS_ARCH, this.fBitsArchBt.getSelection());
+    configuration.setAttribute(ATTR_COMPILER, this.fCompilerText.getText());
+    configuration.setAttribute(ATTR_COMPILER_OPTS, this.fCompilingOptsText.getText());
+    configuration.setAttribute(ATTR_LINKER, this.fLinkerText.getText());
+    configuration.setAttribute(ATTR_OS, this.fOSIndexMap[this.fOSCombo.getSelectionIndex()]);
+  }
+
+  public String getName() {
+    return LaunchMessages.VMLT_CompilationTabName;
+  }
+  
+  public Image getImage() {
+    return CppLaunchImages.getImage(CppLaunchImages.PLACES_HOSTS);
+  }
+
+  // private code
+  
+  private void handleEmptyTextValidation(Text text, String msg){
+    if (text.getText().trim().length() == 0){
+      setErrorMessage(msg + " field cannot be empty");
+    }
+  }
+  
+  private void addListeners(final Text compilerText, final Text compilingOptsText, final Text archiverText,
+      final Text archivingOptsText, final Text linkerText, final Text linkingOptsText, final Text linkingLibsText, final Button bitsArchBt,
+      final Combo osCombo, final Combo archCombo) {
+    compilerText.addModifyListener(new ModifyListener() {
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+        handleEmptyTextValidation(compilerText, LaunchMessages.XPCP_CompilerLabel);
+      }
+    });
+    compilingOptsText.addModifyListener(new ModifyListener() {
+
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+        handleEmptyTextValidation(compilingOptsText, LaunchMessages.XPCP_CompilingOptsLabel);
+      }
+
+    });
+    archiverText.addModifyListener(new ModifyListener() {
+
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+        handleEmptyTextValidation(archiverText, LaunchMessages.XPCP_ArchiverLabel);
+      }
+
+    });
+    archivingOptsText.addModifyListener(new ModifyListener() {
+
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+        handleEmptyTextValidation(archivingOptsText, LaunchMessages.XPCP_ArchivingOptsLabel);
+      }
+
+    });
+    linkerText.addModifyListener(new ModifyListener() {
+
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+        handleEmptyTextValidation(linkerText, LaunchMessages.XPCP_LinkerLabel);
+      }
+
+    });
+    linkingOptsText.addModifyListener(new ModifyListener() {
+
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+        handleEmptyTextValidation(linkingOptsText, LaunchMessages.XPCP_LinkingOptsLabel);
+      }
+
+    });
+    linkingLibsText.addModifyListener(new ModifyListener() {
+
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+        handleEmptyTextValidation(linkingLibsText, LaunchMessages.XPCP_LinkingLibsLabel);
+      }
+
+    });
+    bitsArchBt.addSelectionListener(new SelectionListener() {
+
+      public void widgetSelected(final SelectionEvent event) {
+        try {
+          updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText, linkingOptsText, linkingLibsText);
+        } catch (CoreException except) {
+          CppLaunchCore.getInstance().getLog().log(except.getStatus());
+        }
+      }
+
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+
+    });
+    osCombo.addSelectionListener(new SelectionListener() {
+
+      public void widgetSelected(final SelectionEvent event) {   
+        try {
+          updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText, linkingOptsText, linkingLibsText);
+        } catch (CoreException except) {
+          CppLaunchCore.getInstance().getLog().log(except.getStatus());
+        }
+      }
+
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+
+    });
+    archCombo.addSelectionListener(new SelectionListener() {
+
+      public void widgetSelected(final SelectionEvent event) {
+        try {
+          updateCompilationCommands(compilerText, compilingOptsText, archiverText, archivingOptsText, linkerText, linkingOptsText, linkingLibsText);
+        } catch (CoreException except) {
+          CppLaunchCore.getInstance().getLog().log(except.getStatus());
+        }
+      }
+
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+
+    });
+  }
+  
+  
+  private Combo createLabelAndCombo(final Composite parent, final String labelText) {
+    final Composite composite= new Composite(parent, SWT.NONE);
+    final boolean isTableWrapLayout= parent.getLayout() instanceof TableWrapLayout;
+    composite.setFont(parent.getFont());
+    if (isTableWrapLayout) {
+      final TableWrapLayout tableWrapLayout= new TableWrapLayout();
+      tableWrapLayout.numColumns= 2;
+      composite.setLayout(tableWrapLayout);
+      composite.setLayoutData(new TableWrapData(TableWrapData.LEFT));
+    } else {
+      composite.setLayout(new GridLayout(2, false));
+      composite.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, true, false));
+    }
+
+    final Label label= new Label(composite, SWT.NONE);
+    label.setText(labelText);
+    if (isTableWrapLayout) {
+      label.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
+    } else {
+      label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+    }
+
+    final Combo combo= new Combo(composite, SWT.READ_ONLY);
+    if (isTableWrapLayout) {
+      final TableWrapData td= new TableWrapData(TableWrapData.LEFT);
+      td.indent= 5;
+      combo.setLayoutData(td);
+    } else {
+      final GridData gd= new GridData(SWT.LEFT, SWT.NONE, true, false);
+      gd.horizontalIndent= 5;
+      combo.setLayoutData(gd);
+    }
+    return combo;
+  }
+  
+  private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
+    final Pair<EArchitecture, EBitsArchitecture> pair = PlatformConfUtils.detectArchitecture(targetOpHelper);
+    if (pair != null) {
+      this.fBitsArchBt.setSelection(pair.second == EBitsArchitecture.E64Arch);
+      
+      if (pair.first != null) {
+        int index = -1;
+        for (final String archName : this.fArchCombo.getItems()) {
+          ++index;
+          final EArchitecture curArch = (EArchitecture) this.fArchCombo.getData(archName);
+          if (curArch == pair.first) {
+            this.fArchCombo.select(index);
+            break;
+          }
+        }
+      }
+    }
+  }
+  
+  private void selectOS(final ITargetOpHelper targetOpHelper) {
+    final ETargetOS detectedOS = PlatformConfUtils.detectOS(targetOpHelper);
+    if (detectedOS != null) {
+      int index = -1;
+      for (final String osName : this.fOSCombo.getItems()) {
+        ++index;
+        final ETargetOS targetOS = (ETargetOS) this.fOSCombo.getData(osName);
+        if (detectedOS == targetOS) {
+          this.fOSCombo.select(index);
+          break;
+        }
+      }
+    }
+  }
+  
+  private void selectOsAndArchitecture() throws CoreException {
+    final ILaunchConfiguration conf = ConfUtils.getConfiguration(this.fProjectName);
+    final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(ConfUtils.isLocalConnection(conf), 
+                                                                        ConfUtils.getTargetOS(conf) ==  ETargetOS.WINDOWS, 
+                                                                        ConfUtils.getConnectionName(conf));
+    if (targetOpHelper != null) {
+      selectOS(targetOpHelper);
+      selectArchitecture(targetOpHelper);
+      updateCompilationCommands(this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
+                                this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText);
+    }
+  }
+  
+  private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText, final Text archivingOptsText,
+      final Text linkerText, final Text linkingOptsText, final Text linkingLibsText) throws CoreException {
+    final IDefaultCPPCommands defaultCPPCommands= DefaultCPPCommandsFactory.create(this.fProjectName);
+    compilerText.setText(defaultCPPCommands.getCompiler());
+    compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
+    archiverText.setText(defaultCPPCommands.getArchiver());
+    archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
+    linkerText.setText(defaultCPPCommands.getLinker());
+    linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
+    linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
   }
   
   private Text createLabelAndText(final Composite parent, final String labelText,
@@ -308,128 +598,10 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     return new Pair<Text, Button>(text, button);
   }
   
-  public void setDefaults(ILaunchConfigurationWorkingCopy configuration) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public void initializeFrom(ILaunchConfiguration configuration) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  public String getName() {
-    return LaunchMessages.VMLT_CompilationTabName;
-  }
-  
-  public Image getImage() {
-    return CppLaunchImages.getImage(CppLaunchImages.PLACES_HOSTS);
-  }
-
-  // private code
-  
-  private Combo createLabelAndCombo(final Composite parent, final String labelText) {
-    final Composite composite= new Composite(parent, SWT.NONE);
-    final boolean isTableWrapLayout= parent.getLayout() instanceof TableWrapLayout;
-    composite.setFont(parent.getFont());
-    if (isTableWrapLayout) {
-      final TableWrapLayout tableWrapLayout= new TableWrapLayout();
-      tableWrapLayout.numColumns= 2;
-      composite.setLayout(tableWrapLayout);
-      composite.setLayoutData(new TableWrapData(TableWrapData.LEFT));
-    } else {
-      composite.setLayout(new GridLayout(2, false));
-      composite.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, true, false));
-    }
-
-    final Label label= new Label(composite, SWT.NONE);
-    label.setText(labelText);
-    if (isTableWrapLayout) {
-      label.setLayoutData(new TableWrapData(TableWrapData.LEFT, TableWrapData.MIDDLE));
-    } else {
-      label.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-    }
-
-    final Combo combo= new Combo(composite, SWT.READ_ONLY);
-    if (isTableWrapLayout) {
-      final TableWrapData td= new TableWrapData(TableWrapData.LEFT);
-      td.indent= 5;
-      combo.setLayoutData(td);
-    } else {
-      final GridData gd= new GridData(SWT.LEFT, SWT.NONE, true, false);
-      gd.horizontalIndent= 5;
-      combo.setLayoutData(gd);
-    }
-    return combo;
-  }
-  
-  private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
-    final Pair<EArchitecture, EBitsArchitecture> pair = PlatformConfUtils.detectArchitecture(targetOpHelper);
-    if (pair != null) {
-      this.fBitsArchBt.setSelection(pair.second == EBitsArchitecture.E64Arch);
-      
-      if (pair.first != null) {
-        int index = -1;
-        for (final String archName : this.fArchCombo.getItems()) {
-          ++index;
-          final EArchitecture curArch = (EArchitecture) this.fArchCombo.getData(archName);
-          if (curArch == pair.first) {
-            this.fArchCombo.select(index);
-            break;
-          }
-        }
-      }
-    }
-  }
-  
-  private void selectOS(final ITargetOpHelper targetOpHelper) {
-    final ETargetOS detectedOS = PlatformConfUtils.detectOS(targetOpHelper);
-    if (detectedOS != null) {
-      int index = -1;
-      for (final String osName : this.fOSCombo.getItems()) {
-        ++index;
-        final ETargetOS targetOS = (ETargetOS) this.fOSCombo.getData(osName);
-        if (detectedOS == targetOS) {
-          this.fOSCombo.select(index);
-          break;
-        }
-      }
-    }
-  }
-  
-  private void selectOsAndArchitecture() throws CoreException {
-    final ILaunchConfiguration conf = ConfUtils.getConfiguration(this.fApplicationTab.getProjectName());
-    final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(ConfUtils.isLocalConnection(conf), 
-                                                                        ConfUtils.getTargetOS(conf) ==  ETargetOS.WINDOWS, 
-                                                                        ConfUtils.getConnectionName(conf));
-    if (targetOpHelper != null) {
-      selectOS(targetOpHelper);
-      selectArchitecture(targetOpHelper);
-      updateCompilationCommands(this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
-                                this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText);
-    }
-  }
-  
-  private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText, final Text archivingOptsText,
-      final Text linkerText, final Text linkingOptsText, final Text linkingLibsText) throws CoreException {
-    final IDefaultCPPCommands defaultCPPCommands= DefaultCPPCommandsFactory.create(this.fApplicationTab.getProjectName());
-    compilerText.setText(defaultCPPCommands.getCompiler());
-    compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
-    archiverText.setText(defaultCPPCommands.getArchiver());
-    archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
-    linkerText.setText(defaultCPPCommands.getLinker());
-    linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
-    linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
-  }
  
   // Fields
   
-  private X10RemoteCompilationApplicationTab fApplicationTab;
+  private String fProjectName;
    
   private Combo fOSCombo;
   
@@ -458,4 +630,9 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
   private Button fLinkerBrowseBt;
 
   private final Collection<Control> fControlsAffectedByCIType = new ArrayList<Control>();
+  
+  private String[] fOSIndexMap = new String[5];
+  
+  private String[] fArchIndexMap = new String[2];
+ 
 }

@@ -65,7 +65,7 @@ import x10dt.ui.launch.rms.core.launch_configuration.X10PlacesAndHostsDynamicTab
 
 
 final class CommunicationInterfaceTab extends LaunchConfigurationTab 
-                                      implements ILaunchConfigurationTab, ILaunchTabPlatformConfServices {
+                                      implements ILaunchConfigurationTab {
   
   CommunicationInterfaceTab() {
     this.fConfToDynamicTabs = new HashMap<String, IRMLaunchConfigurationDynamicTab>();
@@ -180,43 +180,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       rmDynamicTab.setDefaults(configuration);
     }
   }
-  
-  // --- ILaunchTabPlatformConfServices's interface methods implementation
-  
-  public void platformConfSelected(final IX10PlatformConf platformConf) {
-    this.fX10PlatformConf = platformConf;
-    try {
-			this.fResourceManager = PTPConfUtils.getResourceManager(platformConf);
-		} catch (RemoteConnectionException except) {
-			// Let's forget. Handled by next statement.
-		} catch (CoreException except) {
-			// Let's forget. Handled by next statement.
-		}
-    if (this.fResourceManager == null){
-    	setErrorMessage(LaunchMessages.CIT_CouldNotFindResManager);
-    	return;
-    }
-    if (this.fResourceManager.getState() == IResourceManager.ERROR_STATE) {
-    	try {
-				this.fResourceManager.stop();
-			} catch (CoreException except) {
-				setErrorMessage(LaunchMessages.CIT_CouldNotStopResMgr);
-				this.fResourceManager = null;
-				return;
-			}
-    } 
-    if (this.fResourceManager.getState() != IResourceManager.STARTED_STATE) { 
-      try {
-        this.fResourceManager.start(new NullProgressMonitor());
-      } catch (CoreException except) {
-        setErrorMessage(LaunchMessages.CIT_CouldNotStartResManager);
-        this.fResourceManager = null;
-      }
-    }
-    if ((getLaunchConfiguration() != null) && (this.fResourceManager != null)) {
-      initializeFrom(getLaunchConfiguration());
-    }
-  }
+ 
   
   // --- Overridden methods
   
@@ -450,10 +414,6 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   private Composite fComposite;
   
   private Button fSynchronizationBt;
-  
-  private IX10PlatformConf fX10PlatformConf;
-  
-  private IResourceManager fResourceManager;
   
   private final Map<String, LaunchConfigMemento> fConfToMemento;
   

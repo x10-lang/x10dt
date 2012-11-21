@@ -14,15 +14,18 @@ implements ILaunchConfigurationTabGroup {
 
 // --- Interface methods implementation
 
-public final void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
-  final List<ILaunchConfigurationTab> tabs = new ArrayList<ILaunchConfigurationTab>();;
-  X10RemoteCompilationApplicationTab tab = new X10RemoteCompilationApplicationTab();
-  tabs.add(tab);
-  tabs.add(new ConnectionTab());
-  tabs.add(new CompilationTab(tab));
-  tabs.add(new CommonTab());
-  setTabs(tabs.toArray(new ILaunchConfigurationTab[tabs.size()]));
-}
+  public final void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
+    final List<ILaunchConfigurationTab> tabs= new ArrayList<ILaunchConfigurationTab>();
+    ;
+    X10RemoteCompilationApplicationTab tab= new X10RemoteCompilationApplicationTab();
+    CompilationTab compTab = new CompilationTab(tab.getProjectName());
+    ConnectionTab connTab = new ConnectionTab(compTab);
+    tabs.add(tab);
+    tabs.add(connTab);
+    tabs.add(compTab);
+    tabs.add(new CommonTab());
+    setTabs(tabs.toArray(new ILaunchConfigurationTab[tabs.size()]));
+  }
 
 
 }

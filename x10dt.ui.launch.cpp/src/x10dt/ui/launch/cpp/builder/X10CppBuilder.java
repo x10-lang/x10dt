@@ -33,6 +33,7 @@ import x10dt.ui.launch.core.utils.CollectionUtils;
 import x10dt.ui.launch.core.utils.IdentityFunctor;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
+import x10dt.ui.launch.cpp.launching.ConfUtils;
 import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
@@ -63,11 +64,10 @@ public final class X10CppBuilder extends AbstractX10Builder {
   }
   
   public IX10BuilderFileOp createX10BuilderFileOp() throws CoreException {
-    final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(getProject());
-    if (platformConf.getConnectionConf().isLocal()) {
-      return new LocalX10BuilderFileOp(fProjectWrapper, ProjectUtils.getProjectOutputDirPath(getProject()), platformConf, fGeneratedFiles);
+    if (ConfUtils.isLocalConnection(ConfUtils.getConfiguration(this.fProjectWrapper.getProject().getName()))){
+      return new LocalX10BuilderFileOp(fProjectWrapper, ProjectUtils.getProjectOutputDirPath(getProject()), fGeneratedFiles);
     } else {
-      return new RemoteX10BuilderFileOp(fProjectWrapper, platformConf, fGeneratedFiles);
+      return new RemoteX10BuilderFileOp(fProjectWrapper, fGeneratedFiles);
     }
   }
   

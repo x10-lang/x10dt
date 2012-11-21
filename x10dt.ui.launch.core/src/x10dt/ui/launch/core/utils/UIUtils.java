@@ -43,6 +43,7 @@ public final class UIUtils {
       x10Console = new MessageConsole(Messages.CPPB_ConsoleName, null);
       consoleManager.addConsoles(new IConsole[] { x10Console });
     }
+    x10Console.activate();
     return x10Console;
   }
   

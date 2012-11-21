@@ -1,7 +1,6 @@
 package x10dt.ui.launch.cpp.launching;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -43,14 +42,6 @@ public class CppLaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
     tabs.add(new EnhancedSynchronizeTab());
     tabs.add(new EnvironmentTab());
     tabs.add(new CommonTab());
-    
-    final Collection<ILaunchTabPlatformConfServices> pConfServices = new ArrayList<ILaunchTabPlatformConfServices>();
-    for (final ILaunchConfigurationTab tab : tabs) {
-      if (tab instanceof ILaunchTabPlatformConfServices) {
-        pConfServices.add((ILaunchTabPlatformConfServices) tab);
-      }
-    }
-    cppAppTab.setPlatformConfServices(pConfServices);
     
     setTabs(tabs.toArray(new ILaunchConfigurationTab[tabs.size()]));
   }

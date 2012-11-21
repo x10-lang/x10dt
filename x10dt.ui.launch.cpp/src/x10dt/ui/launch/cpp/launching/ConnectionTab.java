@@ -1,6 +1,5 @@
 package x10dt.ui.launch.cpp.launching;
 
-import static x10dt.ui.launch.core.utils.PTPConstants.LOCAL_CONN_SERVICE_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
@@ -19,7 +18,6 @@ import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationListener;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
-import org.eclipse.debug.internal.ui.SWTFactory;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.imp.utils.Pair;
@@ -106,10 +104,11 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   public static final String ATTR_X10_DISTRIBUTION = CppLaunchCore.PLUGIN_ID + ".mvm.x10.distrib"; //$NON-NLS-1$
   
-
+  public static final String IS_VALID = CppLaunchCore.PLUGIN_ID + ".mvm.is.valid"; //$NON-NLS-1$
   
   
-  ConnectionTab() {
+  
+  ConnectionTab(IConnectionTypeListener listener) {
     LaunchImages.findOrCreateManaged(LaunchImages.VMS_LOCATION);
     LaunchImages.findOrCreateManaged(LaunchImages.RM_STOPPED);
     LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTED);
@@ -117,6 +116,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     LaunchImages.findOrCreateManaged(LaunchImages.RM_ERROR);
     
     DebugPlugin.getDefault().getLaunchManager().addLaunchConfigurationListener(this);
+    this.fListener = listener;
   }
   
   public void launchConfigurationAdded(ILaunchConfiguration configuration) {
@@ -213,8 +213,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
       this.fRemoteConnBt.setSelection(! this.fLocalConnBt.getSelection());
       this.fRemoteConnBt.notifyListeners(SWT.Selection, new Event());
     } catch (CoreException except) {
-      int i = 0;
-      i++;
+      CppLaunchCore.getInstance().getLog().log(except.getStatus());
     }
     
     if (configuration instanceof ILaunchConfigurationWorkingCopy) {
@@ -233,6 +232,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
 
   public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+   
     configuration.setAttribute(ATTR_IS_LOCAL, this.fLocalConnBt.getSelection());
     configuration.setAttribute(ATTR_CITYPE, this.fCITypeComboIndexMap[this.fCITypeCombo.getSelectionIndex()]);
     if (! this.fLocalConnBt.getSelection()) {
@@ -252,6 +252,33 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
       configuration.setAttribute(ATTR_REMOTE_OUTPUT_FOLDER, this.fRemoteOutputFolderText.getText());
       configuration.setAttribute(ATTR_X10_DISTRIBUTION, this.fX10DistributionText.getText());
     }
+   
+  }
+  
+  private boolean connectionHasChanged(ILaunchConfigurationWorkingCopy configuration){
+    try {
+      if (configuration.getAttribute(ATTR_IS_LOCAL, true) != this.fLocalConnBt.getSelection()) return true;
+      if (! configuration.getAttribute(ATTR_CITYPE, Constants.EMPTY_STR).equals(this.fCITypeComboIndexMap[this.fCITypeCombo.getSelectionIndex()])) return true;
+      if (! this.fLocalConnBt.getSelection()) {
+        if (! configuration.getAttribute(ATTR_HOST, Constants.EMPTY_STR).equals(this.fHostText.getText())) return true;
+        if (! configuration.getAttribute(ATTR_USERNAME, Constants.EMPTY_STR).equals(this.fUserNameText.getText())) return true;
+        if (configuration.getAttribute(ATTR_IS_PASSWORD_BASED, false) != this.fPrivateKeyFileAuthBt.getSelection()) return true;
+        if (this.fPrivateKeyFileAuthBt.getSelection()) {
+          if (! configuration.getAttribute(ATTR_PRIVATE_KEY_FILE, Constants.EMPTY_STR).equals(this.fPrivateKeyFileText.getText())) return true;
+          if (! configuration.getAttribute(ATTR_PASSPHRASE, Constants.EMPTY_STR).equals(this.fPassphraseText.getText())) return true;
+        } else {
+          if (! configuration.getAttribute(ATTR_PASSWORD, Constants.EMPTY_STR).equals(this.fPasswordText.getText())) return true;
+        }
+        
+ 
+        if (configuration.getAttribute(ATTR_USE_PORT_FORWARDING, false) != this.fUsePortForwardingBt.getSelection()) return true;
+        if (configuration.getAttribute(ATTR_TIMEOUT, 0) != this.fConnectionTimeoutSpinner.getSelection()) return true;
+        if (! configuration.getAttribute(ATTR_LOCAL_ADDRESS, Constants.EMPTY_STR).equals(this.fLocalAddressText.getText())) return true;
+      }
+    } catch(CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+    return false;
   }
 
   public String getName() {
@@ -274,7 +301,15 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   }
   
   public boolean isValid(final ILaunchConfiguration configuration) {
-    setErrorMessage(null);
+    
+    try {
+      ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+      wc.setAttribute(IS_VALID, false);
+      wc.doSave();
+    } catch (CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+    if (getErrorMessage() != null) return false;
     if (this.fRemoteConnBt.getSelection()) {
       if (this.fHostText.getText().length() == 0) {
         setErrorMessage(LaunchMessages.VMLT_HostNameNotDefined);
@@ -290,7 +325,6 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
           return false;
         }
       }
-
       if (this.fRemoteOutputFolderText.getText().length() == 0) {
         setErrorMessage(LaunchMessages.VMLT_OutputFolderNotDefined);
         return false;
@@ -301,8 +335,15 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
       }
 
     }
-    // Do not enable launch because this configuration type is not launchable.
-    return false;
+    try {
+      ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
+      wc.setAttribute(IS_VALID, true);
+      wc.doSave();
+    } catch (CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+    setErrorMessage(null);
+    return true;
   }
   
   
@@ -341,12 +382,12 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     statusCompo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
     
    
-    this.fConnLabel = new Label(statusCompo, SWT.NONE);
-    this.fConnLabel.setText(LaunchMessages.VMLT_ConnStatus);
-    this.fConnLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
-    this.fStatusLabel = new CLabel(statusCompo, SWT.NONE);
-    this.fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    this.fConnLabel.setImage(null);
+//    this.fConnLabel = new Label(statusCompo, SWT.NONE);
+//    this.fConnLabel.setText(LaunchMessages.VMLT_ConnStatus);
+//    this.fConnLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
+//    this.fStatusLabel = new CLabel(statusCompo, SWT.NONE);
+//    this.fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
+//    this.fConnLabel.setImage(null);
         
     this.fHostText = SWTFormUtils.createLabelAndText(remoteGroup, LaunchMessages.VMLT_HostLabel, remoteControls);
     
@@ -526,6 +567,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
           outputFolderBrowseBt.setEnabled(false);
           updateConnection();
           updateLaunchConfigurationDialog();
+         
         }
       }
 
@@ -558,6 +600,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
       public void widgetSelected(final SelectionEvent event) {
         updateConnection();
         updateLaunchConfigurationDialog();
+       
       }
 
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -696,85 +739,37 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   }
   
   private void updateConnection() {
+    
     if (! this.fRMUpdateRunning && (this.fLaunchConfigName != null) && hasAllConnectionInfo()) {
-      
-      final Display display = getShell().getDisplay();
-      new Thread(new Runnable() {
-
-        public void run() {
-          try {
-            final Exception[] exception = new Exception[1];
-            display.syncExec(new Runnable() {
-
-              public void run() {
-                try {
-                  if (ConnectionTab.this.fRemoteConnBt.isDisposed() || ConnectionTab.this.fLocalAddressText.isDisposed() || ConnectionTab.this.fUsePortForwardingBt.isDisposed()) {
-                    return;
-                  }
-                 
-                  final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
-                  IRemoteConnectionManager rmConnManager = null;
-                  
-                  if (ConnectionTab.this.fRemoteConnBt.getSelection()) {
-                    createOrUpdateRemoteConnection();
-                    rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
-                    IRemoteConnection conn = rmConnManager.getConnection(ConnectionTab.this.fLaunchConfigName);
-                    conn.open(new NullProgressMonitor());
-                  } else {
-                    rmConnManager = plugin.getRemoteServices(LOCAL_CONN_SERVICE_ID).getConnectionManager();
-                  }
-                 
-                  
-                } catch (Exception except) {
-                  exception[0] = except;
-                }
-              }
-
-            });
-            if (exception[0] != null) {
-              throw exception[0];
-            }
-
-            if (ConnectionTab.this.fLocalConnBt.isDisposed() || ConnectionTab.this.fStatusLabel.isDisposed()) {
-              return;
-            }
-            display.syncExec(new Runnable() {
-
-              public void run() {
-                if (ConnectionTab.this.fLocalConnBt.getSelection()) {
-                  //ConnectionTab.this.fConnLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STARTING));
-                  ConnectionTab.this.fConnLabel.setImage(null);
-                  ConnectionTab.this.fStatusLabel.setText(Constants.EMPTY_STR);
-                } else {
-                  ConnectionTab.this.fConnLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STARTED));
-                  ConnectionTab.this.fStatusLabel.setText(Constants.EMPTY_STR);
-                }
-                updateBrowseButtonsEnablement(true);
-              }
-
-            });
-
-           } catch (final Exception except) {
-            if (!ConnectionTab.this.fStatusLabel.isDisposed()) {
-              display.syncExec(new Runnable() {
-
-                public void run() {
-                  String error = processJSchMessage(except.getMessage());
-                  ConnectionTab.this.fStatusLabel.setText(error);
-                  ConnectionTab.this.fConnLabel.setImage(LaunchImages.getImage(LaunchImages.RM_ERROR));
-                  setErrorMessage(error);
-                  updateBrowseButtonsEnablement(false);
-                }
-
-              });
-            }
-          }
-          ConnectionTab.this.fRMUpdateRunning = false;
-        }
-
-      }).start();
-     
       this.fRMUpdateRunning = true;
+      try {
+        if (ConnectionTab.this.fRemoteConnBt.isDisposed() || ConnectionTab.this.fLocalAddressText.isDisposed() || ConnectionTab.this.fUsePortForwardingBt.isDisposed()) {
+          return;
+        }
+       
+        final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
+        IRemoteConnectionManager rmConnManager = null;
+        
+        if (ConnectionTab.this.fRemoteConnBt.getSelection()) {
+          createOrUpdateRemoteConnection();
+          rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
+          IRemoteConnection conn = rmConnManager.getConnection(ConnectionTab.this.fLaunchConfigName);
+          conn.open(new NullProgressMonitor());
+          updateBrowseButtonsEnablement(true);
+          setErrorMessage(null);
+        } 
+    } catch (Exception e){
+      String error = processJSchMessage(e.getMessage());
+      setErrorMessage(error);
+      updateBrowseButtonsEnablement(false);
+      
+    }
+      
+
+    ConnectionTab.this.fRMUpdateRunning = false;
+ 
+     
+      
     }
   }
   
@@ -840,9 +835,9 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   private Button fRemoteConnBt;
   
-  private CLabel fStatusLabel;
+  //private CLabel fStatusLabel;
   
-  private Label fConnLabel;
+  //private Label fConnLabel;
   
   private Text fHostText;
   
@@ -875,5 +870,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   private boolean fRMUpdateRunning;
   
   private Combo fCITypeCombo;
+  
+  private IConnectionTypeListener fListener;
   
 }

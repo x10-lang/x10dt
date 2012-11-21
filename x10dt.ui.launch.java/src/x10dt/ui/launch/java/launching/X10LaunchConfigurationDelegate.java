@@ -56,12 +56,15 @@ import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.rmsystem.IResourceManager;
 import org.eclipse.ptp.rmsystem.IResourceManagerConfiguration;
 import org.eclipse.ptp.utils.core.ArgumentParser;
+import org.eclipse.ui.console.MessageConsole;
+import org.eclipse.ui.console.MessageConsoleStream;
 
 import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.LaunchUtils;
 import x10dt.ui.launch.core.utils.PTPConstants;
+import x10dt.ui.launch.core.utils.UIUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.launching.AbstractX10ResourceManager;
@@ -92,8 +95,17 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
       shouldLaunch= LaunchUtils.queryUserToLaunchWithErrors(message);
     }
     updateAttributes(configuration, mode, monitor);
+    final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
+    final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+    messageConsole.activate();
     if (shouldLaunch) {
       super.launch(configuration, mode, launch, monitor);
+    }
+    try {
+    	mcStream.flush();
+    	mcStream.close();
+    } catch (IOException e){
+    	//TODO
     }
   }
   
