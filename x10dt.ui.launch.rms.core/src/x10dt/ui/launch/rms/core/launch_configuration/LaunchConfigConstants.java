@@ -34,6 +34,10 @@ public final class LaunchConfigConstants {
   public static final String ATTR_HOSTFILE = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.hostFile";  //$NON-NLS-1$
   
   /**
+   * The id of the attribute storing the load leveler script file name.
+   */
+  public static final String ATTR_LOADLEVELER_SCRIPT = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.loadLevelerScript";  //$NON-NLS-1$
+  /**
    * The id of the attribute storing a hosts list.
    */
   public static final String ATTR_HOSTLIST = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.hostList";  //$NON-NLS-1$

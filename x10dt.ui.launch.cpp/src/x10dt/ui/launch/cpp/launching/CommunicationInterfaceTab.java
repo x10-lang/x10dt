@@ -7,43 +7,45 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching;
 
-import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_USE_PLATFORM_CONF_DATA;
+import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTFILE;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTLIST;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_LOADLEVELER_SCRIPT;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
 
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
-import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.IModelManager;
-import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
-import org.eclipse.ptp.core.ModelManager;
-import org.eclipse.ptp.core.PTPCorePlugin;
-import org.eclipse.ptp.core.elements.IPResourceManager;
-import org.eclipse.ptp.core.elements.IPUniverse;
-import org.eclipse.ptp.rmsystem.IResourceManager;
-import org.eclipse.ptp.core.elements.attributes.ResourceManagerAttributes.State;
-import org.eclipse.ptp.launch.PTPLaunchPlugin;
+import org.eclipse.jface.layout.TableColumnLayout;
+import org.eclipse.jface.viewers.CellEditor;
+import org.eclipse.jface.viewers.ColumnLabelProvider;
+import org.eclipse.jface.viewers.ColumnWeightData;
+import org.eclipse.jface.viewers.EditingSupport;
+import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.TextCellEditor;
+import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
 import org.eclipse.ptp.launch.ui.LaunchImages;
-import org.eclipse.ptp.launch.ui.extensions.AbstractRMLaunchConfigurationFactory;
-import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationContentsChangedListener;
-import org.eclipse.ptp.launch.ui.extensions.IRMLaunchConfigurationDynamicTab;
-import org.eclipse.ptp.launch.ui.extensions.RMLaunchValidation;
-import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
+import org.eclipse.ptp.remote.core.IRemoteConnection;
+import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
+import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
+import org.eclipse.ptp.remote.ui.IRemoteUIServices;
+import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
@@ -51,57 +53,50 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Text;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
-import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
-import x10dt.ui.launch.cpp.platform_conf.IHostsBasedConf;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
-import x10dt.ui.launch.cpp.utils.PTPConfUtils;
-import x10dt.ui.launch.rms.core.launch_configuration.X10PlacesAndHostsDynamicTab;
+import x10dt.ui.launch.rms.core.Messages;
 
 
 final class CommunicationInterfaceTab extends LaunchConfigurationTab 
                                       implements ILaunchConfigurationTab {
+  private static int HOST_FILE = 0;
+  private static int HOST_LIST = 1;
+  private static int LOAD_LEVELER = 2;
   
-  CommunicationInterfaceTab() {
-    this.fConfToDynamicTabs = new HashMap<String, IRMLaunchConfigurationDynamicTab>();
-    this.fConfToMemento = new HashMap<String, CommunicationInterfaceTab.LaunchConfigMemento>();
+  CommunicationInterfaceTab(String project) {
+    this.fProjectName = project;
+    this.fHosts = new ArrayList<String>();
+    this.fHosts.add("localhost");
   }
   
   // --- ILaunchConfigurationTab's interface methods implementation
   
-  public void createControl(final Composite parent) {
-    this.fParent = (ScrolledComposite) parent;
-    
+  public void createControl(final Composite parent) { 
     final Composite mainComposite = new Composite(parent, SWT.NONE);
     mainComposite.setFont(parent.getFont());
     mainComposite.setLayout(new GridLayout(1, false));
     mainComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
     
-    final Button synchronizationBt = new Button(mainComposite, SWT.CHECK);
-    this.fSynchronizationBt = synchronizationBt;
-    synchronizationBt.setText(LaunchMessages.CIT_UseDataFromPlatformConf);
-    synchronizationBt.setSelection(true);
-    synchronizationBt.addSelectionListener(new SelectionListener() {
+    final Composite placesCompo = new Composite(mainComposite, SWT.NONE);
+    placesCompo.setFont(mainComposite.getFont());
+    placesCompo.setLayout(new GridLayout(2, false));
+    placesCompo.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, true, false));
+    
+    new Label(placesCompo, SWT.NONE).setText(Messages.SRMLCDT_PlacesNumber);
+    this.fNumPlacesSpinner = new Spinner(placesCompo, SWT.BORDER);
+    this.fNumPlacesSpinner.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        final ILaunchConfigurationWorkingCopy configuration = (ILaunchConfigurationWorkingCopy) getLaunchConfiguration();
-        
-        final IResourceManager resourceManager = CommunicationInterfaceTab.this.fResourceManager;
-        if (resourceManager != null) {
-          final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(resourceManager);
-          if (rmDynamicTab != null) {
-            updateConfiguration(configuration, rmDynamicTab);
-            rmDynamicTab.initializeFrom(getLaunchConfiguration());
-          }
-        }
-        
-        handleSynchronizationButtonSelection(synchronizationBt.getSelection());
-        setDirty(true);
         updateLaunchConfigurationDialog();
       }
       
@@ -111,74 +106,313 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       
     });
     
-    this.fComposite = new Composite(mainComposite, SWT.NONE);
-    this.fComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    final Group hostsGroup = new Group(mainComposite, SWT.NONE);
+    hostsGroup.setFont(mainComposite.getFont());
+    hostsGroup.setLayout(new GridLayout(2, false));
+    hostsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    hostsGroup.setText(Messages.SRMLCDT_HostsGroupName);
     
+    this.fHostFileBt = new Button(hostsGroup, SWT.RADIO);
+    this.fHostFileBt.setText(Messages.SRMLCDT_HostFileBt);
+    this.fHostFileBt.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, false, false, 2, 1));
+    this.fHostFileBt.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        updateSelectionState(HOST_FILE);
+        updateLaunchConfigurationDialog();
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    
+    final Text hostFileText = new Text(hostsGroup, SWT.BORDER);
+    this.fHostFileText = hostFileText;
+    final GridData hostFileGData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+    hostFileGData.horizontalIndent = 30;
+    this.fHostFileText.setLayoutData(hostFileGData);
+    this.fHostFileText.addModifyListener(new ModifyListener() {
+      
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+      }
+      
+    });
+    
+    this.fHostFileBrowseBt = new Button(hostsGroup, SWT.PUSH);
+    this.fHostFileBrowseBt.setText(Messages.SRMLCDT_BrowseBt);
+    this.fHostFileBrowseBt.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+    this.fHostFileBrowseBt.addSelectionListener(new SelectionListener() {
+
+      public void widgetSelected(final SelectionEvent event) {
+        try {
+          final String path;
+          ILaunchConfiguration compilationConf= ConfUtils.getConfiguration(CommunicationInterfaceTab.this.fProjectName);
+          if (ConfUtils.isLocalConnection(compilationConf)) {
+            final FileDialog dialog= new FileDialog(parent.getShell());
+            dialog.setText(Messages.SRMLCDT_SelectHostFileDialogTitle);
+            path= dialog.open();
+          } else {
+            final IRemoteServices remoteServices= PTPRemoteCorePlugin.getDefault().getRemoteServices(REMOTE_CONN_SERVICE_ID);
+            final IRemoteConnection connection= remoteServices.getConnectionManager().getConnection(ConfUtils.getConnectionName(compilationConf));
+            path= remoteBrowse(parent.getShell(), connection, Messages.SRMLCDT_SelectHostFileDialogTitle, Constants.EMPTY_STR);
+          }
+          if (path != null) {
+            hostFileText.setText(path);
+          }
+        } catch (CoreException e) {
+          CppLaunchCore.getInstance().getLog().log(e.getStatus());
+        }
+      }
+
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+
+    });
+
+    this.fHostListBt = new Button(hostsGroup, SWT.RADIO);
+    this.fHostListBt.setText(Messages.SRMLCDT_HostListBt);
+    this.fHostListBt.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, false, false, 2, 1));
+    this.fHostListBt.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        updateSelectionState(HOST_LIST);
+        updateLaunchConfigurationDialog();
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+       widgetSelected(event);
+      }
+      
+    });
+    
+    final Composite tableComposite = new Composite(hostsGroup, SWT.NONE);
+    tableComposite.setFont(hostsGroup.getFont());
+    final GridData tableGData = new GridData(SWT.FILL, SWT.FILL, true, true);
+    tableGData.verticalSpan = 2;
+    tableGData.horizontalIndent = 30;
+    tableComposite.setLayoutData(tableGData);
+    
+    final TableViewer viewer = new TableViewer(tableComposite, SWT.BORDER | SWT.FULL_SELECTION);
+    this.fHostListViewer = viewer;
+    this.fHostListViewer.getTable().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        
+    final TableViewerColumn column = new TableViewerColumn(this.fHostListViewer, SWT.NONE);
+    column.setLabelProvider(new ColumnLabelProvider() {
+
+      public String getText(final Object element) {
+        return (String) element;
+      }
+      
+    });
+    final TextCellEditor editor = new TextCellEditor(viewer.getTable());;
+    column.setEditingSupport(new EditingSupport(this.fHostListViewer) {
+
+      protected CellEditor getCellEditor(final Object element) {
+        return editor;
+      }
+
+      @SuppressWarnings("unqualified-field-access")
+      protected boolean canEdit(final Object element) {
+        return viewer.getTable().getSelectionIndex() < fHosts.size();
+      }
+
+      protected Object getValue(final Object element) {
+        return element;
+      }
+
+      @SuppressWarnings("unqualified-field-access")
+      protected void setValue(final Object element, final Object value) {
+        final int index = fHosts.indexOf(element);
+        fHosts.remove(element);
+        fHosts.add(index, (String) value);
+        viewer.refresh();
+        
+        updateLaunchConfigurationDialog();
+      }
+
+    });
+    
+    final TableColumnLayout tableColumnLayout = new TableColumnLayout();
+    tableColumnLayout.setColumnData(column.getColumn(), new ColumnWeightData(100));
+    tableComposite.setLayout(tableColumnLayout);
+    
+    this.fHostListViewer.setContentProvider(new IStructuredContentProvider() {
+      
+      public void inputChanged(final Viewer curViewer, final Object oldInput, final Object newInput) {
+      }
+      
+      public void dispose() {
+      }
+      
+      @SuppressWarnings("unqualified-field-access")
+      public Object[] getElements(final Object inputElement) {
+        return fHosts.toArray(new String[fHosts.size()]);
+      }
+      
+    });
+    
+    this.fHostListViewer.setInput(this.fHosts);
+    this.fHostListViewer.getTable().setLinesVisible(true);
+    
+    final Button addButton = new Button(hostsGroup, SWT.PUSH);
+    addButton.setText(Messages.SRMLCDT_AddBt);
+    addButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+    addButton.addSelectionListener(new SelectionListener() {
+      
+      @SuppressWarnings("unqualified-field-access")
+      public void widgetSelected(final SelectionEvent event) {
+        fHosts.add(Constants.EMPTY_STR);
+        viewer.getTable().select(viewer.getTable().getItemCount() - 1);
+        viewer.add(Constants.EMPTY_STR);
+        viewer.editElement(Constants.EMPTY_STR, 0);
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    
+    final Button removeButton = new Button(hostsGroup, SWT.PUSH);
+    removeButton.setText(Messages.SRMLCDT_RemoveBt);
+    removeButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
+    removeButton.addSelectionListener(new SelectionListener() {
+      
+      @SuppressWarnings("unqualified-field-access")
+      public void widgetSelected(final SelectionEvent event) {
+        final Object hostName = viewer.getElementAt(viewer.getTable().getSelectionIndex());
+        if (hostName != null) {
+          fHosts.remove(hostName);
+          viewer.remove(hostName);
+          
+          updateLaunchConfigurationDialog();
+        }
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    
+    this.fLoadLevelerBt = new Button(hostsGroup, SWT.RADIO);
+    this.fLoadLevelerBt.setText(Messages.SRMLCDT_LLBt);
+    this.fLoadLevelerBt.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, false, false, 2, 1));
+    this.fLoadLevelerBt.addSelectionListener(new SelectionListener() {
+      
+      public void widgetSelected(final SelectionEvent event) {
+        updateSelectionState(LOAD_LEVELER);
+        updateLaunchConfigurationDialog();
+      }
+      
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+      
+    });
+    
+    this.fLoadLevelerText = new Text(hostsGroup, SWT.BORDER);
+    this.fLoadLevelerText.setText(Constants.EMPTY_STR);
+    final GridData loadLevelerGData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+    loadLevelerGData.horizontalIndent = 30;
+    this.fLoadLevelerText.setLayoutData(loadLevelerGData);
+    this.fLoadLevelerText.addModifyListener(new ModifyListener() {
+      
+      public void modifyText(final ModifyEvent event) {
+        updateLaunchConfigurationDialog();
+      }
+      
+    });
+    
+
+    this.fLoadLevelerBrowseBt = new Button(hostsGroup, SWT.PUSH);
+    this.fLoadLevelerBrowseBt.setText(Messages.SRMLCDT_BrowseBt);
+    this.fLoadLevelerBrowseBt.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
+    this.fLoadLevelerBrowseBt.addSelectionListener(new SelectionListener() {
+
+      public void widgetSelected(final SelectionEvent event) {
+        try {
+          final String path;
+          ILaunchConfiguration compilationConf= ConfUtils.getConfiguration(CommunicationInterfaceTab.this.fProjectName);
+          if (ConfUtils.isLocalConnection(compilationConf)) {
+            final FileDialog dialog= new FileDialog(parent.getShell());
+            dialog.setText(Messages.SRMLCDT_SelectHostFileDialogTitle);
+            path= dialog.open();
+          } else {
+            final IRemoteServices remoteServices= PTPRemoteCorePlugin.getDefault().getRemoteServices(REMOTE_CONN_SERVICE_ID);
+            final IRemoteConnection connection= remoteServices.getConnectionManager().getConnection(ConfUtils.getConnectionName(compilationConf));
+            path= remoteBrowse(parent.getShell(), connection, Messages.SRMLCDT_SelectHostFileDialogTitle, Constants.EMPTY_STR);
+          }
+          if (path != null) {
+            hostFileText.setText(path);
+          }
+        } catch (CoreException e) {
+          CppLaunchCore.getInstance().getLog().log(e.getStatus());
+        }
+      }
+
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+
+    });
+   
     setControl(mainComposite);
+    
+    updateSelectionState(HOST_LIST);
   }
   
   public String getName() {
     return LaunchMessages.CIT_CommunicationInterface;
   }
   
-  public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
-    if (this.fResourceManager != null) {
-      if (! this.fSynchronizationBt.getSelection()) {
-        try {
-          final LaunchConfigMemento memento = this.fConfToMemento.get(configuration.getName());
-          if (memento == null) {
-            this.fConfToMemento.put(configuration.getName(), new LaunchConfigMemento(configuration));
-          } else {
-            memento.updateConfiguration(configuration);
-          }
-        } catch (CoreException except) {
-          CppLaunchCore.log(IStatus.WARNING, NLS.bind(LaunchMessages.CIT_PreviousStateStorageError, configuration.getName()),
-                            except);
-        }
-      }
-      
-      configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, 
-                                 this.fResourceManager.getUniqueName());
-      configuration.setAttribute(ATTR_USE_PLATFORM_CONF_DATA, this.fSynchronizationBt.getSelection());
-      final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
-      if (rmDynamicTab != null) {
-        final RMLaunchValidation validation = rmDynamicTab.performApply(configuration); 
-        if (! validation.isSuccess()) {
-          setErrorMessage(validation.getMessage());
-        }
-      }
+  private void updateSelectionState(final int choice) {
+    if (choice == HOST_FILE){
+      this.fHostFileText.setEnabled(true);
+      this.fHostFileBrowseBt.setEnabled(true);
+      this.fHostListBt.setSelection(false);
+      this.fHostListViewer.getTable().setEnabled(false);
+      this.fLoadLevelerText.setEnabled(false);
+      this.fLoadLevelerBrowseBt.setEnabled(false);
+    } else if (choice == HOST_LIST){
+      this.fHostFileText.setEnabled(false);
+      this.fHostFileBrowseBt.setEnabled(false);
+      this.fHostListBt.setSelection(true);
+      this.fHostListViewer.getTable().setEnabled(true);
+      this.fLoadLevelerText.setEnabled(false);
+      this.fLoadLevelerBrowseBt.setEnabled(false);
+    } else { //choice == LOAD_LEVELER
+      this.fHostFileText.setEnabled(false);
+      this.fHostFileBrowseBt.setEnabled(false);
+      this.fHostListBt.setSelection(false);
+      this.fHostListViewer.getTable().setEnabled(false);
+      this.fLoadLevelerText.setEnabled(true);
+      this.fLoadLevelerBrowseBt.setEnabled(true);
     }
   }
   
+  public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
+    if (this.fHostFileBt != null && this.fHostFileBt.getSelection())
+      configuration.setAttribute(ATTR_USE_HOSTFILE, HOST_FILE);
+    if (this.fHostListBt != null && this.fHostListBt.getSelection())
+      configuration.setAttribute(ATTR_USE_HOSTFILE, HOST_LIST);
+    if (this.fLoadLevelerBt != null && this.fLoadLevelerBt.getSelection())
+      configuration.setAttribute(ATTR_USE_HOSTFILE, LOAD_LEVELER);
+    if (this.fNumPlacesSpinner != null)
+      configuration.setAttribute(ATTR_NUM_PLACES, this.fNumPlacesSpinner.getSelection());
+    if (this.fHostFileText != null)
+      configuration.setAttribute(ATTR_HOSTFILE, this.fHostFileText.getText().trim());
+    if (this.fLoadLevelerText != null)
+      configuration.setAttribute(ATTR_LOADLEVELER_SCRIPT, this.fLoadLevelerText.getText().trim());
+    configuration.setAttribute(ATTR_HOSTLIST, (this.fHosts.isEmpty()) ? null : this.fHosts);
+  }
+  
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
-    final IModelManager modelManager = ModelManager.getInstance();
-    final IPUniverse universe = modelManager.getUniverse();
-    IResourceManager resourceManager = null;
-    if (universe != null) {
-      IPResourceManager[] prms = universe.getResourceManagers();
-      final IResourceManager[] rms = new IResourceManager[prms.length];
-      for(int i = 0; i < prms.length; i++){
-        rms[i] = (IResourceManager) prms[i].getAdapter(IResourceManager.class);
-      }
-     
-      if (rms.length == 1) {
-        resourceManager = rms[0];
-      }
-    }
-    if (resourceManager == null) {
-      setErrorMessage(LaunchMessages.CIT_NoResourceManager);
-      return;
-    }
-    final String resourceManagerUniqName = resourceManager.getUniqueName();
-    configuration.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, resourceManagerUniqName);
-
-    final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(resourceManager);
-    if (rmDynamicTab == null) {
-      setErrorMessage(NLS.bind(LaunchMessages.CIT_NoLaunchConfigForRM, 
-                               new Object[] { resourceManager.getName() }));
-    } else {
-      rmDynamicTab.setDefaults(configuration);
-    }
+    //do nothing
   }
  
   
@@ -189,69 +423,44 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   }
   
   public void initializeFrom(final ILaunchConfiguration configuration) {
-    super.initializeFrom(configuration);
-    
-    final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
-    if (rmDynamicTab != null) {
-      try {
-        final boolean btEnabled;
-        final boolean selected;
-        if (this.fX10PlatformConf == null) {
-          btEnabled = false;
-          selected = false;
-        } else {
-          final ICommunicationInterfaceConf commIntfConf = this.fX10PlatformConf.getCommunicationInterfaceConf();
-          if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(commIntfConf.getServiceTypeId()) ||
-              PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(commIntfConf.getServiceTypeId())) {
-            btEnabled = true;
-            selected = configuration.getAttribute(ATTR_USE_PLATFORM_CONF_DATA, true);
-          } else {
-            btEnabled = false;
-            selected = false;
-          }
-        }
-        this.fSynchronizationBt.setEnabled(btEnabled);
-        this.fSynchronizationBt.setSelection(selected);
-        
-        initializeDynamicTab(configuration, rmDynamicTab);
-        
-        if (btEnabled) {
-          handleSynchronizationButtonSelection(this.fSynchronizationBt.getSelection());
-        }
-      } catch (CoreException except) {
-        setErrorMessage(except.getMessage());
-      }
+    try {
+      this.fProjectName = configuration.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR);
+      final List<String> hosts= new ArrayList<String>();
+      hosts.add("localhost"); //$NON-NLS-1$
+      updateSelectionState(configuration.getAttribute(ATTR_USE_HOSTFILE, HOST_FILE));
+      this.fNumPlacesSpinner.setSelection(configuration.getAttribute(ATTR_NUM_PLACES, DEFAULT_NUM_PLACES));
+      this.fHosts= new ArrayList<String>(configuration.getAttribute(ATTR_HOSTLIST, hosts));
+      this.fHostListViewer.setInput(this.fHosts);
+      this.fHostFileText.setText(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR));
+      this.fLoadLevelerText.setText(configuration.getAttribute(ATTR_LOADLEVELER_SCRIPT, Constants.EMPTY_STR));
+    } catch (CoreException e) {
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
   }
   
   public boolean isValid(final ILaunchConfiguration configuration) {
     setErrorMessage(null);
-    setMessage(null);
-    if (this.fResourceManager == null) {
-      setErrorMessage(LaunchMessages.CIT_NoX10ProjectIdentified);
+    if (this.fNumPlacesSpinner.getSelection() < 1) {
+      setErrorMessage(Messages.SRMLCDT_AtLeastOnePlaceMsg);
       return false;
     }
-    final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
-    if (rmDynamicTab == null) {
-      setErrorMessage(LaunchMessages.CIT_NoLaunchConfigAvailable);
-      return false;
-    }
-    if (this.fSynchronizationBt.getSelection()) {
-      return true;
-    }
-    try {
-      if (rmDynamicTab.getControl() == null) {
-        initializeDynamicTab(configuration, rmDynamicTab);
-      }
-      final RMLaunchValidation validation = rmDynamicTab.isValid(configuration);
-      if (! validation.isSuccess()) {
-        setErrorMessage(validation.getMessage());
+    if (this.fHostFileBt.getSelection()) {
+      if (this.fHostFileText.getText().trim().length() == 0) {
+        setErrorMessage(Messages.SRMLCDT_HostFileRequiredMsg);
         return false;
       }
-    } catch (CoreException except) {
-      CppLaunchCore.log(except.getStatus());
+    } else {
+      if (this.fHosts.size() == 0) {
+        setErrorMessage(Messages.SRMLCDT_AtLeastOneHostNameMsg);
+        return false;
+      }
+      for (final String host : this.fHosts) {
+        if (host.trim().length() == 0) {
+          setErrorMessage(Messages.SRMLCDT_NoEmptyHostNameMsg);
+          return false;
+        }
+      }
     }
-    
     return true;
   }
   
@@ -261,162 +470,49 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   
   // --- Private code
   
-  private IRMLaunchConfigurationDynamicTab getRMLaunchConfigurationDynamicTab(final IResourceManager resourceManager) {
-    if (getLaunchConfiguration() == null) {
-      return null;
-    }
-    if (! this.fConfToDynamicTabs.containsKey(getLaunchConfiguration().getName())) {
-      try {
-        final PTPLaunchPlugin launchPlugin = PTPLaunchPlugin.getDefault();
-        final AbstractRMLaunchConfigurationFactory rmFactory = launchPlugin.getRMLaunchConfigurationFactory(resourceManager);
-        if (rmFactory == null) {
-          return null;
-        }
-        final IRMLaunchConfigurationDynamicTab rmDynamicTab = rmFactory.create(resourceManager, 
-                                                                               getLaunchConfigurationDialog());
-        if (rmDynamicTab == null) {
-          return null;
-        }
-        rmDynamicTab.addContentsChangedListener(new IRMLaunchConfigurationContentsChangedListener() {
+  
 
-          public void handleContentsChanged(final IRMLaunchConfigurationDynamicTab factory) {
-            updateLaunchConfigurationDialog();
-          }
-          
-        });
-        this.fConfToDynamicTabs.put(getLaunchConfiguration().getName(), rmDynamicTab);
-        return rmDynamicTab;
-      } catch (CoreException except) {
-        setErrorMessage(except.getMessage());
-        return null;
-      }
-    }
-    return this.fConfToDynamicTabs.get(getLaunchConfiguration().getName());
-  }
-  
-  private void handleSynchronizationButtonSelection(final boolean isButtonSelected) {
-    final IRMLaunchConfigurationDynamicTab rmDynamicTab = getRMLaunchConfigurationDynamicTab(this.fResourceManager);
-    if (rmDynamicTab != null) {
-      handleSynchronizationButtonSelection(rmDynamicTab.getControl(), ! isButtonSelected);
-    }
-  }
-  
-  private void handleSynchronizationButtonSelection(final Control control, final boolean enable) {
-    control.setEnabled(enable);
-    if (control instanceof Composite) {
-      for (final Control childControl : ((Composite) control).getChildren()) {
-        handleSynchronizationButtonSelection(childControl, enable);
-      }
-    }
-  }
-  
-  private void initializeDynamicTab(final ILaunchConfiguration configuration,
-                                    final IRMLaunchConfigurationDynamicTab rmDynamicTab) throws CoreException {
-    for (final Control child : this.fComposite.getChildren()) {
-      if (! child.isDisposed()) {
-        child.dispose();
-      }
-    }
-    
-    this.fComposite.setLayout(new GridLayout(1, false));
-    rmDynamicTab.createControl(this.fComposite, this.fResourceManager.getUniqueName());
-    rmDynamicTab.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-    if (configuration instanceof ILaunchConfigurationWorkingCopy) {
-      updateConfiguration((ILaunchConfigurationWorkingCopy) configuration, rmDynamicTab);
-    }
-    rmDynamicTab.initializeFrom(getLaunchConfiguration());
-    
-    this.fParent.setMinSize(this.fComposite.computeSize(this.fSynchronizationBt.getBounds().width, SWT.DEFAULT));
-  }
-  
-  private void updateConfiguration(final ILaunchConfigurationWorkingCopy configuration,
-                                   final IRMLaunchConfigurationDynamicTab rmDynamicTab) {
-    if (this.fSynchronizationBt.getSelection()) {
-      // We need to update the launch config data the ones coming from the platform configuration.
-      // No clean mechanism for now :-/ I'm kind of forced of writing the next ugly code.
-      if (rmDynamicTab instanceof X10PlacesAndHostsDynamicTab) {
-        final IHostsBasedConf hostBasedConf = (IHostsBasedConf) this.fX10PlatformConf.getCommunicationInterfaceConf();
-        configuration.setAttribute(ATTR_HOSTFILE, hostBasedConf.getHostFile());
-        configuration.setAttribute(ATTR_USE_HOSTFILE, hostBasedConf.shouldUseHostFile());
-        configuration.setAttribute(ATTR_HOSTLIST, hostBasedConf.getHostsAsList());
-        configuration.setAttribute(ATTR_NUM_PLACES, hostBasedConf.getNumberOfPlaces());
-      }
-    } else {
-      final LaunchConfigMemento memento = this.fConfToMemento.get(configuration.getName());
-      if (memento == null) {
-        try {
-          this.fConfToMemento.put(configuration.getName(), new LaunchConfigMemento(configuration));
-        } catch (CoreException except) {
-          CppLaunchCore.log(IStatus.WARNING, NLS.bind(LaunchMessages.CIT_PreviousStateStorageError, configuration.getName()),
-                            except);
-        }
-      }
-      if (memento != null) {
-        configuration.setAttribute(ATTR_USE_HOSTFILE, memento.shouldUseHostFile());
-        configuration.setAttribute(ATTR_HOSTFILE, memento.getHostFile());
-        configuration.setAttribute(ATTR_HOSTLIST, memento.getHostList());
-        configuration.setAttribute(ATTR_NUM_PLACES, memento.getNumberOfPlaces());
-      }
-    }
-  }
 
-  // --- Private classes
-  
-  private static final class LaunchConfigMemento {
-    
-    LaunchConfigMemento(final ILaunchConfiguration launchConfig) throws CoreException {
-      updateConfiguration(launchConfig);
+
+  private String remoteBrowse(final Shell shell, final IRemoteConnection rmConnection, final String dialogTitle, final String initialPath) {
+    final IRemoteServices rmServices= PTPRemoteCorePlugin.getDefault().getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
+    final IRemoteUIServices rmUIServices= PTPRemoteUIPlugin.getDefault().getRemoteUIServices(rmServices);
+
+    final IRemoteUIFileManager fileManager= rmUIServices.getUIFileManager();
+    if (fileManager != null) {
+      fileManager.setConnection(rmConnection);
+      fileManager.showConnections(false);
+      final String path= fileManager.browseFile(shell, dialogTitle, initialPath, IRemoteUIConstants.NONE);
+      if (path != null) {
+        return path.replace('\\', '/');
+      }
     }
-    
-    // --- Internal services
-    
-    String getHostFile() {
-      return this.fHostFile;
-    }
-    
-    List<String> getHostList() {
-      return this.fHostList;
-    }
-    
-    int getNumberOfPlaces() {
-      return this.fNumPlaces;
-    }
-    
-    boolean shouldUseHostFile() {
-      return this.fUseHostFile;
-    }
-    
-    @SuppressWarnings("unchecked")
-    void updateConfiguration(final ILaunchConfiguration launchConfig) throws CoreException {
-      this.fUseHostFile = launchConfig.getAttribute(ATTR_USE_HOSTFILE, false);
-      this.fHostFile = launchConfig.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR);
-      this.fHostList = launchConfig.getAttribute(ATTR_HOSTLIST, Collections.<String>emptyList());
-      this.fNumPlaces = launchConfig.getAttribute(ATTR_NUM_PLACES, 1);
-    }
-    
-    // --- Fields
-    
-    private boolean fUseHostFile;
-    
-    private String fHostFile;
-    
-    private List<String> fHostList;
-    
-    private int fNumPlaces;
-    
+    return null;
   }
   
   // --- Fields
   
-  private ScrolledComposite fParent;
+  private String fProjectName;
   
-  private Composite fComposite;
+  private Spinner fNumPlacesSpinner;
   
-  private Button fSynchronizationBt;
+  private Button fHostFileBt;
   
-  private final Map<String, LaunchConfigMemento> fConfToMemento;
+  private Text fHostFileText;
   
-  private final Map<String, IRMLaunchConfigurationDynamicTab> fConfToDynamicTabs;
+  private Button fHostFileBrowseBt;
+  
+  private Button fHostListBt;
+  
+  private Text fLoadLevelerText;
+  
+  private Button fLoadLevelerBrowseBt;
+  
+  private Button fLoadLevelerBt;
+  
+  private TableViewer fHostListViewer;
+  
+  private List<String> fHosts;
 
 }

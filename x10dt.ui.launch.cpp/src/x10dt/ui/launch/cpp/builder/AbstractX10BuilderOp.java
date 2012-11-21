@@ -76,7 +76,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fJavaProject = javaProject;
     String project = javaProject.getProject().getName();
     this.fCompilationConf = ConfUtils.getConfiguration(project);
-    this.fConfName = this.fCompilationConf.getName();
+    this.fConfName = this.fCompilationConf != null ? this.fCompilationConf.getName() : "'Default'";
     this.fWorkspaceDir = workspaceDir;
     this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
     final boolean isCygwin = ConfUtils.getTargetOS(this.fCompilationConf) == ETargetOS.WINDOWS;
@@ -95,7 +95,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fWorkspaceDir = workspaceDir;
     String project = javaProject.getProject().getName();
     this.fCompilationConf = ConfUtils.getConfiguration(project);
-    this.fConfName = this.fCompilationConf.getName();
+    this.fConfName = this.fCompilationConf != null ? this.fCompilationConf.getName() : "'Default'";
     this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
     this.fCppCommands = DefaultCPPCommandsFactory.create(project);
     this.fTargetOpHelper = targetOpHelper;
@@ -301,6 +301,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   
   public final boolean hasValidCompilationCommands() {
     try {
+      if (this.fCompilationConf == null) return true; //Default compilation configuration
       return this.fCompilationConf.getAttribute(IS_VALID, true);
     } catch(CoreException e){
       CppLaunchCore.getInstance().getLog().log(e.getStatus());

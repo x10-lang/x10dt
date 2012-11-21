@@ -171,6 +171,10 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
     configuration.setAttribute(ATTR_CONSOLE, true);
     
   }
+  
+  public String getProjectName(){
+    return this.fProjectText == null? Constants.EMPTY_STR : this.fProjectText.getText();
+  }
 
   // --- Overridden methods
 
