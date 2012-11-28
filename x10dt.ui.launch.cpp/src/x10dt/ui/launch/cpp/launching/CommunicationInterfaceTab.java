@@ -15,6 +15,9 @@ import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstant
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
+import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,19 +72,22 @@ import x10dt.ui.launch.rms.core.Messages;
 
 final class CommunicationInterfaceTab extends LaunchConfigurationTab 
                                       implements ILaunchConfigurationTab {
-  private static int HOST_FILE = 0;
-  private static int HOST_LIST = 1;
-  private static int LOAD_LEVELER = 2;
+  public static int HOST_FILE = 0;
+  public static int HOST_LIST = 1;
+  public static int LOAD_LEVELER = 2;
+  
+  public static String LOCALHOST = "localhost";
   
   CommunicationInterfaceTab(String project) {
     this.fProjectName = project;
     this.fHosts = new ArrayList<String>();
-    this.fHosts.add("localhost");
+    this.fHosts.add(LOCALHOST);
   }
   
   // --- ILaunchConfigurationTab's interface methods implementation
   
   public void createControl(final Composite parent) { 
+    this.fTransport = getTransport();
     final Composite mainComposite = new Composite(parent, SWT.NONE);
     mainComposite.setFont(parent.getFont());
     mainComposite.setLayout(new GridLayout(1, false));
@@ -118,7 +124,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     this.fHostFileBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        updateSelectionState(HOST_FILE);
+        updateSelectionState(HOST_FILE, CommunicationInterfaceTab.this.fTransport);
         updateLaunchConfigurationDialog();
       }
       
@@ -179,7 +185,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     this.fHostListBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        updateSelectionState(HOST_LIST);
+        updateSelectionState(HOST_LIST, CommunicationInterfaceTab.this.fTransport);
         updateLaunchConfigurationDialog();
       }
       
@@ -259,6 +265,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     this.fHostListViewer.getTable().setLinesVisible(true);
     
     final Button addButton = new Button(hostsGroup, SWT.PUSH);
+    this.fAddButton = addButton;
     addButton.setText(Messages.SRMLCDT_AddBt);
     addButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
     addButton.addSelectionListener(new SelectionListener() {
@@ -278,6 +285,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     });
     
     final Button removeButton = new Button(hostsGroup, SWT.PUSH);
+    this.fRemoveButton = removeButton;
     removeButton.setText(Messages.SRMLCDT_RemoveBt);
     removeButton.setLayoutData(new GridData(SWT.FILL, SWT.TOP, false, false));
     removeButton.addSelectionListener(new SelectionListener() {
@@ -305,7 +313,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     this.fLoadLevelerBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
-        updateSelectionState(LOAD_LEVELER);
+        updateSelectionState(LOAD_LEVELER, CommunicationInterfaceTab.this.fTransport);
         updateLaunchConfigurationDialog();
       }
       
@@ -363,36 +371,101 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
    
     setControl(mainComposite);
     
-    updateSelectionState(HOST_LIST);
+    updateSelectionState(HOST_FILE, this.fTransport);
   }
   
   public String getName() {
     return LaunchMessages.CIT_CommunicationInterface;
   }
   
-  private void updateSelectionState(final int choice) {
-    if (choice == HOST_FILE){
+  private void updateSelectionState(int choice, final String transport) {
+    // The next 2 combinations are possible because of changes in transport.
+    if (choice == LOAD_LEVELER && transport.equals(SOCKETS_SERVICE_PROVIDER_ID)){
+      choice = HOST_LIST;
+    }
+    if (choice == HOST_LIST && transport.equals(PAMI_SERVICE_PROVIDER_ID)) {
+      choice = HOST_FILE;
+    }
+    
+    // Enable or disable appropriate top-level buttons based on transport.
+    if (transport.equals(SOCKETS_SERVICE_PROVIDER_ID)){
+      this.fHostFileBt.setEnabled(true);
+      this.fHostListBt.setEnabled(true);
+      this.fLoadLevelerBt.setEnabled(false);
+    } else if (transport.equals(PAMI_SERVICE_PROVIDER_ID)){
+      this.fHostFileBt.setEnabled(true);
+      this.fHostListBt.setEnabled(false);
+      this.fLoadLevelerBt.setEnabled(true);
+    } else if (transport.equals(STANDALONE_SERVICE_PROVIDER_ID)){
+      this.fHostFileBt.setEnabled(false);
+      this.fHostListBt.setEnabled(false);
+      this.fLoadLevelerBt.setEnabled(false);
+    }
+    
+    // Set selections for top-level buttons and enable or disable sub-buttons appropriately.
+    if (choice == HOST_FILE && (transport.equals(SOCKETS_SERVICE_PROVIDER_ID) || transport.equals(PAMI_SERVICE_PROVIDER_ID))){
+      this.fHostFileBt.setSelection(true);
       this.fHostFileText.setEnabled(true);
       this.fHostFileBrowseBt.setEnabled(true);
       this.fHostListBt.setSelection(false);
       this.fHostListViewer.getTable().setEnabled(false);
+      this.fAddButton.setEnabled(false);
+      this.fRemoveButton.setEnabled(false);
+      this.fLoadLevelerBt.setSelection(false);
       this.fLoadLevelerText.setEnabled(false);
       this.fLoadLevelerBrowseBt.setEnabled(false);
-    } else if (choice == HOST_LIST){
+      this.fNumPlacesSpinner.setEnabled(true);
+     
+    } else if (choice == HOST_LIST && (transport.equals(SOCKETS_SERVICE_PROVIDER_ID))){
+      this.fHostFileBt.setSelection(false);
       this.fHostFileText.setEnabled(false);
       this.fHostFileBrowseBt.setEnabled(false);
       this.fHostListBt.setSelection(true);
       this.fHostListViewer.getTable().setEnabled(true);
+      this.fAddButton.setEnabled(true);
+      this.fRemoveButton.setEnabled(true);
+      this.fLoadLevelerBt.setSelection(false);
       this.fLoadLevelerText.setEnabled(false);
       this.fLoadLevelerBrowseBt.setEnabled(false);
-    } else { //choice == LOAD_LEVELER
+      this.fNumPlacesSpinner.setEnabled(true);
+     
+    } else if (choice == LOAD_LEVELER && (transport.equals(PAMI_SERVICE_PROVIDER_ID))) {
+      this.fHostFileBt.setSelection(false);
       this.fHostFileText.setEnabled(false);
       this.fHostFileBrowseBt.setEnabled(false);
       this.fHostListBt.setSelection(false);
       this.fHostListViewer.getTable().setEnabled(false);
+      this.fAddButton.setEnabled(false);
+      this.fRemoveButton.setEnabled(false);
+      this.fLoadLevelerBt.setSelection(true);
       this.fLoadLevelerText.setEnabled(true);
       this.fLoadLevelerBrowseBt.setEnabled(true);
+      this.fNumPlacesSpinner.setEnabled(false);
+    
+    } else if (transport.equals(STANDALONE_SERVICE_PROVIDER_ID)) {
+      this.fHostFileBt.setEnabled(false);
+      this.fHostFileText.setEnabled(false);
+      this.fHostFileBrowseBt.setEnabled(false);
+      this.fHostListBt.setEnabled(false);
+      this.fHostListBt.setSelection(true);
+      this.fHostListViewer.getTable().setEnabled(false);
+      this.fAddButton.setEnabled(false);
+      this.fRemoveButton.setEnabled(false);
+      this.fLoadLevelerBt.setEnabled(false);
+      this.fLoadLevelerText.setEnabled(false);
+      this.fLoadLevelerBrowseBt.setEnabled(false);
+      this.fNumPlacesSpinner.setEnabled(true);
     }
+  }
+  
+  private String getTransport(){
+    try {
+      final ILaunchConfiguration compilationConf = ConfUtils.getConfiguration(this.fProjectName);
+      return ConfUtils.getServiceTypeId(compilationConf);
+    } catch (CoreException e){
+      CppLaunchCore.getInstance().getLog().log(e.getStatus());
+    }
+    return null;
   }
   
   public void performApply(final ILaunchConfigurationWorkingCopy configuration) {
@@ -408,7 +481,32 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       configuration.setAttribute(ATTR_HOSTFILE, this.fHostFileText.getText().trim());
     if (this.fLoadLevelerText != null)
       configuration.setAttribute(ATTR_LOADLEVELER_SCRIPT, this.fLoadLevelerText.getText().trim());
-    configuration.setAttribute(ATTR_HOSTLIST, (this.fHosts.isEmpty()) ? null : this.fHosts);
+    configuration.setAttribute(ATTR_HOSTLIST, getHostList());
+  }
+  
+  private String getHostList(){
+    if (this.fHosts.isEmpty()){
+      return Constants.EMPTY_STR;
+    }
+    String result = Constants.EMPTY_STR;
+    boolean first = true;
+    for(String s: this.fHosts){
+      if (first){
+        result += s;
+        first = false;
+      } else {
+        result += "," + s;
+      }
+    }
+    return result;
+  }
+  
+  private List<String> parseHostList(String hosts){
+    List<String> result = new ArrayList<String>();
+    for(String s: hosts.split(",")){
+      result.add(s);
+    }
+    return result;
   }
   
   public void setDefaults(final ILaunchConfigurationWorkingCopy configuration) {
@@ -425,11 +523,11 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   public void initializeFrom(final ILaunchConfiguration configuration) {
     try {
       this.fProjectName = configuration.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR);
-      final List<String> hosts= new ArrayList<String>();
-      hosts.add("localhost"); //$NON-NLS-1$
-      updateSelectionState(configuration.getAttribute(ATTR_USE_HOSTFILE, HOST_FILE));
+      this.fTransport = getTransport();
+      final String hosts= LOCALHOST; 
+      updateSelectionState(configuration.getAttribute(ATTR_USE_HOSTFILE, HOST_FILE), this.fTransport);
       this.fNumPlacesSpinner.setSelection(configuration.getAttribute(ATTR_NUM_PLACES, DEFAULT_NUM_PLACES));
-      this.fHosts= new ArrayList<String>(configuration.getAttribute(ATTR_HOSTLIST, hosts));
+      this.fHosts= parseHostList(configuration.getAttribute(ATTR_HOSTLIST, hosts));
       this.fHostListViewer.setInput(this.fHosts);
       this.fHostFileText.setText(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR));
       this.fLoadLevelerText.setText(configuration.getAttribute(ATTR_LOADLEVELER_SCRIPT, Constants.EMPTY_STR));
@@ -495,6 +593,8 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   
   private String fProjectName;
   
+  private String fTransport;
+  
   private Spinner fNumPlacesSpinner;
   
   private Button fHostFileBt;
@@ -512,6 +612,10 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   private Button fLoadLevelerBt;
   
   private TableViewer fHostListViewer;
+  
+  private Button fAddButton;
+  
+  private Button fRemoveButton;
   
   private List<String> fHosts;
 

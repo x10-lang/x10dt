@@ -298,6 +298,18 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     super.dispose();
   }
   
+  private boolean errorMessageErasable(String message){
+    if (message == null) return true;
+    if (message.equals(LaunchMessages.VMLT_HostNameNotDefined) ||
+        message.equals(LaunchMessages.VMLT_UserNameNotDefined) ||
+        message.equals(LaunchMessages.VMLT_PrivateKeyFileNotDefined) ||
+        message.equals(LaunchMessages.VMLT_OutputFolderNotDefined) ||
+        message.equals(LaunchMessages.VMLT_X10DistNotDefined)) {
+      return true;
+    }
+    return false;
+  }
+  
   public boolean isValid(final ILaunchConfiguration configuration) {
     
     try {
@@ -307,8 +319,13 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     } catch (CoreException e){
       CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
-    if (getErrorMessage() != null) return false;
+   
     if (this.fRemoteConnBt.getSelection()) {
+      if (errorMessageErasable(getErrorMessage())){
+        setErrorMessage(null);
+      } else {
+        return false;
+      }
       if (this.fHostText.getText().length() == 0) {
         setErrorMessage(LaunchMessages.VMLT_HostNameNotDefined);
         return false;
@@ -332,7 +349,10 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
         return false;
       }
 
+    } else { //local
+      setErrorMessage(null);
     }
+    
     try {
       ILaunchConfigurationWorkingCopy wc = configuration.getWorkingCopy();
       wc.setAttribute(IS_VALID, true);
@@ -378,15 +398,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     statusCompo.setFont(remoteGroup.getFont());
     statusCompo.setLayout(new GridLayout(2, false));
     statusCompo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-    
-   
-//    this.fConnLabel = new Label(statusCompo, SWT.NONE);
-//    this.fConnLabel.setText(LaunchMessages.VMLT_ConnStatus);
-//    this.fConnLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
-//    this.fStatusLabel = new CLabel(statusCompo, SWT.NONE);
-//    this.fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
-//    this.fConnLabel.setImage(null);
-        
+      
     this.fHostText = SWTFormUtils.createLabelAndText(remoteGroup, LaunchMessages.VMLT_HostLabel, remoteControls);
     
     final Composite portCompo = new Composite(remoteGroup, SWT.NONE);
@@ -554,6 +566,17 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   private void addConnectionWidgetsListeners(final Collection<Control> remoteControls, final Button browseFileButton, final Button outputFolderBrowseBt,
       final Button x10DistFolderBrowseBt, final Button checkButton) {
+    this.fCITypeCombo.addSelectionListener(new SelectionListener() {
+
+      public void widgetSelected(final SelectionEvent event) {
+        updateLaunchConfigurationDialog();
+      }
+
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+
+    });
     this.fLocalConnBt.addSelectionListener(new SelectionListener() {
 
       public void widgetSelected(final SelectionEvent event) {
@@ -627,6 +650,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
         if (path != null) {
           ConnectionTab.this.fPrivateKeyFileText.setText(path);
         }
+        updateLaunchConfigurationDialog();
       }
 
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -641,6 +665,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
         if (path != null) {
           ConnectionTab.this.fRemoteOutputFolderText.setText(path);
         }
+        updateLaunchConfigurationDialog();
       }
 
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -655,6 +680,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
         if (path != null) {
           ConnectionTab.this.fX10DistributionText.setText(path);
         }
+        updateLaunchConfigurationDialog();
       }
 
       public void widgetDefaultSelected(final SelectionEvent event) {

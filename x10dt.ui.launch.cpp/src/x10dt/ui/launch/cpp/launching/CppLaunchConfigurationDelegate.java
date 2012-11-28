@@ -8,6 +8,12 @@
 package x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_FILE;
+import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_LIST;
+import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.LOAD_LEVELER;
 import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_X10_MAIN_CLASS;
 
 import java.io.ByteArrayInputStream;
@@ -74,7 +80,14 @@ import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
  * @author egeay
  */
 public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDelegate {
-
+  
+  private static String NPLACES_SOCKETS = "X10_NPLACES";
+  private static String HOSTFILE_SOCKETS = "X10_HOSTFILE";
+  private static String HOSTLIST_SOCKETS = "X10_HOSTLIST";
+  private static String NPLACES_PAMI = "MP_PROCS";
+  private static String HOSTLIST_PAMI = "MP_HOSTFILE";
+  private static String RUNX10 = "runx10";
+  
   // --- Overridden methods
   
   public void launch(final ILaunchConfiguration configuration, final String mode, final ILaunch launch,
@@ -86,7 +99,8 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
 
       
       this.fProject = ResourcesPlugin.getWorkspace().getRoot().getProject(configuration.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR));
-
+      this.fCompilationConfiguration = ConfUtils.getConfiguration(this.fProject.getName());
+      
       // The following check shouldn't be necessary, since this ILaunchConfigurationDelegate implementation
       // isn't used for debug-mode launches. I.e., we should never get here in that case.
       if (ILaunchManager.DEBUG_MODE.equals(mode) && 
@@ -99,21 +113,16 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
      
       if (!monitor.isCanceled() && shouldProcessToLinkStep(fProject) &&
           createExecutable(configuration, fProject, new SubProgressMonitor(monitor, 5)) == 0) {
-        
-
-        
-        // Then, performs the launch.
+  
         if (!monitor.isCanceled()) {
           // Hijack launch if it's PAMI with LoadLeveler
-          if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(ConfUtils.getServiceTypeId(ConfUtils.getConfiguration(this.fProject.getName()))) /*&&
-              ((IHostsBasedConf)this.fX10PlatformConf.getCommunicationInterfaceConf()).loadLevelerSelected() */){
+          if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(ConfUtils.getServiceTypeId(this.fCompilationConfiguration)) &&
+              ConfUtils.hostSelectionMode(configuration) == LOAD_LEVELER){
             launchPAMIwLL(configuration, fProject, new SubProgressMonitor(monitor, 5));
             
           } else {
             monitor.subTask(LaunchMessages.CLCD_LaunchCreationTaskName);
-            //updateAttributes(configuration, mode, monitor);
-            //super.launch(configuration, mode, launch, new SubProgressMonitor(monitor, 5));
-            runMyCommand(monitor);
+            runCommand(configuration, monitor);
           }
         }
       }
@@ -122,15 +131,42 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
     }
   }
   
-  private void runMyCommand(final IProgressMonitor monitor)  {
+  private void runCommand(ILaunchConfiguration configuration, final IProgressMonitor monitor) throws CoreException {
     try {
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      messageConsole.activate();
       messageConsole.clearConsole();
-      final String cmd = this.fExecPath;
+     
+      final Map<String,String> env = new HashMap<String,String>();
+      final int NPlaces = ConfUtils.getNPlaces(configuration);
+      String transport = ConfUtils.getServiceTypeId(this.fCompilationConfiguration);
+      
+      if (transport.equals(STANDALONE_SERVICE_PROVIDER_ID)){
+        env.put(NPLACES_SOCKETS, (new Integer(NPlaces)).toString());
+      } else if (transport.equals(SOCKETS_SERVICE_PROVIDER_ID)) {
+        env.put(NPLACES_SOCKETS, (new Integer(NPlaces)).toString());
+        int sel = ConfUtils.hostSelectionMode(configuration);
+        if (sel == HOST_FILE){
+          env.put(HOSTFILE_SOCKETS, ConfUtils.getHostFile(configuration));
+        } else if (sel == HOST_LIST){
+          env.put(HOSTLIST_SOCKETS, ConfUtils.getHostList(configuration));
+        }
+      } else if (transport.equals(PAMI_SERVICE_PROVIDER_ID)) {
+        env.put(NPLACES_PAMI,(new Integer(NPlaces)).toString());
+        env.put(HOSTLIST_PAMI, ConfUtils.getHostList(configuration));
+      }
+      
       final List<String> command = new ArrayList<String>();
-      command.add(cmd);
-      final int returnCode = this.fTargetOpHelper.run(command, this.fWorkspaceDir, new IProcessOuputListener() {
+      
+      final String cmd = this.fExecPath;
+      if (!ConfUtils.isCygwin(this.fCompilationConfiguration)){
+        command.add(cmd);
+      } else {
+        command.add(RUNX10);
+        command.add(cmd);
+      }
+      this.fTargetOpHelper.run(command, this.fWorkspaceDir, env, new IProcessOuputListener() {
 
         public void read(final String line) {
           mcStream.println(line);
@@ -151,30 +187,32 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       }, monitor);
       mcStream.flush();
     } catch (InterruptedException e){
-      //TODO
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_Interrupted, e));
     } catch (IOException e){
-      //TODO
+      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_IOError, e));
     }
   }
+  
+
  
   private void launchPAMIwLL(final ILaunchConfiguration configuration, final IProject project,
       final IProgressMonitor monitor) throws CoreException{
     final SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
     try {
       ILaunchConfiguration conf = ConfUtils.getConfiguration(this.fProject.getName());
-      this.fIsCygwin = ConfUtils.getTargetOS(conf) == ETargetOS.WINDOWS;
-      this.fTargetOpHelper = TargetOpHelperFactory.create(ConfUtils.isLocalConnection(conf), this.fIsCygwin, ConfUtils.getConnectionName(conf));
+      this.fTargetOpHelper = TargetOpHelperFactory.create(ConfUtils.isLocalConnection(conf), false /*not cygwin*/, ConfUtils.getConnectionName(conf));
       if (this.fTargetOpHelper == null) {
         throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoPTPConnectionForName));
       }
       
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      messageConsole.activate();
+      messageConsole.clearConsole();
       
       final List<String> command = new ArrayList<String>();
       command.add("llsubmit");
-      //command.add(((IHostsBasedConf)this.fX10PlatformConf.getCommunicationInterfaceConf()).getLoadLevelerScript());  //TODO !!!!
-      
+      command.add(ConfUtils.getLoadLevelerScript(configuration));  
       this.fTargetOpHelper.run(command, this.fWorkspaceDir, new IProcessOuputListener() {
 
         public void read(final String line) {
@@ -311,138 +349,131 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
   }
 
   
-//  protected void updateAttributes(final ILaunchConfiguration configuration, final String mode,
-//                                                 final IProgressMonitor monitor) throws CoreException {
-//    try {
-//      final AttributeManager attrMgr = new AttributeManager();
-//      final int numPlaces = this.fX10PlatformConf.getCommunicationInterfaceConf().getNumberOfPlaces();
-//      attrMgr.addAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
-//      
-//      if (this.fX10PlatformConf.getCommunicationInterfaceConf() instanceof IHostsBasedConf){
-//    	  IHostsBasedConf conf = (IHostsBasedConf) this.fX10PlatformConf.getCommunicationInterfaceConf();
-//    	  attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(conf.getHostFile()));
-//          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(conf.shouldUseHostFile()));
-//      } else {
-//          attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
-//          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(configuration.getAttribute(ATTR_USE_HOSTFILE, false)));
-//      }
-//      final ArrayAttribute<String> attribute = LaunchAttributes.getHostListAttr().create();
-//      final List<String> defaultHostList = new ArrayList<String>();
-//      if (defaultHostList.isEmpty()) {
-//        // In case of launching via shortcut.
-//        IPResourceManager IPrm = (IPResourceManager) fResourceManager.getAdapter(IPResourceManager.class);
-//        for (final IPMachine machine : IPrm.getMachines()) {
-//          for (final IPNode node : machine.getNodes()) {
-//            defaultHostList.add(node.getName());
-//          }
-//        }
-//      }
-//      attribute.setValue(configuration.getAttribute(ATTR_HOSTLIST, defaultHostList));
-//      attrMgr.addAttribute(attribute);
-//
-//      
-//      // Collects attributes from Resource tab
-//      //attrMgr.addAttributes(getResourceAttributes(configuration, mode));
-//
-//      // Collects attributes from Environment tab
-//      String[] envArr = null; //org.eclipse.ptp.core.util.LaunchUtils.getEnvironmentToAppend(configuration);
-//      
-//      if (this.fIsCygwin) {
-//        final StringBuilder sb = new StringBuilder();
-//        sb.append(PATH_ENV).append('=');
-//        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
-//        int k = 0;
-//        final boolean isLocal = this.fX10PlatformConf.getConnectionConf().isLocal();
-//        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations(isLocal)) {
-//          if (k > 0) {
-//            sb.append(';');
-//          } else {
-//            k = 1;
-//          }
-//          sb.append(x10Lib.replace('/', '\\'));
-//        }
-//        if (ldLibPathValue != null) {
-//          sb.append(';').append(ldLibPathValue);
-//        }
-//        
-//        int pathIndex = -1;
-//        if (envArr != null) {
-//          final String pathEnvStart = PATH_ENV + '=';
-//          for (int i = 0; i < envArr.length; ++i) {
-//            if ((envArr[i] != null) && envArr[i].startsWith(pathEnvStart)) {
-//              pathIndex = i;
-//              break;
-//            }
-//          }
-//        }
-//        
-//        if (pathIndex == -1) {
-//          final String[] newArray = new String[(envArr == null) ? 1 : envArr.length + 1];
-//          newArray[0] = sb.toString();
-//          if (envArr != null) {
-//            System.arraycopy(envArr, 0, newArray, 1, envArr.length);
-//          }
-//          envArr = newArray;
-//        } else if (envArr != null) {
-//          sb.append(';').append(envArr[pathIndex]);
-//          envArr[pathIndex] = sb.toString();
-//        }
-//      }
-//      if (envArr != null) {
-//        attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
-//      }
-//
-//      // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
-//      if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
-//        final IPQueue queue = org.eclipse.ptp.core.util.LaunchUtils.getQueueDefault((IPResourceManager) this.fResourceManager.getAdapter(IPResourceManager.class));
-//        if (queue == null) {
-//          throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRMQueueError));
-//        }
-//        attrMgr.addAttribute(JobAttributes.getQueueIdAttributeDefinition().create(queue.getID()));
-//      }
-//
-//      // Collects attributes from Application tab
-//      final IPath programPath = verifyExecutablePath(configuration, monitor);
-//      attrMgr.addAttribute(JobAttributes.getExecutableNameAttributeDefinition().create(programPath.lastSegment()));
-//
-//      final String path = programPath.removeLastSegments(1).toString();
-//      if (path != null) {
-//        attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
-//      }
-//
-//      // Collects attributes from Arguments tab
-//      attrMgr.addAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition().create(this.fWorkspaceDir));
-//
-//      final String[] argArr = org.eclipse.ptp.core.util.LaunchUtils.getProgramArguments(configuration);
-//      if (argArr != null) {
-//        attrMgr.addAttribute(JobAttributes.getProgramArgumentsAttributeDefinition().create(argArr));
-//      }
-//
-//      // PTP launched this job
-//      attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
-//
-//      AbstractX10RuntimeSystem runtimeSystem = ((AbstractX10ResourceManager) fResourceManager).getRuntimeSystem();
-//      
-//      runtimeSystem.setAttributes(attrMgr.getAttributes());
-//      
-//  } catch (IllegalValueException except) {
-//    throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, "Invalid Places Number", except)); 
-//  
-//
-//    } finally {
-//      monitor.done();
-//    }
-//  }
+/*  protected void updateAttributes(final ILaunchConfiguration configuration, final String mode,
+                                                 final IProgressMonitor monitor) throws CoreException {
+    try {
+      final AttributeManager attrMgr = new AttributeManager();
+      final int numPlaces = this.fX10PlatformConf.getCommunicationInterfaceConf().getNumberOfPlaces();
+      attrMgr.addAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
+      
+      if (this.fX10PlatformConf.getCommunicationInterfaceConf() instanceof IHostsBasedConf){
+    	  IHostsBasedConf conf = (IHostsBasedConf) this.fX10PlatformConf.getCommunicationInterfaceConf();
+    	  attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(conf.getHostFile()));
+          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(conf.shouldUseHostFile()));
+      } else {
+          attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
+          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(configuration.getAttribute(ATTR_USE_HOSTFILE, false)));
+      }
+      final ArrayAttribute<String> attribute = LaunchAttributes.getHostListAttr().create();
+      final List<String> defaultHostList = new ArrayList<String>();
+      if (defaultHostList.isEmpty()) {
+        // In case of launching via shortcut.
+        IPResourceManager IPrm = (IPResourceManager) fResourceManager.getAdapter(IPResourceManager.class);
+        for (final IPMachine machine : IPrm.getMachines()) {
+          for (final IPNode node : machine.getNodes()) {
+            defaultHostList.add(node.getName());
+          }
+        }
+      }
+      attribute.setValue(configuration.getAttribute(ATTR_HOSTLIST, defaultHostList));
+      attrMgr.addAttribute(attribute);
+
+      
+      // Collects attributes from Resource tab
+      //attrMgr.addAttributes(getResourceAttributes(configuration, mode));
+
+      // Collects attributes from Environment tab
+      String[] envArr = null; //org.eclipse.ptp.core.util.LaunchUtils.getEnvironmentToAppend(configuration);
+      
+      if (this.fIsCygwin) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append(PATH_ENV).append('=');
+        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
+        int k = 0;
+        final boolean isLocal = this.fX10PlatformConf.getConnectionConf().isLocal();
+        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations(isLocal)) {
+          if (k > 0) {
+            sb.append(';');
+          } else {
+            k = 1;
+          }
+          sb.append(x10Lib.replace('/', '\\'));
+        }
+        if (ldLibPathValue != null) {
+          sb.append(';').append(ldLibPathValue);
+        }
+        
+        int pathIndex = -1;
+        if (envArr != null) {
+          final String pathEnvStart = PATH_ENV + '=';
+          for (int i = 0; i < envArr.length; ++i) {
+            if ((envArr[i] != null) && envArr[i].startsWith(pathEnvStart)) {
+              pathIndex = i;
+              break;
+            }
+          }
+        }
+        
+        if (pathIndex == -1) {
+          final String[] newArray = new String[(envArr == null) ? 1 : envArr.length + 1];
+          newArray[0] = sb.toString();
+          if (envArr != null) {
+            System.arraycopy(envArr, 0, newArray, 1, envArr.length);
+          }
+          envArr = newArray;
+        } else if (envArr != null) {
+          sb.append(';').append(envArr[pathIndex]);
+          envArr[pathIndex] = sb.toString();
+        }
+      }
+      if (envArr != null) {
+        attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
+      }
+
+      // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
+      if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
+        final IPQueue queue = org.eclipse.ptp.core.util.LaunchUtils.getQueueDefault((IPResourceManager) this.fResourceManager.getAdapter(IPResourceManager.class));
+        if (queue == null) {
+          throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRMQueueError));
+        }
+        attrMgr.addAttribute(JobAttributes.getQueueIdAttributeDefinition().create(queue.getID()));
+      }
+
+      // Collects attributes from Application tab
+      final IPath programPath = verifyExecutablePath(configuration, monitor);
+      attrMgr.addAttribute(JobAttributes.getExecutableNameAttributeDefinition().create(programPath.lastSegment()));
+
+      final String path = programPath.removeLastSegments(1).toString();
+      if (path != null) {
+        attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
+      }
+
+      // Collects attributes from Arguments tab
+      attrMgr.addAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition().create(this.fWorkspaceDir));
+
+      final String[] argArr = org.eclipse.ptp.core.util.LaunchUtils.getProgramArguments(configuration);
+      if (argArr != null) {
+        attrMgr.addAttribute(JobAttributes.getProgramArgumentsAttributeDefinition().create(argArr));
+      }
+
+      // PTP launched this job
+      attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
+
+      AbstractX10RuntimeSystem runtimeSystem = ((AbstractX10ResourceManager) fResourceManager).getRuntimeSystem();
+      
+      runtimeSystem.setAttributes(attrMgr.getAttributes());
+      
+  } catch (IllegalValueException except) {
+    throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, "Invalid Places Number", except)); 
+  
+
+    } finally {
+      monitor.done();
+    }
+  }
+  */
   
   
-  
-//  protected final IDebuggingInfoConf getDebuggingInfoConf() {
-//    return this.fX10PlatformConf.getDebuggingInfoConf();
-//  }
-  
-//  protected final String getExecutablePath() {
-//    return this.fExecPath;
-//  }
 
   
   protected final boolean shouldProcessToLinkStep(final IProject project) {
@@ -636,6 +667,8 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
   private String fWorkspaceDir;
   
   private IProject fProject;
+  
+  private ILaunchConfiguration fCompilationConfiguration;
 
   private static final String MAIN_FILE_NAME = "/xxx_main_xxx.cc"; //$NON-NLS-1$
 

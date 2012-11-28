@@ -79,7 +79,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fConfName = this.fCompilationConf != null ? this.fCompilationConf.getName() : "'Default'";
     this.fWorkspaceDir = workspaceDir;
     this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
-    final boolean isCygwin = ConfUtils.getTargetOS(this.fCompilationConf) == ETargetOS.WINDOWS;
+    final boolean isCygwin = ConfUtils.isCygwin(this.fCompilationConf);
     this.fCppCommands = DefaultCPPCommandsFactory.create(project);
     this.fTargetOpHelper = TargetOpHelperFactory.create(this.fIsLocal, isCygwin, ConfUtils.getConnectionName(this.fCompilationConf));
     if (this.fTargetOpHelper == null) {
@@ -300,13 +300,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
   }
   
   public final boolean hasValidCompilationCommands() {
-    try {
-      if (this.fCompilationConf == null) return true; //Default compilation configuration
-      return this.fCompilationConf.getAttribute(IS_VALID, true);
-    } catch(CoreException e){
-      CppLaunchCore.getInstance().getLog().log(e.getStatus());
-    }
-    return true;
+    return ConfUtils.isValid(this.fCompilationConf);
   }
 
   // --- Code for descendants

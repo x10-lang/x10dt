@@ -2,6 +2,16 @@ package x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_LOADLEVELER_SCRIPT;
+import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_LIST;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTFILE;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTLIST;
+
+
+
 
 import java.io.File;
 import java.io.IOException;
@@ -49,81 +59,44 @@ public class ConfUtils {
     }
 
   
-    public static boolean isLocalConnection(ILaunchConfiguration conf){
+    public static boolean isLocalConnection(ILaunchConfiguration compilationConf){
       try {
-        if (conf == null) return true;
-        return conf.getAttribute(ATTR_IS_LOCAL, true);
+        if (compilationConf == null) return true;
+        return compilationConf.getAttribute(ATTR_IS_LOCAL, true);
       } catch(CoreException e){
         CppLaunchCore.log(IStatus.ERROR, LaunchMessages.PCU_GetConf, e);
       }
       return true;
     }
    
-    public static String getServiceTypeId(ILaunchConfiguration conf){
+    public static String getServiceTypeId(ILaunchConfiguration compilationConf){
       try {
-        if (conf == null) return STANDALONE_SERVICE_PROVIDER_ID;
-        return conf.getAttribute(ATTR_CITYPE, STANDALONE_SERVICE_PROVIDER_ID);
+        if (compilationConf == null) return STANDALONE_SERVICE_PROVIDER_ID;
+        return compilationConf.getAttribute(ATTR_CITYPE, STANDALONE_SERVICE_PROVIDER_ID);
       } catch(CoreException e){
         CppLaunchCore.log(IStatus.ERROR, LaunchMessages.PCU_GetConf, e);
       }
-      return null;
+      return STANDALONE_SERVICE_PROVIDER_ID;
     }
     
     
-    public static String getConnectionName(ILaunchConfiguration conf){
-    if (conf == null)
+    public static String getConnectionName(ILaunchConfiguration compilationConf){
+    if (compilationConf == null)
       return IRemoteConnectionManager.DEFAULT_CONNECTION_NAME;
-    return conf.getName();
+    return compilationConf.getName();
     }
     
-    public static ETargetOS getTargetOS(ILaunchConfiguration conf){
-      if (isLocalConnection(conf)){
+    public static ETargetOS getTargetOS(ILaunchConfiguration compilationConf){
+      if (isLocalConnection(compilationConf)){
         return getLocalOS();
       } else {
         ITargetOpHelper targetOp = TargetOpHelperFactory.create(false /*not local*/, false /*not cygwin -- we do not support remote windows*/,
-                                                                ConfUtils.getConnectionName(conf));
+                                                                ConfUtils.getConnectionName(compilationConf));
         return PlatformConfUtils.detectOS(targetOp);
       }
     }
     
-    public static String getRemoteOutputFolder(ILaunchConfiguration conf){
-      if (conf == null) return null; // Should not happen
-      try {
-        return conf.getAttribute(ATTR_REMOTE_OUTPUT_FOLDER, Constants.EMPTY_STR);
-      } catch(CoreException e){
-        CppLaunchCore.getInstance().getLog().log(e.getStatus());
-      }
-      return null;
-    }
-    
-    public static String getX10DistribLocation(ILaunchConfiguration conf) {
-        if (isLocalConnection(conf)) {
-          try {
-            return new File(X10BundleUtils.getX10DistHostResource("include").getFile()).getParent(); //$NON-NLS-1$
-          } catch (IOException except) {
-            // Simply forgets
-            return Constants.EMPTY_STR;
-          }
-        } else { //not local
-          try {
-            return conf.getAttribute(ATTR_X10_DISTRIBUTION, Constants.EMPTY_STR);
-          } catch (CoreException e){
-            return Constants.EMPTY_STR;
-          }
-        }
-    }
-    
-    public static boolean isValid(ILaunchConfiguration conf){
-      if (conf == null) return true;
-      try {
-        return conf.getAttribute(IS_VALID, true);
-      } catch (CoreException e){
-        CppLaunchCore.getInstance().getLog().log(e.getStatus());
-      }
-      return true;
-    }
-    
-    private static ETargetOS getLocalOS() {
+    public static ETargetOS getLocalOS() {
       final String osName = System.getProperty(OS_NAME_VAR);
       if (osName.startsWith("AIX")) { //$NON-NLS-1$
         return ETargetOS.AIX;
@@ -138,8 +111,106 @@ public class ConfUtils {
       }
     }
     
+    public static String getRemoteOutputFolder(ILaunchConfiguration compilationConf){
+      if (compilationConf == null) return null; // Should not happen
+      try {
+        return compilationConf.getAttribute(ATTR_REMOTE_OUTPUT_FOLDER, Constants.EMPTY_STR);
+      } catch(CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return null;
+    }
+    
+    public static String getX10DistribLocation(ILaunchConfiguration compilationConf) {
+        if (isLocalConnection(compilationConf)) {
+          try {
+            return new File(X10BundleUtils.getX10DistHostResource("include").getFile()).getParent(); //$NON-NLS-1$
+          } catch (IOException except) {
+            // Simply forgets
+            return Constants.EMPTY_STR;
+          }
+        } else { //not local
+          try {
+            return compilationConf.getAttribute(ATTR_X10_DISTRIBUTION, Constants.EMPTY_STR);
+          } catch (CoreException e){
+            return Constants.EMPTY_STR;
+          }
+        }
+    }
+    
+    public static boolean isCygwin(ILaunchConfiguration compilationConf){
+      if (!ConfUtils.isLocalConnection(compilationConf)) return false; //We do not support remote windows.
+      
+      if (ConfUtils.getLocalOS() == ETargetOS.WINDOWS) return true;
+      
+      return false;
+    }
+    
+    public static boolean isValid(ILaunchConfiguration compilationConf){
+      if (compilationConf == null) return true;
+      try {
+        return compilationConf.getAttribute(IS_VALID, true);
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return true;
+    }
+    
+    public static int hostSelectionMode(ILaunchConfiguration conf){
+      if (conf == null) return HOST_LIST;
+      try {
+        return conf.getAttribute(ATTR_USE_HOSTFILE, HOST_LIST);
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return HOST_LIST;
+    }
+    
+    public static String getLoadLevelerScript(ILaunchConfiguration conf){
+      if (conf == null) return Constants.EMPTY_STR;
+      try {
+        return conf.getAttribute(ATTR_LOADLEVELER_SCRIPT, Constants.EMPTY_STR);
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return Constants.EMPTY_STR;
+    }
     
 
+    
+    
+ 
+    
+    public static int getNPlaces(ILaunchConfiguration conf){
+      if (conf == null) return DEFAULT_NUM_PLACES;
+      try {
+        return conf.getAttribute(ATTR_NUM_PLACES, DEFAULT_NUM_PLACES);
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return DEFAULT_NUM_PLACES;
+    }
+
+    public static String getHostFile(ILaunchConfiguration conf){
+      if (conf == null) return Constants.EMPTY_STR;
+      try {
+        return conf.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR);
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return Constants.EMPTY_STR;
+    }
+    
+    public static String getHostList(ILaunchConfiguration conf){
+      if (conf == null) return Constants.EMPTY_STR;
+      try {
+        return conf.getAttribute(ATTR_HOSTLIST, Constants.EMPTY_STR);
+      } catch (CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return Constants.EMPTY_STR;
+    }
+    
     private static final String OS_NAME_VAR = "os.name"; //$NON-NLS-1$
 
 }

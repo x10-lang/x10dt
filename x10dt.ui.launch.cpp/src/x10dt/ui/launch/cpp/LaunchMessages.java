@@ -597,6 +597,10 @@ public class LaunchMessages extends NLS {
   
   public static String CLCD_LoadLevelerInterrupted;
   
+ public static String CLCD_IOError;
+  
+  public static String CLCD_Interrupted;
+  
   public static String STCP_LoadLevelerText;
   
   public static String VMLT_BrowseBt;

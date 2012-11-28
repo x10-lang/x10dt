@@ -428,7 +428,7 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
   private ITargetOpHelper getTargetOpHelper() {
     try {
       ILaunchConfiguration conf = ConfUtils.getConfiguration(this.fProjectText.getText());
-      final boolean isCygwin = ConfUtils.getTargetOS(conf) == ETargetOS.WINDOWS;
+      final boolean isCygwin = ConfUtils.isCygwin(conf);
       return TargetOpHelperFactory.create(ConfUtils.isLocalConnection(conf), isCygwin, ConfUtils.getConnectionName(conf));
     } catch (CoreException e){
       CppLaunchCore.getInstance().getLog().log(e.getStatus());

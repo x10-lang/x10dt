@@ -466,7 +466,7 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
   private void selectOsAndArchitecture() throws CoreException {
     final ILaunchConfiguration conf = ConfUtils.getConfiguration(this.fProjectName);
     final ITargetOpHelper targetOpHelper = TargetOpHelperFactory.create(ConfUtils.isLocalConnection(conf), 
-                                                                        ConfUtils.getTargetOS(conf) ==  ETargetOS.WINDOWS, 
+                                                                        ConfUtils.isCygwin(conf), 
                                                                         ConfUtils.getConnectionName(conf));
     if (targetOpHelper != null) {
       selectOS(targetOpHelper);
