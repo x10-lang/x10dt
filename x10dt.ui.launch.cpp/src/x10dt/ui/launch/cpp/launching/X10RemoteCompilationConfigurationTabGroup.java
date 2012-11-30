@@ -18,7 +18,7 @@ implements ILaunchConfigurationTabGroup {
     final List<ILaunchConfigurationTab> tabs= new ArrayList<ILaunchConfigurationTab>();
     X10RemoteCompilationApplicationTab tab= new X10RemoteCompilationApplicationTab();
     CompilationTab compTab = new CompilationTab(tab.getProjectName());
-    ConnectionTab connTab = new ConnectionTab(compTab);
+    ConnectionTab connTab = new ConnectionTab();
     tabs.add(tab);
     tabs.add(connTab);
     tabs.add(compTab);

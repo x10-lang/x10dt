@@ -15,12 +15,21 @@ import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstant
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
+import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.remotetools.core.RemoteToolsServices;
+import org.eclipse.ptp.remotetools.environment.EnvironmentPlugin;
+import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
+import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
+import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.remotetools.environment.core.TargetElement;
+import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
 
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.Constants;
@@ -33,6 +42,15 @@ import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_LOCAL;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_X10_DISTRIBUTION;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_REMOTE_OUTPUT_FOLDER;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_CITYPE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_HOST;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_USERNAME;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_PASSWORD_BASED;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PASSPHRASE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PASSWORD;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PORT;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PRIVATE_KEY_FILE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_TIMEOUT;
+import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
@@ -83,8 +101,72 @@ public class ConfUtils {
     public static String getConnectionName(ILaunchConfiguration compilationConf){
     if (compilationConf == null)
       return IRemoteConnectionManager.DEFAULT_CONNECTION_NAME;
-    return compilationConf.getName();
+    String connectionName = compilationConf.getName();
+    if (!isLocalConnection(compilationConf)){
+      final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
+      final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
+      if (rmConnManager.getConnection(connectionName) == null){
+        try {
+          String hostname = compilationConf.getAttribute(ATTR_HOST, Constants.EMPTY_STR);
+          String username = compilationConf.getAttribute(ATTR_USERNAME, Constants.EMPTY_STR);
+          int port = compilationConf.getAttribute(ATTR_PORT, 0);
+          boolean isPasswordBased = compilationConf.getAttribute(ATTR_IS_PASSWORD_BASED, true);
+          String password = compilationConf.getAttribute(ATTR_PASSWORD, Constants.EMPTY_STR);
+          String privateKeyFile = compilationConf.getAttribute(ATTR_PRIVATE_KEY_FILE, Constants.EMPTY_STR);
+          String passphrase = compilationConf.getAttribute(ATTR_PASSPHRASE, Constants.EMPTY_STR);
+          int timeout = compilationConf.getAttribute(ATTR_TIMEOUT, 0);
+          createOrUpdateRemoteConnection(connectionName, hostname, username, port, isPasswordBased, password, privateKeyFile, passphrase, timeout);
+        } catch(CoreException e){
+          CppLaunchCore.getInstance().getLog().log(e.getStatus());
+        }
+      }
     }
+    return connectionName;
+    }
+    
+    
+    public static void createOrUpdateRemoteConnection(String connectionName, String hostname, String username, int port, 
+                                  boolean isPasswordBased, String password, String privateKeyFile, String passphrase, int timeout) throws CoreException {
+      final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
+      final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
+      final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
+
+      ITargetElement targetElement = getDefaultTargetElement(connectionName);
+      if (targetElement == null) {
+        final String id = EnvironmentPlugin.getDefault().getEnvironmentUniqueID();
+        targetElement = new TargetElement(targetTypeElement, connectionName, new HashMap<String, String>(), id);
+        targetTypeElement.addElement((TargetElement) targetElement);
+      } else {
+        if (targetElement.getControl().query() != ITargetStatus.STOPPED) {
+          targetElement.getControl().kill();     
+        }
+      }
+      
+      final ITargetConfig targetConfig = targetElement.getControl().getConfig();
+      targetConfig.setConnectionAddress(hostname);
+      targetConfig.setLoginUsername(username);
+      targetConfig.setConnectionPort(port);
+      targetConfig.setPasswordAuth(isPasswordBased);
+      targetConfig.setLoginPassword(password);
+      targetConfig.setKeyPath(privateKeyFile);
+      targetConfig.setKeyPassphrase(passphrase);
+      targetConfig.setConnectionTimeout(timeout);
+     
+      rmConnManager.getConnections(); // Side effect of creating connection.
+      
+    }
+    
+    
+    private static ITargetElement getDefaultTargetElement(final String connectionName) {
+      final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
+      for (final ITargetElement targetElement : targetTypeElement.getElements()) {
+        if (targetElement.getName().equals(connectionName)) {
+          return targetElement;
+        }
+      }
+      return null;
+    }
+    
     
     public static ETargetOS getTargetOS(ILaunchConfiguration compilationConf){
       if (isLocalConnection(compilationConf)){

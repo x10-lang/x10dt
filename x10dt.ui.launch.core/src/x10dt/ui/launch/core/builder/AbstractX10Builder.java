@@ -143,7 +143,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 
   @SuppressWarnings("rawtypes")
   protected final IProject[] build(final int kind, final Map args, final IProgressMonitor monitor) throws CoreException {
-	final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
+    final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
     messageConsole.clearConsole();
 
     logBuildTypeToConsole(kind, new PrintStream(messageConsole.newMessageStream()));

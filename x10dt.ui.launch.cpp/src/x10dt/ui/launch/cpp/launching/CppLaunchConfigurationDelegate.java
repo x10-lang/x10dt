@@ -154,7 +154,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
         }
       } else if (transport.equals(PAMI_SERVICE_PROVIDER_ID)) {
         env.put(NPLACES_PAMI,(new Integer(NPlaces)).toString());
-        env.put(HOSTLIST_PAMI, ConfUtils.getHostList(configuration));
+        env.put(HOSTLIST_PAMI, ConfUtils.getHostFile(configuration));
       }
       
       final List<String> command = new ArrayList<String>();

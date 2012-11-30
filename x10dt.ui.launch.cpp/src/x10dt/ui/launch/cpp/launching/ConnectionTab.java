@@ -26,17 +26,10 @@ import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.remotetools.core.RemoteToolsServices;
 import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
 import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
-import org.eclipse.ptp.remotetools.environment.EnvironmentPlugin;
-import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
-import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
-import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
-import org.eclipse.ptp.remotetools.environment.core.TargetElement;
-import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
 import org.eclipse.ptp.services.core.IService;
 import org.eclipse.ptp.services.core.IServiceProvider;
 import org.eclipse.ptp.services.core.IServiceProviderDescriptor;
@@ -106,7 +99,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   
   
-  ConnectionTab(IConnectionTypeListener listener) {
+  ConnectionTab() {
     LaunchImages.findOrCreateManaged(LaunchImages.VMS_LOCATION);
     LaunchImages.findOrCreateManaged(LaunchImages.RM_STOPPED);
     LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTED);
@@ -114,7 +107,6 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     LaunchImages.findOrCreateManaged(LaunchImages.RM_ERROR);
     
     DebugPlugin.getDefault().getLaunchManager().addLaunchConfigurationListener(this);
-    this.fListener = listener;
   }
   
   public void launchConfigurationAdded(ILaunchConfiguration configuration) {
@@ -253,32 +245,6 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
    
   }
   
-  private boolean connectionHasChanged(ILaunchConfigurationWorkingCopy configuration){
-    try {
-      if (configuration.getAttribute(ATTR_IS_LOCAL, true) != this.fLocalConnBt.getSelection()) return true;
-      if (! configuration.getAttribute(ATTR_CITYPE, Constants.EMPTY_STR).equals(this.fCITypeComboIndexMap[this.fCITypeCombo.getSelectionIndex()])) return true;
-      if (! this.fLocalConnBt.getSelection()) {
-        if (! configuration.getAttribute(ATTR_HOST, Constants.EMPTY_STR).equals(this.fHostText.getText())) return true;
-        if (! configuration.getAttribute(ATTR_USERNAME, Constants.EMPTY_STR).equals(this.fUserNameText.getText())) return true;
-        if (configuration.getAttribute(ATTR_IS_PASSWORD_BASED, false) != this.fPrivateKeyFileAuthBt.getSelection()) return true;
-        if (this.fPrivateKeyFileAuthBt.getSelection()) {
-          if (! configuration.getAttribute(ATTR_PRIVATE_KEY_FILE, Constants.EMPTY_STR).equals(this.fPrivateKeyFileText.getText())) return true;
-          if (! configuration.getAttribute(ATTR_PASSPHRASE, Constants.EMPTY_STR).equals(this.fPassphraseText.getText())) return true;
-        } else {
-          if (! configuration.getAttribute(ATTR_PASSWORD, Constants.EMPTY_STR).equals(this.fPasswordText.getText())) return true;
-        }
-        
- 
-        if (configuration.getAttribute(ATTR_USE_PORT_FORWARDING, false) != this.fUsePortForwardingBt.getSelection()) return true;
-        if (configuration.getAttribute(ATTR_TIMEOUT, 0) != this.fConnectionTimeoutSpinner.getSelection()) return true;
-        if (! configuration.getAttribute(ATTR_LOCAL_ADDRESS, Constants.EMPTY_STR).equals(this.fLocalAddressText.getText())) return true;
-      }
-    } catch(CoreException e){
-      CppLaunchCore.getInstance().getLog().log(e.getStatus());
-    }
-    return false;
-  }
-
   public String getName() {
     return LaunchMessages.VMLT_TabName;
   }
@@ -775,7 +741,9 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
         IRemoteConnectionManager rmConnManager = null;
         
         if (ConnectionTab.this.fRemoteConnBt.getSelection()) {
-          createOrUpdateRemoteConnection();
+          ConfUtils.createOrUpdateRemoteConnection(this.fLaunchConfigName, this.fHostText.getText(), this.fUserNameText.getText(), 
+              this.fPortText.getSelection(), !this.fPrivateKeyFileAuthBt.getSelection(), this.fPasswordText.getText(), 
+              this.fPrivateKeyFileText.getText(), this.fPassphraseText.getText(), this.fConnectionTimeoutSpinner.getSelection());
           rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
           IRemoteConnection conn = rmConnManager.getConnection(ConnectionTab.this.fLaunchConfigName);
           conn.open(new NullProgressMonitor());
@@ -797,50 +765,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     }
   }
   
-  private ITargetElement getDefaultTargetElement(final String connectionName) {
-    final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
-    for (final ITargetElement targetElement : targetTypeElement.getElements()) {
-      if (targetElement.getName().equals(connectionName)) {
-        return targetElement;
-      }
-    }
-    return null;
-  }
-  
-  public void createOrUpdateRemoteConnection() throws CoreException {
-    final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
-    final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
-    final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
 
-    ITargetElement targetElement = getDefaultTargetElement(this.fLaunchConfigName);
-    if (targetElement == null) {
-      final String id = EnvironmentPlugin.getDefault().getEnvironmentUniqueID();
-      targetElement = new TargetElement(targetTypeElement, this.fLaunchConfigName, new HashMap<String, String>(), id);
-      targetTypeElement.addElement((TargetElement) targetElement);
-    } else {
-      if (targetElement.getControl().query() != ITargetStatus.STOPPED) {
-        targetElement.getControl().kill();     
-      }
-    }
-    
-    updateControlAttributes(targetElement.getControl().getConfig());
-    
-    rmConnManager.getConnections(); // Side effect of creating connection.
-    
-  }
-  
-  
-  private void updateControlAttributes(final ITargetConfig targetConfig) {
-    targetConfig.setConnectionAddress(this.fHostText.getText());
-    targetConfig.setLoginUsername(this.fUserNameText.getText());
-    targetConfig.setConnectionPort(this.fPortText.getSelection());
-    targetConfig.setPasswordAuth(!this.fPrivateKeyFileAuthBt.getSelection());
-    targetConfig.setLoginPassword(this.fPasswordText.getText());
-    targetConfig.setKeyPath(this.fPrivateKeyFileText.getText());
-    targetConfig.setKeyPassphrase(this.fPassphraseText.getText());
-    targetConfig.setConnectionTimeout(this.fConnectionTimeoutSpinner.getSelection());
-  }
-  
   private int getIndexForCIT(String cit){
     for(int i = 0; i < this.fCITypeComboIndexMap.length; i++){
       if (this.fCITypeComboIndexMap[i].equals(cit))
@@ -894,7 +819,5 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   private boolean fRMUpdateRunning;
   
   private Combo fCITypeCombo;
-  
-  private IConnectionTypeListener fListener;
   
 }

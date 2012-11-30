@@ -310,6 +310,8 @@
             name="%debug.app.command">
       </command> -->
    </extension>
+   
+   
    <extension
          point="org.eclipse.ui.popupMenus">
       <objectContribution
@@ -317,8 +319,8 @@
             id="x10dt.ui.launch.cpp.obj.contrib.convert-to-java"
             objectClass="org.eclipse.jdt.core.IJavaProject">
          <action
-               class="x10dt.ui.launch.cpp.actions.ConvertToJavaBackEndAction"
                enablesFor="+"
+               class="x10dt.ui.launch.cpp.actions.ConvertToJavaBackEndAction"
                id="x10dt.ui.launch.cpp.convert-java-back-end"
                label="%convert.java.back-end"
                menubarPath="org.eclipse.ui.projectConfigure/additions">
@@ -330,7 +332,26 @@
             </objectState>
          </visibility>
       </objectContribution>
+      <objectContribution
+            adaptable="false"
+            id="x10dt.ui.launch.cpp.obj.contrib.compiler"
+            objectClass="org.eclipse.jdt.core.IJavaProject">
+         <action
+               enablesFor="+"
+               class="org.eclipse.debug.internal.ui.actions.OpenRunConfigurations"
+               id="x10dt.ui.launch.cpp.compile"
+               label="%compilation.conf"
+               menubarPath="org.eclipse.ui.projectConfigure/additions">
+         </action>
+         <visibility>
+            <objectState
+                  name="projectNature"
+                  value="x10dt.ui.launch.cpp.x10nature">
+            </objectState>
+         </visibility>
+      </objectContribution>
    </extension>
+   
    <extension
          point="x10dt.ui.launch.core.x10ProjectConvert">
       <converter
@@ -338,6 +359,7 @@
             class="x10dt.ui.launch.cpp.actions.CppBackEndProjectConverter">
       </converter>
    </extension>
+   
    <!--
    Disable for now while PTP breakpoint persistency is being addressed.
    <extension
