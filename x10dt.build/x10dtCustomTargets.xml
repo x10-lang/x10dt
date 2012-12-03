@@ -111,7 +111,10 @@
       <iu id="org.eclipse.ptp.services.feature.group" />
       <iu id="org.eclipse.ptp.utils.feature.group" />
       <iu id="org.eclipse.ptp.debug.sdm.feature.group" />
-
+      <iu id="org.eclipse.ptp.rm.jaxb.feature.group"  />
+      <iu id="org.eclipse.ptp.rm.jaxb.contrib.feature.group"  />
+      <iu id="org.eclipse.ptp.rm.lml.feature.group"  />
+    	
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
       <iu id="org.eclipse.imp.analysis.feature.group" />
