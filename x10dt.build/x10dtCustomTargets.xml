@@ -127,10 +127,10 @@
 
     <unzip dest="${build.folder}/dependencies">
       <patternset>
-        <include name="utils_core.jar" />
+        <include name="ptpui.jar" />
       </patternset>
       <fileset dir="${repoBaseLocation}/mirror/plugins">
-        <include name="org.eclipse.ptp.utils.core_*.jar"/>
+        <include name="org.eclipse.ptp.ui*.jar"/>
       </fileset>
     </unzip>
   </target>
