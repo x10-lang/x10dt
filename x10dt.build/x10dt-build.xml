@@ -167,7 +167,7 @@
 
     <antcall target="pre-build" />
     <property name="customTargets" location="x10dtCustomTargets.xml" />
-    <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
+<!--    <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" /> -->
     <antcall target="post-build" />
   </target>
 
