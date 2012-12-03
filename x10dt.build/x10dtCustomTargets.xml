@@ -114,10 +114,7 @@
       <iu id="org.eclipse.ptp.rm.jaxb.feature.group"  />
       <iu id="org.eclipse.ptp.rm.jaxb.contrib.feature.group"  />
       <iu id="org.eclipse.ptp.rm.lml_jaxb.feature.group"  />
-      <iu id="org.eclipse.ptp.rm.lml.core.feature.group"  />
-      <iu id="org.eclipse.ptp.rm.lml.monitor.core.feature.group"  />
-      <iu id="org.eclipse.ptp.rm.lml.monitor.ui.feature.group"  />
-      <iu id="org.eclipse.ptp.rm.lml.ui.feature.group"  />
+      <iu id="org.eclipse.ptp.rm.lml.feature.group"  />
     	
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
