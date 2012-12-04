@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -187,7 +188,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
         this.fPrivateKeyFileText.setText(configuration.getAttribute(ATTR_PRIVATE_KEY_FILE, Constants.EMPTY_STR));
         this.fPassphraseText.setText(configuration.getAttribute(ATTR_PASSPHRASE, Constants.EMPTY_STR));
       } else {
-        final String password = configuration.getAttribute(ATTR_PASSWORD, (String) null);
+        final String password = configuration.getAttribute(ATTR_PASSWORD, Constants.EMPTY_STR);
         if (password != null) {
           this.fPasswordText.setText(password);
         }
@@ -199,9 +200,16 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
       this.fX10DistributionText.setText(configuration.getAttribute(ATTR_X10_DISTRIBUTION, Constants.EMPTY_STR));
       
       this.fLocalConnBt.setSelection(configuration.getAttribute(ATTR_IS_LOCAL, true));
-      this.fLocalConnBt.notifyListeners(SWT.Selection, new Event());
       this.fRemoteConnBt.setSelection(! this.fLocalConnBt.getSelection());
-      this.fRemoteConnBt.notifyListeners(SWT.Selection, new Event());
+      if (this.fRemoteConnBt.getSelection()){
+        for (final Control control : this.fRemoteControls) {
+          control.setEnabled(true);
+        }
+      } else {
+        for (final Control control : this.fRemoteControls) {
+          control.setEnabled(false);
+        }
+      }
     } catch (CoreException except) {
       CppLaunchCore.getInstance().getLog().log(except.getStatus());
     }
@@ -333,6 +341,10 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   // private code
   
+  private void enableRemoteControls(boolean enable){
+    
+  }
+  
   private void createConnectionGroup(final Composite parent) {
     this.fCITypeCombo = createLabelAndCombo(parent, LaunchMessages.RMCP_CITypeLabel);
     
@@ -349,7 +361,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     marginCompo.setLayout(marginGLayout);
     marginCompo.setLayoutData(new GridData(SWT.LEFT, SWT.NONE, true, false));
     
-    final Collection<Control> remoteControls = new ArrayList<Control>();
+    this.fRemoteControls = new ArrayList<Control>();
    
     final Group remoteGroup = new Group(marginCompo, SWT.NONE);
     remoteGroup.setFont(parent.getFont());
@@ -357,7 +369,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     remoteGroup.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 3, 1));
     
     final Button checkButton = createPushButton(remoteGroup, LaunchMessages.VMLT_CheckConnBt, null /* image */);
-    remoteControls.add(checkButton);
+    this.fRemoteControls.add(checkButton);
     
     
     final Composite statusCompo = new Composite(remoteGroup, SWT.NONE);
@@ -365,7 +377,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     statusCompo.setLayout(new GridLayout(2, false));
     statusCompo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false));
       
-    this.fHostText = SWTFormUtils.createLabelAndText(remoteGroup, LaunchMessages.VMLT_HostLabel, remoteControls);
+    this.fHostText = SWTFormUtils.createLabelAndText(remoteGroup, LaunchMessages.VMLT_HostLabel, this.fRemoteControls);
     
     final Composite portCompo = new Composite(remoteGroup, SWT.NONE);
     portCompo.setFont(remoteGroup.getFont());
@@ -376,19 +388,19 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     final Label portLabel = new Label(portCompo, SWT.NONE);
     portLabel.setText(LaunchMessages.VMLT_PortLabel);
     portLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-    remoteControls.add(portLabel);
+    this.fRemoteControls.add(portLabel);
     this.fPortText = new Spinner(portCompo, SWT.SINGLE | SWT.BORDER);
     this.fPortText.setMinimum(0);
     this.fPortText.setSelection(22);
     this.fPortText.setTextLimit(10);
     this.fPortText.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
-    remoteControls.add(this.fPortText);
+    this.fRemoteControls.add(this.fPortText);
     
-    this.fUserNameText = SWTFormUtils.createLabelAndText(remoteGroup, LaunchMessages.VMLT_UserLabel, remoteControls);
+    this.fUserNameText = SWTFormUtils.createLabelAndText(remoteGroup, LaunchMessages.VMLT_UserLabel, this.fRemoteControls);
     
     this.fPasswordBasedAuthBt = createRadioButton(remoteGroup, LaunchMessages.VMLT_PasswordAuthBt);
     this.fPasswordBasedAuthBt.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1));
-    remoteControls.add(this.fPasswordBasedAuthBt);
+    this.fRemoteControls.add(this.fPasswordBasedAuthBt);
     
     final Composite passwordCompo = new Composite(remoteGroup, SWT.NONE);
     passwordCompo.setFont(remoteGroup.getFont());
@@ -399,11 +411,11 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     
     this.fPasswordText = SWTFormUtils.createLabelAndText(passwordCompo, LaunchMessages.VMLT_PasswordLabel,
                                             new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1), 
-                                            SWT.BORDER | SWT.PASSWORD, remoteControls);
+                                            SWT.BORDER | SWT.PASSWORD, this.fRemoteControls);
 
     this.fPrivateKeyFileAuthBt = createRadioButton(remoteGroup, LaunchMessages.VMLT_PublicKeyAutBt);
     this.fPrivateKeyFileAuthBt.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1));
-    remoteControls.add(this.fPrivateKeyFileAuthBt);
+    this.fRemoteControls.add(this.fPrivateKeyFileAuthBt);
     
     final Composite privateKeyCompo = new Composite(remoteGroup, SWT.NONE);
     privateKeyCompo.setFont(remoteGroup.getFont());
@@ -412,19 +424,19 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     privateKeyCompo.setLayout(privateKeyGLayout);
     privateKeyCompo.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1));
     final Pair<Text,Button> pair = SWTFormUtils.createLabelTextAndPushButton(privateKeyCompo, LaunchMessages.VMLT_PrivateKeyFileLabel,
-                                                                LaunchMessages.VMLT_BrowseBt, remoteControls);
+                                                                LaunchMessages.VMLT_BrowseBt, this.fRemoteControls);
     this.fPrivateKeyFileText = pair.first;
     
     this.fPassphraseText = SWTFormUtils.createLabelAndText(privateKeyCompo, LaunchMessages.VMLT_PassphraseLabel,
                                               new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1), 
-                                              SWT.BORDER | SWT.PASSWORD, remoteControls);
+                                              SWT.BORDER | SWT.PASSWORD, this.fRemoteControls);
     
     final Label separator = new Label(remoteGroup, SWT.SEPARATOR | SWT.SHADOW_OUT | SWT.HORIZONTAL);
     separator.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 4, 1));
     
     this.fUsePortForwardingBt = createCheckButton(remoteGroup, LaunchMessages.VMLT_PortFrwdLabel);
     this.fUsePortForwardingBt.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
-    remoteControls.add(this.fUsePortForwardingBt);
+    this.fRemoteControls.add(this.fUsePortForwardingBt);
     
     final Label timeoutLabel = new Label(remoteGroup, SWT.NONE);
     timeoutLabel.setText(LaunchMessages.VMLT_TimeoutLabel);
@@ -433,25 +445,25 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     this.fConnectionTimeoutSpinner.setMinimum(0);
     this.fConnectionTimeoutSpinner.setTextLimit(5);
     this.fConnectionTimeoutSpinner.setLayoutData(new GridData(SWT.FILL, SWT.NONE, false, false));
-    remoteControls.add(this.fConnectionTimeoutSpinner);
+    this.fRemoteControls.add(this.fConnectionTimeoutSpinner);
     
     this.fLocalAddressText = SWTFormUtils.createLabelAndText(remoteGroup, LaunchMessages.VMLT_LocalAddressLabel, 1, SWT.NONE);
-    remoteControls.add(this.fLocalAddressText);
+    this.fRemoteControls.add(this.fLocalAddressText);
     
     final Pair<Text,Button> pair2 = SWTFormUtils.createLabelTextAndPushButton(marginCompo, LaunchMessages.VMLT_RemoteOutputFolder, 
                                                                  LaunchMessages.VMLT_BrowseBt,
                                                                  new GridData(SWT.FILL, SWT.NONE, true, false, 3, 1),
-                                                                 remoteControls);
+                                                                 this.fRemoteControls);
     this.fRemoteOutputFolderText = pair2.first;
     this.fBrowseBts[0] = pair2.second;
     
     final Pair<Text,Button> pair3 = SWTFormUtils.createLabelTextAndPushButton(marginCompo, LaunchMessages.VMLT_X10Dist, LaunchMessages.VMLT_BrowseBt,
                                                                  new GridData(SWT.FILL, SWT.NONE, true, false, 3, 1),
-                                                                 remoteControls);
+                                                                 this.fRemoteControls);
     this.fX10DistributionText = pair3.first;
     this.fBrowseBts[1] = pair3.second;
     
-    addConnectionWidgetsListeners(remoteControls, pair.second, pair2.second, pair3.second, checkButton);
+    addConnectionWidgetsListeners(this.fRemoteControls, pair.second, pair2.second, pair3.second, checkButton);
     
     this.fLocalConnBt.setSelection(true);
     this.fLocalConnBt.notifyListeners(SWT.Selection, new Event());
@@ -784,9 +796,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   private Button fRemoteConnBt;
   
-  //private CLabel fStatusLabel;
-  
-  //private Label fConnLabel;
+  private Collection<Control> fRemoteControls;
   
   private Text fHostText;
   

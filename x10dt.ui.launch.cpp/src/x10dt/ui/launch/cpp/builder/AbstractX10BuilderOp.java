@@ -13,7 +13,6 @@ import static x10dt.ui.launch.core.Constants.CPP_EXT;
 import static x10dt.ui.launch.core.Constants.CXX_EXT;
 import static x10dt.ui.launch.core.Constants.EXEC_PATH;
 import static x10dt.ui.launch.core.Constants.O_EXT;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
 
 import java.io.File;
 import java.io.IOException;
@@ -49,7 +48,6 @@ import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.core.utils.UIUtils;
@@ -59,7 +57,6 @@ import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.launching.ConfUtils;
-import x10dt.ui.launch.cpp.launching.DefaultCPPCommandsFactory;
 import x10dt.ui.launch.cpp.launching.IDefaultCPPCommands;
 
 
@@ -80,7 +77,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fWorkspaceDir = workspaceDir;
     this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
     final boolean isCygwin = ConfUtils.isCygwin(this.fCompilationConf);
-    this.fCppCommands = DefaultCPPCommandsFactory.create(project);
+    this.fCppCommands = ConfUtils.getCPPCompilationCommands(project, this.fCompilationConf);
     this.fTargetOpHelper = TargetOpHelperFactory.create(this.fIsLocal, isCygwin, ConfUtils.getConnectionName(this.fCompilationConf));
     if (this.fTargetOpHelper == null) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoValidConnectionError));
@@ -97,7 +94,7 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fCompilationConf = ConfUtils.getConfiguration(project);
     this.fConfName = this.fCompilationConf != null ? this.fCompilationConf.getName() : "'Default'";
     this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
-    this.fCppCommands = DefaultCPPCommandsFactory.create(project);
+    this.fCppCommands = ConfUtils.getCPPCompilationCommands(project, this.fCompilationConf);
     this.fTargetOpHelper = targetOpHelper;
     this.fGeneratedFiles = generatedFiles;
   }

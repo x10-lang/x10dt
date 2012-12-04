@@ -84,15 +84,6 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
   protected abstract void setLaunchConfigurationAttributes(final ILaunchConfigurationWorkingCopy workingCopy,
                                                            final ITypeInfo type) throws CoreException;
   
-  /**
-   * Responsible for making sure the launch configuration's attributes are in sync with the platform configuration
-   * or any other project-level settings.
-   * 
-   * @param launchConfigWC The current launch configuration working copy.
-   * @throws CoreException Occurs if we were unable to retrieve some attribute value.
-   */
-  protected abstract void updateLaunchConfig(final ILaunchConfigurationWorkingCopy launchConfigWC) throws CoreException;
-  
   // --- Interface methods implementation
 
   public final void launch(final ISelection selection, final String mode) {
@@ -160,12 +151,12 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
     }
   }
   
-  @SuppressWarnings("deprecation")
+  
   // We will need to use the new method "generateLaunchConfigurationName" once Galileo won't be supported anymore by X10DT.
   private ILaunchConfiguration createConfiguration(final ITypeInfo typeInfo) {
     final ILaunchConfigurationType launchConfType = getConfigurationType();
     final String namePrefix = typeInfo.getName();
-    final String confName = DebugPlugin.getDefault().getLaunchManager().generateUniqueLaunchConfigurationNameFrom(namePrefix);
+    final String confName = DebugPlugin.getDefault().getLaunchManager().generateLaunchConfigurationName(namePrefix);
     try {
       final ILaunchConfigurationWorkingCopy workingCopy = launchConfType.newInstance(null, confName);
       setLaunchConfigurationAttributes(workingCopy, typeInfo);
@@ -187,9 +178,6 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       for (final ILaunchConfiguration config : configs) {
         if (launchConfigMatches(config, typeName, projectName)) {
           final ILaunchConfigurationWorkingCopy launchConfigWC = config.getWorkingCopy();
-          // Possibly the launch configuration needs to be updated with information from the X10 platform configuration.
-          updateLaunchConfig(launchConfigWC);
-          
           candidateConfigs.add(launchConfigWC);
         }
       }

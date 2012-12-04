@@ -100,6 +100,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     
     new Label(placesCompo, SWT.NONE).setText(Messages.SRMLCDT_PlacesNumber);
     this.fNumPlacesSpinner = new Spinner(placesCompo, SWT.BORDER);
+    this.fNumPlacesSpinner.setSelection(DEFAULT_NUM_PLACES);
     this.fNumPlacesSpinner.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {

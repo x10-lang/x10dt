@@ -304,6 +304,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
 
       final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
+      messageConsole.clearConsole();
       final StringBuilder cmdBuilder = new StringBuilder();
       for (final String str : command) {
         cmdBuilder.append(str).append(' ');

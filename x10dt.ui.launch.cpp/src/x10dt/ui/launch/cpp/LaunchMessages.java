@@ -670,6 +670,8 @@ public class LaunchMessages extends NLS {
   public static String VMLT_IncorrectConnection;
   
   public static String VMLT_Interrupted;
+  
+  public static String VMLT_DefaultsBt;
 
   public static String VMLT_CompilationTabName;
   

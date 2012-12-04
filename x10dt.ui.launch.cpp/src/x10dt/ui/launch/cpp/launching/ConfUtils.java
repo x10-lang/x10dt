@@ -1,17 +1,35 @@
 package x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_LOADLEVELER_SCRIPT;
+import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
+import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_LIST;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_ARCHIVER;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_ARCHIVER_OPTS;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_COMPILER;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_COMPILER_OPTS;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_LINKER;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_LINKER_LIBS;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_LINKER_OPTS;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_CITYPE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_HOST;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_LOCAL;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_PASSWORD_BASED;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PASSPHRASE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PASSWORD;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PORT;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PRIVATE_KEY_FILE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_REMOTE_OUTPUT_FOLDER;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_TIMEOUT;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_USERNAME;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_X10_DISTRIBUTION;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTFILE;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTLIST;
-
-
-
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_LOADLEVELER_SCRIPT;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
+import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,24 +54,8 @@ import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
-import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_LOCAL;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_X10_DISTRIBUTION;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_REMOTE_OUTPUT_FOLDER;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_CITYPE;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_HOST;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_USERNAME;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_PASSWORD_BASED;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PASSPHRASE;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PASSWORD;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PORT;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_PRIVATE_KEY_FILE;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_TIMEOUT;
-import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
-
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
+import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 public class ConfUtils {
@@ -227,6 +229,86 @@ public class ConfUtils {
       
       return false;
     }
+    
+    
+    public static IDefaultCPPCommands getCPPCompilationCommands(String project, final ILaunchConfiguration compilationConf){
+      try {
+        if (compilationConf == null){
+          return DefaultCPPCommandsFactory.create(project);
+        }
+        return new IDefaultCPPCommands() {
+
+          public String getArchiver() {
+            try {
+              return compilationConf.getAttribute(ATTR_ARCHIVER, Constants.EMPTY_STR);
+            } catch (CoreException e){
+              CppLaunchCore.getInstance().getLog().log(e.getStatus());
+            }
+            return Constants.EMPTY_STR;
+          }
+
+          public String getArchivingOpts() {
+            try {
+              return compilationConf.getAttribute(ATTR_ARCHIVER_OPTS, Constants.EMPTY_STR);
+            } catch (CoreException e){
+              CppLaunchCore.getInstance().getLog().log(e.getStatus());
+            }
+            return Constants.EMPTY_STR;
+          }
+
+          public String getCompiler() {
+            try {
+              return compilationConf.getAttribute(ATTR_COMPILER, Constants.EMPTY_STR);
+            } catch (CoreException e){
+              CppLaunchCore.getInstance().getLog().log(e.getStatus());
+            }
+            return Constants.EMPTY_STR;
+          }
+
+          public String getCompilerOptions() {
+            try {
+              return compilationConf.getAttribute(ATTR_COMPILER_OPTS, Constants.EMPTY_STR);
+            } catch (CoreException e){
+              CppLaunchCore.getInstance().getLog().log(e.getStatus());
+            }
+            return Constants.EMPTY_STR;
+          }
+
+          public String getLinker() {
+            try {
+              return compilationConf.getAttribute(ATTR_LINKER, Constants.EMPTY_STR);
+            } catch (CoreException e){
+              CppLaunchCore.getInstance().getLog().log(e.getStatus());
+            }
+            return Constants.EMPTY_STR;
+          }
+
+          public String getLinkingLibraries() {
+            try {
+              return compilationConf.getAttribute(ATTR_LINKER_LIBS, Constants.EMPTY_STR);
+            } catch (CoreException e){
+              CppLaunchCore.getInstance().getLog().log(e.getStatus());
+            }
+            return Constants.EMPTY_STR;
+          }
+
+          public String getLinkingOptions() {
+            try {
+              return compilationConf.getAttribute(ATTR_LINKER_OPTS, Constants.EMPTY_STR);
+            } catch (CoreException e){
+              CppLaunchCore.getInstance().getLog().log(e.getStatus());
+            }
+            return Constants.EMPTY_STR;
+          }
+          
+        };
+      } catch(CoreException e){
+        CppLaunchCore.getInstance().getLog().log(e.getStatus());
+      }
+      return null;
+    }
+    
+    
     
     public static boolean isValid(ILaunchConfiguration compilationConf){
       if (compilationConf == null) return true;

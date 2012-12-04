@@ -61,6 +61,10 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
   
   public static final String ATTR_LINKER = CppLaunchCore.PLUGIN_ID + ".comp.linker"; //$NON-NLS-1$
   
+  public static final String ATTR_LINKER_OPTS = CppLaunchCore.PLUGIN_ID + ".comp.linker.opts"; //$NON-NLS-1$
+  
+  public static final String ATTR_LINKER_LIBS = CppLaunchCore.PLUGIN_ID + ".comp.linker.libs"; //$NON-NLS-1$
+  
   public static final String ATTR_OS = CppLaunchCore.PLUGIN_ID + ".comp.os"; //$NON-NLS-1$
   
   
@@ -121,6 +125,12 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     sectionClient.setLayout(new TableWrapLayout());
     sectionClient.setFont(parent.getFont());
     sectionClient.setLayoutData(new TableWrapData(TableWrapData.LEFT));
+    
+    final Button defaultsBt = createPushButton(sectionClient, LaunchMessages.VMLT_DefaultsBt, null /* image */);
+    defaultsBt.setFont(parent.getFont());
+    defaultsBt.setText(LaunchMessages.VMLT_DefaultsBt);
+    defaultsBt.setLayoutData(new TableWrapData(TableWrapData.LEFT));
+   
     
     final Composite osComposite = new Composite(sectionClient, SWT.NONE);
     osComposite.setFont(sectionClient.getFont());
@@ -219,7 +229,7 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
       CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
     
-    addListeners(this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
+    addListeners(defaultsBt, this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
                  this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, this.fOSCombo,
                  this.fArchCombo);
 
@@ -256,7 +266,29 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     CppLaunchImages.findOrCreateManaged(CppLaunchImages.PLACES_HOSTS);
     try {
       this.fProjectName = configuration.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR);
-      selectOsAndArchitecture();
+      
+      int archIndex = 0;
+      for (final EArchitecture arch : EArchitecture.values()) {
+        this.fArchCombo.add(arch.name());
+        this.fArchCombo.setData(arch.name(), arch);
+        this.fArchIndexMap[archIndex++] = arch.name();
+      }
+      setArchitecture(getArch(configuration.getAttribute(ATTR_ARCHITECTURE, Constants.EMPTY_STR)), 
+                      getBits(configuration.getAttribute(ATTR_BITS_ARCH, true)));
+      
+      for (final ETargetOS targetOs : ETargetOS.values()) {
+        this.fOSCombo.add(targetOs.name());
+        this.fOSCombo.setData(targetOs.name(), targetOs);
+      }
+      setOS(getOS(configuration.getAttribute(ATTR_OS, Constants.EMPTY_STR)));
+      
+      this.fArchiverText.setText(configuration.getAttribute(ATTR_ARCHIVER, Constants.EMPTY_STR));
+      this.fArchivingOptsText.setText(configuration.getAttribute(ATTR_ARCHIVER_OPTS, Constants.EMPTY_STR));
+      this.fCompilerText.setText(configuration.getAttribute(ATTR_COMPILER, Constants.EMPTY_STR));
+      this.fCompilingOptsText.setText(configuration.getAttribute(ATTR_COMPILER_OPTS, Constants.EMPTY_STR));
+      this.fLinkerText.setText(configuration.getAttribute(ATTR_LINKER, Constants.EMPTY_STR));
+      this.fLinkingOptsText.setText(configuration.getAttribute(ATTR_LINKER_OPTS, Constants.EMPTY_STR));
+      this.fLinkingLibsText.setText(configuration.getAttribute(ATTR_LINKER_LIBS, Constants.EMPTY_STR));
     } catch (CoreException e){
       CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
@@ -270,6 +302,8 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     configuration.setAttribute(ATTR_COMPILER, this.fCompilerText.getText());
     configuration.setAttribute(ATTR_COMPILER_OPTS, this.fCompilingOptsText.getText());
     configuration.setAttribute(ATTR_LINKER, this.fLinkerText.getText());
+    configuration.setAttribute(ATTR_LINKER_OPTS, this.fLinkingOptsText.getText());
+    configuration.setAttribute(ATTR_LINKER_LIBS, this.fLinkingLibsText.getText());
     configuration.setAttribute(ATTR_OS, this.fOSIndexMap[this.fOSCombo.getSelectionIndex()]);
   }
 
@@ -289,9 +323,28 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     }
   }
   
-  private void addListeners(final Text compilerText, final Text compilingOptsText, final Text archiverText,
+  private void addListeners(final Button defaultsBt, final Text compilerText, final Text compilingOptsText, final Text archiverText,
       final Text archivingOptsText, final Text linkerText, final Text linkingOptsText, final Text linkingLibsText, final Button bitsArchBt,
       final Combo osCombo, final Combo archCombo) {
+    
+    defaultsBt.addSelectionListener(new SelectionListener() {
+
+      public void widgetSelected(final SelectionEvent event) {
+        try {
+        selectOsAndArchitecture();
+        } catch (CoreException e){
+          CppLaunchCore.getInstance().getLog().log(e.getStatus());
+        }
+        updateLaunchConfigurationDialog();
+       
+      }
+
+      public void widgetDefaultSelected(final SelectionEvent event) {
+        widgetSelected(event);
+      }
+
+    });
+    
     compilerText.addModifyListener(new ModifyListener() {
       public void modifyText(final ModifyEvent event) {
         updateLaunchConfigurationDialog();
@@ -429,37 +482,69 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     return combo;
   }
   
-  private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
-    final Pair<EArchitecture, EBitsArchitecture> pair = PlatformConfUtils.detectArchitecture(targetOpHelper);
-    if (pair != null) {
-      this.fBitsArchBt.setSelection(pair.second == EBitsArchitecture.E64Arch);
-      
-      if (pair.first != null) {
-        int index = -1;
-        for (final String archName : this.fArchCombo.getItems()) {
-          ++index;
-          final EArchitecture curArch = (EArchitecture) this.fArchCombo.getData(archName);
-          if (curArch == pair.first) {
-            this.fArchCombo.select(index);
-            break;
-          }
+  private EBitsArchitecture getBits(boolean is64){
+    if (is64) return EBitsArchitecture.E64Arch;
+    return EBitsArchitecture.E32Arch;
+  }
+  
+  
+  private EArchitecture getArch(String archString){
+    for (final EArchitecture arch : EArchitecture.values()) {
+      if (arch.name().equals(archString)){
+        return arch;
+      }
+    }
+    return null;
+  }
+  
+  private void setArchitecture(EArchitecture arch, EBitsArchitecture bitsArch){
+    this.fBitsArchBt.setSelection(bitsArch == EBitsArchitecture.E64Arch);
+    
+    if (arch != null) {
+      int index = -1;
+      for (final String archName : this.fArchCombo.getItems()) {
+        ++index;
+        final EArchitecture curArch = (EArchitecture) this.fArchCombo.getData(archName);
+        if (curArch == arch) {
+          this.fArchCombo.select(index);
+          break;
         }
       }
     }
   }
   
+  private void selectArchitecture(final ITargetOpHelper targetOpHelper) {
+    final Pair<EArchitecture, EBitsArchitecture> pair = PlatformConfUtils.detectArchitecture(targetOpHelper);
+    if (pair != null) {
+      setArchitecture(pair.first, pair.second);
+    }
+  }
+  
+  private void setOS(ETargetOS os){
+    int index = -1;
+    for (final String osName : this.fOSCombo.getItems()) {
+      ++index;
+      final ETargetOS targetOS = (ETargetOS) this.fOSCombo.getData(osName);
+      if (os == targetOS) {
+        this.fOSCombo.select(index);
+        break;
+      }
+    }
+  }
+  
+  private ETargetOS getOS(String osString){
+    for (final ETargetOS os : ETargetOS.values()) {
+      if (os.name().equals(osString)){
+        return os;
+      }
+    }
+    return null;
+  }
+  
   private void selectOS(final ITargetOpHelper targetOpHelper) {
     final ETargetOS detectedOS = PlatformConfUtils.detectOS(targetOpHelper);
     if (detectedOS != null) {
-      int index = -1;
-      for (final String osName : this.fOSCombo.getItems()) {
-        ++index;
-        final ETargetOS targetOS = (ETargetOS) this.fOSCombo.getData(osName);
-        if (detectedOS == targetOS) {
-          this.fOSCombo.select(index);
-          break;
-        }
-      }
+      setOS(detectedOS);
     }
   }
   
