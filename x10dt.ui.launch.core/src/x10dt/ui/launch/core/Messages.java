@@ -61,7 +61,6 @@ public class Messages extends NLS {
   public static String JPU_ResourceErrorMsg;
   public static String JPU_UnexpectedEntryKindMsg;
   public static String RIS_StreamClosed;
-  public static String XB_NoPlatformConfError;
   public static String XBU_ArchNameNotInEnum;
   public static String XBU_NoCheckerForLanguage;
   public static String XEQ_InternalCompilerErrorMsg;

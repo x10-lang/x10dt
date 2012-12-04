@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -230,9 +229,9 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
 
   public void performApply(ILaunchConfigurationWorkingCopy configuration) {
-   
     configuration.setAttribute(ATTR_IS_LOCAL, this.fLocalConnBt.getSelection());
     configuration.setAttribute(ATTR_CITYPE, this.fCITypeComboIndexMap[this.fCITypeCombo.getSelectionIndex()]);
+    
     if (! this.fLocalConnBt.getSelection()) {
       configuration.setAttribute(ATTR_HOST, this.fHostText.getText());
       configuration.setAttribute(ATTR_PORT, this.fPortText.getSelection());
@@ -250,7 +249,6 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
       configuration.setAttribute(ATTR_REMOTE_OUTPUT_FOLDER, this.fRemoteOutputFolderText.getText());
       configuration.setAttribute(ATTR_X10_DISTRIBUTION, this.fX10DistributionText.getText());
     }
-   
   }
   
   public String getName() {
@@ -340,10 +338,6 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   
   // private code
-  
-  private void enableRemoteControls(boolean enable){
-    
-  }
   
   private void createConnectionGroup(final Composite parent) {
     this.fCITypeCombo = createLabelAndCombo(parent, LaunchMessages.RMCP_CITypeLabel);
@@ -566,7 +560,6 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
           outputFolderBrowseBt.setEnabled(false);
           updateConnection();
           updateLaunchConfigurationDialog();
-         
         }
       }
 
@@ -584,7 +577,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
           }
           browseFileButton.setEnabled(true);
           outputFolderBrowseBt.setEnabled(false);
-          updateConnection();
+          x10DistFolderBrowseBt.setEnabled(false);
           updateLaunchConfigurationDialog();
         }
       }

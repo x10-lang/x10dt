@@ -127,8 +127,8 @@
    <extension
 	     point="org.eclipse.debug.core.launchDelegates">
 	  <launchDelegate
-			id="x10dt.ui.cpp.laun.X10RemoteCompilationConfigurationDelegate"
-			delegate="x10dt.ui.launch.cpp.launching.CppLaunchConfigurationDelegate"
+			id="x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationDelegate"
+			delegate="x10dt.ui.launch.cpp.launching.X10RemoteCompilationConfigurationDelegate"
 			type="x10dt.ui.cpp.launch.X10RemoteCompilationConfigurationType"
 			modes="run"
 			sourcePathComputerId="org.eclipse.ptp.debug.core.sourcePathComputer">

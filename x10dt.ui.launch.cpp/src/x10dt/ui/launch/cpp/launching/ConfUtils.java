@@ -5,6 +5,7 @@ import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_LIST;
 import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_ARCHIVER;
+import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_DEFAULTS;
 import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_ARCHIVER_OPTS;
 import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_COMPILER;
 import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_COMPILER_OPTS;
@@ -236,6 +237,16 @@ public class ConfUtils {
         if (compilationConf == null){
           return DefaultCPPCommandsFactory.create(project);
         }
+        
+        try {
+          if(compilationConf.getAttribute(ATTR_DEFAULTS, true)){
+            return DefaultCPPCommandsFactory.create(project);
+          }
+          
+        } catch (CoreException e){
+          CppLaunchCore.getInstance().getLog().log(e.getStatus());
+        }
+        
         return new IDefaultCPPCommands() {
 
           public String getArchiver() {

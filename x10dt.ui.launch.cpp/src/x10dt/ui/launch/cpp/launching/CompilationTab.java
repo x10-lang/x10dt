@@ -43,9 +43,9 @@ import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
-public class CompilationTab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab, ILaunchConfigurationListener,
-                                                    IConnectionTypeListener {
+public class CompilationTab extends AbstractLaunchConfigurationTab implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
+  public static final String ATTR_DEFAULTS = CppLaunchCore.PLUGIN_ID + ".defaults"; //$NON-NLS-1$
   
   public static final String ATTR_ARCHITECTURE= CppLaunchCore.PLUGIN_ID + ".comp.architecture"; //$NON-NLS-1$
   
@@ -85,24 +85,6 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     // Nothing to do
   }
 
-  // --- IConnectionTypeListener's interface methods implementation
-  
-  public void connectionChanged() {
-   
-    if (this.fOSCombo == null)
-      return;
-    if (!this.fOSCombo.isEnabled()) {
-      for (final Control control : this.fControlsAffectedByCIType) {
-        control.setEnabled(true);
-      }
-    }
-    try {
-      selectOsAndArchitecture();
-    } catch (CoreException e) {
-      CppLaunchCore.getInstance().getLog().log(e.getStatus());
-    }
-  }
-  
  
   public void createControl(Composite parent) {
     final ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.V_SCROLL);
@@ -126,10 +108,10 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     sectionClient.setFont(parent.getFont());
     sectionClient.setLayoutData(new TableWrapData(TableWrapData.LEFT));
     
-    final Button defaultsBt = createPushButton(sectionClient, LaunchMessages.VMLT_DefaultsBt, null /* image */);
-    defaultsBt.setFont(parent.getFont());
-    defaultsBt.setText(LaunchMessages.VMLT_DefaultsBt);
-    defaultsBt.setLayoutData(new TableWrapData(TableWrapData.LEFT));
+    this.fDefaultsBt = new Button(sectionClient, SWT.CHECK);
+    this.fDefaultsBt.setFont(parent.getFont());
+    this.fDefaultsBt.setText(LaunchMessages.VMLT_DefaultsBt);
+    this.fDefaultsBt.setLayoutData(new TableWrapData(TableWrapData.LEFT));
    
     
     final Composite osComposite = new Composite(sectionClient, SWT.NONE);
@@ -223,13 +205,17 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
 
     this.fLinkingLibsText = createLabelAndText(linkingGroup, LaunchMessages.XPCP_LinkingLibsLabel, 3, SWT.NONE);
     this.fControlsAffectedByCIType.add(this.fLinkingLibsText);
+    
+    //initialization
     try {
+      this.fDefaultsBt.setSelection(true);
+      enableCompilationControls(false);
       selectOsAndArchitecture();
     } catch (CoreException e){
       CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
     
-    addListeners(defaultsBt, this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
+    addListeners(this.fDefaultsBt, this.fCompilerText, this.fCompilingOptsText, this.fArchiverText, this.fArchivingOptsText, 
                  this.fLinkerText, this.fLinkingOptsText, this.fLinkingLibsText, this.fBitsArchBt, this.fOSCombo,
                  this.fArchCombo);
 
@@ -267,6 +253,13 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     try {
       this.fProjectName = configuration.getAttribute(ATTR_PROJECT_NAME, Constants.EMPTY_STR);
       
+      this.fDefaultsBt.setSelection(configuration.getAttribute(ATTR_DEFAULTS, true));
+      if (this.fDefaultsBt.getSelection()){
+        selectOsAndArchitecture();
+        enableCompilationControls(false);
+        return;
+      }
+      
       int archIndex = 0;
       for (final EArchitecture arch : EArchitecture.values()) {
         this.fArchCombo.add(arch.name());
@@ -289,12 +282,14 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
       this.fLinkerText.setText(configuration.getAttribute(ATTR_LINKER, Constants.EMPTY_STR));
       this.fLinkingOptsText.setText(configuration.getAttribute(ATTR_LINKER_OPTS, Constants.EMPTY_STR));
       this.fLinkingLibsText.setText(configuration.getAttribute(ATTR_LINKER_LIBS, Constants.EMPTY_STR));
+      enableCompilationControls(true);
     } catch (CoreException e){
       CppLaunchCore.getInstance().getLog().log(e.getStatus());
     }
   }
 
   public void performApply(ILaunchConfigurationWorkingCopy configuration) {
+    configuration.setAttribute(ATTR_DEFAULTS, this.fDefaultsBt.getSelection());
     configuration.setAttribute(ATTR_ARCHITECTURE, this.fArchIndexMap[this.fArchCombo.getSelectionIndex()]);
     configuration.setAttribute(ATTR_ARCHIVER, this.fArchiverText.getText());
     configuration.setAttribute(ATTR_ARCHIVER_OPTS, this.fArchivingOptsText.getText());
@@ -323,6 +318,12 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
     }
   }
   
+  private void enableCompilationControls(boolean enable){
+    for (Control control: this.fControlsAffectedByCIType) {
+      control.setEnabled(enable);
+    }
+  }
+  
   private void addListeners(final Button defaultsBt, final Text compilerText, final Text compilingOptsText, final Text archiverText,
       final Text archivingOptsText, final Text linkerText, final Text linkingOptsText, final Text linkingLibsText, final Button bitsArchBt,
       final Combo osCombo, final Combo archCombo) {
@@ -331,7 +332,12 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
 
       public void widgetSelected(final SelectionEvent event) {
         try {
-        selectOsAndArchitecture();
+          if (CompilationTab.this.fDefaultsBt.getSelection()){
+            selectOsAndArchitecture();
+            enableCompilationControls(false);
+          } else {
+            enableCompilationControls(true);
+          }
         } catch (CoreException e){
           CppLaunchCore.getInstance().getLog().log(e.getStatus());
         }
@@ -687,6 +693,8 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
   // Fields
   
   private String fProjectName;
+  
+  private Button fDefaultsBt;
    
   private Combo fOSCombo;
   

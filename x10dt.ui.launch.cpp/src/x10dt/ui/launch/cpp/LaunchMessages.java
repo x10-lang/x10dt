@@ -675,6 +675,8 @@ public class LaunchMessages extends NLS {
 
   public static String VMLT_CompilationTabName;
   
+  public static String VMLT_ConnectionChanged;
+  
   public static String PCU_GetConf;
   
   // --- Private code
