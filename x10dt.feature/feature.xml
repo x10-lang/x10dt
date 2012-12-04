@@ -89,6 +89,22 @@
          id="org.eclipse.cdt"
          version="0.0.0"/>
 
+   <includes
+         id="org.eclipse.ptp.rm.jaxb"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.jaxb.contrib"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.lml"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.ptp.rm.lml_jaxb"
+         version="0.0.0"/>
+
    <plugin
          id="x10.compiler"
          download-size="0"
