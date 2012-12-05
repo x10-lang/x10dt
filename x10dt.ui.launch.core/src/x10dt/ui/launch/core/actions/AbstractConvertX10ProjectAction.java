@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.imp.utils.ExtensionException;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -81,7 +80,7 @@ public abstract class AbstractConvertX10ProjectAction implements IObjectActionDe
           converter.preProjectSetup(this.fShellProvider, project);
         
           final String[] natureIds = new String[] { 
-            converter.getProjectNatureId(), SmapiProjectNature.k_natureID, JavaCore.NATURE_ID
+            converter.getProjectNatureId(), JavaCore.NATURE_ID    
           };
           newDescr.setNatureIds(natureIds);
 

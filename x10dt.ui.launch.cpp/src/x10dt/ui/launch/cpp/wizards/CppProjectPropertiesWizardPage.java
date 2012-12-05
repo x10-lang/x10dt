@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.model.ModelFactory;
 import org.eclipse.imp.model.ModelFactory.ModelException;
-import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -142,7 +141,7 @@ final class CppProjectPropertiesWizardPage extends JavaCapabilityConfigurationPa
     try {
       final IProjectDescription description = this.fCurrProject.getDescription();
       final String[] natureIds = new String[] { 
-        X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID, SmapiProjectNature.k_natureID, JavaCore.NATURE_ID
+        X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID,  JavaCore.NATURE_ID
       };
       description.setNatureIds(natureIds);
       this.fCurrProject.setDescription(description, monitor);

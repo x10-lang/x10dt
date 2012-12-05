@@ -242,12 +242,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
           setErrorMessage(NLS.bind(LaunchMessages.CAT_ClosedProject, projectName));
           return false;
         }
-        // Project exists and is not closed. Checks now that it does not have platform configuration error.
-        final int errorCount = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-        if (errorCount > 0) {
-          setErrorMessage(NLS.bind(LaunchMessages.CAT_FixPlatformConfErrors, project.getName()));
-          return false;
-        }
         // Checks now if we have a correct main type file path.
         if (this.fMainTypeText.getText().trim().length() == 0) {
           setErrorMessage(LaunchMessages.CAT_RequiredMainTypeName);

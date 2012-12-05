@@ -77,11 +77,11 @@ abstract class AbstractX10BuilderOp implements IX10BuilderFileOp {
     this.fWorkspaceDir = workspaceDir;
     this.fIsLocal = ConfUtils.isLocalConnection(this.fCompilationConf);
     final boolean isCygwin = ConfUtils.isCygwin(this.fCompilationConf);
-    this.fCppCommands = ConfUtils.getCPPCompilationCommands(project, this.fCompilationConf);
     this.fTargetOpHelper = TargetOpHelperFactory.create(this.fIsLocal, isCygwin, ConfUtils.getConnectionName(this.fCompilationConf));
     if (this.fTargetOpHelper == null) {
       throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, Messages.CPPB_NoValidConnectionError));
     }
+    this.fCppCommands = ConfUtils.getCPPCompilationCommands(project, this.fCompilationConf);
     this.fGeneratedFiles = generatedFiles;
   }
   

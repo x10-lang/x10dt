@@ -89,7 +89,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
       BasicNewProjectResourceWizard.updatePerspective(this.fConfigElement);
       
-      createPlatformConfFile(new SubProgressMonitor(monitor, 5));
+     // createPlatformConfFile(new SubProgressMonitor(monitor, 5));
     } catch (Exception except) {
       // Something wrong happened, we can cancel the project creation and propagates the error.
       try {
@@ -139,7 +139,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
 
   // --- Private code
   
-  private void createPlatformConfFile(final IProgressMonitor monitor) throws CoreException {
+ /* private void createPlatformConfFile(final IProgressMonitor monitor) throws CoreException {
     try {
       final IFile platformConfFile = X10PlatformConfFactory.getFile(this.fSecondPage.getJavaProject().getProject());
       
@@ -152,7 +152,7 @@ public class CppProjectWizard extends Wizard implements INewWizard, IExecutableE
     } finally {
       monitor.done();
     }
-  }
+  }*/
 
   private IWorkbenchPage getActivePage() {
     final IWorkbenchWindow activeWindow = this.fWorkbench.getActiveWorkbenchWindow();

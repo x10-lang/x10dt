@@ -110,6 +110,7 @@ public class X10PluginImages {
 	
 	public static final String IMG_OBJS_CUNIT= NAME_PREFIX + "jcu_obj.gif"; 				//$NON-NLS-1$
 	public static final String IMG_OBJS_CUNIT_RESOURCE= NAME_PREFIX + "compilationUnitNormal.gif"; 				//$NON-NLS-1$
+	public static final String IMG_OBJS_PROJECT= NAME_PREFIX + "projectNormal.gif"; 				//$NON-NLS-1$
 	public static final String IMG_OBJS_CFILE= NAME_PREFIX + "classf_obj.gif";  			//$NON-NLS-1$
 	public static final String IMG_OBJS_CFILECLASS= NAME_PREFIX + "class_obj.gif";  		//$NON-NLS-1$
 	public static final String IMG_OBJS_CFILEINT= NAME_PREFIX + "int_obj.gif";  			//$NON-NLS-1$
@@ -206,6 +207,7 @@ public class X10PluginImages {
 	public static final ImageDescriptor DESC_OBJS_SEARCH_REF= createManagedFromKey(T_OBJ, IMG_OBJS_SEARCH_REF);
 	public static final ImageDescriptor DESC_OBJS_CUNIT= createManagedFromKey(T_OBJ, IMG_OBJS_CUNIT);
 	public static final ImageDescriptor DESC_OBJS_CUNIT_RESOURCE= createManagedFromKey("", IMG_OBJS_CUNIT_RESOURCE);
+	public static final ImageDescriptor DESC_OBJS_PROJECT= createManagedFromKey(T_OVR, IMG_OBJS_PROJECT);
 	public static final ImageDescriptor DESC_OBJS_CFILE= createManagedFromKey(T_OBJ, IMG_OBJS_CFILE);
 	public static final ImageDescriptor DESC_OBJS_CFILECLASS= createManagedFromKey(T_OBJ, IMG_OBJS_CFILECLASS);
 	public static final ImageDescriptor DESC_ELCL_CLEAR= createUnManaged(T_ELCL, "clear_co.gif"); //$NON-NLS-1$
@@ -380,6 +382,8 @@ public class X10PluginImages {
 	public static final ImageDescriptor DESC_OVR_RUN= createUnManagedCached(T_OVR, "run_co.gif"); 							//$NON-NLS-1$
 	public static final ImageDescriptor DESC_OVR_WARNING= createUnManagedCached(T_OVR, "warning_co.gif"); 					//$NON-NLS-1$
 	public static final ImageDescriptor DESC_OVR_ERROR= createUnManagedCached(T_OVR, "error_co.gif"); 						//$NON-NLS-1$
+	public static final ImageDescriptor DESC_OVR_JAVA= createUnManagedCached(T_OVR, "java_ovr.gif"); 						//$NON-NLS-1$
+	public static final ImageDescriptor DESC_OVR_X10= createUnManagedCached(T_OVR, "X.gif"); 						//$NON-NLS-1$
 	public static final ImageDescriptor DESC_OVR_BUILDPATH_ERROR= createUnManagedCached(T_OVR, "error_co_buildpath.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor DESC_OVR_OVERRIDES= createUnManagedCached(T_OVR, "over_co.gif");  					//$NON-NLS-1$
 	public static final ImageDescriptor DESC_OVR_IMPLEMENTS= createUnManagedCached(T_OVR, "implm_co.gif");  				//$NON-NLS-1$

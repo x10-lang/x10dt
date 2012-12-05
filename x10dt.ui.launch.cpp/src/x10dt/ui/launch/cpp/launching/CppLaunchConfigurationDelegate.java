@@ -71,7 +71,6 @@ import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 /**
@@ -350,141 +349,12 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
   }
 
   
-/*  protected void updateAttributes(final ILaunchConfiguration configuration, final String mode,
-                                                 final IProgressMonitor monitor) throws CoreException {
-    try {
-      final AttributeManager attrMgr = new AttributeManager();
-      final int numPlaces = this.fX10PlatformConf.getCommunicationInterfaceConf().getNumberOfPlaces();
-      attrMgr.addAttribute(JobAttributes.getNumberOfProcessesAttributeDefinition().create(numPlaces));
-      
-      if (this.fX10PlatformConf.getCommunicationInterfaceConf() instanceof IHostsBasedConf){
-    	  IHostsBasedConf conf = (IHostsBasedConf) this.fX10PlatformConf.getCommunicationInterfaceConf();
-    	  attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(conf.getHostFile()));
-          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(conf.shouldUseHostFile()));
-      } else {
-          attrMgr.addAttribute(LaunchAttributes.getHostFileAttr().create(configuration.getAttribute(ATTR_HOSTFILE, Constants.EMPTY_STR)));
-          attrMgr.addAttribute(LaunchAttributes.getUseHostFileAttr().create(configuration.getAttribute(ATTR_USE_HOSTFILE, false)));
-      }
-      final ArrayAttribute<String> attribute = LaunchAttributes.getHostListAttr().create();
-      final List<String> defaultHostList = new ArrayList<String>();
-      if (defaultHostList.isEmpty()) {
-        // In case of launching via shortcut.
-        IPResourceManager IPrm = (IPResourceManager) fResourceManager.getAdapter(IPResourceManager.class);
-        for (final IPMachine machine : IPrm.getMachines()) {
-          for (final IPNode node : machine.getNodes()) {
-            defaultHostList.add(node.getName());
-          }
-        }
-      }
-      attribute.setValue(configuration.getAttribute(ATTR_HOSTLIST, defaultHostList));
-      attrMgr.addAttribute(attribute);
 
-      
-      // Collects attributes from Resource tab
-      //attrMgr.addAttributes(getResourceAttributes(configuration, mode));
-
-      // Collects attributes from Environment tab
-      String[] envArr = null; //org.eclipse.ptp.core.util.LaunchUtils.getEnvironmentToAppend(configuration);
-      
-      if (this.fIsCygwin) {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(PATH_ENV).append('=');
-        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
-        int k = 0;
-        final boolean isLocal = this.fX10PlatformConf.getConnectionConf().isLocal();
-        for (final String x10Lib : this.fX10PlatformConf.getCppCompilationConf().getX10LibsLocations(isLocal)) {
-          if (k > 0) {
-            sb.append(';');
-          } else {
-            k = 1;
-          }
-          sb.append(x10Lib.replace('/', '\\'));
-        }
-        if (ldLibPathValue != null) {
-          sb.append(';').append(ldLibPathValue);
-        }
-        
-        int pathIndex = -1;
-        if (envArr != null) {
-          final String pathEnvStart = PATH_ENV + '=';
-          for (int i = 0; i < envArr.length; ++i) {
-            if ((envArr[i] != null) && envArr[i].startsWith(pathEnvStart)) {
-              pathIndex = i;
-              break;
-            }
-          }
-        }
-        
-        if (pathIndex == -1) {
-          final String[] newArray = new String[(envArr == null) ? 1 : envArr.length + 1];
-          newArray[0] = sb.toString();
-          if (envArr != null) {
-            System.arraycopy(envArr, 0, newArray, 1, envArr.length);
-          }
-          envArr = newArray;
-        } else if (envArr != null) {
-          sb.append(';').append(envArr[pathIndex]);
-          envArr[pathIndex] = sb.toString();
-        }
-      }
-      if (envArr != null) {
-        attrMgr.addAttribute(JobAttributes.getEnvironmentAttributeDefinition().create(envArr));
-      }
-
-      // Makes sure there is a queue, even if the resources tab doesn't require one to be specified.
-      if (attrMgr.getAttribute(JobAttributes.getQueueIdAttributeDefinition()) == null) {
-        final IPQueue queue = org.eclipse.ptp.core.util.LaunchUtils.getQueueDefault((IPResourceManager) this.fResourceManager.getAdapter(IPResourceManager.class));
-        if (queue == null) {
-          throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRMQueueError));
-        }
-        attrMgr.addAttribute(JobAttributes.getQueueIdAttributeDefinition().create(queue.getID()));
-      }
-
-      // Collects attributes from Application tab
-      final IPath programPath = verifyExecutablePath(configuration, monitor);
-      attrMgr.addAttribute(JobAttributes.getExecutableNameAttributeDefinition().create(programPath.lastSegment()));
-
-      final String path = programPath.removeLastSegments(1).toString();
-      if (path != null) {
-        attrMgr.addAttribute(JobAttributes.getExecutablePathAttributeDefinition().create(path));
-      }
-
-      // Collects attributes from Arguments tab
-      attrMgr.addAttribute(JobAttributes.getWorkingDirectoryAttributeDefinition().create(this.fWorkspaceDir));
-
-      final String[] argArr = org.eclipse.ptp.core.util.LaunchUtils.getProgramArguments(configuration);
-      if (argArr != null) {
-        attrMgr.addAttribute(JobAttributes.getProgramArgumentsAttributeDefinition().create(argArr));
-      }
-
-      // PTP launched this job
-      attrMgr.addAttribute(JobAttributes.getLaunchedByPTPFlagAttributeDefinition().create(true));
-
-      AbstractX10RuntimeSystem runtimeSystem = ((AbstractX10ResourceManager) fResourceManager).getRuntimeSystem();
-      
-      runtimeSystem.setAttributes(attrMgr.getAttributes());
-      
-  } catch (IllegalValueException except) {
-    throw new CoreException(new Status(IStatus.ERROR, RMSCoreActivator.PLUGIN_ID, "Invalid Places Number", except)); 
-  
-
-    } finally {
-      monitor.done();
-    }
-  }
-  */
-  
-  
 
   
   protected final boolean shouldProcessToLinkStep(final IProject project) {
     int errorCount = CoreResourceUtils.getNumberOfBuildErrorMarkers(project);
     String message = (errorCount == 0) ? null : NLS.bind(LaunchMessages.CLCD_FoundErrorMarkers, errorCount, project.getName());
-    if (message == null) {
-      errorCount = CoreResourceUtils.getNumberOfPlatformConfErrorMarkers(X10PlatformConfFactory.getFile(project));
-      message = (errorCount == 0) ? null
-                                 : NLS.bind(LaunchMessages.CLCD_FoundPlatformConfErrors, errorCount, project.getName());
-    }
     if (message == null) {
       return true;
     } else {
@@ -492,41 +362,6 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
     }
   }
 
-//  protected IPath verifyExecutablePath(final ILaunchConfiguration configuration, 
-//                                       final IProgressMonitor monitor) throws CoreException {
-//    try {
-//      return verifyResource(this.fExecPath, configuration, monitor);
-//    } catch (CoreException except) {
-//      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, NLS.bind(LaunchMessages.CLCD_NoCppExecutable,
-//                                                                                          this.fExecPath), except));
-//    }
-//  }
-
-//  protected IPath verifyResource(final String path, final ILaunchConfiguration configuration, 
-//                                 final IProgressMonitor monitor) throws CoreException {
-//    final IResourceManagerConfiguration conf = this.fResourceManager.getConfiguration();
-//    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(this.fResourceManager.getControlConfiguration().getRemoteServicesId()); 
-//    if (remoteServices == null) {
-//      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoRemoteServices));
-//    }
-//    final IRemoteConnectionManager connMgr = remoteServices.getConnectionManager();
-//    if (connMgr == null) {
-//      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnectionMgr));
-//    }
-//    final IRemoteConnection conn = connMgr.getConnection(this.fResourceManager.getControlConfiguration().getConnectionName()); 
-//    if (conn == null) {
-//      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoConnection));
-//    }
-//    final IRemoteFileManager fileManager = remoteServices.getFileManager(conn);
-//    if (fileManager == null) {
-//      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID, LaunchMessages.CLCD_NoFileManager));
-//    }
-//    if (!fileManager.getResource(path).fetchInfo().exists()) {
-//      throw new CoreException(new Status(IStatus.INFO, CppLaunchCore.PLUGIN_ID, NLS.bind(LaunchMessages.CLCD_PathNotFound,
-//                                                                                         path)));
-//    }
-//    return new Path(path);
-//  }
 
   // --- Private code
 

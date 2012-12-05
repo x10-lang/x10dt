@@ -122,7 +122,7 @@ public class ProjectMigrationAssistant {
 
 	private Set<IProject> retrieveMigrationSuppressedProjects() {
 		Set<IProject> result= new HashSet<IProject>();
-		IEclipsePreferences prefs= new InstanceScope().getNode(X10DTCorePlugin.kPluginID);
+		IEclipsePreferences prefs= InstanceScope.INSTANCE.getNode(X10DTCorePlugin.kPluginID);
 		String dontAskPref= prefs.get(ProjectMigrationAssistant.DONT_MIGRATE_PROJECTS_PREF_KEY, ""); //$NON-NLS-1$
 		String[] dontAskList= dontAskPref.split(":"); //$NON-NLS-1$
 		IWorkspaceRoot wsRoot= ResourcesPlugin.getWorkspace().getRoot();
@@ -165,7 +165,7 @@ public class ProjectMigrationAssistant {
 				}
 			}
 			private void savePrefValue(String dontMigratePref) {
-				IEclipsePreferences prefs= new InstanceScope().getNode(X10DTCorePlugin.kPluginID);
+				IEclipsePreferences prefs= InstanceScope.INSTANCE.getNode(X10DTCorePlugin.kPluginID);
 				prefs.put(ProjectMigrationAssistant.DONT_MIGRATE_PROJECTS_PREF_KEY, dontMigratePref);
 				try {
 					prefs.flush();
@@ -174,7 +174,7 @@ public class ProjectMigrationAssistant {
 				}
 			}
 			private String addProjectsToPrefValue(Set<IProject> projects) {
-				IEclipsePreferences prefs= new InstanceScope().getNode(X10DTCorePlugin.kPluginID);
+				IEclipsePreferences prefs= InstanceScope.INSTANCE.getNode(X10DTCorePlugin.kPluginID);
 				String curValue= prefs.get(ProjectMigrationAssistant.DONT_MIGRATE_PROJECTS_PREF_KEY, ""); //$NON-NLS-1$
 				String[] curProjectNames= curValue.split(":"); //$NON-NLS-1$
 				List<String> curProjectList= Arrays.asList(curProjectNames);

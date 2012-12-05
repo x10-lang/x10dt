@@ -68,7 +68,7 @@ final class CppProjectNameDefWizardPage extends NewJavaProjectWizardPageOne {
     final IClasspathEntry[] all = new IClasspathEntry[entries.length + 2];
     System.arraycopy(entries, 0, all, 0, entries.length);
     all[entries.length] = JavaCore.newContainerEntry(new Path(X10DTCoreConstants.X10_CONTAINER_ENTRY_ID));
-    all[entries.length + 1] = JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER));
+    all[entries.length + 1] = JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER)); //This is necessary for the X10 compiler. See JIRA -- XTENLANG-3155
     return all;
   }
 

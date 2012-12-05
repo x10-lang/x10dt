@@ -519,4 +519,15 @@
       <startup
             class="x10dt.ui.EarlyStartup"></startup>
    </extension>
+   
+   <extension point="org.eclipse.ui.decorators"> 
+	<decorator 
+    	id="x10dt.ui.projectDecorator" 
+    	label="Project Decorator" 
+    	state="true" 
+    	class= "x10dt.ui.views.ProjectDecorator" 
+  		objectClass="org.eclipse.core.resources.IResource" 
+    	adaptable="true"> 
+  </decorator> 
+</extension>
 </plugin>

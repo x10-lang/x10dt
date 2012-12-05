@@ -69,10 +69,6 @@ public class LaunchMessages extends NLS {
 
   public static String CAT_ClosedProject;
 
-  public static String CAT_CouldNotLoadPlatformWarning;
-
-	public static String CAT_FixPlatformConfErrors;
-
   public static String CAT_IllegalPrjName;
 
   public static String CAT_MainTypeGroupName;
@@ -141,11 +137,7 @@ public class LaunchMessages extends NLS {
 
   public static String CIT_NoResourceManager;
 
-  public static String CIT_NoX10ProjectIdentified;
-
   public static String CIT_PreviousStateStorageError;
-
-  public static String CIT_UseDataFromPlatformConf;
 
   public static String CLC_CheckConnAndCommJobMsg;
 
@@ -158,8 +150,6 @@ public class LaunchMessages extends NLS {
   public static String CLCD_ExecCreationTaskName;
 
 	public static String CLCD_FoundErrorMarkers;
-
-  public static String CLCD_FoundPlatformConfErrors;
 
   public static String CLCD_LaunchCreationTaskName;
 
@@ -188,10 +178,6 @@ public class LaunchMessages extends NLS {
   public static String CLCD_NoOutputDir;
 
   public static String CLCD_NoRemoteServices;
-
-  public static String CLCD_NoResManagerError;
-
-  public static String CLCD_NoRMQueueError;
 
   public static String CLCD_PathNotFound;
   
