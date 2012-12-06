@@ -6,6 +6,8 @@ import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationListener;
@@ -32,6 +34,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.forms.widgets.TableWrapData;
 import org.eclipse.ui.forms.widgets.TableWrapLayout;
 
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.platform_conf.EArchitecture;
 import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
@@ -569,14 +572,28 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
   
   private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText, final Text archivingOptsText,
       final Text linkerText, final Text linkingOptsText, final Text linkingLibsText) throws CoreException {
-    final IDefaultCPPCommands defaultCPPCommands= DefaultCPPCommandsFactory.create(this.fProjectName);
-    compilerText.setText(defaultCPPCommands.getCompiler());
-    compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
-    archiverText.setText(defaultCPPCommands.getArchiver());
-    archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
-    linkerText.setText(defaultCPPCommands.getLinker());
-    linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
-    linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
+    compilerText.setText(Constants.EMPTY_STR);
+    compilingOptsText.setText(Constants.EMPTY_STR);
+    archiverText.setText(Constants.EMPTY_STR);
+    archivingOptsText.setText(Constants.EMPTY_STR);
+    linkerText.setText(Constants.EMPTY_STR);
+    linkingOptsText.setText(Constants.EMPTY_STR);
+    linkingLibsText.setText(Constants.EMPTY_STR);
+    
+    if (this.fProjectName == null || this.fProjectName.equals(Constants.EMPTY_STR)){
+      return;
+    }
+    IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(this.fProjectName);
+    if (project.hasNature(X10DTCorePlugin.X10_CPP_PRJ_NATURE_ID)){
+      final IDefaultCPPCommands defaultCPPCommands= DefaultCPPCommandsFactory.create(this.fProjectName);
+      compilerText.setText(defaultCPPCommands.getCompiler());
+      compilingOptsText.setText(defaultCPPCommands.getCompilerOptions());
+      archiverText.setText(defaultCPPCommands.getArchiver());
+      archivingOptsText.setText(defaultCPPCommands.getArchivingOpts());
+      linkerText.setText(defaultCPPCommands.getLinker());
+      linkingOptsText.setText(defaultCPPCommands.getLinkingOptions());
+      linkingLibsText.setText(defaultCPPCommands.getLinkingLibraries());
+    } 
   }
   
   private Text createLabelAndText(final Composite parent, final String labelText,

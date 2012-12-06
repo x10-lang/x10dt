@@ -39,24 +39,24 @@ public final class JavaBackEndProjectConverter implements IBackEndX10ProjectConv
   }
   
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) {
-    final IJavaProject javaProject = JavaCore.create(project);
-    final Collection<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
-    try {
-      boolean foundEntry = false;
-      for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
-        if (JavaRuntime.JRE_CONTAINER.equals(cpEntry.getPath().toString())) {
-          foundEntry = true;
-        } else {
-          cpEntries.add(cpEntry);
-        }
-      }
-      if (! foundEntry) {
-        cpEntries.add(JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER)));
-        javaProject.setRawClasspath(cpEntries.toArray(new IClasspathEntry[cpEntries.size()]), new NullProgressMonitor());
-      }
-    } catch (JavaModelException except) {
-      Activator.getDefault().getLog().log(except.getStatus());
-    }
+//    final IJavaProject javaProject = JavaCore.create(project);
+//    final Collection<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
+//    try {
+//      boolean foundEntry = false;
+//      for (final IClasspathEntry cpEntry : javaProject.getRawClasspath()) {
+//        if (JavaRuntime.JRE_CONTAINER.equals(cpEntry.getPath().toString())) {
+//          foundEntry = true;
+//        } else {
+//          cpEntries.add(cpEntry);
+//        }
+//      }
+//      if (! foundEntry) {
+//        cpEntries.add(JavaCore.newContainerEntry(new Path(JavaRuntime.JRE_CONTAINER)));
+//        javaProject.setRawClasspath(cpEntries.toArray(new IClasspathEntry[cpEntries.size()]), new NullProgressMonitor());
+//      }
+//    } catch (JavaModelException except) {
+//      Activator.getDefault().getLog().log(except.getStatus());
+//    }
   }
 
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {
