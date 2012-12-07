@@ -572,14 +572,6 @@ public class CompilationTab extends AbstractLaunchConfigurationTab implements IL
   
   private void updateCompilationCommands(final Text compilerText, final Text compilingOptsText, final Text archiverText, final Text archivingOptsText,
       final Text linkerText, final Text linkingOptsText, final Text linkingLibsText) throws CoreException {
-    compilerText.setText(Constants.EMPTY_STR);
-    compilingOptsText.setText(Constants.EMPTY_STR);
-    archiverText.setText(Constants.EMPTY_STR);
-    archivingOptsText.setText(Constants.EMPTY_STR);
-    linkerText.setText(Constants.EMPTY_STR);
-    linkingOptsText.setText(Constants.EMPTY_STR);
-    linkingLibsText.setText(Constants.EMPTY_STR);
-    
     if (this.fProjectName == null || this.fProjectName.equals(Constants.EMPTY_STR)){
       return;
     }
