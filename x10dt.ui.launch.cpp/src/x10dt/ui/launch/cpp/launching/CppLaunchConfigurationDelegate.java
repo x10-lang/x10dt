@@ -79,7 +79,7 @@ import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
  * @author egeay
  */
 public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDelegate {
-  
+  private static String ATTR_ENV = "org.eclipse.debug.core.environmentVariables";
   private static String NPLACES_SOCKETS = "X10_NPLACES";
   private static String HOSTFILE_SOCKETS = "X10_HOSTFILE";
   private static String HOSTLIST_SOCKETS = "X10_HOSTLIST";
@@ -156,6 +156,10 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
         env.put(HOSTLIST_PAMI, ConfUtils.getHostFile(configuration));
       }
       
+      Map<String,String> launchEnv = configuration.getAttribute(ATTR_ENV, (Map<String,String>)null);
+      for(String key: launchEnv.keySet()){
+        env.put(key, launchEnv.get(key));
+      }
       final List<String> command = new ArrayList<String>();
       
       final String cmd = this.fExecPath;
@@ -165,6 +169,12 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
         command.add(RUNX10);
         command.add(cmd);
       }
+      
+      final String[] argArr = org.eclipse.ptp.core.util.LaunchUtils.getProgramArguments(configuration);
+      for (String s: argArr){
+        command.add(s);
+      }
+      
       this.fTargetOpHelper.run(command, this.fWorkspaceDir, env, new IProcessOuputListener() {
 
         public void read(final String line) {

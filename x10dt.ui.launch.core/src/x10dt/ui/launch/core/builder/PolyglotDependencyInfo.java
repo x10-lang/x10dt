@@ -104,7 +104,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     	Collection<String> possiblePaths = fDependsUpon.get(context); // --- The dependencies will contain paths from the imports.
     	for (String path: possiblePaths){
     		if (path.endsWith(name)) {
-    			return new ArrayList<String>(); // --- return empty set. Already have the needed dependence.
+    	//		return new ArrayList<String>(); // --- return empty set. Already have the needed dependence.
     		}
     		if (!path.endsWith(Constants.X10_EXT) && !path.endsWith(Constants.CLASS_EXT)){
     			result.add(path + File.separator + name);

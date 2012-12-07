@@ -125,8 +125,10 @@ public class ComputeDependenciesVisitor extends ContextVisitor {
     	String n = File.separator + name.toString().replace('.', File.separatorChar);
     	
     	for (String path: getSrcFolders()){
-    		if (isClass)
+    		if (isClass) {
     			results.add(path + n + Constants.X10_EXT);
+    			results.add(path.replace("src-java", "bin-java") + n + Constants.CLASS_EXT); 
+    		}
     		if (isPackage) // --- name may be either a class or a package
     			results.add(path + n);
     	}

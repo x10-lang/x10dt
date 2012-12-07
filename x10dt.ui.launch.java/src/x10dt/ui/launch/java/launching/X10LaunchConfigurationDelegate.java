@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
@@ -94,7 +95,11 @@ public final class X10LaunchConfigurationDelegate extends ParallelLaunchConfigur
       String message = (errorCount == 0) ? null : NLS.bind(x10dt.ui.launch.core.Messages.LCD_LaunchWithErrorsCheck, errorCount, project.getName());
       shouldLaunch= LaunchUtils.queryUserToLaunchWithErrors(message);
     }
+   
     updateAttributes(configuration, mode, monitor);
+    ILaunchConfigurationWorkingCopy workingCopy = configuration.getWorkingCopy();
+    workingCopy.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, fResourceManager.getUniqueName());
+    workingCopy.doSave();
     final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
     final MessageConsoleStream mcStream = messageConsole.newMessageStream();
     messageConsole.activate();
