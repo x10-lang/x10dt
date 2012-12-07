@@ -157,8 +157,10 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       }
       
       Map<String,String> launchEnv = configuration.getAttribute(ATTR_ENV, (Map<String,String>)null);
-      for(String key: launchEnv.keySet()){
-        env.put(key, launchEnv.get(key));
+      if (launchEnv != null){
+        for(String key: launchEnv.keySet()){
+          env.put(key, launchEnv.get(key));
+        }
       }
       final List<String> command = new ArrayList<String>();
       
