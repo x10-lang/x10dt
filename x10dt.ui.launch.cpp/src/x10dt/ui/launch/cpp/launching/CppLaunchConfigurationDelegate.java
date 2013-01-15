@@ -439,39 +439,6 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
     searchForMatchingGeneratedFile(matches, dirStore, Constants.EMPTY_STR, pkgName, x10MainType, new NullProgressMonitor());
     return (matches.isEmpty()) ? null : matches.iterator().next();
   }
-
-//  private IResourceManager getResourceManagerControl(final ILaunchConfiguration configuration) throws CoreException {
-//   final IPUniverse universe = ModelManager.getInstance().getUniverse();
-//    final String rmUniqueName = org.eclipse.ptp.core.util.LaunchUtils.getResourceManagerUniqueName(configuration);
-//    for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
-//      IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
-//      if (resourceManager.getUniqueName().equals(rmUniqueName)) {
-//        return resourceManager;
-//      }
-//    }
-//    // In case of switching between local and remote for instance, a new resource manager will be created in the background
-//    // with a different unique id. And so the previous code will fail. We are forced then to attempt finding one by matching
-//    // the name.
-//    final Collection<IResourceManager> resourceManagers = new ArrayList<IResourceManager>();
-//    for (final IPResourceManager pResourceManager : universe.getResourceManagers()) {
-//      IResourceManager resourceManager = (IResourceManager) pResourceManager.getAdapter(IResourceManager.class);
-//      if (resourceManager.getName().equals(this.fX10PlatformConf.getName())) {
-//        resourceManagers.add(resourceManager);
-//      }
-//    }
-//    if (resourceManagers.isEmpty()) {
-//      return null;
-//    } else if (resourceManagers.size() == 1) {
-//      return resourceManagers.iterator().next();
-//    } else {
-//      // With multiple matches the best solution would be a dialog box that would show all the characteristics of each
-//      // resource manager so that the end-user could select it.
-//      // For now, we give up by asking the end-user to settle the name conflict situation.
-//      throw new CoreException(new Status(IStatus.ERROR, CppLaunchCore.PLUGIN_ID,
-//                                         NLS.bind(LaunchMessages.CLCD_MultipleRMWithSameName, resourceManagers.size(),
-//                                                  this.fX10PlatformConf.getName())));
-//    }
-//  }
   
   private void searchForMatchingGeneratedFile(final Collection<IFileStore> matches, final IFileStore dirStore,
                                               final String curDir, final String pkgName, final String typeName,

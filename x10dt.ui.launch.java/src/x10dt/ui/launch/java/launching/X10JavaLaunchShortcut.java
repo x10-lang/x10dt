@@ -9,23 +9,17 @@ package x10dt.ui.launch.java.launching;
 
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_MAIN_TYPE_NAME;
 import static org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_IS_LOCAL;
 
 import java.util.Arrays;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
-import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
-import org.eclipse.ptp.rmsystem.IResourceManager;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.search.core.elements.ITypeInfo;
-import x10dt.ui.launch.java.Activator;
-import x10dt.ui.launch.java.Messages;
 import x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
@@ -55,15 +49,7 @@ public final class X10JavaLaunchShortcut extends AbstractX10LaunchShortcut imple
     workingCopy.setAttribute(LaunchConfigConstants.ATTR_USE_HOSTFILE, false);
     workingCopy.setAttribute(LaunchConfigConstants.ATTR_HOSTLIST, Arrays.asList("localhost")); //$NON-NLS-1$
     
-    workingCopy.setAttribute(MultiVMAttrConstants.ATTR_IS_LOCAL, true);
-    try {
-      final IResourceManager resourceManager = new ResourceManagerHelper(workingCopy.getName()).createResourceManager();
-      workingCopy.setAttribute(IPTPLaunchConfigurationConstants.ATTR_RESOURCE_MANAGER_UNIQUENAME, 
-                               resourceManager.getUniqueName());
-    } catch (CoreException except) {
-      Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, 
-                                                     Messages.XJLS_RMCreationError, except));
-    }
+    workingCopy.setAttribute(ATTR_IS_LOCAL, true);
   }
   
   protected void updateLaunchConfig(final ILaunchConfigurationWorkingCopy config) {

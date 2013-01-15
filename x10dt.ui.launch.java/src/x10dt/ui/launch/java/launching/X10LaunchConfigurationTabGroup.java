@@ -39,7 +39,7 @@ public class X10LaunchConfigurationTabGroup extends AbstractLaunchConfigurationT
     final ILaunchConfigurationTab[] tabs= new ILaunchConfigurationTab[] {
       new X10MainTab(),
       new JavaArgumentsTab(),
-      new VMsLocationTab(placesAndHostTab),
+      new VMsLocationTab(),
       placesAndHostTab,
       new JavaJRETab(),
       new JavaClasspathTab(),
