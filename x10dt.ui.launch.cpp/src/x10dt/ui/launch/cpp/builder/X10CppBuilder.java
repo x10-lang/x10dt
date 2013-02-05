@@ -11,30 +11,20 @@ import static x10dt.ui.launch.core.Constants.CC_EXT;
 
 import java.io.File;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 import x10.ExtensionInfo;
 import x10cpp.X10CPPCompilerOptions;
-import x10dt.core.utils.AlwaysTrueFilter;
 import x10dt.core.utils.IFilter;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
-import x10dt.ui.launch.core.builder.CpEntryAsStringFunc;
-import x10dt.ui.launch.core.builder.IPathToFileFunc;
-import x10dt.ui.launch.core.builder.RuntimeFilter;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import x10dt.ui.launch.core.utils.CollectionUtils;
-import x10dt.ui.launch.core.utils.IdentityFunctor;
 import x10dt.ui.launch.core.utils.ProjectUtils;
-import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.launching.ConfUtils;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
  * X10 builder for C++ back-end.

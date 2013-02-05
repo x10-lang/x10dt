@@ -1,9 +1,5 @@
 package x10dt.ui.launch.cpp.launching;
 
-import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.LIBX10_PROPERTIES_FILE;
-import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.SHARED_LIB_PROPERTIES_FILE;
-import static x10dt.ui.launch.cpp.platform_conf.cpp_commands.DefaultCPPCommandsFactory.X10RT_PROPERTIES_FILE_FORMAT;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -32,10 +28,24 @@ import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-import x10dt.ui.launch.cpp.platform_conf.cpp_commands.IDefaultCPPCommands;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 abstract class AbstractDefaultCPPCommands implements IDefaultCPPCommands {
+  
+  /**
+   * Contains path of libx10.properties relative to an X10 distribution.
+   */
+  public static final String LIBX10_PROPERTIES_FILE = "stdlib/libx10.properties"; //$NON-NLS-1$
+  
+  /**
+   * Contains path of sharedlib.properties relative to an X10 distribution.
+   */
+  public static final String SHARED_LIB_PROPERTIES_FILE = "etc/sharedlib.properties"; //$NON-NLS-1$
+  
+  /**
+   * Format to get location of X10RT properties file required for building c++ compilation/linking commands.
+   */
+  public static final String X10RT_PROPERTIES_FILE_FORMAT = "etc/x10rt_%s.properties"; //$NON-NLS-1$
 
   protected AbstractDefaultCPPCommands(final String project) throws CoreException {
     this.fIs64Arch = false;

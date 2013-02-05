@@ -9,7 +9,6 @@ package x10dt.ui.launch.cpp.launching;
 
 import org.eclipse.core.runtime.CoreException;
 
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
  * Factory methods to create different implementations of {@link IDefaultCPPCommands}.

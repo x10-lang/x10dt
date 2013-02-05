@@ -11,7 +11,6 @@ import static x10dt.ui.launch.cpp.CppLaunchImages.NEW_X10_PRJ_WIZBAN;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -35,9 +34,7 @@ import x10dt.ui.launch.core.dialogs.DialogsFactory;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.CppLaunchImages;
 import x10dt.ui.launch.cpp.LaunchMessages;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
+
 
 /**
  * Responsible for creating the wizard that allow the creation of an X10 project with C++ back-end.

@@ -70,9 +70,6 @@ public abstract class AbstractConvertX10ProjectAction implements IObjectActionDe
         }
         
         try {
-        	
-          final IPlatformConfHider platformConfConverter = createPlatformConfHider(project);
-          platformConfConverter.hide();
           
           final IProjectDescription newDescr = project.getDescription();
           
@@ -137,7 +134,6 @@ public abstract class AbstractConvertX10ProjectAction implements IObjectActionDe
     }
   }
   
-  protected abstract IPlatformConfHider createPlatformConfHider(IProject project);
   
   // --- Fields
   

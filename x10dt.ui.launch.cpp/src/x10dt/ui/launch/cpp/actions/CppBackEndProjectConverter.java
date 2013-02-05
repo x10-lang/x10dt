@@ -7,33 +7,11 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.actions;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.eclipse.core.filesystem.EFS;
-import org.eclipse.core.filesystem.IFileStore;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.window.IShellProvider;
 
 import x10dt.core.X10DTCorePlugin;
-import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.actions.IBackEndX10ProjectConverter;
-import x10dt.ui.launch.core.dialogs.DialogsFactory;
-import x10dt.ui.launch.cpp.CppLaunchCore;
-import x10dt.ui.launch.cpp.LaunchMessages;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConfWorkCopy;
-import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
 
 /**
  * Implementation of {@link IBackEndX10ProjectConverter} when converting an X10 project to use the C++ back-end.

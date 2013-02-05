@@ -38,10 +38,8 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.core.IPTPLaunchConfigurationConstants;
 import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
 import org.eclipse.ptp.launch.ui.LaunchImages;
-import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -67,20 +65,10 @@ import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.platform_conf.ETargetOS;
-import x10dt.ui.launch.core.utils.CoreResourceUtils;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
-import x10dt.ui.launch.cpp.launching.services.IPlatformConfLaunchConfSyncServices;
-import x10dt.ui.launch.cpp.launching.services.LaunchConfServicesFactory;
-import x10dt.ui.launch.cpp.platform_conf.ICommunicationInterfaceConf;
-import x10dt.ui.launch.cpp.platform_conf.IConnectionConf;
-import x10dt.ui.launch.cpp.platform_conf.ICppCompilationConf;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
-import x10dt.ui.launch.cpp.platform_conf.X10PlatformConfFactory;
-import x10dt.ui.launch.cpp.utils.PTPConfUtils;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 import x10dt.ui.utils.LaunchUtils;
 
@@ -152,17 +140,6 @@ final class CppApplicationTab extends LaunchConfigurationTab implements ILaunchC
         }
       } catch (Exception except) {
         // Simply forgets.
-      }
-      
-      final IX10PlatformConf platformConf = CppLaunchCore.getInstance().getPlatformConfiguration(context.getProject());
-      final ICommunicationInterfaceConf commIntfConf = platformConf.getCommunicationInterfaceConf();
-      try {
-        final IPlatformConfLaunchConfSyncServices launchConfServices = LaunchConfServicesFactory.create(commIntfConf);
-        if (launchConfServices != null) {
-          launchConfServices.initOrUpdate(configuration, platformConf, true);
-        }
-      } catch (CoreException except) {
-        CppLaunchCore.log(except.getStatus());
       }
     }
     

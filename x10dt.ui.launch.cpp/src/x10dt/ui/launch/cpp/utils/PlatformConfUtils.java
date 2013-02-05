@@ -24,7 +24,6 @@ import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.launching.ConfUtils;
-import x10dt.ui.launch.cpp.platform_conf.IX10PlatformConf;
 
 /**
  * Utility methods for X10 Platform Configuration usage.

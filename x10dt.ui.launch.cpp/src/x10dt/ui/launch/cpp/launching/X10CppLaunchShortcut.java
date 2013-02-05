@@ -63,14 +63,6 @@ public class X10CppLaunchShortcut extends AbstractX10LaunchShortcut implements I
     workingCopy.setAttribute(ATTR_USE_HOSTFILE, HOST_LIST);
   }
   
-  // --- Overridden methods
-  
-  protected Pair<Integer, ILaunchConfiguration> chooseConfiguration(final List<ILaunchConfiguration> configList,
-                                                                    final String mode) {
-    final AbstractElementListSelectionDialog dialog = new SelectExistingLaunchConfigsDialog(getShell(), configList, mode);
-    final int result = dialog.open();
-    return new Pair<Integer, ILaunchConfiguration>(result, (ILaunchConfiguration) dialog.getFirstResult());
-  }
   
   
   // --- Fields
