@@ -7,6 +7,7 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching;
 
+import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
@@ -40,6 +41,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.variables.VariablesPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
@@ -172,7 +174,9 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
         command.add(cmd);
       }
       
-      final String[] argArr = org.eclipse.ptp.core.util.LaunchUtils.getProgramArguments(configuration);
+      String attrProgArgs = configuration.getAttribute(ATTR_ARGUMENTS, Constants.EMPTY_STR);
+      final String progArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(attrProgArgs);
+      String[] argArr = parse(progArgs);
       for (String s: argArr){
         command.add(s);
       }
@@ -204,7 +208,9 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
     }
   }
   
-
+  private String[] parse(String args){
+    return args.split("\\s+");
+  }
  
   private void launchPAMIwLL(final ILaunchConfiguration configuration, final IProject project,
       final IProgressMonitor monitor) throws CoreException{

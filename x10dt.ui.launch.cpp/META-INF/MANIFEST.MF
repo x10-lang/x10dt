@@ -54,3 +54,4 @@ Export-Package: x10dt.ui.launch.cpp,
  x10dt.ui.launch.cpp.nature,
  x10dt.ui.launch.cpp.utils,
  x10dt.ui.launch.cpp.wizards
+Import-Package: org.eclipse.core.variables
