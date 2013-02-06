@@ -25,7 +25,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Export-Package: x10dt.ui.launch.rms.core,
- x10dt.ui.launch.rms.core.environment,
- x10dt.ui.launch.rms.core.hostmap,
- x10dt.ui.launch.rms.core.launch_configuration,
- x10dt.ui.launch.rms.core.provider
+ x10dt.ui.launch.rms.core.launch_configuration
