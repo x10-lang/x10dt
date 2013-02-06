@@ -35,12 +35,13 @@ import org.eclipse.jdt.debug.ui.launchConfigurations.JavaJRETab;
 public class X10LaunchConfigurationTabGroup extends AbstractLaunchConfigurationTabGroup {
 
   public void createTabs(final ILaunchConfigurationDialog dialog, final String mode) {
-    final PlacesAndHostsTab placesAndHostTab = new PlacesAndHostsTab();
+	X10MainTab mainTab = new X10MainTab();
+	VMsLocationTab vmsTab = new VMsLocationTab();
     final ILaunchConfigurationTab[] tabs= new ILaunchConfigurationTab[] {
-      new X10MainTab(),
+      mainTab,
       new JavaArgumentsTab(),
-      new VMsLocationTab(),
-      placesAndHostTab,
+      vmsTab,
+      new CommunicationInterfaceTab(),
       new JavaJRETab(),
       new JavaClasspathTab(),
       new SourceLookupTab(),

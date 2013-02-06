@@ -36,6 +36,7 @@ import x10dt.core.X10DTCorePlugin;
 import x10dt.search.core.elements.ITypeInfo;
 import x10dt.ui.Messages;
 import x10dt.ui.X10DTUIPlugin;
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.java.Activator;
 import x10dt.ui.utils.LaunchUtils;
 
@@ -64,6 +65,7 @@ final class X10MainTab extends JavaMainTab {
       }
     }
   }
+  
 
   protected IJavaElement getContext() {
     final IWorkbenchPage page = JDIDebugUIPlugin.getActivePage();
