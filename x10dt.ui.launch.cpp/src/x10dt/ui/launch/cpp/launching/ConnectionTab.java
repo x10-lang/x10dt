@@ -1,9 +1,6 @@
 package x10dt.ui.launch.cpp.launching;
 
-import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -97,6 +94,18 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   public static final String IS_VALID = CppLaunchCore.PLUGIN_ID + ".mvm.is.valid"; //$NON-NLS-1$
   
+  public static final String STANDALONE = "Standalone";
+  
+  public static final String SOCKETS = "Sockets";
+  
+  public static final String PAMI = "PAMI";
+  
+  public static final int STANDALONE_INDEX = 0;
+  
+  public static final int SOCKETS_INDEX = 1;
+  
+  public static final int PAMI_INDEX = 2;
+  
   
   
   ConnectionTab() {
@@ -161,6 +170,19 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     // nothing to do
     
   }
+  
+  private int getIndexForCIT(String cit){
+    if (cit.equals(STANDALONE)){
+      return STANDALONE_INDEX;
+    }
+    if (cit.equals(SOCKETS)){
+      return SOCKETS_INDEX;
+    }
+    if (cit.equals(PAMI)){
+      return PAMI_INDEX;
+    }
+    return -1;
+  }
 
   public void initializeFrom(ILaunchConfiguration configuration) {
     LaunchImages.findOrCreateManaged(LaunchImages.VMS_LOCATION);
@@ -173,7 +195,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     try {
       String cit = configuration.getAttribute(ATTR_CITYPE, Constants.EMPTY_STR);
       if (cit == null){
-        this.fCITypeCombo.select(getIndexForCIT(STANDALONE_SERVICE_PROVIDER_ID));
+        this.fCITypeCombo.select(STANDALONE_INDEX);
       } else {
         this.fCITypeCombo.select(getIndexForCIT(cit));
       }
@@ -226,11 +248,22 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     }
   }
     
-  
+  private String getCIT(int index){
+    if (index == STANDALONE_INDEX){
+      return STANDALONE;
+    }
+    if (index == SOCKETS_INDEX){
+      return SOCKETS;
+    }
+    if (index == PAMI_INDEX){
+      return PAMI;
+    }
+    return null;
+  }
 
   public void performApply(ILaunchConfigurationWorkingCopy configuration) {
     configuration.setAttribute(ATTR_IS_LOCAL, this.fLocalConnBt.getSelection());
-    configuration.setAttribute(ATTR_CITYPE, this.fCITypeComboIndexMap[this.fCITypeCombo.getSelectionIndex()]);
+    configuration.setAttribute(ATTR_CITYPE, getCIT(this.fCITypeCombo.getSelectionIndex()));
     
     if (! this.fLocalConnBt.getSelection()) {
       configuration.setAttribute(ATTR_HOST, this.fHostText.getText());
@@ -468,29 +501,10 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   
   private void initTypeCombo() {
-    final Set<IServiceProviderDescriptor> serviceProviders= new HashSet<IServiceProviderDescriptor>();
-    final ServiceModelManager serviceModelManager = ServiceModelManager.getInstance();
-    int index = 0;
-    
-    for (final IService service : serviceModelManager.getServices()) {
-      if (service.getCategory() == null)
-        continue;
-      if (PTPConstants.RUNTIME_SERVICE_CATEGORY_ID.equals(service.getCategory().getId()) && service.getName().equals(LaunchMessages.CISP_Launch)) {
-        serviceProviders.addAll(service.getProviders());
-      }
-    }
-    for (final IServiceProviderDescriptor providerDescriptor : serviceProviders) {
-      final IServiceProvider serviceProvider= serviceModelManager.getServiceProvider(providerDescriptor);
-      if (serviceProvider == null)
-        continue;
-      String rmId= serviceProvider.getId();
-      if (SOCKETS_SERVICE_PROVIDER_ID.equals(rmId) || STANDALONE_SERVICE_PROVIDER_ID.equals(rmId) || PAMI_SERVICE_PROVIDER_ID.equals(rmId)) {
-        this.fCITypeCombo.add(providerDescriptor.getName());
-        this.fCITypeComboIndexMap[index++] = rmId;
-      }
-
-    }
-    this.fCITypeCombo.select(getIndexForCIT(STANDALONE_SERVICE_PROVIDER_ID));
+    this.fCITypeCombo.add(STANDALONE);
+    this.fCITypeCombo.add(SOCKETS);
+    this.fCITypeCombo.add(PAMI);
+    this.fCITypeCombo.select(STANDALONE_INDEX);
   }
   
   public static Combo createLabelAndCombo(final Composite parent, final String labelText) {
@@ -770,16 +784,6 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     }
   }
   
-
-  private int getIndexForCIT(String cit){
-    for(int i = 0; i < this.fCITypeComboIndexMap.length; i++){
-      if (this.fCITypeComboIndexMap[i].equals(cit))
-        return i;
-    }
-    return -1;
-  }
-
-  private String[] fCITypeComboIndexMap = new String[3];
   
   private final Map<String, ILaunchConfigurationWorkingCopy> fWCMap = new HashMap<String, ILaunchConfigurationWorkingCopy>();
   

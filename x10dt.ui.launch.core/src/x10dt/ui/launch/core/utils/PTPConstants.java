@@ -30,41 +30,6 @@ public final class PTPConstants {
   public static final String LAUNCH_SERVICE_ID = "org.eclipse.ptp.core.LaunchService"; //$NON-NLS-1$
 
   /**
-   * Defines the IBM Load Leveler service provider id.
-   */
-  public static final String LOAD_LEVELER_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.ibm.ll.LLServiceProvider"; //$NON-NLS-1$
-
-  /**
-   * Defines the Open MPI service provider id.
-   */
-  public static final String MPICH2_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.mpi.mpich2.MPICH2ServiceProvider"; //$NON-NLS-1$
-  
-  /**
-   * Defines the Open MPI service provider id.
-   */
-  public static final String OPEN_MPI_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.mpi.openmpi.OpenMPIServiceProvider"; //$NON-NLS-1$
-  
-  /**
-   * Defines the PAMI service provider id.
-   */
-  public static final String PAMI_SERVICE_PROVIDER_ID = "x10dt.ui.launch.cpp.rms.provider.pami"; //$NON-NLS-1$
-  
-  /**
-   * Defines the IBM Parallel Environment service provider id.
-   */
-  public static final String PARALLEL_ENVIRONMENT_SERVICE_PROVIDER_ID = "org.eclipse.ptp.rm.ibm.pe.PEServiceProvider"; //$NON-NLS-1$
-  
-  /**
-   * Defines the Sockets service provider id.
-   */
-  public static final String SOCKETS_SERVICE_PROVIDER_ID = "x10dt.ui.launch.cpp.rms.provider.sockets"; //$NON-NLS-1$
-  
-  /**
-   * Defines the Standalone service provider id.
-   */
-  public static final String STANDALONE_SERVICE_PROVIDER_ID = "x10dt.ui.launch.cpp.rms.provider.standalone"; //$NON-NLS-1$
-  
-  /**
    * Defines the Runtime service category id.
    */
   public static final String RUNTIME_SERVICE_CATEGORY_ID = "org.eclipse.ptp.core.category.Runtime"; //$NON-NLS-1$

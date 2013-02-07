@@ -15,9 +15,9 @@ import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstant
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
 import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
-import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.PAMI;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.SOCKETS;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -381,30 +381,30 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   
   private void updateSelectionState(int choice, final String transport) {
     // The next 2 combinations are possible because of changes in transport.
-    if (choice == LOAD_LEVELER && transport.equals(SOCKETS_SERVICE_PROVIDER_ID)){
+    if (choice == LOAD_LEVELER && transport.equals(SOCKETS)){
       choice = HOST_LIST;
     }
-    if (choice == HOST_LIST && transport.equals(PAMI_SERVICE_PROVIDER_ID)) {
+    if (choice == HOST_LIST && transport.equals(PAMI)) {
       choice = HOST_FILE;
     }
     
     // Enable or disable appropriate top-level buttons based on transport.
-    if (transport.equals(SOCKETS_SERVICE_PROVIDER_ID)){
+    if (transport.equals(SOCKETS)){
       this.fHostFileBt.setEnabled(true);
       this.fHostListBt.setEnabled(true);
       this.fLoadLevelerBt.setEnabled(false);
-    } else if (transport.equals(PAMI_SERVICE_PROVIDER_ID)){
+    } else if (transport.equals(PAMI)){
       this.fHostFileBt.setEnabled(true);
       this.fHostListBt.setEnabled(false);
       this.fLoadLevelerBt.setEnabled(true);
-    } else if (transport.equals(STANDALONE_SERVICE_PROVIDER_ID)){
+    } else if (transport.equals(STANDALONE)){
       this.fHostFileBt.setEnabled(false);
       this.fHostListBt.setEnabled(false);
       this.fLoadLevelerBt.setEnabled(false);
     }
     
     // Set selections for top-level buttons and enable or disable sub-buttons appropriately.
-    if (choice == HOST_FILE && (transport.equals(SOCKETS_SERVICE_PROVIDER_ID) || transport.equals(PAMI_SERVICE_PROVIDER_ID))){
+    if (choice == HOST_FILE && (transport.equals(SOCKETS) || transport.equals(PAMI))){
       this.fHostFileBt.setSelection(true);
       this.fHostFileText.setEnabled(true);
       this.fHostFileBrowseBt.setEnabled(true);
@@ -417,7 +417,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       this.fLoadLevelerBrowseBt.setEnabled(false);
       this.fNumPlacesSpinner.setEnabled(true);
      
-    } else if (choice == HOST_LIST && (transport.equals(SOCKETS_SERVICE_PROVIDER_ID))){
+    } else if (choice == HOST_LIST && (transport.equals(SOCKETS))){
       this.fHostFileBt.setSelection(false);
       this.fHostFileText.setEnabled(false);
       this.fHostFileBrowseBt.setEnabled(false);
@@ -430,7 +430,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       this.fLoadLevelerBrowseBt.setEnabled(false);
       this.fNumPlacesSpinner.setEnabled(true);
      
-    } else if (choice == LOAD_LEVELER && (transport.equals(PAMI_SERVICE_PROVIDER_ID))) {
+    } else if (choice == LOAD_LEVELER && (transport.equals(PAMI))) {
       this.fHostFileBt.setSelection(false);
       this.fHostFileText.setEnabled(false);
       this.fHostFileBrowseBt.setEnabled(false);
@@ -443,7 +443,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       this.fLoadLevelerBrowseBt.setEnabled(true);
       this.fNumPlacesSpinner.setEnabled(false);
     
-    } else if (transport.equals(STANDALONE_SERVICE_PROVIDER_ID)) {
+    } else if (transport.equals(STANDALONE)) {
       this.fHostFileBt.setEnabled(false);
       this.fHostFileText.setEnabled(false);
       this.fHostFileBrowseBt.setEnabled(false);

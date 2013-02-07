@@ -2,7 +2,7 @@ package x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
 import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_LIST;
 import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_ARCHIVER;
 import static x10dt.ui.launch.cpp.launching.CompilationTab.ATTR_DEFAULTS;
@@ -92,12 +92,12 @@ public class ConfUtils {
    
     public static String getServiceTypeId(ILaunchConfiguration compilationConf){
       try {
-        if (compilationConf == null) return STANDALONE_SERVICE_PROVIDER_ID;
-        return compilationConf.getAttribute(ATTR_CITYPE, STANDALONE_SERVICE_PROVIDER_ID);
+        if (compilationConf == null) return STANDALONE;
+        return compilationConf.getAttribute(ATTR_CITYPE, STANDALONE);
       } catch(CoreException e){
         CppLaunchCore.log(IStatus.ERROR, LaunchMessages.PCU_GetConf, e);
       }
-      return STANDALONE_SERVICE_PROVIDER_ID;
+      return STANDALONE;
     }
     
     

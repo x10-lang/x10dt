@@ -9,6 +9,9 @@ package x10dt.ui.launch.cpp.utils;
 
 import java.util.Arrays;
 
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.SOCKETS;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.PAMI;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -97,15 +100,14 @@ public final class PlatformConfUtils {
    * @return A non-null instance of {@link ETransport}.
    */
   public static ETransport getTransport(final String serviceTypeId, final ETargetOS targetOS) {
-    if (PTPConstants.STANDALONE_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+    if (STANDALONE.equals(serviceTypeId)) {
       return ETransport.STANDALONE;
-    } else if (PTPConstants.SOCKETS_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+    } else if (SOCKETS.equals(serviceTypeId)) {
       return ETransport.SOCKETS;
-    } else if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(serviceTypeId) ||
-               PTPConstants.LOAD_LEVELER_SERVICE_PROVIDER_ID.equals(serviceTypeId)) {
+    } else if (PAMI.equals(serviceTypeId)) {
       return ETransport.PAMI;
     } else {
-      return (targetOS == ETargetOS.AIX) ? ETransport.LAPI : ETransport.MPI;
+      return ETransport.STANDALONE;
     }
   }
   

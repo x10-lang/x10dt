@@ -9,13 +9,13 @@ package x10dt.ui.launch.cpp.launching;
 
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_ARGUMENTS;
 import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_PROJECT_NAME;
-import static x10dt.ui.launch.core.utils.PTPConstants.PAMI_SERVICE_PROVIDER_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.SOCKETS_SERVICE_PROVIDER_ID;
-import static x10dt.ui.launch.core.utils.PTPConstants.STANDALONE_SERVICE_PROVIDER_ID;
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_FILE;
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_LIST;
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.LOAD_LEVELER;
 import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_X10_MAIN_CLASS;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.PAMI;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.SOCKETS;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -117,7 +117,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
   
         if (!monitor.isCanceled()) {
           // Hijack launch if it's PAMI with LoadLeveler
-          if (PTPConstants.PAMI_SERVICE_PROVIDER_ID.equals(ConfUtils.getServiceTypeId(this.fCompilationConfiguration)) &&
+          if (PAMI.equals(ConfUtils.getServiceTypeId(this.fCompilationConfiguration)) &&
               ConfUtils.hostSelectionMode(configuration) == LOAD_LEVELER){
             launchPAMIwLL(configuration, fProject, new SubProgressMonitor(monitor, 5));
             
@@ -143,9 +143,9 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       final int NPlaces = ConfUtils.getNPlaces(configuration);
       String transport = ConfUtils.getServiceTypeId(this.fCompilationConfiguration);
       
-      if (transport.equals(STANDALONE_SERVICE_PROVIDER_ID)){
+      if (transport.equals(STANDALONE)){
         env.put(NPLACES_SOCKETS, (new Integer(NPlaces)).toString());
-      } else if (transport.equals(SOCKETS_SERVICE_PROVIDER_ID)) {
+      } else if (transport.equals(SOCKETS)) {
         env.put(NPLACES_SOCKETS, (new Integer(NPlaces)).toString());
         int sel = ConfUtils.hostSelectionMode(configuration);
         if (sel == HOST_FILE){
@@ -153,7 +153,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
         } else if (sel == HOST_LIST){
           env.put(HOSTLIST_SOCKETS, ConfUtils.getHostList(configuration));
         }
-      } else if (transport.equals(PAMI_SERVICE_PROVIDER_ID)) {
+      } else if (transport.equals(PAMI)) {
         env.put(NPLACES_PAMI,(new Integer(NPlaces)).toString());
         env.put(HOSTLIST_PAMI, ConfUtils.getHostFile(configuration));
       }
