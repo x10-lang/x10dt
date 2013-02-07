@@ -9,7 +9,7 @@ package x10dt.core;
 
 import org.eclipse.ui.IStartup;
 
-import x10dt.core.builder.migration.ProjectMigrationAssistant;
+
 
 /**
  * This IStartup implementation migrates any workspace projects that have old X10DT
@@ -22,10 +22,6 @@ public class CoreStartup implements IStartup {
 	 * @see org.eclipse.ui.IStartup#earlyStartup()
 	 */
 	public void earlyStartup() {
-		ProjectMigrationAssistant pma= new ProjectMigrationAssistant();
-
-		pma.checkAndMigrateAllProjects();
-
-		pma.installProjectMigrationHook();
+		
 	}
 }

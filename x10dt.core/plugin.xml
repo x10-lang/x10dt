@@ -47,33 +47,6 @@
       </startup>
    </extension>
    <extension
-         point="org.eclipse.ui.popupMenus">
-      <objectContribution
-            objectClass="org.eclipse.jdt.core.IJavaProject"
-            adaptable="false"
-            id="migrate.project">
-         <visibility>
-            <or>
-               <objectState
-                     name="projectNature"
-                     value="org.eclipse.imp.x10dt.ui.launch.java.x10nature">
-               </objectState>
-               <objectState
-                     name="projectNature"
-                     value="org.eclipse.imp.x10dt.ui.launch.cpp.x10nature">
-               </objectState>
-            </or>
-         </visibility>
-         <action
-               label="Migrate Projects"
-               class="x10dt.core.builder.migration.MigrateProjectsAction"
-               menubarPath="org.eclipse.ui.projectConfigure/additions"
-               enablesFor="+"
-               id="migrate.project">
-         </action>
-      </objectContribution>
-   </extension>
-   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             name="X10"

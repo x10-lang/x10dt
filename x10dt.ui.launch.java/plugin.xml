@@ -33,32 +33,6 @@
    <extension
          point="org.eclipse.ui.popupMenus">
       <objectContribution
-            objectClass="org.eclipse.jdt.core.IJavaProject"
-            id="x10dt.ui.launch.java.add.builder">
-         <action
-               label="%add.x10.java-back-end.builder"
-               tooltip="%add.x10.java-back-end.builder.descr"
-               class="x10dt.ui.launch.java.actions.BuilderEnable"
-               menubarPath="org.eclipse.ui.projectConfigure/additions"
-               enablesFor="+"
-               id="x10dt.ui.launch.java.actions.enableBuilderAction">
-         </action>
-         <visibility>
-            <not>
-               <or>
-                  <objectState
-                        name="projectNature"
-                        value="x10dt.ui.launch.java.x10nature">
-                  </objectState>
-                  <objectState
-                        name="projectNature"
-                        value="x10dt.ui.launch.cpp.x10nature">
-                  </objectState>
-               </or>
-            </not>
-         </visibility>
-      </objectContribution>
-      <objectContribution
             adaptable="false"
             id="x10dt.ui.launch.java.obj.contrib.convert-to-cpp"
             objectClass="org.eclipse.jdt.core.IJavaProject">
