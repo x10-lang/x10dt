@@ -665,6 +665,8 @@ public class LaunchMessages extends NLS {
   
   public static String PCU_GetConf;
   
+  public static String CU_ConnectionException;
+  
   // --- Private code
 
   private static final String BUNDLE_NAME = "x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$
