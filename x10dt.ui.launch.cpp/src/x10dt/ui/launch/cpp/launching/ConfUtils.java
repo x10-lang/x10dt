@@ -34,6 +34,7 @@ import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstant
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -43,6 +44,13 @@ import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
+import org.eclipse.ptp.remote.remotetools.core.RemoteToolsServices;
+import org.eclipse.ptp.remotetools.environment.EnvironmentPlugin;
+import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
+import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
+import org.eclipse.ptp.remotetools.environment.core.ITargetElement;
+import org.eclipse.ptp.remotetools.environment.core.TargetElement;
+import org.eclipse.ptp.remotetools.environment.core.TargetTypeElement;
 
 import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.Constants;
@@ -54,6 +62,12 @@ import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 public class ConfUtils {
+  
+  //Attributes from org.eclipse.ptp.remotetools.environment.generichost.conf/default.properties
+  public static String CONNECTION_TIMEOUT = "CONNECTION_TIMEOUT";
+  public static String KEY_PATH = "KEY_PATH";
+  public static String KEY_PASSPHRASE = "KEY_PASSPHRASE";
+  public static String IS_PASSWORD_AUTH = "IS_PASSWORD_AUTH";
 
 
     public static ILaunchConfiguration getConfiguration(String project) throws CoreException {
@@ -127,56 +141,64 @@ public class ConfUtils {
       final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
       final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
       
-      try {
-        IRemoteConnection conn  = rmConnManager.getConnection(connectionName);
-        if (conn == null) {
-          conn = rmConnManager.newConnection(connectionName);
-        }
-        conn.setAddress(hostname);
-        conn.setUsername(username);
-        conn.setPort(port);
-        conn.setPassword(password);
-      } catch (RemoteConnectionException e){
-        CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CU_ConnectionException, e);
-      }
-//      final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
-//
-//      ITargetElement targetElement = getDefaultTargetElement(connectionName);
-//      if (targetElement == null) {
-//        final String id = EnvironmentPlugin.getDefault().getEnvironmentUniqueID();
-//        targetElement = new TargetElement(targetTypeElement, connectionName, new HashMap<String, String>(), id);
-//        targetTypeElement.addElement((TargetElement) targetElement);
-//      } else {
-//        if (targetElement.getControl().query() != ITargetStatus.STOPPED) {
-//          targetElement.getControl().kill();     
+//      try {
+//        IRemoteConnection conn  = rmConnManager.getConnection(connectionName);
+//        if (conn == null) {
+//          conn = rmConnManager.newConnection(connectionName);
 //        }
+//        conn.setAddress(hostname);
+//        conn.setUsername(username);
+//        conn.setPort(port);
+//        conn.setPassword(password);
+//        if (isPasswordBased) {
+//           conn.setAttribute(IS_PASSWORD_AUTH, "true");
+//        } else {
+//           conn.setAttribute(IS_PASSWORD_AUTH, "false");
+//        }
+//        conn.setAttribute(KEY_PATH, privateKeyFile);
+//        conn.setAttribute(KEY_PASSPHRASE, passphrase);
+//        conn.setAttribute(CONNECTION_TIMEOUT, new Integer(timeout).toString());
+//      } catch (RemoteConnectionException e){
+//        CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CU_ConnectionException, e);
 //      }
-//      
-//      final ITargetConfig targetConfig = targetElement.getControl().getConfig();
-//      targetConfig.setConnectionAddress(hostname);
-//      targetConfig.setLoginUsername(username);
-//      targetConfig.setConnectionPort(port);
-//      targetConfig.setPasswordAuth(isPasswordBased);
-//      targetConfig.setLoginPassword(password);
-//      targetConfig.setKeyPath(privateKeyFile);
-//      targetConfig.setKeyPassphrase(passphrase);
-//      targetConfig.setConnectionTimeout(timeout);
-//     
-//      rmConnManager.getConnections(); // Side effect of creating connection.
+      final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
+
+      ITargetElement targetElement = getDefaultTargetElement(connectionName);
+      if (targetElement == null) {
+        final String id = EnvironmentPlugin.getDefault().getEnvironmentUniqueID();
+        targetElement = new TargetElement(targetTypeElement, connectionName, new HashMap<String, String>(), id);
+        targetTypeElement.addElement((TargetElement) targetElement);
+      } else {
+        if (targetElement.getControl().query() != ITargetStatus.STOPPED) {
+          targetElement.getControl().kill();     
+        }
+      }
+      
+      final ITargetConfig targetConfig = targetElement.getControl().getConfig();
+      targetConfig.setConnectionAddress(hostname);
+      targetConfig.setLoginUsername(username);
+      targetConfig.setConnectionPort(port);
+      targetConfig.setPasswordAuth(isPasswordBased);
+      targetConfig.setLoginPassword(password);
+      targetConfig.setKeyPath(privateKeyFile);
+      targetConfig.setKeyPassphrase(passphrase);
+      targetConfig.setConnectionTimeout(timeout);
+     
+      rmConnManager.getConnections(); // Side effect of creating connection.
 
     }
     
     
-//    private static ITargetElement getDefaultTargetElement(final String connectionName) {
-//      final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
-//      for (final ITargetElement targetElement : targetTypeElement.getElements()) {
-//        if (targetElement.getName().equals(connectionName)) {
-//          return targetElement;
-//        }
-//      }
-//      return null;
-//    }
-//    
+    private static ITargetElement getDefaultTargetElement(final String connectionName) {
+      final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
+      for (final ITargetElement targetElement : targetTypeElement.getElements()) {
+        if (targetElement.getName().equals(connectionName)) {
+          return targetElement;
+        }
+      }
+      return null;
+    }
+    
     
     public static ETargetOS getTargetOS(ILaunchConfiguration compilationConf){
       if (isLocalConnection(compilationConf)){
