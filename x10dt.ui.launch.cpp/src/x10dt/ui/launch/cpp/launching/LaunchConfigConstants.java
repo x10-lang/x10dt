@@ -7,7 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.launching;
 
-import x10dt.ui.launch.rms.core.RMSCoreActivator;
+import x10dt.ui.launch.cpp.CppLaunchCore;
+
 
 /**
  * Provides some useful constants for some attributes present in the launch configuration.
@@ -21,26 +22,26 @@ public final class LaunchConfigConstants {
   /**
    * The id of the attribute storing if we should use a host file or not.
    */
-  public static final String ATTR_USE_HOSTFILE = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.useHostFile";  //$NON-NLS-1$
+  public static final String ATTR_USE_HOSTFILE = CppLaunchCore.PLUGIN_ID + ".launchAttrs.useHostFile";  //$NON-NLS-1$
   
   /**
    * The id of the attribute storing the number of places.
    */
-  public static final String ATTR_NUM_PLACES = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.numPlaces";  //$NON-NLS-1$
+  public static final String ATTR_NUM_PLACES = CppLaunchCore.PLUGIN_ID + ".launchAttrs.numPlaces";  //$NON-NLS-1$
   
   /**
    * The id of the attribute storing the host file name.
    */
-  public static final String ATTR_HOSTFILE = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.hostFile";  //$NON-NLS-1$
+  public static final String ATTR_HOSTFILE = CppLaunchCore.PLUGIN_ID + ".launchAttrs.hostFile";  //$NON-NLS-1$
   
   /**
    * The id of the attribute storing the load leveler script file name.
    */
-  public static final String ATTR_LOADLEVELER_SCRIPT = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.loadLevelerScript";  //$NON-NLS-1$
+  public static final String ATTR_LOADLEVELER_SCRIPT = CppLaunchCore.PLUGIN_ID + ".launchAttrs.loadLevelerScript";  //$NON-NLS-1$
   /**
    * The id of the attribute storing a hosts list.
    */
-  public static final String ATTR_HOSTLIST = RMSCoreActivator.PLUGIN_ID + ".launchAttrs.hostList";  //$NON-NLS-1$
+  public static final String ATTR_HOSTLIST = CppLaunchCore.PLUGIN_ID + ".launchAttrs.hostList";  //$NON-NLS-1$
   
   // --- Default attribute values
   
