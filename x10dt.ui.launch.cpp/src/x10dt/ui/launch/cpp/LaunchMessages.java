@@ -669,7 +669,7 @@ public class LaunchMessages extends NLS {
   
   // --- Private code
 
-  private static final String BUNDLE_NAME = "x10dt.ui.launch.cpp.messages"; //$NON-NLS-1$
+  private static final String BUNDLE_NAME = "x10dt.ui.launch.cpp.launchmessages"; //$NON-NLS-1$
 
   static {
     // initialize resource bundle
