@@ -67,7 +67,7 @@ import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
-import x10dt.ui.launch.rms.core.Messages;
+import x10dt.ui.launch.cpp.Messages;
 
 
 final class CommunicationInterfaceTab extends LaunchConfigurationTab 
