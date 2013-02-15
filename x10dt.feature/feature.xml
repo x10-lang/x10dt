@@ -239,13 +239,6 @@
          unpack="false"/>
 
    <plugin
-         id="x10dt.help.dt"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="x10dt.search.core"
          download-size="0"
          install-size="0"
