@@ -14,7 +14,6 @@
 <topic label="Getting Started"> 
 	<topic label="Editor basics and launching" href="html/gettingstarted/Steps1-8.html"/>
 	<topic label="Remote launching and debugging basics" href="html/gettingstarted/Steps9-14.html"/>
-	<topic label="Advanced installation notes for X10 and X10DT" href="html/gettingstarted/preface.html"/>
 </topic>
 
 <topic label="Concepts"> 
@@ -75,35 +74,6 @@
 </topic> 
 -->
 
-<topic label="X10 Language Reference" href="html/lgref/toc.html">
-<!--
-	<topic label="Summary"  href="html/lgref/first.htm"/> 
-	<topic label="Introduction"  href="html/lgref/Intro.htm"/> 
-	<topic label="Overview of X10"  href="html/lgref/Overview.htm"/>
-	<topic label="Lexical and Grammatical structure"  href="html/lgref/Lex.htm"/> 
-	<topic label="Types" href="html/lgref/Types.htm"/>
-	<topic label="Variables" href="html/lgref/Vars.htm"/>
-	<topic label="Names and packages" href="html/lgref/Packages.htm"/>
-	<topic label="Interfaces" href="html/lgref/Interfaces.htm"/>
-	<topic label="Classes" href="html/lgref/Classes.htm"/> 
-	<topic label="Structs" href="html/lgref/Structs.htm"/> 
-	<topic label="Functions" href="html/lgref/Functions.htm"/> 
-	<topic label="Expressions" href="html/lgref/Expressions.htm"/> 
-	<topic label="Statements" href="html/lgref/Statements.htm"/> 
-	<topic label="Places" href="html/lgref/Places.htm"/> 
-	<topic label="Activities" href="html/lgref/Activities.htm"/> 
-	<topic label="Clocks" href="html/lgref/Clocks.htm"/> 
-	<topic label="Local and Distributed Arrays" href="html/lgref/Arrays.htm"/> 
-	<topic label="Annotations" href="html/lgref/Annotations.htm"/> 
-	<topic label="Native Code Integration" href="html/lgref/NativeCode.htm"/> 
-	<topic label="Definite Assignment" href="html/lgref/DefiniteAssignment.htm"/>
-	<topic label="Grammar" href="html/lgref/Grammar.htm"/>
-	<topic label="References" href="html/lgref/refs.html"/>
-	<topic label="Deprecations" href="html/lgref/NotCovered.htm"/>
-	<topic label="Change Log" href="html/lgref/ChangeLog.htm"/>
-	<topic label="Options" href="html/lgref/Options.htm"/> 
--->
-</topic>
 
 <topic label="X10DT FAQs"  href="html/x10dtfaqs.html"/>
 
