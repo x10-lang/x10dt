@@ -20,7 +20,7 @@ import org.eclipse.debug.ui.ILaunchShortcut;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.search.core.elements.ITypeInfo;
-import x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants;
+import x10dt.ui.launch.cpp.launching.LaunchConfigConstants;
 import x10dt.ui.launching.AbstractX10LaunchShortcut;
 
 /**

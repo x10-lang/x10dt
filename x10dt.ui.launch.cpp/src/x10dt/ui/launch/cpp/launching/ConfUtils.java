@@ -25,12 +25,12 @@ import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_USERNAME;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_X10_DISTRIBUTION;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTFILE;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTLIST;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_LOADLEVELER_SCRIPT;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_HOSTFILE;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_HOSTLIST;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_LOADLEVELER_SCRIPT;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_NUM_PLACES;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_USE_HOSTFILE;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.DEFAULT_NUM_PLACES;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,10 +40,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 import org.eclipse.ptp.remote.remotetools.core.RemoteToolsServices;
 import org.eclipse.ptp.remotetools.environment.EnvironmentPlugin;
 import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
@@ -140,10 +138,13 @@ public class ConfUtils {
                                   boolean isPasswordBased, String password, String privateKeyFile, String passphrase, int timeout) throws CoreException {
       final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
       final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
-      
+
+      // There is a problem in writing this code in the following way:  The attribute is_pass_auth is not recognized.
 //      try {
 //        IRemoteConnection conn  = rmConnManager.getConnection(connectionName);
-//        if (conn == null) {
+//        if (conn != null) {
+//          conn.close();
+//        } else {
 //          conn = rmConnManager.newConnection(connectionName);
 //        }
 //        conn.setAddress(hostname);
@@ -161,8 +162,10 @@ public class ConfUtils {
 //      } catch (RemoteConnectionException e){
 //        CppLaunchCore.log(IStatus.ERROR, LaunchMessages.CU_ConnectionException, e);
 //      }
+//      
+      
+      
       final TargetTypeElement targetTypeElement = RemoteToolsServices.getTargetTypeElement();
-
       ITargetElement targetElement = getDefaultTargetElement(connectionName);
       if (targetElement == null) {
         final String id = EnvironmentPlugin.getDefault().getEnvironmentUniqueID();

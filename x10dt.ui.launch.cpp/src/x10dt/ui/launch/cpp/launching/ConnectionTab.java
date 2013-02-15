@@ -771,7 +771,11 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
         } 
     } catch (Exception e){
       String error = processJSchMessage(e.getMessage());
-      setErrorMessage(error);
+      if (error != null) {
+        setErrorMessage(error);
+      } else {
+        setErrorMessage(e.toString());
+      }
       updateBrowseButtonsEnablement(false);
       
     }

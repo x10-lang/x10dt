@@ -67,7 +67,6 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 import x10dt.ui.launch.core.Constants;
-import x10dt.ui.launch.core.LaunchImages;
 import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.cpp.launching.ConfUtils;
 import x10dt.ui.launch.java.Activator;
@@ -80,10 +79,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
   
   VMsLocationTab() {
     LaunchJavaImages.createManaged(LaunchJavaImages.VMS_LOCATION);
-    LaunchImages.findOrCreateManaged(LaunchImages.RM_STOPPED);
-    LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTED);
-    LaunchImages.findOrCreateManaged(LaunchImages.RM_STARTING);
-    LaunchImages.findOrCreateManaged(LaunchImages.RM_ERROR);
     
     DebugPlugin.getDefault().getLaunchManager().addLaunchConfigurationListener(this);
   }
@@ -217,10 +212,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
   public void dispose() {
     DebugPlugin.getDefault().getLaunchManager().removeLaunchConfigurationListener(this);
     LaunchJavaImages.removeImage(LaunchJavaImages.VMS_LOCATION);
-    LaunchImages.removeImage(LaunchImages.RM_STOPPED);
-    LaunchImages.removeImage(LaunchImages.RM_STARTED);
-    LaunchImages.removeImage(LaunchImages.RM_STARTING);
-    LaunchImages.removeImage(LaunchImages.RM_ERROR);
     super.dispose();
   }
   
@@ -228,9 +219,25 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
     return LaunchJavaImages.getImage(LaunchJavaImages.VMS_LOCATION);
   }
   
+  private boolean errorMessageErasable(String message){
+	    if (message == null) return true;
+	    if (message.equals(Messages.VMLT_HostNameNotDefined) ||
+	        message.equals(Messages.VMLT_UserNameNotDefined) ||
+	        message.equals(Messages.VMLT_PrivateKeyFileNotDefined) ||
+	        message.equals(Messages.VMLT_OutputFolderNotDefined) ||
+	        message.equals(Messages.VMLT_X10DistNotDefined)) {
+	      return true;
+	    }
+	    return false;
+	  }
   public boolean isValid(final ILaunchConfiguration configuration) {
     setErrorMessage(null);
     if (this.fRemoteConnBt.getSelection()) {
+      if (errorMessageErasable(getErrorMessage())){
+            setErrorMessage(null);
+      } else {
+         return false;
+      }	
       if (this.fHostText.getText().length() == 0) {
         setErrorMessage(Messages.VMLT_HostNameNotDefined);
         return false;
@@ -253,7 +260,8 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
         setErrorMessage(Messages.VMLT_X10DistNotDefined);
         return false;
       }
-    }
+    } 
+    setErrorMessage(null);
     return true;
   }
   
@@ -392,7 +400,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
     connLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
     this.fStatusLabel = new CLabel(marginCompo, SWT.NONE);
     this.fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    this.fStatusLabel.setImage(LaunchImages.getImage(LaunchImages.RM_STOPPED));
     
     final Group remoteGroup = new Group(marginCompo, SWT.NONE);
     remoteGroup.setFont(parent.getFont());
@@ -484,6 +491,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
     
     this.fLocalConnBt.setSelection(true);
     this.fLocalConnBt.notifyListeners(SWT.Selection, new Event());
+    updateBrowseButtonsEnablement(false);
   }
   
   private Text createLabelAndText(final Composite parent, final String labelText, final Collection<Control> controlContainer) {
@@ -643,7 +651,11 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
 				}
 			} catch (Exception e) {
 				String error = processJSchMessage(e.getMessage());
-				setErrorMessage(error);
+				 if (error != null) {
+				        setErrorMessage(error);
+				 } else {
+				        setErrorMessage(e.toString());
+				 }
 				updateBrowseButtonsEnablement(false);
 
 			}

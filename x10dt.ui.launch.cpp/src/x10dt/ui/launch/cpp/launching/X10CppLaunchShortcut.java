@@ -13,21 +13,16 @@ import static org.eclipse.ptp.core.IPTPLaunchConfigurationConstants.ATTR_CONSOLE
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.HOST_LIST;
 import static x10dt.ui.launch.cpp.launching.CommunicationInterfaceTab.LOCALHOST;
 import static x10dt.ui.launch.cpp.launching.CppBackEndLaunchConfAttrs.ATTR_X10_MAIN_CLASS;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_HOSTLIST;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_NUM_PLACES;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.ATTR_USE_HOSTFILE;
-import static x10dt.ui.launch.rms.core.launch_configuration.LaunchConfigConstants.DEFAULT_NUM_PLACES;
-
-import java.util.List;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_HOSTLIST;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_NUM_PLACES;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_USE_HOSTFILE;
+import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.DEFAULT_NUM_PLACES;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
-import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.ui.ILaunchShortcut;
-import org.eclipse.imp.utils.Pair;
-import org.eclipse.ui.dialogs.AbstractElementListSelectionDialog;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.search.core.elements.ITypeInfo;

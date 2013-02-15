@@ -5,7 +5,7 @@
  * which accompanies this distribution, and is available at                    *
  * http://www.eclipse.org/legal/epl-v10.html                                   *
  *******************************************************************************/
-package x10dt.ui.launch.rms.core.launch_configuration;
+package x10dt.ui.launch.cpp.launching;
 
 import x10dt.ui.launch.rms.core.RMSCoreActivator;
 
