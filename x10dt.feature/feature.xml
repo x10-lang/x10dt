@@ -253,21 +253,7 @@
          unpack="false"/>
 
    <plugin
-         id="x10dt.ui.launch.cpp.rms"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="x10.wala"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
-         id="x10dt.ui.launch.rms.core"
          download-size="0"
          install-size="0"
          version="0.0.0"

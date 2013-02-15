@@ -101,10 +101,6 @@
       <param name="log.file" value="${build.folder}/x10dt.ui.launch.cpp/@dot.log" />
       <param name="component.name" value="x10dt.ui.launch.cpp" />
     </antcall>
-  	<antcall target="publish-compilation-log">
-  	    <param name="log.file" value="${build.folder}/x10dt.ui.launch.cpp.rms/@dot.log" />
-  	    <param name="component.name" value="x10dt.ui.launch.cpp.rms" />
-  	</antcall>
     <antcall target="publish-compilation-log">
       <param name="log.file" value="${build.folder}/x10dt.ui.launch.java/@dot.log" />
       <param name="component.name" value="x10dt.ui.launch.java" />
