@@ -148,7 +148,9 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 	      this.fExecPath = getExecutablePath(x10DistFolder, isLocal , configuration.getName());
 	      final String cmd = this.fExecPath.toOSString();
 	      
-	      command.add(cmd);
+	      if (! isLocal){
+	    	  command.add(cmd);
+	      }
 	      final String[] argArr = getProgArguments(configuration, mainTypeName, jarPath, !isLocal);
 	      for (String s: argArr){
 	        command.add(s);
