@@ -18,6 +18,7 @@ import static x10dt.ui.launch.cpp.launching.ConnectionTab.SOCKETS;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,6 +59,7 @@ import x10cpp.X10CPPCompilerOptions;
 import x10cpp.visit.MessagePassingCodeGenerator;
 import x10dt.core.preferences.generated.X10Constants;
 import x10dt.core.utils.CompilerOptionsFactory;
+import x10dt.core.utils.X10BundleUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.LaunchCore;
 import x10dt.ui.launch.core.Messages;
@@ -87,7 +89,6 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
   private static String HOSTLIST_SOCKETS = "X10_HOSTLIST";
   private static String NPLACES_PAMI = "MP_PROCS";
   private static String HOSTLIST_PAMI = "MP_HOSTFILE";
-  private static String RUNX10 = "runx10";
   
   // --- Overridden methods
   
@@ -167,12 +168,13 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       final List<String> command = new ArrayList<String>();
       
       final String cmd = this.fExecPath;
-      if (!ConfUtils.isCygwin(this.fCompilationConfiguration)){
-        command.add(cmd);
-      } else {
-        command.add(RUNX10);
-        command.add(cmd);
-      }
+      if (ConfUtils.isCygwin(this.fCompilationConfiguration)){
+        String runx10 = new File(X10BundleUtils.getX10DistHostResource("bin/runx10").getFile()).getAbsolutePath();
+        command.add(runx10);
+      } 
+      command.add(cmd);
+      
+      
       
       String attrProgArgs = configuration.getAttribute(ATTR_ARGUMENTS, Constants.EMPTY_STR);
       final String progArgs = VariablesPlugin.getDefault().getStringVariableManager().performStringSubstitution(attrProgArgs);
