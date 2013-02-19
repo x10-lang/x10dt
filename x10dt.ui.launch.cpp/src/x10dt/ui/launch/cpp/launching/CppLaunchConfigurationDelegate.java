@@ -170,7 +170,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       final String cmd = this.fExecPath;
       if (ConfUtils.isCygwin(this.fCompilationConfiguration)){
         String runx10 = new File(X10BundleUtils.getX10DistHostResource("bin/runx10").getFile()).getAbsolutePath();
-        command.add(runx10);
+        command.add(this.fTargetOpHelper.getTargetSystemPath(runx10));
       } 
       command.add(cmd);
       
