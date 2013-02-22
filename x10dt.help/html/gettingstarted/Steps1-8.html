@@ -157,27 +157,17 @@ select
 The results of the program will be displayed in the Console view at the bottom in Eclipse.
 
 <br><br>
-To run an X10 program in an X10 C++-backend project, open the platform configuration file (<b>x10_platform.conf</b>) located at the root directory
-in the project. The platform configuration has 2 tabs: <b>Connection and Communication Interface</b> and <b>C++ Compilation and Linking</b>. These pages
-will allow you to specify how your program will compile and execute on possibly multiple machines. The communication interface allows you to select the type of interface
-and to configure it. The second tab allows you to specify the configuration of C++ compilation and linking. 
-The simplest configuration (default settings) is to compile and execute
-locally on your own machine
-(For more details on the platform configuration see <a href="Steps9-14.html">Remote Launching and Debugging Basics</a>).
 
-<br><br>
-When you have finished editing the configuration file, click on <b>Validate Configuration</b>. This ensures that your settings are appropriate for your
-system. Then click on <b>Save Configuration</b>. 
-
-<br><br>
-You are now ready to run your X10 program with the C++ back-end. Select the type with the main method, right click and select
+To run an X10 program in an X10 C++-backend project, simply right click on the class that has the Main method in the Package Explorer, and
+select 
 <br><br><b>Run As -> X10 Application (C++ back-end)</b><br><br>
 
-You may also go to
+The results of the program will be displayed in the Console view at the bottom in Eclipse.
+
 <br><br><b>Run -> Run Configurations...</b><br><br>
 
 to see all of the run configurations that you have so far created, and modify them further. The run configuration tabs allow you to
-enter program parameters (For more information see <a href="Steps9-14.html">Remote Launching and Debugging Basics</a>).
+enter program parameters and to specify the number of X10 Places to create when executing the program.
 
 <br><hr>
 <h2 id="conversions">Conversions between C++ and Java back-ends</h2>
