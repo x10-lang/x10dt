@@ -13,7 +13,7 @@
 
 <topic label="Getting Started"> 
 	<topic label="Editor basics and launching" href="html/gettingstarted/Steps1-8.html"/>
-	<topic label="Remote launching and debugging basics" href="html/gettingstarted/Steps9-14.html"/>
+	<topic label="Remote building and launching" href="html/gettingstarted/Steps9-14.html"/>
 </topic>
 
 <topic label="Concepts"> 
