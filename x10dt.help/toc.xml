@@ -65,14 +65,14 @@
 	<topic label="GCSpheres" href="html/samples/GCSpheres.html">GCSpheres</topic>
 </topic> 
 
-<!--
-<topic label="An Introduction to Programming With X10">
-	<topic label="Preface" href="html/pguide/fp.html"/>
-	<topic label="A Whirlwind Tour of X10" href="html/pguide/ch1.html"/>
-	<topic label="A First Look At X10's Types" href="html/pguide/ch2.html"/>
-	<topic label="A Potpourri of Types" href="html/pguide/ch3.html"/>
+
+<topic label="A Brief Introduction to X10" href="html/x10Overview/node1.html">
+	<topic label="X10 basics" href="html/x10Overview/node2.html"/>
+	<topic label="The APGAS model" href="html/x10Overview/node3.html"/>
+	<topic label="The X10 Performance Model" href="html/x10Overview/node4.html"/>
+	<topic label="References" href="html/x10Overview/node5.html"/>
+
 </topic> 
--->
 
 
 <topic label="X10DT FAQs"  href="html/x10dtfaqs.html"/>
