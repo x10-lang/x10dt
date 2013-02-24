@@ -89,6 +89,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
   private static String HOSTLIST_SOCKETS = "X10_HOSTLIST";
   private static String NPLACES_PAMI = "MP_PROCS";
   private static String HOSTLIST_PAMI = "MP_HOSTFILE";
+  private static final String PATH_ENV = "PATH"; 
   
   // --- Overridden methods
   
@@ -141,6 +142,26 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       messageConsole.clearConsole();
      
       final Map<String,String> env = new HashMap<String,String>();
+      if (this.fIsCygwin){
+        final StringBuilder sb = new StringBuilder();
+        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
+        int k = 0;
+        for (final String x10Lib : ConfUtils.getX10LibsLocation(this.fCompilationConfiguration)) {
+          if (k > 0) {
+            sb.append(';');
+          } else {
+            k = 1;
+          }
+          //sb.append(x10Lib.replace('/', '\\'));
+          sb.append(this.fTargetOpHelper.getTargetSystemPath(x10Lib));
+        }
+        if (ldLibPathValue != null) {
+          sb.append(';').append(this.fTargetOpHelper.getTargetSystemPath(ldLibPathValue));
+        }
+        env.put(PATH_ENV, sb.toString());
+      }
+      
+    
       final int NPlaces = ConfUtils.getNPlaces(configuration);
       String transport = ConfUtils.getServiceTypeId(this.fCompilationConfiguration);
       
@@ -167,12 +188,16 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       }
       final List<String> command = new ArrayList<String>();
       
-      final String cmd = this.fExecPath;
-      if (ConfUtils.isCygwin(this.fCompilationConfiguration)){
-        String runx10 = new File(X10BundleUtils.getX10DistHostResource("bin/runx10").getFile()).getAbsolutePath();
-        command.add(this.fTargetOpHelper.getTargetSystemPath(runx10));
-      } 
-      command.add(cmd);
+      String cmd = this.fExecPath;
+      if (this.fIsCygwin){
+        cmd = this.fTargetOpHelper.getTargetSystemPath(cmd);
+      }
+      final String mycmd = cmd;
+//      if (ConfUtils.isCygwin(this.fCompilationConfiguration)){
+//        String runx10 = new File(X10BundleUtils.getX10DistHostResource("bin/runx10").getFile()).getAbsolutePath();
+//        command.add(this.fTargetOpHelper.getTargetSystemPath(runx10));
+//      } 
+      command.add(mycmd);
       
       
       
@@ -191,7 +216,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
 
         public void readError(final String line) {
           if (this.fCounter == 0) {
-            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmd));
+            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, mycmd));
             this.fCounter = 1;
           }
           mcStream.println(line);

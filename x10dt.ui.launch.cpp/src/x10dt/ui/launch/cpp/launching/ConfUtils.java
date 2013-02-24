@@ -34,6 +34,8 @@ import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.DEFAULT_NUM_PL
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.eclipse.core.runtime.CoreException;
@@ -254,6 +256,24 @@ public class ConfUtils {
           }
         }
     }
+    
+    public static Collection<String> getX10LibsLocation(ILaunchConfiguration compilationConf){
+      Collection<String> result = new ArrayList<String>();
+      try {
+        File[] files = new File(X10BundleUtils.getX10DistHostResource("lib").getFile()).listFiles();
+        for (File f: files){
+          result.add(f.getAbsolutePath());
+        }
+        File[] morefiles = new File(X10BundleUtils.getX10DistHostResource("stdlib/lib").getFile()).listFiles();
+        for (File f: morefiles){
+          result.add(f.getAbsolutePath());
+        }
+      } catch (IOException e){
+        //Simply forgets
+      }
+      return result;
+    }
+    
     
     public static boolean isCygwin(ILaunchConfiguration compilationConf){
       if (!ConfUtils.isLocalConnection(compilationConf)) return false; //We do not support remote windows.
