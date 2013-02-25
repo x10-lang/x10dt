@@ -28,7 +28,7 @@
 		<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
 	</topic>
 	<topic label="Running your X10 programs" href="html/x10dt/01whichRunProgram.html">
-		<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
+		<topic label="Running X10 programs (Java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
 		<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
 	</topic>
 </topic>
