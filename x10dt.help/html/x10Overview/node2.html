@@ -789,8 +789,13 @@ it destructures a 2-d point into its coordinates <TT>x</TT> and <TT>  y</TT>. On
 Throw statement.</A>
 </H3> X10  has a non-resumptive exception
   model. This means that an exception can be thrown at any point in
-  the code. In X10  2.2.3, all exceptions are <EM>    unchecked</EM>. This means that methods do not need to explictly
-  declare the set of exceptions that they may raise.  
+  the code.  Starting with X10  2.3.0, exceptions may be either
+  <EM>checked</EM> or <EM>unchecked</EM> to more closely match the Java
+  programming model for exceptions. Checked exceptions will be
+  subclasses of <TT>x10.lang.CheckedException</TT>; if a method throws
+  such an exception then it must declare that it does so with a
+  <TT>throws</TT> clause (placed after the return type of the method,
+  if any, and the body of the method).
 
 <P>
 Throwing an exception causes the call stack to be unwound until a
@@ -1088,5 +1093,6 @@ public type Rail[T]=Array[T]{self.rank==1,self.zeroBased,self.rect,self.rail};
   HREF="node1.html">Contents</A>
 
 <!--End of Navigation Panel-->
+
 </BODY>
 </HTML>
