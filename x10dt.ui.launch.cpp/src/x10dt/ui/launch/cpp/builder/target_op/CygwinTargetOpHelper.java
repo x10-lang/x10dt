@@ -15,9 +15,10 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
 
+import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 
-final class CygwinTargetOpHelper extends AbstractTargetOpHelper implements ITargetOpHelper {
+final public class CygwinTargetOpHelper extends AbstractTargetOpHelper implements ITargetOpHelper {
 
   CygwinTargetOpHelper(final IRemoteServices remoteServices, final IRemoteConnection remoteConnection) {
     super(remoteServices, remoteConnection);
@@ -62,5 +63,34 @@ final class CygwinTargetOpHelper extends AbstractTargetOpHelper implements ITarg
       return resourcePath;
     }
   }
+    
+    public String getCygwinBash(){
+      final List<String> cmd = new ArrayList<String>();
+      cmd.add("cygpath");
+      cmd.add("-m");
+      cmd.add("/");
+      final StringBuilder output = new StringBuilder();
+      try {
+        final int returnCode = run(cmd, new IProcessOuputListener() {
+        
+          public void readError(final String line) {
+          }
+        
+          public void read(final String line) {
+            output.append(line);
+          }
+        
+        }, new NullProgressMonitor());
+      
+        if ((returnCode == 0) && (output.length() > 0)) {
+          return output.toString() + "/bin/bash";
+        }
+      } catch (Exception except) {
+        // Let's forget.
+      }
+      return Constants.EMPTY_STR;
+    }
+    
+  
 
 }

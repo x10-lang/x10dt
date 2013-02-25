@@ -75,6 +75,7 @@ import x10dt.ui.launch.cpp.CppLaunchCore;
 import x10dt.ui.launch.cpp.LaunchMessages;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.builder.target_op.TargetOpHelperFactory;
+import x10dt.ui.launch.cpp.builder.target_op.CygwinTargetOpHelper;
 import x10dt.ui.launch.cpp.utils.PlatformConfUtils;
 
 /**
@@ -140,28 +141,8 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       final MessageConsoleStream mcStream = messageConsole.newMessageStream();
       messageConsole.activate();
       messageConsole.clearConsole();
-     
-      final Map<String,String> env = new HashMap<String,String>();
-      if (this.fIsCygwin){
-        final StringBuilder sb = new StringBuilder();
-        final String ldLibPathValue = this.fTargetOpHelper.getEnvVarValue(PATH_ENV);
-        int k = 0;
-        for (final String x10Lib : ConfUtils.getX10LibsLocation(this.fCompilationConfiguration)) {
-          if (k > 0) {
-            sb.append(';');
-          } else {
-            k = 1;
-          }
-          //sb.append(x10Lib.replace('/', '\\'));
-          sb.append(this.fTargetOpHelper.getTargetSystemPath(x10Lib));
-        }
-        if (ldLibPathValue != null) {
-          sb.append(';').append(this.fTargetOpHelper.getTargetSystemPath(ldLibPathValue));
-        }
-        env.put(PATH_ENV, sb.toString());
-      }
       
-    
+      final Map<String,String> env = new HashMap<String,String>();
       final int NPlaces = ConfUtils.getNPlaces(configuration);
       String transport = ConfUtils.getServiceTypeId(this.fCompilationConfiguration);
       
@@ -188,17 +169,15 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
       }
       final List<String> command = new ArrayList<String>();
       
-      String cmd = this.fExecPath;
+      final String cmd = this.fExecPath;
       if (this.fIsCygwin){
-        cmd = this.fTargetOpHelper.getTargetSystemPath(cmd);
+        command.add(((CygwinTargetOpHelper) this.fTargetOpHelper).getCygwinBash());
+        String runx10 = new File(X10BundleUtils.getX10DistHostResource("bin/runx10").getFile()).getAbsolutePath();
+        command.add(this.fTargetOpHelper.getTargetSystemPath(runx10));
+        command.add(this.fTargetOpHelper.getTargetSystemPath(cmd));
+      } else { 
+        command.add(cmd);
       }
-      final String mycmd = cmd;
-//      if (ConfUtils.isCygwin(this.fCompilationConfiguration)){
-//        String runx10 = new File(X10BundleUtils.getX10DistHostResource("bin/runx10").getFile()).getAbsolutePath();
-//        command.add(this.fTargetOpHelper.getTargetSystemPath(runx10));
-//      } 
-      command.add(mycmd);
-      
       
       
       String attrProgArgs = configuration.getAttribute(ATTR_ARGUMENTS, Constants.EMPTY_STR);
@@ -216,7 +195,7 @@ public class CppLaunchConfigurationDelegate implements ILaunchConfigurationDeleg
 
         public void readError(final String line) {
           if (this.fCounter == 0) {
-            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, mycmd));
+            mcStream.println(NLS.bind(LaunchMessages.CLCD_CmdUsedMsg, cmd));
             this.fCounter = 1;
           }
           mcStream.println(line);
