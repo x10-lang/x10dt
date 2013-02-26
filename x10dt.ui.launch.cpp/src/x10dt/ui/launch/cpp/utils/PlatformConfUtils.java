@@ -51,7 +51,7 @@ public final class PlatformConfUtils {
     }
 
     String output = processorListener.getOutput();
-    if (output == null) {
+    if (output == null || output.equals("unknown")) {
       // We fail to get an output with "uname -p". Last option is to try with "uname -m".
       final LastLineOutputListener machineListener = new LastLineOutputListener();
       try {
