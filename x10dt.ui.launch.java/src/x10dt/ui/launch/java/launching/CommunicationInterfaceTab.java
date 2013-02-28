@@ -120,6 +120,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
     this.fHostFileBt.addSelectionListener(new SelectionListener() {
       
       public void widgetSelected(final SelectionEvent event) {
+    	updateSelectionState(true);
         updateLaunchConfigurationDialog();
       }
       
@@ -182,6 +183,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
       
       public void widgetSelected(final SelectionEvent event) {
         updateLaunchConfigurationDialog();
+        updateSelectionState(false);
       }
       
       public void widgetDefaultSelected(final SelectionEvent event) {
@@ -309,6 +311,16 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
   
   public String getName() {
     return LaunchMessages.CIT_CommunicationInterface;
+  }
+  
+  private void updateSelectionState(boolean isHostFile){
+	  this.fHostFileBt.setSelection(isHostFile);
+	  this.fHostFileText.setEnabled(isHostFile);
+	  this.fHostFileBrowseBt.setEnabled(isHostFile);
+	  this.fHostListBt.setSelection(!isHostFile);
+	  this.fHostListViewer.getTable().setEnabled(!isHostFile);
+	  this.fAddButton.setEnabled(!isHostFile);
+	  this.fRemoveButton.setEnabled(!isHostFile);
   }
   
   private void initState() {
