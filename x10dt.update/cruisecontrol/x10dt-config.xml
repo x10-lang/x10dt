@@ -145,7 +145,6 @@
                    <buildstatus logdir="logs/x10.common"/>
                    <buildstatus logdir="logs/polyglot3"/>
                    <buildstatus logdir="logs/lpg.runtime.java"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.smapifier"/>
                    <buildstatus logdir="logs/org.eclipse.imp.runtime"/>
                    <buildstatus logdir="logs/x10.compiler"/>
                    <buildstatus logdir="logs/org.eclipse.imp.java.hosted"/>
@@ -525,7 +524,6 @@
                    <buildstatus logdir="logs/x10.compiler"/>
                    <buildstatus logdir="logs/org.eclipse.imp.runtime"/>
                    <buildstatus logdir="logs/x10dt.core"/>
-                   <buildstatus logdir="logs/org.eclipse.imp.smapifier"/>
                    <buildstatus logdir="logs/x10dt.ui"/>
                    <buildstatus logdir="logs/x10dt.ui.launch.core"/>
                    <buildstatus logdir="logs/lpg.runtime.java"/>

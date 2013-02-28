@@ -219,8 +219,6 @@
         <copy todir="${update.temp.folder}/plugins" failonerror="true" overwrite="false">
             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.doc*.jar"/>
              <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.runtime*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.smapi*.jar"/>
-             <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.smapifier*.jar"/>
              <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.xform*.jar"/>
              <fileset dir="${imp.update.cache.dir}/plugins" includes="org.eclipse.imp.java.hosted*.jar"/>
              <fileset dir="${imp.update.cache.dir}/plugins" includes="com.ibm.wala.shrike*.jar"/>            

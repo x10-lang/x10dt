@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -168,7 +167,7 @@ public final class ProjectUtils {
       
       IProjectDescription description = project.getDescription();
       description.setNatureIds(new String[] {
-        backEndNature, SmapiProjectNature.k_natureID, JavaCore.NATURE_ID                        
+        backEndNature, JavaCore.NATURE_ID                        
       });
       project.setDescription(description, null);
       
