@@ -395,12 +395,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
     final Button checkButton = createPushButton(marginCompo, Messages.VMLT_CheckConnBt, null /* image */);
     remoteControls.add(checkButton);
     
-    final Label connLabel = new Label(marginCompo, SWT.NONE);
-    connLabel.setText(Messages.VMLT_ConnStatus);
-    connLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
-    this.fStatusLabel = new CLabel(marginCompo, SWT.NONE);
-    this.fStatusLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
-    
     final Group remoteGroup = new Group(marginCompo, SWT.NONE);
     remoteGroup.setFont(parent.getFont());
     remoteGroup.setLayout(new GridLayout(4, false));
@@ -686,8 +680,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
   private Button fLocalConnBt;
   
   private Button fRemoteConnBt;
-  
-  private CLabel fStatusLabel;
   
   private Text fHostText;
   
