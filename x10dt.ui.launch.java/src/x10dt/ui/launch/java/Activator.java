@@ -39,17 +39,13 @@ import x10dt.ui.launch.core.utils.PTPConstants;
 /**
  * The activator class controls the plug-in life cycle
  */
-public class Activator extends AbstractUIPlugin implements ILaunchConfigurationListener, IPreferenceChangeListener {
+public class Activator extends AbstractUIPlugin implements ILaunchConfigurationListener {
 
 	/**
 	 * The unique plugin id for <b>x10dt.ui.launch.java</b> project.
 	 */
 	public static final String PLUGIN_ID = "x10dt.ui.launch.java"; //$NON-NLS-1$
 
-	/**
-	 * Unique id for the Java Builder.
-	 */
-	public static final String BUILDER_ID = PLUGIN_ID + ".X10JavaBuilder"; //$NON-NLS-1$
 	
 	/**
 	 * Launch configuration type for Java back-end.
@@ -79,25 +75,7 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 
   }
 	
-  /**
-   * The keys for the set of preferences that can impact compilation results
-   * (semantic errors or generated artifacts) such that a full rebuild would be
-   * required on a preference value change.
-   */
-  private final static Set<String> FULL_BUILD_PREF_KEYS = new HashSet<String>();
-
-  static {
-    // At present, there are no additional preference keys that affect Java back-end
-    // code gen, so just listen for changes to the base set of keys.
-    FULL_BUILD_PREF_KEYS.addAll(X10DTCorePlugin.getFullBuildPreferenceKeys());
-  }
-
-  public void preferenceChange(final PreferenceChangeEvent event) {
-    if (FULL_BUILD_PREF_KEYS.contains(event.getKey())) {
-      X10DTCorePlugin.submitProjectsForFullBuild(X10DTCorePlugin.X10_PRJ_JAVA_NATURE_ID);
-    }
-  }
-
+ 
 	// --- Overridden methods
 
 	public void start(final BundleContext context) throws Exception {
@@ -107,13 +85,9 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 		// Let's activate magically the PTP core plugin to avoid some late ClassCircularityError !?
 		PTPLaunchPlugin.getDefault();
 		plugin = this;
-	    X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
-                                                                              .addPreferenceChangeListener(this);
 	}
 
 	public void stop(final BundleContext context) throws Exception {
-	    X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
-                                                                           .removePreferenceChangeListener(this);
 		plugin = null;
 		super.stop(context);
 	}
