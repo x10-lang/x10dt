@@ -15,7 +15,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
 import x10dt.core.X10DTCorePlugin;
-import x10dt.ui.launch.core.utils.PTPConstants;
 
 
 /**
@@ -82,7 +81,6 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 		super.start(context);
 		final ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 		manager.addLaunchConfigurationListener(this);
-		// Let's activate magically the PTP core plugin to avoid some late ClassCircularityError !?
 		plugin = this;
 	    X10DTCorePlugin.getInstance().getPreferencesService().getPreferences(IPreferencesService.INSTANCE_LEVEL)
                                                                               .addPreferenceChangeListener(this);
