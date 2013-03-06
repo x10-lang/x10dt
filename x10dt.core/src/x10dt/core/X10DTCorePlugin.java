@@ -66,7 +66,7 @@ public class X10DTCorePlugin extends PluginBase {
     /**
      * Id for the X10DT Java Project Nature.
      */
-    public static final String X10_PRJ_JAVA_NATURE_ID = "x10dt.ui.launch.java.x10nature"; //$NON-NLS-1$
+    public static final String X10_PRJ_JAVA_NATURE_ID = "x10dt.ui.builder.java.x10nature"; //$NON-NLS-1$
 
     public X10DTCorePlugin() {
       super();
