@@ -66,8 +66,8 @@
 
   <target name="publish-compilation-results" if="requestUUID">
     <antcall target="publish-compilation-log">
-      <param name="log.file" value="${build.folder}/x10dt/@dot.log" />
-      <param name="component.name" value="x10dt" />
+      <param name="log.file" value="${build.folder}/x10dt.editor.only/@dot.log" />
+      <param name="component.name" value="x10dt.editor.only" />
     </antcall>
     <antcall target="publish-compilation-log">
       <param name="log.file" value="${build.folder}/x10dt.core/@dot.log" />

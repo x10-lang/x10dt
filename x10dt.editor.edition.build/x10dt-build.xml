@@ -11,7 +11,7 @@
   <target name="x10dt-checkouts-existence">
     <condition property="are-plugins-present">
       <and>
-        <available file="${build.folder}/x10dt" type="dir" />
+        <available file="${build.folder}/x10dt.editor.only" type="dir" />
         <available file="${build.folder}/x10dt.core" type="dir" />
         <available file="${build.folder}/x10dt.editor.only.feature" type="dir" />
         <available file="${build.folder}/x10dt.help" type="dir" />
@@ -28,8 +28,8 @@
   <target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
     <echo message="Using SVN revision ${x10dt.revision} and tag ${x10dt.tag} for X10DT project checkouts"/>
     <svn username="anonymous">
-      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.editor.only" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.editor.only" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.core" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.core" />
       <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.editor.only.feature" 
@@ -112,7 +112,7 @@
       <plugin id="x10.dist.linux.x86_64.fragment" version="0.0.0"/>
       <plugin id="x10.dist.macosx.x86.fragment" version="0.0.0"/>
       <plugin id="x10.dist.win32.x86.fragment" version="0.0.0"/>
-      <plugin id="x10dt" version="0.0.0"/>
+      <plugin id="x10dt.editor.only" version="0.0.0"/>
       <plugin id="x10dt.refactoring" version="0.0.0"/>
       <feature id="lpg.runtime" version="0.0.0"/>
       <feature id="org.eclipse.imp.java.hosted" version="0.0.0"/>
