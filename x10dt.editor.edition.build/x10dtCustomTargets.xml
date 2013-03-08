@@ -119,10 +119,10 @@
       <iu id="org.eclipse.ptp.rm.lml.feature.group"  />
       -->
     	
-     <!-- <iu id="org.eclipse.imp.runtime.feature.group" />
+      <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
       <iu id="org.eclipse.imp.analysis.feature.group" />
-  -->
+  
       <iu id="wala.feature.feature.group"/>
 
       <slicingOptions followStrict="true" includeOptional="false"/>
