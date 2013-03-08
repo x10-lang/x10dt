@@ -92,32 +92,12 @@
   <target name="preProcessRepos">
     <p2.mirror destination="file:${repoBaseLocation}/mirror">
       <source file="${cdt.update.loc}"/>
-      <source file="${ptp.update.loc}"/>
+      
       <source file="${imp.update.loc}"/>
       <source>
         <repository location="${wala.update.loc}" />
       </source>
       <iu id="org.eclipse.cdt.feature.group" />
-
-      <iu id="org.eclipse.ptp.core.feature.group" />
-      <iu id="org.eclipse.ptp.external.feature.group"/>
-      <iu id="org.eclipse.ptp.remote.feature.group" />
-      <iu id="org.eclipse.ptp.remote.remotetools.feature.group" />
-      <iu id="org.eclipse.ptp.remotetools.feature.group" />
-      <iu id="org.eclipse.ptp.rm.ibm.ll.feature.group" />
-      <iu id="org.eclipse.ptp.rm.ibm.pe.feature.group" />
-      <iu id="org.eclipse.ptp.rm.mpich2.feature.group" />
-      <iu id="org.eclipse.ptp.rm.openmpi.feature.group" />
-      <iu id="org.eclipse.ptp.services.feature.group" />
-      <iu id="org.eclipse.ptp.utils.feature.group" />
-      <iu id="org.eclipse.ptp.debug.sdm.feature.group" />
-    	<!-- Features added by PTP 6.0. 
-    	     Re-enable if/when we move X10DT to PTP 6/Juno
-      <iu id="org.eclipse.ptp.rm.jaxb.feature.group"  />
-      <iu id="org.eclipse.ptp.rm.jaxb.contrib.feature.group"  />
-      <iu id="org.eclipse.ptp.rm.lml_jaxb.feature.group"  />
-      <iu id="org.eclipse.ptp.rm.lml.feature.group"  />
-      -->
     	
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
@@ -127,17 +107,6 @@
 
       <slicingOptions followStrict="true" includeOptional="false"/>
     </p2.mirror>
-
-    <unzip dest="${build.folder}/dependencies">
-      <patternset>
-        <!-- <include name="ptpui.jar" />  PTP 6.0 -->
-        <include name="utils_core.jar" />       <!-- PTP 5.0 -->
-      </patternset>
-      <fileset dir="${repoBaseLocation}/mirror/plugins">
-        <!-- <include name="org.eclipse.ptp.ui*.jar"/>  PTP 6.0 -->
-        <include name="org.eclipse.ptp.utils.core_*.jar"/> <!-- PTP 5.0 -->
-      </fileset>
-    </unzip>
   </target>
 
   <!-- ===================================================================== -->
