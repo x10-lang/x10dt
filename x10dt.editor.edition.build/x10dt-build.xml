@@ -130,13 +130,13 @@
   </target>
 
   <target name="main" depends="x10dt-checkouts">
-    <loadfile srcfile="${build.folder}/x10dt/plugin.properties" property="properties.replaced">
+    <loadfile srcfile="${build.folder}/x10dt.editor.only/plugin.properties" property="properties.replaced">
       <filterchain>
         <replaceregex pattern="Version: (.*)" replace="Version: ${zip.release.tag}\\\\n\\\\" />
         <replaceregex pattern="Build Id: (.*)" replace="Build Id: ${buildLabel}\\\\n\\\\" />
       </filterchain>
     </loadfile>
-    <echo message="${properties.replaced}" file="${build.folder}/x10dt/plugin.properties" />
+    <echo message="${properties.replaced}" file="${build.folder}/x10dt.editor.only/plugin.properties" />
 
     <!-- Pick up results of x10-build, which has already run before this entire target -->
     <p2.publish.featuresAndBundles
