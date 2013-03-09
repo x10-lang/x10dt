@@ -15,7 +15,7 @@
  * 
  * This file is part of the Eclipse IMP.
  */
-package x10dt;
+package x10dt.editor.only;
 
 import org.eclipse.core.runtime.Plugin;
 import org.osgi.framework.BundleContext;

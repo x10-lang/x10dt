@@ -16,7 +16,7 @@
 
    <splash
       location="x10dt.editor.only" />
-   <launcher name="x10dt.editor.only">
+   <launcher name="x10dt">
       <linux icon="/x10dt.editor.only/icons/linux/x10dt.xpm"/>
       <macosx icon="/x10dt.editor.only/icons/mac/x10dt.icns"/>
       <solaris/>

@@ -4,7 +4,7 @@ Bundle-Name: X10 Development Toolkit
 Bundle-Localization: plugin
 Bundle-SymbolicName: x10dt.editor.only;singleton:=true
 Bundle-Version: 2.3.1.qualifier
-Bundle-Activator: x10dt.Activator
+Bundle-Activator: x10dt.editor.only.Activator
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-Localization: plugin
 Require-Bundle: org.eclipse.core.runtime,
