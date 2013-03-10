@@ -41,7 +41,7 @@
          </property>
          <property
                name="introTitle"
-               value="Welcome to X10 Development Toolkit">
+               value="Welcome to X10 Development Toolkit\n Editor Edition">
          </property>
          <property
                name="introBrandingImage"
