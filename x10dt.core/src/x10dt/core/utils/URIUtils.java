@@ -3,6 +3,7 @@ package x10dt.core.utils;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.osgi.util.NLS;
 
 import x10dt.core.Messages;
@@ -27,6 +28,14 @@ public class URIUtils {
 			if (uri.getAuthority().equals("jazz")) {
 				if (uri.getQuery() != null) {
 					return new URI(uri.getQuery());
+				} else if (uri.getPath() != null){
+					String root = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+					String path = uri.getPath();
+					if (path.startsWith("/default/")) {
+						return new URI("file:" + root +path.substring(8));
+					} else {
+						return new URI("file:" + root+ path);
+					}
 				} else {
 					return uri;
 				}
