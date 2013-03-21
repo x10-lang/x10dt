@@ -14,7 +14,7 @@ public class Messages extends NLS {
   
   // --- Fields
   
-  private static final String BUNDLE_NAME = "x10dt.ui.launch.java.messages"; //$NON-NLS-1$
+  private static final String BUNDLE_NAME = "x10dt.ui.builder.java.messages"; //$NON-NLS-1$
 
   static {
     // initialize resource bundle
