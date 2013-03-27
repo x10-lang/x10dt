@@ -191,15 +191,13 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
         return null;
       }
 
-      final String localOutputDir = ProjectUtils.getProjectOutputDirPath(getProject());
+      final String localOutputDir = getLocalOutputDir();
       x10BuilderOp.copyToOutputDir(nativeFiles, subMonitor.newChild(5));
 
       checkForCancelation(subMonitor);
       
       compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
       
-      
-
       this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       dependentProjects.addAll(ProjectUtils.getDependentProjects(fProjectWrapper));
       return dependentProjects.toArray(new IProject[dependentProjects.size()]);
@@ -222,6 +220,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       monitor.done();
     }
     return new IProject[0];
+  }
+  
+  protected String getLocalOutputDir() throws CoreException{
+    return ProjectUtils.getProjectOutputDirPath(getProject());
   }
 
   private Set<IProject> cleanFiles(final int kind, final SubMonitor subMonitor, final Collection<IFile> sourcesToCompile,
@@ -650,10 +652,12 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 				  continue;
 			  }
 			  IJavaProject project = JavaCore.create(dep.getProject());
-			  File f = getMainGeneratedFile(project, dep);
-			  if (f == null){
+			  if (isX10File(dep)) {
+			    File f = getMainGeneratedFile(project, dep);
+			    if (f == null){
 				  addToBlockingPostCompilation(BuildPathUtils.getBareName(path, fProjectWrapper), srcPath);
 				  return false;
+			    }
 			  }
 		  }
 	  }

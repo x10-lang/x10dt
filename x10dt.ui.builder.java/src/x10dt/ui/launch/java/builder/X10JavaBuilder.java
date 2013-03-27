@@ -1,20 +1,33 @@
 package x10dt.ui.launch.java.builder;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.imp.java.hosted.BuildPathUtils;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 import polyglot.main.Options;
 import x10.ExtensionInfo;
 import x10dt.core.utils.IFilter;
+import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
+import x10dt.ui.launch.core.utils.ProjectUtils;
 
 public class X10JavaBuilder extends AbstractX10Builder {
 	private Options fOptions;
@@ -49,6 +62,29 @@ public class X10JavaBuilder extends AbstractX10Builder {
 		return new X10JavaBuilderOp(getJavaProject(), this, this.fGeneratedFiles);
 	}
 
+	  public File getMainGeneratedFile(final IJavaProject project, final IFile x10File) throws CoreException {
+		    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		    IPath rootPath = root.getLocation();
+		    for (final IClasspathEntry cpEntry : project.getRawClasspath()) {
+		      if (cpEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE && cpEntry.getPath().isPrefixOf(x10File.getFullPath())
+		    		  && !BuildPathUtils.isExcluded(x10File.getFullPath(), cpEntry)){
+		        IPath outputLocation = new Path(getX10GenSrc());
+		        outputLocation = outputLocation.makeRelativeTo(rootPath);
+		        final StringBuilder sb = new StringBuilder();
+		        sb.append(File.separatorChar).append(x10File.getProjectRelativePath().removeFileExtension().toString())
+		          .append(getFileExtension());
+		        final IPath projectRelativeFilePath = new Path(sb.toString());
+		        final int srcPathCount = cpEntry.getPath().removeFirstSegments(1).segmentCount();
+		        final IPath generatedFilePath = outputLocation.append(projectRelativeFilePath.removeFirstSegments(srcPathCount));
+		        final IFileStore fileStore = EFS.getLocalFileSystem().getStore(root.getFile(generatedFilePath).getLocation());
+		        if (fileStore.fetchInfo().exists()) {
+		          return fileStore.toLocalFile(EFS.NONE, null);
+		        }
+		      }
+		    }
+		    return null;
+		  }
+	
 	public String getFileExtension() {
 		return Constants.JAVA_EXT;
 	}
@@ -57,31 +93,11 @@ public class X10JavaBuilder extends AbstractX10Builder {
 		return fOptions;
 	}
 	
-	private void removeSrcJava(Collection<IPath> cps){
-	    IPath srcjava = null;
-	    for(IPath entry: cps){
-	      if (entry.toOSString().endsWith("src-java")){
-	        srcjava = entry;
-	        break;
-	      }
-	    }
-	    if (srcjava != null){
-	      cps.remove(srcjava);
-	    }
-	  }
-	  
-//	protected String getSrcClassPath(List<File> sourcePath) throws CoreException{
-//		StringBuffer bufferPath = new StringBuffer();
-//		final Set<IPath> srcPaths = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new IdentityFunctor<IPath>(),
-//		        new AlwaysTrueFilter<IPath>(), bufferPath);
-//		    
-//		// removeSrcJava(srcPaths);
-//		// TODO: I should have threaded a list around	
-//		sourcePath.addAll(CollectionUtils.transform(srcPaths, new IPathToFileFunc()));
-//		    
-//		final List<String> cps = CollectionUtils.transform(srcPaths, new CpEntryAsStringFunc());
-//		    
-//		return bufferPath.toString();
-//
-//	}
+	
+	private String getX10GenSrc() throws CoreException {
+	    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+	    final URI outputFolderURI = URIUtils.getExpectedURI(root.getFolder(fProjectWrapper.getPath().append(new Path("x10-gen-src"))).getLocationURI());
+	    return EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor()).getAbsolutePath();
+	}
+
 }

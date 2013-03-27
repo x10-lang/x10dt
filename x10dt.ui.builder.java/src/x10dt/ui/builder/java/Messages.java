@@ -8,7 +8,8 @@ public class Messages extends NLS {
 
   public static String X10ProjectWizardSecondPage_noSourceEntry;
   public static String XJB_CompileErrors;
-
+  public static String GenFileNotFound;
+  
   private Messages() {
   }
   

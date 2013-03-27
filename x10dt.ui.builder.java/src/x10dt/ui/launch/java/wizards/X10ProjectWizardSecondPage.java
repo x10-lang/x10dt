@@ -102,18 +102,23 @@ public class X10ProjectWizardSecondPage extends NewProjectWizardSecondPage {
     // -- create src-java and bin-java
     String srcJava = "src-java";
     String binJava = "bin-java";
+    String x10GenSrc = "x10-gen-src";
     IFolder srcFolder = project.getFolder(srcJava);
     IFolder binFolder = project.getFolder(binJava);
+    IFolder x10genFolder = project.getFolder(x10GenSrc);
     srcFolder.create(IResource.FORCE, true, monitor);
     binFolder.create(IResource.FORCE, true,  monitor);
+    x10genFolder.create(IResource.FORCE, true,  monitor);
     
     // -- add src-java to classpath
     IClasspathEntry javasrc = JavaCore.newSourceEntry(project.getFolder(srcJava).getFullPath(), new IPath[0], project.getFolder(binJava).getFullPath());
+    IClasspathEntry x10gen = JavaCore.newSourceEntry(project.getFolder(x10GenSrc).getFullPath());
     IJavaProject javaProject = JavaCore.create(project);
     IClasspathEntry[] entries = javaProject.getRawClasspath();
-    IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 1];
+    IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 2];
     System.arraycopy(entries, 0, newEntries, 0, entries.length);
     newEntries[newEntries.length - 1] = javasrc;
+    newEntries[newEntries.length - 2] = x10gen;
     javaProject.setRawClasspath(newEntries, new NullProgressMonitor());
     
     
