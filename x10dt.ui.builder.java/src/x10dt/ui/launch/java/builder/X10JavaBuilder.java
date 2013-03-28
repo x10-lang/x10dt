@@ -93,6 +93,9 @@ public class X10JavaBuilder extends AbstractX10Builder {
 		return fOptions;
 	}
 	
+	protected boolean checkPostCompilationCondition(final String srcPath)throws CoreException {
+	  return true;
+	}
 	
 	private String getX10GenSrc() throws CoreException {
 	    final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();

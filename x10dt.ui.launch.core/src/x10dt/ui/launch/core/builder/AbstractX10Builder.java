@@ -642,7 +642,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 	  return result;
   }
   
-  private boolean checkPostCompilationCondition(final String srcPath)throws CoreException {
+  protected boolean checkPostCompilationCondition(final String srcPath)throws CoreException {
 	  Set<String> dependencies = this.fDependencyInfo.getDependencies().get(srcPath);
 	  final IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
 	  if (dependencies != null){

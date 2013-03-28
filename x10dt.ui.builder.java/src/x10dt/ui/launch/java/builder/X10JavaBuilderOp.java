@@ -174,6 +174,9 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 				javaPath = javaPath.makeRelativeTo(ResourcesPlugin.getWorkspace().getRoot().getLocation().append(fJavaProject.getOutputLocation()));
 				createDirsInWorkspace(srcFolder, javaPath.removeLastSegments(1), monitor);
 				IFile gen = srcFolder.getFile(javaPath);
+				if (gen.exists()){
+					gen.delete(true, monitor);
+				}
 				gen.create(new FileInputStream(javaFile), true, monitor);
 				gen.refreshLocal(IResource.DEPTH_INFINITE, monitor);
 			} catch(FileNotFoundException e){
