@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.ui.console.MessageConsole;
@@ -169,6 +170,14 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 	    IFolder srcFolder = fJavaProject.getProject().getFolder("x10-gen-src");
 	    if (!srcFolder.exists()){
 	    	srcFolder.create(true, true, monitor);
+	    	
+	    	//Turn it into a source folder
+	    	IClasspathEntry x10gen = JavaCore.newSourceEntry(srcFolder.getFullPath());
+	        IClasspathEntry[] entries = this.fJavaProject.getRawClasspath();
+	        IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 1];
+	        System.arraycopy(entries, 0, newEntries, 0, entries.length);
+	        newEntries[newEntries.length - 1] = x10gen;
+	        this.fJavaProject.setRawClasspath(newEntries, new NullProgressMonitor());
 	    }
 		
 		for (String javaFile: fJavaFiles){
