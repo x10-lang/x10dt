@@ -167,6 +167,9 @@ public class X10JavaBuilderOp implements IX10BuilderFileOp {
 		//Now create the generated Java files for Eclipse.
 		
 	    IFolder srcFolder = fJavaProject.getProject().getFolder("x10-gen-src");
+	    if (!srcFolder.exists()){
+	    	srcFolder.create(true, true, monitor);
+	    }
 		
 		for (String javaFile: fJavaFiles){
 			try {

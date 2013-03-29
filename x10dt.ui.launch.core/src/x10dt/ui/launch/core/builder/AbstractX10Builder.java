@@ -195,8 +195,9 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
       x10BuilderOp.copyToOutputDir(nativeFiles, subMonitor.newChild(5));
 
       checkForCancelation(subMonitor);
-      
-      compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
+      if (!sourcesToCompile.isEmpty()){
+        compile(localOutputDir, sourcesToCompile, x10BuilderOp, subMonitor);
+      }
       
       this.fProjectWrapper.getProject().refreshLocal(IResource.DEPTH_INFINITE, subMonitor);
       dependentProjects.addAll(ProjectUtils.getDependentProjects(fProjectWrapper));
