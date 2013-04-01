@@ -32,9 +32,9 @@ public class URIUtils {
 					String root = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
 					String path = uri.getPath();
 					if (path.startsWith("/default/")) {
-						return new URI("file:" + root +path.substring(8));
+						return new URI("file", null, root + path.substring(8) , null, null);
 					} else {
-						return new URI("file:" + root+ path);
+						return new URI("file", null, root + path, null, null);
 					}
 				} else {
 					return uri;
