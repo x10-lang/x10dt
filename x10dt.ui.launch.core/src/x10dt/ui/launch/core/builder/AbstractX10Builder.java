@@ -226,6 +226,8 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
   protected String getLocalOutputDir() throws CoreException{
     return ProjectUtils.getProjectOutputDirPath(getProject());
   }
+  
+  abstract protected void deleteX10GeneratedFiles() throws CoreException;
 
   private Set<IProject> cleanFiles(final int kind, final SubMonitor subMonitor, final Collection<IFile> sourcesToCompile,
                                    final Collection<IFile> deletedSources, final Collection<IFile> nativeFiles,
@@ -233,9 +235,10 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
     subMonitor.beginTask(null, 10);
     try {
       final boolean shouldBuildAll;
-      if (kind == FULL_BUILD) {
+      if (kind == FULL_BUILD || kind == CLEAN_BUILD) {
         this.fDependencyInfo.clearAllDependencies();
         shouldBuildAll = true;
+        deleteX10GeneratedFiles();
       } else {
         shouldBuildAll = this.fDependencyInfo.getDependencies().isEmpty();
       }

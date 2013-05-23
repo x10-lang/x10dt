@@ -475,7 +475,7 @@ public class EQSolver {
 	 
 	 }
    }
-	public static def main(args:Rail[String]!) {
+	public static def main(args:Rail[String]) {
         	 if (args.length > 0) {
          	  Console.OUT.println("The first arg is: "+args(0));
          	}

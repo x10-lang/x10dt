@@ -11,7 +11,7 @@ public class Hello extends Hi implements Hii{
     /**
      * The main method for the Hello class
      */
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         Console.OUT.println("Hello, World!");
         val h = new Howdy(new D());
         val j = new Foo[Bar[int]]();

@@ -97,7 +97,7 @@ public final class WizardUtils {
     sb.append("    /**\n");
     sb.append("     * The main method for the Hello class\n");
     sb.append("     */\n");
-    sb.append("    public static def main(Array[String]) {\n"); //$NON-NLS-1$
+    sb.append("    public static def main(Rail[String]) {\n"); //$NON-NLS-1$
     sb.append("        finish for (p in Place.places()) {\n"); 
     sb.append("            at (p) async Console.OUT.println(\"Hello World from place \"+p.id);\n");
     sb.append("        }\n");

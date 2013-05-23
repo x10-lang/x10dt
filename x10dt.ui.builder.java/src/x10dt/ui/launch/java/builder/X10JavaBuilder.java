@@ -4,10 +4,12 @@ import java.io.File;
 import java.net.URI;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -102,5 +104,18 @@ public class X10JavaBuilder extends AbstractX10Builder {
 	    final URI outputFolderURI = URIUtils.getExpectedURI(root.getFolder(fProjectWrapper.getPath().append(new Path("x10-gen-src"))).getLocationURI());
 	    return EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor()).getAbsolutePath();
 	}
+
+	@Override
+	protected void deleteX10GeneratedFiles() throws CoreException {
+		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+	    final URI outputFolderURI = URIUtils.getExpectedURI(root.getFolder(fProjectWrapper.getPath().append(new Path("x10-gen-src"))).getLocationURI());
+	    File folder = EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
+	    for (File file: folder.listFiles()){
+	    	if (file.exists()){
+  			  file.delete();
+  		  }
+	    }
+	}
+
 
 }

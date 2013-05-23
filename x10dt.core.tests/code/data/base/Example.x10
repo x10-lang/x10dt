@@ -1,6 +1,6 @@
 public class Example {
 	   
-    public static def main(args:Array[String](1)): Void {
+    public static def main(args:Rail[String]): Void {
         val R =  1..3;
         val D: Dist = R -> here;
         val ar: DistArray[int] = DistArray.make[int](D , (p: Point) => 0 );

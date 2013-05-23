@@ -1,5 +1,5 @@
 public class Path{
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
          Console.OUT.println("Hello X10 world");
     }
 }

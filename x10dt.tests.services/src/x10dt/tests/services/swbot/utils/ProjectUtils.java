@@ -157,7 +157,7 @@ public final class ProjectUtils {
     newClassShell.activate();
 
     if (withMainMethod) {
-        wizBot.checkBox("public static def main(args: Array[String])").click();
+        wizBot.checkBox("public static def main(args: Rail[String])").click();
     }
 
     if (srcFolder != null) {

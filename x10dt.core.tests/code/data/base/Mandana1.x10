@@ -1,5 +1,5 @@
 public class Mandana1 {
-  public static def main(argv:Array[String]) {
+  public static def main(argv:Rail[String]) {
     val R =   1..3;
     val D = R -> here ;
     val ar <: DistArray[int] = DistArray.make[int](D , (p: Point) => 0 );

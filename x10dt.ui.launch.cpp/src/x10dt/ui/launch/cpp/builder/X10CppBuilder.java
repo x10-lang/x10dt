@@ -65,6 +65,10 @@ public final class X10CppBuilder extends AbstractX10Builder {
 	  return CC_EXT;
   }
   
+  protected void deleteX10GeneratedFiles() throws CoreException {
+    return; //Do nothing
+  }
+  
 //  protected String getSrcClassPath(List<File> sourcePath) throws CoreException {
 //    StringBuffer pathBuffer = new StringBuffer();
 //    final Set<String> cps = ProjectUtils.getFilteredCpEntries(this.fProjectWrapper, new CpEntryAsStringFunc(),

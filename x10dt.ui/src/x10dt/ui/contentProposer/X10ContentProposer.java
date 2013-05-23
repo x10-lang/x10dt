@@ -220,7 +220,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     private final Template fVariableDeclaration = new Template("var", "mutable variable/field declaration", CONTEXT_ID, "var ${name}:${typename};", false );
     private final Template fValueDeclaration = new Template("val", "immutable variable/field declaration", CONTEXT_ID, "val ${name} = ${expression};", false );
     /* CHANGED */ private final Template fMethodTemplate = new Template("def", "method declaration", CONTEXT_ID, "def ${name}(${x}:${typename1}){${constraint}}:${typename2} {  }", false );
-    private final Template fMainMethod = new Template("main method", "main method", CONTEXT_ID, "public static def main(argv:Array[String]) {  }", false);   
+    private final Template fMainMethod = new Template("main method", "main method", CONTEXT_ID, "public static def main(argv:Rail[String]) {  }", false);   
     private final Template fConstructorTemplate = new Template("this", "constructor declaration", CONTEXT_ID, "def this(${argname}:${argtype}) {  }", false);
     private final Template fStructTemplate = new Template("struct", "struct declaration", CONTEXT_ID, "struct ${name} {  }", false );
     private final Template fGenericParameter = new Template("[X]", "generic type parameter", CONTEXT_ID, "[${X}]", false);

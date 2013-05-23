@@ -6,7 +6,7 @@ public class Hello {
     /**
      * The main method for the Hello class
      */
-    public static def main(Array[String]) {
+    public static def main(Rail[String]) {
         Console.OUT.println("Hello, World!");
     }
 

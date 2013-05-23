@@ -16,7 +16,7 @@ import x10.io.Console;
  * Converted to 2.1 9/1/2010
  */
 class HelloWholeWorld {
-  public static def main(Array[String]):void {
+  public static def main(Rail[String]):void {
      finish for (p in Place.places()) {
      	async at (p) Console.OUT.println("Hello World from place "+p.id);
      }

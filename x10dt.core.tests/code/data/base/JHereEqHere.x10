@@ -1,5 +1,5 @@
 public class JHereEqHere {
-  public static def main(argv:Array[String]) {
+  public static def main(argv:Rail[String]) {
      x10.io.Console.OUT.println("eek(here,here)=" + eek(here, here));
   }
   public static def eek[T](a:T, b:T): Boolean {

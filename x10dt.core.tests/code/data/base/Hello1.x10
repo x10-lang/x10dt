@@ -1,5 +1,5 @@
 public class Hello1 {
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
          if (args.size() > 0) {
            Console.OUT.println("The first arg is: "+args(0));
          }

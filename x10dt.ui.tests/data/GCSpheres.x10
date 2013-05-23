@@ -59,7 +59,7 @@ class GCSpheres {
     }
 
 
-    public static def main (Array[String]) {
+    public static def main (Rail[String]) {
 
         val reps = 7500;
 

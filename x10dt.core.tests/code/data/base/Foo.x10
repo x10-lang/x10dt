@@ -1,6 +1,6 @@
 public class Foo {
 	
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
     	var f: (Hello,Hi) => int = (x1:Hello
          
     }
