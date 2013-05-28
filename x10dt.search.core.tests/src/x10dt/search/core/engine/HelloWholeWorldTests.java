@@ -161,7 +161,7 @@ public final class HelloWholeWorldTests extends AbstractIndexerTestBase {
   
   private static final String HELLOWORLD_LOC = "src/HelloWholeWorld.x10";
   
-  private static final String ARRAY_TYPE = "x10.array.Array";
+  private static final String ARRAY_TYPE = "x10.lang.Rail";
   
   private static final String VOID_TYPE = "void";
 

@@ -46,9 +46,9 @@ public class QuickOutlineTests extends X10DTEditorTestBase {
 
   private static final String SRC_FILE_NAME = CLASS_NAME + ".x10";
 
-  private static final String MAIN_SIGNATURE= "main(Array[String])";
+  private static final String MAIN_SIGNATURE= "main(Rail[String])";
 
-  private static final String MAIN_SIGNATURE_ELABORATED= "main(x10.array.Array[x10.lang.String])";
+  private static final String MAIN_SIGNATURE_ELABORATED= "main(x10.lang.Rail[x10.lang.String])";
 
   @BeforeClass
   public static void beforeClass() throws Exception {

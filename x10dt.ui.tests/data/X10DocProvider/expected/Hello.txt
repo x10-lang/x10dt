@@ -37,53 +37,53 @@
 4,19: <b>Hello</b><p>
  The canonical "Hello, World" demo class expressed in X10
 <p>
-9,18: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,18: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,19: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,19: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,20: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,20: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,21: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,21: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,22: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,22: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,23: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,23: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,24: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,24: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,25: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,25: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,26: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,26: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,27: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,27: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,28: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,29: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,30: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,31: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,32: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,33: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,34: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,35: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,36: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,37: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,38: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,39: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,40: <b>local final id$0: x10.array.Array[x10.lang.String]</b><p><p>
-9,41: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,28: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,29: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,30: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,31: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,32: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,33: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,34: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,35: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,36: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,37: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,38: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,39: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,40: <b>local final id$0: x10.lang.Rail[x10.lang.String]</b><p><p>
+9,41: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
-9,42: <b>void Hello.main(val id$0: x10.array.Array[x10.lang.String])</b><p>
+9,42: <b>void Hello.main(val id$0: x10.lang.Rail[x10.lang.String])</b><p>
  The main method for the Hello class
  <p>
 10,9: <h5>x10.io.Console</h5>

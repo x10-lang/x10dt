@@ -975,7 +975,7 @@ public final class X10SearchEngine {
         final IList parameters = (IList) methodTuple.get(3);
         if (parameters.length() == 1) {
           final ITuple parameterType = (ITuple) parameters.get(0);
-          if (ARRAY_TYPE.equals(((IString) parameterType.get(0)).getValue())) {
+          if (RAIL_TYPE.equals(((IString) parameterType.get(0)).getValue())) {
             final IList typeParams = (IList) parameterType.get(3);
             if (typeParams.length() == 1) {
               return STRING_TYPE.equals(((IString) ((ITuple) typeParams.get(0)).get(0)).getValue());
@@ -1060,7 +1060,7 @@ public final class X10SearchEngine {
   
   private static final String MAIN_METHOD_NAME = "main"; //$NON-NLS-1$
   
-  private static final String ARRAY_TYPE = "x10.array.Array"; //$NON-NLS-1$
+  private static final String RAIL_TYPE = "x10.lang.Rail"; //$NON-NLS-1$
   
   private static final String STRING_TYPE = "x10.lang.String"; //$NON-NLS-1$
 
