@@ -292,7 +292,7 @@ public class SyntaxColoringTests extends X10DTEditorTestBase {
 
     verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IDENTIFIER), colorer.identifierAttribute, doc, editor);
 
-    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IntegerLiteral), colorer.numberAttribute, doc, editor);
+    verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_IntLiteral), colorer.numberAttribute, doc, editor);
 
     verifyColoringOf(findTokensOfKind(pc, X10Parsersym.TK_LongLiteral), colorer.numberAttribute, doc, editor);
 
