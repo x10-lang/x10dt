@@ -54,8 +54,14 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
                  return identifierAttribute;
             case TK_DoubleLiteral:
             case TK_FloatingPointLiteral:
-            case TK_IntegerLiteral:
+            case TK_ByteLiteral:
+            case TK_ShortLiteral:
+            case TK_IntLiteral:
             case TK_LongLiteral:
+            case TK_UnsignedByteLiteral:
+            case TK_UnsignedShortLiteral:
+            case TK_UnsignedIntLiteral:
+            case TK_UnsignedLongLiteral:
                  return numberAttribute;
             case TK_CharacterLiteral:
             case TK_StringLiteral:
