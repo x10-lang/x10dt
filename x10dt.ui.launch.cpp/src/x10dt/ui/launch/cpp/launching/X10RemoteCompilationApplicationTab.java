@@ -32,7 +32,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.window.Window;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
+import org.eclipse.ptp.launch.ui.tabs.LaunchConfigurationTab;
 import org.eclipse.ptp.launch.ui.LaunchImages;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;

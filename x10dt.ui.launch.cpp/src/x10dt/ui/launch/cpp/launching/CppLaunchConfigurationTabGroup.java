@@ -13,8 +13,8 @@ import org.eclipse.debug.ui.CommonTab;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 import org.eclipse.debug.ui.ILaunchConfigurationTab;
 import org.eclipse.debug.ui.ILaunchConfigurationTabGroup;
-import org.eclipse.ptp.launch.ui.EnhancedSynchronizeTab;
-import org.eclipse.ptp.launch.ui.EnvironmentTab;
+import org.eclipse.ptp.launch.ui.tabs.EnhancedSynchronizeTab;
+import org.eclipse.ptp.launch.ui.tabs.EnvironmentTab;
 
 import x10dt.ui.launch.cpp.CppLaunchCore;
 

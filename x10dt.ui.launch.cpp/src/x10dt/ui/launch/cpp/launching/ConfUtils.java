@@ -42,9 +42,9 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.ptp.internal.remote.remotetools.core.RemoteToolsServices;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
-import org.eclipse.ptp.remote.remotetools.core.RemoteToolsServices;
+import org.eclipse.ptp.remote.core.RemoteServices;
 import org.eclipse.ptp.remotetools.environment.EnvironmentPlugin;
 import org.eclipse.ptp.remotetools.environment.control.ITargetConfig;
 import org.eclipse.ptp.remotetools.environment.control.ITargetStatus;
@@ -111,11 +111,10 @@ public class ConfUtils {
     
     public static String getConnectionName(ILaunchConfiguration compilationConf){
     if (compilationConf == null)
-      return IRemoteConnectionManager.DEFAULT_CONNECTION_NAME;
+      return IRemoteConnectionManager.LOCAL_CONNECTION_NAME;
     String connectionName = compilationConf.getName();
     if (!isLocalConnection(compilationConf)){
-      final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
-      final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
+      final IRemoteConnectionManager rmConnManager = RemoteServices.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
       if (rmConnManager.getConnection(connectionName) == null){
         try {
           String hostname = compilationConf.getAttribute(ATTR_HOST, Constants.EMPTY_STR);
@@ -138,8 +137,8 @@ public class ConfUtils {
     
     public static void createOrUpdateRemoteConnection(String connectionName, String hostname, String username, int port, 
                                   boolean isPasswordBased, String password, String privateKeyFile, String passphrase, int timeout) throws CoreException {
-      final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
-      final IRemoteConnectionManager rmConnManager = plugin.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
+
+      final IRemoteConnectionManager rmConnManager = RemoteServices.getRemoteServices(REMOTE_CONN_SERVICE_ID).getConnectionManager();
 
       // There is a problem in writing this code in the following way:  The attribute is_pass_auth is not recognized.
 //      try {

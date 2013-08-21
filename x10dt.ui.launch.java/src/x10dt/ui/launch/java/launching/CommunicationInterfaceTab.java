@@ -33,15 +33,15 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.TextCellEditor;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.ptp.launch.ui.LaunchConfigurationTab;
 import org.eclipse.ptp.launch.ui.LaunchImages;
+import org.eclipse.ptp.launch.ui.tabs.LaunchConfigurationTab;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.RemoteServices;
 import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
+import org.eclipse.ptp.remote.ui.RemoteUIServices;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -156,8 +156,7 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
 					dialog.setText(Messages.SRMLCDT_SelectHostFileDialogTitle);
 					path = dialog.open();
 				} else {
-					final IRemoteServices remoteServices = PTPRemoteCorePlugin
-							.getDefault().getRemoteServices(
+					final IRemoteServices remoteServices = RemoteServices.getRemoteServices(
 									REMOTE_CONN_SERVICE_ID);
 					final IRemoteConnection connection = remoteServices.getConnectionManager().getConnection(ConfUtils.getConnectionName(CommunicationInterfaceTab.this.fConfiguration));
 					path = remoteBrowse(parent.getShell(), connection,
@@ -443,8 +442,8 @@ final class CommunicationInterfaceTab extends LaunchConfigurationTab
 
 
   private String remoteBrowse(final Shell shell, final IRemoteConnection rmConnection, final String dialogTitle, final String initialPath) {
-    final IRemoteServices rmServices= PTPRemoteCorePlugin.getDefault().getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
-    final IRemoteUIServices rmUIServices= PTPRemoteUIPlugin.getDefault().getRemoteUIServices(rmServices);
+    final IRemoteServices rmServices= RemoteServices.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
+    final IRemoteUIServices rmUIServices= RemoteUIServices.getRemoteUIServices(rmServices);
 
     final IRemoteUIFileManager fileManager= rmUIServices.getUIFileManager();
     if (fileManager != null) {
