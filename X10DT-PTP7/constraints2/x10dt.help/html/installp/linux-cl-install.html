@@ -1,0 +1,66 @@
+<html>
+<body>
+
+<h1>Linux X10DT Installation</h1>
+In order to run X10 on Linux, you need to satisfy the follow pre-requisites.
+<h2>Prereqs</h2>
+<ul>
+	<li>gcc/g++ 4.2.x or higher (for the X10 C++ backend)</li>
+	<li>Java 1.6 or higher (for the X10 Java backend)</li>
+</ul>
+
+<h4>gcc/g++</h4>
+gcc is usually included with the base OS install. Do the following to verify the location and version
+<pre>
+whereis gcc
+gcc -v
+</pre>
+
+<h4>java</h4>
+Although Java is often included with Linux, it usually is the OpenJDK or GCJ runtime.
+We do not recommend using either of these runtimes to execute X10.
+Do the following to verify the location and version
+<pre>
+	whereis java
+	java -version
+</pre>
+It is strongly recommended that you download and install a recent Oracle or IBM 1.6 JDK 
+if you don't have one of them already installed.
+
+Then you should modify your .bash_profile file to contain this directory in the PATH statement.
+<pre>
+.bash_profile
+PATH=/opt/ibm/java-x86_64-60/bin/:$PATH
+export PATH
+</pre>
+Then modify your .bashrc file to define JAVA_HOME
+<pre>
+.bashrc
+JAVA_HOME=/opt/ibm/java-x86_64-60
+export JAVA_HOME
+</pre>
+
+<h4>Running x10 programs using <tt>Sockets</tt> transport</h4>
+<p>
+The sockets transport is the default transport if you don't compile with the <tt>"-x10rt"</tt> flag.  Running with sockets is easy - you simply execute the binary that was produced when you compiled your program.  This will run your program in a single place on your local machine.  To use more places, you set an environment variable <tt>X10_NPLACES</tt> to specify the number of places.
+There are two ways to specify the machines to run on: 
+<ul>
+<li>Set the environment variable <tt>X10_HOSTFILE</tt> to the full path for a hostfile. The hostfile is a simple text file that contains a list of hostnames to run on, with one line per machine. 
+<li>Set the environment variable <tt>X10_HOSTLIST</tt>, to a list of hostnames, one per line without spaces. This run configuration variable is checked only if <tt>X10_HOSTFILE</tt> was not set. 
+</ul>
+Both of the above will wrap if there are more places than hostnames specified. For example, setting <tt>X10_NPLACES</tt> to 4 and <tt>X10_HOSTLIST</tt>to <tt>host1,host2</tt> will cause places 0 and 2 to run on host1, and places 1 and 3 to run on host2. If neither of the above is set, and there is more than 1 place, then it defaults to running everything on localhost.
+If you're running on more than one machine, you should have public/private key ssh authentication set up, so you can ssh from one machine to another without getting a password prompt. You should also have your executable and hostfile available in the same location on every machine listed in the hostfile. You compile your program, and with ssh in place, and the run configuration variables set, you run your executable. You don't have to launch from one of the machines in the hostfile, but you do need to have the ssh authentication set up between the machine you launch from and the first machine in the list. 
+<p>
+
+<h4>Running with <tt>Standalone</tt> transport</h4>
+<p>
+Standalone sets up shared memory regions and forks off one instance of the program per place. The places all run on the local machine. There is one run configuration variable <tt>X10_NPLACES</tt>, which should be set to the number of places. If not set, it defaults to 1. The standalone transport has a limit on the size of the data blocks that can be sent (about 512k), because of the shared memory regions. To run, just compile, set the run configuration variable, and run your executable. This transport is a good choice if you're running everything one one machine and don't use large messages. 
+
+<h2>Comments</h2>
+Comments and suggestions are welcome. 
+Please send email to 
+<a href="mailto:cals@us.ibm.com">Cal Swart (cals@us.ibm.com)</a>
+
+</body>
+
+</html>

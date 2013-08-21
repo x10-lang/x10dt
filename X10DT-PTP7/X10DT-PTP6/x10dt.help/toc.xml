@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?NLS TYPE="org.eclipse.help.toc"?>
+
+<toc label="X10 Help">
+
+<topic label="X10DT Overview" href="html/x10dt/Overview.html">X10DT Overview</topic>
+
+<topic label="Installation and pre-reqs">
+	<topic label="Mac" href="html/installp/mac-cl-install.html"/> 
+	<topic label="Linux" href="html/installp/linux-cl-install.html"/> 
+	<topic label="Windows" href="html/installp/windows-cl-install.html"/> 
+</topic>
+
+<topic label="Getting Started"> 
+	<topic label="Editor basics and launching" href="html/gettingstarted/Steps1-8.html"/>
+	<topic label="Remote launching and debugging basics" href="html/gettingstarted/Steps9-14.html"/>
+	<topic label="Advanced installation notes for X10 and X10DT" href="html/gettingstarted/preface.html"/>
+</topic>
+
+<topic label="Concepts"> 
+
+	<topic label="Starting to use X10DT" href="html/x10dt/01start.html">Starting to use X10DT </topic>
+	<topic label="X10 projects - Java back-end vs. C++ back-end" href="html/x10dt/01whichBackend.html">
+		<topic label="Creating a New X10 Project - Java back-end" href="html/x10dt/02newProjJavaBackend.html"> </topic>
+		<topic label="Creating a new X10 Project - C++  back-end" href="html/x10dt/02newProjCppBackend.html"> </topic> 
+	</topic>
+	<topic label="Developing/editing your X10 source code" href="html/x10dt/03develop.html">
+		<topic label="Content Assist" href="html/x10dt/ContentAssist.html"/>
+		<topic label="Refactoring" href="html/x10dt/refactoring.html"/>
+	</topic>
+	<topic label="Running your X10 programs" href="html/x10dt/01whichRunProgram.html">
+		<topic label="Running X10 programs (java back-end)" href="html/x10dt/04runJavaBackend.html"></topic>
+		<topic label="Running X10 programs (C++ backend)" href="html/x10dt/04runCppBackend.html"></topic>
+	</topic>
+</topic>
+
+<topic label="Reference"> 
+	<topic label="Preferences"> 
+		<topic label="General" href="html/reference/preferences/general.html" />  
+		<topic label="Compiler" href="html/reference/preferences/compiler.html" >
+			<topic label="Optimizations" href="html/reference/preferences/compiler/optimizations.html" />  
+		</topic>
+		<topic label="Formatting" href="html/reference/preferences/formatting.html" />  
+<!--
+		<topic label="Runtime" href="html/reference/preferences/runtime.html" />
+-->		 
+	</topic> 
+</topic>
+
+<topic label="Samples">
+	<topic label="HelloWorld" href="html/samples/HelloWorld.html">HelloWorld</topic>
+	<topic label="HelloWholeWorld" href="html/samples/HelloWholeWorld.html">HelloWholeWorld</topic>
+	<topic label="Fib" href="html/samples/Fib.html">Fib</topic>
+	<topic label="MontyPi" href="html/samples/MontyPi.html">MontyPi</topic>
+	<topic label="NQueensDist" href="html/samples/NQueensDist.html">NQueensDist</topic>
+	<topic label="NQueensPar" href="html/samples/NQueensPar.html">NQueensPar</topic>
+	<topic label="ArraySum" href="html/samples/ArraySum.html">ArraySum</topic>
+	<topic label="Integrate" href="html/samples/Integrate.html">Integrate</topic>
+	<topic label="Histogram" href="html/samples/Histogram.html">Histogram</topic>
+	<topic label="QSort" href="html/samples/QSort.html">QSort</topic>
+	<topic label="KMeans" href="html/samples/KMeans.html">KMeans</topic>
+	<topic label="KMeansDist" href="html/samples/KMeansDist.html">KMeansDist</topic>
+	<topic label="FRASimpleDist" href="html/samples/FRASimpleDist.html">FRASimpleDist</topic>
+	<topic label="FSSimpleDist" href="html/samples/FSSimpleDist.html">FSSimpleDist</topic>
+	<topic label="StructSpheres" href="html/samples/StructSpheres.html">StructSpheres</topic>
+	<topic label="GCSpheres" href="html/samples/GCSpheres.html">GCSpheres</topic>
+</topic> 
+
+<!--
+<topic label="An Introduction to Programming With X10">
+	<topic label="Preface" href="html/pguide/fp.html"/>
+	<topic label="A Whirlwind Tour of X10" href="html/pguide/ch1.html"/>
+	<topic label="A First Look At X10's Types" href="html/pguide/ch2.html"/>
+	<topic label="A Potpourri of Types" href="html/pguide/ch3.html"/>
+</topic> 
+-->
+
+<topic label="X10 Language Reference" href="html/lgref/toc.html">
+<!--
+	<topic label="Summary"  href="html/lgref/first.htm"/> 
+	<topic label="Introduction"  href="html/lgref/Intro.htm"/> 
+	<topic label="Overview of X10"  href="html/lgref/Overview.htm"/>
+	<topic label="Lexical and Grammatical structure"  href="html/lgref/Lex.htm"/> 
+	<topic label="Types" href="html/lgref/Types.htm"/>
+	<topic label="Variables" href="html/lgref/Vars.htm"/>
+	<topic label="Names and packages" href="html/lgref/Packages.htm"/>
+	<topic label="Interfaces" href="html/lgref/Interfaces.htm"/>
+	<topic label="Classes" href="html/lgref/Classes.htm"/> 
+	<topic label="Structs" href="html/lgref/Structs.htm"/> 
+	<topic label="Functions" href="html/lgref/Functions.htm"/> 
+	<topic label="Expressions" href="html/lgref/Expressions.htm"/> 
+	<topic label="Statements" href="html/lgref/Statements.htm"/> 
+	<topic label="Places" href="html/lgref/Places.htm"/> 
+	<topic label="Activities" href="html/lgref/Activities.htm"/> 
+	<topic label="Clocks" href="html/lgref/Clocks.htm"/> 
+	<topic label="Local and Distributed Arrays" href="html/lgref/Arrays.htm"/> 
+	<topic label="Annotations" href="html/lgref/Annotations.htm"/> 
+	<topic label="Native Code Integration" href="html/lgref/NativeCode.htm"/> 
+	<topic label="Definite Assignment" href="html/lgref/DefiniteAssignment.htm"/>
+	<topic label="Grammar" href="html/lgref/Grammar.htm"/>
+	<topic label="References" href="html/lgref/refs.html"/>
+	<topic label="Deprecations" href="html/lgref/NotCovered.htm"/>
+	<topic label="Change Log" href="html/lgref/ChangeLog.htm"/>
+	<topic label="Options" href="html/lgref/Options.htm"/> 
+-->
+</topic>
+
+<topic label="X10DT FAQs"  href="html/x10dtfaqs.html"/>
+
+<topic label="What's new" href="html/whatsNew/whatsnew-2.2.3.html">
+	<topic label="What's new 2.2.3" href="html/whatsNew/whatsnew-2.2.3.html" />
+	<topic label="What's new 2.2.2" href="html/whatsNew/whatsnew-2.2.2.html" />
+	<topic label="What's new 2.2.1" href="html/whatsNew/whatsnew-2.2.1.html" />
+	<topic label="What's new 2.2.0" href="html/whatsNew/whatsnew-2.2.0.html" />
+	<topic label="What's new 2.1.2" href="html/whatsNew/whatsnew-2.1.2.html" />
+	<topic label="What's new 2.1.1" href="html/whatsNew/whatsnew-2.1.1.html" />  
+	<topic label="What's new 2.1.0" href="html/whatsNew/whatsnew-2.1.0.html" /> 
+	<topic label="What's new 2.0.6" href="html/whatsNew/whatsnew-2.0.6.html" /> 
+	<topic label="What's new 2.0.5" href="html/whatsNew/whatsnew-2.0.5.html" /> 
+	<topic label="What's new 2.0.x" href="html/whatsNew/whatsnew-2.0.x.html" /> 
+</topic>
+
+
+<!--  PLEASE NOTE if you make a change/addition here, please also change contents.html 
+      which is needed for our online versions of the docs.-->
+</toc>

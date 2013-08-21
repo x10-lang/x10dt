@@ -1,0 +1,872 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Local and Distributed Arrays</title>
+<a href="#tth_chAp1">Local and Distributed Arrays</a> <br/>
+<ul>
+<li><a href="#tth_sEc1">Points</a> <br/>
+<li><a href="#tth_sEc2">IntRange</a> <br/>
+<li><a href="#tth_sEc3">Regions</a> <br/>
+<li><a href="#tth_sEc4">Arrays</a> <br/>
+<li><a href="#tth_sEc5">Distributions</a> <br/>
+<li><a href="#tth_sEc6">Distributed Arrays</a> <br/>
+<li><a href="#tth_sEc7">Distributed Array Construction</a> <br/>
+<li><a href="#tth_sEc8">Operations on Arrays and Distributed Arrays</a> <br/>
+</ul>
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 16 </a><br />Local and Distributed Arrays</h1><a name="XtenArrays">
+</a>
+
+<div class="p"><!----></div>
+<b>Array</b>s provide indexed access to data at a single <b>Place</b>, <em>via</em>
+<b>Point</b>s-indices of any dimensionality. <b>DistArray</b>s is similar, but
+spreads the data across multiple <b>Place</b>s, <em>via</em> <b>Dist</b>s.  
+We refer to arrays either sort as "general arrays".  
+
+<div class="p"><!----></div>
+This chapter provides an overview of local and distributed arrays, 
+(the <b>x10.array</b> classes <b>Array</b>
+and <b>DistArray</b>), and their supporting classes <b>Point</b>, 
+<b>IntRange</b>, 
+<b>Region</b>, 
+and <b>Dist</b>.  
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Points</h2><a name="point-syntax">
+</a>
+
+
+
+<div class="p"><!----></div>
+Both kinds of arrays are indexed by <b>Point</b>s, which are n-dimensional tuples of
+integers.  The <b>rank</b>
+property of a point gives its dimensionality.  Points can be constructed from
+integers or <b>Array[Int](1)</b>s by
+the <b>Point.make</b> factory methods:
+<pre>
+val origin_1 : Point{rank==1} = Point.make(0);
+val origin_2 : Point{rank==2} = Point.make(0,0);
+val origin_5 : Point{rank==5} = Point.make([0,0,0,0,0]);
+</pre>
+
+<div class="p"><!----></div>
+There is an implicit conversion from <b>Array[Int](1)</b> to 
+<b>Point</b>, giving
+a convenient syntax for constructing points: 
+
+<div class="p"><!----></div>
+<pre>
+val p : Point = [1,2,3];
+val q : Point{rank==5} = [1,2,3,4,5];
+val r : Point(3) = [11,22,33];
+</pre>
+
+<div class="p"><!----></div>
+The coordinates of a point are available by function application, or, if you
+prefer, by subscripting; <b>p(i)</b> is the
+<b>i</b>th coordinate of the point <b>p</b>. 
+`Point(n)` is a <b>type</b>-defined shorthand  for 
+`Point{rank==n}`.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;IntRange</h2>
+<a name="sect:intrange">
+</a>
+
+
+
+<div class="p"><!----></div>
+An <b>IntRange</b> is a representation of a set of consecutive integers: 
+<b>1..10</b> is the numbers 1 through 10.  There is nothing special about
+<b>x10.lang.IntRange</b>, beyond its package.  However, it appears frequently
+in idioms involving arrays and related constructs, especially rectangular
+arrays.
+
+<div class="p"><!----></div>
+One notable idiom involving <b>IntRange</b> is the integer iteration idiom.  
+<b>for(i in 1..10)use(i);</b> calls 
+<b>use</b> on each number 1,2, ..., 10, in turn.
+
+<div class="p"><!----></div>
+If <b>m &#62; n</b>, the <b>IntRange</b> <b>m..n</b> is empty.  It has no elements,
+and iterating over it will not execute the body of the loop.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Regions</h2><a name="XtenRegions">
+</a>
+
+
+<div class="p"><!----></div>
+A <em>region</em> is a set of points of the same rank.  X10
+provides a built-in class, <b>x10.array.Region</b>, to allow the
+creation of new regions and to perform operations on regions. 
+Each region <b>R</b> has a property <b>R.rank</b>, giving the dimensionality of
+all the points in it.
+
+<div class="p"><!----></div>
+<pre>
+val MAX_HEIGHT=20;
+val Null = Region.makeUnit(); //Empty 0-dimensional region
+val R1 = 1..100; // IntRange 
+val R2 = R1 as Region(1);
+val R3 = (0..99) * (-1..MAX_HEIGHT);
+val R4 = Region.makeUpperTriangular(10);
+val R5 = R4 &amp;&amp; R3; // intersection of two regions
+</pre>
+
+<div class="p"><!----></div>
+The <b>IntRange</b> value <b>1..100</b> can be implicitly or explicitly coerced
+to a one-dimensional <b>Region</b> consisting of the points
+{, ..., }.  <b>IntRange</b>s are useful in
+building up regions, especially rectangular regions.  
+In general, we ignore the distinction between an <b>IntRange</b> and a rank-one
+<b>Region</b>, except for those occasional situations where the compiler
+requires attending to the distinction.
+
+
+<div class="p"><!----></div>
+By a special dispensation, the compiler knows that, if <b>r : Region(m)</b> and
+<b>s : Region(n)</b>, then <b>r*s : Region(m+n)</b>.  (The X10 type system
+ordinarily could not specify the sum; the best it could do 
+would be <b>r*s : Region</b>, with the rank of the region unknown.)  This
+feature allows more convenient use of arrays; in particular, one does not need
+to keep track of ranks nearly so much.
+
+<div class="p"><!----></div>
+Various built-in regions are provided through  factory
+methods on <b>Region</b>.  
+
+<ul>
+<li> <b>Region.makeEmpty(n)</b> returns an empty region of rank <b>n</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeFull(n)</b> returns the region containing all points of
+      rank <b>n</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeUnit()</b> returns the region of rank 0 containing the
+      unique point of rank 0.  It is useful as the identity for Cartesian
+      product of regions.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeHalfspace(normal, k)</b>,
+      where <b>normal</b> is a <b>Point</b> and <b>k</b> an <b>Int</b>, 
+      returns the unbounded
+      half-space of rank <b>normal.rank</b>, consisting of all points <b>p</b>
+      satisfying the vector inequality `p&#183;normal  &#8804;  k`.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeRectangular(min, max)</b>, 
+      where <b>min</b> and <b>max</b>
+      are rank-1 length-<b>n</b> integeger arrays, returns a
+      <b>Region(n)</b> equal to: 
+      `[min(0) .. max(0), &#8230;, min(n-1)..max(n-1)]`.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.make(regions)</b> constructs the Cartesian product of the
+      rectangular <b>Region(1)</b>s in <b>regions</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeBanded(size, a, b)</b> constructs the
+      banded <b>Region(2)</b> of size <b>size</b>, with <b>a</b> bands above
+      and <b>b</b> bands below the diagonal.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeBanded(size)</b> constructs the banded <b>Region(2)</b> with
+      just the main diagonal.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeUpperTriangular(N)</b> returns a region corresponding
+to the non-zero indices in an upper-triangular <b>N x N</b> matrix.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Region.makeLowerTriangular(N)</b> returns a region corresponding
+to the non-zero indices in a lower-triangular <b>N x N</b> matrix.
+<div class="p"><!----></div>
+</li>
+
+<li> 
+  If <b>R</b> is a region, and <b>p</b> a Point of the same rank, then 
+  <b>R+p</b> is <b>R</b> translated forwards by 
+  <b>p</b> - the region whose
+  points are <b>r+p</b> 
+  for each <b>r</b> in <b>R</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> 
+  If <b>R</b> is a region, and <b>p</b> a Point of the same rank, then 
+  <b>R-p</b> is <b>R</b> translated backwards by 
+  <b>p</b> - the region whose
+  points are <b>r-p</b> 
+  for each <b>r</b> in <b>R</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+All the points in a region are ordered canonically by the
+lexicographic total order. Thus the points of the region <b>(1..2)*(1..2)</b>
+are ordered as 
+<pre>
+(1,1), (1,2), (2,1), (2,2)
+</pre>
+Sequential iteration statements such as <b>for</b> (&#167;)
+iterate over the points in a region in the canonical order.
+
+<div class="p"><!----></div>
+A region is said to be <em>rectangular</em> if it is of
+the form `(T<sub>1</sub> * &#8230; * T<sub>k</sub>)` for some set of intervals
+`T<sub>i</sub> =  l<sub>i</sub> .. h<sub>i</sub> `. 
+In particular an <b>IntRange</b> turned into a <b>Region</b> is rectangular: 
+<b>(1..10) as Region(1)</b>.
+Such a
+region satisfies the property that if two points p<sub>1</sub> and p<sub>3</sub> are
+in the region, then so is every point p<sub>2</sub> between them (that is, it is <em>convex</em>). 
+(Banded and triangular regions are not rectangular.)
+The operation
+<b>R.boundingBox()</b> gives the smallest rectangular region containing
+<b>R</b>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;Operations on regions</h3>
+
+
+<div class="p"><!----></div>
+Let <b>R</b> be a region. A <em>sub-region</em> is a subset of <b>R</b>.
+
+
+<div class="p"><!----></div>
+Let `R1` and `R2` be two regions whose types establish that
+they are of the same rank. Let `S` be another region; its rank is
+irrelevant. 
+
+<div class="p"><!----></div>
+`R1 &amp;&amp; R2` is the intersection of `R1` and
+`R2`, <em>viz</em>, the region containing all points which are in both
+<b>R1</b> and <b>R2</b>.  
+For example, <b>1..10 &amp;&amp; 2..20</b> is <b>2..10</b>.
+
+<div class="p"><!----></div>
+`R1 * S` is the Cartesian product of `R1` and
+`S`,  formed by pairing each point in `R1` with every  point in `S`.
+
+Thus, <b>(1..2)*(3..4)*(5..6)</b>
+is the region of rank <b>3</b> containing the eight points with coordinates
+<b>[1,3,5]</b>, <b>[1,3,6]</b>, <b>[1,4,5]</b>, <b>[1,4,6]</b>,
+<b>[2,3,5]</b>, <b>[2,3,6]</b>, <b>[2,4,5]</b>, <b>[2,4,6]</b>.
+
+<div class="p"><!----></div>
+For a region `R` and point `p` of the same rank,
+<b>R+p</b> 
+and
+<b>R-p</b> 
+represent the translation of the region
+forward 
+and backward 
+by `p`. That is, <b>R+p</b> is the set of points
+<b>p+q</b> for all <b>q</b> in <b>R</b>, and <b>R-p</b> is the set of <b>q-p</b>.
+
+<div class="p"><!----></div>
+More <b>Region</b> methods are described in the API documentation.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Arrays</h2>
+
+
+<div class="p"><!----></div>
+Arrays are organized data, arranged so that it can be accessed by subscript.
+An <b>Array[T]</b> <b>A</b> has a <b>Region</b> <b>A.region</b>, telling which
+<b>Point</b>s are in <b>A</b>.  For each point <b>p</b> in <b>A.region</b>,
+<b>A(p)</b> is the datum of type <b>T</b> associated with <b>p</b>.  X10
+implementations should 
+attempt to store <b>Array</b>s efficiently, and to make array element accesses
+quick-<em>e.g.</em>, avoiding constructing <b>Point</b>s when unnecessary.
+
+<div class="p"><!----></div>
+This generalizes the concepts of arrays appearing in many other programming
+languages.  A <b>Point</b> may have any number of coordinates, so an
+<b>Array</b> can have, in effect, any number of integer subscripts.  
+
+<div class="p"><!----></div>
+Indeed, it is possible to write code that works on <b>Array</b>s regardless 
+of dimension.  For example, to add one <b>Array[Int]</b> <b>src</b> into another
+<b>dest</b>, 
+<pre>
+static def addInto(src: Array[Int], dest:Array[Int])
+  {src.region == dest.region}
+  = {
+    for (p in src.region) 
+       dest(p) += src(p);
+  }
+</pre>
+
+Since <b>p</b> is a <b>Point</b>, it can hold as many coordinates as are
+necessary for the arrays <b>src</b> and <b>dest</b>.
+
+
+<div class="p"><!----></div>
+The basic operation on arrays is subscripting: if <b>A</b> is an <b>Array[T]</b>
+and <b>p</b> a point with the same rank as <b>A.region</b>, then
+<b>A(p)</b>
+is the value of type <b>T</b> associated with point <b>p</b>.
+This is the same operation as function application
+(&#167;); arrays implement function types, and can be
+used as functions.
+
+<div class="p"><!----></div>
+Array elements can be changed by assignment. If <b>t:T</b>, 
+<pre>
+A(p) = t;
+</pre>
+modifies the value associated with <b>p</b> to be {t}, and leaves all other
+values in <b>A</b> unchanged.
+
+<div class="p"><!----></div>
+An <b>Array[T]</b> named <b>a</b> has: 
+
+<ul>
+<li> <b>a.region</b>: the <b>Region</b> upon which <b>a</b> is defined.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>a.size</b>: the number of elements in <b>a</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>a.rank</b>, the rank of the points usable to subscript <b>a</b>. 
+      <b>a.rank</b> is a cached copy of 
+      <b>a.region.rank</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Array Constructors</h3>
+
+
+<div class="p"><!----></div>
+To construct an array whose elements all have the same value <b>init</b>, call
+<b>new Array[T](R, init)</b>. 
+For example, an array of a thousand <b>&#246;h!"</b>s can be made by:
+<b>new Array[String](1..1000, &#246;h!")</b>.
+
+<div class="p"><!----></div>
+To construct and initialize an array, call the two-argument constructor. 
+<b>new Array[T](R, f)</b> constructs an array of elements of type <b>T</b> on
+region <b>R</b>, with <b>a(p)</b> initialized to <b>f(p)</b> for each point
+<b>p</b> in <b>R</b>.  <b>f</b> must be a function taking a point of rank
+<b>R.rank</b> to a value of type <b>T</b>.  
+
+<div class="p"><!----></div>
+One way to construct the array <b>[11, 22, 33]</b> is with an array constructor
+<b>new Array[Int](1..3, (i:Point(1))=&#62;11*i(0))</b>. 
+To construct a multiplication table, call
+<b>new Array[Int]((0..9)*(0..9), (p:Point(2)) =&#62; p(0)*p(1))</b>.
+
+
+<div class="p"><!----></div>
+Other constructors are available; see the API documentation and
+&#167;. 
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Array Operations</h3>
+
+
+<div class="p"><!----></div>
+The basic operation on <b>Array</b>s is subscripting.  If <b>a:Array[T]</b> and 
+<b>p:Pointrank == a.rank</b>, then <b>a(p)</b> is the value of type <b>T</b>
+appearing at position <b>p</b> in <b>a</b>.    The syntax is identical to
+function application, and, indeed, arrays may be used as functions.
+<b>a(p)</b> may be assigned to, as well, by the usual assignment syntax
+<b>a(p)=t</b>.
+(This uses the application and setting syntactic sugar, as given in &#167;.)
+
+<div class="p"><!----></div>
+Sometimes it is more convenient to subscript by integers.  Arrays of rank 1-4
+can, in fact, be accessed by integers: 
+<pre>
+val A1 = new Array[Int](1..10, 0);
+A1(4) = A1(4) + 1;
+val A4 = new Array[Int]((1..2)*(1..3)*(1..4)*(1..5), 0);
+A4(2,3,4,5) = A4(1,1,1,1)+1;
+</pre>
+
+<div class="p"><!----></div>
+Iteration over an <b>Array</b> is defined, and produces the <b>Point</b>s of the
+array's region.  If you want to use the values in the array, you have to
+subscript it.  For example, you could take the logarithm of every element of an
+<b>Array[Double]</b> by: 
+<pre>
+for (p in a) a(p) = Math.log(a(p));
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Distributions</h2><a name="XtenDistributions">
+</a>
+
+
+<div class="p"><!----></div>
+Distributed arrays are spread across multiple <b>Place</b>s.  
+A <em>distribution</em>, a mapping from a region to a set of places, 
+describes where each element of a distributed array is kept.
+Distributions are embodied by the class <b>x10.array.Dist</b> and its
+subclasses. 
+The <em>rank</em> of a distribution is the rank of the underlying region, and
+thus the rank of every point that the distribution applies to.
+
+<div class="p"><!----></div>
+<pre>
+val R  &lt;: Region = 1..100;
+val D1 &lt;: Dist = Dist.makeBlock(R);
+val D2 &lt;: Dist = Dist.makeConstant(R, here);
+</pre>
+
+<div class="p"><!----></div>
+<b>D1</b> distributes the region <b>R</b> in blocks, with a set of consecutive
+points at each place, as evenly as possible.  <b>D2</b> maps all the points in
+<b>R</b> to <b>here</b>.  
+
+
+<div class="p"><!----></div>
+Let <b>D</b> be a distribution. 
+<b>D.region</b> 
+denotes the underlying
+region. 
+Given a point <b>p</b>, the expression
+<b>D(p)</b> represents the application of <b>D</b> to <b>p</b>, that is,
+the place that <b>p</b> is mapped to by <b>D</b>. The evaluation of the
+expression <b>D(p)</b> throws an <b>ArrayIndexOutofBoundsException</b>
+if <b>p</b> does not lie in the underlying region.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.1">
+5.1</a>&nbsp;&nbsp;<tt>PlaceGroup</tt>s</h3>
+
+<div class="p"><!----></div>
+A <b>PlaceGroup</b> represents an ordered set of <b>Place</b>s.
+<b>PlaceGroup</b>s exist for performance and scaleability: they are more
+efficient, in certain critical places, than general collections of
+<b>Place</b>. <b>PlaceGroup</b> implements <b>Sequence[Place]</b>, and thus
+provides familiar operations - <b>pg.size()</b> for the number of places,
+<b>pg.iterator()</b> to iterate over them, etc.  
+
+<div class="p"><!----></div>
+<b>PlaceGroup</b> is an abstract class.  The concrete class
+<b>SparsePlaceGroup</b> is intended for a small group of places. 
+<b>new SparsePlaceGroup(somePlace)</b> is a good <b>PlaceGroup</b> containing
+one place.  
+<b>new SparsePlaceGroup(seqPlaces)</b>
+constructs a sparse place group from a sorted sequence of places.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc5.2">
+5.2</a>&nbsp;&nbsp;Operations returning distributions</h3>
+
+
+<div class="p"><!----></div>
+Let <b>R</b> be a region, <b>Q</b> 
+a <b>PlaceGroup</b>, and <b>P</b> a place.
+
+<div class="p"><!----></div>
+
+<b>Unique distribution&nbsp;&nbsp;</b> 
+The distribution <b>Dist.makeUnique(Q)</b> is the unique distribution from the
+region <b>(1..k) as Region(1)</b> to <b>Q</b> mapping each point <b>i</b> to
+<b>pi</b>.
+
+<div class="p"><!----></div>
+
+<b>Constant distributions.&nbsp;&nbsp;</b> 
+The distribution <b>Dist.makeConstant(R,P)</b> maps every point in region
+<b>R</b> to place <b>P</b>.  
+The special case <b>Dist.makeConstant(R)</b> maps every point in <b>R</b> to
+<b>here</b>. 
+
+<div class="p"><!----></div>
+
+<b>Block distributions.&nbsp;&nbsp;</b>
+The distribution <b>Dist.makeBlock(R)</b> distributes the elements of <b>R</b>,
+in approximately-even blocks, over all the places available to the program. 
+There are other <b>Dist.makeBlock</b> methods capable of controlling the
+distribution and the set of places used; see the API documentation.
+
+<div class="p"><!----></div>
+
+<b>Domain Restriction.&nbsp;&nbsp;</b> 
+
+<div class="p"><!----></div>
+If <b>D</b> is a distribution and <b>R</b> is a sub-region of <tt>
+D.region</tt>, then <b>D &#124; R</b> represents the restriction of <b>D</b> to
+<b>R</b>-that is, the distribution that takes each point <b>p</b> in <b>R</b>
+to 
+<b>D(p)</b>, 
+but doesn't apply to any points but those in <b>R</b>.
+
+<div class="p"><!----></div>
+
+<b>Range Restriction.&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+If <b>D</b> is a distribution and <b>P</b> a place expression, the term
+<b>D &#124; P</b> 
+denotes the sub-distribution of <b>D</b> defined over all the
+points in the region of <b>D</b> mapped to <b>P</b>.
+
+<div class="p"><!----></div>
+Note that <b>D &#124; here</b> does not necessarily contain adjacent points
+in <b>D.region</b>. For instance, if <b>D</b> is a cyclic distribution,
+<b>D &#124; here</b> will typically contain points that differ by the number of
+places. 
+An implementation may find a
+way to still represent them in contiguous memory, <em>e.g.</em>, using an arithmetic
+function to map from the region index to an index 
+into the array.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Distributed Arrays</h2>
+
+
+
+
+
+<div class="p"><!----></div>
+Distributed arrays, instances of <b>DistArray[T]</b>, are very much like
+<b>Array</b>s, except that they distribute information among multiple
+<b>Place</b>s according to a <b>Dist</b> value passed in as a constructor
+argument.  
+
+<div class="p"><!----></div>
+The following code creates a distributed array holding
+a thousand cells, each initialized to 0.0, distributed via a block
+distribution over all places.
+<pre>
+val R &lt;: Region = 1..1000;
+val D &lt;: Dist = Dist.makeBlock(R);
+val da &lt;: DistArray[Float] 
+       = DistArray.make[Float](D, (Point(1))=&#62;0.0f);
+</pre>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Distributed Array Construction</h2><a name="ArrayInitializer">
+</a>
+
+
+
+
+<div class="p"><!----></div>
+<b>DistArray</b>s are instantiated by invoking one of the <b>make</b> factory
+methods of the <b>DistArray</b> class.
+A <b>DistArray</b> creation 
+must take either an <b>Int</b> as an argument or a <b>Dist</b>. In the first
+case,  a distributed array is created over the distribution 
+<b>Dist.makeConstant(0..(N-1),here)</b>;
+in the second over the given distribution. 
+
+<div class="p"><!----></div>
+A distributed array creation operation may also specify an initializer
+function.
+The function is applied in parallel
+at all points in the domain of the distribution. The
+construction operation terminates locally only when the <b>DistArray</b> has been
+fully created and initialized (at all places in the range of the
+distribution).
+
+<div class="p"><!----></div>
+For instance:
+<pre>
+val ident = ([i]:Point(1)) =&#62; i;
+val data : DistArray[Int]
+    = DistArray.make[Int](Dist.makeConstant(1..9), ident);
+val blk = Dist.makeBlock((1..9)*(1..9));
+val data2 : DistArray[Int]
+    = DistArray.make[Int](blk, ([i,j]:Point(2)) =&#62; i*j);
+</pre>
+
+<div class="p"><!----></div>
+ The first declaration stores in <b>data</b> a reference to a mutable
+distributed array with <b>9</b> elements each of which is located in the
+same place as the array. The element at <b>[i]</b> is initialized to its index
+<b>i</b>. 
+
+<div class="p"><!----></div>
+The second declaration stores in <b>data2</b> a reference to a mutable
+two-dimensional distributed array, whose coordinates both range from 1 to
+9, distributed in blocks over all <b>Place</b>s, 
+initialized with <b>i*j</b>
+at point <b>[i,j]</b>.
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Operations on Arrays and Distributed Arrays</h2>
+
+<div class="p"><!----></div>
+Arrays and distributed arrays share many operations.
+In the following, let <b>a</b> be an array with base type T, and <b>da</b> be an
+array with distribution <b>D</b> and base type <b>T</b>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc8.1">
+8.1</a>&nbsp;&nbsp;Element operations</h3>
+The value of <b>a</b> at a point <b>p</b> in its region of definition is
+obtained by using the indexing operation <b>a(p)</b>. 
+The value of <b>da</b> at <b>p</b> is similarly
+<b>da(p)</b>.
+This operation
+may be used on the left hand side of an assignment operation to update
+the value: 
+<b>a(p)=t;</b>
+and 
+<b>da(p)=t;</b>
+The operator assignments, <b>a(i) += e</b> and so on,  are also
+available. 
+
+<div class="p"><!----></div>
+It is a runtime error to 
+access arrays, with <b>da(p)</b> or <b>da(p)=v</b>, at a place
+other than <b>da.dist(p)</b>, <em>viz</em> at the place that the element exists. 
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc8.2">
+8.2</a>&nbsp;&nbsp;Arrays of Single Values</h3><a name="ConstantArray">
+</a>
+
+
+<div class="p"><!----></div>
+For a region <b>R</b> and a value <b>v</b> of type <b>T</b>, the expression 
+<b>new Array[T](R, v)</b> 
+produces an array on region <b>R</b> initialized with value <b>v</b>.
+Similarly, 
+for a distribution <b>D</b> and a value <b>v</b> of
+type <b>T</b> the expression 
+<pre>
+DistArray.make[T](D, (Point(D.rank))=&#62;v)
+</pre>
+constructs a distributed array with
+distribution <b>D</b> and base type <b>T</b> initialized with <b>v</b>
+at every point.
+
+<div class="p"><!----></div>
+Note that <b>Array</b>s are constructed by constructor calls, but
+<b>DistArrays</b> are constructed by calls to the factory methods
+<b>DistArray.make</b>. This is because <b>Array</b>s are fairly simple objects,
+but <b>DistArray</b>s may be implemented by different classes for different
+distributions. The use of the factory method gives the library writer the
+freedom to select appropriate implementations.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc8.3">
+8.3</a>&nbsp;&nbsp;Restriction of an array</h3>
+
+<div class="p"><!----></div>
+Let <b>R</b> be a sub-region of <b>da.region</b>. Then 
+<b>da &#124; R</b>
+represents the sub-<b>DistArray</b> of <b>da</b> on the region <b>R</b>.
+That is, <b>da &#124; R</b> has the same values as <b>da</b> when subscripted by a
+point in region <b>R &amp;&amp; da.region</b>, and is undefined elsewhere.
+
+<div class="p"><!----></div>
+Recall that a rich set of operators are available on distributions
+(&#167;<a href="#XtenDistributions">5</a>) to obtain sub-distributions
+(e.g. restricting to a sub-region, to a specific place etc).
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc8.4">
+8.4</a>&nbsp;&nbsp;Operations on Whole Arrays</h3>
+
+<div class="p"><!----></div>
+
+<b>Pointwise operations&nbsp;&nbsp;</b><a name="ArrayPointwise">
+</a>
+The unary <b>map</b> operation applies a function to each element of
+a distributed or non-distributed array, returning a new distributed array with
+the same distribution, or a non-distributed array with the same region.
+
+<div class="p"><!----></div>
+The following produces an array of cubes: 
+<pre>
+val A = new Array[Int](1..10, (p:Point(1))=&#62;p(0) );
+assert A(3) == 3 &amp;&amp; A(4) == 4 &amp;&amp; A(10) == 10; 
+val cube = (i:Int) =&#62; i*i*i;
+val B = A.map(cube);
+assert B(3) == 27 &amp;&amp; B(4) == 64 &amp;&amp; B(10) == 1000; 
+</pre>
+
+<div class="p"><!----></div>
+A variant operation lets you specify the array <b>B</b> into which the result
+will be stored, 
+<pre>
+val A = new Array[Int](1..10, (p:Point(1))=&#62;p(0) );
+assert A(3) == 3 &amp;&amp; A(4) == 4 &amp;&amp; A(10) == 10; 
+val cube = (i:Int) =&#62; i*i*i;
+val B = new Array[Int](A.region); // B = 0,0,0,0,0,0,0,0,0,0
+A.map(B, cube);
+assert B(3) == 27 &amp;&amp; B(4) == 64 &amp;&amp; B(10) == 1000; 
+</pre>
+
+This is convenient if you have an already-allocated array lying around unused.
+In particular, it can be used if you don't need <b>A</b> afterwards and want to
+reuse its space:
+<pre>
+val A = new Array[Int](1..10, (p:Point(1))=&#62;p(0) );
+assert A(3) == 3 &amp;&amp; A(4) == 4 &amp;&amp; A(10) == 10; 
+val cube = (i:Int) =&#62; i*i*i;
+A.map(A, cube);
+assert A(3) == 27 &amp;&amp; A(4) == 64 &amp;&amp; A(10) == 1000; 
+</pre>
+
+<div class="p"><!----></div>
+The binary <b>map</b> operation takes a binary function and
+another
+array over the same region or distributed array over the same  distribution,
+and applies the function 
+pointwise to corresponding elements of the two arrays, returning
+a new array or distributed array of the same shape.
+The following code adds two distributed arrays: 
+<pre>
+static def add(da:DistArray[Int], db: DistArray[Int])
+    {da.dist==db.dist}
+    = da.map(db, (a:Int,b:Int)=&#62;a+b);
+</pre>
+
+<div class="p"><!----></div>
+
+<b>Reductions&nbsp;&nbsp;</b><a name="ArrayReductions">
+</a>
+
+<div class="p"><!----></div>
+Let <b>f</b> be a function of type <b>(T,T)=&#62;T</b>.  Let
+<b>a</b> be an array over base type <b>T</b>.
+Let <b>unit</b> be a value of type <b>T</b>.
+Then the
+operation <b>a.reduce(f, unit)</b> returns a value of type <b>T</b> obtained
+by combining all the elements of <b>a</b> by use of  <b>f</b> in some unspecified order
+(perhaps in parallel).   
+The following code gives one method which 
+meets the definition of <b>reduce</b>,
+having a running total <b>r</b>, and accumulating each value <b>a(p)</b> into it
+using <b>f</b> in turn.  (This code is simply given as an example; <b>Array</b>
+has this operation defined already.)
+<pre>
+def oneWayToReduce[T](a:Array[T], f:(T,T)=&#62;T, unit:T):T {
+  var r : T = unit;
+  for(p in a.region) r = f(r, a(p));
+  return r;
+}
+</pre>
+
+<div class="p"><!----></div>
+For example,  the following sums an array of integers.  <b>f</b> is addition,
+and <b>unit</b> is zero.  
+<pre>
+val a = [1,2,3,4];
+val sum = a.reduce((a:Int,b:Int)=&#62;a+b, 0); 
+assert(sum == 10); // 10 == 1+2+3+4
+</pre>
+
+<div class="p"><!----></div>
+Other orders of evaluation, degrees of parallelism, and applications of
+<b>f(x,unit)</b> and <b>f(unit,x)</b>are also correct.
+In order to guarantee that the result is precisely
+determined, the  function <b>f</b> should be associative and
+commutative, and the value <b>unit</b> should satisfy
+<b>f(unit,x)</b> <b>==</b> <b>x</b> <b>==</b> <b>f(x,unit)</b>
+for all <b>x:T</b>.  
+
+<div class="p"><!----></div>
+<b>DistArray</b>s have the same operation.
+This operation involves communication between the places over which
+the <b>DistArray</b> is distributed. The X10 implementation guarantees that
+only one value of type <b>T</b> is communicated from a place as part of
+this reduction process.
+
+<div class="p"><!----></div>
+
+<b>Scans&nbsp;&nbsp;</b><a name="ArrayScans">
+</a>
+
+<div class="p"><!----></div>
+Let <b>f:(T,T)=&#62;T</b>, <b>unit:T</b>, and <b>a</b> be an <b>Array[T]</b> or
+<b>DistArray[T]</b>.  Then <b>a.scan(f,unit)</b> is the array or distributed
+array of type <b>T</b> whose ith element in canonical order is the
+reduction by <b>f</b> with unit <b>unit</b> of the first i elements of
+<b>a</b>. 
+
+<div class="p"><!----></div>
+This operation involves communication between the places over which the
+distributed array is distributed. The X10 implementation will endeavour to
+minimize the communication between places to implement this operation.
+
+<div class="p"><!----></div>
+Other operations on arrays, distributed arrays, and the related classes may be
+found in the <b>x10.array</b> package.
+
+<br /><br /><hr />
+</html>

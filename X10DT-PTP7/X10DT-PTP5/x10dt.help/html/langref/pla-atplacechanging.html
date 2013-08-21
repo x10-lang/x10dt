@@ -1,0 +1,531 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+<meta name="GENERATOR" content="TtH 3.80">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+	<title>at: Place changeing</title>
+</head>
+
+<body>
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp; <tt>at</tt>: Place Changing</h2><a name="AtStatement">
+</a>
+
+
+
+<div class="p"><!----></div>
+An activity may change place synchronously using the <b>at</b> statement or
+<b>at</b> expression. This is an expensive operation and must be used
+with care - but it provides the basis for multicore programming in X10.
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td width="150"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+The <i>PlaceExp</i> must be an expression of type <b>Place</b> or some subtype.
+
+<div class="p"><!----></div>
+The <b>at</b>-statment <b>at(p;F)S</b> first evaluates <b>p</b> to a place, then
+copies information to that place as determined by <b>F</b>, and then executes
+<b>S</b> using the resulting copies.  The <b>at</b>-<em>expression</em>
+<b>at(p;F)E</b> is similar, but it copies the result of the expression <b>E</b>
+and returns the copy as its result.
+
+<div class="p"><!----></div>
+The clause <b>F</b> in <b>at(p;F)S</b> is a list of zero or more <em>copy
+specifiers</em>, explaining what values are to be copied to the place <b>p</b>, and
+how they are to be referred to at <b>p</b>.  
+
+<div class="p"><!----></div>
+The following example creates an array <b>a</b> located <b>here</b>, and copies
+it to another place, giving the copy the name <b>a2</b> there.  The copy is
+modified and examined.  After the <b>at</b> finishes, the original is also
+examined, and (since only the copy, not the original, was modified) is observed
+to be unchanged. 
+<pre>
+val a = [1,2,3];
+at(here.next(); a2 = a) {
+  a2(1) = 4;
+  assert a2.equals([1,4,3]);
+  // 'a' is not accessible here
+}
+assert a.equals([1,2,3]);
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;Copy Specifiers</h3>
+<a name="sect:copy-spec">
+</a>
+
+
+
+<div class="p"><!----></div>
+A single copy specifier can be one of the following forms.   
+Each copy specifier determines an <em>original-expression</em>, saying what value
+will be copied, and a <em>target variable</em>, saying what it will be called.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>val x = E</b>, and its usual variants <b>val x:T = E</b>, 
+      <b>x : T = E</b>, and 
+      <b>val x &lt;: T = E</b>, evaluate the expression <b>E</b> at the initial
+      place, copy it to <b>p</b>, and bind <b>x</b> to the copy, as normal for a
+      local <b>val</b> binding.  If a type is supplied, it is checked
+      statically in the usual way.  
+      The original-expression is <b>E</b>, and the target variable is <b>x</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>var x : T = E</b> evaluates <b>E</b> at the initial place, copies it to
+      <b>p</b>, and binds <b>x</b> to a new <b>var</b> whose initial value is the
+      copy, as normal for a local <b>var</b> binding.
+      If a type is supplied, it is checked
+      statically in the usual way.
+      The original-expression is <b>E</b>, and the target variable is <b>x</b>.
+      Note that, like a <b>var</b> parameter to a method, <b>x</b> is a local
+      variable.  Changes to <b>x</b> will not change anything else. In
+      particular, even if <b>x</b> has the same name as a <b>var</b> variable
+      outside, the two <b>var</b>s are unconnected.  
+      See &#167; for the way to modify a variable from the
+      surrounding scope.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>x = E</b>, as a copy specifier, is equivalent to <b>val x = E</b>.
+      Note that this abbreviated form is not available as a local variable
+      definition, (because it is used as an assignment statement), but in a
+      copy specifier there are no assignment statements.
+      The original-expression is <b>E</b>, and the target variable is <b>x</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>x</b> alone, as a copy specifier, is equivalent to <b>val x = x</b>.
+      It says that the variable <b>x</b> will be copied, and the copy will also
+      be named <b>x</b>.  
+      The original-expression is <b>x</b>, and the target variable is <b>x</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A field assignment statements "E<sub>1</sub>.fld = E<sub>2</sub>", evaluates 
+      E<sub>1</sub> and E<sub>2</sub> on the sending side to values v<sub>1</sub> and v<sub>2</sub>.  
+      v<sub>1</sub> must be an object with a mutable field <b>fld</b>.  v<sub>1</sub> and
+      v<sub>2</sub> are sent to place <b>p</b>, and the field assignment is performed
+      there.   The compiler may optimize this, <em>e.g.</em>, by neglecting to
+      deserialize "v<sub>1</sub>.fld", and deserializing v<sub>2</sub> directly into
+      that field rather than into a separate buffer.
+<div class="p"><!----></div>
+</li>
+
+<li> An array-element assignment 
+      "E<sub>0</sub>(E<sub>1</sub>, &#8230;, E<sub>n</sub>) = E<sub>+</sub>".
+      Much like a field assignment, this evaluates all the expressions E<sub>i</sub>
+      at the sending side to values v<sub>i</sub>, and transmits them.  v<sub>0</sub> must
+      admit a suitably-typed n-ary subscripting operation.  That operation
+      is applied after the values are deserialized at <b>p</b>.  The compiler
+      may optimize this, <em>e.g.</em>, by neglecting to deserialize one element of the
+      array v<sub>0</sub>, and deserializing v<sub>+</sub> directly into that location.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>*</b> may appear as the last copy specifier in the list, indicating
+      that all <b>val</b> variables from outside <b>S</b> which are used in
+      <b>S</b> should be copied. Specifically, let 
+      "x<sub>1</sub>, &#8230;, x<sub>n</sub>" be all the <b>val</b> variables defined
+      outside of <b>S</b> 
+      mentioned in <b>S</b>. The <b>*</b> copy specifier is equivalent to 
+      the list of variables 
+      "x<sub>1</sub>, &#8230;, x<sub>n</sub>".
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+As an important special case, <b>at(p;)S</b> copies <em>nothing</em> to <b>S</b>.
+This must not be confused with <b>at(p)S</b>, which copies <em>everything</em>.
+
+<div class="p"><!----></div>
+Note that <b>at(p;x,*)use(x,y);</b> is equivalent to <b>at(p;*)use(x,y);</b>.
+In both statements, the <b>*</b> indicates that all variables used in the body
+are to be copied in.  The former makes clear that <b>x</b> is one of the things
+being copied, but, from the <b>*</b>, there may be others. 
+
+<div class="p"><!----></div>
+However, other copy specifiers may be used to compute
+values in <b>S</b> which are not available (and thus need not be stored)
+outside of it.  The following code may end up with a large object <b>c</b> in
+memory at <b>p</b> but not at the initial place: 
+<pre>
+at(p; c = a.largeFun(b), *) {
+  use(a,b,c);
+}
+</pre>
+
+<div class="p"><!----></div>
+The blanket <b>at</b>-statement <b>at(p)S</b> copies everything.  It is an
+abbreviation for <b>at(p;*)S</b>.  
+When this manual refers to a generic <b>at</b>-statement as <b>at(p;F)S</b>, it
+should be understood as including the blanket <b>at</b> statement <b>at(p)S</b>
+with this interpretation.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.2">
+3.2</a>&nbsp;&nbsp;Copying Values</h3>
+An activity executing statement <b>at (q;F) S</b> at a place <b>p</b>
+evaluates <b>q</b> at <b>p</b> and then moves to <b>q</b> to execute
+<b>S</b>.  
+The original-expressions of <b>F</b> are evaluated at <b>p</b>.
+Their values are copied (&#167;) to <b>q</b>, and bound to 
+names there, as specified by <b>F</b>.  
+<b>S</b> is evaluated in an environment containing the target variables of
+<b>F</b>, and <b>here</b> and <em>no</em> other variables.  (In particular, if this
+statement appears in an instance method body and <b>this</b> is not copied,
+<b>this</b> is not accessible.  This fact is important: it allows the
+programmer to control when <b>this</b> is copied, which may be expensive for
+large containers.)
+
+<div class="p"><!----></div>
+Note that the value obtained by evaluating <b>q</b>
+is not necessarily distinct from <b>p</b> (<em>e.g.</em>, <b>q</b> may be
+<b>here</b>). 
+This does not alter the behavior of <b>at</b>.  
+ <b>at(here;F)S</b> will copy all the values specified by <b>F</b>, 
+even though there is no actual change of place, and even though the original
+values already exist there.
+
+<div class="p"><!----></div>
+On normal termination of <b>S</b> control returns to <b>p</b> and
+execution is continued with the statement following <b>at (q;F) S</b>. If
+<b>S</b> terminates abruptly with exception <b>E</b>, <b>E</b> is
+serialized into a buffer, the buffer is communicated to <b>p</b> where
+it is deserialized into an exception <b>E1</b> and <b>at (p) S</b>
+throws <b>E1</b>.
+
+<div class="p"><!----></div>
+Since <b>at(p) S</b> is a synchronous construct, usual control-flow
+constructs such as <b>break</b>, <b>continue</b>, <b>return</b> and 
+<b>throw</b> are permitted in <b>S</b>.  All concurrency related
+constructs - <b>async</b>, <b>finish</b>, <b>atomic</b>, <b>when</b> are
+also permitted.
+
+<div class="p"><!----></div>
+The <b>at</b>-expression <b>at(p)E</b> is similar, except that, in the case of
+normal termination of <b>E</b>, the value that <b>E</b> produces is serialized
+into a buffer, transported to the starting place, and deserialized, and the
+value of the <b>at</b>-expression is the result of deserialization.
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> 
+X10 does not currently allow <tt>break</tt>, <tt>continue</tt>, or <tt>return</tt>
+to exit from an <tt>at</tt>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.3">
+3.3</a>&nbsp;&nbsp;How <tt>at</tt> Copies Values</h3>
+<a name="sect:at-init-val">
+</a>
+
+<div class="p"><!----></div>
+The values of the original-expressions  specified by <b>F</b> in 
+<b>at (p;F)S</b> are copied to <b>p</b>, as follows.
+
+<div class="p"><!----></div>
+First, the original-expressions are evaluated to give a vector of X10 values.
+Consider the graph of all values reachable from these values (without
+following 
+<b>transient</b> fields 
+(&#167;, <b>GlobalRef</b>s (&#167;); also custom
+serialization (&#167; may alter this behavior)). 
+
+<div class="p"><!----></div>
+Second this graph is <em>
+serialized</em> into a buffer and transmitted to place <b>q</b>.  Third,
+the vector of X10 values is 
+re-created at <b>q</b> 
+by deserializing the buffer at
+<b>q</b>. Fourth, <b>S</b> is executed at <b>q</b>, in an environment in
+which each variable <b>v</b> declared in <b>F</b> 
+refers to the corresponding deserialized value.  
+
+<div class="p"><!----></div>
+Note that since values accessed across an <b>at</b> boundary are
+copied, the programmer may wish to adopt the discipline that either
+variables accessed across an <b>at</b> boundary  contain only structs 
+or stateless objects, or the methods invoked on them do not access any
+mutable state on the objects. Otherwise the programmer has to ensure
+that side effects are made to the correct copy of the object. For this
+the struct <b>x10.lang.GlobalRef[T]</b> is often useful.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc3.3.1">
+3.3.1</a>&nbsp;&nbsp;Serialization and deserialization.</h4>
+<a name="sect:ser+deser">
+</a>
+
+
+The X10 runtime provides a default mechanism for
+serializing/deserializing an object graph with a given set of roots.
+This mechanism may be overridden by the programmer on a per class or
+struct basiss as described in <b>x10.io.CustomSerialization</b>. 
+The default mechanism performs a
+deep copy of the object graph (that is, it copies the object or struct
+and, recursively, the values contained in its fields), but does not
+traverse <b>transient</b> fields. Instead on serialization the default
+value &#167; for the type of the field is used.
+
+<div class="p"><!----></div>
+A struct <b>s</b> of type <b>x10.lang.GlobalRef[T]</b> 
+is serialized as a unique global reference to its contained object
+<b>o</b> (of type <b>T</b>).  Please see the documentation
+of <b>x10.lang.GlobalRef[T]</b> for more details.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.4">
+3.4</a>&nbsp;&nbsp;<tt>at</tt> and Activities</h3>
+<b>at(p;F)S</b> does <em>not</em> start a new activity.  It should be thought of as
+transporting the current activity to <b>p</b>, running <b>S</b> there, and then
+transporting it back.  <b>async</b> is the only construct in the
+language that starts a new activity. In different contexts, each one
+of the following makes sense:
+(1)&#126;<b>async at(p;F) S</b> (spawn an activity locally to execute <b>S</b> at
+<b>p</b>; here <b>p</b> is evaluated by the spawned activity) , 
+(2)&#126;<b>at(p;F) async S</b> (evaluate <b>p</b> and then at <b>p</b> spawn an
+activity to execute <b>S</b>), and,
+(3)&#126;<b>async at(p;F) async S</b>. 
+In most cases, <b>async at(p;F) S</b> is preferred to <b>at(p;F) async S</b>, since
+the former returns instantly, but the latter blocks waiting for the remote
+activity to be spawned. 
+
+<div class="p"><!----></div>
+Since <b>at(p;F) S</b> does not start a new activity, 
+<b>S</b> may contain constructs which only make sense
+within a single activity.  
+For example, 
+<pre>
+    for(x in globalRefsToThings) 
+      if (at(x.home; x) x().isNice()) 
+        return x();
+</pre>
+returns the first nice thing in a collection.   If we had used 
+<b>async at(x.home)</b>, this would not be allowed; 
+you can't <b>return</b> from an
+<b>async</b>. 
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> 
+X10 does not currently allow <tt>break</tt>, <tt>continue</tt>, or <tt>return</tt>
+to exit from an <tt>at</tt>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.5">
+3.5</a>&nbsp;&nbsp;Implicit copying from <tt>at</tt> </h3>
+
+
+<div class="p"><!----></div>
+<b>at(p;F)S</b> copies data as specified by <b>F</b>, and sends it
+to place <b>p</b>, before executing <b>S</b> there. The only things that are not
+copied are values only reachable through <b>GlobalRef</b>s and <b>transient</b>
+fields, and data omitted by custom serialization.    If <b>x</b> is a
+variable name referring to some object <b>ob</b> outside of <b>S</b>, then the
+same variable name <b>x</b> refers to a deep copy of <b>ob</b>
+inside of <b>S</b>.  In this way the body <b>S</b> is in a separate block with
+different variable bindings.
+
+<div class="p"><!----></div>
+For example, consider the following program.
+<pre>
+val c = new Cell[Int](9); // (1)
+at (here;c) {             // (2)
+   assert(c() == 9);      // (3)
+   c.set(8);              // (4)
+   assert(c() == 8);      // (5)
+}
+assert(c() == 9);         // (6)
+</pre>
+The <b>at</b> statement copies the <b>Cell</b> and its contents.  
+After <b>(1)</b>, <b>c</b> is a <b>Cell</b> containing 9; call that cell c<sub>1</sub>
+At <b>(2)</b>, that cell is copied, resulting in another cell c<sub>2</sub> whose
+contents are also 9, as tested at <b>(3)</b>.
+(Note that the copying behavior of <b>at</b> happens <em>even when the
+destination place is the same as the starting place</em>- even with
+<b>at(here)</b>.)
+At <b>(4)</b>, the contents of c<sub>2</sub> are changed to 8, as confirmed at <b>(5)</b>; the contents of
+c<sub>1</sub> are of course untouched.    Finally, at <b>(c)</b>, outside the scope
+of the <b>at</b> started at line <b>(2)</b>, <b>c</b> refers to its original
+value c<sub>1</sub> rather than the copy c<sub>2</sub>.  
+
+<div class="p"><!----></div>
+The <b>at</b> statement induces a <em>deep copy</em>.  Not only does it copy the
+values of variables, it copies values that they refer to through zero or more
+levels of reference.  Structures are preserved as well: if two fields
+<b>x.f</b> and <b>x.g</b> refer to the same object o<sub>1</sub> in the original, then
+<b>x.f</b> and <b>x.g</b> will both refer to the same object o<sub>2</sub> in the
+copy.  
+
+<div class="p"><!----></div>
+For example, in the following variation of the preceding example,
+<b>a</b>'s original value a<sub>1</sub> is an array with two references to the same
+<b>Cell[Int]</b> c<sub>1</sub>.  The fact that a<sub>1</sub>(0) and a<sub>1</sub>(1) are both
+identical to c<sub>1</sub> is demonstrated in <b>(A)</b>-<b>(C)</b>, as a<sub>1</sub>(0) is modified
+and a<sub>1</sub>(1) is observed to change.  In <b>(D)</b>-<b>(F)</b>, the copy
+a<sub>2</sub> is tested in the same way, showing that a<sub>2</sub>(0) and a<sub>2</sub>(1) both
+refer to the same <b>Cell[Int]</b> c<sub>2</sub>.  However, the test at <b>(G)</b>
+shows that c<sub>2</sub> is a different cell from c<sub>1</sub>, because changes to
+c<sub>2</sub> did not propagate to c<sub>1</sub>.  
+<pre>
+val c = new Cell[Int](5);
+val a = new Array[Cell[Int]][c,c];
+assert(a(0)() == 5 &amp;&amp; a(1)() == 5);     // (A)
+c.set(6);                               // (B)
+assert(a(0)() == 6 &amp;&amp; a(1)() == 6);     // (C)
+at(here;a) {
+  assert(a(0)() == 6 &amp;&amp; a(1)() == 6);   // (D)
+  c.set(7);                             // (E)
+  assert(a(0)() == 7 &amp;&amp; a(1)() == 7);   // (F)
+}
+assert(a(0)() == 6 &amp;&amp; a(1)() == 6);     // (G)
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.6">
+3.6</a>&nbsp;&nbsp;Copying and Transient Fields</h3>
+<a name="sect:transient">
+</a>
+
+
+
+
+<div class="p"><!----></div>
+Recall that fields of classes and structs marked <b>transient</b> are not copied by
+<b>at</b>.  Instead, they are set to the default values for their types. Types
+that do not have default values cannot be used in <b>transient</b> fields.
+
+<div class="p"><!----></div>
+In the following example, every <b>Trans</b> object has an <b>a</b>-field equal
+to 1.  However, despite the initializer on the <b>b</b> field, it is not the
+case that every <b>Trans</b> has <b>b==2</b>.  Since <b>b</b> is <b>transient</b>,
+when the <b>Trans</b> value <b>this</b> is copied at <b>at(here){...}</b> in
+<b>example()</b>, its <b>b</b> field is not copied, and the default value for an
+<b>Int</b>, 0, is used instead.  
+Note that we could not make a transient field <b>c : Intc != 0</b>, since the
+type has no default value, and copying would in fact set it to zero.
+<pre>
+class Trans {
+   val a : Int = 1;
+   transient val b : Int = 2;
+   //ERROR transient val c : Int{c != 0} = 3;
+   def example() {
+     assert(a == 1 &amp;&amp; b == 2);
+     at(here;a) {
+        assert(a == 1 &amp;&amp; b == 0);
+     }
+   }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.7">
+3.7</a>&nbsp;&nbsp;Copying and GlobalRef</h3>
+<a name="GlobalRef">
+</a>
+
+
+
+<div class="p"><!----></div>
+A <b>GlobalRef[T]</b> (say <b>g</b>) contains a reference to
+a value of type <b>T</b>, in a form which can be transmitted, and a <b>Place</b>
+<b>g.home</b> indicating where the value lives. When a 
+<b>GlobalRef</b> is serialized an opaque, globally unique handle to
+the enclosed value <b>o</b> is passed. 
+
+<div class="p"><!----></div>
+The following example does not copy the value <b>huge</b>.  However, <b>huge</b>
+would have been copied if it had been put into a <b>Cell</b>, or simply used
+directly. 
+<pre>
+val huge = &#196; potentially big thing";
+val href = GlobalRef(huge);
+at (here;href) {
+   use(href);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Values protected in <b>GlobalRef</b>s can be retrieved by the application
+operation <b>g()</b>.  <b>g()</b> is guarded; it can 
+only be called when <b>g.home == here</b>.  If you  want to do anything other
+than pass a global reference around or compare two of them for equality, you
+need to placeshift back to the home place of the reference, often with
+<b>at(g.home)</b>.   For example, the following  program modifies the
+command-line argument array.
+
+<div class="p"><!----></div>
+<pre>
+  public static def main(argv: Array[String](1)) {
+    val argref = GlobalRef[Array[String](1)](argv);
+    at(here.next(); argref) 
+        use(argref);
+  }
+  static def use(argref : GlobalRef[Array[String](1)]) {
+    at(argref.home; argref) {
+      val argv = argref();
+      argv(0) = "Hi!";
+    }
+  }
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.8">
+3.8</a>&nbsp;&nbsp;Warnings about <b>at</b></h3>
+There are two dangers involved with <b>at</b>: 
+
+<ul>
+<li> Careless use of <b>at</b> can result in copying and transmission
+of very large data structures.  This is particularly an issue with the blanket
+<b>at</b> statement, <b>at(p)S</b>, where everything used in <b>S</b> is copied.  
+In particular, it is very easy to capture
+<b>this</b> - a field reference will do it - and accidentally copy everything
+that <b>this</b> refers to, which can be very large.  A disciplined use of copy
+specifiers to make explicit just what gets copied can ameliorate this issue.
+<div class="p"><!----></div>
+</li>
+
+<li> As seen in the examples above, a local variable reference
+  <b>x</b> may refer to different objects in different nested <b>at</b>
+  scopes. The programmer must either ensure that a variable accessed
+  across an <b>at</b> boundary has no mutable state or be prepared to
+  reason about which copy gets modified.   A disciplined use of copy specifiers to give
+  different names to variables can ameliorate this concern.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+</body>
+</html>

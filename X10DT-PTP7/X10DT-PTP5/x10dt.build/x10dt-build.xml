@@ -1,0 +1,174 @@
+<project name="X10DT Build" basedir="." default="main">
+
+  <import file="utilities.xml" />
+  <property file="common.properties" />
+  <property file="build.properties" />
+
+  <path id="launcher.path.ref">
+    <fileset dir="../builds/eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
+  </path>
+	
+  <target name="x10dt-checkouts-existence">
+    <condition property="are-plugins-present">
+      <and>
+        <available file="${build.folder}/x10dt" type="dir" />
+        <available file="${build.folder}/x10dt.core" type="dir" />
+        <available file="${build.folder}/x10dt.feature" type="dir" />
+        <available file="${build.folder}/x10dt.help" type="dir" />
+        <available file="${build.folder}/x10dt.help.dt" type="dir" />
+        <available file="${build.folder}/x10dt.refactoring" type="dir" />
+        <available file="${build.folder}/x10dt.search.core" type="dir" />
+        <available file="${build.folder}/x10dt.ui" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.core" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.cpp" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.cpp.rms" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.rms.core" type="dir" />
+        <available file="${build.folder}/x10dt.ui.launch.java" type="dir" />
+        <available file="${build.folder}/x10.effects" type="dir" />
+      </and>
+    </condition>
+  </target>
+
+  <target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
+    <echo message="Using SVN revision ${x10dt.revision} and tag ${x10dt.tag} for X10DT project checkouts"/>
+    <svn username="anonymous">
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.feature" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.feature" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.help" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.help" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.help.dt" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.help.dt" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.refactoring" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.refactoring" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.search.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.search.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.search.ui" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.search.ui" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.core" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.cpp" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp.rms" 
+    	        revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.cpp.rms" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.rms.core" 
+    	        revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.rms.core" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10dt.ui.launch.java" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.java" />
+      <checkout url="https://x10.svn.sourceforge.net/svnroot/x10/x10dt/${x10dt.tag}/x10.effects" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
+    </svn>
+    <!-- Substitute the SVN revision of the X10 core projects into an X10DT source file -->
+    <svn>
+      <info target="https://x10.svn.sourceforge.net/svnroot/x10/${x10.tag}" propPrefix="x10.svn.info"/>
+    </svn>
+
+    <condition property="x10.revision.used" value="${x10.svn.info.lastRev}">
+      <equals arg1="${x10.revision}" arg2="HEAD"/>
+    </condition>
+
+    <condition property="x10.revision.used" value="${x10.revision.requested}">
+      <not>
+        <equals arg1="${x10.revision}" arg2="HEAD"/>
+      </not>
+    </condition>
+
+    <property name="x10dt.core.activator.file"
+              value="${build.folder}/x10dt.core/src/x10dt/core/X10DTCorePlugin.java"/>
+    <loadfile srcfile="${x10dt.core.activator.file}"
+              property="x10dt.core.plugin.source.replaced">
+      <filterchain>
+        <replaceregex pattern="&quot;%%x10.core.revision%%&quot;" replace="&quot;${x10.revision.used}&quot;" />
+        <replaceregex pattern="&quot;%%x10.core.tag%%&quot;" replace="&quot;${x10.tag}&quot;" />
+      </filterchain>
+    </loadfile>
+    <echo message="${x10dt.core.plugin.source.replaced}" file="${x10dt.core.activator.file}"/>
+  </target>
+
+  <target name="pre-build" unless="skipMirroring">
+    <delete includeEmptyDirs="true">
+      <fileset dir="${publish.site.loc}" defaultexcludes="false">
+        <include name="binary/**" />
+        <include name="features/**" />
+        <include name="plugins/**" />
+        <include name="*.xml" />
+        <include name="content.jar" />
+        <include name="artifacts.jar" />
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="sign-jars" unless="no.jars.signing">
+    <p2.process.artifacts repositoryPath="file:${publish.site.loc}">
+      <sign alias="x10dt" keystore="${build.loc}/x10dt.keystore" keypass="x10-lang" 
+            storepass="x10 Development Toolkit" />
+      <plugin id="x10.compiler" version="0.0.0"/>
+      <plugin id="x10.runtime" version="0.0.0"/>
+      <plugin id="x10.constraints" version="0.0.0"/>
+      <plugin id="x10.common" version="0.0.0"/>
+      <plugin id="x10dt.core" version="0.0.0"/>
+      <plugin id="x10dt.search.core" version="0.0.0"/>
+      <plugin id="x10dt.search.ui" version="0.0.0"/>
+      <plugin id="x10dt.ui" version="0.0.0"/>
+      <plugin id="x10dt.help" version="0.0.0"/>
+      <plugin id="x10dt.help.dt" version="0.0.0"/>
+      <plugin id="x10.effects" version="0.0.0"/>
+      <plugin id="x10dt.ui.launch.core" version="0.0.0"/>
+      <plugin id="x10dt.ui.launch.cpp" version="0.0.0"/>
+      <plugin id="x10dt.ui.launch.cpp.rms" version="0.0.0"/>
+      <plugin id="x10dt.ui.launch.rms.core" version="0.0.0"/>
+      <plugin id="x10dt.ui.launch.java" version="0.0.0"/>
+      <plugin id="x10.dist.host" version="0.0.0"/>
+      <plugin id="x10.dist.linux.x86.fragment" version="0.0.0"/>
+      <plugin id="x10.dist.linux.x86_64.fragment" version="0.0.0"/>
+      <plugin id="x10.dist.macosx.x86.fragment" version="0.0.0"/>
+      <plugin id="x10.dist.win32.x86.fragment" version="0.0.0"/>
+      <plugin id="x10dt" version="0.0.0"/>
+      <plugin id="x10dt.refactoring" version="0.0.0"/>
+      <feature id="lpg.runtime" version="0.0.0"/>
+      <feature id="org.eclipse.imp.java.hosted" version="0.0.0"/>
+      <feature id="org.eclipse.imp.runtime" version="0.0.0"/>
+      <feature id="org.eclipse.imp.pdb" version="0.0.0"/>
+      <feature id="org.eclipse.imp.pdb.values" version="0.0.0"/>
+    </p2.process.artifacts>
+  </target>
+
+  <target name="post-build" unless="skipMirroring">
+    <!--    <antcall target="sign-jars" /> -->
+    <mkdir dir="${publish.site.loc}/${buildLabel}"/>
+    <zip destfile="${publish.site.loc}/${buildLabel}/x10dt-update-site-${zip.release.tag}-${buildLabel}.zip" 
+         basedir="${publish.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
+  </target>
+
+  <target name="main" depends="x10dt-checkouts">
+    <loadfile srcfile="${build.folder}/x10dt/plugin.properties" property="properties.replaced">
+      <filterchain>
+        <replaceregex pattern="Version: (.*)" replace="Version: ${zip.release.tag}\\\\n\\\\" />
+        <replaceregex pattern="Build Id: (.*)" replace="Build Id: ${buildLabel}\\\\n\\\\" />
+      </filterchain>
+    </loadfile>
+    <echo message="${properties.replaced}" file="${build.folder}/x10dt/plugin.properties" />
+
+    <!-- Pick up results of x10-build, which has already run before this entire target -->
+    <p2.publish.featuresAndBundles
+          metadataRepository="file:${repoBaseLocation}/compiler"
+          artifactRepository="file:${repoBaseLocation}/compiler"
+          source="${repoBaseLocation}/compiler"/>
+
+    <p2.publish.featuresAndBundles
+          metadataRepository="file:${repoBaseLocation}/delta-pack"
+          artifactRepository="file:${repoBaseLocation}/delta-pack"
+          source="${base}/delta-pack/eclipse"/>
+
+    <antcall target="pre-build" />
+    <property name="customTargets" location="x10dtCustomTargets.xml" />
+    <ant antfile="${eclipse.pdebuild.scripts}/productBuild/productBuild.xml" />
+    <antcall target="post-build" />
+  </target>
+
+</project>

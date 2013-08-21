@@ -1,0 +1,2670 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+           "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<meta name="GENERATOR" content="TtH 3.89">
+ <style type="text/css"> div.p { margin-top: 7pt;}</style>
+ <style type="text/css"><!--
+ td div.comp { margin-top: -0.6ex; margin-bottom: -1ex;}
+ td div.comb { margin-top: -0.6ex; margin-bottom: -.6ex;}
+ td div.hrcomp { line-height: 0.9; margin-top: -0.8ex; margin-bottom: -1ex;}
+ td div.norm {line-height:normal;}
+ span.roman {font-family: serif; font-style: normal; font-weight: normal;} 
+ span.overacc2 {position: relative;  left: .8em; top: -1.2ex;}
+ span.overacc1 {position: relative;  left: .6em; top: -1.2ex;} --></style>
+ 
+      
+<title>Types</title>
+<a href="#tth_chAp1">Types</a> <br/>
+<ul>
+<li><a href="#tth_sEc1">Classes, Structs,  and interfaces</a> <br/>
+<li><a href="#tth_sEc2">Type Parameters and Generic Types</a> <br/>
+<li><a href="#tth_sEc3">Type definitions</a> <br/>
+<li><a href="#tth_sEc4">Constrained types</a> <br/>
+<li><a href="#tth_sEc5">Default Values</a> <br/>
+<li><a href="#tth_sEc6">Function types</a> <br/>
+<li><a href="#tth_sEc7">Annotated types</a> <br/>
+<li><a href="#tth_sEc8">Subtyping and type equivalence</a> <br/>
+<li><a href="#tth_sEc9">Common ancestors of types</a> <br/>
+<li><a href="#tth_sEc10">Fundamental types</a> <br/>
+<li><a href="#tth_sEc11">Type inference</a> <br/>
+<li><a href="#tth_sEc12">Type Dependencies</a> <br/>
+<li><a href="#tth_sEc13">Typing of Variables and Expressions</a> <br/>
+<li><a href="#tth_sEc14">Limitations of Strict Typing</a> <br/>
+</ul>
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+<div class="p"><!----></div>
+ 
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+
+
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+  
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h1><a name="tth_chAp1">
+Chapter 4 </a><br />Types</h1>
+<a name="XtenTypes">
+</a>
+
+<div class="p"><!----></div>
+X10 is a <em>strongly typed</em> object-oriented language: every
+variable and expression has a type that is known at compile-time.
+Types limit the values that variables can hold.
+
+<div class="p"><!----></div>
+X10 supports three kinds of runtime entities, <em>objects</em>,
+<em>structs</em>, and <em>functions</em>. Objects are instances of <em>
+  classes</em> (&#167;). They may contain zero or
+more mutable fields, and a reference to the list of methods defined on them.
+
+<div class="p"><!----></div>
+An object is represented by some (contiguous) memory chunk on the
+heap. Entities (such as variables and fields) contain a <em>
+  reference</em> to this chunk. That is, objects are represented through
+an extra level of indirection.  A consequence of this flexibility is
+that an entity containing a reference to an object  needs only
+one word of memory to represent that reference, regardess of the
+number of fields in . An assignment to this entity simply
+overwrites the reference with another reference (thus taking constant
+time). Another consequence is that every class type contains the value
+<b>null</b> corresponding to the invalid reference. <b>null</b> is often
+useful as a default value. Further, two objects may be compared for
+identity (<b>==</b>) in constant time by simply comparing references to
+the memory used to represent the objects. The default hash code for an
+object is based on the value of this reference. A downside of this
+flexibility is that the operations of accessing a field and invoking a
+method are more expensive than simply reading a register and
+invoking a static function.
+
+<div class="p"><!----></div>
+Structs are instances of <em>struct types</em> (&#167;).  A
+struct is represented without the extra level of indirection, with a
+memory chunk of size N words precisely big enough to store the value
+of every field of the struct (modulo alignment), plus whatever padding is needed. Thus structs cannot
+be shared. Entities (such as variables and fields) refering to the
+struct must allocate N words to directly contain the chunk.  An
+assignment to this entity must copy the N words representing the
+right hand side into the left hand side. Since there are no references
+to structs, <b>null</b> is not a legal value for a struct
+type. Comparison for identity (<b>==</b>) involves examining N
+words. Additionally, structs do not have any mutable fields, hence
+they can be freely copied. The payoff for these restrictions lies in
+that fields can be stored in registers or local variables, and 
+and method invocation is implemented by invoking a static function.
+
+<div class="p"><!----></div>
+Functions, called closures, lambda-expressions, and blocks in other languages, are
+instances of <em>function types</em> (&#167;). 
+A function has zero or more <em>formal parameters</em> (or <em>arguments</em>) and a
+<em>body</em>, which is 
+an expression that can reference the formal parameters and also other
+variables in the surrounding block. For instance, <b>(x:Int)=&#62;x*y</b>
+is a unary integer function which multiplies its argument by the
+variable <b>y</b> from the surrounding block.  Functions may be freely
+copied from place to place and may be repeatedly applied. 
+
+<div class="p"><!----></div>
+These runtime entities are classified by <em>types</em>. Types are used in
+variable declarations (&#167;), coercions and  explicit
+conversions (&#167;), object creation (&#167;),
+static state and method accessors (&#167;), and
+<b>instanceof</b> and <b>as</b> expressions (&#167;).
+
+<div class="p"><!----></div>
+The basic relationship between values and types is the <em>is an
+element of</em> relation.  We also often say "e has type T" to
+mean "e is an element of type T".  For example, <b>1</b> has type
+<b>Int</b> (the type of all integers representible in 32 bits). It also
+has type <b>Any</b> (since all entitites have type <b>Any</b>), type
+<b>Int{self != 0}</b> (the type of nonzero integers), type
+<b>Int{self == 1}</b> (the type of integers which are equal to <b>1</b>, which
+contains only one element), and many others. 
+
+<div class="p"><!----></div>
+The basic relationship between types is <em>subtyping</em>: <b>T &lt;: U</b>
+holds if every instance of <b>T</b> is also an instance of <b>U</b>. Two
+important kinds of subtyping are <em>subclassing</em> and <em>
+  strengthening</em>. Subclassing is a familiar notion from
+object-oriented programming. Here we use it to refer to the
+relationship between a class and another class it extends, and the
+relationship between a class and another interface it implements. For
+instance, in a class hierarchy with classes <b>Animal</b> and <b>Cat</b>
+such that <b>Cat</b> extends <b>Mammal</b> and <b>Mammal</b> extends
+<b>Animal</b>, every instance of <b>Cat</b> is by definition an instance
+of <b>Animal</b> (and <b>Mammal</b>). We say that <b>Cat</b> is a
+subclass of <b>Animal</b>, or <b>Cat &lt;: Animal</b> by subclassing. If
+<b>Animal</b> implements <b>Thing</b>, then <b>Cat</b> also implements
+<b>Thing</b>, and we say <b>Cat &lt;: Thing</b> by subclassing.
+Strengthening is an equally familiar notion from logic.  The instances
+of <b>Int{self == 1}</b> are all elements of <b>Int{self != 0}</b> as well,
+because <b>self == 1</b> logically implies <b>self != 0</b>; so 
+<b>Int{self  == 1} &lt;: Int{self !=0}</b> by strengthening.  X10 uses both notions
+of subtyping.  See &#167; for the full definition
+of subtyping in X10.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc0.1">
+0.1</a>&nbsp;&nbsp;Type System</h3>
+
+The types in X10 are as follows.  
+
+<div class="p"><!----></div>
+These are the <em>elementary</em> types. Other
+syntactic forms for types exist, but they are simply abbreviations for types
+in the following system.  For example, <b>Array[Int](1)</b> is the type of
+one-dimensional integer-valued arrays; it is an abbreviation for
+<b>Array[Int]{rank==1}</b>.<br />
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">Type ::= FunctionType </td></tr>
+<tr><td align="right">&#124; ConstrainedType </td></tr>
+<tr><td align="right">&#124; VoidType </td></tr>
+<tr><td align="right">FunctionType ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalList<sup>?</sup>&nbsp;<b>)</b> Guard<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
+<tr><td align="right">ConstrainedType ::= NamedType </td></tr>
+<tr><td align="right">&#124; AnnotatedType </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+Types may be given by name. 
+For example, 
+<b>Int</b>
+is the type of 32-bit integers.
+Given a class declaration 
+<pre>
+class Triple { /* ... */ }
+</pre>
+the identifier <b>Triple</b> may be used as a type.
+
+<div class="p"><!----></div>
+The type <em>TypeName <b>[</b> Types<sup>?</sup> <b>]</b></em> is an instance of
+a <em>generic</em> (or <em>parameterized</em>) type. 
+ For example,
+<b>Array[Int]</b> is the type of arrays of integers. 
+<b>HashMap[String,Int]</b> is the type of hash maps from strings to
+integers.
+
+<div class="p"><!----></div>
+The type <em>Type <b>{</b> Constraint <b>}</b></em> refers to a constrained type.
+<em>Constraint</em> is a Boolean expression - written in a <em>very</em> limited
+subset of X10 - describing the acceptable values of the constrained type.
+For example, <b>var n : Int{self != 0};</b> guarantees that <b>n</b> is always a
+non-zero integer. 
+Similarly, <b>var x : Triple{x != null};</b> defines a <b>Triple</b>-valued
+variable <b>x</b> whose value is never null.
+
+<div class="p"><!----></div>
+The qualified type <em>Type <b>.</b> Type</em> refers to an instance of a <em>
+nested</em> type; that is, a class or struct defined inside of another class or
+struct, and holding an implicit reference to the outer.  For example, given
+the type declaration 
+<pre>
+class Outer {
+  class Inner { /* ... */ }
+}
+</pre>
+then 
+<b>(new Outer()).new Inner()</b> creates a value of type 
+<b>Outer.Inner</b>.
+
+<div class="p"><!----></div>
+Type variables, <em>TypeVar</em>, refer to types that are parameters.  For
+example, the following class defines a cell in a linked list.  
+<pre>
+class LinkedList[X] {
+  val head : X;
+  val tail : LinkedList[X];
+  def this(head:X, tail:LinkedList[X]) {
+     this.head = head; this.tail = tail;
+  }
+}
+</pre>
+It doesn't
+matter what type the cell's element is, but it has to have <em>some</em> type.
+<b>LinkedList[Int]</b> is a linked list of integers.
+<b>LinkedList[LinkedList[Byte]]</b> is a list of lists of bytes.
+Note that <b>LinkedList</b> is <em>not</em> a usable type - it is missing a type parameter.
+
+<div class="p"><!----></div>
+The function type 
+<em><b>(</b> Formals<sup>?</sup> <b>) =&#62;</b>  Type</em> 
+refers to functions taking the
+listed formal parameters and returning a result of <em>Type</em>.  In
+X10 v2.2, function types may not be generic.
+The closely-related void function type 
+<em><b>(</b> Formals<sup>?</sup> <b>) =&#62;</b>  <b>void</b></em>  takes the listed
+parameters and returns no value.
+For example, 
+<pre>
+<b>(x:Int) =&#62; Int{self != x}</b> 
+</pre>
+is the type of integer-valued functions which have no fixed points - that is,
+for which the output is an integer different from the input.
+An example of such a function is <b>(x:Int) =&#62; x+1</b>.
+For fundamental reasons, X10 - or any other computer program - cannot
+tell in general whether a function has any fixed points or not.  So, X10
+programs using such types must prove to X10 that they are correct. Often this
+will involve a run-time check, expressed as a cast, such as: 
+<pre>
+  val plus1 : (x:Int) =&#62; Int{self != x} = 
+     (x:Int) =&#62; (x+1) as Int{self != x}; 
+</pre>
+
+<div class="p"><!----></div>
+The names of the formal parameters are bound in the type, and may be changed
+consistently in the usual way without modifying the type.  
+For example, <br />
+<b>(a:Int, b:Int{self!=a})=&#62;Int{self!=a, self!=b}</b> 
+and <br />
+<b>(c:Int, d:Int{self!=c})=&#62;Int{self!=c, self!=d}</b> <br />
+are equivalent types.  
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc1">
+1</a>&nbsp;&nbsp;Classes, Structs,  and interfaces</h2>
+<a name="ReferenceTypes">
+</a>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.1">
+1.1</a>&nbsp;&nbsp;Class types</h3>
+
+<div class="p"><!----></div>
+A <em>class declaration</em> (&#167;) declares a <em>class type</em>,
+giving its name, behavior, data, and relationships to other classes and
+interfaces. 
+
+<div class="p"><!----></div>
+The <b>Position</b> class below could describe the position of a slider
+control: 
+<pre>
+class Position {
+  private var x : Int = 0;
+  public def move(dx:Int) { x += dx; }
+  public def pos() : Int = x;
+}
+</pre>
+
+Class instances, also called objects, are created by constructor calls, 
+such as <b>new Position()</b>
+Class
+instances have fields and methods, type members, and value properties bound at
+construction time. In addition, classes have static members: static <b>val</b> fields,
+methods, type definitions, and member classes and member interfaces.
+
+<div class="p"><!----></div>
+Classes may be <em>generic</em>, , defined with one or more type
+parameters (&#167;).  
+
+<div class="p"><!----></div>
+<pre>
+class Cell[T] {
+  var contents : T;
+  public def this(t:T) { contents = t;  }
+  public def putIn(t:T) { contents = t; }
+  public def get() = contents;
+  }
+</pre>
+
+<div class="p"><!----></div>
+X10 does not permit mutable static state. A fundamental principle of the
+X10 model of computation is that all mutable state be local to some place
+(&#167;), and, as static variables are
+globally available, they
+cannot be mutable. When mutable global state is necessary, programmers should
+use singleton classes, putting the state in an object and using place-shifting
+commands (&#167;) and atomicity (&#167;) as necessary
+to mutate it safely.
+
+<div class="p"><!----></div>
+Classes are structured in a single-inheritance hierarchy. All classes extend
+the class <b>x10.lang.Object</b>, directly or indirectly. Each class other than
+<b>Object</b> extends a single parent class.  <b>Object</b> provides no behaviors
+of its own, beyond those required by <b>Any</b>.
+
+<div class="p"><!----></div>
+The null value, represented by the literal
+<b>null</b>, is a value of every class type <b>C</b>. The type whose values are
+all instances of <b>C</b> except 
+<b>null</b> can be defined as <b>C{self != null}</b>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.2">
+1.2</a>&nbsp;&nbsp;Struct Types</h3>
+
+<div class="p"><!----></div>
+A <em>struct declaration</em> &#167; introduces a <em>struct type</em>
+containing all instances of the struct.  The <b>Coords</b> struct below gives
+an immutable position in 3-space: 
+<pre>
+struct Position {
+  public val x:Double, y:Double, z:Double; 
+  def this(x:Double, y:Double, z:Double) {
+     this.x = x; this.y = y; this.z = z;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+Structs have many capabilities of classes: they can have methods, implement
+interfaces, and be generic. However, they have certain restrictions; for
+example, they cannot contain mutable (<b>var</b>) fields, or inherit from
+superclasses. There is no <b>null</b> value for structs. Due to these
+restrictions, structs may be implemented more efficiently than objects.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.3">
+1.3</a>&nbsp;&nbsp;Interface types</h3>
+<a name="InterfaceTypes">
+</a>
+
+<div class="p"><!----></div>
+An <em>interface declaration</em> (&#167;) defines an <em>
+interface type</em>, specifying a set of methods 
+and properties which must be provided by any class declared to implement the
+interface. 
+
+<div class="p"><!----></div>
+Interfaces can also have static members: static fields, type
+definitions, and member classes, structs and interfaces.  However,
+interfaces cannot specify that implementing classes must provide
+static members or constructors.
+
+<div class="p"><!----></div>
+In the following interface, <b>PI</b> is a static field, 
+<b>Vec</b> a static type definition, 
+<b>Pair</b> a static member class.
+It can't insist that implementations provide a static method 
+like <b>meth</b>, or a nullary constructor.
+<pre>
+interface Stat {
+  static val PI = 3.14159; 
+  static type R = Double;
+  static class Pair(x:R, y:R) {}
+  // ERROR: static def meth():Int;
+  // ERROR: static def this();
+}
+class Example {
+  static def example() {
+     val p : Stat.Pair = new Stat.Pair(Stat.PI, Stat.PI);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+An interface may extend multiple interfaces.  
+<pre>
+interface Named {
+  def name():String;
+}
+interface Mobile {
+  def move(howFar:Int):void;
+}
+interface Person extends Named, Mobile {}
+interface NamedPoint extends Named, Mobile {} 
+</pre>
+
+<div class="p"><!----></div>
+Classes and structs may be declared to implement multiple interfaces. Semantically, the
+interface type is the set of all objects that are instances of classes
+or structs that
+implement the interface. A class or struct implements an interface if it is declared to
+and if it concretely or abstractly implements all the methods and properties
+defined in the interface. For example, <b>Kim</b> implements
+<b>Person</b>, and hence <b>Named</b> and <b>Mobile</b>. It would be a static
+error if <b>Kim</b> had no <b>name</b> method, unless <b>Kim</b> were also
+declared <b>abstract</b>.
+
+<div class="p"><!----></div>
+<pre>
+class Kim implements Person {
+   var pos : Int = 0;
+   public def name() = "Kim (" + pos + ")";
+   public def move(dPos:Int) { pos += dPos; }
+}
+</pre>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc1.4">
+1.4</a>&nbsp;&nbsp;Properties</h3>
+
+<a name="properties">
+</a>
+
+<div class="p"><!----></div>
+Classes, interfaces, and structs may have <em>properties</em>, specified in
+parentheses after the type name. Properties are much like public <b>val</b>
+instance fields. They have certain restrictions on their use, however, which
+allows the compiler to understand them much better than other public <b>val</b>
+fields. In particular, they can be used in types.  <em>E.g.</em>, the number of elements
+in an array is a property of the array, and an X10 program can specify that
+two arrays have the same number of elements.
+
+<div class="p"><!----></div>
+The
+following code declares a class named <b>Coords</b> with properties
+<b>x</b> and <b>y</b> and a <b>move</b> method. The properties are bound
+using the <b>property</b> statement in the constructor.
+
+<div class="p"><!----></div>
+<pre>
+class Coords(x: Int, y: Int) { 
+  def this(x: Int, y: Int) :
+    Coords{self.x==x, self.y==y} = { 
+    property(x, y); 
+  } 
+
+<div class="p"><!----></div>
+  def move(dx: Int, dy: Int) = new Coords(x+dx, y+dy); 
+}
+</pre>
+
+Properties, unlike other public <b>val</b> fields, can be used  
+at compile time in constraints. This allows us
+to specify subtypes based on properties, by appending a boolean expression to
+the type. For example, the type <b>Coords{x==0}</b> is the set of all points
+whose <b>x</b> property is <b>0</b>.  Details of this substantial topic are
+found in &#167;.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc2">
+2</a>&nbsp;&nbsp;Type Parameters and Generic Types</h2>
+<a name="TypeParameters">
+</a>
+
+<div class="p"><!----></div>
+<a name="Generics">
+</a>A class, interface, method, or type definition  may have type
+parameters.  Type parameters can be used as types, and will be bound to types
+on instantiation.  
+For example, a generic stack class may be defined as 
+<b>Stack[T]{...}</b>.  Stacks can hold values of any type; <em>e.g.</em>, 
+<b>Stack[Int]</b> is a stack of integers, and 
+<b>Stack[Point {self!=null}]</b> is a stack of non-null <b>Point</b>s.
+Generics <em>must</em> be instantiated when they are used: <b>Stack</b>, by
+itself, is not a valid type.
+Type parameters may be constrained by a guard on the declaration
+(&#167;,
+&#167;,&#167;).
+
+<div class="p"><!----></div>
+A <em>generic class</em> (or struct, interface, or type definition) 
+is a class (resp. struct, interface, or type definition) 
+declared with k  &#8805; 1 type parameters. 
+A generic class (or struct, interface, or type definition) 
+can be used to form a type by supplying k types as type arguments within
+<b>[</b> ... <b>]</b>.
+For example,
+<b>Stack</b> is a generic class, 
+<b>Stack[Int]</b> is a type, and can be used as one: 
+<b>var stack : Stack[Int];</b>
+
+<div class="p"><!----></div>
+A <b>Cell[T]</b> is a generic object, capable of holding a value of type
+<b>T</b>.  For example, a <b>Cell[Int]</b> can hold an <b>Int</b>, and a
+<b>Cell[Cell[Int{self!=0}]]</b> can hold a <b>Cell</b> which in turn can
+only hold non-zero numbers. 
+<pre>
+class Cell[T] {
+    var x: T;
+    def this(x: T) { this.x = x; }
+    def get(): T = x;
+    def set(x: T) = { this.x = x; }
+}
+</pre>
+
+<div class="p"><!----></div>
+<b>Cell[Int]</b> is the type of <b>Int</b>-holding cells.  
+The <b>get</b> method on a <b>Cell[Int]</b> returns an <b>Int</b>; the
+<b>set</b> method takes an <b>Int</b> as argument.  Note that
+<b>Cell</b> alone is not a legal type because the parameter is
+not bound.
+
+
+<div class="p"><!----></div>
+A class (whether generic or not) may have generic methods.
+
+<div class="p"><!----></div>
+<b>NonGeneric</b> has a generic method 
+<b>first[T](x:List[T])</b>. An invocation of such a method may supply
+the type parameters explicitly (<em>e.g.</em>, <b>first[Int](z)</b>).
+ In certain cases (<em>e.g.</em>, <b>first(z)</b>)
+type parameters may
+be omitted and are inferred by the compiler (&#167;).
+
+<div class="p"><!----></div>
+<pre>
+class NonGeneric {
+  static def first[T](x:List[T]):T = x(0);
+  def m(z:List[Int]) {
+    val f = first[Int](z);
+    val g = first(z);
+    return f == g;
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b>  X10 v2.2's C++ back end requires generic methods to be
+static or final; the Java back end can accomodate generic instance methods as well. 
+
+<div class="p"><!----></div>
+Unlike other kinds of variables, type parameters may <em>not</em> be shadowed.  
+If name <b>X</b> is in scope as a type, <b>X</b> may not be rebound as a type
+variable.  
+
+<div class="p"><!----></div>
+Neither <b>class B</b> nor <b>class C[B]</b> are allowed in the
+following code, because they both shadow the type variable <b>B</b>.
+<pre>
+class A[B] {
+  //ERROR: class B{} 
+  //ERROR: class C[B]{} 
+}
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc2.1">
+2.1</a>&nbsp;&nbsp;Use of Generics</h3>
+
+<div class="p"><!----></div>
+An unconstrained type variable <b>X</b> can be instantiated any type. Within a
+generic struct or class, all the operations of <b>Any</b> are available on a
+variable of type unconstrained <b>X</b>. Additionally, variables of type
+<b>X</b> may be used with <b>==, !=</b>, in <b>instanceof</b>, and casts.  
+
+<div class="p"><!----></div>
+If a type variable is constrained, the operations implied by its constraint
+are available as well.
+
+<div class="p"><!----></div>
+The interface <b>Named</b> describes entities which know their own name.  The
+class <b>NameMap[T]</b> is a specialized map which stores and retrieves
+<b>Named</b> entities by name.  The call <b>t.name()</b> in <b>put()</b> is only
+valid because the constraint <b>T &lt;: Named</b> implies that <b>T</b> is a
+subtype of <b>Named</b>, and hence provides all the operations of <b>Named</b>. 
+<pre>
+interface Named { def name():String; }
+class NameMap[T]{T &lt;: Named} {
+   val m = new HashMap[String, T]();
+   def put(t:T) { m.put(t.name(), t); }
+   def get(s:String):T = m.getOrThrow(s);
+}
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc3">
+3</a>&nbsp;&nbsp;Type definitions</h2>
+<a name="TypeDefs">
+</a>
+
+<div class="p"><!----></div>
+A type definition can be thought of as a type-valued function,
+mapping type parameters and value parameters to a concrete type.
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">TypeDefDecl ::= Mods<sup>?</sup>&nbsp;<b>type</b> Id TypeParams<sup>?</sup>&nbsp;Guard<sup>?</sup>&nbsp;<b>=</b> Type <b>;</b> </td></tr>
+<tr><td align="right">&#124; Mods<sup>?</sup>&nbsp;<b>type</b> Id TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalList <b>)</b> Guard<sup>?</sup>&nbsp;<b>=</b> Type <b>;</b> </td></tr>
+<tr><td align="right">TypeParams ::= <b>[</b> TypeParamList <b>]</b> </td></tr>
+<tr><td align="right">Formals ::= <b>(</b> FormalList<sup>?</sup>&nbsp;<b>)</b> </td></tr>
+<tr><td align="right">Guard ::= DepParams </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+ During type-checking the compiler replaces the use of such a defined
+type with its body, substituting the actual type and value parameters
+in the call for the formals. This replacement is performed recursively
+until the type no longer contains a defined type or a predetermined
+compiler limit is reached (in which case the compiler declares an
+error). Thus, recursive type definitions are not permitted.
+
+<div class="p"><!----></div>
+Thus type definitions are considered applicative and not generative -
+they do not define new types, only aliases for existing types.
+
+<div class="p"><!----></div>
+<a name="TypeDefGuard">
+</a>Type definitions may have guards: an invocation of a type definition
+is illegal unless the guard is satisified when formal types and values
+are replaced by the actual parameters.
+
+<div class="p"><!----></div>
+Type definitions may be overloaded: two type definitions with
+the same name are permitted provided that they have a different number
+of type parameters or different number or type of value parameters.  The rules
+for type definition resolution are identical to those for method resolution.
+
+<div class="p"><!----></div>
+However, <b>T()</b> is not allowed. If there is an argument list, it must be
+nonempty.  This avoids a possible confusion between 
+<b>type T = ...</b> and <b>type T() = ...</b>.  
+
+<div class="p"><!----></div>
+A type definition for a type <b>T</b> must appear: 
+
+<ul>
+<li> As a top-level definition in a file named <b>T.x10</b>; or
+<div class="p"><!----></div>
+</li>
+
+<li> As a static member in a container definition; or
+<div class="p"><!----></div>
+</li>
+
+<li> In a block statment.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+<b>Use of type definitions in constructor invocations&nbsp;&nbsp;</b>
+If a type definition has no type parameters and no value
+parameters and is an alias for a class type, a <b>new</b>
+expression may be used to create an instance of the class using
+the type definition's name.
+Given the following type definition:
+<pre>
+type A = C[T<sub>1</sub>, ..., T<sub>k</sub>]{c};
+</pre>
+where 
+"C[T<sub>1</sub>, ..., T<sub>k</sub>]" is a
+class type, a constructor of "C" may be invoked with
+"new A(e<sub>1</sub>, ..., e<sub>n</sub>)", if the
+invocation
+"new C[T<sub>1</sub>, ..., T<sub>k</sub>](e<sub>1</sub>, ..., e<sub>n</sub>)" is
+legal and if the constructor return type is a subtype of
+<b>A</b>.
+
+<div class="p"><!----></div>
+
+<b>Automatically imported type definitions&nbsp;&nbsp;</b>
+
+<a name="X10LangUnderscore">
+</a>
+
+<div class="p"><!----></div>
+The collection of type definitions in
+"x10.lang._" is automatically imported in every compilation unit.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc3.1">
+3.1</a>&nbsp;&nbsp;Motivation and use</h3>
+The primary purpose of type definitions is to provide a succinct,
+meaningful name for complex types
+and combinations of types. 
+With value arguments, type arguments, and constraints, the syntax for X10
+types can often be verbose. 
+For example, a non-null list of non-null strings is <br />
+<b>List[String{self!=null}]{self!=null}</b>.
+
+<div class="p"><!----></div>
+We could name that type: 
+<pre>
+static type LnSn = List[String{self!=null}]{self!=null};
+</pre>
+Or, we could abstract it somewhat, defining a type constructor
+<b>Nonnull[T]</b> for the type of <b>T</b>'s which are not null:
+<pre>
+class Example {
+  static type Nonnull[T]{T &lt;: Object}  = T{self!=null};
+  var example : Nonnull[Example] = new Example();
+}
+</pre>
+
+<div class="p"><!----></div>
+Type definitions can also refer to values, in particular, inside 
+constraints.  The type of <b>n</b>-element <b>Array[Int](1)</b>s  is 
+<b>Array[Int]{self.rank==1 &amp;&amp; self.size == n}</b>
+but it is often convenient to give a shorter name: 
+<pre>
+type Vec(n:Int) = Array[Int]{self.rank==1, self.size == n}; 
+var example : Vec(78); 
+</pre>
+
+<div class="p"><!----></div>
+The following examples are legal type definitions, given <b>import x10.util.*</b>:
+<pre>
+class TypeExamples {
+  static type StringSet = Set[String];
+  static type MapToList[K,V] = Map[K,List[V]];
+  static type Int(x: Int) = Int{self==x};
+  static type Dist(r: Int) = Dist{self.rank==r};
+  static type Dist(r: Region) = Dist{self.region==r};
+  static type Redund(n:Int, r:Region){r.rank==n} 
+      = Dist{rank==n &amp;&amp; region==r};
+}
+</pre>
+
+<div class="p"><!----></div>
+The following code illustrates that type definitions are applicative rather
+than generative.  <b>B</b> and <b>C</b> are both aliases for <b>String</b>,
+rather than new types, and so are interchangeable with each other and with
+<b>String</b>. Similarly, <b>A</b> and <b>Int</b> are equivalent.
+<pre>
+def someTypeDefs () {
+  type A = Int;
+  type B = String;
+  type C = String;
+  a: A = 3;
+  b: B = new C("Hi");
+  c: C = b + ", Mom!";
+  }
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc4">
+4</a>&nbsp;&nbsp;Constrained types</h2>
+<a name="ConstrainedTypes">
+</a>
+<a name="DepType:DepType">
+</a>
+<a name="DepTypes">
+</a>
+
+<div class="p"><!----></div>
+Basic types, like <b>Int</b> and <b>List[String]</b>, provide useful
+descriptions of data.  
+
+<div class="p"><!----></div>
+However, one frequently wants to say more.  One might want to know
+that a <b>String</b> variable is not <b>null</b>, or that a matrix is
+square, or that one matrix has the same number of columns as another
+has rows (so they can be multiplied).  In the multicore setting, one
+might wish to know that two values are located at the same processor,
+or that one is located at the same place as the current computation.
+
+<div class="p"><!----></div>
+In most languages, there is simply no way to say these things
+statically.  Programmers must made do with comments, <b>assert</b>
+statements, and dynamic tests.  X10 programs can do better, with <em>
+  constraints</em> on types, and guards on class, method and type
+definitions,
+
+<div class="p"><!----></div>
+A constraint is a boolean expression <b>e</b> attached to a basic type <b>T</b>,
+written <b>T{e}</b>.  (Only a limited selection of boolean expressions is
+available.)  The values of type <b>T{e}</b> are the values of <b>T</b> for which
+<b>e</b> is true.  
+
+<div class="p"><!----></div>
+When constraining a value of type <b>T</b>, <b>self</b> refers to the object of
+type <b>T</b> which is being constrained.  For example, <b>Int{self == 4}</b> is
+the type of <b>Int</b>s which are equal to 4 - the best possible description
+of <b>4</b>, and a very difficult type to express without using <b>self</b>.  
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>String{self != null}</b> is the type of non-null strings.  <b>self</b>
+      is a special variable available only in constraints; it refers to the
+      datum being constrained, and its type is the type to which the
+      constraint is attached.
+<div class="p"><!----></div>
+</li>
+
+<li> Suppose that <b>Matrix</b> is a matrix class with  properties <b>rows</b>
+      and <b>cols</b>.  
+      <b>Matrixself.rows == self.cols</b> is the type of square matrices.
+<div class="p"><!----></div>
+</li>
+
+<li> One way to say that <b>a</b> has the same number of columns that <b>b</b>
+      has rows (so that <b>a*b</b> is a valid matrix product), one could say: 
+<pre>
+  val a : Matrix = someMatrix() ;
+  var b : Matrix{b.rows == a.cols} ;
+</pre>
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+
+<div class="p"><!----></div>
+<b>T{e}</b> is a <em>dependent type</em>, that is, a type dependent on values. The
+type <b>T</b> is called the <em>base type</em> and <b>e</b> is called the <em>
+  constraint</em>. If the constraint is omitted, it is <b>true</b>-that is, the
+  base type is unconstrained.
+
+<div class="p"><!----></div>
+Constraints may refer to immutable values in the local environment: 
+<pre>
+     val n = 1;
+     var p : Point{rank == n};
+</pre>
+In a variable declaration, the variable itself is in scope in its
+type. For example, <b>val nz: Int{nz != 0} = 1;</b> declares a
+non-zero variable <b>nz</b>.
+
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+A constrained type may be constrained further: the type <b>S{c}{d}</b>
+is the same as the type <b>S{c,d}</b>.  Multiple constraints are equivalent to
+conjoined constraints: <b>S{c,d}</b> in turn is the same as <b>S{c &amp;&amp; d}</b>.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.1">
+4.1</a>&nbsp;&nbsp;Syntax of constraints</h3>
+
+
+<a name="PermittedConstraints">
+</a>
+
+
+
+
+<div class="p"><!----></div>
+Only a few kinds of expressions can appear in constraints.  For fundamental
+reasons of mathematical logic, the more kinds of expressions that can appear
+in constraints, the harder it is to compute the essential properties of
+constrained type - in particular, the harder it is to compute 
+<b>A{c} &lt;: B{d}</b> or even <b>E : T{c}</b>.  It doesn't take much to make this
+basic fact undecidable. 
+In order to make sure that it stays decidable, X10 places stringent restrictions on
+constraints.  
+
+<div class="p"><!----></div>
+Only the following forms of expression are allowed in constraints.  
+
+<div class="p"><!----></div>
+<b>Value expressions in constraints</b> may be: 
+
+<ol type="1">
+<li> Literal constants, like <b>3</b> and <b>true</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Accessible, immutable (<b>val</b>) variables and parameters;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>this</b>, if the constraint is in a place where <b>this</b> is defined;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>here</b>, if the constraint is in a place where <b>here</b> is defined;
+<div class="p"><!----></div>
+</li>
+
+<li> <b>self</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> A field selection expression <b>t.f</b>, where <b>t</b> is a value
+      expression allowed in constraints, and <b>f</b> is a field of <b>t</b>'s
+      type.
+<div class="p"><!----></div>
+</li>
+
+<li> Invocations of property methods,  <b>p(a,b,...,c)</b> or
+      <b>a.p(b,c,...d)</b>, where the receiver and arguments must be
+       value expressions acceptable in constraints, as long as the expansion
+       (<em>viz</em>, the expression obtained by taking the body of the definition of
+       <b>p</b>, and replacing the formal parameters by the actual parameters)
+       of the invocation is allowed as a value expression in constraints.
+<div class="p"><!----></div>
+</li>
+</ol>
+For an expression <b>self.p</b> to be legal in a constraint, 
+<b>p</b> must be 
+a property. However terms <b>t.f</b> may be
+used in constraints (where <b>t</b> is a term other than <b>self</b> and
+<b>f</b> is an immutable field.)
+
+<div class="p"><!----></div>
+<b>Constraints</b>  may be any of
+the following, where 
+all value expressions are of the forms which may appear in constraints: 
+
+<ol type="1">
+<li> Equalities <b>e == f</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Inequalities of the form <b>e != f</b>;<a href="#tthFtNtAAB" name="tthFrefAAB"><sup>1</sup></a>
+<div class="p"><!----></div>
+</li>
+
+<li> Conjunctions of Boolean expressions that may appear in constraints (but
+      only in top-level constraints, not in Boolean expressions in constraints);
+<div class="p"><!----></div>
+</li>
+
+<li> Subtyping and supertyping expressions: <b>T &lt;: U</b> and <b>T :&#62; U</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Type equalities and inequalities: <b>T == U</b> and <b>T != U</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Invocations of a property method, <b>p(a,b,...,c)</b> or
+      <b>a.p(b,c,...d)</b>, where the receiver and arguments must be value
+      expressions acceptable in constraints, as long as the expansion of the
+      invocation is allowed as a constraint.
+<div class="p"><!----></div>
+</li>
+
+<li> Testing a type for a default: <b>T haszero</b>.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+All variables appearing in a constraint expression must be visible wherever
+that expression can used.  <em>E.g.</em>, properties and public fields of an object are
+always permitted, but private fields of an object can only constrain private
+members.  (Consider a class <b>PriVio</b> with a private field <b>p</b> and a
+public method <b>m(x: Int{self != p})</b>, and a call <b>ob.m(10)</b> made
+outside of the class. Since <b>p</b> is only visible inside the class, there is
+no way to tell if <b>10</b> is of type <b>Int{self != p}</b> at the call site.)
+
+<div class="p"><!----></div>
+<b>Note:</b> Constraints may not contain casts.   In particular, comparisons of
+values of incompatible types are not allowed.  If <b>i:Int</b>, then <b>i==0</b>
+is allowed as a constraint, but <b>i==0L</b> is an error, and 
+<b>i as Long==0L</b> is outside of the constraint language.
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc4.1.1">
+4.1.1</a>&nbsp;&nbsp;Semantics of constraints</h4>
+
+<a name="SemanticsOfConstraints">
+</a>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+The logic of constraints is designed to allow a common and important X10
+idiom: 
+<pre>
+class Thing(p:Int){}
+static def example(){
+   var x : Thing{x.p==3} = null;
+}
+</pre>
+That is, <b>null</b> must be an instance of <b>Thingx.p==3</b>.  
+Of course, it cannot be the case that <b>null.p==3</b> - nor can it equal
+anything else.  When evaluated at runtime, <b>null.p</b> must throw a
+<b>NullPointerException</b> rather than returning any value at all.
+
+<div class="p"><!----></div>
+So, X10's logic of constraints - <em>unlike</em> the logic of runtime -
+allows "x=null" to satisfy <b>x.p==3</b>.  Building this logic
+requires a few definitions.
+
+<div class="p"><!----></div>
+The property graph, at an instant in an X10 execution, is the graph
+whose nodes are all objects in existence at that instance, plus <b>null</b>,
+with an edge from 
+x to y if x is an object with a property whose value is y. 
+The rules for constructors guarantee that property graphs are acyclic, which
+is crucial for decidability.
+
+<div class="p"><!----></div>
+As is standard in mathematical logic, we introduce the concept of a
+<em>valuation</em> v, which is a mapping from variable names to their values
+- in our case, nodes of an X10 property graph.  A valuation v can be
+extended to values to all constraint formulas.  The crucial definitions are: 
+<pre>
+v( a.b&#8230;.l.m == n.o&#8230;.y.z) = 
+  a=null &#8744; a.b=null &#8744; &#8230; a.b&#8230;.l=null 
+  &#8744; n=null &#8744; n.o=null &#8744; &#8230; n.o&#8230;.y=null 
+  &#8744; v(a).b&#8230;.l.m = v(n).o&#8230;.y.
+
+<div class="p"><!----></div>
+v( a.b&#8230;.l.m != n.o&#8230;.y.z) = 
+  a=null &#8744; a.b=null &#8744; &#8230; a.b&#8230;.l=null 
+  &#8744; n=null &#8744; n.o=null &#8744; &#8230; n.o&#8230;.y=null 
+  &#8744; v(a).b&#8230;.l.m  &#8800;  v(n).o&#8230;.y.
+</pre>
+For example, "v(a.b==1)" is true if either "v(a)=null"
+or if "v(a)" is a container whose <b>b</b>-field is equal to 1.
+While such a valuation is perfectly well-defined, it has properties that need
+to be understood in light of the fact that <b>==</b> is <em>not</em> mathematical
+equality.<a href="#tthFtNtAAC" name="tthFrefAAC"><sup>2</sup></a>  
+Given any valuation in which "v(a)=null", both 
+"v(a.b==1 &amp;&amp; a.b==2)" 
+and
+"v(a.b==1 &amp;&amp; a.b!=1)" 
+are true.  
+This does not contradict logic and mathematics, and it does not
+assert that in X10 there is a number which is both 1 and 2.
+It simply reflects the fact that, while <b>==</b> is similar to mathematical equality in
+many respects, it is ultimately a different operation, and in constraints it
+is given a <b>null</b>-safe interpretation.
+
+<div class="p"><!----></div>
+From this definition of valuation, we define <em>entailment</em> in the standard
+way.  Given constraints <b>c</b> and <b>d</b>, we define <em><b>c</b> entails
+<b>d</b></em>, sometimes written "c \models d", if for all valuations
+v such that "v(c)" is true, "v(d)" is also true. 
+
+<div class="p"><!----></div>
+Subtyping of constrained types is defined in terms of entailment. 
+"S[S1,&#8230;, Sm]{c}" 
+is a subtype of 
+"T[T1,&#8230;, Tn]{d}" 
+if "S[S1,&#8230;,Sm]" is a subtype of "T[T1,&#8230;,Tn]" and
+<b>c</b> entails <b>d</b>.
+
+<div class="p"><!----></div>
+For examples of constraints and entailment, see (&#167;)
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.2">
+4.2</a>&nbsp;&nbsp;Constraint solver: incompleteness and approximation</h3>
+
+
+
+
+<div class="p"><!----></div>
+The constraint solver is sound in that if it claims that <b>c</b> entails <b>d</b>
+then in fact it is the case that every valuation that satisfies <b>c</b>
+satisfies <b>d</b>. 
+
+<div class="p"><!----></div>
+<b>Limitation: </b>
+X10's constraint solver is incomplete. There are situations
+in which <b>c</b> entails <b>d</b> but the solver cannot establish it. For
+instance it cannot establish that <b>a != b &amp;&amp; a != c &amp;&amp; b != c</b>
+entails <b>false</b> if <b>a</b>, <b>b</b>, and <b>c</b> are of type
+<b>Boolean</b>.
+Similarly, although <b>a.b==1 &amp;&amp; a.b==2</b> entails <b>a==null</b>, the
+constraint solver does not deduce this fact. 
+
+<div class="p"><!----></div>
+Certain other constraint entailments are prohibitively expensive to calculate.  The issues
+concern constraints that connect different levels of recursively-defined
+types, such as the following.  
+<pre>
+class Listlike(x:Int) {
+  val kid : Listlike{self.x == this.x};
+  def this(x:Int, kid:Listlike) { 
+     property(x); 
+     this.kid = kid as Listlike{self.x == this.x};}
+}
+</pre>
+There is nothing wrong with <b>Listlike</b> itself, or with most uses of it;
+however, a sufficiently complicated use of it could, in principle, cause X10's
+typechecker to fail. 
+It is hard to give a plausible example of when X10's algorithm fails, as we
+have not yet observed such a failure in practice for a correct program.  
+
+<div class="p"><!----></div>
+The entailment algorithm of X10 imposes a certain limit on the number of
+times such types will be unwound.   If this limit is exceeded, the compiler
+will print a warning, and type-checking will fail in a situation where it is
+semantically allowed.  In this case, insert a dynamic cast at the point where
+type-checking failed.  
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b>  Support for comparisons of generic type variables is
+  limited. This will be fixed in future releases.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.3">
+4.3</a>&nbsp;&nbsp;Limitation: Runtime Constraint Erasure</h3>
+<a name="sect:RuntimeConstraintErasure">
+</a>
+
+
+<div class="p"><!----></div>
+The X10 runtime does not maintain a representation of constraints.
+In many cases, it does not need to.
+If X10 has an object <b>x</b> of some type <b>T</b> around, it can check at
+runtime whether or not <b>x</b> satisfies some constraint <b>c</b>, and hence
+tell if <b>x</b> is a member of <b>T{c}</b>. 
+
+<div class="p"><!----></div>
+Although there is no runtime representation of the constrained type 
+<b>Int{self==1}</b>, X10 can generate a (correct) test for membership in it,
+anyhow: 
+<pre>
+static def example(n:Int) {
+  val b = (n instanceof Int{self == 1});
+  assert b == (n == 1); 
+}
+</pre>
+
+
+<div class="p"><!----></div>
+However, in cases where there is no object of type <b>T</b> around, there's
+nothing that can be checked. For example, X10 cannot tell - and in fact no
+computer program can tell -  whether an
+instance of a function type 
+<pre>
+(Int)=&#62;Int
+</pre>
+(unary functions returning
+integers) is actually an instance of a more specific type
+<pre>
+(Int)=&#62;Int{self!=0}
+</pre>
+(unary functions returning non-zero integers).
+
+<div class="p"><!----></div>
+In other cases, there might or might not be an object of type <b>T</b>, and X10
+cannot tell until runtime.  Consider an array <b>a:Array[T]</b>.  If <b>a</b> is
+nonempty, there is an instance of <b>T</b> at hand, and testing it for
+constraints would be possible though potentially quite expensive. 
+But <b>a</b> might be an
+empty array, and testing its element type would be impossible. 
+
+<div class="p"><!----></div>
+Rather than pay the runtime costs for keeping and manipulating constraints
+(which can be considerable), X10 omits them.
+However, this renders certain type checks uncertain: X10 needs some
+information at runtime, but does not have it.  
+Specifically, all casts to instances of generic types are forbidden.  
+
+<div class="p"><!----></div>
+The following code  needs to be, and is, statically
+rejected.  It constructs an array <b>a</b> of <b>Int{self==3}</b>'s - integers
+which 
+are statically known to be 3. 
+The only number that can be stored into <b>a</b> is <b>3</b>.  
+Then (in the line that is rejected) it attempts to trick the compiler into
+thinking that it is an array of <b>Int</b>, without restriction on the
+elements, giving it the name <b>b</b> at that type.  
+The cast <b>aa as Array[Int]</b> is a cast to an instance of a generic type,
+and hence is forbidden. 
+
+<div class="p"><!----></div>
+But, if that cast were allowed to work, it could store <b>1</b> into the array
+under the alias 
+<b>b</b>, thereby violating 
+the invariant that all the elements of the array are 3.  
+This could lead to program failures, as illustrated by the failing assertion.  
+<pre>
+  val a = new Array[Int{self==3}](0..10, 3);
+  // a(0) = 1; would be illegal
+  a(0) = 3; // LEGAL
+  val aa = a as Any;
+  /* THE FOLLOWING IS A STATIC ERROR:
+  val b = aa as Array[Int];
+  b(0) = 1;
+  val x : Int{self==3} = a(0);
+  assert x == 3 : "This would fail at runtime.";
+  */
+</pre>
+
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.4">
+4.4</a>&nbsp;&nbsp;Stripped Generic Casts</h3>
+<a name="sect:StrippedGenericCasts">
+</a>
+
+<div class="p"><!----></div>
+Since constraints are not preserved at runtime, <b>instanceof</b> and <b>as</b>
+cannot pay attention to them.  When types are used generically,
+they may not behave as one would expect were one to imagine that their
+constraints were kept.  Specifically, constraints at runtime are, in effect,
+simply replaced by <b>true</b>.
+
+<div class="p"><!----></div>
+The following code defines generic methods <b>inst</b> and <b>cast</b>, which
+look like generic versions of <b>instanceof</b> and <b>as</b>.  The
+<b>example()</b> code shows that <b>inst</b> and <b>cast</b> behave quite
+differently from <b>instanceof</b> and <b>as</b>, due to the loss of constraint
+information.  
+
+<div class="p"><!----></div>
+The first section of <b>assert</b>s shows the behavior of <b>instanceof</b> and
+<b>at</b>.  We have a value <b>pea</b>, such that <b>pea.p==1</b>.
+It behaves as if its <b>p</b> field were <b>1</b>: it answers <b>true</b> to 
+<b>self.p==1</b>, and <b>false</b> to <b>self.p==2</b>.  This is entirely as
+desired.
+
+<div class="p"><!----></div>
+The following section of <b>assert</b> and <b>val</b> statements does the
+analogous thing, but using the generic methods <b>inst</b> and <b>cast</b>
+rather than the built-in operations <b>instanceof</b> and <b>cast</b>.
+<b>pea</b> answers <b>true</b> to <b>inst</b> checks concerning both
+<b>Peap==1</b> and <b>Peap==2</b>, and can be <b>cast()</b> into both these
+types.  This behavior is not what one would expect from runtime types that
+keep constraint information.  It is, however, precisely what one would expect
+from runtime types that have their constraints replaced by <b>true</b>.  
+
+<div class="p"><!----></div>
+The <b>cast2</b> line shows how to use this fact to violate the constraint
+system at runtime.   This dynamic cast produces an object of type
+<b>Peap==2</b> for which <b>p!=2</b>.  
+
+<div class="p"><!----></div>
+Note that the <b>-VERBOSE</b> compiler flag will produce a warning that 
+<b>cast</b> is unsound.  
+
+<div class="p"><!----></div>
+<pre>
+class Generic {
+  public static def inst[T](x:Any):Boolean = x instanceof T;
+  // With -VERBOSE, the following line gets a warning
+  public static def cast[T](x:Any):T       = x as T;
+}
+class Pea(p:Int) {}
+class Example{
+  static def example() {
+     val pea : Pea = new Pea(1);
+     // These are what you'd expect: 
+     assert (pea instanceof Pea{p==1});
+     assert (pea as Pea{p==1}).p == 1;
+     assert ! (pea instanceof Pea{p==2}); 
+     // 'val x = pea as Pea{p==2};' throws a FailedDynamicCheckException.
+
+<div class="p"><!----></div>
+     // But the genericized versions don't do the same thing:
+     assert Generic.inst[Pea{p==1}](pea);
+     assert Generic.inst[Pea{p==2}](pea);
+     // No exception here!
+     val cast1: Pea{p==1} = Generic.cast[Pea{p==1}](pea);
+     val cast2: Pea{p==2} = Generic.cast[Pea{p==2}](pea);
+     assert cast2.p == 1;
+     assert !(cast2 instanceof Pea{p==2});
+  }
+}
+
+<div class="p"><!----></div>
+</pre>
+
+
+<div class="p"><!----></div>
+While in some cases it would be possible to keep constraints around at runtime
+and operate efficiently on them, in other cases it would not.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc4.5">
+4.5</a>&nbsp;&nbsp;Example of Constraints</h3>
+<a name="ConstraintExamples">
+</a>
+
+<div class="p"><!----></div>
+Example of entailment and subtyping involving constraints.
+
+<ul>
+<li> <b>Int{self == 3} &lt;: Int{self != 14}</b>.  The only value of
+      <b>Int{self ==3}</b> is 3.  All integers but 14 are members of
+      <b>Int{self != 14}</b>, and in particular 3 is.
+<div class="p"><!----></div>
+</li>
+
+<li> Suppose we have classes <b>Child &lt;: Person</b>, and <b>Person</b> has a
+      <b>ssn:Long</b> property.  If <b>rhys : Child{ssn == 123456789}</b>, then
+      <b>rhys</b> is also a <b>Person</b>.  
+      <b>rhys</b>'s <b>ssn</b> field is the same, <b>123456789</b>, whether 
+      <b>rhys</b> is regarded as a <b>Child</b> or a <b>Person</b>.  
+      Thus, 
+      <b>rhys : Person{ssn==123456789}</b> as well.  
+      So, 
+<pre>
+Child{ssn == 123456789} &lt;: Person{ssn == 123456789}.
+</pre>
+<div class="p"><!----></div>
+</li>
+
+<li> Furthermore, since <b>123456789 != 555555555</b>, 
+      is is clear that 
+      <b>rhys : Person{ssn != 555555555}</b>.  
+      So, 
+<pre>
+Child{ssn == 123456789} &lt;: Person{ssn != 555555555}.  
+</pre>
+<div class="p"><!----></div>
+</li>
+
+<li> <b>T{e} &lt;: T</b> for any type <b>T</b>.  That is, if you have a value
+      <b>v</b> of some base type <b>T</b> which satisfied <b>e</b>, then <b>v</b>
+      is of that base type <b>T</b> (with the constraint ignored).
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>A &lt;: B</b>, then <b>A{c} &lt;: B{c}</b> for every constraint <b>{c}</b>
+      for which <b>A{c}</b> and <b>B{c}</b> are defined.  That is, if every
+      <b>A</b> is also a <b>B</b>, and <b>a : A{c}</b>, then 
+      <b>a</b> is an <b>A</b> and <b>c</b> is true of it. So <b>a</b> is also a
+      <b>B</b> (and <b>c</b> is still true of 
+      it), so <b>a : B{c}</b>.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Constraints can be used to express simple relationships between objects,
+enforcing some class invariants statically.  For example, in geometry, a line
+is determined by two <em>distinct</em> points; a <b>Line</b> struct can specify the
+distinctness in a type constraint:<a href="#tthFtNtAAD" name="tthFrefAAD"><sup>3</sup></a>
+
+<div class="p"><!----></div>
+<pre>
+struct Position(x: Int, y: Int) {}
+struct Line(start: Position, end: Position){start != end}
+  {}
+</pre>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+Extending this concept, a <b>Triangle</b> can be defined as a figure with three
+line segments which match up end-to-end.  Note that the degenerate case in
+which two or three of the triangle's vertices coincide is excluded by the
+constraint on <b>Line</b>.  However, not all degenerate cases can be excluded
+by the type system; in particular, it is impossible to check that the three
+vertices are not collinear. 
+
+<div class="p"><!----></div>
+<pre>
+struct Triangle 
+ (a: Line, 
+  b: Line{a.end == b.start}, 
+  c: Line{b.end == c.start &amp;&amp; c.end == a.start})  
+ {}
+</pre>
+
+<div class="p"><!----></div>
+The <b>Triangle</b> class automatically gets a ternary constructor which takes
+suitably constrained <b>a</b>, <b>b</b>, and <b>c</b> and produces a new
+triangle. 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc5">
+5</a>&nbsp;&nbsp;Default Values</h2>
+
+
+<a name="DefaultValues">
+</a>
+
+<div class="p"><!----></div>
+Some types have default values, and some do not. Default values are used in
+situations where variables can legitimately be used without having been
+initialized; types without default values cannot be used in such situations.
+For example, a field of an object <b>var x:T</b> can be left uninitialized if
+<b>T</b> has a default value; it cannot be if <b>T</b> does not. Similarly, a
+transient (&#167;) field <b>transient val x:T</b> is only
+allowed if <b>T</b> has a default value.
+
+<div class="p"><!----></div>
+Default values, or lack of them, is defined thus:
+
+<ul>
+<li> The fundamental numeric types (<b>Int</b>, <b>UInt</b>,
+      <b>Long</b>, <b>ULong</b>, 
+  <b>Short</b>, <b>UShort</b>, <b>Byte</b>,
+   <b>UByte</b>, 
+      <b>Float</b>, <b>Double</b>) all have default value 0.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Boolean</b> has default value <b>false</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Char</b> has default value <b>'\0'</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> Struct types other than those listed above have no default value.
+<div class="p"><!----></div>
+</li>
+
+<li> A function type has a default value of <b>null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> A class type has a default value of <b>null</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> The constrained type <b>T{c}</b> has the same default value as <b>T</b> if
+      that default value satisfies <b>c</b>.  If the default value of <b>T</b>
+      doesn't satisfy <b>c</b>, then <b>T{c}</b> has no default value.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+<b>var x: Int{x != 4}</b> has default value 0, which is allowed
+because <b>0 != 4</b> satisfies the constraint on <b>x</b>. 
+<b>var y : Int{y==4}</b> has no default value, because <b>0</b> does not satisfy <b>y==4</b>.
+The fact that <b>Int{y==4}</b> has precisely one value, <em>viz</em> 4, doesn't
+matter; the only candidate for its default value, as for any subtype of
+<b>Int</b>, is 0. <b>y</b> must be initialized before it is used.
+
+
+<div class="p"><!----></div>
+The predicate <b>T haszero</b> tells if the type <b>T</b> has a default value.
+<b>haszero</b> may be used in constraints. 
+
+<div class="p"><!----></div>
+The following code defines a sort of cell holding a single value of type
+<b>T</b>. The cell is initially empty - that is, has <b>T</b>'s zero value -
+but may be filled later. 
+<pre>
+class Cell0[T]{T haszero} {
+  public var contents : T;
+  public def put(t:T) { contents = t; }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+The built-in type <b>Zero</b> has the method <b>get[T]()</b> which
+returns the default value of type <b>T</b>.  
+
+<div class="p"><!----></div>
+As a variation on a theme of <b>Cell0</b>, we define a class <b>Cell1[T]</b> which can be initialized with a value of an arbitrary
+type
+<b>T</b>, or, if <b>T</b> has a default value, can be created with the default
+value.  Note that <b>T haszero</b> is a constraint on one of
+the constructors, not the whole type:  
+<pre>
+class Cell1[T] {
+  public var contents: T;
+  def this(t:T) { contents = t; }
+  def this(){T haszero} { contents = Zero.get[T](); }
+  public def put(t:T) {contents = t;}
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc6">
+6</a>&nbsp;&nbsp;Function types</h2>
+<a name="FunctionTypes">
+</a>
+<a name="FunctionType">
+</a>
+
+
+
+<div class="p"><!----></div>
+
+ 
+ 
+  
+  
+  
+  <em>
+  
+<table>
+
+<tr><td align="right">FunctionType ::= TypeParams<sup>?</sup>&nbsp;<b>(</b> FormalList<sup>?</sup>&nbsp;<b>)</b> Guard<sup>?</sup>&nbsp;Offers<sup>?</sup>&nbsp;<b>=&#62;</b> Type </td></tr>
+<tr><td align="right"></td></tr></table>
+</em>
+
+<div class="p"><!----></div>
+For every sequence of types <b>T1,..., Tn,T</b>, and <b>n</b> distinct variables
+<b>x1,...,xn</b> and constraint <b>c</b>, the expression
+<b>(x1:T1,...,xn:Tn){c}=&#62;T</b> is a <em>function type</em>. It stands for
+ the set of all functions <b>f</b> which can be applied to a
+ list of values <b>(v1,...,vn)</b> provided that the constraint
+ <b>c[v1,...,vn,p/x1,...,xn]</b> is true, and which returns a value of
+ type <b>T[v1,...vn/x1,...,xn]</b>. When <b>c</b> is true, the clause <b>{c}</b> can be
+ omitted. When <b>x1,...,xn</b> do not occur in <b>c</b> or <b>T</b>, they can be
+ omitted. Thus the type <b>(T1,...,Tn)=&#62;T</b> is actually shorthand for
+ <b>(x1:T1,...,xn:Tn){true}=&#62;T</b>, for some variables <b>x1,...,xn</b>.
+
+<div class="p"><!----></div>
+<b>Limitation: </b>
+Constraints on closures are not supported.  They parse, but are not checked.
+
+<div class="p"><!----></div>
+X10 functions, like mathematical functions, take some arguments and produce a
+result.  X10 functions, like other X10 code, can change mutable state and
+throw exceptions.  Closures (&#167;)  are of function type - and so
+are arrays.
+
+<div class="p"><!----></div>
+Typical functions are the reciprocal function: 
+<pre>
+val recip = (x : Double) =&#62; 1/x;
+</pre>
+and a function which increments  element <b>i</b> of an array <b>r</b>, or throws an exception
+if there is no such element, where, for the sake of example, we constrain the
+type of <b>i</b> to avoid one of the many integers which are not possible subscripts:  
+<pre>
+val inc = (r:Array[Int](1), i: Int{i != r.size}) =&#62; {
+  if (i &lt; 0 &#124;&#124; i &#62;= r.size) throw new DoomExn();
+  r(i)++;
+};
+</pre>
+
+
+<div class="p"><!----></div>
+In general, a function type needs to list the types 
+"T<sub>i</sub>"
+of all the formal parameters,
+and their distinct names "x<sub>i</sub>" in case other types refer to them; a
+constraint 
+<b>c</b> on the
+function as a whole; a return type <b>T</b>.
+
+<div class="p"><!----></div>
+<pre>
+(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; T
+</pre>
+
+<div class="p"><!----></div>
+The names "x<sub>i</sub>" of the formal parameters are not relevant.  Types
+which differ only in the names of formals (following the usual rules for
+renaming of variables, as in &#945;-renaming in the &#955; calculus
+) are considered equal.  <em>E.g.</em>, the two function types
+<b>(a:Int, b:Array[String](1){b.size==a}) =&#62; Boolean</b>
+and <br />
+<b>(b:Int, a:Array[String](1){a.size==b}) =&#62; Boolean</b>
+are equivalent.
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> 
+Function types differing only in the names of bound variables may wind up being
+considered different in X10 v2.2, especially if the variables appear in
+constraints.  
+
+<div class="p"><!----></div>
+The formal parameter names are in scope from the point of definition to the
+end of the function type-they may be used in the types of other formal parameters
+and in the return type. 
+Value parameters names may be
+omitted if they are not used; the type of the reciprocal function can be
+written as
+<b>(Double)=&#62;Double</b>. 
+
+<div class="p"><!----></div>
+A function type is covariant in its result type and contravariant in
+each of its argument types. That is, let 
+<b>S1,...,Sn,S,T1,...Tn,T</b> be any
+types satisfying <b>Si &lt;: Ti</b> and <b>S &lt;: T</b>. Then
+<b>(x1:T1,...,xn:Tn){c}=&#62;S</b> is a subtype of
+<b>(x1:S1,...,xn:Sn){c}=&#62;T</b>.
+
+<div class="p"><!----></div>
+A class or struct definition may use a function type 
+<pre>
+F = (x1:T1,...,xn:Tn){c}=&#62;T
+</pre>
+in its 
+implements clause; 
+this is equivalent to implementing an interface requiring the single operator
+<pre>
+public operator this(x1:T1,...,xn:Tn){c}:T
+</pre>
+Similarly, an interface
+definition may specify a function type <b>F</b> in its <b>extends</b> clause.
+Values of a class or struct implementing <b>F</b> 
+can be used as functions of type <b>F</b> in all ways.  
+In particular, applying one to suitable arguments calls the <b>apply</b>
+method. 
+
+<div class="p"><!----></div>
+<b>Limitation: </b> A class or struct may not implement two different
+instantiations of a generic interface. In particular, a class or
+struct can implement only one function type.
+
+<div class="p"><!----></div>
+A function type <b>F</b> is not a class type in that it does not extend any
+type or implement any interfaces, or support equality tests. 
+<b>F</b> may be implemented, but not extended, by a class or function type. 
+Nor is it a struct type, for it has no predefined notion of equality.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc7">
+7</a>&nbsp;&nbsp;Annotated types</h2>
+<a name="AnnotatedTypes">
+</a>
+
+<div class="p"><!----></div>
+        Any X10 type may be annotated with zero or more
+        user-defined <em>type annotations</em>
+        (&#167;).  
+
+<div class="p"><!----></div>
+        Annotations are defined as (constrained) interface types and are
+        processed by compiler plugins, which may interpret the
+        annotation symbolically.
+
+<div class="p"><!----></div>
+        A type <b>T</b> is annotated by interface types
+        &#196;<sub>1</sub>", ...,
+        &#196;<sub>n</sub>"
+        using the syntax
+        "@A<sub>1</sub> ... @A<sub>n</sub> T".
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc8">
+8</a>&nbsp;&nbsp;Subtyping and type equivalence</h2><a name="DepType:Equivalence">
+</a>
+
+
+
+<div class="p"><!----></div>
+Intuitively, type "T<sub>1</sub>" is a subtype of type "T<sub>2</sub>", 
+written "T<sub>1</sub> &lt;: T<sub>2</sub>", 
+if
+every instance of "T<sub>1</sub>" is also an instance of "T<sub>2</sub>".  For
+example, <b>Child</b> is a subtype of <b>Person</b> (assuming a suitably defined
+class hierarchy): every child is a person.  Similarly, <b>Int{self != 0}</b>
+is a subtype of <b>Int</b> - every non-zero integer is an integer.  
+
+<div class="p"><!----></div>
+This section formalizes the concept of subtyping. Subtyping of types depends
+on a <em>type context</em>, <em>viz</em>. a set of constraints on type parameters
+and variables that occur in the type.
+For example: 
+
+<div class="p"><!----></div>
+<pre>
+class ConsTy[T,U] {
+   def upcast(t:T){T &lt;: U} :U = t;
+}
+</pre>
+
+Inside <b>upcast</b>, <b>T</b> is constrained to be a subtype of <b>U</b>, and so
+<b>T &lt;: U</b> is true, and <b>t</b> can be treated as a value of type <b>U</b>.  
+Outside of <b>upcast</b>, there is no reason to expect any relationship between
+them, and <b>T &lt;: U</b> may be false.
+However, subtyping of types that have no free variables does not depend
+on the context.    <b>Int{self != 0} &lt;: Int</b> is always
+true.
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> Subtyping of type variables does not work under all circumstances
+in the X10 2.2 implementation.
+
+<div class="p"><!----></div>
+
+<ul>
+<li> <b>Reflexivity:</b> Every type <b>T</b> is a subtype of itself: <b>T &lt;: T</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Transitivity:</b> If <b>T &lt;: U</b> and <b>U &lt;: V</b>, then <b>T &lt;: V</b>. 
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Direct Subclassing:</b> 
+Let <span class="overacc2">&#8594;</span>X be a (possibly empty) vector of type variables, and
+<span class="overacc2">&#8594;</span>Y, <span class="overacc2">&#8594;</span>Y<sub>i</sub> be vectors of type terms over <span class="overacc2">&#8594;</span>X.
+Let <span class="overacc2">&#8594;</span>T be an instantiation of <span class="overacc2">&#8594;</span>X, 
+and <span class="overacc2">&#8594;</span>U, <span class="overacc2">&#8594;</span>U<sub>i</sub> the corresponding instantiation of 
+<span class="overacc2">&#8594;</span>Y, <span class="overacc2">&#8594;</span>Y<sub>i</sub>.  Let <b>c</b> be a constraint, and "c&#8242;"
+be the corresponding instantiation.
+We elide properties, and interpret empty vectors as absence of the relevant
+clauses. 
+Suppose that <b>C</b> is declared by one of the
+forms: 
+
+<ol type="1">
+<li> "class C[<span class="overacc2">&#8594;</span>X]{c} extends D[<span class="overacc2">&#8594;</span>Y]{d}"<br />
+&#239;mplements I<sub>1</sub>[<span class="overacc2">&#8594;</span>Y<sub>1</sub>]{i<sub>1</sub>},...,I<sub>n</sub>[<span class="overacc2">&#8594;</span>Y<sub>n</sub>]{i<sub>n</sub>}"
+<li> &#239;nterface C[<span class="overacc2">&#8594;</span>X]{c} extends I<sub>1</sub>[<span class="overacc2">&#8594;</span>Y<sub>1</sub>]{i<sub>1</sub>},...,I<sub>n</sub>[<span class="overacc2">&#8594;</span>Y<sub>n</sub>]{i<sub>n</sub>}"
+<li> &#223;truct C[<span class="overacc2">&#8594;</span>X]{c} implements I<sub>1</sub>[<span class="overacc2">&#8594;</span>Y<sub>1</sub>]{i<sub>1</sub>},...,I<sub>n</sub>[<span class="overacc2">&#8594;</span>Y<sub>n</sub>]{i<sub>n</sub>}"</ol>
+Then: 
+
+<ol type="1">
+<li> "C[<span class="overacc2">&#8594;</span>T] &lt;: D[<span class="overacc2">&#8594;</span>U]{d}" for a class
+<div class="p"><!----></div>
+</li>
+
+<li> "C[<span class="overacc2">&#8594;</span>T] &lt;: I<sub>i</sub>[<span class="overacc2">&#8594;</span>U<sub>i</sub>]{i<sub>i</sub>}" for all cases.
+<div class="p"><!----></div>
+</li>
+
+<li> "C[<span class="overacc2">&#8594;</span>T] &lt;: C[<span class="overacc2">&#8594;</span>T]{c&#8242;}" for all cases.
+<div class="p"><!----></div>
+</li>
+</ol>
+<div class="p"><!----></div>
+</li>
+
+<li>
+<b>Function types:</b>
+<pre>
+(x<sub>1</sub>: T<sub>1</sub>, ..., x<sub>n</sub>: T<sub>n</sub>){c} =&#62; T
+</pre>
+is a  subtype of 
+<pre>
+(x&#8242;<sub>1</sub>: T&#8242;<sub>1</sub>, ..., x&#8242;<sub>n</sub>: T&#8242;<sub>n</sub>){c&#8242;} =&#62; T&#8242;
+</pre>
+if: 
+
+<ol type="1">
+<li> Each "T<sub>i</sub> &lt;: T&#8242;<sub>i</sub>";
+<div class="p"><!----></div>
+</li>
+
+<li> "c[x&#8242;<sub>1</sub>, &#8230;, x&#8242;<sub>n</sub> / x<sub>1</sub>, &#8230;, x<sub>n</sub>]" entails "c&#8242;";
+<div class="p"><!----></div>
+</li>
+
+<li> "T&#8242; &lt;: T";
+<div class="p"><!----></div>
+</li>
+</ol>
+<div class="p"><!----></div>
+</li>
+
+<li>
+<b>Constrained types:</b>
+<b>T{c}</b> is a subtype of <b>T{d}</b> if <b>c</b> entails <b>d</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> <b>Any:</b> 
+Every type <b>T</b> is a subtype of <b>x10.lang.Any</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> 
+<b>Type Variables:</b>
+Inside the scope of a constraint <b>c</b> which entails <b>A &lt;: B</b>, we have
+<b>A &lt;: B</b>.  <em>e.g.</em>, <b>upcast</b> above.
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Two types are <em>equivalent</em>, <b>T == U</b>, if <b>T &lt;: U</b> and <b>U &lt;: T</b>. 
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc9">
+9</a>&nbsp;&nbsp;Common ancestors of types</h2>
+<a name="LCA">
+</a>
+
+<div class="p"><!----></div>
+There are several situations where X10 must find a type <b>T</b> that describes
+values of two or more different types.  This arises when X10 is trying to find
+a good type for: 
+
+<ul>
+<li> Conditional expressions, like <b>test ? 0 : "non-zero"</b> or even <br />
+      <b>test ? 0 : 1</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Array construction, like <b>[0, "non-zero"]</b> and 
+      <b>[0,1]</b>;
+<div class="p"><!----></div>
+</li>
+
+<li> Functions with multiple returns, like
+<pre>
+def f(a:Int) {
+  if (a == 0) return 0;
+  else return "non-zero";
+}
+</pre>
+
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+In some cases, there is a unique best type describing the expression.  For
+example, if <b>B</b> and <b>C</b> are direct subclasses of <b>A</b>, <b>pick</b>
+will have return type <b>A</b>: 
+<pre>
+static def pick(t:Boolean, b:B, c:C) = t ? b : c;  
+</pre>
+
+<div class="p"><!----></div>
+However, in many common cases, there is no unique best type describing the
+expression.  For example, consider the expression E 
+<pre>
+b ? 0 : 1   // Call this expression E
+</pre>
+The
+best type of <b>0</b> 
+is <b>Int{self==0}</b>, and the best type of 1 is <b>Int{self==1}</b>.
+Certainly E could be given the type <b>Int</b>, or even <b>Any</b>, and that
+would describe all possible results.  However, we actually know more.
+<b>Int{self != 2}</b> is a better description of the type of E-certainly
+the result of E can never be <b>2</b>.   <b>Int{self != 2, self != 3}</b> is
+an even better description; E can't be <b>3</b> either.  We can continue
+this process forever, adding integers which E will definitely not return
+and getting better and better approximations. (If the constraint
+sublanguage had <b>&#124;&#124;</b>, we could give it the type 
+<b>Int{self == 0 &#124;&#124; self == 1}</b>, which would be nearly perfect.  But 
+<b>&#124;&#124;</b> makes typechecking far more expensive, so it is excluded.)
+No X10 type is the best description of E; there is always a better one.
+
+<div class="p"><!----></div>
+Similarly, consider two unrelated interfaces: 
+<pre>
+interface I1 {}
+interface I2 {}
+class A implements I1, I2 {}
+class B implements I1, I2 {}
+class C {
+  static def example(t:Boolean, a:A, b:B) = t ? a : b;
+}
+</pre>
+<b>I1</b> and <b>I2</b> are both perfectly good descriptions of <b>t ? a : b</b>, 
+but neither one is better than the other, and there is no single X10 type
+which is better than both. (Some languages have <em>conjunctive
+    types</em>, and could say that the return type of <b>example</b> was 
+<b>I1 &amp;&amp; I2</b>.  This, too, complicates typechecking.)
+
+<div class="p"><!----></div>
+So, when confronted with expressions like this, X10 computes <em>some</em>
+satisfactory type for the expression, but not necessarily the <em>best</em> type.  
+X10 provides certain guarantees about the common type <b>V{v}</b> computed for 
+<b>T{t}</b> and <b>U{u}</b>: 
+
+<ul>
+<li> If <b>T{t} == U{u}</b>, then <b>V{v} == T{t} == U{u}</b>.  So, if X10's
+      algorithm produces an utterly untenable type for <b>a ? b : c</b>, and
+      you want the result to have type <b>T{t}</b>, you can 
+      (in the worst case) rewrite it to 
+<pre>
+a ? b as T{t} : c as T{t}
+</pre>
+<div class="p"><!----></div>
+</li>
+
+<li> If <b>T == U</b>, then <b>V == T == U</b>.  For example, 
+      X10 will compute the type of <b>b ? 0 : 1</b> as 
+      <b>Int{c}</b> for some constraint <b>c</b>-perhaps simply 
+      picking <b>Int{true}</b>, <em>viz</em>, <b>Int</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> X10 preserves place information about <b>GlobalRef</b>s, because it is so important. If both
+      <b>t</b> and <b>u</b> entail <b>self.home==p</b>, then  
+      <b>v</b> will also entail <b>self.home==p</b>.
+<div class="p"><!----></div>
+</li>
+
+<li> X10 similarly preserves nullity information.  If <b>t</b> and <b>u</b>
+      both entail <b>x == null</b> or <b>x != null</b> for some variable
+      <b>x</b>, then <b>v</b> will also entail it as well.
+<div class="p"><!----></div>
+</li>
+
+<li> The computed upper bound of function types with the <em>same</em> argument
+      types is found by computing the upper bound of the result types.  
+      If 
+      "T = (T<sub>1</sub>, &#8230;, T<sub>n</sub>) =&#62; T'"
+      and 
+      &#220; = (T<sub>1</sub>, &#8230;, T<sub>n</sub>) =&#62; U'", 
+      and <b>V'</b> is the computed upper bound of <b>T'</b> and <b>U'</b>, 
+      then the computed upper bound of <b>T</b> and <b>U</b> is 
+      &#220; = (T<sub>1</sub>, &#8230;, T<sub>n</sub>) =&#62; V'".
+      (But, if the argument types are different, the computed upper bound may
+      be <b>Any</b>.)
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc10">
+10</a>&nbsp;&nbsp;Fundamental types</h2>
+
+<div class="p"><!----></div>
+Certain types are used in fundamental ways by X10.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc10.1">
+10.1</a>&nbsp;&nbsp;The interface <tt>Any</tt></h3>
+
+<div class="p"><!----></div>
+It is quite convenient to have a type which all values are instances of; that
+is, a supertype of all types.<a href="#tthFtNtAAE" name="tthFrefAAE"><sup>4</sup></a>  X10's universal supertype is the
+  interface <b>Any</b>. 
+
+<div class="p"><!----></div>
+<pre>
+package x10.lang;
+public interface Any {
+  def toString():String;
+  def typeName():String;
+  def equals(Any):Boolean;
+  def hashCode():Int;
+}
+</pre>
+
+<div class="p"><!----></div>
+<b>Any</b> provides a handful of essential methods that make sense and are
+useful for everything. <b>a.toString()</b> produces a
+string representation of <b>a</b>, and <b>a.typeName()</b> the string
+representation of its type; both are useful for debugging.  <b>a.equals(b)</b>
+is the programmer-overridable equality test, and <b>a.hashCode()</b> an integer
+useful for hashing.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc10.2">
+10.2</a>&nbsp;&nbsp;The class <tt>Object</tt></h3>
+<a name="Object">
+</a>
+
+
+
+<div class="p"><!----></div>
+The class <b>x10.lang.Object</b> is the supertype of all classes.
+A variable of this type can hold a reference to any object.
+<b>Object</b> implements <b>Any</b>.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc11">
+11</a>&nbsp;&nbsp;Type inference</h2>
+<a name="TypeInference">
+</a>
+
+
+
+<div class="p"><!----></div>
+X10 v2.2 supports limited local type inference, permitting
+certain variable types and return types to be elided.
+It is a static error if an omitted type cannot be inferred or
+uniquely determined. Type inference does not consider coercions.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc11.1">
+11.1</a>&nbsp;&nbsp;Variable declarations</h3>
+
+<div class="p"><!----></div>
+The type of a <b>val</b> variable declaration can be omitted if the
+declaration has an initializer.  The inferred type of the
+variable is the computed type of the initializer.
+For example, 
+<b>val seven = 7;</b>
+is identical to 
+<pre>
+val seven: Int{self==7} = 7;
+</pre>
+Note that type inference gives the most precise X10 type, which might be more
+specific than the type that a programmer would write.
+
+<div class="p"><!----></div>
+<b><b>Limitation: </b></b> At the moment,  <b>var</b> declarations may not have their types
+elided in this way.  
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc11.2">
+11.2</a>&nbsp;&nbsp;Return types</h3>
+
+<div class="p"><!----></div>
+The return type of a method can be omitted if the method has a body (, is
+not <b>abstract</b> or <b>native</b>). The inferred return type is the computed
+type of the body.  In the following example, the return type inferred for
+<b>isTriangle</b> is 
+<b>Boolean{self==false}</b>
+<pre>
+class Shape {
+  def isTriangle() = false; 
+}  
+</pre>
+Note that, as with other type inference, methods are given the most specific
+type.  In many cases, this interferes with subtyping.  For example, if one
+tried to write: 
+<pre>
+class Triangle extends Shape {
+  def isTriangle() = true;
+}
+</pre>
+
+the compiler would reject this program for attempting to override
+<b>isTriangle()</b> by a method with the wrong type, <em>viz</em>,
+<b>Boolean{self==true}</b>.  In this case, supply the type that is actually
+intended for <b>isTriangle</b>: 
+<pre>
+def isTriangle() : Boolean =false;
+</pre>
+
+<div class="p"><!----></div>
+The return type of a closure can be omitted.
+The inferred return type is the computed type of the body.
+
+<div class="p"><!----></div>
+The return type of a constructor can be omitted if the
+constructor has a body.
+The inferred return type is the enclosing class type with
+properties bound to the arguments in the constructor's <b>property</b>
+statement, if any, or to the unconstrained class type.
+For example, the <b>Spot</b> class has two constructors, the first of which has
+inferred return type <b>Spot{x==0}</b> and the second of which has 
+inferred return type <b>Spot{x==xx}</b>. 
+<pre>
+class Spot(x:Int) {
+  def this() {property(0);}
+  def this(xx: Int) { property(xx); }
+}
+</pre>
+
+<div class="p"><!----></div>
+A method or closure that has expression-free <b>return</b> statements
+(<b>return;</b> rather than <b>return e;</b>) is said to return <b>void</b>.
+<b>void</b> is not a type; there are no <b>void</b> values, nor can <b>void</b>
+be used as the argument of a generic type. However, <b>void</b> takes the
+syntactic place of a type in a few contexts. A method returning <b>void</b> can be specified by
+<b>def m():void</b>, and similarly for a closure: 
+
+<div class="p"><!----></div>
+<pre>
+def m():void {return;}
+val f : () =&#62; void = () =&#62; {return;};
+</pre>
+
+<div class="p"><!----></div>
+By a convenient abuse of language, <b>void</b> is sometimes
+lumped in with types; <em>e.g.</em>, we may say "return type of a method" rather than
+the formally correct but rather more awkward "return type of a method, or
+<b>void</b>".   Despite this informal usage, <b>void</b> is not a type.  For
+example, given 
+<pre>
+  static def eval[T] (f:()=&#62;T):T = f();
+</pre>
+
+The call <b>eval[void](f)</b> does <em>not</em> typecheck; <b>void</b> is not a
+type and thus cannot be used as a type argument.  There is no way in X10 to
+write a generic function which works with both functions which return a value
+and functions which do not.  In most cases, functions which have no sensible
+return value can be provided with a dummy return value.
+
+<div class="p"><!----></div>
+     <h3><a name="tth_sEc11.3">
+11.3</a>&nbsp;&nbsp;Inferring Type Arguments</h3>
+<a name="TypeParamInfer">
+</a>
+
+<div class="p"><!----></div>
+A call to a polymorphic method %, closure, or constructor 
+may omit the
+explicit type arguments.  
+X10 will compute a type from the types of the actual arguments. 
+
+<div class="p"><!----></div>
+(As an exception of sorts, it is an error if the method call provides no information about
+a type parameter that must be inferred.  For example, given the method
+definition <b>def m[T](){...}</b>, an invocation <b>m()</b> is considered a
+static error.  The compiler has no idea what <b>T</b> the programmer intends.)
+
+<div class="p"><!----></div>
+Consider the following method, which chooses one of its arguments.  (A more
+sophisticated one might sometimes choose the second argument, but that does
+not matter for the sake of this example.)
+<pre>
+static def choose[T](a: T, b: T): T = a; 
+</pre>
+
+<div class="p"><!----></div>
+The type argument <b>T</b> can always be supplied: 
+<b>choose[Int](1, 2)</b> picks an integer, 
+and <b>choose[Any](1, &#255;es")</b> picks a value that might be an integer or a
+string.  
+However, the type argument can be elided.  Suppose that <b>Sub &lt;: Super</b>;
+then the following compiles: 
+
+<div class="p"><!----></div>
+<pre>
+  static def choose[T](a: T, b: T): T = a; 
+  static val j : Any = choose(&#223;tring", 1);
+  static val k : Super = choose(new Sub(), new Super());
+</pre>
+
+
+<div class="p"><!----></div>
+The type parameter doesn't need to be the type of a variable. It can be found
+inside of the type of a variable; X10 can extract it.
+
+<div class="p"><!----></div>
+The <b>first</b> method below returns the first element of a one-dimensional
+array.  The type parameter <b>T</b> represents the type of the array's
+elements. There is no parameter of type <b>T</b>. There is one of type
+<b>Array[T]{c}</b>.  When doing type inference, 
+X10 strips off the constraint <b>{c}</b> and the
+<b>Array[...]</b> type to get at the <b>T</b> inside.
+<pre>
+static def first[T](x:Array[T](1)) = x(0);
+static def example() {
+  val ss &lt;: Array[String] = ["X10", "Scala", "Thorn"];
+  val s1 = first(ss);
+  assert s1.equals("X10");
+}
+</pre>
+
+<div class="p"><!----></div>
+      <h4><a name="tth_sEc11.3.1">
+11.3.1</a>&nbsp;&nbsp;Sketch of X10 Type Inference for Method Calls</h4>
+
+<div class="p"><!----></div>
+When the X10 compiler sees a method call 
+<pre>
+a.m(b<sub>1</sub>, &#8230;,b<sub>n</sub>)
+</pre>
+and attempts to infer type parameters to
+see if it could be a use of a
+method 
+<pre>
+def m[X<sub>1</sub>, &#8230;, X<sub>t</sub>](y<sub>1</sub>: S<sub>1</sub>, &#8230;, y<sub>n</sub>:S<sub>n</sub>),
+</pre>
+it reasons as follows. 
+
+<div class="p"><!----></div>
+Let 
+<pre>
+T<sub>i</sub> <span class="roman">be</span> <span class="roman">the</span> <span class="roman">type</span> <span class="roman">of</span>  b<sub>i</sub>
+</pre>
+Then, X10 is seeking a
+set B  of type 
+bindings 
+<pre>
+B = { X<sub>1</sub> = U<sub>1</sub>, ...,  X<sub>t</sub>=U<sub>t</sub> }
+</pre>
+such that 
+"T<sub>i</sub> &lt;: S<sup>*</sup><sub>i</sub>" for 1  &#8804; i  &#8804; n, where "S<sup>*</sup>" is
+<b>S</b> with each type variable "X<sub>j</sub>" replaced by the corresponding
+&#220;<sub>j</sub>".  If it can find such a B, it has a usable choice of type
+arguments and can do the type inference.  If it cannot find B, then it
+cannot do type inference.    (Note that X10's type inference algorithm is
+incomplete - there may <em>be</em> such a B that X10 cannot find.  If this
+occurs in your program, you will have to write down the type arguments
+explicitly.) 
+
+<div class="p"><!----></div>
+Let B<sub>0</sub> be the set { T<sub>i</sub> <: S<sub>i</sub> &#124; 1 &le; i &le; n}.  Let
+B<sub>n+1</sub> be B<sub>n</sub> with one element F <: G or 
+F = G removed, and
+<i>Strip</i>(F <: G) 
+or <i>Strip</i>(F = G), where     <em>Strip</em> is defined below, added.  Repeat this until 
+B<sub>n</sub> consists entirely of comparisons with type variables (<em>viz</em>, 
+"Y<sub>j</sub> = U", 
+"Y<sub>j</sub> &lt;: U", and
+"Y<sub>j</sub> :&#62; U"), 
+or until some n exceeds a predefined compiler limit. 
+
+<div class="p"><!----></div>
+The candidate inferred types may be read off of B<sub>n</sub>.  The guessed binding
+for "X<sub>j</sub>" is: 
+
+<ul>
+<li> If there is an equality "X<sub>j</sub>=W" in B<sub>n</sub>, then guess the
+      binding "X<sub>j</sub>=W".  Note that there may be several such
+      equalities with different choices of <b>W</b>; pick any one.  If the
+      chosen binding does not equal the others, the candidate binding will be
+      rejected later and type inference will fail.
+<div class="p"><!----></div>
+</li>
+
+<li> Otherwise, if there is one or more upper bounds 
+"X<sub>j</sub> &lt;: V<sub>k</sub>" in B<sub>n</sub>, guess the binding 
+"X<sub>j</sub> = V<sub>+</sub>", where 
+"V<sub>+</sub>" is the computed lower bound of all the "V<sub>k</sub>''s.
+<div class="p"><!----></div>
+</li>
+
+<li> Otherwise, if there is one or more lower bounds 
+"R<sub>k</sub> &lt;: X<sub>j</sub>", guess that
+"X<sub>j</sub> = R<sub>+</sub>", where 
+"R<sub>+</sub>" is the computed upper bound of all the "R<sub>k</sub>''s.
+<div class="p"><!----></div>
+</li>
+</ul>
+If this does not yield a binding for some variable "X<sub>j</sub>", then type
+inference fails.  Furthermore, if every variable "X<sub>j</sub>" is given a
+binding &#220;<sub>j</sub>", but the 
+bindings do not work - 
+that is, if 
+&#228;.m[U<sub>1</sub>, &#8230;, U<sub>t</sub>](b<sub>1</sub>, &#8230;,b<sub>n</sub>)"
+is not a well-typed call of 
+the original method 
+"def m[X<sub>1</sub>, &#8230;, X<sub>t</sub>](y<sub>1</sub>: S<sub>1</sub>, &#8230;, y<sub>n</sub>:S<sub>n</sub>)"
+- then type inference also fails.
+
+<div class="p"><!----></div>
+
+<b>Computation of the Replacement Elements&nbsp;&nbsp;</b>
+
+<div class="p"><!----></div>
+Given a type relation
+r of the form F <: G
+or F = G, we compute the set <i>Strip</i>(r) of
+replacement constraints.  There are a number of cases; we present only the
+interesting ones. 
+
+<div class="p"><!----></div>
+
+<ul>
+<li> If F has the form "F&#8242;{c}", then  
+"<i>Strip</i>(r)" is defined to be
+ "F&#8242; = G" if r is an equality, or 
+ "F&#8242; &lt;: G" if r is a subtyping.
+That is, we erase type constraints.  
+Validity is not an issue at this point in the algorithm, as 
+we check at the end that the result is valid.
+Note that, if the equation had the form "Z{c} = A", it could be
+solved by either <b>Z=A</b> or by <b>Z = A{c}</b>.  By dropping constraints in this
+rule, we choose the former solution, which tends to give more general types in
+results.
+<div class="p"><!----></div>
+</li>
+
+<li> Similarly, we drop constraints on G as well.
+<div class="p"><!----></div>
+</li>
+
+<li> If F has the form "K[F<sub>1</sub>, &#8230;, F<sub>k</sub>]"
+and 
+G
+has the form "K[G<sub>1</sub>, &#8230;, G<sub>k</sub>]", 
+then <i>Strip</i>(r) has one type relation comparing each parameter of 
+F with the corresponding one of G: 
+
+<pre>
+<i>Strip</i>(r) = {F<sub>l</sub> = G<sub>l</sub> &#124; 1&le;l&le;k}
+</pre>
+
+
+<div class="p"><!----></div>
+For example, the constraint "List[X] = List[Y]" induces the
+constraint <b>X=Y</b>.  
+<b>List[X] &lt;: List[Y]</b> also induces the same constraint.  The only way that
+<b>List[X]</b> could be a subtype of <b>List[Y]</b> in X10 is if <b>X=Y</b>.
+List of different types are incomparable.<a href="#tthFtNtAAF" name="tthFrefAAF"><sup>5</sup></a>
+<div class="p"><!----></div>
+</li>
+
+<li> Other cases are fairly routine.  <em>E.g.</em>, if F is a <b>type</b>-defined
+      abbreviation, it is expanded.
+<div class="p"><!----></div>
+</li>
+</ul>
+
+<div class="p"><!----></div>
+Consider the program: 
+<pre>
+import x10.util.*;
+class Cl[C1, C2, C3]{}
+class Example {
+  static def me[X1, X2](Cl[Int, X1, X2]) = 
+     new Cl[X1, X2, Point]();
+  static def example() {
+    val a = new Cl[Int, Boolean, String]();
+    val b : Cl[Boolean, String, Point] 
+          = me[Boolean, String](a);
+    val c : Cl[Boolean, String, Point] 
+          = me(a);
+  }
+}
+</pre>
+The method call for <b>b</b> has explicit type parameters.  
+The call for <b>c</b> infers the parameters.  The computation 
+starts with one equation, saying that the formal parameter of 
+<b>me</b> has to be able to accept the actual parameter <b>a</b>:
+<pre>
+ Cl[Int, Boolean, String] &lt;: Cl[Int, X1, X2] 
+</pre>
+Note that both terms are <b>Cl</b> of three things. 
+This is broken into three equations: 
+<pre>
+Int = Int
+</pre>
+which is easy to satisfy,
+<pre>
+X1 = Boolean
+</pre>
+which suggests a possible value for <b>X1</b>,  and 
+<pre>
+X2 = String
+</pre>
+which suggests a value for <b>X2</b>.  
+All of these equations are simple enough, so the algorithm terminates. 
+
+<div class="p"><!----></div>
+Then, X10 confirms that the binding <b>X1=Boolean</b>, <b>X2=String</b>
+actually generates a correct call, which it does.  
+
+
+<div class="p"><!----></div>
+When there is no way to infer types correctly, the type inference algorithm
+will fail.   Consider the program: 
+<pre>
+public class Failsome {
+  static def fail[X](a:Array[X], b:Array[X]):void {}
+  public static def main(argv:Array[String](1)) {
+    val aint  : Array[Int]     = [1,2,3];
+    val abool : Array[Boolean] = [true, false];
+    fail(aint, abool);    // THIS IS WRONG
+  }
+}
+</pre>
+The type inference computation starts, as always, by insisting that the types
+of the formals to <b>fail</b> are capable of accepting the actuals: 
+<pre>
+B<sub>0</sub>=Array{[Int]  &lt; : Array[X], Array[Boolean]  &lt; : Array[X]}
+</pre>
+Arbitrarily picking the first relation to <i>Strip</i> first, we get:
+<pre>
+B<sub>1</sub>={Int = X, Array[Boolean]  &lt; : Array[X]}
+</pre>
+and then 
+<pre>
+B<sub>2</sub>={Int = X, Boolean = X}
+</pre>
+(At this point it is clear to a human that B is inconsistent, but the
+algorithm's check comes a bit later.)
+B<sub>2</sub> consists entirely of comparisons with type variables, so the loop is
+over.  Arbitrarily picking the first equality, it guesses the binding 
+<pre>
+B={X = Int}.
+</pre>
+In the validation step, it checks that 
+<pre>
+fail[Int](aint, abool)
+</pre>
+is a well-typed call to <b>fail</b>.  Of course it is not; <b>abool</b> would
+have to be a value of type <b>Array[Int]</b>, which it is not.  So type
+inference fails at this point.  In this case it is correct: there is no way to
+give a proper type to this program.<a href="#tthFtNtAAG" name="tthFrefAAG"><sup>6</sup></a>
+
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc12">
+12</a>&nbsp;&nbsp;Type Dependencies</h2>
+
+<div class="p"><!----></div>
+Type definitions may not be circular, in the sense that no type may be its own
+supertype, nor may it be a container for a supertype. This forbids interfaces
+like <b>interface Loop extends Loop</b>, and indirect self-references such as
+<b>interface A extends B.C</b> where <b>interface B extends A</b>.  
+The formal definition of this is based on Java's.  
+
+<div class="p"><!----></div>
+An <em>entity type</em> is a class, interface, or struct type.   
+
+<div class="p"><!----></div>
+Entity type E <em>directly depends on</em> entity type F if F is mentioned
+in the <b>extends</b> or <b>implements</b> clause of E, either by itself or as
+a qualifier within a super-entity-type name.  
+
+<div class="p"><!----></div>
+In the following, <b>A</b> directly depends on <b>B</b>, <b>C</b>, <b>D</b>, 
+<b>E</b>, and <b>F</b>.    It does not directly depend on <b>G</b>.
+<pre>
+class A extends B.C implements D.E, F[G] {}
+</pre>
+
+<div class="p"><!----></div>
+It is an ordinary programming idiom to use <b>A</b> as an argument to a generic
+interface that <b>A</b> implements.  For example, <b>ComparableTo[T]</b>
+describes things which can be compared to a value of type <b>T</b>. Saying that
+<b>A</b> implements <b>ComparableTo[A]</b> means that one <b>A</b> can be
+compared to another, which is reasonable and useful: 
+<pre>
+interface ComparableTo[T] {
+  def eq(T):Boolean;
+}
+class A implements ComparableTo[A] {
+  public def eq(other:A) = this.equals(other);
+}
+</pre>
+
+
+<div class="p"><!----></div>
+Entity type E <em>depends on</em> entity type F if
+either E directly depends on F, or E directly depends on an entity type
+that depends on F.   That is, the relation "depends on" is the transitive
+closure of the relation "directly depends on".  
+
+<div class="p"><!----></div>
+It is a static error if any entity type E depends on itself.
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc13">
+13</a>&nbsp;&nbsp;Typing of Variables and Expressions</h2>
+
+<div class="p"><!----></div>
+Variable declarations, field declarations, and some other expressions
+introduce constraints on their types.  These extra constraints represent
+information that is known at the point of declaration.  They are used in
+deductions and type inference later on - as indeed all constraints are, but
+the automatically-added constraints are added because they are particularly
+useful.  
+
+<div class="p"><!----></div>
+Any variable declaration of the form 
+<pre>
+val x : A ...
+</pre>
+results in declaring <b>x</b> to have the type <b>A{self==x}</b>, rather than
+simply <b>A</b>.  (<b>var</b> declarations get no such addition, because
+<b>var</b>s cannot appear in constraints.)
+
+<div class="p"><!----></div>
+A field or property declaration of the form: 
+<pre>
+class A {
+   ... 
+   val f : B ...
+   ...
+}
+</pre>
+results in declaring <b>f</b> to be of type <b>Bself==this.f</b>.
+And, if <b>y</b> has type <b>A{c}</b>, then the type 
+for <b>y.f</b> has a constraint <b>self==y.f</b>, and, additionally, 
+preserves the information from <b>c</b>.  
+
+<div class="p"><!----></div>
+The following code uses a method <b>typeIs[T](x)</b> to confirm, statically,
+that the type of <b>x</b> is <b>T</b> (or a subtype of <b>T</b>).  
+
+<div class="p"><!----></div>
+On line <b>(A)</b> we confirm that the type of <b>x</b> has 
+a <b>self==x</b> constraint.  The error line <b>(!A)</b> confirms
+that a <em>different</em> variable <em>doesn't</em> have the <b>self==x</b>
+constraint. <b>(B)</b> shows the extra information carried by a field's type.
+
+<div class="p"><!----></div>
+<b>(C)</b> shows the extra information carried by a field's type when the
+object's type is constrained. Note that the constraint
+<b>ExtraConstraintself.n==8</b> on the type of <b>y</b> has to be rewritten
+for <b>y.f</b>, since the constraint <b>Longself.n==8</b> is not correct or
+even well-typed. In this case, the <b>ExtraConstraint</b> whose <b>n</b>-field
+is <b>8</b> has the name <b>y</b>, so we can write the desired type with a
+conjunct <b>y.n==8</b>.<a href="#tthFtNtAAH" name="tthFrefAAH"><sup>7</sup></a>
+
+<div class="p"><!----></div>
+Note that we use one of the extra constraints here - this reasoning requires
+the information that the type of <b>y</b> has the constraint <b>self==y</b>, so
+X10 can infer <b>y.n==8</b> from <b>self.n==8</b>. This sort of inference is the
+reason why X10 adds these constraints in the first place: without them, even
+the simplest data flows would be beyond the ability of the type system to detect.
+
+<div class="p"><!----></div>
+<pre>
+class Extra(n:Int) {
+  val f : Long;
+  def this(n:Int, f:Long) { property(n); this.f = f; }
+  static def typeIs[T](val x:T) {}
+  public static def main(argv:Array[String](1)) {
+     val x : Extra = new Extra(1,2L);
+     typeIs[ Extra{self==x} ]   (x);    //(A)
+     val nx: Extra = new Extra(1,2L);
+     // ERROR: typeIs[ Extra{self==x} ]   (nx); //(!A)
+     typeIs[ Long{self == x.f} ]          (x.f);  //(B)
+     val y : Extra{self.n==8} = new Extra(8, 4L);
+     typeIs[ Long{self == y.f, y.n == 8}] (y.f);  //(C)
+  }
+}
+</pre>
+
+
+<div class="p"><!----></div>
+Once in a while, the additional information will interfere with other
+typechecking or type inference.  In this case, use <b>as</b>
+(&#167;) to erase it, using expressions like <b>x as A</b>.
+
+<div class="p"><!----></div>
+The following code creates a one-element array (&#167;)
+containing <b>x</b>.  
+
+<div class="p"><!----></div>
+If  the <b>ERROR</b> line were to be used, 
+X10 would infer that the type of this array were <b>Array[T]</b>,
+where <b>T</b> is the type of <b>x</b> - that is, 
+<b>Array[Extra{self==x}]</b>.  <b>[x]</b> is an array of <b>x</b>'s, not an array
+of <b>Extra</b>s.  Since <b>Array[Extra{self==x}]</b> is not a subtype of 
+<b>Array[Extra]</b>, the array <b>[x]</b> cannot be used in a place where an 
+<b>Array[Extra]</b> is called for.
+
+<div class="p"><!----></div>
+The expression <b>[x as Extra]</b> uses a type cast to erase the
+automatically-added extra information about <b>x</b>.  <b>x as Extra</b> simply
+has type <b>Extra</b>, and thus <b>[x as Extra]</b> is an <b>Array[Extra]</b> as
+desired. 
+
+<div class="p"><!----></div>
+<pre>
+class Extra {
+  static def useArray(Array[Extra]) {} 
+  public static def main(argv:Array[String](1)) {
+     val x : Extra = new Extra();
+     //ERROR: useArray([x]);
+     useArray([x as Extra]);
+  }
+}
+</pre>
+
+<div class="p"><!----></div>
+ <h2><a name="tth_sEc14">
+14</a>&nbsp;&nbsp;Limitations of Strict Typing</h2>
+
+<div class="p"><!----></div>
+X10's type checking provides substantial guarantees.  In most cases, a program
+that passes the X10 type checker will not have any runtime type errors.
+However, there are a modest number of compromises with practicality in the
+type system: places where a program can pass the typechecker and still have a
+type error.
+
+<div class="p"><!----></div>
+
+<ol type="1">
+<li> As seen in &#167;<a href="#sect:StrippedGenericCasts">4.4</a>, generic types do not have
+      constraint information at runtime.  This allows one to write code which
+      violates constraints at runtime, as seen in the example in that section.
+<div class="p"><!----></div>
+</li>
+
+<li> The library type <b>x10.util.IndexedMemoryChunk</b> provides a low-level interface
+      to blocks of memory.  A few methods on that class are not type-safe. See
+      the API if you must.
+<div class="p"><!----></div>
+</li>
+
+<li> Custom serialization (&#167;) allows user code to
+      construct new objects in ways that can subvert the type system.
+<div class="p"><!----></div>
+</li>
+
+<li> Code written to use the underlying Java or C++ (&#167;) can
+      break X10's guarantees.
+<div class="p"><!----></div>
+</li>
+</ol>
+
+<div class="p"><!----></div>
+</li>
+<hr /><h3>Footnotes:</h3>
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAB"></a><a href="#tthFrefAAB"><sup>1</sup></a>Currently inequalities
+      of the form <b>e &lt; f</b> are not supported.
+<div class="p"><!----></div>
+<a name="tthFtNtAAC"></a><a href="#tthFrefAAC"><sup>2</sup></a>No experienced programmer should actually think that
+<b>==</b> is mathematical equality in any case.  It is quite common for two
+objects to appear identical but not be <b>==</b>.  X10's discrepancy between the
+two concepts is orthogonal to the familiar one.
+<div class="p"><!----></div>
+<a name="tthFtNtAAD"></a><a href="#tthFrefAAD"><sup>3</sup></a>We call them
+<b>Position</b> to avoid confusion with the built-in class <b>Point</b>. 
+Also, <b>Position</b> is a struct rather than a class so that the non-equality
+test <b>start != end</b> compares the coordinates.  If <b>Position</b> were a
+class, <b>start != end</b> would check for different <b>Position</b> objects,
+which might have the same coordinates.
+
+<div class="p"><!----></div>
+<a name="tthFtNtAAE"></a><a href="#tthFrefAAE"><sup>4</sup></a>Java, for one, suffers a number of
+  inconveniences because some built-in types like <b>int</b> and <b>char</b>
+  aren't subtypes of anything else.
+<div class="p"><!----></div>
+<a name="tthFtNtAAF"></a><a href="#tthFrefAAF"><sup>5</sup></a>The situation would be more
+complex if X10 had covariant and contravariant types.
+<div class="p"><!----></div>
+<a name="tthFtNtAAG"></a><a href="#tthFrefAAG"><sup>6</sup></a>
+In particular, <b>X=Any</b> doesn't work either.  An <b>Array[Int]</b> is not an
+<b>Array[Any]</b> - and it must not be, for you can put a boolean value into
+an <b>Array[Any]</b>, but you cannot put a boolean value into an
+<b>Array[Int]</b>.  However, if the types of the arguments had simply been 
+<b>X</b> rather than <b>Array[X]</b>, then type inference would correctly infer
+<b>X=Any</b>.
+
+<br /><br /><hr />
+</html>
