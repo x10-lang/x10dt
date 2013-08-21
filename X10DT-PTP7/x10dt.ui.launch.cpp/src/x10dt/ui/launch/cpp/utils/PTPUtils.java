@@ -17,11 +17,11 @@ import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteProcess;
 import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.RemoteServices;
 import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
+import org.eclipse.ptp.remote.ui.RemoteUIServices;
 import org.eclipse.swt.widgets.Shell;
 
 import x10dt.ui.launch.core.LaunchCore;
@@ -79,8 +79,8 @@ public final class PTPUtils {
    */
   public static String remoteBrowse(final Shell shell, final IRemoteConnection rmConnection, final String dialogTitle,
                                     final String initialPath, final boolean browseDirectory) {
-    final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
-    final IRemoteUIServices rmUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(rmServices);
+    final IRemoteServices rmServices = RemoteServices.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
+    final IRemoteUIServices rmUIServices = RemoteUIServices.getRemoteUIServices(rmServices);
     
     final IRemoteUIFileManager fileManager = rmUIServices.getUIFileManager();
     if (fileManager != null) {
