@@ -23,15 +23,17 @@
 import x10.io.Console;
 import x10.util.Random;
 
-/* This class represents a real-world problem in graphics engines --
+/**
+ * This class represents a real-world problem in graphics engines --
  * determining which objects in a large sprawling world are close enough to the
  * camera to be considered for rendering.  The naive implementation (GCSpheres) 
- * produces a lot of objects and is thus a good benchmark for garbage collection in X10.
+ * produces a lot of objects and is thus a good benchmark for 
+ * garbage collection in X10.
  * This version uses structs to significantly reduce heap allocation.
  *
  * @Author Dave Cunningham
  * @Author Vijay Saraswat
-*/
+ */
 class StructSpheres {
 
     static type Real = Float;
@@ -84,7 +86,7 @@ class StructSpheres {
         // the array can go on the heap
         // but the elements ought to be /*inlined*/ in the array
         val spheres =
-            new Array[WorldObject](num_objects, (i:int) => {
+            new Rail[WorldObject](num_objects, (i:long) => {
                 val x = (ran.nextDouble()*world_size) as Real;
                 val y = (ran.nextDouble()*world_size) as Real;
                 val z = (ran.nextDouble()*world_size) as Real;
