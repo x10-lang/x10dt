@@ -8,6 +8,7 @@
 package x10dt.ui.launch.core.actions;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.window.IShellProvider;
 
 /**
@@ -33,8 +34,9 @@ public interface IBackEndX10ProjectConverter {
    * 
    * @param shellProvider The shell provider that can be used for error reporting.
    * @param project The project considered for back-end change.
+   * @throws CoreException 
    */
-  public void postProjectSetup(final IShellProvider shellProvider, final IProject project);
+  public void postProjectSetup(final IShellProvider shellProvider, final IProject project) throws CoreException;
   
   /**
    * Called before the project description changes in order to allow some necessary pre-processing.

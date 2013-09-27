@@ -110,10 +110,12 @@ public class X10JavaBuilder extends AbstractX10Builder {
 		final IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 	    final URI outputFolderURI = URIUtils.getExpectedURI(root.getFolder(fProjectWrapper.getPath().append(new Path("x10-gen-src"))).getLocationURI());
 	    File folder = EFS.getStore(outputFolderURI).toLocalFile(EFS.NONE, new NullProgressMonitor());
-	    for (File file: folder.listFiles()){
-	    	if (file.exists()){
-  			  file.delete();
-  		  }
+	    if (folder != null && folder.exists()){
+	    	for (File file: folder.listFiles()){
+	    		if (file.exists()){
+	    			file.delete();
+	    		}
+	    	}
 	    }
 	}
 
