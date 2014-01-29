@@ -27,7 +27,7 @@ public class X10Initializer extends PreferencesInitializer {
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTMETHODBODY, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_INDENTTYPEBODY, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_CONSERVATIVEBUILD, false);
-		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEBUG, true);
+		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_DEBUG, false);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_PERMITASSERT, true);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_STATICCALLS, false);
 		service.setBooleanPreference(IPreferencesService.DEFAULT_LEVEL, X10Constants.P_VERBOSECALLS, false);

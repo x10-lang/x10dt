@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"> 
+<head> 
+<meta content="en-us" http-equiv="Content-Language"/> 
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/> 
+<link href="../style/book.css" rel="STYLESHEET" type="text/css"/> 
+<style type="text/css" xml:space="preserve"> 
+td {
+<!--border-top: solid thin black;-->
+}
+img[alt] {
+background-color:#ffdddd;
+}
+tr {
+vertical-align: top;
+}
+td {
+valign: top;
+}
+td.section a {
+font-size: 20px;
+font-weight: bold;
+}
+td.section_item {
+align:left;
+font-weight: bold;
+font_style: italic;
+}
+td.section_content {
+align:left;
+}
+span.ide {
+font-style: italic;
+color: SlateGray;
+}
+</style> 
+
+<title>What's New in 2.4.0</title> 
+ 
+<script src="../../../advanced/synchWithToc.js" type="text/javascript" xml:space="preserve"><!-- --></script> 
+ 
+<link charset="ISO-8859-1" href="../../../content/org.eclipse.help.webapp/advanced/breadcrumbs.css" rel="stylesheet" type="text/css"/> 
+<script src="../../../content/org.eclipse.help/livehelp.js" type="text/javascript" xml:space="preserve"> </script> 
+<!-- <script type="text/javascript">if (self == top) { window.location.replace( "../../../index.jsp?topic=/x10dt.help/html/x10dt/whatsNew/whatsNew-2_0_5.html");}</script> -->
+</head>
+ 
+<body>
+
+<h2>What's New in 2.4.0</h2>
+ 
+<p>Here are descriptions of some of the more interesting or significant changes made in X10 and X10DT for the 2.4.0 release. </p> 
+
+<!-- They are grouped into:</p> 
+<ul>
+<li><a href="#X10-Language">X10 Language</a></li> 
+<li><a href="#Development-Toolkit">X10 Development Toolkit</a></li> 
+<li><a href="#Managed-X10">Managed X10</a></li> 
+<li><a href="#Native-X10">Native X10</a></li> 
+<li><a href="#Additional-Notes">Additional Notes</a></li> 
+
+</ul> 
+-->
+   
+<table cellpadding="10" cellspacing="0"> 
+  <colgroup span="1"> 
+  <col span="1" width="40%"/> 
+  <col span="1" width="60%"/> 
+  </colgroup> 
+  <tbody>
+ 
+  <!-- ******************** X10 Language ********************** -->
+  
+  <tr> 
+    <td colspan="2" class="section"><a name="X10-Language">X10 Language</a></td>
+  </tr>
+ 
+    <tr> 
+    <td class="section_item">Emphasis on 64-bit computing</td> 
+    <td class="section_content"> 
+     With the X10 2.4.0 release, significant changes were made to the X10 language
+     specification and X10 core class libraries to better support 64-bit computing.
+     <ul><li>All Rail, Array, Point, Region, etc. classes use Long (64 bit) indices
+       instead of Int (32 bit).</li>
+       <li>The type of an unqualified integral literal (e.g., 3) is a Long instead of an Int</li>
+       <li>Numerous class library APIs related to indexing and collection size were changes from
+           Int to Long</li>
+     </ul>
+    </td> 
+    </tr>
+    
+    <tr> 
+    <td class="section_item">Higher performance default Arrays</td> 
+    <td class="section_content">
+    <ul>
+    <li>A high-performance x10.lang.Rail type was introduced to obtain the best possible performance
+    for the common case of a one-dimensional N-element array with indices from 0 to N-1.</li>
+    <li>The existing Region-based Array classes were moved to a new package, x10.regionarray, which
+    is not automatically imported.</li>
+    <li>A set of new high-performance multi-dimensional arrays for the common case of dense, zero-indexed 
+    arrays can be found in the x10.array package. The next release of X10 will include additional distributed
+    variants of these high-performance arrays.</li>
+    </ul>
+    </td> 
+    </tr>
+ 
+  
+  <!-- ******************** X10 Development Toolkit ********************** -->
+  
+  <!--
+  <tr> 
+    <td colspan="2" class="section"><a name="Development-Toolkit">X10 Development Toolkit</a></td>
+  </tr>
+ 
+    <tr> 
+    <td class="section_item">X10DT  1</td> 
+    <td class="section_content"> 
+     X10DT 1 description
+    </td> 
+    </tr>
+    
+    <tr> 
+    <td class="section_item">X10DT  2</td> 
+    <td class="section_content"> 
+     X10DT 2 description
+    </td> 
+    </tr>
+    -->
+    
+  <!-- ******************** Java back-end ********************** -->
+ <!--  
+  <tr> 
+    <td colspan="2" class="section"><a name="Managed-X10">Managed X10</a></td>
+  </tr>
+ -->
+ <!--
+  <tr> 
+    <td class="section_item">Java backend 1</td> 
+    <td class="section_content"> 
+     Java backend 1 description
+    </td> 
+  </tr>
+  
+  <tr>
+    <td class="section_item">Java backend 2</td>
+    <td class="section_content">
+    Java backend 2 description
+    </td>
+  </tr>
+-->
+ 
+  
+  <!-- ******************** C++ back-end ********************** --> 
+
+  <tr> 
+    <td colspan="2" class="section"><a name="Native-X10">Native X10</a></td>
+  </tr>
+
+  <tr> 
+    <td class="section_item">Support for BlueGene/Q</td> 
+    <td class="section_content"> 
+     Native X10 now supports the BlueGene/Q platform.
+    </td> 
+  </tr>
+  
+  <!-- ******************** Additional Notes ********************** --> 
+  <!--
+  <tr> 
+    <td colspan="2" class="section"><a name="Additional-Notes">Additional Notes</a></td>
+  </tr>
+  -->
+  
+<!--  
+  <tr>
+    <td class="section_item">Additional nodes 1</td>
+    <td class="section_content">
+    Additional notes 1 description
+    </td>
+  </tr>
+-->
+
+  </tbody> 
+</table>
+
+<hr/>
+
+</body> 
+</html>

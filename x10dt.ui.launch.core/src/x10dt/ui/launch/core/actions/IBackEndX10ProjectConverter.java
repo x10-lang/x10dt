@@ -34,6 +34,7 @@ public interface IBackEndX10ProjectConverter {
    * 
    * @param shellProvider The shell provider that can be used for error reporting.
    * @param project The project considered for back-end change.
+   * @throws CoreException 
    */
   public void postProjectSetup(final IShellProvider shellProvider, final IProject project) throws CoreException;
   
