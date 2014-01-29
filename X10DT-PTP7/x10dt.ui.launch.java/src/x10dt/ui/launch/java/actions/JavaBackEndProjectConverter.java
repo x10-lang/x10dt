@@ -58,7 +58,7 @@ public final class JavaBackEndProjectConverter implements IBackEndX10ProjectConv
 	    	newEntries[newEntries.length - 2] = x10gen;
 	    	javaProject.setRawClasspath(newEntries, new NullProgressMonitor());
 	    	}
-	}
+  	}
 
   public void preProjectSetup(final IShellProvider shellProvider, final IProject project) {
     // Nothing to do.
