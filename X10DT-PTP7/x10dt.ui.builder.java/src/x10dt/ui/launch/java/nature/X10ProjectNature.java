@@ -50,9 +50,19 @@ public class X10ProjectNature extends ProjectNatureBase {
       final IProject project = getProject();
       final IProjectDescription description = project.getDescription();
       final ICommand[] commands = description.getBuildSpec();
-      final ICommand javaBuilder = getJavaBuilder(commands);
-      if (javaBuilder == null)
-    	  return;
+      ICommand javaBuilder = getJavaBuilder(commands);
+      if (javaBuilder == null) {
+    	    javaBuilder = description.newCommand();
+    	    javaBuilder.setBuilderName(JavaCore.BUILDER_ID);
+    	    final ICommand[] newCommands = new ICommand[commands.length + 2]; 
+    	    System.arraycopy(commands, 0, newCommands, 1, commands.length);
+    	    newCommands[0] = javaBuilder;
+    	    newCommands[commands.length+1] = javaBuilder;
+    	    description.setBuildSpec(newCommands);
+    	    project.setDescription(description, new NullProgressMonitor());  
+    	    return;
+    	    
+      }
       
       final ICommand[] newCommands = new ICommand[commands.length + 1]; 
       System.arraycopy(commands, 0, newCommands, 0, commands.length);
