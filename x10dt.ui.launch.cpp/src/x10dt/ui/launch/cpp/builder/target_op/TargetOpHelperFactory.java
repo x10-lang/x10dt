@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.RemoteServices;
 import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
 
 /**
@@ -36,10 +36,10 @@ public final class TargetOpHelperFactory {
   public static ITargetOpHelper create(final boolean isLocal, final boolean isCygwin, 
                                        String connectionName) {
     if (isLocal /*&& (connectionName == null || connectionName.equals(""))*/){ // --- MV: PTP now looks at the connectionName, which it didn't do before. If isLocal is true, this name must be "Local".
-      connectionName = IRemoteConnectionManager.DEFAULT_CONNECTION_NAME; 
+      connectionName = IRemoteConnectionManager.LOCAL_CONNECTION_NAME;
     }
     final String rmServicesId = isLocal ? LOCAL_CONN_SERVICE_ID : REMOTE_CONN_SERVICE_ID;
-    final IRemoteServices rmServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(rmServicesId);
+    final IRemoteServices rmServices = RemoteServices.getRemoteServices(rmServicesId);
     IRemoteConnection rmConnection = rmServices.getConnectionManager().getConnection(connectionName);
     if (rmConnection == null) {
     	return null;
