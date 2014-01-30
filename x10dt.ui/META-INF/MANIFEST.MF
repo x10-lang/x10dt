@@ -49,4 +49,4 @@ Export-Package: x10dt.ui,
  x10dt.ui.typeHierarchy.actions,
  x10dt.ui.typeHierarchy.dialogs,
  x10dt.ui.utils
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

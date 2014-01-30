@@ -19,7 +19,7 @@ Require-Bundle: org.eclipse.ui,
  x10dt.core;bundle-version="2.1.0",
  org.junit;bundle-version="4.0.0"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.apache.log4j,
  org.eclipse.imp.parser,
  org.eclipse.ui.internal.views.markers

@@ -23,7 +23,7 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",
  x10.constraints,
  x10.compiler,
  x10.effects
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Export-Package: x10dt.refactoring.analysis,
  x10dt.refactoring.effects,

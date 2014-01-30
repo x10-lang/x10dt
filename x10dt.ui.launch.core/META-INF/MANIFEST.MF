@@ -26,7 +26,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  x10dt.search.core,
  x10dt.ui
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: x10dt.ui.launch.core,
  x10dt.ui.launch.core.actions,
  x10dt.ui.launch.core.builder,

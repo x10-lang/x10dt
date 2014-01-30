@@ -37,7 +37,7 @@ Require-Bundle: org.eclipse.core.filesystem,
  x10dt.search.core,
  x10dt.ui.launch.cpp
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: x10dt.ui.launch.java,
  x10dt.ui.launch.java.actions
 Bundle-Vendor: x10-users@lists.sourceforge.net

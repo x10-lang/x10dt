@@ -28,3 +28,4 @@ Export-Package: x10dt.ui.launch.java.builder,
  x10dt.ui.launch.java.nature
 Bundle-Activator: x10dt.ui.builder.java.Activator
 Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

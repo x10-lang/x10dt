@@ -10,3 +10,4 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.help.webapp
 Eclipse-LazyStart: true
 Bundle-Vendor: x10-users@lists.sourceforge.net
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6

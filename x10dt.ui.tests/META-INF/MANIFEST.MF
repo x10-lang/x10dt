@@ -4,7 +4,7 @@ Bundle-Name: X10DT UI Tests
 Bundle-SymbolicName: x10dt.ui.tests
 Bundle-Version: 2.4.1.qualifier
 Bundle-Vendor: x10-users@lists.sourceforge.net
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: lpg.runtime.java,
  org.eclipse.compare,
  org.eclipse.swtbot.eclipse.core,
