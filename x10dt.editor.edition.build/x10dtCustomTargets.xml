@@ -91,13 +91,11 @@
   <!-- ===================================================================== -->
   <target name="preProcessRepos">
     <p2.mirror destination="file:${repoBaseLocation}/mirror">
-      <source file="${cdt.update.loc}"/>
       
       <source file="${imp.update.loc}"/>
       <source>
         <repository location="${wala.update.loc}" />
       </source>
-      <iu id="org.eclipse.cdt.feature.group" />
     	
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
