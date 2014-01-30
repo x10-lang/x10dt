@@ -40,13 +40,12 @@ import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.RemoteServices;
 import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
 import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
 import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.PTPRemoteUIPlugin;
+import org.eclipse.ptp.remote.ui.RemoteUIServices;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -556,11 +555,10 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
       dialog.setText(dialogText);
       return dialog.open();
     } else {
-      final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin.getDefault();
-      final IRemoteServices rmServices = plugin.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
+      final IRemoteServices rmServices = RemoteServices.getRemoteServices(PTPConstants.REMOTE_CONN_SERVICE_ID);
       final IRemoteConnectionManager rmConnManager = rmServices.getConnectionManager();
       final IRemoteConnection rmConnection = rmConnManager.getConnection(this.fLaunchConfigName);
-      final IRemoteUIServices rmUIServices = PTPRemoteUIPlugin.getDefault().getRemoteUIServices(rmServices);
+      final IRemoteUIServices rmUIServices = RemoteUIServices.getRemoteUIServices(rmServices);
       
       final IRemoteUIFileManager fileManager = rmUIServices.getUIFileManager();
       if ((fileManager != null) && (rmConnection != null)) {
@@ -621,8 +619,6 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
 					return;
 				}
 
-				final PTPRemoteCorePlugin plugin = PTPRemoteCorePlugin
-						.getDefault();
 				IRemoteConnectionManager rmConnManager = null;
 
 				if (VMsLocationTab.this.fRemoteConnBt.getSelection()) {
@@ -635,7 +631,7 @@ final class VMsLocationTab extends AbstractLaunchConfigurationTab
 							this.fPrivateKeyFileText.getText(),
 							this.fPassphraseText.getText(),
 							this.fConnectionTimeoutSpinner.getSelection());
-					rmConnManager = plugin.getRemoteServices(
+					rmConnManager = RemoteServices.getRemoteServices(
 							REMOTE_CONN_SERVICE_ID).getConnectionManager();
 					IRemoteConnection conn = rmConnManager
 							.getConnection(VMsLocationTab.this.fLaunchConfigName);

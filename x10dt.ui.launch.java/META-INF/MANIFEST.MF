@@ -31,11 +31,9 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.ptp.remote.core,
  org.eclipse.ptp.remote.remotetools.core,
  org.eclipse.ptp.remotetools.environment.core,
- org.eclipse.ptp.rm.core,
  org.eclipse.ptp.launch,
  org.eclipse.ptp.remote.ui,
  org.eclipse.ptp.debug.core,
- org.eclipse.ptp.utils.core,
  x10dt.search.core,
  x10dt.ui.launch.cpp
 Bundle-ActivationPolicy: lazy

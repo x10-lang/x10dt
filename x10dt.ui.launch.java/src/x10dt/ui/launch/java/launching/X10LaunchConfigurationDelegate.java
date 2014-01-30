@@ -51,7 +51,7 @@ import org.eclipse.ptp.remote.core.IRemoteConnection;
 import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
 import org.eclipse.ptp.remote.core.IRemoteFileManager;
 import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.PTPRemoteCorePlugin;
+import org.eclipse.ptp.remote.core.RemoteServices;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
@@ -290,10 +290,10 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 	private IPath getExecutablePath(final String x10DistFolder,
 			boolean isLocal, final String confName) throws CoreException {
 		if (isLocal) {
-			final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(LOCAL_CONN_SERVICE_ID);
+			final IRemoteServices remoteServices = RemoteServices.getRemoteServices(LOCAL_CONN_SERVICE_ID);
 			final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
 			final String x10Launcher = this.fLocalConfDelegate.getX10DistHostLauncherDir("bin/X10Launcher").getAbsolutePath(); //$NON-NLS-1$
-			final IRemoteConnection connection = rmConnManager.getConnection(IRemoteConnectionManager.DEFAULT_CONNECTION_NAME);
+			final IRemoteConnection connection = rmConnManager.getConnection(IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
 			final IRemoteFileManager rmFileManager = remoteServices.getFileManager(connection);
 			final IFileStore x10LauncherFStore = rmFileManager.getResource(x10Launcher);
 			final IFileInfo x10LauncherFInfo = x10LauncherFStore.fetchInfo();
@@ -303,7 +303,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 			}
 			return new Path(x10Launcher);
 		} else {
-			final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(REMOTE_CONN_SERVICE_ID);
+			final IRemoteServices remoteServices = RemoteServices.getRemoteServices(REMOTE_CONN_SERVICE_ID);
 			final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
 			final IRemoteConnection connection = rmConnManager.getConnection(confName);
 			final IRemoteFileManager rmFileManager = remoteServices.getFileManager(connection);
@@ -474,7 +474,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
    
   private IPath transferJar(final IPath jarPath, 
                             final String confName, final String outputFolder) throws CoreException {
-    final IRemoteServices remoteServices = PTPRemoteCorePlugin.getDefault().getRemoteServices(REMOTE_CONN_SERVICE_ID);
+    final IRemoteServices remoteServices = RemoteServices.getRemoteServices(REMOTE_CONN_SERVICE_ID);
     final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
     final IRemoteConnection connection = rmConnManager.getConnection(confName);
     final IRemoteFileManager rmFileManager = remoteServices.getFileManager(connection);
