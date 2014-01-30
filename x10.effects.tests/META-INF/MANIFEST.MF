@@ -5,5 +5,5 @@ Bundle-SymbolicName: x10.effects.tests
 Bundle-Version: 2.4.1.qualifier
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Require-Bundle: x10.effects,
- org.junit4,
- x10.constraints
+ x10.constraints,
+ org.junit;bundle-version="4.0.0"
