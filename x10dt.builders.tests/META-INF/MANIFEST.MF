@@ -11,14 +11,13 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.swtbot.eclipse.core;bundle-version="2.0.0",
  org.eclipse.swtbot.eclipse.finder;bundle-version="2.0.0",
  org.eclipse.swtbot.junit4_x;bundle-version="2.0.0",
- org.junit4;bundle-version="4.5.0",
  x10dt.ui;bundle-version="2.0.6",
  x10dt.tests.services;bundle-version="2.0.6",
- org.hamcrest;bundle-version="1.1.0",
  org.eclipse.imp.runtime,
  org.eclipse.ui.views;bundle-version="3.5.0",
  org.eclipse.ui.ide,
- x10dt.core;bundle-version="2.1.0"
+ x10dt.core;bundle-version="2.1.0",
+ org.junit;bundle-version="4.0.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Import-Package: org.apache.log4j,

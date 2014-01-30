@@ -20,13 +20,12 @@ Require-Bundle: lpg.runtime.java,
  org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.editors,
- org.hamcrest,
- org.junit4,
  x10.compiler,
  x10dt.tests.services,
  x10dt.core,
  x10dt.search.core,
- x10dt.ui
+ x10dt.ui,
+ org.junit;bundle-version="4.0.0"
 Bundle-ClassPath: ui.jar,.
 Import-Package: x10dt.ui.launch.cpp,
  x10dt.ui.launch.cpp.builder.target_op

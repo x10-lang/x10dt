@@ -11,10 +11,9 @@ Require-Bundle: org.apache.log4j,
  org.eclipse.swtbot.eclipse.finder,
  org.eclipse.ui,
  org.eclipse.ui.ide,
- org.hamcrest,
- org.junit4,
  x10dt.core,
- x10dt.ui.launch.core
+ x10dt.ui.launch.core,
+ org.junit;bundle-version="4.0.0"
 Export-Package: x10dt.tests.services.pde.utils,
  x10dt.tests.services.swbot.conditions,
  x10dt.tests.services.swbot.constants,
