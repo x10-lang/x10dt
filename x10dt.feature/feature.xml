@@ -34,34 +34,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.ptp.rm.ibm.ll"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.ptp.rm.ibm.pe"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.ptp.rm.mpich2"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.ptp.rm.openmpi"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.ptp.services"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.ptp.utils"
-         version="0.0.0"/>
-
-   <includes
-         id="org.eclipse.ptp.debug.sdm"
-         version="0.0.0"/>
-
-   <includes
          id="lpg.runtime"
          version="0.0.0"/>
 
