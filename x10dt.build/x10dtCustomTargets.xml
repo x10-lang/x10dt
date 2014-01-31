@@ -100,6 +100,9 @@
 
       <iu id="org.eclipse.cdt.feature.group" />
 
+      <iu id="org.eclipse.ptp.feature.group" />
+
+    	<!--
       <iu id="org.eclipse.ptp.core.feature.group" />
 	  <iu id="org.eclipse.ptp.rdt.feature.group" />
   	  <iu id="org.eclipse.ptp.rdt.remotetools.feature.group" />	
@@ -109,7 +112,7 @@
       <iu id="org.eclipse.ptp.remote.remotetools.feature.group" />
       <iu id="org.eclipse.ptp.remote.rse.feature.group" />
       <iu id="org.eclipse.ptp.remote.terminal.feature.group" />
-      <iu id="org.eclipse.ptp.remotetools.feature.group" />
+      <iu id="org.eclipse.ptp.remotetools.feature.group" /> -->
     	
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
