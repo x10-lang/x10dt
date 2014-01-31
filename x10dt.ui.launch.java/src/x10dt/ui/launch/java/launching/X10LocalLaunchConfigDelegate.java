@@ -71,6 +71,18 @@ final class X10LocalLaunchConfigDelegate extends AbstractJavaLaunchConfiguration
     }
     cp.add(commonMathFile.getAbsolutePath());
     
+    File commonLoggingFile = null;
+    for (final File file : libDir.listFiles()) {
+      if (file.getName().startsWith("commons-logging") && file.getName().endsWith(Constants.JAR_EXT)) { //$NON-NLS-1$
+        commonLoggingFile = file;
+        break;
+      }
+    }
+    if (commonLoggingFile == null) {
+      throw new CoreException(new Status(IStatus.ERROR, Activator.PLUGIN_ID, Messages.XLCD_NoCommonLogging));
+    }
+    cp.add(commonLoggingFile.getAbsolutePath());
+    
     for (final String element : super.getClasspath(configuration)) {
       cp.add(element);
     }

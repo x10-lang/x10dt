@@ -87,6 +87,8 @@ public class Messages extends NLS {
   public static String XLCD_JarCreationError;
 
   public static String XLCD_NoCommonMath;
+  
+  public static String XLCD_NoCommonLogging;
 
   public static String XLCD_NoDefaultQueue;
 
