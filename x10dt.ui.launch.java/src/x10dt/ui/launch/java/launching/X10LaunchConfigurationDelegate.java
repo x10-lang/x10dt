@@ -349,7 +349,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
     
     if (isRemote) {
       sb.append(String.format("%s -cp \"%s\" %s", getVMArguments(configuration, true), jarPath.toString(), mainTypeName)); //$NON-NLS-1$
-    } if (ConfUtils.getLocalOS() == ETargetOS.WINDOWS) { //Local and Windows
+    } else if (ConfUtils.getLocalOS() == ETargetOS.WINDOWS) { //Local and Windows
     	sb.append(String.format("java %s -cp \"%s\" %s %s", getVMArguments(configuration, false), buildClassPath(configuration), //$NON-NLS-1$ 
                 "x10.x10rt.Launcher", mainTypeName)); //$NON-NLS-1$
   	} else {
