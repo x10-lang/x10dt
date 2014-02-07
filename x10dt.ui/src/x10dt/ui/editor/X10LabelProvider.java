@@ -9,10 +9,6 @@
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *******************************************************************************/
 
-/*
- * (C) Copyright IBM Corporation 2007,2009
- * 
- */
 package x10dt.ui.editor;
 
 import java.lang.reflect.Field;
