@@ -18,8 +18,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
+import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.jdt.core.JavaCore;
-
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.builder.java.Activator;
@@ -36,6 +36,7 @@ public class X10ProjectNature extends ProjectNatureBase {
 
     public void addToProject(IProject project) {
         super.addToProject(project);
+        new SmapiProjectNature("x10", Activator.BUILDER_ID).addToProject(project);
     }
 
     protected void refreshPrefs() {}

@@ -24,7 +24,8 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  x10.compiler,
  x10dt.core,
  x10dt.search.core,
- x10dt.ui
+ x10dt.ui,
+ org.eclipse.imp.smapifier
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: x10dt.ui.launch.core,
