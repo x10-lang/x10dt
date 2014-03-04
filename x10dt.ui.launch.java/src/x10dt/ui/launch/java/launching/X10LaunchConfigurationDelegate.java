@@ -221,14 +221,15 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 	        		donePorts++;
 		    	  	
 	    	  		try {
-	    	  			ILaunchConfigurationWorkingCopy remoteDebugLaunchConfig = createRemoteDebugLaunchConfiguration(javaProject.getProject().getName(), getPort(line));
+	    	  			ILaunchConfigurationWorkingCopy remoteDebugLaunchConfig = createRemoteDebugLaunchConfiguration(javaProject.getProject().getName(), getPort(line), getPlace(line));
 	    	  			remoteDebugLaunchConfig.launch(ILaunchManager.DEBUG_MODE, new NullProgressMonitor());
 	    	  		} catch (CoreException e){
 	    	  			
 	    	  		}
 	    	  	
-	          } 
-	          mcStream.println(line);
+	          } else {
+	        	  mcStream.println(line);
+	          }
 	        }
 
 	        // --- Fields
@@ -256,13 +257,17 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 	  return line.substring(i+9);
   }
   
+  private String getPlace(String line){
+	  int i = line.indexOf("-");
+	  return line.substring(0, i-1);
+  }
   
-  private ILaunchConfigurationWorkingCopy createRemoteDebugLaunchConfiguration(final String projectName, final String port) throws CoreException {
+  private ILaunchConfigurationWorkingCopy createRemoteDebugLaunchConfiguration(final String projectName, final String port, final String place) throws CoreException {
 	    ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 	    ILaunchConfigurationType type = manager
 	            .getLaunchConfigurationType(IJavaLaunchConfigurationConstants.ID_REMOTE_JAVA_APPLICATION);
 
-	    final ILaunchConfigurationWorkingCopy remoteDebugConfig = type.newInstance(null, "remote debug");
+	    final ILaunchConfigurationWorkingCopy remoteDebugConfig = type.newInstance(null, place);
 
 	    // Set project
 	    remoteDebugConfig.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectName);
