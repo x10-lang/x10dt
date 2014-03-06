@@ -79,4 +79,25 @@
          </newWizardShortcut>rdShortcut>
       </perspectiveExtension>
    </extension>
+   
+   <extension
+         id="SmapieBuilder"
+         name="SMAP Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run class="x10dt.ui.builder.java.smap.builder.SmapieBuilder"/>
+      </builder>
+   </extension>
+   
+   <extension
+         id="smapinature"
+         name="SMAP Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run class="x10dt.ui.builder.java.smap.builder.SmapiProjectNature"/>
+      </runtime>
+      <builder id="x10dt.ui.builder.java.SmapieBuilder"/>
+      <requires-nature id="org.eclipse.jdt.core.javanature"/>
+   </extension>
+   
 </plugin>

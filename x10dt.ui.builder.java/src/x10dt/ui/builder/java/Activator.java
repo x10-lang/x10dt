@@ -97,5 +97,6 @@ public class Activator extends AbstractUIPlugin implements ILaunchConfigurationL
 	
   private static Activator plugin;
 
+
 }
 

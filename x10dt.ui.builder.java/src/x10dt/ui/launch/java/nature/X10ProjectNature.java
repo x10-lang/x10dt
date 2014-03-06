@@ -18,11 +18,11 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
-import org.eclipse.imp.smapifier.builder.SmapiProjectNature;
 import org.eclipse.jdt.core.JavaCore;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.builder.java.Activator;
+import x10dt.ui.builder.java.smap.builder.SmapiProjectNature;
 
 public class X10ProjectNature extends ProjectNatureBase {
 
