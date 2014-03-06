@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.JavaCore;
 
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.builder.java.Activator;
-import x10dt.ui.builder.java.smap.builder.SmapiProjectNature;
+import x10dt.ui.launch.core.smap.builder.SmapiProjectNature;
 
 public class X10ProjectNature extends ProjectNatureBase {
 

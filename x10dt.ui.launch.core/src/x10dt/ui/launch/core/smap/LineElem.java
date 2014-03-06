@@ -9,7 +9,7 @@
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *******************************************************************************/
 
-package x10dt.ui.builder.java.smap;
+package x10dt.ui.launch.core.smap;
 
 public class LineElem {
     private int origSrcStart;

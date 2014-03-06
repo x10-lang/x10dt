@@ -25,7 +25,7 @@ Require-Bundle: lpg.runtime.java;bundle-version="2.0.18",
  x10dt.core,
  x10dt.search.core,
  x10dt.ui,
- org.eclipse.imp.smapifier
+ com.ibm.wala.shrike
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: x10dt.ui.launch.core,
@@ -36,6 +36,7 @@ Export-Package: x10dt.ui.launch.core,
  x10dt.ui.launch.core.dialogs,
  x10dt.ui.launch.core.launching,
  x10dt.ui.launch.core.platform_conf,
+ x10dt.ui.launch.core.smap.builder,
  x10dt.ui.launch.core.utils
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Import-Package: org.eclipse.debug.internal.ui

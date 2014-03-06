@@ -23,8 +23,7 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.ui.ide,
  org.eclipse.ui.cheatsheets,
  x10dt.search.core,
- x10dt.ui.launch.core,
- com.ibm.wala.shrike
+ x10dt.ui.launch.core
 Export-Package: x10dt.ui.launch.java.builder,
  x10dt.ui.launch.java.nature
 Bundle-Activator: x10dt.ui.builder.java.Activator

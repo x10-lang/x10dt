@@ -9,7 +9,7 @@
 *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
 *******************************************************************************/
 
-package x10dt.ui.builder.java.smap.builder;
+package x10dt.ui.launch.core.smap.builder;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,7 +21,7 @@ import org.eclipse.imp.builder.ProjectNatureBase;
 import org.eclipse.imp.runtime.IPluginLog;
 
 import x10dt.core.X10DTCorePlugin;
-import x10dt.ui.builder.java.Activator;
+import x10dt.ui.launch.core.LaunchCore;
 
 
 
@@ -31,7 +31,7 @@ import x10dt.ui.builder.java.Activator;
  * builder that does the class-file rewriting.
  */
 public class SmapiProjectNature extends ProjectNatureBase {
-	public static final String k_natureID= Activator.PLUGIN_ID + ".smapinature";
+	public static final String k_natureID= LaunchCore.PLUGIN_ID + ".smapinature";
 
 	/**
 	 * The set of source file-name extensions for the original source from which the

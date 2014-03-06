@@ -9,7 +9,7 @@
  *    Robert Fuhrer (rfuhrer@watson.ibm.com) - initial API and implementation
  *******************************************************************************/
 
-package x10dt.ui.builder.java.smap.builder;
+package x10dt.ui.launch.core.smap.builder;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,11 +38,13 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
-import x10dt.ui.builder.java.Activator;
-import x10dt.ui.builder.java.smap.Main;
+import x10dt.ui.launch.core.LaunchCore;
+import x10dt.ui.launch.core.smap.Main;
+
+
 
 public class SmapieBuilder extends IncrementalProjectBuilder {
-    public static final String BUILDER_ID = x10dt.ui.builder.java.Activator.PLUGIN_ID + ".SmapieBuilder";
+    public static final String BUILDER_ID = LaunchCore.PLUGIN_ID + ".SmapieBuilder";
 
     private IProject fProject;
 
@@ -74,20 +76,6 @@ public class SmapieBuilder extends IncrementalProjectBuilder {
         fMonitor= monitor;
         fPathPrefix= fProject.getWorkspace().getRoot().getRawLocation() + fProject.getFullPath().toString();
 
-        // RMF 3/25/2006: Pick up the file name extension from the "args" map.
-        // This comes from the .project file, and looks like this:
-        //
-        // <buildCommand>
-        //   <name>org.eclipse.imp.smapifier.SmapieBuilder</name>
-        //   <arguments>
-        //     <dictionary>
-        //       <key>exten</key>
-        //       <value>leg</value>
-        //     </dictionary>
-        //   </arguments>
-        // </buildCommand>
-        //
-        // Presumably it was placed there by whatever configured the SMAPI builder on the project.
 
         if (args.get("exten") != null)
             fFileExten= (String) args.get("exten");
@@ -199,9 +187,9 @@ public class SmapieBuilder extends IncrementalProjectBuilder {
                 }
             }
         } catch (JavaModelException e) {
-            Activator.getDefault().getLog().log(e.getStatus());
+            LaunchCore.getInstance().getLog().log(e.getStatus());
         } catch (CoreException e) {
-        	Activator.getDefault().getLog().log(e.getStatus());
+        	LaunchCore.getInstance().getLog().log(e.getStatus());
         }
         return ret;
     }
@@ -364,7 +352,7 @@ public class SmapieBuilder extends IncrementalProjectBuilder {
                 }
             }
         } catch (JavaModelException e) {
-        	Activator.getDefault().getLog().log(e.getStatus());
+        	LaunchCore.getInstance().getLog().log(e.getStatus());
         }
         return false;
     }
