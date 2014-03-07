@@ -1,7 +1,7 @@
 package x10dt.ui.launch.java.debug;
 
-import org.eclipse.imp.java.hosted.debug.JavaBreakpointHandler;
 
+import x10dt.ui.launch.core.debug.JavaBreakpointHandler;
 import x10dt.ui.launch.core.debug.X10ToggleBreakpointsHandler;
 
 /**
