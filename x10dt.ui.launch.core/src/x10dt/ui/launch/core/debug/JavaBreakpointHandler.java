@@ -43,18 +43,11 @@ public abstract class JavaBreakpointHandler implements IToggleBreakpointsHandler
         String typeName= srcFileName.substring(0, srcFileName.lastIndexOf('.'));
         Map<String,Object> bkptAttributes= new HashMap<String, Object>();
         bkptAttributes.put("org.eclipse.jdt.debug.core.sourceName", srcFileName);
-        bkptAttributes.put("org.eclipse.jdt.debug.core.typeName", typeName);
-//        bkptAttributes.put("org.eclipse.jdt.debug.core.conditionEnabled", true);
-//        bkptAttributes.put("org.eclipse.jdt.debug.core.conditionSuspendOnTrue", true);
-//        
+        bkptAttributes.put("org.eclipse.jdt.debug.core.typeName", typeName);        
 
         try {
-            IJavaStratumLineBreakpoint bkpt= JDIDebugModel.createStratumBreakpoint(file , fStratumID, srcFileName, file.getFullPath().removeFirstSegments(1).toString(), null, lineNumber, -1, -1, 0, true, bkptAttributes);
-            bkpt.setConditionEnabled(true);
-            bkpt.setConditionSuspendOnTrue(true);
-            if (bkpt.isEnabled()){
-            	int i = 0;
-            }
+            IJavaStratumLineBreakpoint bkpt= JDIDebugModel.createStratumBreakpoint(file , fStratumID, srcFileName, file.getFullPath().removeFirstSegments(1).toOSString(), null, lineNumber, -1, -1, 0, true, bkptAttributes);
+       
         
         } catch (CoreException e) {
             RuntimePlugin.getInstance().logException("Unable to set stratum breakpoint on file " + srcFileName, e);
