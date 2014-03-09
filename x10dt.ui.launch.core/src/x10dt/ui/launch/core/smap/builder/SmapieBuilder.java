@@ -38,8 +38,10 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
+import polyglot.util.InternalCompilerError;
+import x10c.smap.Main;
+import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.launch.core.LaunchCore;
-import x10dt.ui.launch.core.smap.Main;
 
 
 
@@ -133,7 +135,11 @@ public class SmapieBuilder extends IncrementalProjectBuilder {
             for(IFile classFile: classFiles) {
                 String generatedFile= getMainGeneratedFile(srcFile);
                 if (generatedFile != null) {
+                  try {
                     Main.smapify(srcFileLoc, fPathPrefix, generatedFile, classFile.getRawLocation().toString());
+                  } catch (InternalCompilerError e) {
+                    X10DTCorePlugin.getInstance().logException(e.getMessage(), e.getCause() != null ? e.getCause() : e);
+                  }
                 }
             }
         }
