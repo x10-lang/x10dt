@@ -21,7 +21,7 @@
   <property name="x10.compiler.dist" value="${repoBaseLocation}/compiler/plugins"/>
   <!-- For building with build files in X10 plugins -->
   <property name="eclipse.target.platform" value="../../eclipse" />
-  <property name="x10.compiler.extra.build.path" value="${toString:lpg.path.ref}" />
+  <property name="x10.compiler.extra.build.path" value="${toString:lpg.path.ref}:${toString:wala.path.ref}" />
   <property name="x10.wala.extra.build.path" value="${toString:wala.path.ref}" />
 
   <target name="x10-checkouts-existence">
