@@ -114,10 +114,6 @@
 		</copy>
 	</target>
 
-	<target name="cruise.publish" depends="init">
-		<copy todir="../../artifacts" file="${feature.id}_${feature.version}.jar"/>
-	</target>
-
 	<!-- ========================================================================================= -->
 
 	<target name="build.child">

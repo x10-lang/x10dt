@@ -360,23 +360,4 @@
 		<zip destfile="${plugin.destination}/${plugin.name}_${plugin.version}.zip" basedir="${temp.folder}" filesonly="true" whenempty="skip" update="false"/>
 		<delete dir="${temp.folder}"/>
 	</target>
-
-    <!-- ===================== -->
-    <!-- CruiseControl targets -->
-    <!-- ===================== -->
-
-    <!-- Used by cruisecontrol config to collect artifacts (jars) in one place -->
-    <target name="cruise.publish" depends="init">
-        <copy todir="../../artifacts" file="${plugin.name}_${plugin.version}.jar"/>
-    </target>
-
-    <target name="cruise.update.and.build">
-        <svn>
-            <update dir="." revision="HEAD"/>
-        </svn>
-        <antcall target="build.update.jar"/>
-    </target>
-
-    <target name="cruise.test">
-    </target>
 </project>
