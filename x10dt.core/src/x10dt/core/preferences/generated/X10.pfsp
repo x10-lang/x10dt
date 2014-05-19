@@ -54,7 +54,7 @@ page X10.Compiler {
 	        		}
 		        boolean Debug {
 		 	       			 	label "Generate debug information. If disabled, it will not be\npossible to debug the resulting executables.";
-		          	  			defvalue false;
+		          	  			defvalue true;
 		        			}
         boolean PermitAssert { label "Permit asserts"; defvalue true; }
         boolean StaticCalls  { label "Strict static call checking"; defvalue false; }
