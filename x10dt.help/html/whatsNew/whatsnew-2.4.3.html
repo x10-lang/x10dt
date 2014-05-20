@@ -91,11 +91,15 @@ They are grouped into:</p>
     <tr> 
     <td class="section_item">Debugger for Managed X10</td> 
     <td class="section_content"> 
-      X10DT now supports basic source-level debugging functionality for Managed X10.
+      <p>X10DT now supports basic source-level debugging functionality for Managed X10.
       Specifically, Managed X10 applications are now compiled with JSR-045 SMAP information which
       enables a mapping between source lines in the X10 source and compiled Java classes.  This allows
       line-oriented source-level debugging actions (breakpoints, stepping, etc) to be supported for
-      Managed X10 applications. 
+      Managed X10 applications.</p>
+      <p>However on Linux, to get source-level breakpoints to work you must not use the IBM JVM.
+      The IBM JVM does not always properly process the JSR-045 SMAP information for breakpoints.
+      Instead use the OpenJDK or Oracle JVM (by ensuring that the Oracle or OpenJDK JVM is the 
+      default Java in your PATH when you invoke X10DT).</p>
     </td> 
     </tr>
    
