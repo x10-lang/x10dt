@@ -28,11 +28,6 @@ public enum ETransport {
    * MPI transport.
    */
   MPI,
-  
-  /**
-   * LAPI transport
-   */
-  LAPI,
 
   /**
    * PAMI transport

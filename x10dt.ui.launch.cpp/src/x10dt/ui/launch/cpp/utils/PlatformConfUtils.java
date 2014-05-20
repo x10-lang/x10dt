@@ -100,17 +100,17 @@ public final class PlatformConfUtils {
    * @return A non-null instance of {@link ETransport}.
    */
   public static ETransport getTransport(final String serviceTypeId, final ETargetOS targetOS) {
-    if (STANDALONE.equals(serviceTypeId)) {
-      return ETransport.STANDALONE;
-    } else if (SOCKETS.equals(serviceTypeId)) {
+    if (SOCKETS.equals(serviceTypeId)) {
       return ETransport.SOCKETS;
     } else if (PAMI.equals(serviceTypeId)) {
       return ETransport.PAMI;
-    } else {
+    } else if (STANDALONE.equals(serviceTypeId)) {
       return ETransport.STANDALONE;
+    } else {
+      return ETransport.SOCKETS;
     }
   }
-  
+
   /**
    * Returns the workspace directory (where generated files will be created and compiled) for a given project independently 
    * if the connection type, either local or remote.
