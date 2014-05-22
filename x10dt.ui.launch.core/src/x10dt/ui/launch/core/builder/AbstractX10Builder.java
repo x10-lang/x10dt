@@ -809,7 +809,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 				hasNoSourceTypeEntries = false;
 				final IPath path = entries[i].getPath();
 				if (path.segmentCount() > 1) {
-          final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(root.getFile(path).getLocationURI()));
+		  final IFileStore fileStore = EFS.getLocalFileSystem().getStore(URIUtils.getExpectedURI(root.getFile(path).getLocationURI()));
           if (!fileStore.fetchInfo().exists()) { // --- Non existent source entry
             CoreResourceUtils.addBuildMarkerTo(getProject(), NLS.bind(Messages.AXB_NonExistentSRCFolder, path.lastSegment()),
                                                IMarker.SEVERITY_ERROR, IMarker.PRIORITY_HIGH);
@@ -829,6 +829,7 @@ public abstract class AbstractX10Builder extends IncrementalProjectBuilder {
 		LaunchCore.log(IStatus.ERROR, Messages.AXB_BuilderProblem, e);
 	}
   }
+  
   
   private void analyze(final Collection<Job> jobs) {
     computeDependencies(jobs);

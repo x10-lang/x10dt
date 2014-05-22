@@ -202,9 +202,9 @@ public abstract class AbstractX10LaunchShortcut implements ILaunchShortcut {
       if (mainType != null) {
         // The following check shouldn't be necessary, since this ILaunchShortcut implementation
         // isn't used for debug-mode launches. I.e., we should never get here in that case.
-        if (ILaunchManager.DEBUG_MODE.equals(mode)) {
-          checkCompileDebugPreference(mainType.getCompilationUnit().getProject().getRawProject());
-        }
+//        if (ILaunchManager.DEBUG_MODE.equals(mode)) {
+//          checkCompileDebugPreference(mainType.getCompilationUnit().getProject().getRawProject());
+//        }
 
         final String projectName = mainType.getCompilationUnit().getProject().getName();
         final Pair<Integer, ILaunchConfiguration> pair = findLaunchConfiguration(getConfigurationType(), mainType.getName(),

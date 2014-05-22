@@ -2,14 +2,11 @@ package x10dt.ui.launch.java.builder;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -20,7 +17,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 
 import polyglot.main.Options;
 import x10.ExtensionInfo;
@@ -29,7 +25,6 @@ import x10dt.core.utils.URIUtils;
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.builder.AbstractX10Builder;
 import x10dt.ui.launch.core.builder.target_op.IX10BuilderFileOp;
-import x10dt.ui.launch.core.utils.ProjectUtils;
 
 public class X10JavaBuilder extends AbstractX10Builder {
 	private Options fOptions;
@@ -118,6 +113,5 @@ public class X10JavaBuilder extends AbstractX10Builder {
 	    	}
 	    }
 	}
-
 
 }
