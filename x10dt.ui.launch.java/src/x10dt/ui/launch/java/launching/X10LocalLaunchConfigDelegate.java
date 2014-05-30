@@ -53,6 +53,20 @@ final class X10LocalLaunchConfigDelegate extends AbstractJavaLaunchConfiguration
     }
   }
   
+  public File getX10SourceLocation(final ILaunchConfiguration configuration) throws CoreException {
+	  final File libDir = getX10DistHostLibDir().getParentFile();
+	  File x10SrcFolder = null;
+	    for (final File file : libDir.listFiles()) {
+	      if (file.getName().startsWith("src-x10")) { //$NON-NLS-1$
+	    	  x10SrcFolder = file;
+	        break;
+	      }
+	    }
+	  if (x10SrcFolder != null)
+		  return x10SrcFolder;
+	  return null;
+  }
+  
   // --- Overridden methods
   
   public String[] getClasspath(final ILaunchConfiguration configuration) throws CoreException {

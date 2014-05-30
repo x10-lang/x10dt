@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,10 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ILaunchConfigurationDelegate;
+import org.eclipse.debug.core.model.ISourceLocator;
+import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
+import org.eclipse.debug.core.sourcelookup.ISourceContainer;
+import org.eclipse.debug.core.sourcelookup.containers.DirectorySourceContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
@@ -108,7 +113,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
   }
   
 
-  private void runCommand(ILaunchConfiguration configuration, final String mode, final IJavaProject javaProject, final IProgressMonitor monitor) throws CoreException {
+  private void runCommand(final ILaunchConfiguration configuration, final String mode, final IJavaProject javaProject, final IProgressMonitor monitor) throws CoreException {
 	    try {
 	    	
 	      final MessageConsole messageConsole = UIUtils.findOrCreateX10Console();
@@ -221,7 +226,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 	        		donePorts++;
 		    	  	
 	    	  		try {
-	    	  			ILaunchConfigurationWorkingCopy remoteDebugLaunchConfig = createRemoteDebugLaunchConfiguration(javaProject.getProject().getName(), getPort(line), getPlace(line));
+	    	  			ILaunchConfigurationWorkingCopy remoteDebugLaunchConfig = createRemoteDebugLaunchConfiguration(configuration, javaProject.getProject().getName(), getPort(line), getPlace(line));
 	    	  			remoteDebugLaunchConfig.launch(ILaunchManager.DEBUG_MODE, new NullProgressMonitor());
 	    	  		} catch (CoreException e){
 	    	  			
@@ -262,7 +267,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 	  return line.substring(0, i-1);
   }
   
-  private ILaunchConfigurationWorkingCopy createRemoteDebugLaunchConfiguration(final String projectName, final String port, final String place) throws CoreException {
+  private ILaunchConfigurationWorkingCopy createRemoteDebugLaunchConfiguration(ILaunchConfiguration configuration, final String projectName, final String port, final String place) throws CoreException {
 	    ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 	    ILaunchConfigurationType type = manager
 	            .getLaunchConfigurationType(IJavaLaunchConfigurationConstants.ID_REMOTE_JAVA_APPLICATION);
@@ -271,6 +276,29 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 
 	    // Set project
 	    remoteDebugConfig.setAttribute(IJavaLaunchConfigurationConstants.ATTR_PROJECT_NAME, projectName);
+	    
+	    
+	    String memento = configuration.getAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_MEMENTO, (String) null);
+	    String source_locator_id = configuration.getType().getSourceLocatorId();
+	    ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+	    ISourceLocator locator = launchManager.newSourceLocator(source_locator_id);
+	    if (locator instanceof AbstractSourceLookupDirector) {
+	    	AbstractSourceLookupDirector director = (AbstractSourceLookupDirector) locator;
+	        if (memento == null) {
+	        	director.initializeDefaults(configuration);
+	        } else {
+	            director.initializeFromMemento(memento, configuration);
+	        }
+	        DirectorySourceContainer dir = new DirectorySourceContainer(this.fLocalConfDelegate.getX10SourceLocation(configuration), true);
+	        ArrayList<ISourceContainer> sourceContainers = new ArrayList<ISourceContainer>(Arrays.asList(director.getSourceContainers()));
+	        sourceContainers.add(0,dir);
+	        director.setSourceContainers((ISourceContainer[]) sourceContainers.toArray(new ISourceContainer[sourceContainers.size()]));
+	        remoteDebugConfig.setAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_MEMENTO, director.getMemento());
+	        remoteDebugConfig.setAttribute(ILaunchConfiguration.ATTR_SOURCE_LOCATOR_ID, director.getId());
+	    }
+	    
+	    
+	    
 
 	    // Set JVM debugger connection parameters
 	    Map<String, String> connectionParameters = new HashMap<String, String>();
@@ -279,6 +307,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 	    remoteDebugConfig.setAttribute(IJavaLaunchConfigurationConstants.ATTR_CONNECT_MAP, connectionParameters);
 	    remoteDebugConfig.setAttribute(IJavaLaunchConfigurationConstants.ATTR_VM_CONNECTOR,
 	            "org.eclipse.jdt.launching.socketAttachConnector");
+	    remoteDebugConfig.doSave();
 	    return remoteDebugConfig;
 	}
   
