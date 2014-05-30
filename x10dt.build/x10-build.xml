@@ -221,6 +221,12 @@
         <include name="**/**" />
       </fileset>
     </copy>
+  	<mkdir dir="${x10.compiler.dist}/${fragment-dir-name}/src-x10" />
+    <unzip src="${x10.compiler.dist}/${fragment-dir-name}/stdlib/x10.jar" dest="${x10.compiler.dist}/${fragment-dir-name}/src-x10">
+      <patternset>
+        <include name="**/*.x10" />
+      </patternset>
+    </unzip>
     <delete dir="/tmp/x10-tib_${svn.info.lastRev}_${os}" />
   </target>
 
