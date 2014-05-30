@@ -230,59 +230,7 @@
     <delete dir="/tmp/x10-tib_${svn.info.lastRev}_${os}" />
   </target>
 
-  <target name="transfer-tools-branch-build" unless="x10.release.based">
-    <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
-    <!-- Add to the fragment directory the necessary bits from the source project.
-         This is really just for the bundle fragment's MANIFEST.MF. -->
-    <svn username="anonymous">
-      <export srcUrl="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/${fragment-name}" 
-                  revision="${x10dt.revision}" destPath="${x10.compiler.dist}/${fragment-dir-name}" />
-    </svn>
-
-    <antcall>
-      <!-- Execute both targets in the same antcall, so the dist.file setting persists from one to the other -->
-      <target name="set-dist-file-loc"/>
-      <target name="get-expand-fragment-tarball"/>
-    </antcall>
-
-    <!-- Remove anything that shouldn't be in the deployed fragment. Mostly this consists
-         of source entities like the .project, .classpath, etc. files that got pulled in
-         by the SVN checkout above. -->
-    <delete includeemptydirs="true">
-      <fileset dir="${x10.compiler.dist}/${fragment-dir-name}" >
-        <include name=".project" />
-        <include name=".classpath" />
-        <include name=".settings" />
-      </fileset>
-    </delete>
-    <loadfile srcfile="${x10.compiler.dist}/${fragment-dir-name}/META-INF/MANIFEST.MF" 
-              property="file.replaced">
-      <filterchain>
-        <replaceregex pattern="Bundle-Version: (.*)\.qualifier" replace="Bundle-Version: \1.${build.qualifier}"/>
-      </filterchain>
-    </loadfile>
-    <echo message="${file.replaced}" file="${x10.compiler.dist}/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
-  </target>
-
   <target name="transfer-all">
-    <!-- Note: the following calls to transfer-tools-branch-build only execute when we're NOT building a release -->
-    <antcall target="transfer-tools-branch-build">
-      <param name="os" value="linux_x86" />
-      <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
-    </antcall>
-    <antcall target="transfer-tools-branch-build">
-      <param name="os" value="linux_x86_64" />
-      <param name="fragment-name" value="x10.dist.linux.x86_64.fragment" />
-    </antcall>
-    <antcall target="transfer-tools-branch-build">
-      <param name="os" value="cygwin_x86" />
-      <param name="fragment-name" value="x10.dist.win32.x86.fragment" />
-    </antcall>
-    <antcall target="transfer-tools-branch-build">
-      <param name="os" value="macosx_x86" />
-      <param name="fragment-name" value="x10.dist.macosx.x86.fragment" />
-    </antcall>
-    <!-- Note: the following calls to transfer-x10-release only execute when we ARE building a release -->
     <antcall target="transfer-x10-release">
       <param name="os" value="linux_x86" />
       <param name="fragment-name" value="x10.dist.linux.x86.fragment" />
