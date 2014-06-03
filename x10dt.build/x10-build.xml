@@ -166,6 +166,14 @@
     </fail>
     <!-- Get the platform tarball's contents into a temp directory -->
     <untar src="${dist.file}" dest="/tmp/x10-${zip.release.tag}_${os}" compression="gzip" />
+    <echo message="Extracting X10 sources from x10.jar to /tmp/x10-${zip.release.tag}_${os}/src-x10"/>
+    <mkdir dir="/tmp/x10-${zip.release.tag}_${os}/src-x10" />
+    <unzip src="/tmp/x10-${zip.release.tag}_${os}/stdlib/x10.jar" dest="/tmp/x10-${zip.release.tag}_${os}/src-x10">
+      <patternset>
+        <include name="**/*.x10" />
+      </patternset>
+    </unzip>
+
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
     <!-- Add to the fragment directory the necessary bits from the source project.
          This is really just for the bundle fragment's MANIFEST.MF. -->
@@ -199,35 +207,6 @@
 
   <target name="set-dist-file-loc">
     <property name="dist.file" value="${x10.build.base}/${svn.info.lastRev}/x10-tib_${svn.info.lastRev}_${os}.tgz" />
-  </target>
-
-  <target name="get-expand-fragment-tarball" unless="omit.x10.fragment.tarballs">
-    <fail message="Could not find ${dist.file}">
-      <condition>
-        <resourcecount when="equal" count="0">
-          <restrict>
-            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
-            <fileset dir="${x10.build.base}/${svn.info.lastRev}">
-              <include name="x10-tib_${svn.info.lastRev}_${os}.tgz" />
-            </fileset>
-          </restrict>
-        </resourcecount>
-      </condition>
-    </fail>
-    <!-- Get the platform tarball's contents into a temp directory -->
-    <untar src="${dist.file}" dest="/tmp/x10-tib_${svn.info.lastRev}_${os}" compression="gzip" />
-    <copy todir="${x10.compiler.dist}/${fragment-dir-name}">
-      <fileset dir="/tmp/x10-tib_${svn.info.lastRev}_${os}">
-        <include name="**/**" />
-      </fileset>
-    </copy>
-  	<mkdir dir="${x10.compiler.dist}/${fragment-dir-name}/src-x10" />
-    <unzip src="${x10.compiler.dist}/${fragment-dir-name}/stdlib/x10.jar" dest="${x10.compiler.dist}/${fragment-dir-name}/src-x10">
-      <patternset>
-        <include name="**/*.x10" />
-      </patternset>
-    </unzip>
-    <delete dir="/tmp/x10-tib_${svn.info.lastRev}_${os}" />
   </target>
 
   <target name="transfer-all">
