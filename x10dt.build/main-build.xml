@@ -1,5 +1,9 @@
 <project name="Main Build File for X10DT" basedir="." default="main">
 
+  <tstamp>
+    <format property="X10DTBuild" pattern="yyyyMMdd-HHmm"/>
+  </tstamp>
+
   <property name="build.folder" value="${build.loc}/../builds/I${buildLabel}" />
 
   <import file="utilities.xml" />
