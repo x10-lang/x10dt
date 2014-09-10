@@ -34,6 +34,7 @@
     <propertyref name="build.folder"/>
     <propertyref name="build.loc"/>
     <propertyref name="buildLabel"/>
+    <propertyref name="X10DTBuild"/>
     <propertyref name="configs"/>
     <propertyref name="no.jars.signing"/>
     <propertyref name="product"/>
