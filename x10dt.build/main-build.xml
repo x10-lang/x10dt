@@ -1,7 +1,7 @@
 <project name="Main Build File for X10DT" basedir="." default="main">
 
   <tstamp>
-    <format property="X10DTBuild" pattern="yyyyMMdd-HHmm"/>
+    <format property="buildId" pattern="yyyyMMdd-HHmm"/>
   </tstamp>
 
   <property name="build.folder" value="${build.loc}/../builds/I${buildLabel}" />
@@ -34,7 +34,7 @@
     <propertyref name="build.folder"/>
     <propertyref name="build.loc"/>
     <propertyref name="buildLabel"/>
-    <propertyref name="X10DTBuild"/>
+    <propertyref name="buildId"/>
     <propertyref name="configs"/>
     <propertyref name="no.jars.signing"/>
     <propertyref name="product"/>
