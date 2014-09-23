@@ -79,8 +79,8 @@ X10 Release 2.5.0 includes a redesign of several X10 standard library
 APIs to better support Resilient and Elastic X10.  In particular, we
 have rethought various aspects of Place-related functionality to more
 naturally support execution over a dynamically varying set of
-Places. For all the details, please see the X10Doc for Place,
-PlaceGroup, and PlaceTopology. Some of the key changes are:
+Places. For all the details, please see the X10Doc for x10.lang.Place,
+x10.lang.PlaceGroup, and x10.lang.PlaceTopology. Some of the key changes are:
 <ul>
   <li>The removal of static constants such as PlaceGroup.WORLD,
     and Place.MAX_PLACES. They are replaced by Place.places()
@@ -118,17 +118,6 @@ execution by the XRX runtime, job cancellation, and runtime shutdown.
  
   <tr> 
     <td colspan="2" class="section"><a name="Managed-X10">Managed X10</a></td>
-  </tr>
-  
-  <tr>
-    <td class="section_item">Integration with Hazelcast In-Memory Data Grid</td> 
-    <td class="section_content">  
-  X10 2.5.0 is the first release of X10 to include an integration of
-Resilient/Elastic Managed X10 with the Hazelcast In-Memory Data
-Grid. Although the integration is still a work in progress, X10 2.5.0
-does enable initial exploration of the combination of X10's APGAS
-programming model with a resilient/elastic in-memory data grid. 
-  </td>
   </tr>
   
   <!-- ******************** Native X10 ********************** -->
