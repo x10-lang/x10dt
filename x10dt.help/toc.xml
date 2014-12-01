@@ -59,10 +59,10 @@
 	<topic label="QSort" href="html/samples/QSort.html">QSort</topic>
 	<topic label="KMeans" href="html/samples/KMeans.html">KMeans</topic>
 	<topic label="KMeansDist" href="html/samples/KMeansDist.html">KMeansDist</topic>
-	<topic label="FRASimpleDist" href="html/samples/FRASimpleDist.html">FRASimpleDist</topic>
-	<topic label="FSSimpleDist" href="html/samples/FSSimpleDist.html">FSSimpleDist</topic>
+	<topic label="KMeansSPMD" href="html/samples/KMeansSPMD.html">KMeansSPMD</topic>
+	<topic label="HeatTransferSinglePlace)" href="html/samples/HeatTransfer_v0.html">HeatTransfer (Single Place)</topic>
+	<topic label="HeatTransferDistributed" href="html/samples/HeatTransfer_v1.html">HeatTransfer (Distributed)</topic>
 	<topic label="StructSpheres" href="html/samples/StructSpheres.html">StructSpheres</topic>
-	<topic label="GCSpheres" href="html/samples/GCSpheres.html">GCSpheres</topic>
 </topic> 
 
 
