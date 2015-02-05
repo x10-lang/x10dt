@@ -138,14 +138,7 @@ final class CppCompilerVersionCheker extends AbstractFormControlChecker implemen
           final int maintenance = Integer.parseInt(matcher.group(3));
           final int build = Integer.parseInt(matcher.group(4));
           if ((major >= 10) && (minor >= 1) && (maintenance >= 0)) {
-            if (CppCompilerVersionCheker.this.fTargetOS == ETargetOS.AIX) {
-              if (major == 10 && build< 4) {
-                addMessages(LaunchMessages.CCVC_WrongAIXVersionRequirement, IMessageProvider.ERROR);
-                return false;
-              } else {
-                removeMessages();
-              }
-            } else if ((CppCompilerVersionCheker.this.fTargetOS == ETargetOS.LINUX) &&
+            if ((CppCompilerVersionCheker.this.fTargetOS == ETargetOS.LINUX) &&
                        (CppCompilerVersionCheker.this.fArchitecture != EArchitecture.x86)) {
               if (major == 10 && build < 2) {
                 addMessages(LaunchMessages.CCVC_WrongLinuxPPCVersionRequirement, IMessageProvider.ERROR);

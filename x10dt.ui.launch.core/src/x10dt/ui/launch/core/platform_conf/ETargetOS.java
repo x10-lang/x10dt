@@ -25,11 +25,6 @@ public enum ETargetOS {
   LINUX,
   
   /**
-   * AIX OS.
-   */
-  AIX,
-  
-  /**
    * Diverse UNIX systems.
    */
   UNIX,

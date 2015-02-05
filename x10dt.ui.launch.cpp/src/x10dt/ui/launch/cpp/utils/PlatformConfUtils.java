@@ -7,11 +7,12 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.utils;
 
-import java.util.Arrays;
-
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.PAMI;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.SOCKETS;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.PAMI;
+
+import java.util.Arrays;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
@@ -23,7 +24,6 @@ import x10dt.ui.launch.core.platform_conf.EBitsArchitecture;
 import x10dt.ui.launch.core.platform_conf.ETargetOS;
 import x10dt.ui.launch.core.platform_conf.ETransport;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
-import x10dt.ui.launch.core.utils.PTPConstants;
 import x10dt.ui.launch.core.utils.ProjectUtils;
 import x10dt.ui.launch.cpp.builder.target_op.ITargetOpHelper;
 import x10dt.ui.launch.cpp.launching.ConfUtils;
@@ -175,8 +175,6 @@ public final class PlatformConfUtils {
       final String output = this.fOutput.toLowerCase();
       if (LINUX.equals(output)) {
         return ETargetOS.LINUX;
-      } else if (AIX.equals(output)) {
-        return ETargetOS.AIX;
       } else if (DARWIN.equals(output)) {
         return ETargetOS.MAC;
       } else if (output.startsWith(CYGWIN)) {
@@ -194,9 +192,7 @@ public final class PlatformConfUtils {
     private static final String LINUX = "linux"; //$NON-NLS-1$
     
     private static final String CYGWIN = "cygwin"; //$NON-NLS-1$
-    
-    private static final String AIX = "aix"; //$NON-NLS-1$
-    
+        
     private static final String DARWIN = "darwin"; //$NON-NLS-1$
     
   }

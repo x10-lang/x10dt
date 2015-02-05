@@ -23,9 +23,7 @@ public final class JREPropertiesUtils {
    */
   public static ETargetOS getLocalOS() {
     final String osName = System.getProperty(OS_NAME_VAR);
-    if (osName.startsWith("AIX")) { //$NON-NLS-1$
-      return ETargetOS.AIX;
-    } else if (osName.startsWith("Linux")) { //$NON-NLS-1$
+    if (osName.startsWith("Linux")) { //$NON-NLS-1$
       return ETargetOS.LINUX;
     } else if (osName.startsWith("Mac")) { //$NON-NLS-1$
       return ETargetOS.MAC;

@@ -33,7 +33,7 @@ public final class DefaultCPPCommandsFactory {
   public static final String SHARED_LIB_PROPERTIES_FILE = "etc/sharedlib.properties"; //$NON-NLS-1$
   
   /**
-   * Creates the implementation of {@link IDefaultCPPCommands} for AIX.
+   * Creates the implementation of {@link IDefaultCPPCommands}.
    * 
    * @param platformConf The platform configuration to consider for building the commands.
    * @return A non-null implementation of {@link IDefaultCPPCommands}.
@@ -41,8 +41,6 @@ public final class DefaultCPPCommandsFactory {
    */
   public static IDefaultCPPCommands create(final String project) throws CoreException {
     switch (ConfUtils.getTargetOS(ConfUtils.getConfiguration(project))) {
-      case AIX:
-        return new AixDefaultCommands(project);
       case LINUX:
         return new LinuxDefaultCommands(project);
       case MAC:
