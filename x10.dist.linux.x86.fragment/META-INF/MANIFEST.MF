@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: x10 dist for Linux X86
+Bundle-SymbolicName: x10.dist.linux.x86.fragment
+Bundle-Version: 2.5.1.qualifier
+Fragment-Host: x10.dist.host;bundle-version="2.5.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Eclipse-PlatformFilter: (& (osgi.os=linux) (osgi.arch=x86))

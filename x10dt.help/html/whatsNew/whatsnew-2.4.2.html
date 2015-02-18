@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"> 
+<head> 
+<meta content="en-us" http-equiv="Content-Language"/> 
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/> 
+<link href="../style/book.css" rel="STYLESHEET" type="text/css"/> 
+<style type="text/css" xml:space="preserve"> 
+td {
+<!--border-top: solid thin black;-->
+}
+img[alt] {
+background-color:#ffdddd;
+}
+tr {
+vertical-align: top;
+}
+td {
+valign: top;
+}
+td.section a {
+font-size: 20px;
+font-weight: bold;
+}
+td.section_item {
+align:left;
+font-weight: bold;
+font_style: italic;
+}
+td.section_content {
+align:left;
+}
+span.ide {
+font-style: italic;
+color: SlateGray;
+}
+</style> 
+
+<title>What's New in 2.4.2</title> 
+ 
+<script src="../../../advanced/synchWithToc.js" type="text/javascript" xml:space="preserve"><!-- --></script> 
+ 
+<link charset="ISO-8859-1" href="../../../content/org.eclipse.help.webapp/advanced/breadcrumbs.css" rel="stylesheet" type="text/css"/> 
+<script src="../../../content/org.eclipse.help/livehelp.js" type="text/javascript" xml:space="preserve"> </script> 
+<!-- <script type="text/javascript">if (self == top) { window.location.replace( "../../../index.jsp?topic=/x10dt.help/html/x10dt/whatsNew/whatsNew-2_0_5.html");}</script> -->
+</head>
+ 
+<body>
+
+<h2>What's New in 2.4.2</h2>
+ 
+<p>Here are descriptions of some of the more interesting or significant changes made in X10 and X10DT for the 2.4.2 release. 
+They are grouped into:</p> 
+<ul>
+<li><a href="#X10-Language">X10 Language</a></li> 
+<li><a href="#Development-Toolkit">X10 Development Toolkit</a></li> 
+<li><a href="#Managed-X10">Managed X10</a></li> 
+<li><a href="#Native-X10">Native X10</a></li> 
+<!-- <li><a href="#Additional-Notes">Additional Notes</a></li> -->
+
+</ul> 
+   
+<table cellpadding="10" cellspacing="0"> 
+  <colgroup span="1"> 
+  <col span="1" width="40%"/> 
+  <col span="1" width="60%"/> 
+  </colgroup> 
+  <tbody>
+ 
+  <!-- ******************** X10 Language ********************** -->
+  
+  <tr> 
+    <td colspan="2" class="section"><a name="X10-Language">X10 Language</a></td>
+  </tr>
+ 
+    <tr> 
+    <td class="section_item">Resilient X10</td> 
+    <td class="section_content"> 
+	A technology preview of Resilient X10 is including in this
+      release. Resilient X10 (described in an upcoming 
+      <a href="http://x10.sourceforge.net/documentation/papers/Resilient_X10_PPoPP2014.pdf">PPoPP'14 paper</a>
+      ) adds the ability for
+      X10 programs to continue execution even if one or more places
+      fail.  For details on how to use Resilient X10, please see the
+      notes and example programs in samples/resiliency.
+    </td> 
+    </tr> 
+
+  <!-- ******************** X10 Development Toolkit ********************** -->
+  
+  <tr> 
+    <td colspan="2" class="section"><a name="Development-Toolkit">X10 Development Toolkit</a></td>
+  </tr>
+ 
+    <tr> 
+    <td class="section_item">Upgrade to Eclipse 4.3 and PTP 7</td> 
+    <td class="section_content"> 
+      X10DT is now based on Eclipse 4.3 and PTP 7.
+    </td> 
+    </tr>
+    
+    <tr> 
+    <td class="section_item">Support for multi-place Managed X10 on Windows</td> 
+    <td class="section_content"> 
+     X10DT supports the new pure-Java launcher for Managed X10, enabling multi-place X10 executions to be 
+     launched from X10DT on Windows.
+    </td> 
+    </tr>
+   
+  <!-- ******************** Managed X10 ********************** -->
+  
+  <tr> 
+    <td colspan="2" class="section"><a name="Managed-X10">Managed X10</a></td>
+  </tr>
+
+      <tr> 
+    <td class="section_item">Multi-Place Managed X10 on Windows</td> 
+    <td class="section_content">
+    We have completed a new pure-Java launcher to complement the pure-Java implementation of X10RT (JavaSockets)
+    from the X10 2.4.1 release.  As a result it is now possible to execute multi-place Managed X10 programs on a single
+    Windows host using X10DT without needing to install cygwin. 
+    Cygwin is still required on Windows to build X10 from source, to run Native X10 programs and to use the 
+    X10 command line tools. 
+    </td> 
+    </tr>
+  
+ 
+  
+  <!-- ******************** Native X10 ********************** -->
+
+  <tr> 
+    <td colspan="2" class="section"><a name="Native-X10">Native X10</a></td>
+  </tr>
+
+  <tr> 
+    <td class="section_item">Retirement of BlueGene/P</td> 
+    <td class="section_content"> 
+     Due to the retirement of BlueGene/P installations, X10 support for BlueGene/P was removed in X10 2.4.2.
+     X10 will continue to support the BlueGene/Q platform. 
+    </td> 
+  </tr>
+  
+    <tr> 
+    <td class="section_item">X10 on CUDA devices</td> 
+    <td class="section_content"> 
+     A regression in X10 support for CUDA introduced in X10 2.4.0 was fixed in 2.4.2. 
+     With X10 2.4.2, all CUDA sample programs execute successfully using the latest (5.5) CUDA toolkit release.
+    </td> 
+  </tr>
+
+
+  <!-- ******************** Additional Notes ********************** --> 
+  <!--
+  <tr> 
+    <td colspan="2" class="section"><a name="Additional-Notes">Additional Notes</a></td>
+  </tr>
+  -->
+  
+<!--  
+  <tr>
+    <td class="section_item">Additional nodes 1</td>
+    <td class="section_content">
+    Additional notes 1 description
+    </td>
+  </tr>
+-->
+
+  </tbody> 
+</table>
+
+<hr/>
+
+</body> 
+</html>
