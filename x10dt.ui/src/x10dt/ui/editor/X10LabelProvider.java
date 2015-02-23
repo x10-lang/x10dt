@@ -192,7 +192,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     }
 
     private String sourceText(Node n) {
-        return ((JPGPosition) n.position()).toText();
+        return n.toString();
     }
 
     private String filter(String name) {

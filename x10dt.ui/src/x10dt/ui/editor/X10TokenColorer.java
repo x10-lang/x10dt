@@ -30,7 +30,7 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
     public X10TokenColorer() {
         super();
         Display display = Display.getDefault();
-        commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.NORMAL);         
+        commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_GREEN), null, SWT.NORMAL);         
         characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.NORMAL);        
         docCommentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLUE), null, SWT.NORMAL);      
         identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);         
@@ -111,9 +111,9 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
 	    case X10Parser.WHEN:
 	    case X10Parser.WHILE:
 	    	return keywordAttribute;
+	    case X10Parser.DOCCOMMENT: 
+	    	return docCommentAttribute;
 	    case X10Parser.COMMENT: case X10Parser.LINE_COMMENT:
-	    		if (token.toString().startsWith("/**"))
-	    			return docCommentAttribute;
 	    		return commentAttribute;
         case X10Parser.IDENTIFIER:
                  return identifierAttribute;

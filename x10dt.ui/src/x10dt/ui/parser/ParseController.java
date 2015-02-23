@@ -29,7 +29,7 @@ import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
-import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -37,7 +37,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.ISourcePositionLocator;
@@ -48,11 +47,9 @@ import org.eclipse.jface.text.IRegion;
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
-import polyglot.frontend.Parser;
 import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
 import polyglot.util.ErrorInfo;
-import x10.parser.X10Lexer;
 import x10.parser.antlr.ASTBuilder;
 import x10.visit.InstanceInvariantChecker;
 import x10.visit.PositionInvariantChecker;
@@ -97,7 +94,7 @@ public class ParseController extends org.eclipse.imp.parser.ParseControllerBase 
     private ISourceProject fProject;
     private IPath fFilePath;
     private IMessageHandler fHandler;
-    private BufferedTokenStream fTokens;
+    private CommonTokenStream fTokens;
    
     public ParseController() {
     	super(X10DTCorePlugin.kLanguageName);
@@ -466,8 +463,10 @@ public class ParseController extends org.eclipse.imp.parser.ParseControllerBase 
 	
       List<Token> tokens = fTokens == null? new ArrayList<Token>(): fTokens.get(regionOffset, regionEnd);
       List<IToken> iTokens = new ArrayList<IToken>();
-      for (Token t: tokens){
-    	  iTokens.add(getIToken(t));
+      if (tokens != null){
+    	  for (Token t: tokens){
+    		  iTokens.add(getIToken(t));
+    	  }
       }
       return iTokens.listIterator();
 
