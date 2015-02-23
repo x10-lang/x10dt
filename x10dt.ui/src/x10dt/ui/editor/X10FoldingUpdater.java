@@ -142,10 +142,11 @@ public class X10FoldingUpdater extends LPGFolderBase {
 
     	Node astRoot = (Node) parseController.getCurrentAst();
 
-    	astRoot.visit(new FoldingVisitor());
+    	
+    	//astRoot.visit(new FoldingVisitor()); // TODO: PARSER -- REVISIT!!!!
 
-    	foldImports(astRoot, parseController);
-    	foldComments(fLexStream);
+    	//foldImports(astRoot, parseController); // TODO: PARSER -- REVISIT!!!!
+    	//foldComments(fLexStream);  // TODO: PARSER -- REVISIT!!!!
 
 //    	dumpAnnotations(annotations, newAnnotations);
     }

@@ -14,7 +14,7 @@ package x10dt.ui.editor;
 import lpg.runtime.IToken;
 
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.parser.SimpleLPGParseController;
+//import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.base.TokenColorerBase;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
@@ -22,6 +22,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
 import x10.parser.X10Parsersym;
+import x10.parserGen.X10Parser;
 
 public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
 	TextAttribute commentAttribute, docCommentAttribute, characterAttribute, numberAttribute, identifierAttribute;
@@ -46,32 +47,97 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
 	public TextAttribute getColoring(IParseController controller, Object o) {
 	    IToken token= (IToken) o;
 	    switch (token.getKind()) {
-	    	case TK_DocComment: case TK_SlComment: case TK_MlComment:
+	    case X10Parser.ABSTRACT:
+	    case X10Parser.AS:
+	    case X10Parser.ASSERT:
+	    case X10Parser.ASYNC:
+	    case X10Parser.AT:
+	    case X10Parser.ATEACH:
+	    case X10Parser.ATHOME:
+	    case X10Parser.ATOMIC:
+	    case X10Parser.BREAK:
+	    case X10Parser.CASE:
+	    case X10Parser.CATCH:
+	    case X10Parser.CLASS:
+	    case X10Parser.CLOCKED:
+	    case X10Parser.CONTINUE:
+	    case X10Parser.DEF:
+	    case X10Parser.DEFAULT:
+	    case X10Parser.DO:
+	    case X10Parser.ELSE:
+	    case X10Parser.EXTENDS:
+	    case X10Parser.FALSE:
+	    case X10Parser.FINAL:
+	    case X10Parser.FINALLY:
+	    case X10Parser.FINISH:
+	    case X10Parser.FOR:
+	    case X10Parser.GOTO:
+	    case X10Parser.HASZERO:
+	    case X10Parser.HERE:
+	    case X10Parser.IF:
+	    case X10Parser.IMPLEMENTS:
+	    case X10Parser.IMPORT:
+	    case X10Parser.IN:
+	    case X10Parser.INSTANCEOF:
+	    case X10Parser.INTERFACE:
+	    case X10Parser.ISREF:
+	    case X10Parser.NATIVE:
+	    case X10Parser.NEW:
+	    case X10Parser.NULL:
+	    case X10Parser.OFFER:
+	    case X10Parser.OFFERS:
+	    case X10Parser.OPERATOR:
+	    case X10Parser.PACKAGE:
+	    case X10Parser.PRIVATE:
+	    case X10Parser.PROPERTY:
+	    case X10Parser.PROTECTED:
+	    case X10Parser.PUBLIC:
+	    case X10Parser.RETURN:
+	    case X10Parser.SELF:
+	    case X10Parser.STATIC:
+	    case X10Parser.STRUCT:
+	    case X10Parser.SUPER:
+	    case X10Parser.SWITCH:
+	    case X10Parser.THIS:
+	    case X10Parser.THROW:
+	    case X10Parser.THROWS:
+	    case X10Parser.TRANSIENT:
+	    case X10Parser.TRUE:
+	    case X10Parser.TRY:
+	    case X10Parser.TYPE:
+	    case X10Parser.VAL:
+	    case X10Parser.VAR:
+	    case X10Parser.VOID:
+	    case X10Parser.WHEN:
+	    case X10Parser.WHILE:
+	    	return keywordAttribute;
+	    case X10Parser.COMMENT: case X10Parser.LINE_COMMENT:
 	    		if (token.toString().startsWith("/**"))
 	    			return docCommentAttribute;
 	    		return commentAttribute;
-            case TK_IDENTIFIER:
+        case X10Parser.IDENTIFIER:
                  return identifierAttribute;
-            case TK_DoubleLiteral:
-            case TK_FloatingPointLiteral:
-            case TK_ByteLiteral:
-            case TK_ShortLiteral:
-            case TK_IntLiteral:
-            case TK_LongLiteral:
-            case TK_UnsignedByteLiteral:
-            case TK_UnsignedShortLiteral:
-            case TK_UnsignedIntLiteral:
-            case TK_UnsignedLongLiteral:
+        case X10Parser.DoubleLiteral:
+            case X10Parser.FloatingPointLiteral:
+            case X10Parser.ByteLiteral:
+            case X10Parser.ShortLiteral:
+            case X10Parser.IntLiteral:
+            case X10Parser.LongLiteral:
+            case X10Parser.UnsignedByteLiteral:
+            case X10Parser.UnsignedShortLiteral:
+            case X10Parser.UnsignedIntLiteral:
+            case X10Parser.UnsignedLongLiteral:
                  return numberAttribute;
-            case TK_CharacterLiteral:
-            case TK_StringLiteral:
+            case X10Parser.CharacterLiteral:
+            case X10Parser.StringLiteral:
                  return characterAttribute;
             default: {
-                SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
-                // TODO The following should be folded into an LPG-specific token colorer base class
-                if (lpgPC.isKeyword(token.getKind()))
-                     return keywordAttribute;
-                else return null;
+//                SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
+//                // TODO The following should be folded into an LPG-specific token colorer base class
+//                if (lpgPC.isKeyword(token.getKind()))
+//                     return keywordAttribute;
+//                else 
+                	return null;
             }
 	    }
 	}

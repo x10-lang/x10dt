@@ -356,7 +356,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
 
         IToken previousToken = (token_index != 0)? prs_stream.getIToken(token_index - 1) : null;
 
-        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject(), ((ParseController) controller).getLexStream())  ;
+        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject()/*,((ParseController) controller).getLexStream()*/)  ;
         Node currentAst= (Node) controller.getCurrentAst();
         Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartOffset(), tokenToComplete.getEndOffset());
         Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartOffset(), previousToken.getEndOffset()): null;

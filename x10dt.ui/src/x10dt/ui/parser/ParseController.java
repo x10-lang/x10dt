@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringBufferInputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -24,36 +25,41 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import lpg.runtime.ILexStream;
 import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
+import org.antlr.v4.runtime.BufferedTokenStream;
+import org.antlr.v4.runtime.Token;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.imp.core.ErrorHandler;
 import org.eclipse.imp.model.ISourceProject;
 import org.eclipse.imp.parser.IMessageHandler;
 import org.eclipse.imp.parser.ISourcePositionLocator;
-import org.eclipse.imp.parser.SimpleLPGParseController;
+import org.eclipse.imp.services.IAnnotationTypeInfo;
 import org.eclipse.imp.services.ILanguageSyntaxProperties;
 import org.eclipse.jface.text.IRegion;
 
 import polyglot.ast.Node;
 import polyglot.frontend.FileSource;
 import polyglot.frontend.Job;
+import polyglot.frontend.Parser;
 import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
 import polyglot.util.ErrorInfo;
 import x10.parser.X10Lexer;
-import x10.parser.X10SemanticRules;
+import x10.parser.antlr.ASTBuilder;
 import x10.visit.InstanceInvariantChecker;
 import x10.visit.PositionInvariantChecker;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.ui.X10DTUIPlugin;
 
-public class ParseController extends SimpleLPGParseController {
+public class ParseController extends org.eclipse.imp.parser.ParseControllerBase {
 	/**
 	 * A trivial extension of the class ZipResource that permits the user to provide the
 	 * source text as an explicit parameter, rather than reading it from the .zip file
@@ -85,9 +91,14 @@ public class ParseController extends SimpleLPGParseController {
 	private static final Pattern JAR_IDENTIFIER_PATTERN = Pattern.compile(".*\\.jar:.*");
 
 	private CompilerDelegate fCompiler;
-    private PMMonitor fMonitor;
+    private IProgressMonitor fMonitor;
     private InvariantViolationHandler fViolationHandler;
-
+    private ISourcePositionLocator fSourcePositionLocator;
+    private ISourceProject fProject;
+    private IPath fFilePath;
+    private IMessageHandler fHandler;
+    private BufferedTokenStream fTokens;
+   
     public ParseController() {
     	super(X10DTCorePlugin.kLanguageName);
     }
@@ -96,10 +107,10 @@ public class ParseController extends SimpleLPGParseController {
         return fCompiler;
     }
 
-    @Override
+    
     public ISourcePositionLocator getSourcePositionLocator() {
         if (fSourcePositionLocator == null) {
-            fSourcePositionLocator= new PolyglotNodeLocator(fProject, getLexStream());
+            fSourcePositionLocator= new PolyglotNodeLocator(fProject);
         }
         return fSourcePositionLocator;
     }
@@ -108,10 +119,12 @@ public class ParseController extends SimpleLPGParseController {
         return new X10SyntaxProperties();
     }
 
-    @Override
+
     public void initialize(IPath filePath, ISourceProject project, IMessageHandler handler) {
-        super.initialize(filePath, project, handler);
-        fMonitor= new PMMonitor(null);
+    	fFilePath = filePath;
+    	fProject = project;
+        fHandler = handler;
+        fMonitor= new NullProgressMonitor();
     }
 
     public void setViolationHandler(InvariantViolationHandler handler) {
@@ -122,8 +135,7 @@ public class ParseController extends SimpleLPGParseController {
     	Source source= null;
 
     	try {
-            fMonitor.setMonitor(monitor);
-
+            
             int jarPathComponentIdx = findJarIdentifierComponent(fFilePath);
 
             if (jarPathComponentIdx >= 0) {
@@ -139,7 +151,7 @@ public class ParseController extends SimpleLPGParseController {
             IProject proj= (fProject != null) ? fProject.getRawProject() : null;
             IPath sourcePath = (fProject != null) ? Platform.getLocation().append(fProject.getName()).append(fFilePath) : fFilePath;
 
-            fCompiler= new CompilerDelegate(fMonitor, handler, proj, sourcePath, fViolationHandler); // Create the compiler
+            fCompiler= new CompilerDelegate(fMonitor, fHandler, proj, sourcePath, fViolationHandler); // Create the compiler
             fCompiler.compile(streams);
     	} catch (FileNotFoundException e) {
     	    // do nothing - presumably the file just got deleted...
@@ -154,13 +166,15 @@ public class ParseController extends SimpleLPGParseController {
         	// services, like syntax highlighting and the outline view's contents.
 
             if (source != null && fCompiler != null) {
-            	final X10SemanticRules parser= fCompiler.getParserFor(source);
-            	final X10Lexer lexer= fCompiler.getLexerFor(source);
-            	fParseStream = parser.getIPrsStream();
-            	fLexStream = fParseStream.getILexStream();
+            	final ASTBuilder parser= (ASTBuilder) fCompiler.getParserFor(source);
+            	fTokens = parser.getTokens();
+            	
+            	//final X10Lexer lexer= fCompiler.getLexerFor(source);
+            	//fParseStream = parser.getIPrsStream();
+            	//fLexStream = fParseStream.getILexStream();
 //            	fLexStream = lexer.getILexStream();
-            	fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
-            	fLexer = new LexerDelegate(lexer);
+            	//fParser = new ParserDelegate(parser); // HACK - SimpleLPGParseController.cacheKeywordsOnce() needs an IParser and an ILexer, so create them here. Luckily, they're just lightweight wrappers...
+            	//fLexer = new LexerDelegate(lexer);
             	fCurrentAst= fCompiler.getASTFor(source); // getASTFor(fileSource); // TODO use commandLineJobs() instead?
 
             	if (fViolationHandler != null && fCurrentAst != null) {
@@ -179,12 +193,14 @@ public class ParseController extends SimpleLPGParseController {
             // Must do this after attempting parsing (even though that might fail), since it depends
             // on the parser/lexer being set in the ExtensionInfo, which only happens as a result of
             // ExtensionInfo.parser(). Ugghh.
-            if (fParser != null) {
-            	cacheKeywordsOnce();
-            }
+            
+            //if (fParser != null) {
+            //	cacheKeywordsOnce();
+            //}
+            
             fCompiler = null;
-            fParser = null;
-            fLexer = null;
+            //fParser = null;
+            //fLexer = null;
         }
         return fCurrentAst;
     }
@@ -253,187 +269,316 @@ public class ParseController extends SimpleLPGParseController {
     	return null;
     }
 
-    @Override
-    public Iterator<IToken> getTokenIterator(IRegion region) {
+    
+//    public Iterator<IToken> getTokenIterator(IRegion region) {
+//      final int regionOffset= region.getOffset();
+//      final int regionLength= region.getLength();
+//      final int regionEnd= regionOffset + regionLength - 1;
+//
+//      if (fParseStream == null) {
+//    	  return new Iterator<IToken>() {
+//			public boolean hasNext() {
+//				return false;
+//			}
+//
+//			public IToken next() {
+//				return null;
+//			}
+//
+//			public void remove() {
+//			} };
+//      }
+//      return new Iterator<IToken>() {
+//          final IPrsStream stream= fParseStream;
+//          final int firstTokIdx= getTokenIndexAtCharacter(regionOffset);
+//          final int lastTokIdx;
+//          {
+//              int endIdx= getTokenIndexAtCharacter(regionEnd);
+//              char[] streamChars= stream.getInputChars();
+//              int streamLen= streamChars.length;
+//              try {
+//                  if (regionEnd >= 1 && regionEnd < streamLen
+//                          && streamChars[regionEnd] == IToken.EOF) {
+//                      // skip EOF token (assume LPG puts one at end of input
+//                      // character stream, since it does)
+//                      endIdx--;
+//                  }
+//              } catch (ArrayIndexOutOfBoundsException e) {
+//                  ErrorHandler.logError("ParseController.getTokenIterator(IRegion): error initializing lastTokIdx",
+//                          e);
+//                  // System.err.println("getTokenIterator: new Iterator(..)<init>: ArrayIndexOutOfBoundsException");
+//                  // System.err.println(" regionEnd = " + regionEnd + ", endIdx = " + endIdx + ", streamLen = " + streamLen + ",
+//                  // inputChars.length = " + streamChars.length);
+//              }
+//              lastTokIdx= endIdx;
+//          }
+//          int curTokIdx= Math.max(1, firstTokIdx); // skip bogus initial token
+//
+//          private int getTokenIndexAtCharacter(int offset) {
+//              int result= stream.getTokenIndexAtCharacter(offset);
+//              // getTokenIndexAtCharacter() answers the negative of the index of the
+//              // preceding token if the given offset is not actually within a token.
+//              if (result < 0) {
+//                  result= -result + 1;
+//              }
+//
+//              // The above may leave result set to a value that is one more than the
+//              // last token index, so return the last token index if that's the case
+//              // (This can happen if the end of the file contains some text that
+//              // does not correspond to a token--e.g., if the text represents an adjunct
+//              // or something unrecognized)
+//              if (result >= stream.getTokens().size())
+//                  result= stream.getTokens().size() - 1;
+//
+//              return result;
+//          }
+//
+//          // The following declarations cover the whole input stream, which
+//          // may be a proper superset of the range of the given region.
+//          // For now, that's a simple way to collect the information, and
+//          // most often the given region corresponds to the whole input anyway.
+//          // In any case, iteration is based on the range of the given region.
+//
+//          // The preceding adjuncts for each token
+//          IToken[][] precedingAdjuncts= new IToken[lastTokIdx + 1][];
+//          {
+//              stream.setStreamLength();
+//              for(int i= 0; i < precedingAdjuncts.length; i++) {
+//                  precedingAdjuncts[i]= stream.getPrecedingAdjuncts(i);
+//              }
+//          }
+//
+//          // The current indices for each array of preceding adjuncts
+//          int[] nextPrecedingAdjunct= new int[lastTokIdx + 1];
+//          {
+//              for(int i= 0; i < nextPrecedingAdjunct.length; i++) {
+//                  if (precedingAdjuncts[i].length == 0)
+//                      nextPrecedingAdjunct[i]= -1;
+//                  else
+//                      nextPrecedingAdjunct[i]= 0;
+//              }
+//          }
+//
+//          // The following adjuncts (for the last token only)
+//          IToken[] followingAdjuncts;
+//          {
+//              if (lastTokIdx <= 0)
+//                  followingAdjuncts= new IToken[0];
+//              else
+//                  followingAdjuncts= stream.getFollowingAdjuncts(lastTokIdx);
+//          }
+//
+//          // The current index for the array of following adjuncts
+//          int nextFollowingAdjunct;
+//          {
+//              if (followingAdjuncts.length == 0)
+//                  nextFollowingAdjunct= -1;
+//              else
+//                  nextFollowingAdjunct= 0;
+//          }
+//
+//          // To support hasNext(); initial values may be reset if appropriate
+//          private boolean finalTokenReturned= regionEnd < 1 || lastTokIdx <= 0;
+//          private boolean finalAdjunctsReturned= !(followingAdjuncts.length > 0);
+//
+//          /**
+//           * Tests whether the iterator has any unreturned tokens. These may
+//           * include "regular" tokens and "adjunct" tokens (e.g., representing
+//           * comments).
+//           * 
+//           * @return True if there is another token available, false otherwise
+//           */
+//          public boolean hasNext() {
+//              return !(finalTokenReturned && finalAdjunctsReturned);
+//          }
+//
+//          /**
+//           * Returns the next available token in the iterator (or null if
+//           * there is none)
+//           * 
+//           * Will return a valid token under conditions that would cause
+//           * hasNext() to to return true; conversely, will return null under
+//           * conditions that would cause hasNext() to return false.
+//           * 
+//           * As a side effect, updates the flags that are used to compute the
+//           * value returned by hasNext().
+//           * 
+//           * The returned token may be a "regular" token (which will have a
+//           * corresponding AST node) or an "adjunct" token (which will
+//           * represent a comment). The tokens are returned in the order in
+//           * which they occur in the text, regardless of their kind.
+//           * 
+//           */
+//          public IToken next() {
+//              int next= -1; // for convenience
+//
+//              // If we're not all the way through the tokens
+//              if (curTokIdx <= lastTokIdx) {
+//
+//                  // First check for any remaining preceding adjuncts
+//                  // of the current token
+//                  next= nextPrecedingAdjunct[curTokIdx];
+//                  // If the current token has any unreturned preceding
+//                  // adjuncts
+//                  if (next >= 0 && next < precedingAdjuncts[curTokIdx].length) {
+//                      // Return the next preceding adjunct, incrementing the
+//                      // adjunct index afterwards
+//                      return precedingAdjuncts[curTokIdx][nextPrecedingAdjunct[curTokIdx]++];
+//                  }
+//
+//                  // Flag whether the current token is the last one
+//                  finalTokenReturned= curTokIdx >= lastTokIdx;
+//
+//                  // Return the current token, incrementing the token index
+//                  // afterwards
+//                  return stream.getIToken(curTokIdx++);
+//              }
+//
+//              // If there are any adjuncts following the last token
+//              if (nextFollowingAdjunct >= 0 && nextFollowingAdjunct < followingAdjuncts.length) {
+//                  // Flag whether the current adjunct is the last one
+//                  finalAdjunctsReturned= (nextFollowingAdjunct + 1) >= followingAdjuncts.length;
+//
+//                  // Return the current adjunct, incrementing the adjunct
+//                  // index afterwards
+//                  return followingAdjuncts[nextFollowingAdjunct++];
+//              }
+//
+//              return null;
+//          }
+//
+//          public void remove() {
+//              throw new UnsupportedOperationException("Unimplemented");
+//          }
+//      };
+//    }
+
+
+	public IAnnotationTypeInfo getAnnotationTypeInfo() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Iterator getTokenIterator(IRegion region) {
       final int regionOffset= region.getOffset();
       final int regionLength= region.getLength();
       final int regionEnd= regionOffset + regionLength - 1;
+	
+      List<Token> tokens = fTokens == null? new ArrayList<Token>(): fTokens.get(regionOffset, regionEnd);
+      List<IToken> iTokens = new ArrayList<IToken>();
+      for (Token t: tokens){
+    	  iTokens.add(getIToken(t));
+      }
+      return iTokens.listIterator();
 
-      if (fParseStream == null) {
-    	  return new Iterator<IToken>() {
-			public boolean hasNext() {
-				return false;
+	}
+	
+	public IPrsStream getParseStream(){
+		return null;
+	}
+	
+	public ILexStream getLexStream(){
+		return null;
+	}
+	
+	private IToken getIToken(final Token token){
+		IToken ret = new IToken(){
+
+			public int getAdjunctIndex() {
+				// TODO Auto-generated method stub
+				return 0;
 			}
 
-			public IToken next() {
+			public int getColumn() {
+				return token.getCharPositionInLine();
+			}
+
+			public int getEndColumn() {
+				return token.getCharPositionInLine() + token.getStopIndex() - token.getStartIndex();
+			}
+
+			public int getEndLine() {
+				return token.getLine();
+			}
+
+			public int getEndOffset() {
+				return token.getStopIndex();
+			}
+
+			public IToken[] getFollowingAdjuncts() {
+				// TODO Auto-generated method stub
 				return null;
 			}
 
-			public void remove() {
-			} };
-      }
-      return new Iterator<IToken>() {
-          final IPrsStream stream= fParseStream;
-          final int firstTokIdx= getTokenIndexAtCharacter(regionOffset);
-          final int lastTokIdx;
-          {
-              int endIdx= getTokenIndexAtCharacter(regionEnd);
-              char[] streamChars= stream.getInputChars();
-              int streamLen= streamChars.length;
-              try {
-                  if (regionEnd >= 1 && regionEnd < streamLen
-                          && streamChars[regionEnd] == IToken.EOF) {
-                      // skip EOF token (assume LPG puts one at end of input
-                      // character stream, since it does)
-                      endIdx--;
-                  }
-              } catch (ArrayIndexOutOfBoundsException e) {
-                  ErrorHandler.logError("ParseController.getTokenIterator(IRegion): error initializing lastTokIdx",
-                          e);
-                  // System.err.println("getTokenIterator: new Iterator(..)<init>: ArrayIndexOutOfBoundsException");
-                  // System.err.println(" regionEnd = " + regionEnd + ", endIdx = " + endIdx + ", streamLen = " + streamLen + ",
-                  // inputChars.length = " + streamChars.length);
-              }
-              lastTokIdx= endIdx;
-          }
-          int curTokIdx= Math.max(1, firstTokIdx); // skip bogus initial token
+			public ILexStream getILexStream() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 
-          private int getTokenIndexAtCharacter(int offset) {
-              int result= stream.getTokenIndexAtCharacter(offset);
-              // getTokenIndexAtCharacter() answers the negative of the index of the
-              // preceding token if the given offset is not actually within a token.
-              if (result < 0) {
-                  result= -result + 1;
-              }
+			public IPrsStream getIPrsStream() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 
-              // The above may leave result set to a value that is one more than the
-              // last token index, so return the last token index if that's the case
-              // (This can happen if the end of the file contains some text that
-              // does not correspond to a token--e.g., if the text represents an adjunct
-              // or something unrecognized)
-              if (result >= stream.getTokens().size())
-                  result= stream.getTokens().size() - 1;
+			public int getKind() {
+				return token.getType();
+			}
 
-              return result;
-          }
+			public ILexStream getLexStream() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 
-          // The following declarations cover the whole input stream, which
-          // may be a proper superset of the range of the given region.
-          // For now, that's a simple way to collect the information, and
-          // most often the given region corresponds to the whole input anyway.
-          // In any case, iteration is based on the range of the given region.
+			public int getLine() {
+				return token.getLine();
+			}
 
-          // The preceding adjuncts for each token
-          IToken[][] precedingAdjuncts= new IToken[lastTokIdx + 1][];
-          {
-              stream.setStreamLength();
-              for(int i= 0; i < precedingAdjuncts.length; i++) {
-                  precedingAdjuncts[i]= stream.getPrecedingAdjuncts(i);
-              }
-          }
+			public IToken[] getPrecedingAdjuncts() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 
-          // The current indices for each array of preceding adjuncts
-          int[] nextPrecedingAdjunct= new int[lastTokIdx + 1];
-          {
-              for(int i= 0; i < nextPrecedingAdjunct.length; i++) {
-                  if (precedingAdjuncts[i].length == 0)
-                      nextPrecedingAdjunct[i]= -1;
-                  else
-                      nextPrecedingAdjunct[i]= 0;
-              }
-          }
+			public IPrsStream getPrsStream() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 
-          // The following adjuncts (for the last token only)
-          IToken[] followingAdjuncts;
-          {
-              if (lastTokIdx <= 0)
-                  followingAdjuncts= new IToken[0];
-              else
-                  followingAdjuncts= stream.getFollowingAdjuncts(lastTokIdx);
-          }
+			public int getStartOffset() {
+				return token.getStartIndex();
+			}
 
-          // The current index for the array of following adjuncts
-          int nextFollowingAdjunct;
-          {
-              if (followingAdjuncts.length == 0)
-                  nextFollowingAdjunct= -1;
-              else
-                  nextFollowingAdjunct= 0;
-          }
+			public int getTokenIndex() {
+				return token.getTokenIndex();
+			}
 
-          // To support hasNext(); initial values may be reset if appropriate
-          private boolean finalTokenReturned= regionEnd < 1 || lastTokIdx <= 0;
-          private boolean finalAdjunctsReturned= !(followingAdjuncts.length > 0);
+			public String getValue(char[] arg0) {
+				return token.getText();
+			}
 
-          /**
-           * Tests whether the iterator has any unreturned tokens. These may
-           * include "regular" tokens and "adjunct" tokens (e.g., representing
-           * comments).
-           * 
-           * @return True if there is another token available, false otherwise
-           */
-          public boolean hasNext() {
-              return !(finalTokenReturned && finalAdjunctsReturned);
-          }
+			public void setAdjunctIndex(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 
-          /**
-           * Returns the next available token in the iterator (or null if
-           * there is none)
-           * 
-           * Will return a valid token under conditions that would cause
-           * hasNext() to to return true; conversely, will return null under
-           * conditions that would cause hasNext() to return false.
-           * 
-           * As a side effect, updates the flags that are used to compute the
-           * value returned by hasNext().
-           * 
-           * The returned token may be a "regular" token (which will have a
-           * corresponding AST node) or an "adjunct" token (which will
-           * represent a comment). The tokens are returned in the order in
-           * which they occur in the text, regardless of their kind.
-           * 
-           */
-          public IToken next() {
-              int next= -1; // for convenience
+			public void setEndOffset(int arg0) {
+			}
 
-              // If we're not all the way through the tokens
-              if (curTokIdx <= lastTokIdx) {
+			public void setKind(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 
-                  // First check for any remaining preceding adjuncts
-                  // of the current token
-                  next= nextPrecedingAdjunct[curTokIdx];
-                  // If the current token has any unreturned preceding
-                  // adjuncts
-                  if (next >= 0 && next < precedingAdjuncts[curTokIdx].length) {
-                      // Return the next preceding adjunct, incrementing the
-                      // adjunct index afterwards
-                      return precedingAdjuncts[curTokIdx][nextPrecedingAdjunct[curTokIdx]++];
-                  }
+			public void setStartOffset(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
 
-                  // Flag whether the current token is the last one
-                  finalTokenReturned= curTokIdx >= lastTokIdx;
-
-                  // Return the current token, incrementing the token index
-                  // afterwards
-                  return stream.getIToken(curTokIdx++);
-              }
-
-              // If there are any adjuncts following the last token
-              if (nextFollowingAdjunct >= 0 && nextFollowingAdjunct < followingAdjuncts.length) {
-                  // Flag whether the current adjunct is the last one
-                  finalAdjunctsReturned= (nextFollowingAdjunct + 1) >= followingAdjuncts.length;
-
-                  // Return the current adjunct, incrementing the adjunct
-                  // index afterwards
-                  return followingAdjuncts[nextFollowingAdjunct++];
-              }
-
-              return null;
-          }
-
-          public void remove() {
-              throw new UnsupportedOperationException("Unimplemented");
-          }
-      };
-    }
+			public void setTokenIndex(int arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		return ret;
+	}
 }

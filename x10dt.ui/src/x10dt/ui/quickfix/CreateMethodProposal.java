@@ -66,7 +66,7 @@ public class CreateMethodProposal extends CUCorrectionProposal {
 		
 		root = getCompilationUnit().getAST(new NullMessageHandler(),
 				new NullProgressMonitor());
-		pnl = new PolyglotNodeLocator(getCompilationUnit().getProject(), null);
+		pnl = new PolyglotNodeLocator(getCompilationUnit().getProject()/*, null*/);
 		
 		coveringNode = (Node) pnl.findNode(root, context.getOffset());
 		Object node = pnl.findEnclosingMethodDecl(root, context.getOffset());

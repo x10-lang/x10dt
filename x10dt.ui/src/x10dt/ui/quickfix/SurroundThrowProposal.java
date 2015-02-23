@@ -35,7 +35,7 @@ public class SurroundThrowProposal extends CUCorrectionProposal {
 		Object root = cu.getAST(new NullMessageHandler(),
 				new NullProgressMonitor());
 
-		PolyglotNodeLocator pnl = new PolyglotNodeLocator(cu.getProject(), null);
+		PolyglotNodeLocator pnl = new PolyglotNodeLocator(cu.getProject()/*, null*/);
 
 		Throw th = (Throw) pnl.findNode(root, context.getOffset());
 		MultiTextEdit edit = new MultiTextEdit();

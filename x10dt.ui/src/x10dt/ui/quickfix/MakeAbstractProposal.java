@@ -39,7 +39,7 @@ public class MakeAbstractProposal extends CUCorrectionProposal {
 		
 		root = getCompilationUnit().getAST(new NullMessageHandler(),
 				new NullProgressMonitor());
-		pnl = new PolyglotNodeLocator(getCompilationUnit().getProject(), null);
+		pnl = new PolyglotNodeLocator(getCompilationUnit().getProject()/*, null*/);
 		coveringNode = (Node) pnl.findNode(root, context.getOffset());
 
 		int offset = 0;
