@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT UI Tests
 Bundle-SymbolicName: x10dt.ui.tests
-Bundle-Version: 2.5.1.qualifier
+Bundle-Version: 2.5.2.qualifier
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: lpg.runtime.java,

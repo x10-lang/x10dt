@@ -1,5 +1,5 @@
 instructions.configure=\
 	addRepository(type:0,location:http${#58}//download.eclipse.org/releases/kepler/);\
 	addRepository(type:1,location:http${#58}//download.eclipse.org/releases/kepler/);\
-	addRepository(type:0,location:http${#58}//x10.sourceforge.net/x10dt/2.5.1/updateSite/);\
-        addRepository(type:1,location:http${#58}//x10.sourceforge.net/x10dt/2.5.1/updateSite/);
+	addRepository(type:0,location:http${#58}//x10.sourceforge.net/x10dt/2.5.2/updateSite/);\
+        addRepository(type:1,location:http${#58}//x10.sourceforge.net/x10dt/2.5.2/updateSite/);

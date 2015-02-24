@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="X10DT Product" uid="x10dt.editor.only.product" id="x10dt.editor.only.product" application="org.eclipse.ui.ide.workbench" version="2.5.1.qualifier" useFeatures="true" includeLaunchers="true">
+<product name="X10DT Product" uid="x10dt.editor.only.product" id="x10dt.editor.only.product" application="org.eclipse.ui.ide.workbench" version="2.5.2.qualifier" useFeatures="true" includeLaunchers="true">
 
    <configIni use="default">
    </configIni>
