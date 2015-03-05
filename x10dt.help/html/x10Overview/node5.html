@@ -65,9 +65,9 @@ original version by:  Nikos Drakos, CBLU, University of Leeds
 </UL>
 <BR>
 <LI><A NAME="tex2html201"
-  HREF="node5.html#SECTION00520000000000000000">X10  v2.5.1  Implementation Overview</A>
+  HREF="node5.html#SECTION00520000000000000000">X10  v2.5.2  Implementation Overview</A>
 <LI><A NAME="tex2html202"
-  HREF="node5.html#SECTION00530000000000000000">X10  v2.5.1  Runtime</A>
+  HREF="node5.html#SECTION00530000000000000000">X10  v2.5.2  Runtime</A>
 <UL>
 <LI><A NAME="tex2html203"
   HREF="node5.html#SECTION00531000000000000000">Distribution</A>
@@ -78,7 +78,7 @@ original version by:  Nikos Drakos, CBLU, University of Leeds
 </UL>
 <BR>
 <LI><A NAME="tex2html206"
-  HREF="node5.html#SECTION00540000000000000000">X10  v2.5.1  Compilation</A>
+  HREF="node5.html#SECTION00540000000000000000">X10  v2.5.2  Compilation</A>
 <UL>
 <LI><A NAME="tex2html207"
   HREF="node5.html#SECTION00541000000000000000">Classes and Interfaces</A>
@@ -125,7 +125,7 @@ also tends to become more complex.
 <P>
 In this chapter, we present an abridged version<A NAME="tex2html7"
   HREF="#foot2184"><SUP>4.1</SUP></A> of the performance model for
-X10  v2.5.1  focusing on those aspects that are most relevant for
+X10  v2.5.2  focusing on those aspects that are most relevant for
 the HPC programmer.  Although the rate of change of the X10 
 language has significantly decreased from earlier stages of the
 project, the language specification and its implementations are still
@@ -133,10 +133,10 @@ evolving more rapidly than production languages such as C++ and Java.
 Therefore, we break this chapter into two logical sections: aspects
 that we believe are fundamental to the language itself and aspects
 that are more closely tied to specific choices embodied in the
-X10  v2.5.1  implementation and thus more likely to change in future
+X10  v2.5.2  implementation and thus more likely to change in future
 versions.  The second logical section is presented simultaneously with
 a discussion of some of the central implementation decisions embodied
-in the X10  v2.5.1  runtime system and compiler.
+in the X10  v2.5.2  runtime system and compiler.
 
 <P>
 
@@ -382,13 +382,13 @@ potential for compiler optimizations.
 <H1><A NAME="SECTION00520000000000000000"></A>
 <A NAME="sec:implOverview"></A>
 <BR>
-X10  v2.5.1  Implementation Overview
+X10  v2.5.2  Implementation Overview
 </H1>
-X10  v2.5.1  is implemented via source-to-source compilation to another
+X10  v2.5.2  is implemented via source-to-source compilation to another
 language, which is then compiled and executed using existing
 platform-specific tools.  The rationale for this implementation
 strategy is that it allows us to achieve critical portability,
-performance, and interoperability objectives.  More concretely, X10  v2.5.1 
+performance, and interoperability objectives.  More concretely, X10  v2.5.2 
 can be either compiled to C++ or Java.  The resulting C++ or Java
 program is then compiled by either a platform C++ compiler to produce
 an executable or compiled to class files and then executed on a
@@ -467,7 +467,7 @@ different.
 <H1><A NAME="SECTION00530000000000000000"></A>
 <A NAME="sec:runtime"></A>
 <BR>
-X10  v2.5.1  Runtime
+X10  v2.5.2  Runtime
 </H1>
 
 <DIV ALIGN="CENTER"><A NAME="fig:x10runtime"></A><A NAME="1918"></A>
@@ -519,7 +519,7 @@ multi-point communication or <I>x10.lang.Rail.asyncCopy</I> for
 large data transfers.
 
 <P>
-In this section, we review the specifics of the X10  v2.5.1  runtime
+In this section, we review the specifics of the X10  v2.5.2  runtime
 implementation focusing on performance aspects.
 
 <P>
@@ -529,7 +529,7 @@ Distribution</A>
 </H2>
 
 <P>
-The X10  v2.5.1  runtime maps each place in the application to one
+The X10  v2.5.2  runtime maps each place in the application to one
 process.<A NAME="tex2html12"
   HREF="#foot2193"><SUP>4.4</SUP></A> Each process runs the exact same executable
 (binary or bytecode).
@@ -549,7 +549,7 @@ finish { main(args); }
 Static fields.</A>
 </H4>
 Static fields are lazily initialized in each place when they are first
-accessed. Both X10  v2.5.1  backend compilers map static fields initialized with
+accessed. Both X10  v2.5.2  backend compilers map static fields initialized with
 compile time constants to static fields of the target language.  Other
 static fields are mapped to method calls. The method checks to see if
 the field has already been initialized in the current place, evaluates
@@ -563,7 +563,7 @@ expensive in X10  than the corresponding operations in either C++ or Java.
 <H4><A NAME="SECTION00531020000000000000">
 X10RT.</A>
 </H4>
-The X10  v2.5.1  distribution comes with a series of pluggable libraries
+The X10  v2.5.2  distribution comes with a series of pluggable libraries
 for inter-process communication referred to as X10RT libraries
 [<A
  HREF="node6.html#x10rt-spec">11</A>,<A
@@ -577,7 +577,7 @@ protocols (DCMF, PAMI).
 
 <P>
 Each X10RT library has its own performance profile--latency,
-throughput, etc. For instance, the X10  v2.5.1  <I>standalone</I> library
+throughput, etc. For instance, the X10  v2.5.2  <I>standalone</I> library
 is significantly faster than the <I>sockets</I> library used on a
 single host.
 
@@ -593,7 +593,7 @@ sizes, etc.
 Teams.</A>
 </H4>
 The <I>at</I> construct only permits point-to-point messaging. The 
-X10  v2.5.1  runtime provides the <I>x10.util.Team</I> API for efficient
+X10  v2.5.2  runtime provides the <I>x10.util.Team</I> API for efficient
 multi-point communication.
 
 <P>
@@ -610,7 +610,7 @@ as butterfly barriers and broadcast trees.
 <H4><A NAME="SECTION00531040000000000000">
 AsyncCopy.</A>
 </H4>
-The X10  v2.5.1  tool chain implements <I>at</I> constructs via
+The X10  v2.5.2  tool chain implements <I>at</I> constructs via
 serialization. The captured environment gets encoded before
 transmission and is decoded afterwards. Although such an encoding is
 required to correctly transfer object graphs with aliasing, it has
@@ -618,7 +618,7 @@ unnecessary overhead when transmitting immediate data, such as arrays
 of primitives.
 
 <P>
-As a work around, the X10  v2.5.1  <I>x10.lang.Rail</I> class provides
+As a work around, the X10  v2.5.2  <I>x10.lang.Rail</I> class provides
 specific methods--<I>asyncCopy</I>--for transferring array contents
 across places with lower overhead.  These methods guarantee the raw
 data is transmitted as efficiently as permitted by the underlying
@@ -640,7 +640,7 @@ leaving the burden of inter-place load balancing to the library writer
 and ultimately the programmer.
 
 <P>
-The X10  v2.5.1  scheduler assumes a symmetrical, fixed number of
+The X10  v2.5.2  scheduler assumes a symmetrical, fixed number of
 concurrent execution units (CPU cores) per process for the duration of
 the execution. This assumption is consistent with the HPCS
 context--job controllers typically assign concurrently running
@@ -652,7 +652,7 @@ resources--but will be relaxed in subsequent releases of X10 .
 <H4><A NAME="SECTION00532010000000000000">
 Work-Stealing scheduler.</A>
 </H4>
-The X10  v2.5.1  scheduler belongs to the family of <I>work-stealing</I>
+The X10  v2.5.2  scheduler belongs to the family of <I>work-stealing</I>
 schedulers
 [<A
  HREF="node6.html#Blumofe:1999:SMC:324133.324234">2</A>,<A
@@ -675,7 +675,7 @@ whereas the <I>victim</I> always pushes and pops from the bottom,
 further reducing contention.
 
 <P>
-In X10  v2.5.1 , the <I>thief</I> initially chooses a <I>victim</I> at
+In X10  v2.5.2 , the <I>thief</I> initially chooses a <I>victim</I> at
 random then inspects the deque of every worker in a cyclic manner
 until it manages to steal a pending activity.
 
@@ -722,8 +722,8 @@ busy waiting entirely.
 <H4><A NAME="SECTION00532030000000000000">
 Cooperative scheduler.</A>
 </H4>
-The X10  v2.5.1  scheduler never preempts a worker running user code. The
-X10  v2.5.1  runtime is designed to enable achieving the highest possible
+The X10  v2.5.2  scheduler never preempts a worker running user code. The
+X10  v2.5.2  runtime is designed to enable achieving the highest possible
 performance on MPI-like distributed X10  applications where the
 programmer use matching send and receive instructions to achieve total
 control over the communication and execution schedule.  If the user
@@ -746,7 +746,7 @@ Parallelism.</A>
 </H4>
 The user can specify the number of workers in the pool in each place
 using the <TT>X10_NTHREADS</TT> environment variable.<A NAME="tex2html14"
-  HREF="#foot2018"><SUP>4.6</SUP></A> The X10  v2.5.1  scheduler may create
+  HREF="#foot2018"><SUP>4.6</SUP></A> The X10  v2.5.2  scheduler may create
 additional threads during the execution. But it strives to maintain
 the number of <I>non-idle</I> workers close to the requested value.
 
@@ -829,7 +829,7 @@ the pending activities from its deque. It only eventually suspends if
 its deque becomes empty or if it reaches some other blocking construct
 (different from <I>finish</I>). By design, the pending activities that
 get processed by the worker in this phase must have been spawned from
-the blocked <I>finish</I> body. In the X10  v2.5.1  implementation, the
+the blocked <I>finish</I> body. In the X10  v2.5.2  implementation, the
 worker will not attempt to steal activities from others if the
 <I>finish</I> construct is still waiting for spawned activities to
 terminate when the deque gets empty as this would require to carefully
@@ -861,7 +861,7 @@ result, <I>async</I> constructs should only be used to guard
 computations that require (significantly) more resources than a CAS.
 
 <P>
-The X10  v2.5.1  runtime also allocates one small heap object per
+The X10  v2.5.2  runtime also allocates one small heap object per
 <I>async</I>. Again, anything smaller than that should be executed
 sequentially rather than wrapped with an <I>async</I>. Moreover,
 memory allocation and garbage collection can become a bottleneck if
@@ -890,7 +890,7 @@ termination events to decide the completion of a <I>finish</I>
 construct. The story is different across places as inter-process
 communication channels are likely to reorder messages so that
 termination events may be observed ahead of the corresponding creation
-events. The X10  v2.5.1  implementation of <I>finish</I> keeps track of
+events. The X10  v2.5.2  implementation of <I>finish</I> keeps track of
 these events on an unambiguous, per-place basis.
 
 <P>
@@ -915,7 +915,7 @@ elements.
 <P>
 In practice however much fewer counters, fewer messages, and smaller
 messages are necessary thanks to various optimizations embedded in the
-X10  v2.5.1  implementation.  In particular, events are accumulated locally
+X10  v2.5.2  implementation.  In particular, events are accumulated locally
 and only transmitted to the <I>finish</I> place when local quiescence
 is detected--all local activities for this <I>finish</I> have
 completed. Counters are allocated lazily. Messages use sparse
@@ -1048,7 +1048,7 @@ Atomic and When.</A>
 </H4>
 
 <P>
-The X10  v2.5.1  implementation of the <I>atomic</I> construct uses a
+The X10  v2.5.2  implementation of the <I>atomic</I> construct uses a
 place-wide lock. The lock is acquired for the duration of the atomic
 section.  The <I>when</I> construct is implemented using the same
 lock. Moreover, every suspended <I>when</I> statement is notified on
@@ -1072,7 +1072,7 @@ minimize contention.
 <H1><A NAME="SECTION00540000000000000000"></A>
 <A NAME="sec:compiler"></A>
 <BR>
-X10  v2.5.1  Compilation
+X10  v2.5.2  Compilation
 </H1>
 
 <P>
@@ -1202,7 +1202,7 @@ short-lived objects and generally reducing the application's
 allocation rate.
 
 <P>
-Because the X10  v2.5.1  implementation does not include a distributed
+Because the X10  v2.5.2  implementation does not include a distributed
 garbage collector, if a <TT>GlobalRef</TT> to an object is sent to a
 remote place, then the object (and therefore all objects that it
 transitively refers to) become uncollectable.  The life-time of all
@@ -1253,7 +1253,7 @@ well-enough understood that it is possible for significant X10
 programs to be written and for programmers to obtain predictable and
 understandable performance behavior from those programs. As the
 X10  implementations continue to mature, we expect to be able to
-eliminate some of the less desirable features of the X10  v2.5.1 
+eliminate some of the less desirable features of the X10  v2.5.2 
 performance models.
 
 <P>
@@ -1284,13 +1284,13 @@ implementation projects.
 </A><A
  HREF="node5.html#tex2html9"><SUP>4.3</SUP></A></DT>
 <DD>which is not available in
-  Native X10  v2.5.1 
+  Native X10  v2.5.2 
 
 </DD>
 <DT><A NAME="foot2193">...
 process.</A><A
  HREF="node5.html#tex2html12"><SUP>4.4</SUP></A></DT>
-<DD>The X10  v2.5.1  runtime may launch additional processes
+<DD>The X10  v2.5.2  runtime may launch additional processes
   to monitor the application processes. These helper processes are
   idle most of the time.
 
