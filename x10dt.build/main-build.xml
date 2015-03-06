@@ -4,7 +4,8 @@
     <format property="buildId" pattern="yyyyMMdd-HHmm"/>
   </tstamp>
 
-  <property name="build.folder" value="${build.loc}/../builds/I${buildLabel}" />
+  <property name="build.folder" value="${build.loc}/../builds/${buildType}${buildId}" />
+  <property name="buildLabel" value="${buildId}" />
 
   <import file="utilities.xml" />
   <property file="common.properties" />
