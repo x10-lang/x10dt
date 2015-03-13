@@ -51,6 +51,7 @@ import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
 import polyglot.util.ErrorInfo;
 import x10.parser.antlr.ASTBuilder;
+import x10.parserGen.X10Parser;
 import x10.visit.InstanceInvariantChecker;
 import x10.visit.PositionInvariantChecker;
 import x10dt.core.X10DTCorePlugin;
@@ -100,6 +101,10 @@ public class ParseController extends org.eclipse.imp.parser.ParseControllerBase 
     	super(X10DTCorePlugin.kLanguageName);
     }
 
+    public CommonTokenStream getTokens(){
+    	return fTokens;
+    }
+    
     public CompilerDelegate getCompiler() {
         return fCompiler;
     }
@@ -450,6 +455,77 @@ public class ParseController extends org.eclipse.imp.parser.ParseControllerBase 
 //      };
 //    }
 
+    
+    public boolean isKeyword(int type){
+      switch (type) {
+	    case X10Parser.ABSTRACT:
+	    case X10Parser.AS:
+	    case X10Parser.ASSERT:
+	    case X10Parser.ASYNC:
+	    case X10Parser.AT:
+	    case X10Parser.ATEACH:
+	    case X10Parser.ATHOME:
+	    case X10Parser.ATOMIC:
+	    case X10Parser.BREAK:
+	    case X10Parser.CASE:
+	    case X10Parser.CATCH:
+	    case X10Parser.CLASS:
+	    case X10Parser.CLOCKED:
+	    case X10Parser.CONTINUE:
+	    case X10Parser.DEF:
+	    case X10Parser.DEFAULT:
+	    case X10Parser.DO:
+	    case X10Parser.ELSE:
+	    case X10Parser.EXTENDS:
+	    case X10Parser.FALSE:
+	    case X10Parser.FINAL:
+	    case X10Parser.FINALLY:
+	    case X10Parser.FINISH:
+	    case X10Parser.FOR:
+	    case X10Parser.GOTO:
+	    case X10Parser.HASZERO:
+	    case X10Parser.HERE:
+	    case X10Parser.IF:
+	    case X10Parser.IMPLEMENTS:
+	    case X10Parser.IMPORT:
+	    case X10Parser.IN:
+	    case X10Parser.INSTANCEOF:
+	    case X10Parser.INTERFACE:
+	    case X10Parser.ISREF:
+	    case X10Parser.NATIVE:
+	    case X10Parser.NEW:
+	    case X10Parser.NULL:
+	    case X10Parser.OFFER:
+	    case X10Parser.OFFERS:
+	    case X10Parser.OPERATOR:
+	    case X10Parser.PACKAGE:
+	    case X10Parser.PRIVATE:
+	    case X10Parser.PROPERTY:
+	    case X10Parser.PROTECTED:
+	    case X10Parser.PUBLIC:
+	    case X10Parser.RETURN:
+	    case X10Parser.SELF:
+	    case X10Parser.STATIC:
+	    case X10Parser.STRUCT:
+	    case X10Parser.SUPER:
+	    case X10Parser.SWITCH:
+	    case X10Parser.THIS:
+	    case X10Parser.THROW:
+	    case X10Parser.THROWS:
+	    case X10Parser.TRANSIENT:
+	    case X10Parser.TRUE:
+	    case X10Parser.TRY:
+	    case X10Parser.TYPE:
+	    case X10Parser.VAL:
+	    case X10Parser.VAR:
+	    case X10Parser.VOID:
+	    case X10Parser.WHEN:
+	    case X10Parser.WHILE:
+	    	return true;
+	    default:
+	    	return false;
+      }
+    }
 
 	public IAnnotationTypeInfo getAnnotationTypeInfo() {
 		// TODO Auto-generated method stub

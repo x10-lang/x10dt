@@ -11,12 +11,9 @@
 
 package x10dt.ui.parser;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import lpg.runtime.ILexStream;
-import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
 import org.eclipse.core.runtime.IPath;
