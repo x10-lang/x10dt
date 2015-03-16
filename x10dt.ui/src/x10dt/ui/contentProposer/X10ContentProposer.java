@@ -345,8 +345,11 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         
         Token tokenToComplete = null;
         Token previousToken = null;
+        Token nextToken = null;
         
+        int index = 0;
         for(Token t: tokens.getTokens()){
+        	index++;
     		if (t.getChannel() == Token.DEFAULT_CHANNEL){
     			if (t.getStartIndex() <= offset && t.getStopIndex() + 1 >= offset){
     				tokenToComplete = t;
@@ -357,8 +360,11 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     			}
     			previousToken = t;
     		}
-    		
     	}
+        
+        if (tokenToComplete == null){
+        	nextToken = tokens.getTokens().get(index);
+        }
         
         String prefix= tokenToComplete==null?"":computePrefixOfToken(tokenToComplete, offset, (ParseController) controller);
        
@@ -366,7 +372,8 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         Node currentAst= (Node) controller.getCurrentAst();
         Node node= tokenToComplete!=null?(Node) locator.findNode(currentAst, tokenToComplete.getStartIndex(), tokenToComplete.getStopIndex()):null;
         Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartIndex(), previousToken.getStopIndex()): null;
-     
+        Node nextNode = (nextToken != null)? (Node) locator.findNode(currentAst, nextToken.getStartIndex(), nextToken.getStopIndex()): null;
+        
         if (node !=null && node instanceof Eval && tokenToComplete.getType() == X10Parser.DOT){
         	Type type = ((Eval_c) node).expr().type();
         	if (type != null && type.isReference()){
@@ -389,14 +396,13 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         	String pref = (node instanceof Id)? prefix : computePrefixOfToken(previousToken, offset, (ParseController) controller);
         	addNamesInScope(currentAst, n, pref, list, offset, !EMPTY_PREFIX_MATCHES);
         
-        } else if (node == null){ //TODO: WIP 
-        	//Display templates, names in scope -- index < 0 when we are at a white space or comment
-            Node location = location(previousNode, node, locator, currentAst);
-            if (location instanceof Block && (justAfter(TK_SEMICOLON, previousToken) || justAfter(TK_RBRACE, previousToken) || justAfter(TK_LBRACE, previousToken))){ //Statement context. 
+        } else if (node == null && previousNode != null){ //Display templates, names in scope -- index < 0 when we are at a white space or comment
+            Node location = location(previousNode, nextNode, locator, currentAst);
+            if (location instanceof Block && (justAfter(X10Parser.SEMICOLON, previousToken) || justAfter(X10Parser.RBRACE, previousToken) || justAfter(X10Parser.LBRACE, previousToken))){ //Statement context. 
         		addTemplateProposals(offset, viewer, list, prefix, fTemplates);
         		//addNamesInScope(currentAst, node, prefix, list, offset, EMPTY_PREFIX_MATCHES);
         	}
-            else if (justAfter(TK_EQUAL, previousToken) && (location instanceof Assign || location instanceof LocalDecl)){
+            else if (justAfter(X10Parser.EQUAL, previousToken) && (location instanceof Assign || location instanceof LocalDecl)){
             	Template[] templates = new Template[]{fAtExpressionTemplate, fCoercionTemplate,  fRegion1DTemplate, fRegion2DTemplate};
             	addTemplateProposals(offset, viewer, list, prefix, templates );
             }
@@ -406,43 +412,14 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         		addTemplateProposals(offset, viewer, list, prefix, templates);
             
         	} 
-            
-            //add method modifiers before a "def"
-            if (justBefore(TK_def, tokenToComplete, previousToken, offset)){
-            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate, fPrivateTemplate, fPropertyTemplate };
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-            }
-            
-            //add class modifiers before a "class"
-            if (justBefore(TK_class, tokenToComplete, previousToken, offset)) {
-            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate};
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-            }
-        	
-            //add field modifiers before a "val" field declaration
-            if (location instanceof ClassBody && (justBefore(TK_val, tokenToComplete, previousToken, offset))){
-        		Template[] templates = new Template[]{fPropertyTemplate};
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-        	}
-            
-            //add type parameter in a class declaration
-            if (location instanceof ClassDecl && previousNode instanceof CanonicalTypeNode &&  
-            		offset == previousToken.getStopIndex() + 1){
-           		Template[] templates = new Template[]{fGenericParameter};
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-            }
         }
                
         return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
     }
-
-    // Tests if we are just before a token of kind tokenKind, with white space before the current cursor position
-    private boolean justBefore(int tokenKind, Token tokenToComplete, Token previousToken, int offset){
-    	return tokenToComplete.getType() == tokenKind && offset > previousToken.getStopIndex() + 1;
-    }
     
     // Tests if we are just after a token of kind tokenKind
     private boolean justAfter(int tokenKind, Token previousToken){
+    	
     	return previousToken.getType() == tokenKind;
     }
     
