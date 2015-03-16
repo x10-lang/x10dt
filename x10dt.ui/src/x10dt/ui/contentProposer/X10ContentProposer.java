@@ -64,7 +64,7 @@ import polyglot.types.ObjectType;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parsersym;
-import x10.parserGen.X10Parser;
+import x10.parser.antlr.generated.X10Parser;
 import x10.types.MethodInstance;
 import x10dt.ui.parser.ParseController;
 import x10dt.ui.parser.PolyglotNodeLocator;

@@ -51,7 +51,7 @@ import polyglot.frontend.Source;
 import polyglot.frontend.ZipResource;
 import polyglot.util.ErrorInfo;
 import x10.parser.antlr.ASTBuilder;
-import x10.parserGen.X10Parser;
+import x10.parser.antlr.generated.X10Parser;
 import x10.visit.InstanceInvariantChecker;
 import x10.visit.PositionInvariantChecker;
 import x10dt.core.X10DTCorePlugin;

@@ -21,7 +21,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
 import x10.parser.X10Parsersym;
-import x10.parserGen.X10Parser;
+import x10.parser.antlr.generated.X10Parser;
 
 import x10dt.ui.parser.ParseController;
 
