@@ -41,6 +41,8 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
+import polyglot.ast.Call;
+import polyglot.ast.Call_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
@@ -203,13 +205,21 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         }
 
         for(MethodInstance method : methods) {
-            list.add(new SourceProposal(method.signature(), prefix, offset));
+            list.add(new SourceProposal(removeTypeFromSignature(method.signature()), prefix, offset));
         }
 
         for(ClassType type : classes) {
             if (!type.isAnonymous())
                 list.add(new SourceProposal(type.name().toString(), prefix, offset));//PORT1.7 name() replaced with name().toString()
         }
+    }
+    
+    private String removeTypeFromSignature(String signature){
+    	String ret = signature;
+    	int i = signature.indexOf(":");
+    	if (i == -1)
+    		return signature;
+    	return signature.substring(0,i);
     }
 
     private static final String CONTEXT_ID= "x10Source";
@@ -326,69 +336,61 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         templateLangRefPages.put(fPrintTemplate,       "");
     }
 
-    private Token getTokenAt(int offset, List<Token> tokens){
-    	for(Token t: tokens){
-    		if (t.getChannel() == Token.DEFAULT_CHANNEL){
-    			if (t.getStartIndex() <= offset && t.getStopIndex() + 1 >= offset){
-    				return t;
-    			}
-    		}
-    	}
-    	return null;
-    }
-    
+  
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer) {
     	
         ArrayList<ICompletionProposal> list= new ArrayList<ICompletionProposal>();
  
         CommonTokenStream tokens = ((ParseController) controller).getTokens();
         
-        Token tokenToComplete = getTokenAt(offset, tokens.getTokens());
-//        
-//        IPrsStream prs_stream= ((ParseController) controller).getParseStream();
-//        int index= prs_stream.getTokenIndexAtCharacter(offset);
-//        int token_index = (index < 0 ? -index + 1 : index);
-//        IToken tokenToComplete = null;
-//        try {
-//        	tokenToComplete= prs_stream.getIToken(token_index); 
-//        } catch(IndexOutOfBoundsException e){
-//        	return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
-//        }
-//        SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
+        Token tokenToComplete = null;
+        Token previousToken = null;
+        
+        for(Token t: tokens.getTokens()){
+    		if (t.getChannel() == Token.DEFAULT_CHANNEL){
+    			if (t.getStartIndex() <= offset && t.getStopIndex() + 1 >= offset){
+    				tokenToComplete = t;
+    				break;
+    			}
+    			if (t.getStartIndex() > offset){
+    				break;
+    			}
+    			previousToken = t;
+    		}
+    		
+    	}
+        
         String prefix= tokenToComplete==null?"":computePrefixOfToken(tokenToComplete, offset, (ParseController) controller);
-        int token_index = tokenToComplete==null?0:tokenToComplete.getTokenIndex();
-        Token previousToken = (token_index != 0)? tokens.getTokens().get(token_index - 1) : null;
-
+       
         PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject()/*,((ParseController) controller).getLexStream()*/)  ;
         Node currentAst= (Node) controller.getCurrentAst();
-        Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartIndex(), tokenToComplete.getStopIndex());
+        Node node= tokenToComplete!=null?(Node) locator.findNode(currentAst, tokenToComplete.getStartIndex(), tokenToComplete.getStopIndex()):null;
         Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartIndex(), previousToken.getStopIndex()): null;
      
-        if (node instanceof Eval && tokenToComplete.getType() == X10Parser.DOT){
+        if (node !=null && node instanceof Eval && tokenToComplete.getType() == X10Parser.DOT){
         	Type type = ((Eval_c) node).expr().type();
         	if (type != null && type.isReference()){
         		getCandidates((ObjectType) type, list, prefix, offset, true);
         	}
-        } else if (node instanceof Id && previousNode instanceof Field){
+        } else if (node !=null && node instanceof Id && previousNode instanceof Field){
         	Type type = ((Field_c) previousNode).target().type();
         	if (type != null && type.isReference()){
         		getCandidates((ObjectType) type, list, prefix, offset, true);
         	}
-        }
-        
-        boolean in_between_tokens = false ; 
-        if (offset == tokenToComplete.getStartIndex()) // TODO Handle case where caret is within whitespace between tokens
-        	in_between_tokens = true;
-        
+        } else if (node != null && node instanceof Id && previousNode instanceof Call){
+        	Type type = ((Call_c) previousNode).target().type();
+        	if (type != null && type.isReference()){
+        		getCandidates((ObjectType) type, list, prefix, offset, true);
+        	}
         
         //The next case completes an Id with names in scope  
-        if ((node instanceof Id && offset > tokenToComplete.getStartIndex() && offset <= tokenToComplete.getStopIndex()) ||  
-        		   (previousNode instanceof Id && offset == previousToken.getStopIndex() + 1)){ //at the very end of an Id
+        } else if (node != null && node instanceof Id){ 
         	Node n = (node instanceof Id)? node : previousNode;
         	String pref = (node instanceof Id)? prefix : computePrefixOfToken(previousToken, offset, (ParseController) controller);
         	addNamesInScope(currentAst, n, pref, list, offset, !EMPTY_PREFIX_MATCHES);
         
-        } else if (in_between_tokens){ //Display templates, names in scope -- index < 0 when we are at a white space or comment
+        } else if (node == null){ //TODO: WIP 
+        	//Display templates, names in scope -- index < 0 when we are at a white space or comment
             Node location = location(previousNode, node, locator, currentAst);
             if (location instanceof Block && (justAfter(TK_SEMICOLON, previousToken) || justAfter(TK_RBRACE, previousToken) || justAfter(TK_LBRACE, previousToken))){ //Statement context. 
         		addTemplateProposals(offset, viewer, list, prefix, fTemplates);
