@@ -94,7 +94,7 @@ public class CompilerDelegate {
 					if (filePath.equals(errorPath)) {
 						handler.handleSimpleMessage(error.getMessage(),
 													pos.offset(), pos.endOffset(), pos.column(),
-													pos.endColumn(), pos.line(), pos.endLine(),
+													pos.endColumn(), pos.line(), pos.endLine()<0?pos.line():pos.endLine(),
 													attributes);
 					}
 				} else {

@@ -56,10 +56,11 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
 						.getLocation();
 				final IPath filePath = new Path(position.file());
 				final String workspaceRelatedPath = filePath
-						.removeFirstSegments(rootPath.segmentCount())
-						.makeAbsolute().toString();
+						.removeFirstSegments(rootPath.segmentCount()).toString();
 				final IFile file = ResourcesPlugin.getWorkspace().getRoot()
 						.getFile(new Path(workspaceRelatedPath));
+//				final IFile file = ResourcesPlugin.getWorkspace().getRoot()
+//                   .getFile(filePath);
 
 				Map<String, Object> atts = null;
 				if (error instanceof CodedErrorInfo) {
@@ -67,7 +68,7 @@ final class X10ErrorQueue extends AbstractErrorQueue implements ErrorQueue {
 				}
 				if (fSourcesToCompile.contains(file)){ // --- Only create the marker if the error pertains to a file that was submitted for compilation. This is to avoid duplicate markers on other files.
 					CoreResourceUtils.addBuildMarkerTo(file, error.getMessage(),
-						severity, IMarker.PRIORITY_NORMAL, position.file(),
+						severity, IMarker.PRIORITY_NORMAL, workspaceRelatedPath,
 						position.line(), position.offset(), position
 								.endOffset(), atts);
 				}
