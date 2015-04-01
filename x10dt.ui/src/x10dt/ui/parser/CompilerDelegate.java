@@ -27,15 +27,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import lpg.runtime.Monitor;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.imp.editor.quickfix.IAnnotation;
 import org.eclipse.imp.java.hosted.BuildPathUtils;
@@ -47,11 +45,11 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaModel;
-import org.eclipse.osgi.util.NLS;
 
 import polyglot.ast.SourceFile;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.Job;
+import polyglot.frontend.Parser;
 import polyglot.frontend.Source;
 import polyglot.main.UsageError;
 import polyglot.util.AbstractErrorQueue;
@@ -61,7 +59,6 @@ import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import x10.X10CompilerOptions;
 import x10.parser.X10Lexer;
-import x10.parser.X10SemanticRules;
 import x10dt.core.X10DTCorePlugin;
 import x10dt.core.preferences.generated.X10Constants;
 import x10dt.core.utils.CompilerOptionsFactory;
@@ -97,7 +94,7 @@ public class CompilerDelegate {
 					if (filePath.equals(errorPath)) {
 						handler.handleSimpleMessage(error.getMessage(),
 													pos.offset(), pos.endOffset(), pos.column(),
-													pos.endColumn(), pos.line(), pos.endLine(),
+													pos.endColumn(), pos.line(), pos.endLine()<0?pos.line():pos.endLine(),
 													attributes);
 					}
 				} else {
@@ -115,7 +112,7 @@ public class CompilerDelegate {
 
     private final IPath fFilePath;
 
-    CompilerDelegate(Monitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) throws CoreException {
+    CompilerDelegate(IProgressMonitor monitor, final IMessageHandler handler, final IProject project, final IPath filePath, ParseController.InvariantViolationHandler violationHandler) throws CoreException {
         this.fX10Project= (project != null) ? JavaCore.create(project) : null;
         this.fFilePath= filePath;
         fViolationHandler= violationHandler;
@@ -178,8 +175,8 @@ public class CompilerDelegate {
 
     public ExtensionInfo getExtInfo() { return fExtInfo; }
 
-    public X10Lexer getLexerFor(Source src) { return fExtInfo.getLexerFor(src); }
-    public X10SemanticRules getParserFor(Source src) { return fExtInfo.getParserFor(src); }
+    //public X10Lexer getLexerFor(Source src) { return fExtInfo.getLexerFor(src); }
+    public Parser getParserFor(Source src) { return fExtInfo.getParserFor(src); }
     public SourceFile getASTFor(Source src) { return (SourceFile) fExtInfo.getASTFor(src); }
     public Job getJobFor(Source src) { return fExtInfo.getJobFor(src); }
 

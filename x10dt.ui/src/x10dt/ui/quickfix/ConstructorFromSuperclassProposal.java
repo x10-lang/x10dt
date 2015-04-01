@@ -64,7 +64,7 @@ public class ConstructorFromSuperclassProposal extends CUCorrectionProposal {
 		
 		Object root = getCompilationUnit().getAST(new NullMessageHandler(),
 				new NullProgressMonitor());
-		PolyglotNodeLocator pnl = new PolyglotNodeLocator(getCompilationUnit().getProject(), null);
+		PolyglotNodeLocator pnl = new PolyglotNodeLocator(getCompilationUnit().getProject()/*, null*/);
 
 		Node coveringNode = (Node) pnl.findEnclosingClassDecl(root, context
 				.getOffset());

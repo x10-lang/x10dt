@@ -14,7 +14,6 @@ package x10dt.ui.editor;
 import lpg.runtime.IToken;
 
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.base.TokenColorerBase;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.TextAttribute;
@@ -22,6 +21,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 
 import x10.parser.X10Parsersym;
+import x10.parser.antlr.generated.X10Parser;
+
+import x10dt.ui.parser.ParseController;
 
 public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
 	TextAttribute commentAttribute, docCommentAttribute, characterAttribute, numberAttribute, identifierAttribute;
@@ -29,7 +31,7 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
     public X10TokenColorer() {
         super();
         Display display = Display.getDefault();
-        commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_RED), null, SWT.NORMAL);         
+        commentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_GREEN), null, SWT.NORMAL);         
         characterAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_DARK_BLUE), null, SWT.NORMAL);        
         docCommentAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLUE), null, SWT.NORMAL);      
         identifierAttribute = new TextAttribute(display.getSystemColor(SWT.COLOR_BLACK), null, SWT.NORMAL);         
@@ -45,33 +47,36 @@ public class X10TokenColorer extends TokenColorerBase implements X10Parsersym {
     @Override
 	public TextAttribute getColoring(IParseController controller, Object o) {
 	    IToken token= (IToken) o;
+	    if (((ParseController)controller).isKeyword(token.getKind()))
+	    	return keywordAttribute;
 	    switch (token.getKind()) {
-	    	case TK_DocComment: case TK_SlComment: case TK_MlComment:
-	    		if (token.toString().startsWith("/**"))
-	    			return docCommentAttribute;
+	    case X10Parser.DOCCOMMENT: 
+	    	return docCommentAttribute;
+	    case X10Parser.COMMENT: case X10Parser.LINE_COMMENT:
 	    		return commentAttribute;
-            case TK_IDENTIFIER:
+        case X10Parser.IDENTIFIER:
                  return identifierAttribute;
-            case TK_DoubleLiteral:
-            case TK_FloatingPointLiteral:
-            case TK_ByteLiteral:
-            case TK_ShortLiteral:
-            case TK_IntLiteral:
-            case TK_LongLiteral:
-            case TK_UnsignedByteLiteral:
-            case TK_UnsignedShortLiteral:
-            case TK_UnsignedIntLiteral:
-            case TK_UnsignedLongLiteral:
+        case X10Parser.DoubleLiteral:
+            case X10Parser.FloatingPointLiteral:
+            case X10Parser.ByteLiteral:
+            case X10Parser.ShortLiteral:
+            case X10Parser.IntLiteral:
+            case X10Parser.LongLiteral:
+            case X10Parser.UnsignedByteLiteral:
+            case X10Parser.UnsignedShortLiteral:
+            case X10Parser.UnsignedIntLiteral:
+            case X10Parser.UnsignedLongLiteral:
                  return numberAttribute;
-            case TK_CharacterLiteral:
-            case TK_StringLiteral:
+            case X10Parser.CharacterLiteral:
+            case X10Parser.StringLiteral:
                  return characterAttribute;
             default: {
-                SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
-                // TODO The following should be folded into an LPG-specific token colorer base class
-                if (lpgPC.isKeyword(token.getKind()))
-                     return keywordAttribute;
-                else return null;
+//                SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
+//                // TODO The following should be folded into an LPG-specific token colorer base class
+//                if (lpgPC.isKeyword(token.getKind()))
+//                     return keywordAttribute;
+//                else 
+                	return null;
             }
 	    }
 	}

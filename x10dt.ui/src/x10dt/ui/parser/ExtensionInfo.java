@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 import lpg.runtime.IMessageHandler;
 import lpg.runtime.Monitor;
@@ -33,8 +34,6 @@ import polyglot.frontend.Parser;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.util.ErrorQueue;
-import x10.parser.X10Lexer;
-import x10.parser.X10SemanticRules;
 
 /**
  * Information about our extension of the polyglot compiler. This derives from
@@ -46,18 +45,18 @@ import x10.parser.X10SemanticRules;
  * @author rfuhrer@watson.ibm.com
  */
 public class ExtensionInfo extends x10.ExtensionInfo {
-    private X10Lexer x10_lexer;
-    private X10SemanticRules x10_parser;
-    private final Monitor monitor;
+    //private X10Lexer x10_lexer; 
+    private Parser x10_parser;
+    private final IProgressMonitor monitor;
     private final IMessageHandler handler;
     protected final Set<Source> fInterestingSources = new HashSet<Source>();
     private final Map<Source,Node> fInterestingASTs = new HashMap<Source,Node>();
     protected final Map<Source,Job> fInterestingJobs = new HashMap<Source,Job>();
-    private final Map<Source,X10SemanticRules> fInterestingParsers = new HashMap<Source,X10SemanticRules>();
-    private final Map<Source,X10Lexer> fInterestingLexers = new HashMap<Source,X10Lexer>();
+    private final Map<Source,Parser> fInterestingParsers = new HashMap<Source,Parser>();
+//    private final Map<Source,X10Lexer> fInterestingLexers = new HashMap<Source,X10Lexer>();
     private final IProject project;
     
-    public ExtensionInfo(Monitor monitor, IMessageHandler handler, IProject project) {
+    public ExtensionInfo(IProgressMonitor monitor, IMessageHandler handler, IProject project) {
         this.monitor = monitor;
         this.handler = handler;
         this.project = project;
@@ -67,13 +66,13 @@ public class ExtensionInfo extends x10.ExtensionInfo {
         fInterestingSources.clear();
         fInterestingJobs.clear();
         fInterestingASTs.clear();
-        fInterestingLexers.clear();
+//        fInterestingLexers.clear();
         fInterestingParsers.clear();
         fInterestingSources.addAll(sources);
     }
 
-    public X10Lexer getLexerFor(Source src) { return fInterestingLexers.get(src); }
-    public X10SemanticRules getParserFor(Source src) { return fInterestingParsers.get(src); }
+    //public X10Lexer getLexerFor(Source src) { return fInterestingLexers.get(src); }
+    public Parser getParserFor(Source src) { return fInterestingParsers.get(src); }
     public Node getASTFor(Source src) { Job job= fInterestingJobs.get(src); return (job != null) ? job.ast() : null; /* return fInterestingASTs.get(src); */ }
     public Job getJobFor(Source src) { return fInterestingJobs.get(src); }
 
@@ -109,11 +108,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
     }
 
     public Parser parser(Reader reader, FileSource source, ErrorQueue eq) {
-        x10_parser = (X10SemanticRules) super.parser(reader, source, eq);
-        x10_lexer = x10_parser.getX10Lexer();
-        x10_parser.getIPrsStream().setMessageHandler(handler);
+        x10_parser = super.parser(reader, source, eq);
+ //       x10_lexer = x10_parser.getX10Lexer();
+ //       x10_parser.getIPrsStream().setMessageHandler(handler);
         if (fInterestingSources.contains(source)) {
-            fInterestingLexers.put(source, x10_lexer);
+//            fInterestingLexers.put(source, x10_lexer);
             fInterestingParsers.put(source, x10_parser);
         }
         return x10_parser;

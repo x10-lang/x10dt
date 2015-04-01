@@ -23,13 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
-import lpg.runtime.IPrsStream;
-import lpg.runtime.IToken;
-
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
 import org.eclipse.help.internal.base.BaseHelpSystem;
 import org.eclipse.imp.editor.SourceProposal;
 import org.eclipse.imp.parser.IParseController;
-import org.eclipse.imp.parser.SimpleLPGParseController;
 import org.eclipse.imp.services.IContentProposer;
 import org.eclipse.imp.utils.HTMLPrinter;
 import org.eclipse.jface.text.IDocument;
@@ -44,13 +42,16 @@ import org.eclipse.jface.text.templates.TemplateContextType;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
+import polyglot.ast.Call_c;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
+import polyglot.ast.Eval;
+import polyglot.ast.Eval_c;
 import polyglot.ast.Field;
-import polyglot.ast.FieldAssign;
 import polyglot.ast.FieldDecl;
+import polyglot.ast.Field_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Id;
 import polyglot.ast.LocalDecl;
@@ -63,6 +64,7 @@ import polyglot.types.ObjectType;
 import polyglot.types.Type;
 import polyglot.visit.NodeVisitor;
 import x10.parser.X10Parsersym;
+import x10.parser.antlr.generated.X10Parser;
 import x10.types.MethodInstance;
 import x10dt.ui.parser.ParseController;
 import x10dt.ui.parser.PolyglotNodeLocator;
@@ -203,13 +205,22 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         }
 
         for(MethodInstance method : methods) {
-            list.add(new SourceProposal(method.signature(), prefix, offset));
+        	if (!method.signature().contains("$$")){
+        		list.add(new SourceProposal(removeTypeFromSignature(method.signature()), prefix, offset));
+        	}
         }
 
         for(ClassType type : classes) {
             if (!type.isAnonymous())
                 list.add(new SourceProposal(type.name().toString(), prefix, offset));//PORT1.7 name() replaced with name().toString()
         }
+    }
+    
+    private String removeTypeFromSignature(String signature){
+    	int i = signature.lastIndexOf(":");
+    	if (i == -1)
+    		return signature;
+    	return signature.substring(0,i);
     }
 
     private static final String CONTEXT_ID= "x10Source";
@@ -326,73 +337,73 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         templateLangRefPages.put(fPrintTemplate,       "");
     }
 
+  
     public ICompletionProposal[] getContentProposals(IParseController controller, int offset, ITextViewer viewer) {
     	
         ArrayList<ICompletionProposal> list= new ArrayList<ICompletionProposal>();
-        //
-        // When the offset is in between two tokens (for example, on a white space or comment)
-        // the getTokenIndexAtCharacter in parse stream returns the negative index
-        // of the token preceding the offset. Here, we adjust this index to point instead
-        // to the token following the offset.
-        //
-        // Note that the controller also has a getTokenIndexAtCharacter and
-        // getTokenAtCharacter. However, these methods won't work here because
-        // controller.getTokenAtCharacter(offset) returns null when the offset
-        // is not the offset of a valid token; and controller.getTokenAtCharacter(offset) returns
-        // the index of the token preceding the offset when the offset is not
-        // the offset of a valid token.
-        //
-        IPrsStream prs_stream= ((ParseController) controller).getParseStream();
-        int index= prs_stream.getTokenIndexAtCharacter(offset);
-        int token_index = (index < 0 ? -index + 1 : index);
-        IToken tokenToComplete = null;
-        try {
-        	tokenToComplete= prs_stream.getIToken(token_index); 
-        } catch(IndexOutOfBoundsException e){
-        	return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
-        }
-        SimpleLPGParseController lpgPC= (SimpleLPGParseController) controller;
-        String prefix= computePrefixOfToken(tokenToComplete, offset, lpgPC);
-
-        IToken previousToken = (token_index != 0)? prs_stream.getIToken(token_index - 1) : null;
-
-        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject(), ((ParseController) controller).getLexStream())  ;
-        Node currentAst= (Node) controller.getCurrentAst();
-        Node node= (Node) locator.findNode(currentAst, tokenToComplete.getStartOffset(), tokenToComplete.getEndOffset());
-        Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartOffset(), previousToken.getEndOffset()): null;
-     
-        boolean in_between_tokens = index < 0;
-        if (offset == tokenToComplete.getStartOffset()) // TODO Handle case where caret is within whitespace between tokens
-        	in_between_tokens = true;
+ 
+        CommonTokenStream tokens = ((ParseController) controller).getTokens();
         
-        if (previousToken != null && previousToken.getKind() == TK_DOT) { //Display members following a dot
-        	Node parent= (Node) locator.getParentNodeOf(node, currentAst);
-        	Type type = null;
-        	if (parent instanceof Call){
-        		type = ((Call)parent).target().type();
-        	} else if (parent instanceof Field){
-        		type = ((Field)parent).target().type();
-        	} else if (parent instanceof FieldAssign){
-        		type = ((FieldAssign)parent).target().type();
+        Token tokenToComplete = null;
+        Token previousToken = null;
+        Token nextToken = null;
+        
+        int index = 0;
+        for(Token t: tokens.getTokens()){
+        	index++;
+    		if (t.getChannel() == Token.DEFAULT_CHANNEL){
+    			if (t.getStartIndex() <= offset && t.getStopIndex() + 1 >= offset){
+    				tokenToComplete = t;
+    				break;
+    			}
+    			if (t.getStartIndex() > offset){
+    				break;
+    			}
+    			previousToken = t;
+    		}
+    	}
+        
+        if (tokenToComplete == null){
+        	nextToken = tokens.getTokens().get(index);
+        }
+        
+        String prefix= tokenToComplete==null?"":computePrefixOfToken(tokenToComplete, offset, (ParseController) controller);
+       
+        PolyglotNodeLocator locator= new PolyglotNodeLocator(controller.getProject()/*,((ParseController) controller).getLexStream()*/)  ;
+        Node currentAst= (Node) controller.getCurrentAst();
+        Node node= tokenToComplete!=null?(Node) locator.findNode(currentAst, tokenToComplete.getStartIndex(), tokenToComplete.getStopIndex()):null;
+        Node previousNode = (previousToken != null)? (Node) locator.findNode(currentAst, previousToken.getStartIndex(), previousToken.getStopIndex()): null;
+        Node nextNode = (nextToken != null)? (Node) locator.findNode(currentAst, nextToken.getStartIndex(), nextToken.getStopIndex()): null;
+        
+        if (node !=null && node instanceof Eval && tokenToComplete.getType() == X10Parser.DOT){
+        	Type type = ((Eval_c) node).expr().type();
+        	if (type != null && type.isReference()){
+        		getCandidates((ObjectType) type, list, prefix, offset, true);
         	}
+        } else if (node !=null && node instanceof Id && previousNode instanceof Field){
+        	Type type = ((Field_c) previousNode).target().type();
+        	if (type != null && type.isReference()){
+        		getCandidates((ObjectType) type, list, prefix, offset, true);
+        	}
+        } else if (node != null && node instanceof Id && previousNode instanceof Call){
+        	Type type = ((Call_c) previousNode).target().type();
         	if (type != null && type.isReference()){
         		getCandidates((ObjectType) type, list, prefix, offset, true);
         	}
         
         //The next case completes an Id with names in scope  
-        } else if ((node instanceof Id && offset > tokenToComplete.getStartOffset() && offset <= tokenToComplete.getEndOffset()) ||  
-        		   (previousNode instanceof Id && offset == previousToken.getEndOffset() + 1)){ //at the very end of an Id
+        } else if (node != null && node instanceof Id){ 
         	Node n = (node instanceof Id)? node : previousNode;
-        	String pref = (node instanceof Id)? prefix : computePrefixOfToken(previousToken, offset, lpgPC);
+        	String pref = (node instanceof Id)? prefix : computePrefixOfToken(previousToken, offset, (ParseController) controller);
         	addNamesInScope(currentAst, n, pref, list, offset, !EMPTY_PREFIX_MATCHES);
         
-        } else if (in_between_tokens){ //Display templates, names in scope -- index < 0 when we are at a white space or comment
-            Node location = location(previousNode, node, locator, currentAst);
-            if (location instanceof Block && (justAfter(TK_SEMICOLON, previousToken) || justAfter(TK_RBRACE, previousToken) || justAfter(TK_LBRACE, previousToken))){ //Statement context. 
+        } else if (node == null && previousNode != null){ //Display templates, names in scope -- index < 0 when we are at a white space or comment
+            Node location = location(previousNode, nextNode, locator, currentAst);
+            if (location instanceof Block && (justAfter(X10Parser.SEMICOLON, previousToken) || justAfter(X10Parser.RBRACE, previousToken) || justAfter(X10Parser.LBRACE, previousToken))){ //Statement context. 
         		addTemplateProposals(offset, viewer, list, prefix, fTemplates);
         		//addNamesInScope(currentAst, node, prefix, list, offset, EMPTY_PREFIX_MATCHES);
         	}
-            else if (justAfter(TK_EQUAL, previousToken) && (location instanceof Assign || location instanceof LocalDecl)){
+            else if (justAfter(X10Parser.EQUAL, previousToken) && (location instanceof Assign || location instanceof LocalDecl)){
             	Template[] templates = new Template[]{fAtExpressionTemplate, fCoercionTemplate,  fRegion1DTemplate, fRegion2DTemplate};
             	addTemplateProposals(offset, viewer, list, prefix, templates );
             }
@@ -402,44 +413,15 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         		addTemplateProposals(offset, viewer, list, prefix, templates);
             
         	} 
-            
-            //add method modifiers before a "def"
-            if (justBefore(TK_def, tokenToComplete, previousToken, offset)){
-            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate, fPrivateTemplate, fPropertyTemplate };
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-            }
-            
-            //add class modifiers before a "class"
-            if (justBefore(TK_class, tokenToComplete, previousToken, offset)) {
-            	Template[] templates = new Template[]{fAbstractTemplate, fFinalTemplate};
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-            }
-        	
-            //add field modifiers before a "val" field declaration
-            if (location instanceof ClassBody && (justBefore(TK_val, tokenToComplete, previousToken, offset))){
-        		Template[] templates = new Template[]{fPropertyTemplate};
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-        	}
-            
-            //add type parameter in a class declaration
-            if (location instanceof ClassDecl && previousNode instanceof CanonicalTypeNode &&  
-            		offset == previousToken.getEndOffset() + 1){
-           		Template[] templates = new Template[]{fGenericParameter};
-        		addTemplateProposals(offset, viewer, list, prefix, templates);
-            }
         }
                
         return (ICompletionProposal[]) list.toArray(new ICompletionProposal[list.size()]);
     }
-
-    // Tests if we are just before a token of kind tokenKind, with white space before the current cursor position
-    private boolean justBefore(int tokenKind, IToken tokenToComplete, IToken previousToken, int offset){
-    	return tokenToComplete.getKind() == tokenKind && offset > previousToken.getEndOffset() + 1;
-    }
     
     // Tests if we are just after a token of kind tokenKind
-    private boolean justAfter(int tokenKind, IToken previousToken){
-    	return previousToken.getKind() == tokenKind;
+    private boolean justAfter(int tokenKind, Token previousToken){
+    	
+    	return previousToken.getType() == tokenKind;
     }
     
     // Finds the least common parent of prev and next in the currentAst. The reason for using our own visitor is that polyglot parent finder changes the AST as it goes along.
@@ -528,11 +510,11 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     }
   
 
-    private String computePrefixOfToken(IToken tokenToComplete, int offset, SimpleLPGParseController lpgPC) {
+    private String computePrefixOfToken(Token tokenToComplete, int offset, ParseController pc) {
         String prefix= "";
-        if (tokenToComplete.getKind() == TK_IDENTIFIER || tokenToComplete.getKind() == TK_ErrorId || lpgPC.isKeyword(tokenToComplete.getKind())) {
-            if (offset >= tokenToComplete.getStartOffset() && offset <= tokenToComplete.getEndOffset() + 1) {
-                prefix= tokenToComplete.toString().substring(0, offset - tokenToComplete.getStartOffset());
+        if (tokenToComplete.getType() == X10Parser.IDENTIFIER || /*tokenToComplete.getType() == X10Parser.ErrorId ||*/ pc.isKeyword(tokenToComplete.getType())) {
+            if (offset >= tokenToComplete.getStartIndex() && offset <= tokenToComplete.getStopIndex() + 1) {
+                prefix= tokenToComplete.getText().toString().substring(0, offset - tokenToComplete.getStartIndex());
             }
         }
         return prefix;

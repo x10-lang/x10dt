@@ -21,7 +21,6 @@ import org.eclipse.imp.editor.ModelTreeNode;
 import org.eclipse.imp.language.ILanguageService;
 import org.eclipse.imp.services.ILabelProvider;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
@@ -44,7 +43,6 @@ import x10.ast.Finish;
 import x10.ast.Next;
 import x10.ast.TypeDecl_c;
 import x10.ast.X10Loop;
-import x10.parser.X10SemanticRules.JPGPosition;
 import x10dt.ui.X10DTUIPlugin;
 import x10dt.ui.typeHierarchy.X10ElementImageProvider;
 
@@ -192,7 +190,7 @@ public class X10LabelProvider implements ILabelProvider, ILanguageService, IStyl
     }
 
     private String sourceText(Node n) {
-        return ((JPGPosition) n.position()).toText();
+        return n.toString();
     }
 
     private String filter(String name) {

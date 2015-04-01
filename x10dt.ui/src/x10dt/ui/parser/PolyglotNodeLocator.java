@@ -11,12 +11,9 @@
 
 package x10dt.ui.parser;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import lpg.runtime.ILexStream;
-import lpg.runtime.IPrsStream;
 import lpg.runtime.IToken;
 
 import org.eclipse.core.runtime.IPath;
@@ -83,16 +80,12 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
 
     private final ISourceProject fSrcProject;
 
-    private final ILexStream fLS;
-
     private boolean DEBUG= false;
 
     private NodeVisitor fVisitor= new NodeVisitor() {
         public NodeVisitor enter(Node n) {
             if (DEBUG) {
             	System.out.println("Entering node type = " + n.getClass().getName());
-            	if (fLS != null)
-            		System.out.println("  first token '" + fLS.getIPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
             }
             // N.B.: Polyglot's notion of line # is 1 off from that of Eclipse's.
             Position pos= n.position();
@@ -205,8 +198,6 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         public NodeVisitor enter(Node n) {
             if (DEBUG) {
             	System.out.println("Entering node type = " + n.getClass().getName());
-            	if (fLS != null)
-            		System.out.println("  first token '" + fLS.getIPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
             }
 
             NodeVisitor v = this;
@@ -250,8 +241,6 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         public NodeVisitor enter(Node n) {
             if (DEBUG) {
             	System.out.println("Entering node type = " + n.getClass().getName());
-            	if (fLS != null)
-            		System.out.println("  first token '" + fLS.getIPrsStream().getTokenAtCharacter(n.position().offset()) + "'");
             }
 
             NodeVisitor v = this;
@@ -319,8 +308,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         }
     };
 
-    public PolyglotNodeLocator(ISourceProject srcProject, ILexStream ls) {
-        fLS= ls;
+    public PolyglotNodeLocator(ISourceProject srcProject) {
         fSrcProject= srcProject;
     }
 
@@ -336,14 +324,6 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         if (ast == null) return null;
 //      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
 //        return null;
-        if (DEBUG && fLS != null) {
-            IPrsStream ps= fLS.getIPrsStream();
-            if (endOffset == startOffset)
-                System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
-            else {
-                System.out.println("Token span: '" + ps.getTokenAtCharacter(startOffset) + "' to '" + ps.getTokenAtCharacter(endOffset) + "'");
-            }
-        }
         fOffset= startOffset;
         fEndOffset= endOffset;
         ((Node) ast).visit(fVisitor); // assigns to fNode[0], if a suitable node is found
@@ -399,14 +379,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         if (ast == null) return null;
 //      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
 //        return null;
-        if (DEBUG && fLS != null) {
-            IPrsStream ps= fLS.getIPrsStream();
-            if (endOffset == startOffset)
-                System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
-            else {
-                System.out.println("Token span: '" + ps.getTokenAtCharacter(startOffset) + "' to '" + ps.getTokenAtCharacter(endOffset) + "'");
-            }
-        }
+
         fOffset= startOffset;
         fEndOffset= endOffset;
         ((Node) ast).visit(fEnclosingMethodDeclVisitor); // assigns to fNode[0], if a suitable node is found
@@ -432,14 +405,7 @@ public class PolyglotNodeLocator implements ISourcePositionLocator {
         if (ast == null) return null;
 //      if (endOffset == startOffset && Character.isWhitespace(fLS.getCharValue(startOffset)))
 //        return null;
-        if (DEBUG && fLS != null) {
-            IPrsStream ps= fLS.getIPrsStream();
-            if (endOffset == startOffset)
-                System.out.println("Token at this offset: '" + ps.getTokenAtCharacter(startOffset) + "'");
-            else {
-                System.out.println("Token span: '" + ps.getTokenAtCharacter(startOffset) + "' to '" + ps.getTokenAtCharacter(endOffset) + "'");
-            }
-        }
+
         fOffset= startOffset;
         fEndOffset= endOffset;
         ((Node) ast).visit(fEnclosingClassDeclVisitor); // assigns to fNode[0], if a suitable node is found
