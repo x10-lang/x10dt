@@ -205,7 +205,9 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         }
 
         for(MethodInstance method : methods) {
-            list.add(new SourceProposal(removeTypeFromSignature(method.signature()), prefix, offset));
+        	if (!method.signature().contains("$$")){
+        		list.add(new SourceProposal(removeTypeFromSignature(method.signature()), prefix, offset));
+        	}
         }
 
         for(ClassType type : classes) {
@@ -215,8 +217,7 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
     }
     
     private String removeTypeFromSignature(String signature){
-    	String ret = signature;
-    	int i = signature.indexOf(":");
+    	int i = signature.lastIndexOf(":");
     	if (i == -1)
     		return signature;
     	return signature.substring(0,i);
