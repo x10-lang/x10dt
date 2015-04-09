@@ -377,6 +377,7 @@
           <include name="org.junit_4*/junit.jar"/>
           <include name="lpg*.jar"/>
           <include name="org.hamcrest.core_*.jar"/>
+          <include name="x10.antlr_*.jar"/>
           <include name="x10.compiler_*.jar"/>
           <include name="x10.effects_*.jar"/>
           <include name="x10.jar"/>
