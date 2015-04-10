@@ -143,6 +143,7 @@
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="math-jar" />
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="shrike-jar" />
 
+    <ant antfile="${x10.build.loc}/x10.antlr/exportPlugin.xml" dir="${x10.build.loc}/x10.antlr" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.common/exportPlugin.xml" dir="${x10.build.loc}/x10.common" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.constraints/exportPlugin.xml" dir="${x10.build.loc}/x10.constraints" target="build.jars"/>
     <ant antfile="${x10.build.loc}/x10.compiler/exportPlugin.xml" dir="${x10.build.loc}/x10.compiler" target="build.jars">
