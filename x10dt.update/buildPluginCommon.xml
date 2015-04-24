@@ -175,6 +175,9 @@
         <!-- Clean out output.folder to make sure we don't pick up anything left behind by previous builds. -->
         <delete dir="${output.folder}"/>
         <mkdir dir="${output.folder}"/>
+		<echo message="${plugin.dependencies}"/>
+		<echo message="${eclipse.build.path}"/>
+		<echo message="${extra.build.path}"/>
         <javac destdir="${output.folder}" failonerror="${javacFailOnError}"
                verbose="${javacVerbose}" debug="${javacDebugInfo}"
                includeAntRuntime="no" bootclasspath="${bootclasspath}"
