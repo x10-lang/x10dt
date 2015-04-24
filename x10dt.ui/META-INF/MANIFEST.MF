@@ -36,8 +36,7 @@ Require-Bundle: org.eclipse.core.filesystem,
  x10dt.search.core,
  org.eclipse.ui.navigator,
  lpg.runtime;bundle-version="2.0.22",
- x10.compiler,
- x10.antlr
+ x10.compiler
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Bundle-Activator: x10dt.ui.X10DTUIPlugin
 Export-Package: x10dt.ui,
