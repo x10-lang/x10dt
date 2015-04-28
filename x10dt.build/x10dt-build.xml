@@ -13,6 +13,7 @@
       <and>
         <available file="${build.folder}/x10dt" type="dir" />
         <available file="${build.folder}/x10dt.core" type="dir" />
+        <available file="${build.folder}/x10dt.editor.feature" type="dir" />
         <available file="${build.folder}/x10dt.feature" type="dir" />
         <available file="${build.folder}/x10dt.help" type="dir" />
         <available file="${build.folder}/x10dt.refactoring" type="dir" />
@@ -34,6 +35,8 @@
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.core" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.core" />
+      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.editor.feature" 
+                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.editor.feature" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.feature" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.feature" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.help" 

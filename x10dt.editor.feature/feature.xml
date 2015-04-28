@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="x10dt.editor.only.feature"
+      id="x10dt.editor.feature"
       label="%featureName"
       version="2.5.2.qualifier"
       provider-name="%providerName"
-      plugin="x10dt.editor.only"
       os="win32,linux,macosx"
       arch="x86,x86_64"
       image="eclipse_update_120.jpg">
@@ -144,12 +143,6 @@
          fragment="true"/>
 
    <plugin
-         id="x10dt.editor.only"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="x10dt.refactoring"
          download-size="0"
          install-size="0"
@@ -179,6 +172,13 @@
 
    <plugin
          id="x10dt.ui.builder.java"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="x10.antlr"
          download-size="0"
          install-size="0"
          version="0.0.0"
