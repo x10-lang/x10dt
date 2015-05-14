@@ -31,9 +31,11 @@
     <condition property="are-plugins-present">
       <and>
         <available file="${x10.build.loc}/x10.common"      type="dir" />
-        <available file="${x10.build.loc}/x10.constraints" type="dir" />
         <available file="${x10.build.loc}/x10.compiler"    type="dir" />
+        <available file="${x10.build.loc}/x10.constraints" type="dir" />
+        <available file="${x10.build.loc}/x10.dist"         type="dir" />
         <available file="${x10.build.loc}/x10.doc"         type="dir" />
+        <available file="${x10.build.loc}/x10.network"     type="dir" />
         <available file="${x10.build.loc}/x10.runtime"     type="dir" />
         <available file="${x10.build.loc}/x10.wala"        type="dir" />
         <available file="${x10.build.loc}/x10dt.update"    type="dir" />
@@ -46,20 +48,22 @@
   <target name="x10-checkouts" depends="x10-checkouts-existence" unless="are-plugins-present">
     <echo message="Using SVN revision ${x10.revision} and tag ${x10.tag} for X10 core checkouts"/>
     <svn username="anonymous">
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.compiler" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.compiler" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.common" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.common" />
+      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.compiler" revision="${x10.revision}" 
+                destPath="${x10.build.loc}/x10.compiler" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.constraints" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.constraints" />
+      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.dist" revision="${x10.revision}" 
+                destPath="${x10.build.loc}/x10.dist" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.doc" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.doc" />
+      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.network" revision="${x10.revision}" 
+                destPath="${x10.build.loc}/x10.network" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.runtime" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.runtime" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.wala" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.wala" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.dist" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.dist" />
 
       <!-- We get the following X10DT plugin projects here b/c the exportPlugin.xml scripts in
            the X10 core plugins above depend on buildCommon.xml and buildPluginCommon.xml. -->
