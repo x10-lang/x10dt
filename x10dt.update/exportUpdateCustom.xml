@@ -179,6 +179,7 @@
         <antcall target="prepare.x10.dist"/>
 
         <antcall target="collect.lpg.artifacts"/>
+        <antcall target="collect.antlr.artifacts"/>
         <antcall target="collect.polyglot.artifacts"/> 
         <antcall target="collect.imp.artifacts"/>
         <antcall target="collect.ptp.artifacts"/>
@@ -198,6 +199,13 @@
         <property name="lpg.feature.jar.name" value="lpg.runtime_${lpg.update.version}.jar"/>
         <property name="lpg.runtime.feature.url" value="${lpg.update.site.url}/features/${lpg.feature.jar.name}"/>
         <get usetimestamp="yes" dest="${update.temp.folder}/features/${lpg.feature.jar.name}" src="${lpg.runtime.feature.url}"/>
+    </target>
+
+    <target name="collect.antlr.artifacts" depends="init">
+        <!-- Get the antlr-runtime plugin -->
+        <property name="antlr.jar.name" value="antlr-runtime_${antlr.update.version}.jar"/>
+        <property name="antlr.plugin.url" value="${antlr.update.site.url}/${antlr.jar.name}"/>
+        <get usetimestamp="yes" dest="${update.temp.folder}/plugins/${antlr.jar.name}" src="${antlr.plugin.url}"/>
     </target>
 
     <target name="collect.polyglot.artifacts" depends="init">

@@ -27,7 +27,6 @@
   <target name="x10-checkouts-existence">
     <condition property="are-plugins-present">
       <and>
-        <available file="${x10.build.loc}/x10.antlr"       type="dir" />
         <available file="${x10.build.loc}/x10.common"      type="dir" />
         <available file="${x10.build.loc}/x10.constraints" type="dir" />
         <available file="${x10.build.loc}/x10.compiler"    type="dir" />
@@ -44,8 +43,6 @@
   <target name="x10-checkouts" depends="x10-checkouts-existence" unless="are-plugins-present">
     <echo message="Using SVN revision ${x10.revision} and tag ${x10.tag} for X10 core checkouts"/>
     <svn username="anonymous">
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.antlr" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.antlr" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.compiler" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.compiler" />
       <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.common" revision="${x10.revision}" 
@@ -77,14 +74,6 @@
     <condition property="x10.dist.available">
       <and>
         <available file="${x10.build.loc}" type="dir" />
-        <resourcecount when="greater" count="0">
-          <restrict>
-            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
-            <fileset dir="${x10.build.loc}/x10.antlr">
-              <include name="x10.antlr_*.jar" />
-            </fileset>
-          </restrict>
-        </resourcecount>
         <resourcecount when="greater" count="0">
           <restrict>
             <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
@@ -142,10 +131,10 @@
 
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="math-jar" />
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="shrike-jar" />
+    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="antlr-jar" />
 
     <ant antfile="${x10.build.loc}/x10.common/exportPlugin.xml" dir="${x10.build.loc}/x10.common" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.constraints/exportPlugin.xml" dir="${x10.build.loc}/x10.constraints" target="build.jars"/>
-    <ant antfile="${x10.build.loc}/x10.antlr/exportPlugin.xml" dir="${x10.build.loc}/x10.antlr" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.compiler/exportPlugin.xml" dir="${x10.build.loc}/x10.compiler" target="build.jars">
       <property name="extra.build.path" value="${x10.compiler.extra.build.path}" />
     </ant>
@@ -253,7 +242,6 @@
   <target name="transfer-x10-core">
     <mkdir dir="${x10.compiler.dist}" />
     <copy todir="${x10.compiler.dist}">
-      <fileset dir="${x10.build.loc}/x10.antlr" includes="x10.antlr_*.jar" />
       <fileset dir="${x10.build.loc}/x10.constraints" includes="x10.constraints_*.jar" />
       <fileset dir="${x10.build.loc}/x10.common" includes="x10.common_*.jar" />
       <fileset dir="${x10.build.loc}/x10.compiler" includes="x10.compiler_*.jar" />
