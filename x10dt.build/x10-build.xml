@@ -108,6 +108,14 @@
         <resourcecount when="greater" count="0">
           <restrict>
             <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
+            <fileset dir="${x10.build.loc}/x10.network">
+              <include name="x10.network_*.jar" />
+            </fileset>
+          </restrict>
+        </resourcecount>
+        <resourcecount when="greater" count="0">
+          <restrict>
+            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
             <fileset dir="${x10.build.loc}/x10.runtime">
               <include name="x10.runtime_*.jar" />
             </fileset>
@@ -146,6 +154,7 @@
       <property name="extra.build.path" value="${x10.compiler.extra.build.path}" />
     </ant>
     <antcall target="prepare.x10.dist" />
+    <ant antfile="${x10.build.loc}/x10.network/exportPlugin.xml" dir="${x10.build.loc}/x10.network" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.runtime/exportPlugin.xml" dir="${x10.build.loc}/x10.runtime" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.wala/exportPlugin.xml" dir="${x10.build.loc}/x10.wala" target="build.jars">
       <property name="extra.build.path" value="${x10.wala.extra.build.path}" />
@@ -252,6 +261,7 @@
       <fileset dir="${x10.build.loc}/x10.constraints" includes="x10.constraints_*.jar" />
       <fileset dir="${x10.build.loc}/x10.common" includes="x10.common_*.jar" />
       <fileset dir="${x10.build.loc}/x10.compiler" includes="x10.compiler_*.jar" />
+      <fileset dir="${x10.build.loc}/x10.network" includes="x10.network_*.jar" />
       <fileset dir="${x10.build.loc}/x10.runtime" includes="x10.runtime_*.jar" />
       <fileset dir="${x10.build.loc}/x10.wala" includes="x10.wala_*.jar" />
       <fileset dir="${x10.build.loc}/x10.dist.host" includes="x10.dist.host_*.jar" />

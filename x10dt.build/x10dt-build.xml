@@ -105,6 +105,7 @@
       <sign alias="x10dt" keystore="${build.loc}/x10dt.keystore" keypass="x10-lang" 
             storepass="x10 Development Toolkit" />
       <plugin id="x10.compiler" version="0.0.0"/>
+      <plugin id="x10.network" version="0.0.0"/>
       <plugin id="x10.runtime" version="0.0.0"/>
       <plugin id="x10.constraints" version="0.0.0"/>
       <plugin id="x10.common" version="0.0.0"/>

@@ -17,6 +17,9 @@
 			<param name="proj" value="x10.constraints" />
 		</antcall>
 		<antcall target="copyjar">
+			<param name="proj" value="x10.network" />
+		</antcall>
+		<antcall target="copyjar">
 			<param name="proj" value="x10.runtime" />
 		</antcall>
 
