@@ -48,31 +48,31 @@
   <target name="x10-checkouts" depends="x10-checkouts-existence" unless="are-plugins-present">
     <echo message="Using SVN revision ${x10.revision} and tag ${x10.tag} for X10 core checkouts"/>
     <svn username="anonymous">
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.common" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.common" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.common" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.compiler" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.compiler" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.compiler" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.constraints" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.constraints" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.constraints" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.dist" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.dist" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.dist" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.doc" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.doc" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.doc" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.network" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.network" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.network" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.runtime" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.runtime" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.runtime" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.wala" revision="${x10.revision}" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.wala" revision="${x10.revision}" 
                 destPath="${x10.build.loc}/x10.wala" />
 
       <!-- We get the following X10DT plugin projects here b/c the exportPlugin.xml scripts in
            the X10 core plugins above depend on buildCommon.xml and buildPluginCommon.xml. -->
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.update" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.update" 
                 revision="${x10dt.revision}" destPath="${x10.build.loc}/x10dt.update" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.feature" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.feature" 
                 revision="${x10dt.revision}" destPath="${x10.build.loc}/x10dt.feature" />
 
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10.dist.host" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10.dist.host" 
                 revision="${x10dt.revision}" destPath="${x10.build.loc}/x10.dist.host" />
     </svn>
   </target>
@@ -195,7 +195,7 @@
     <!-- Add to the fragment directory the necessary bits from the source project.
          This is really just for the bundle fragment's MANIFEST.MF. -->
     <svn username="anonymous">
-      <export srcUrl="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/${fragment-name}" 
+      <export srcUrl="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/${fragment-name}" 
                 revision="${x10dt.revision}" destPath="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
     </svn>
 
@@ -272,7 +272,7 @@
     <antcall target="x10-checkouts" />
     <antcall target="build" />
     <svn>
-      <info target="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}"/>
+      <info target="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}"/>
     </svn>
     <fail message="Could not find directory ${x10.build.base}/${svn.info.lastRev}">
       <condition>
