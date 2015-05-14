@@ -15,13 +15,16 @@
     <fileset dir="${build.folder}/dependencies/repos/mirror/plugins" includes="lpg.runtime_*.jar" />
     <fileset dir="${build.folder}/dependencies/repos/mirror/plugins" includes="lpg.runtime.java_*.jar" />
   </path>
+  <path id="antlr.path.ref">
+    <fileset dir="${antlr.update.loc}/plugins" includes="antlr-runtime*.jar"/>
+  </path>
   <path id="wala.path.ref">
     <fileset dir="${wala.update.loc}/plugins" includes="com.ibm.wala*.jar"/>
   </path>
   <property name="x10.compiler.dist" value="${repoBaseLocation}/compiler/plugins"/>
   <!-- For building with build files in X10 plugins -->
   <property name="eclipse.target.platform" value="../../eclipse" />
-  <property name="x10.compiler.extra.build.path" value="${toString:lpg.path.ref}:${toString:wala.path.ref}" />
+  <property name="x10.compiler.extra.build.path" value="${toString:lpg.path.ref}:${toString:wala.path.ref}:${toString:antlr.path.ref}" />
   <property name="x10.wala.extra.build.path" value="${toString:wala.path.ref}" />
 
   <target name="x10-checkouts-existence">
