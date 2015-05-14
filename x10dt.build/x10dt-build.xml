@@ -31,38 +31,38 @@
   <target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
     <echo message="Using SVN revision ${x10dt.revision} and tag ${x10dt.tag} for X10DT project checkouts"/>
     <svn username="anonymous">
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.core" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.core" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.core" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.editor.feature" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.editor.feature" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.editor.feature" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.feature" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.feature" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.feature" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.help" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.help" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.help" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.refactoring" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.refactoring" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.refactoring" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.search.core" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.search.core" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.search.core" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.search.ui" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.search.ui" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.search.ui" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.core" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.core" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.core" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.cpp" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.java" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.java" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.java" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.builder.java" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.builder.java" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.builder.java" />
-      <checkout url="https://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10.effects" 
+      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10.effects" 
                 revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
     </svn>
     <!-- Substitute the SVN revision of the X10 core projects into an X10DT source file -->
     <svn>
-      <info target="https://svn.code.sourceforge.net/p/x10/code/${x10.tag}" propPrefix="x10.svn.info"/>
+      <info target="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}" propPrefix="x10.svn.info"/>
     </svn>
 
     <condition property="x10.revision.used" value="${x10.svn.info.lastRev}">
