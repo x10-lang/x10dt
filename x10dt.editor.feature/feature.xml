@@ -36,6 +36,10 @@
          id="wala.feature"
          version="0.0.0"/>
 
+   <includes
+         id="antlr.feature"
+         version="0.0.0"/>
+
    <plugin
          id="x10.compiler"
          download-size="0"
@@ -178,7 +182,7 @@
          unpack="false"/>
 
    <plugin
-         id="antlr-runtime"
+         id="x10.network"
          download-size="0"
          install-size="0"
          version="0.0.0"

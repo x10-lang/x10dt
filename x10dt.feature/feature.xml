@@ -34,10 +34,6 @@
          version="0.0.0"/>
 
    <includes
-         id="lpg.runtime"
-         version="0.0.0"/>
-
-   <includes
          id="org.eclipse.imp.java.hosted"
          version="0.0.0"/>
 
@@ -47,10 +43,6 @@
 
    <includes
          id="org.eclipse.imp.analysis"
-         version="0.0.0"/>
-
-   <includes
-         id="wala.feature"
          version="0.0.0"/>
 
    <includes
