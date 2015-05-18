@@ -97,6 +97,9 @@
       <source>
         <repository location="${wala.update.loc}" />
       </source>
+      <source>
+        <repository location="${antlr.update.loc}" />
+      </source>
 
       <iu id="org.eclipse.cdt.feature.group" />
 
@@ -119,6 +122,8 @@
       <iu id="org.eclipse.imp.analysis.feature.group" />
 
       <iu id="wala.feature.feature.group"/>
+
+      <iu id="antlr.feature.feature.group"/>
 
       <slicingOptions followStrict="true" includeOptional="false"/>
     </p2.mirror>
