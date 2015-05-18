@@ -28,13 +28,7 @@
 
         <available file="${ptp.update.cache.dir}/features" property="ptp.update.cache.verified"/>
 
-        <property name="polyglotProjectName"   value="polyglot3"/>
-
         <!-- Remove the following workspace checks, once we're able to build against plugin jars (cf. source) for our dependencies -->
-        <available file="../${polyglotProjectName}" property="polyglot.workspace.verified"/>
-        <fail unless="polyglot.workspace.verified">
-            The project '${polyglotProjectName}' does not exist in your workspace.
-        </fail>
         <available file="../lpg.update" property="lpg.workspace.verified"/>
         <fail unless="lpg.workspace.verified">
             The project 'lpg.update' does not exist in your workspace.
@@ -45,7 +39,6 @@
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="squeakyclean"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="bin"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="ecj-jar"/>
-        <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="polyglot-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="lpg-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="hazelcast-jar"/>
         <ant antfile="../x10.dist/build.xml" dir="../x10.dist" target="compiler-jar"/>
@@ -72,7 +65,7 @@
         <antcall target="add.features.to.site.xml.x10dt"/>
 <!--    <antcall target="add.features.to.site.xml.sdf"/> -->
         <antcall target="add.features.to.site.xml.lpg"/>
-        <antcall target="add.features.to.site.xml.polyglot"/>
+        <antcall target="add.features.to.site.xml.antlr"/>
         <antcall target="add.features.to.site.xml.imp"/>
         <antcall target="add.features.to.site.xml.ptp"/>
     </target>
@@ -99,11 +92,12 @@
         </antcall>
     </target>
 
-    <target name="add.features.to.site.xml.polyglot">
+
+    <target name="add.features.to.site.xml.antlr">
         <antcall target="add.feature">
-            <param name="feature.id"      value="polyglot3"/>
-            <param name="feature.version" value="${polyglot.update.version}"/>
-            <param name="category"        value="${polyglot.update.category}"/>
+            <param name="feature.id"      value="antlr.runtime"/>
+            <param name="feature.version" value="${antlr.update.version}"/>
+            <param name="category"        value="${antlr.update.category}"/>
         </antcall>
     </target>
 
@@ -180,7 +174,6 @@
 
         <antcall target="collect.lpg.artifacts"/>
         <antcall target="collect.antlr.artifacts"/>
-        <antcall target="collect.polyglot.artifacts"/> 
         <antcall target="collect.imp.artifacts"/>
         <antcall target="collect.ptp.artifacts"/>
     </target>
@@ -204,18 +197,13 @@
     <target name="collect.antlr.artifacts" depends="init">
         <!-- Get the antlr-runtime plugin -->
         <property name="antlr.jar.name" value="antlr-runtime_${antlr.update.version}.jar"/>
-        <property name="antlr.plugin.url" value="${antlr.update.site.url}/${antlr.jar.name}"/>
+        <property name="antlr.plugin.url" value="${antlr.update.site.url}/plugins/${antlr.jar.name}"/>
         <get usetimestamp="yes" dest="${update.temp.folder}/plugins/${antlr.jar.name}" src="${antlr.plugin.url}"/>
-    </target>
 
-    <target name="collect.polyglot.artifacts" depends="init">
-        <property name="polyglot.jar.name" value="polyglot3_${polyglot.update.version}.jar"/>
-        <property name="polyglot.plugin.url" value="${polyglot.update.site.url}/plugins/${polyglot.jar.name}"/>
-        <get usetimestamp="yes" dest="${update.temp.folder}/plugins/${polyglot.jar.name}" src="${polyglot.plugin.url}"/>
-
-        <property name="polyglot.feature.jar.name" value="polyglot3_${polyglot.update.version}.jar"/>
-        <property name="polyglot.feature.url" value="${polyglot.update.site.url}/features/${polyglot.feature.jar.name}"/>
-        <get usetimestamp="yes" dest="${update.temp.folder}/features/${polyglot.feature.jar.name}" src="${polyglot.feature.url}"/>
+        <!-- Get the feature -->
+        <property name="antlr.feature.jar.name" value="antlr.feature_${antlr.update.version}.jar"/>
+        <property name="antlr.feature.url" value="${antlr.update.site.url}/features/${antlr.feature.jar.name}"/>
+        <get usetimestamp="yes" dest="${update.temp.folder}/features/${antlr.feature.jar.name}" src="${antlr.feature.url}"/>
     </target>
 
     <target name="collect.imp.artifacts" depends="retrieve.imp">
