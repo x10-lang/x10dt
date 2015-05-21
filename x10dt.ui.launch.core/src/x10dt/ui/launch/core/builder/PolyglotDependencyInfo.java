@@ -150,6 +150,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
     }
     
     protected String getPath(Position pos){
+        if (null == pos) return null;
     	String filePath= pos.file();
     	if (filePath.contains("x10.jar"))
     		return null;
@@ -168,6 +169,7 @@ public class PolyglotDependencyInfo extends DependencyInfo {
         if (fromPath == null) return;
         ClassType uponClassType = getClassType(uponType);
         Position uponPosition = uponClassType.position();
+        if (uponPosition == null) return;
         if (!uponPosition.isCompilerGenerated()){
         	String uponPath= getPath(uponPosition);
         	if (uponPath == null) return;
