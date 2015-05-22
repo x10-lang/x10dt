@@ -7,7 +7,8 @@
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xmx768m -XX:MaxPermSize=256m</vmArgs>
+      <vmArgs>-Xmx1024m -XX:MaxPermSize=256m</vmArgs>
+      <vmArgsLin>-Dorg.eclipse.swt.internal.gtk.cairoGraphics=false</vmArgsLin>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
