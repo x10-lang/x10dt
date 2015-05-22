@@ -57,7 +57,7 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
   private IClasspathEntry[] newResolveClassPathEntries(final IJavaProject project) throws CoreException {
     final List<IClasspathEntry> cpEntries = new ArrayList<IClasspathEntry>();
     final URL x10RuntimeURL = X10BundleUtils.getX10RuntimeURL();
-    if ((x10RuntimeURL == null) || ! X10BundleUtils.isDeployedX10Runtime(x10RuntimeURL)) {
+    if ((x10RuntimeURL == null) || !X10BundleUtils.isDeployedX10Runtime(x10RuntimeURL)) {
       if (x10RuntimeURL == null) {
         final IMarker marker = project.getProject().createMarker(X10DTCorePlugin.kPluginID + ".classpathMarker"); //$NON-NLS-1$
         marker.setAttribute(IMarker.MESSAGE, Messages.XCCI_NoX10JARFound);
@@ -68,8 +68,9 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
         addClasspathEntry(cpEntries, x10RuntimeURL);
       }
     } else {
-      // We're in "deployed mode", so add the bundles for x10.runtime, x10.common and x10.constraints
+      // We're in "deployed mode", so add the bundles for x10.runtime, x10.network, x10.common and x10.constraints
       addClasspathEntry(cpEntries, x10RuntimeURL);
+      // addClasspathEntry(cpEntries, X10BundleUtils.getX10NetworkURL());
       addClasspathEntry(cpEntries, X10BundleUtils.getX10CommonURL());
       addClasspathEntry(cpEntries, X10BundleUtils.getX10ConstraintsURL());
     }

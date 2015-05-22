@@ -44,6 +44,11 @@ public final class X10BundleUtils {
   public static final String X10_CONSTRAINTS_BUNDLE_ID = "x10.constraints"; //$NON-NLS-1$
   
   /**
+   * X10 Network Bundle unique id.
+   */
+  public static final String X10_NETWORK_BUNDLE_ID = "x10.network"; //$NON-NLS-1$
+
+  /**
    * X10 Dist Host Bundle unique id.
    */
   public static final String X10_DIST_HOST_BUNDLE_ID = "x10.dist.host"; //$NON-NLS-1$
@@ -69,6 +74,17 @@ public final class X10BundleUtils {
   public static URL getX10ConstraintsURL() throws CoreException {
     return getBundleResourceURL(X10_CONSTRAINTS_BUNDLE_ID, OUTPUT_DIR);
   }
+  
+  /**
+   * Returns a Java native URL for the X10 Network bundle location.
+   * 
+   * @return A non-null URL identifying the bundle location.
+   * @throws CoreException Occurs if we could not find the bundle or resolve the URL returned by Equinox.
+   */
+  public static URL getX10NetworkURL() throws CoreException {
+    return getBundleResourceURL(X10_NETWORK_BUNDLE_ID, OUTPUT_DIR);
+  }
+
   
   /**
    * Returns a Java native URL for the resource location present within X10 Dist Host bundle.
