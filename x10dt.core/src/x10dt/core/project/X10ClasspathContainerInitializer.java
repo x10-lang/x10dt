@@ -70,7 +70,7 @@ public final class X10ClasspathContainerInitializer extends ClasspathContainerIn
     } else {
       // We're in "deployed mode", so add the bundles for x10.runtime, x10.network, x10.common and x10.constraints
       addClasspathEntry(cpEntries, x10RuntimeURL);
-      // addClasspathEntry(cpEntries, X10BundleUtils.getX10NetworkURL());
+      addClasspathEntry(cpEntries, X10BundleUtils.getX10NetworkURL());
       addClasspathEntry(cpEntries, X10BundleUtils.getX10CommonURL());
       addClasspathEntry(cpEntries, X10BundleUtils.getX10ConstraintsURL());
     }
