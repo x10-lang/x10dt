@@ -196,10 +196,6 @@
       <param name="link.label" value="All-In-One Linux GTK x86_64 Release ${buildLabel}." />
     </antcall>
     <antcall target="publishLink">
-      <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-${zip.release.tag}-macosx.cocoa.x86.zip" />
-      <param name="link.label" value="All-In-One MacOS Cocoa x86 Release ${buildLabel}." />
-    </antcall>
-    <antcall target="publishLink">
       <param name="link.url" value="${publish.site.url}/${buildLabel}/x10dt-${zip.release.tag}-macosx.cocoa.x86_64.zip" />
       <param name="link.label" value="All-In-One MacOS Cocoa x86_64 Release ${buildLabel}." />
     </antcall>
