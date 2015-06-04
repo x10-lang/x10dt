@@ -2,7 +2,7 @@
 <feature
       id="x10dt.tests.feature"
       label="X10DT Tests Feature"
-      version="2.5.2.qualifier">
+      version="2.5.3.qualifier">
 
    <includes
          id="x10dt.feature"

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10 Refactoring
 Bundle-SymbolicName: x10dt.refactoring;singleton:=true
-Bundle-Version: 2.5.2.qualifier
+Bundle-Version: 2.5.3.qualifier
 Bundle-Activator: x10dt.refactoring.X10DTRefactoringPlugin
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: org.eclipse.core.resources;bundle-version="3.4.2",

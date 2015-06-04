@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Search Core Tests
 Bundle-SymbolicName: x10dt.search.core.tests
-Bundle-Version: 2.5.2.qualifier
+Bundle-Version: 2.5.3.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Vendor: x10-users@lists.sourceforge.net
 Require-Bundle: org.eclipse.core.resources,

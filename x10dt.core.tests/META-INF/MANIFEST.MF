@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: X10DT Core Tests
 Bundle-SymbolicName: x10dt.core.tests
-Bundle-Version: 2.5.2.qualifier
+Bundle-Version: 2.5.3.qualifier
 Require-Bundle: x10.compiler,
  x10.runtime,
  org.junit;bundle-version="4.0.0"
