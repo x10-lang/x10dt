@@ -118,6 +118,24 @@ They are grouped into:</p>
     editor for X10 program development.  Better parsing of incomplete and incorrect
     programs enables more robust editor services while editing X10 source code files. 
     </td>
+    </tr>
+    <tr>
+    <td class="section_item">Content assist for X10 programs</td> 
+    <td class="section_content">
+      X10DT now supports a limited form of content assist (suggestion
+  of methods/fields).  However unlike in the Eclipse JDT, the program 
+  fragment on which content assist is being applied must be recognized 
+  as a statement by the parser (must end in a semicolon). For example,
+  in the fragment
+  <pre>
+    val x = "Hello World";
+    x.;
+    </pre>
+  putting the cursor on the "." in the second line and typing
+  Control-Space will pop-up a window showing the methods defined 
+  on x10.lang.String.
+    </td>
+    
     
     
   </tr>
