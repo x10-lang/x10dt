@@ -115,18 +115,18 @@ They are grouped into:</p>
     <td class="section_content">
     Improvements in the X10 compiler's ability to parse programs with
     syntax errors has significantly improved the usability of the X10DT
-    editor for X10 program development.  Better parsing of incomplete and incorrect
-    programs enables more robust editor services while editing X10 source code files. 
+    editor for X10 program development.  The X10 Editor is now much more resilient to 
+  syntax errors: features such as outline, hyperlink, hover help, 
+  and content-assist continue to work in the face of compilation errors.
     </td>
     </tr>
     <tr>
-    <td class="section_item">Content assist for X10 programs</td> 
+    <td class="section_item">Improved content assist for X10 programs</td> 
     <td class="section_content">
-      X10DT now supports a limited form of content assist (suggestion
-  of methods/fields).  However unlike in the Eclipse JDT, the program 
-  fragment on which content assist is being applied must be recognized 
-  as a statement by the parser (must end in a semicolon). For example,
-  in the fragment
+      The parser changes have greatly improved the usability of 
+      X10DT content assist (suggestion of methods/fields).  However unlike in the Eclipse 
+      Java editor, the program fragment must end in a semicolon for content assist to work. 
+      For example, in the fragment
   <pre>
     val x = "Hello World";
     x.;
