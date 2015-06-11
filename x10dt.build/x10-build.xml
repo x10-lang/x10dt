@@ -154,7 +154,9 @@
     <ant antfile="${x10.build.loc}/x10.compiler/exportPlugin.xml" dir="${x10.build.loc}/x10.compiler" target="build.jars">
       <property name="extra.build.path" value="${x10.compiler.extra.build.path}" />
     </ant>
-    <ant antfile="${x10.build.loc}/x10.network/exportPlugin.xml" dir="${x10.build.loc}/x10.network" target="build.jars" />
+    <ant antfile="${x10.build.loc}/x10.network/exportPlugin.xml" dir="${x10.build.loc}/x10.network" target="build.jars">
+      <property name="lib" value="${x10.build.loc}/x10.dist/lib" />
+    </ant>
     <ant antfile="${x10.build.loc}/x10.runtime/exportPlugin.xml" dir="${x10.build.loc}/x10.runtime" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.wala/exportPlugin.xml" dir="${x10.build.loc}/x10.wala" target="build.jars">
       <property name="extra.build.path" value="${x10.wala.extra.build.path}" />
