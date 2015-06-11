@@ -154,7 +154,6 @@
     <ant antfile="${x10.build.loc}/x10.compiler/exportPlugin.xml" dir="${x10.build.loc}/x10.compiler" target="build.jars">
       <property name="extra.build.path" value="${x10.compiler.extra.build.path}" />
     </ant>
-    <antcall target="prepare.x10.dist" />
     <ant antfile="${x10.build.loc}/x10.network/exportPlugin.xml" dir="${x10.build.loc}/x10.network" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.runtime/exportPlugin.xml" dir="${x10.build.loc}/x10.runtime" target="build.jars" />
     <ant antfile="${x10.build.loc}/x10.wala/exportPlugin.xml" dir="${x10.build.loc}/x10.wala" target="build.jars">
@@ -244,17 +243,6 @@
       <param name="os" value="macosx_x86" />
       <param name="fragment-name" value="x10.dist.macosx.x86.fragment" />
     </antcall>
-  </target>
-
-  <target name="prepare.x10.dist">
-    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="squeakyclean" />
-    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="bin" />
-    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="ecj-jar" />
-    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="lpg-jar" />
-    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="antlr-jar" />
-    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="hazelcast-jar" />
-    <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="compiler-jar" />
-    <ant antfile="${x10.build.loc}/x10.network/build.xml" dir="${x10.build.loc}/x10.dist" target="init" />
   </target>
 
   <target name="transfer-x10-core">
