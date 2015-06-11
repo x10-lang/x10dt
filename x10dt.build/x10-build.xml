@@ -254,6 +254,7 @@
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="antlr-jar" />
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="hazelcast-jar" />
     <ant antfile="${x10.build.loc}/x10.dist/build.xml" dir="${x10.build.loc}/x10.dist" target="compiler-jar" />
+    <ant antfile="${x10.build.loc}/x10.network/build.xml" dir="${x10.build.loc}/x10.dist" target="init" />
   </target>
 
   <target name="transfer-x10-core">
