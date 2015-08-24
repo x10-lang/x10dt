@@ -1,0 +1,250 @@
+
+# /apgas.compiler/
+/apgas.compiler/target
+
+# /apgas.runtime/
+/apgas.runtime/target
+
+# /apgas.site/
+/apgas.site/target
+
+# /apgas.tools/
+/apgas.tools/target
+
+# /apgas.ui/
+/apgas.ui/bin
+/apgas.ui/target
+
+# /x10.dist.host/
+/x10.dist.host/x10.dist.host_*.jar
+/x10.dist.host/x10.dist.host.source_*.jar
+/x10.dist.host/bin
+
+# /x10.dist.linux.x86.fragment/
+/x10.dist.linux.x86.fragment/bin
+
+# /x10.dist.linux.x86.fragment/include/
+/x10.dist.linux.x86.fragment/include/*.h
+/x10.dist.linux.x86.fragment/include/gc
+/x10.dist.linux.x86.fragment/include/x10
+/x10.dist.linux.x86.fragment/include/x10aux
+
+# /x10.dist.linux.x86.fragment/lib/
+/x10.dist.linux.x86.fragment/lib/libx10.mft
+
+# /x10.dist.linux.x86_64.fragment/
+/x10.dist.linux.x86_64.fragment/stdlib
+/x10.dist.linux.x86_64.fragment/samples
+/x10.dist.linux.x86_64.fragment/etc
+/x10.dist.linux.x86_64.fragment/tmp
+/x10.dist.linux.x86_64.fragment/src-x10
+
+# /x10.dist.linux.x86_64.fragment/include/
+/x10.dist.linux.x86_64.fragment/include/*.h
+/x10.dist.linux.x86_64.fragment/include/gc
+/x10.dist.linux.x86_64.fragment/include/x10
+/x10.dist.linux.x86_64.fragment/include/x10aux
+
+# /x10.dist.linux.x86_64.fragment/lib/
+/x10.dist.linux.x86_64.fragment/lib/libx10.mft
+/x10.dist.linux.x86_64.fragment/lib/com.ibm.wala.cast_1.0.0.201101071300.jar
+/x10.dist.linux.x86_64.fragment/lib/com.ibm.wala.cast.java_1.0.0.201101071300.jar
+/x10.dist.linux.x86_64.fragment/lib/com.ibm.wala.core_1.1.3.201101071300.jar
+/x10.dist.linux.x86_64.fragment/lib/com.ibm.wala.shrike_1.3.1.201101071300.jar
+/x10.dist.linux.x86_64.fragment/lib/commons-math-2.2.jar
+/x10.dist.linux.x86_64.fragment/lib/ecj.jar
+/x10.dist.linux.x86_64.fragment/lib/lpg.jar
+/x10.dist.linux.x86_64.fragment/lib/org.eclipse.equinox.common_3.6.0.v20100503.jar
+/x10.dist.linux.x86_64.fragment/lib/x10c.jar
+/x10.dist.linux.x86_64.fragment/lib/x10doc.jar
+/x10.dist.linux.x86_64.fragment/lib/x10wala.jar
+/x10.dist.linux.x86_64.fragment/lib/RunJava.jar
+/x10.dist.linux.x86_64.fragment/lib/commons-math3-3.2.jar
+/x10.dist.linux.x86_64.fragment/lib/commons-logging-1.1.1.jar
+/x10.dist.linux.x86_64.fragment/lib/ecj-*.jar
+/x10.dist.linux.x86_64.fragment/lib/logging.properties
+/x10.dist.linux.x86_64.fragment/lib/commons-logging-*.jar
+/x10.dist.linux.x86_64.fragment/lib/hazelcast-3.2.jar
+/x10.dist.linux.x86_64.fragment/lib/commons-math3-3.3.jar
+/x10.dist.linux.x86_64.fragment/lib/antlr-runtime-4.5.jar
+/x10.dist.linux.x86_64.fragment/lib/commons-math3-3.5.jar
+/x10.dist.linux.x86_64.fragment/lib/hazelcast-3.3.1.jar
+/x10.dist.linux.x86_64.fragment/lib/antlr-runtime_4.5.0.201505151407.jar
+
+# /x10.dist.linux.x86_64.fragment/src/
+/x10.dist.linux.x86_64.fragment/src/runjava
+/x10.dist.linux.x86_64.fragment/src/runx10
+/x10.dist.linux.x86_64.fragment/src/x10c
+/x10.dist.linux.x86_64.fragment/src/x10c++
+/x10.dist.linux.x86_64.fragment/src/x10cj
+/x10.dist.linux.x86_64.fragment/src/X10Launcher
+/x10.dist.linux.x86_64.fragment/src/X10MPIJava
+
+# /x10.dist.macosx.x86.fragment/
+/x10.dist.macosx.x86.fragment/bin
+
+# /x10.dist.macosx.x86.fragment/include/
+/x10.dist.macosx.x86.fragment/include/*.h
+/x10.dist.macosx.x86.fragment/include/gc
+/x10.dist.macosx.x86.fragment/include/x10
+/x10.dist.macosx.x86.fragment/include/x10aux
+
+# /x10.dist.macosx.x86.fragment/lib/
+/x10.dist.macosx.x86.fragment/lib/libx10.mft
+
+# /x10.dist.macosx.x86_64.fragment/
+/x10.dist.macosx.x86_64.fragment/tmp
+/x10.dist.macosx.x86_64.fragment/x10.dist.macosx.x86_64.fragment_*.jar
+/x10.dist.macosx.x86_64.fragment/x10.dist.macosx.x86_64.fragment.source_*.jar
+/x10.dist.macosx.x86_64.fragment/bin
+
+# /x10.dist.macosx.x86_64.fragment/include/
+/x10.dist.macosx.x86_64.fragment/include/*.h
+/x10.dist.macosx.x86_64.fragment/include/gc
+/x10.dist.macosx.x86_64.fragment/include/x10
+/x10.dist.macosx.x86_64.fragment/include/x10aux
+
+# /x10.dist.macosx.x86_64.fragment/lib/
+/x10.dist.macosx.x86_64.fragment/lib/libx10.mft
+
+# /x10.dist.win32.x86.fragment/
+/x10.dist.win32.x86.fragment/tmp
+/x10.dist.win32.x86.fragment/bin
+
+# /x10.dist.win32.x86.fragment/include/
+/x10.dist.win32.x86.fragment/include/*.h
+/x10.dist.win32.x86.fragment/include/*.inc
+/x10.dist.win32.x86.fragment/include/x10
+/x10.dist.win32.x86.fragment/include/x10aux
+/x10.dist.win32.x86.fragment/include/gc
+
+# /x10.dist.win32.x86.fragment/lib/
+/x10.dist.win32.x86.fragment/lib/*.a
+/x10.dist.win32.x86.fragment/lib/libx10.mft
+/x10.dist.win32.x86.fragment/lib/cygcord-1.dll
+/x10.dist.win32.x86.fragment/lib/cyggc-1.dll
+
+# /x10.effects/
+/x10.effects/bin
+/x10.effects/x10.effects*.jar
+
+# /x10.effects.tests/
+/x10.effects.tests/bin
+
+# /x10dt/
+/x10dt/bin
+/x10dt/org.eclipse.imp.x10dt_*.jar
+/x10dt/org.eclipse.imp.x10dt*.jar
+
+# /x10dt.builders.tests/
+/x10dt.builders.tests/bin
+
+# /x10dt.core/
+/x10dt.core/bin
+/x10dt.core/org.eclipse.imp.x10dt.core_*.jar
+/x10dt.core/org.eclipse.imp.x10dt.core*.jar
+
+# /x10dt.core.tests/
+/x10dt.core.tests/report
+/x10dt.core.tests/bin
+/x10dt.core.tests/output
+/x10dt.core.tests/report-*
+/x10dt.core.tests/nohup.out
+
+# /x10dt.core.tests/code/
+/x10dt.core.tests/code/fuzzgen
+
+# /x10dt.core.tests/code/data/
+/x10dt.core.tests/code/data/fuzzgen
+
+# /x10dt.feature/
+/x10dt.feature/plugins
+/x10dt.feature/org.eclipse.safari.x10dt_*.jar
+/x10dt.feature/org.eclipse.imp.x10dt_*.jar
+
+# /x10dt.formatter/
+/x10dt.formatter/org.eclipse.imp.x10dt.formatter_*.jar
+
+# /x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/PatternX10Parserprs.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/PatternX10Parser.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/PatternX10Parsersym.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/Pattern-X10.l
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10Lexer.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10KWLexersym.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10KWLexer.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10Lexerexp.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10KWLexerprs.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10Lexer.l
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10KWLexer.l
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10KWLexer.l
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10Lexerprs.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10Lexersym.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/Pattern-X10Lexer.l
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/x10.l
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/X10Lexer.l
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/PatternX10Lexerprs.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/PatternX10Lexersym.java
+/x10dt.formatter/src/org/eclipse/imp/x10dt/formatter/parser/PatternX10Lexer.java
+
+# /x10dt.formatter/src/x10dt/formatter/parser/ast/
+/x10dt.formatter/src/x10dt/formatter/parser/ast/*.java
+
+# /x10dt.help/
+/x10dt.help/org.eclipse.imp.x10dt.help_*.jar
+/x10dt.help/temp
+/x10dt.help/org.eclipse.imp.x10dt.help*.jar
+/x10dt.help/bin
+
+# /x10dt.refactoring/
+/x10dt.refactoring/org.eclipse.imp.x10dt.refactoring_*.jar
+/x10dt.refactoring/org.eclipse.imp.x10dt.refactoring*.jar
+/x10dt.refactoring/bin
+
+# /x10dt.search.core/
+/x10dt.search.core/bin
+
+# /x10dt.search.core.tests/
+/x10dt.search.core.tests/bin
+
+# /x10dt.search.ui/
+/x10dt.search.ui/bin
+
+# /x10dt.tests.services/
+/x10dt.tests.services/bin
+
+# /x10dt.ui/
+/x10dt.ui/bin
+/x10dt.ui/org.eclipse.imp.x10dt.ui_*.jar
+/x10dt.ui/org.eclipse.imp.x10dt.ui*.jar
+
+# /x10dt.ui.builder.java/
+/x10dt.ui.builder.java/bin
+
+# /x10dt.ui.launch.core/
+/x10dt.ui.launch.core/org.eclipse.imp.x10dt.ui.launch.core*.jar
+/x10dt.ui.launch.core/bin
+
+# /x10dt.ui.launch.cpp/
+/x10dt.ui.launch.cpp/org.eclipse.imp.x10dt.ui.launch.cpp*.jar
+/x10dt.ui.launch.cpp/bin
+
+# /x10dt.ui.launch.cpp.tests/
+/x10dt.ui.launch.cpp.tests/bin
+
+# /x10dt.ui.launch.java/
+/x10dt.ui.launch.java/bin
+
+# /x10dt.update/
+/x10dt.update/update.temp.folder
+/x10dt.update/logs.zip
+/x10dt.update/org.eclipse.safari.update_*.zip
+/x10dt.update/org.eclipse.imp.update_*.zip
+/x10dt.update/org.eclipse.imp.x10dt.update_*.zip
+/x10dt.update/temp
+
+# /x10dt.update/features/
+/x10dt.update/features/*.jar
+
+# /x10dt.update/plugins/
+/x10dt.update/plugins/*.jar
