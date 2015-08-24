@@ -14,10 +14,10 @@ import java.util.Map;
 
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
-import org.eclipse.ptp.remote.core.IRemoteProcessBuilder;
-import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteProcessBuilder;
+import org.eclipse.remote.core.IRemoteServices;
 
 import x10dt.ui.launch.core.utils.IProcessOuputListener;
 import x10dt.ui.launch.cpp.utils.PTPUtils;
@@ -28,7 +28,7 @@ abstract class AbstractTargetOpHelper implements ITargetOpHelper {
   AbstractTargetOpHelper(final IRemoteServices remoteServices, final IRemoteConnection remoteConnection) {
     this.fRemoteServices = remoteServices;
     this.fRemoteConnection = remoteConnection;
-    this.fFileManager = remoteServices.getFileManager(remoteConnection);
+    this.fFileManager = remoteConnection.getFileManager();
   }
   
   // --- Interface methods implementation
@@ -43,7 +43,7 @@ abstract class AbstractTargetOpHelper implements ITargetOpHelper {
   
   public final int run(final List<String> command, final String directory, final Map<String, String> envVariables,
                        final IProcessOuputListener outputListener, IProgressMonitor monitor) throws IOException, InterruptedException {
-    IRemoteProcessBuilder processBuilder = this.fRemoteServices.getProcessBuilder(this.fRemoteConnection, command);
+    IRemoteProcessBuilder processBuilder = this.fRemoteConnection.getProcessBuilder(command);
     if (directory != null) {
       processBuilder = processBuilder.directory(getStore(directory));
     }

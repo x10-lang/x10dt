@@ -7,8 +7,8 @@
  *******************************************************************************/
 package x10dt.ui.launch.cpp.builder.target_op;
 
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteServices;
 
 final class DefaultTargetOpHelper extends AbstractTargetOpHelper implements ITargetOpHelper {
 

@@ -56,11 +56,11 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.osgi.util.NLS;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.RemoteServices;
+import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteConnectionManager;
+import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteServices;
+import org.eclipse.remote.core.RemoteServices;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
 
@@ -426,7 +426,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 			final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
 			final String x10Launcher = this.fLocalConfDelegate.getX10DistHostLauncherDir("bin/X10Launcher").getAbsolutePath(); //$NON-NLS-1$
 			final IRemoteConnection connection = rmConnManager.getConnection(IRemoteConnectionManager.LOCAL_CONNECTION_NAME);
-			final IRemoteFileManager rmFileManager = remoteServices.getFileManager(connection);
+			final IRemoteFileManager rmFileManager = connection.getFileManager();
 			final IFileStore x10LauncherFStore = rmFileManager.getResource(x10Launcher);
 			final IFileInfo x10LauncherFInfo = x10LauncherFStore.fetchInfo();
 			if (!x10LauncherFInfo.getAttribute(EFS.ATTRIBUTE_EXECUTABLE)) {
@@ -438,7 +438,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
 			final IRemoteServices remoteServices = RemoteServices.getRemoteServices(REMOTE_CONN_SERVICE_ID);
 			final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
 			final IRemoteConnection connection = rmConnManager.getConnection(confName);
-			final IRemoteFileManager rmFileManager = remoteServices.getFileManager(connection);
+			final IRemoteFileManager rmFileManager = connection.getFileManager();
 			final IPath x10 = new Path(x10DistFolder).append("bin").append("x10"); //$NON-NLS-1$ //$NON-NLS-2$
 			final IFileStore x10FileStore = rmFileManager.getResource(x10.toString());
 			if (x10FileStore.fetchInfo().exists()) {
@@ -612,7 +612,7 @@ public final class X10LaunchConfigurationDelegate implements ILaunchConfiguratio
     final IRemoteServices remoteServices = RemoteServices.getRemoteServices(REMOTE_CONN_SERVICE_ID);
     final IRemoteConnectionManager rmConnManager = remoteServices.getConnectionManager();
     final IRemoteConnection connection = rmConnManager.getConnection(confName);
-    final IRemoteFileManager rmFileManager = remoteServices.getFileManager(connection);
+    final IRemoteFileManager rmFileManager = connection.getFileManager();
     
     final IPath outputFolderPath = new Path(outputFolder).append(jarPath.lastSegment());
     final IFileStore localJarFS = EFS.getLocalFileSystem().getStore(jarPath);

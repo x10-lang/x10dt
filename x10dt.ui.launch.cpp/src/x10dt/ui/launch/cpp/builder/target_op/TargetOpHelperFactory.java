@@ -11,11 +11,11 @@ import static x10dt.ui.launch.core.utils.PTPConstants.LOCAL_CONN_SERVICE_ID;
 import static x10dt.ui.launch.core.utils.PTPConstants.REMOTE_CONN_SERVICE_ID;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteConnectionManager;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.RemoteServices;
-import org.eclipse.ptp.remote.core.exception.RemoteConnectionException;
+import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteConnectionManager;
+import org.eclipse.remote.core.IRemoteServices;
+import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.core.exception.RemoteConnectionException;
 
 /**
  * Factory method(s) to create implementation(s) of {@link ITargetOpHelper}.

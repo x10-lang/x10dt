@@ -10,10 +10,9 @@ package x10dt.ui.launch.cpp.builder.target_op;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteServices;
+import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteServices;
 
 import x10dt.ui.launch.core.Constants;
 import x10dt.ui.launch.core.utils.IProcessOuputListener;

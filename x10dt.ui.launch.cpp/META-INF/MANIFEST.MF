@@ -15,9 +15,7 @@ Require-Bundle: org.eclipse.core.filesystem,
  org.eclipse.jdt.ui,
  org.eclipse.ptp.core,
  org.eclipse.ptp.launch,
- org.eclipse.ptp.remote.core,
  org.eclipse.ptp.remote.remotetools.core,
- org.eclipse.ptp.remote.ui,
  org.eclipse.ptp.remotetools.environment.core,
  org.eclipse.ui,
  org.eclipse.ui.console,
@@ -27,7 +25,9 @@ Require-Bundle: org.eclipse.core.filesystem,
  x10dt.core,
  x10dt.search.core,
  x10dt.ui,
- x10dt.ui.launch.core
+ x10dt.ui.launch.core,
+ org.eclipse.remote.core,
+ org.eclipse.remote.ui
 Bundle-Activator: x10dt.ui.launch.cpp.CppLaunchCore
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: x10-users@lists.sourceforge.net

@@ -13,15 +13,15 @@ import java.io.InputStreamReader;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.ptp.remote.core.IRemoteConnection;
-import org.eclipse.ptp.remote.core.IRemoteFileManager;
-import org.eclipse.ptp.remote.core.IRemoteProcess;
-import org.eclipse.ptp.remote.core.IRemoteServices;
-import org.eclipse.ptp.remote.core.RemoteServices;
-import org.eclipse.ptp.remote.ui.IRemoteUIConstants;
-import org.eclipse.ptp.remote.ui.IRemoteUIFileManager;
-import org.eclipse.ptp.remote.ui.IRemoteUIServices;
-import org.eclipse.ptp.remote.ui.RemoteUIServices;
+import org.eclipse.remote.core.IRemoteConnection;
+import org.eclipse.remote.core.IRemoteFileManager;
+import org.eclipse.remote.core.IRemoteProcess;
+import org.eclipse.remote.core.IRemoteServices;
+import org.eclipse.remote.core.RemoteServices;
+import org.eclipse.remote.ui.IRemoteUIConstants;
+import org.eclipse.remote.ui.IRemoteUIFileManager;
+import org.eclipse.remote.ui.IRemoteUIServices;
+import org.eclipse.remote.ui.RemoteUIServices;
 import org.eclipse.swt.widgets.Shell;
 
 import x10dt.ui.launch.core.LaunchCore;
