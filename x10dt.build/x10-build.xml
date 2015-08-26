@@ -27,13 +27,13 @@
   <property name="x10.compiler.extra.build.path" value="${toString:lpg.path.ref}:${toString:wala.path.ref}:${toString:antlr.path.ref}" />
   <property name="x10.wala.extra.build.path" value="${toString:wala.path.ref}" />
 
-  <target name="x10-checkouts-existence">
+  <target name="x10-plugins-existence">
     <condition property="are-plugins-present">
       <and>
         <available file="${x10.build.loc}/x10.common"      type="dir" />
         <available file="${x10.build.loc}/x10.compiler"    type="dir" />
         <available file="${x10.build.loc}/x10.constraints" type="dir" />
-        <available file="${x10.build.loc}/x10.dist"         type="dir" />
+        <available file="${x10.build.loc}/x10.dist"        type="dir" />
         <available file="${x10.build.loc}/x10.doc"         type="dir" />
         <available file="${x10.build.loc}/x10.network"     type="dir" />
         <available file="${x10.build.loc}/x10.runtime"     type="dir" />
@@ -45,36 +45,45 @@
     </condition>
   </target>
 
-  <target name="x10-checkouts" depends="x10-checkouts-existence" unless="are-plugins-present">
-    <echo message="Using SVN revision ${x10.revision} and tag ${x10.tag} for X10 core checkouts"/>
-    <svn username="anonymous">
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.common" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.common" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.compiler" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.compiler" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.constraints" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.constraints" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.dist" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.dist" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.doc" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.doc" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.network" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.network" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.runtime" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.runtime" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}/x10.wala" revision="${x10.revision}" 
-                destPath="${x10.build.loc}/x10.wala" />
+  <target name="x10-copy-projects" depends="x10-plugins-existence" unless="are-plugins-present">
+    <echo message="Copying X10 core projects from git repo to build directory"/>
+    <copy todir="${x10.build.loc}/x10.common">
+      <fileset dir="${x10.git.repo}/x10.common" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.compiler">
+      <fileset dir="${x10.git.repo}/x10.compiler" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.constraints">
+      <fileset dir="${x10.git.repo}/x10.constraints" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.dist">
+      <fileset dir="${x10.git.repo}/x10.dist" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.doc">
+      <fileset dir="${x10.git.repo}/x10.doc" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.network">
+      <fileset dir="${x10.git.repo}/x10.network" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.runtime">
+      <fileset dir="${x10.git.repo}/x10.runtime" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.wala">
+      <fileset dir="${x10.git.repo}/x10.wala" />
+    </copy>
 
-      <!-- We get the following X10DT plugin projects here b/c the exportPlugin.xml scripts in
-           the X10 core plugins above depend on buildCommon.xml and buildPluginCommon.xml. -->
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.update" 
-                revision="${x10dt.revision}" destPath="${x10.build.loc}/x10dt.update" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.feature" 
-                revision="${x10dt.revision}" destPath="${x10.build.loc}/x10dt.feature" />
-
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10.dist.host" 
-                revision="${x10dt.revision}" destPath="${x10.build.loc}/x10.dist.host" />
-    </svn>
+    <!-- We get the following X10DT plugin projects here b/c the exportPlugin.xml scripts in
+         the X10 core plugins above depend on buildCommon.xml and buildPluginCommon.xml. -->
+    <echo message="Copying X10DT build support projects from git repo to build directory"/>
+    <copy todir="${x10.build.loc}/x10dt.update">
+      <fileset dir="${x10dt.git.repo}/x10dt.update" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10dt.feature">
+      <fileset dir="${x10dt.git.repo}/x10dt.feature" />
+    </copy>
+    <copy todir="${x10.build.loc}/x10.dist.host">
+      <fileset dir="${x10dt.git.repo}/x10.dist.host" />
+    </copy>
   </target>
 
   <target name="check-build-required">
@@ -205,25 +214,17 @@
     <property name="fragment-dir-name" value="${fragment-name}_${zip.release.tag}.${build.qualifier}" />
     <!-- Add to the fragment directory the necessary bits from the source project.
          This is really just for the bundle fragment's MANIFEST.MF. -->
-    <svn username="anonymous">
-      <export srcUrl="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/${fragment-name}" 
-                revision="${x10dt.revision}" destPath="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
-    </svn>
-
+    <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF" >
+        <fileset dir="${x10dt.git.repo}/${fragment-name}/META-INF" />
+    </copy>
+    <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}/src" >
+        <fileset dir="${x10dt.git.repo}/${fragment-name}/src" />
+    </copy>
+    <copy file="${x10dt.git.repo}/${fragment-name}/build.properties" todir="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
     <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}">
       <fileset dir="/tmp/x10-${zip.release.tag}_${os}"/>
     </copy>
     <delete dir="/tmp/x10-${zip.release.tag}_${os}" />
-    <!-- Remove anything that shouldn't be in the deployed fragment. Mostly this consists
-         of source entities like the .project, .classpath, etc. files that got pulled in
-         by the SVN checkout above. -->
-    <delete includeemptydirs="true">
-      <fileset dir="${transformedRepoLocation}/plugins/${fragment-dir-name}" >
-        <include name=".project" />
-        <include name=".classpath" />
-        <include name=".settings/**" />
-      </fileset>
-    </delete>
     <loadfile srcfile="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF" 
               property="file.replaced">
       <filterchain>
@@ -231,10 +232,6 @@
       </filterchain>
     </loadfile>
     <echo message="${file.replaced}" file="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF/MANIFEST.MF"/>
-  </target>
-
-  <target name="set-dist-file-loc">
-    <property name="dist.file" value="${x10.build.base}/${svn.info.lastRev}/x10-tib_${svn.info.lastRev}_${os}.tgz" />
   </target>
 
   <target name="transfer-all">
@@ -270,21 +267,8 @@
   </target>
 
   <target name="main">
-    <antcall target="x10-checkouts" />
+    <antcall target="x10-copy-projects" />
     <antcall target="build" />
-    <svn>
-      <info target="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}"/>
-    </svn>
-    <fail message="Could not find directory ${x10.build.base}/${svn.info.lastRev}">
-      <condition>
-        <resourcecount when="greater" count="0">
-          <restrict>
-            <exists xmlns="antlib:org.apache.tools.ant.types.resources.selectors" />
-            <fileset dir="${x10.build.base}" includes="${svn.info.lastRev}" />
-          </restrict>
-        </resourcecount>
-      </condition>
-    </fail>
     <antcall target="transfer-x10-core"/>
     <antcall target="transfer-all" />
   </target>

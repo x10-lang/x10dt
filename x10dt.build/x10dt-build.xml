@@ -8,7 +8,7 @@
     <fileset dir="../builds/eclipse/plugins" includes="org.eclipse.equinox.launcher_*.jar" />
   </path>
 	
-  <target name="x10dt-checkouts-existence">
+  <target name="x10dt-plugins-existence">
     <condition property="are-plugins-present">
       <and>
         <available file="${build.folder}/x10dt" type="dir" />
@@ -28,59 +28,56 @@
     </condition>
   </target>
 
-  <target name="x10dt-checkouts" depends="x10dt-checkouts-existence" unless="are-plugins-present">
-    <echo message="Using SVN revision ${x10dt.revision} and tag ${x10dt.tag} for X10DT project checkouts"/>
-    <svn username="anonymous">
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.core" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.core" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.editor.feature" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.editor.feature" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.feature" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.feature" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.help" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.help" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.refactoring" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.refactoring" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.search.core" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.search.core" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.search.ui" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.search.ui" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.core" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.core" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.cpp" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.cpp" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.launch.java" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.launch.java" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10dt.ui.builder.java" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10dt.ui.builder.java" />
-      <checkout url="svn://svn.code.sourceforge.net/p/x10/code/x10dt/${x10dt.tag}/x10.effects" 
-                revision="${x10dt.revision}" destPath="${build.folder}/x10.effects" />
-    </svn>
-    <!-- Substitute the SVN revision of the X10 core projects into an X10DT source file -->
-    <svn>
-      <info target="svn://svn.code.sourceforge.net/p/x10/code/${x10.tag}" propPrefix="x10.svn.info"/>
-    </svn>
-
-    <condition property="x10.revision.used" value="${x10.svn.info.lastRev}">
-      <equals arg1="${x10.revision}" arg2="HEAD"/>
-    </condition>
-
-    <condition property="x10.revision.used" value="${x10.revision.requested}">
-      <not>
-        <equals arg1="${x10.revision}" arg2="HEAD"/>
-      </not>
-    </condition>
+  <target name="x10dt-copy-projects" depends="x10dt-plugins-existence" unless="are-plugins-present">
+    <echo message="Copying X10DT projects from git repo to build directory"/>
+    <copy todir="${build.folder}/x10dt">
+      <fileset dir="${x10dt.git.repo}/x10dt" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.core">
+      <fileset dir="${x10dt.git.repo}/x10dt.core" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.editor.feature">
+      <fileset dir="${x10dt.git.repo}/x10dt.editor.feature" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.feature">
+      <fileset dir="${x10dt.git.repo}/x10dt.feature" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.help">
+      <fileset dir="${x10dt.git.repo}/x10dt.help" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.refactoring">
+      <fileset dir="${x10dt.git.repo}/x10dt.refactoring" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.search.core">
+      <fileset dir="${x10dt.git.repo}/x10dt.search.core" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.search.ui">
+      <fileset dir="${x10dt.git.repo}/x10dt.search.ui" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.ui">
+      <fileset dir="${x10dt.git.repo}/x10dt.ui" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.ui.launch.core">
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.launch.core" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.ui.launch.cpp">
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.launch.cpp" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.ui.launch.java">
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.launch.java" />
+    </copy>
+    <copy todir="${build.folder}/x10dt.ui.builder.java">
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.builder.java" />
+    </copy>
+    <copy todir="${build.folder}/x10.effects">
+      <fileset dir="${x10dt.git.repo}/x10.effects" />
+    </copy>
 
     <property name="x10dt.core.activator.file"
               value="${build.folder}/x10dt.core/src/x10dt/core/X10DTCorePlugin.java"/>
     <loadfile srcfile="${x10dt.core.activator.file}"
               property="x10dt.core.plugin.source.replaced">
       <filterchain>
-        <replaceregex pattern="&quot;%%x10.core.revision%%&quot;" replace="&quot;${x10.revision.used}&quot;" />
         <replaceregex pattern="&quot;%%x10.core.tag%%&quot;" replace="&quot;${x10.tag}&quot;" />
       </filterchain>
     </loadfile>
@@ -141,7 +138,7 @@
          basedir="${publish.site.loc}" includes="artifacts.*,content.*,plugins/**,features/**,binary/**" />
   </target>
 
-  <target name="main" depends="x10dt-checkouts">
+  <target name="main" depends="x10dt-copy-projects">
     <loadfile srcfile="${build.folder}/x10dt/plugin.properties" property="properties.replaced">
       <filterchain>
         <replaceregex pattern="Version: (.*)" replace="Version: ${zip.release.tag}\\\\n\\\\" />
