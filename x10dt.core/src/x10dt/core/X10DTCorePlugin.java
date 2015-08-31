@@ -156,7 +156,6 @@ public class X10DTCorePlugin extends PluginBase {
       // substitution with the real tag/revision values. See the target x10dt-checkouts
       // in the Ant build file x10dt.build/x10dt-build.xml.
       System.setProperty("x10.core.tag", "%%x10.core.tag%%");
-      System.setProperty("x10.core.revision", "%%x10.core.revision%%");
     }
 
     /**
