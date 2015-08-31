@@ -46,43 +46,43 @@
   </target>
 
   <target name="x10-copy-projects" depends="x10-plugins-existence" unless="are-plugins-present">
-    <echo message="Copying X10 core projects from git repo to build directory"/>
+    <echo message="Copying X10 core projects from checkout to build directory"/>
     <copy todir="${x10.build.loc}/x10.common">
-      <fileset dir="${x10.git.repo}/x10.common" />
+      <fileset dir="${x10.checkout}/x10.common" />
     </copy>
     <copy todir="${x10.build.loc}/x10.compiler">
-      <fileset dir="${x10.git.repo}/x10.compiler" />
+      <fileset dir="${x10.checkout}/x10.compiler" />
     </copy>
     <copy todir="${x10.build.loc}/x10.constraints">
-      <fileset dir="${x10.git.repo}/x10.constraints" />
+      <fileset dir="${x10.checkout}/x10.constraints" />
     </copy>
     <copy todir="${x10.build.loc}/x10.dist">
-      <fileset dir="${x10.git.repo}/x10.dist" />
+      <fileset dir="${x10.checkout}/x10.dist" />
     </copy>
     <copy todir="${x10.build.loc}/x10.doc">
-      <fileset dir="${x10.git.repo}/x10.doc" />
+      <fileset dir="${x10.checkout}/x10.doc" />
     </copy>
     <copy todir="${x10.build.loc}/x10.network">
-      <fileset dir="${x10.git.repo}/x10.network" />
+      <fileset dir="${x10.checkout}/x10.network" />
     </copy>
     <copy todir="${x10.build.loc}/x10.runtime">
-      <fileset dir="${x10.git.repo}/x10.runtime" />
+      <fileset dir="${x10.checkout}/x10.runtime" />
     </copy>
     <copy todir="${x10.build.loc}/x10.wala">
-      <fileset dir="${x10.git.repo}/x10.wala" />
+      <fileset dir="${x10.checkout}/x10.wala" />
     </copy>
 
     <!-- We get the following X10DT plugin projects here b/c the exportPlugin.xml scripts in
          the X10 core plugins above depend on buildCommon.xml and buildPluginCommon.xml. -->
-    <echo message="Copying X10DT build support projects from git repo to build directory"/>
+    <echo message="Copying X10DT build support projects from checkout to build directory"/>
     <copy todir="${x10.build.loc}/x10dt.update">
-      <fileset dir="${x10dt.git.repo}/x10dt.update" />
+      <fileset dir="${x10dt.checkout}/x10dt.update" />
     </copy>
     <copy todir="${x10.build.loc}/x10dt.feature">
-      <fileset dir="${x10dt.git.repo}/x10dt.feature" />
+      <fileset dir="${x10dt.checkout}/x10dt.feature" />
     </copy>
     <copy todir="${x10.build.loc}/x10.dist.host">
-      <fileset dir="${x10dt.git.repo}/x10.dist.host" />
+      <fileset dir="${x10dt.checkout}/x10.dist.host" />
     </copy>
   </target>
 
@@ -215,12 +215,12 @@
     <!-- Add to the fragment directory the necessary bits from the source project.
          This is really just for the bundle fragment's MANIFEST.MF. -->
     <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}/META-INF" >
-        <fileset dir="${x10dt.git.repo}/${fragment-name}/META-INF" />
+        <fileset dir="${x10dt.checkout}/${fragment-name}/META-INF" />
     </copy>
     <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}/src" >
-        <fileset dir="${x10dt.git.repo}/${fragment-name}/src" />
+        <fileset dir="${x10dt.checkout}/${fragment-name}/src" />
     </copy>
-    <copy file="${x10dt.git.repo}/${fragment-name}/build.properties" todir="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
+    <copy file="${x10dt.checkout}/${fragment-name}/build.properties" todir="${transformedRepoLocation}/plugins/${fragment-dir-name}" />
     <copy todir="${transformedRepoLocation}/plugins/${fragment-dir-name}">
       <fileset dir="/tmp/x10-${zip.release.tag}_${os}"/>
     </copy>
