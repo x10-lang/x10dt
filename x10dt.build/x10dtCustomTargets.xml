@@ -91,7 +91,6 @@
   <!-- ===================================================================== -->
   <target name="preProcessRepos">
     <p2.mirror destination="file:${repoBaseLocation}/mirror">
-      <source file="${cdt.update.loc}"/>
       <source file="${ptp.update.loc}"/>
       <source file="${imp.update.loc}"/>
       <source>
@@ -101,9 +100,9 @@
         <repository location="${antlr.update.loc}" />
       </source>
 
-      <iu id="org.eclipse.cdt.feature.group" />
-
-      <iu id="org.eclipse.ptp.feature.group" />
+      <iu id="org.eclipse.ptp.core.feature.group" />
+      <iu id="org.eclipse.ptp.remote.feature.group" />
+      <iu id="org.eclipse.ptp.remote.remotetools.feature.group" />
 
       <iu id="org.eclipse.remote.feature.group" />
     	
