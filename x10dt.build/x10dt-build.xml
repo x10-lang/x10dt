@@ -29,48 +29,48 @@
   </target>
 
   <target name="x10dt-copy-projects" depends="x10dt-plugins-existence" unless="are-plugins-present">
-    <echo message="Copying X10DT projects from checkout to build directory"/>
+    <echo message="Copying X10DT projects from git repo to build directory"/>
     <copy todir="${build.folder}/x10dt">
-      <fileset dir="${x10dt.checkout}/x10dt" />
+      <fileset dir="${x10dt.git.repo}/x10dt" />
     </copy>
     <copy todir="${build.folder}/x10dt.core">
-      <fileset dir="${x10dt.checkout}/x10dt.core" />
+      <fileset dir="${x10dt.git.repo}/x10dt.core" />
     </copy>
     <copy todir="${build.folder}/x10dt.editor.feature">
-      <fileset dir="${x10dt.checkout}/x10dt.editor.feature" />
+      <fileset dir="${x10dt.git.repo}/x10dt.editor.feature" />
     </copy>
     <copy todir="${build.folder}/x10dt.feature">
-      <fileset dir="${x10dt.checkout}/x10dt.feature" />
+      <fileset dir="${x10dt.git.repo}/x10dt.feature" />
     </copy>
     <copy todir="${build.folder}/x10dt.help">
-      <fileset dir="${x10dt.checkout}/x10dt.help" />
+      <fileset dir="${x10dt.git.repo}/x10dt.help" />
     </copy>
     <copy todir="${build.folder}/x10dt.refactoring">
-      <fileset dir="${x10dt.checkout}/x10dt.refactoring" />
+      <fileset dir="${x10dt.git.repo}/x10dt.refactoring" />
     </copy>
     <copy todir="${build.folder}/x10dt.search.core">
-      <fileset dir="${x10dt.checkout}/x10dt.search.core" />
+      <fileset dir="${x10dt.git.repo}/x10dt.search.core" />
     </copy>
     <copy todir="${build.folder}/x10dt.search.ui">
-      <fileset dir="${x10dt.checkout}/x10dt.search.ui" />
+      <fileset dir="${x10dt.git.repo}/x10dt.search.ui" />
     </copy>
     <copy todir="${build.folder}/x10dt.ui">
-      <fileset dir="${x10dt.checkout}/x10dt.ui" />
+      <fileset dir="${x10dt.git.repo}/x10dt.ui" />
     </copy>
     <copy todir="${build.folder}/x10dt.ui.launch.core">
-      <fileset dir="${x10dt.checkout}/x10dt.ui.launch.core" />
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.launch.core" />
     </copy>
     <copy todir="${build.folder}/x10dt.ui.launch.cpp">
-      <fileset dir="${x10dt.checkout}/x10dt.ui.launch.cpp" />
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.launch.cpp" />
     </copy>
     <copy todir="${build.folder}/x10dt.ui.launch.java">
-      <fileset dir="${x10dt.checkout}/x10dt.ui.launch.java" />
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.launch.java" />
     </copy>
     <copy todir="${build.folder}/x10dt.ui.builder.java">
-      <fileset dir="${x10dt.checkout}/x10dt.ui.builder.java" />
+      <fileset dir="${x10dt.git.repo}/x10dt.ui.builder.java" />
     </copy>
     <copy todir="${build.folder}/x10.effects">
-      <fileset dir="${x10dt.checkout}/x10.effects" />
+      <fileset dir="${x10dt.git.repo}/x10.effects" />
     </copy>
 
     <property name="x10dt.core.activator.file"
