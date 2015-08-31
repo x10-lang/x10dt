@@ -101,6 +101,7 @@
       </source>
 
       <iu id="org.eclipse.ptp.feature.group" />
+      <iu id="org.eclipse.remote.feature.group" />
     	
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
