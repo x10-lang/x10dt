@@ -234,6 +234,7 @@
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote.remotetools*.jar"/>
         	<fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote.rse*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.remote_*.jar"/>
+            <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.remote_*.jar"/>
             
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.rm*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/features/" includes="org.eclipse.ptp.services*.jar"/>
@@ -255,6 +256,7 @@
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remotetools*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.remotetools*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote_*.jar"/>
+            <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.remote_*.jar"/>
         	<fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.rse*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.core*.jar"/>
             <fileset dir="${ptp.update.cache.dir}/plugins/" includes="org.eclipse.ptp.remote.ui*.jar"/>

@@ -47,10 +47,6 @@
          version="0.0.0"/>
 
    <includes
-         id="org.eclipse.ptp.remote"
-         version="0.0.0"/>
-
-   <includes
          id="org.eclipse.ptp.remote.remotetools"
          version="0.0.0"/>
 
@@ -88,6 +84,10 @@
 
    <includes
          id="org.eclipse.swtbot.eclipse.test.junit4"
+         version="0.0.0"/>
+
+   <includes
+         id="org.eclipse.remote"
          version="0.0.0"/>
 
    <plugin
