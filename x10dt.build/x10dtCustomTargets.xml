@@ -103,13 +103,13 @@
 
       <iu id="org.eclipse.cdt.feature.group" />
 
-      <iu id="org.eclipse.ptp.core.feature.group" />
+      <iu id="org.eclipse.remote.feature.group" />
+    	
       <iu id="org.eclipse.ptp.remote.feature.group" />
       <iu id="org.eclipse.ptp.remote.remotetools.feature.group" />
       <iu id="org.eclipse.ptp.remotetools.feature.group" />
+      <iu id="org.eclipse.ptp.core.feature.group" />
 
-      <iu id="org.eclipse.remote.feature.group" />
-    	
       <iu id="org.eclipse.imp.runtime.feature.group" />
       <iu id="org.eclipse.imp.java.hosted.feature.group" />
       <iu id="org.eclipse.imp.analysis.feature.group" />
