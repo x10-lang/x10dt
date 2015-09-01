@@ -103,7 +103,7 @@
 
       <iu id="org.eclipse.cdt.feature.group" />
 
-      <iu id="org.eclipse.ptp.feature.group" />
+      <iu id="org.eclipse.ptp.core.feature.group" />
 
       <iu id="org.eclipse.remote.feature.group" />
     	
