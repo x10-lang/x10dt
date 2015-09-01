@@ -105,6 +105,7 @@
 
       <iu id="org.eclipse.ptp.core.feature.group" />
       <iu id="org.eclipse.ptp.remotetools.feature.group" />
+      <iu id="org.eclipse.ptp.remote.remotetools.feature.group" />
 
       <iu id="org.eclipse.remote.feature.group" />
     	
