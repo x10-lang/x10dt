@@ -53,11 +53,6 @@
          id="org.eclipse.ptp.remote"
          version="0.0.0"/>
 
-   <includes
-         id="org.eclipse.egit"
-         version="0.0.0"
-         optional="true"/>
-
    <plugin
          id="x10dt.ui.launch.cpp"
          download-size="0"
