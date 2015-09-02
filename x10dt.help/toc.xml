@@ -66,11 +66,11 @@
 </topic> 
 
 
-<topic label="A Brief Introduction to X10" href="html/x10Overview/node1.html">
-	<topic label="X10 basics" href="html/x10Overview/node2.html"/>
-	<topic label="The APGAS model" href="html/x10Overview/node3.html"/>
-	<topic label="The X10 Performance Model" href="html/x10Overview/node4.html"/>
-	<topic label="References" href="html/x10Overview/node5.html"/>
+<topic label="A Brief Introduction to X10" href="html/x10Overview/node2.html">
+	<topic label="X10 basics" href="html/x10Overview/node3.html"/>
+	<topic label="The APGAS model" href="html/x10Overview/node4.html"/>
+	<topic label="The X10 Performance Model" href="html/x10Overview/node5.html"/>
+	<topic label="References" href="html/x10Overview/node6.html"/>
 
 </topic> 
 
