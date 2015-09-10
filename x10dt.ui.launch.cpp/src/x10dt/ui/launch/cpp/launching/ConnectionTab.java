@@ -93,10 +93,10 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   public static final String SOCKETS = "Sockets";
   
   public static final String PAMI = "PAMI";
+    
+  public static final int SOCKETS_INDEX = 0;
   
-  public static final int STANDALONE_INDEX = 0;
-  
-  public static final int SOCKETS_INDEX = 1;
+  public static final int STANDALONE_INDEX = 1;
   
   public static final int PAMI_INDEX = 2;
   
@@ -189,7 +189,7 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
     try {
       String cit = configuration.getAttribute(ATTR_CITYPE, Constants.EMPTY_STR);
       if (cit == null){
-        this.fCITypeCombo.select(STANDALONE_INDEX);
+        this.fCITypeCombo.select(SOCKETS_INDEX);
       } else {
         this.fCITypeCombo.select(getIndexForCIT(cit));
       }
@@ -495,10 +495,10 @@ implements ILaunchConfigurationTab, ILaunchConfigurationListener {
   
   
   private void initTypeCombo() {
-    this.fCITypeCombo.add(STANDALONE);
     this.fCITypeCombo.add(SOCKETS);
+    this.fCITypeCombo.add(STANDALONE);
     this.fCITypeCombo.add(PAMI);
-    this.fCITypeCombo.select(STANDALONE_INDEX);
+    this.fCITypeCombo.select(SOCKETS_INDEX);
   }
   
   public static Combo createLabelAndCombo(final Composite parent, final String labelText) {

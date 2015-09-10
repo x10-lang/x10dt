@@ -24,7 +24,7 @@ import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_TIMEOUT;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_USERNAME;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.ATTR_X10_DISTRIBUTION;
 import static x10dt.ui.launch.cpp.launching.ConnectionTab.IS_VALID;
-import static x10dt.ui.launch.cpp.launching.ConnectionTab.STANDALONE;
+import static x10dt.ui.launch.cpp.launching.ConnectionTab.SOCKETS;
 import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_HOSTFILE;
 import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_HOSTLIST;
 import static x10dt.ui.launch.cpp.launching.LaunchConfigConstants.ATTR_LOADLEVELER_SCRIPT;
@@ -100,12 +100,12 @@ public class ConfUtils {
    
     public static String getServiceTypeId(ILaunchConfiguration compilationConf){
       try {
-        if (compilationConf == null) return STANDALONE;
-        return compilationConf.getAttribute(ATTR_CITYPE, STANDALONE);
+        if (compilationConf == null) return SOCKETS;
+        return compilationConf.getAttribute(ATTR_CITYPE, SOCKETS);
       } catch(CoreException e){
         CppLaunchCore.log(IStatus.ERROR, LaunchMessages.PCU_GetConf, e);
       }
-      return STANDALONE;
+      return SOCKETS;
     }
     
     
