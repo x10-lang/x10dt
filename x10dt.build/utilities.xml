@@ -10,7 +10,7 @@
   </taskdef>
 
   <target name="jazz-setup" if="requestUUID">
-    <property name="build.toolkit.location" value="/home/x10dt/BuildToolkit_3011/jazz/buildsystem/buildtoolkit" />
+    <property name="build.toolkit.location" value="/gsa/yktgsa/project/x10dt-build/BuildToolkit_3011/jazz/buildsystem/buildtoolkit" />
     <path id="build.toolkit.classpath">
       <fileset dir="${build.toolkit.location}" includes="*.jar" />
     </path>
