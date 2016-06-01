@@ -73,16 +73,30 @@ They are grouped into:</p>
   </tr>
 
     <tr> 
-    <td class="section_item">Syntax Changes</td> 
+    <td class="section_item">Enhanced DSL support</td>
     <td class="section_content">
-      Write me!
+The X10 language now includes an overloading mechanism for redefining
+or extending the behavior of control structures.  For more details,
+refer to the language manual section on user-defined control
+structures or the X10'16 paper "Control Structure Overloading in X10."
     </td>
     </tr>
 
-    <tr> 
-    <td class="section_item">Enhanced DSL support</td> 
+    <tr>
+    <td class="section_item">Trailing Closures</td>
     <td class="section_content">
-      Write me!
+The X10 language now supports trailing closures. A trailing closure is
+a closure block that is written and after the parentheses of a
+function call. This closure block is passed as a closure without
+argument to the function.
+    </td>
+    </tr>
+
+    <tr>
+    <td class="section_item">Syntax Changes</td>
+    <td class="section_content">
+To resolve parsing ambiguities, the property keyword is now mandatory
+to introduce property methods.
     </td>
     </tr>
 
