@@ -101,6 +101,24 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         return getHelpURL(LANG_REF_PREFIX + section);
     }
 
+	private List<String> keywords = new ArrayList<String>();
+	{
+		keywords.add("for");
+		keywords.add("if");
+		keywords.add("try");
+		keywords.add("throw");
+		keywords.add("async");
+		keywords.add("atomic");
+		keywords.add("when");
+		keywords.add("finish");
+		keywords.add("at");
+		keywords.add("continue");
+		keywords.add("break");
+		keywords.add("ateach");
+		keywords.add("while");
+		keywords.add("do");
+	};
+
 	private boolean emptyPrefixTest(boolean emptyPrefixMatches, String prefix){
 		if (!emptyPrefixMatches)
 			return !prefix.equals("");
@@ -205,10 +223,19 @@ public class X10ContentProposer implements IContentProposer, X10Parsersym {
         }
 
         for(MethodInstance method : methods) {
-        	if (!method.signature().contains("$$")){
-        		list.add(new SourceProposal(removeTypeFromSignature(method.signature()), prefix, offset));
+        	String signature = method.signature();
+        	if (!signature.contains("$$")) {
+        		String methodName = signature.substring(0, signature.indexOf('('));
+        		if (keywords.contains(methodName)) {
+        			String proposal = "operator " + removeTypeFromSignature(signature);
+        			list.add(new SourceProposal(proposal, prefix + proposal, prefix,
+        					new Region(offset - prefix.length(), prefix.length()),
+        					offset + "operator".length() + methodName.length() + 2 - prefix.length()));
+        		} else {
+        			list.add(new SourceProposal(removeTypeFromSignature(signature), prefix, offset));
+        		}
         	}
-        }
+		}
 
         for(ClassType type : classes) {
             if (!type.isAnonymous())
