@@ -117,7 +117,6 @@
       <plugin id="x10dt.ui.launch.java" version="0.0.0"/>
       <plugin id="x10dt.ui.builder.java" version="0.0.0"/>
       <plugin id="x10.dist.host" version="0.0.0"/>
-      <plugin id="x10.dist.linux.x86.fragment" version="0.0.0"/>
       <plugin id="x10.dist.linux.x86_64.fragment" version="0.0.0"/>
       <plugin id="x10.dist.macosx.x86.fragment" version="0.0.0"/>
       <plugin id="x10.dist.win32.x86.fragment" version="0.0.0"/>
